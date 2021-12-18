@@ -329,7 +329,7 @@ To use the replay analyzer, you need a replay file (`.odr`).
 
 ### Using replay analyzer with osu!droid API key
 
-If you have an osu!droid API key, you can get a score's replay:
+If you have an osu!droid API key, you can get a score's replay from a beatmap:
 
 ```js
 import { DroidStarRating, MapInfo, MapStats, Score } from "osu-droid";
@@ -344,6 +344,10 @@ const score = await Score.getFromHash({
     uid: 51076,
     hash: beatmapInfo.hash,
 });
+
+if (!score.title) {
+    return console.log("Score not found");
+}
 
 await score.downloadReplay();
 
