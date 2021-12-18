@@ -63,9 +63,9 @@ While the beatmap parser provides ways to obtain a `Beatmap` instance with and w
     -   [General usage](#general-performance-calculator-usage)
     -   [Specifying parameters](#specifying-performance-calculation-parameters)
 -   [osu!droid replay analyzer](#osudroid-replay-analyzer)
-    -   [Using replay analyzer with osu!droid API key](#using-replay-analyzer-with-osudroid-api-key)
-    -   [Using replay analyzer with a score ID](#using-replay-analyzer-with-a-score-id)
-    -   [Using replay analyzer with a local replay file](#using-replay-analyzer-with-a-local-replay-file)
+    -   [Usage with osu!droid API key](#using-replay-analyzer-with-osudroid-api-key)
+    -   [Usage with a score ID](#using-replay-analyzer-with-a-score-id)
+    -   [Usage with a local replay file](#using-replay-analyzer-with-a-local-replay-file)
 
 ## Beatmap Parser
 
