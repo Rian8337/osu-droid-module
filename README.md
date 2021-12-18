@@ -74,6 +74,7 @@ While the beatmap parser provides ways to obtain a `Beatmap` instance with and w
 ```js
 import { MapInfo } from "osu-droid";
 
+// MD5 hash is also supported
 const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
 
 if (!beatmapInfo.title) {
