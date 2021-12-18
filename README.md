@@ -50,13 +50,13 @@ The beatmap parser is the most important part of the module as it is required to
 While the beatmap parser provides ways to obtain a `Beatmap` instance with and without osu! API, every examples after the beatmap parser will obtain the `Beatmap` instance using osu! API.
 
 -   [Beatmap Parser](#beatmap-parser)
-    -   [Usage with osu! API](#parsing-with-osu!-api)
-    -   [Usage without osu! API](#parsing-without-osu!-api)
--   [osu! difficulty calculator](#osu!-difficulty-calculator)
+    -   [Usage with osu! API](#parsing-with-osu-api)
+    -   [Usage without osu! API](#parsing-without-osu-api)
+-   [osu! difficulty calculator](#osu-difficulty-calculator)
     -   [General usage](#general-difficulty-calculator-usage)
     -   [Specifying parameters](#specifying-difficulty-calculation-parameters)
     -   [Generating a strain graph](#generating-a-strain-graph)
--   [osu! performance calculator](#osu!-performance-calculator)
+-   [osu! performance calculator](#osu-performance-calculator)
     -   [General usage](#general-performance-calculator-usage)
     -   [Specifying parameters](#specifying-performance-calculation-parameters)
 -   [Three finger/two hand detection](#three-finger/two-hand-detection)
@@ -321,7 +321,7 @@ console.log(performance);
 
 This feature requires a couple of items:
 
--   A calculated beatmap for osu!droid gamemode. The example provided uses osu! API for doing so. See [this](#osu!-difficulty-calculator) section for obtaining one (with and without osu! API).
+-   A calculated beatmap for osu!droid gamemode. The example provided uses osu! API for doing so. See [this](#osu-difficulty-calculator) section for obtaining one (with and without osu! API).
 -   An osu!droid replay file (`.odr`)
 
 ### Obtaining a replay file
