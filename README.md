@@ -17,6 +17,8 @@ This module is published for my own convenience so that I can use it across mult
         -   Uses cursor movement and beatmap difficulty data to detect.
         -   Two hand detection is not practical as it's still a WIP.
 
+An error margin should be expected from difficulty and performance calculator due to differences between C# (the language that osu!lazer uses) and TypeScript.
+
 All features that the module offers are interchangeable with two gamemodes where they are applicable (such as difficulty and performance calculator):
 
 -   osu!droid
