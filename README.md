@@ -11,8 +11,11 @@ This module is published for my own convenience so that I can use it across mult
 -   osu! difficulty calculator
     -   This includes a strain graph generator.
 -   osu! performance calculator
--   Three finger/two hand detection
-    -   Not that practical as it requires multiple things. More details in examples.
+-   osu!droid replay analyzer
+    -   Allows parsing osu!droid replay files (`.odr`) to get replay information.
+    -   Three finger/two hand detection
+        -   Uses cursor movement and beatmap difficulty data to detect.
+        -   Two hand detection is not practical as it's still a WIP.
 
 You should not expect osu! difficulty and performance calculator to be on par with osu!web or other calculators. This is because I tend to update them every time a new difficulty change in osu!lazer is approved. Additionally, an error margin should be expected due to differences between C# (the language that osu!lazer uses) and TypeScript.
 
@@ -59,7 +62,10 @@ While the beatmap parser provides ways to obtain a `Beatmap` instance with and w
 -   [osu! performance calculator](#osu-performance-calculator)
     -   [General usage](#general-performance-calculator-usage)
     -   [Specifying parameters](#specifying-performance-calculation-parameters)
--   [Three finger/two hand detection](#three-finger/two-hand-detection)
+-   [osu!droid replay analyzer](#osudroid-replay-analyzer)
+    -   [Using replay analyzer with osu!droid API key](#using-replay-analyzer-with-osudroid-api-key)
+    -   [Using replay analyzer with a score ID](#using-replay-analyzer-with-a-score-id)
+    -   [Using replay analyzer with a local replay file](#using-replay-analyzer-with-a-local-replay-file)
 
 ## Beatmap Parser
 
@@ -108,7 +114,7 @@ import { Utils } from "osu-droid";
 const anotherBeatmap = Utils.deepCopy(beatmap);
 ```
 
-The `MapStars` class does this internally and thus manual cloning is not required.
+The `MapInfo` and `MapStars` class do this internally and thus manual cloning is not required.
 
 ### General difficulty calculator usage
 
@@ -308,7 +314,7 @@ const performance = new OsuPerformanceCalculator().calculate({
     stars: rating.osu,
     combo: 1250,
     accPercent: accuracy,
-    // The tap penalty can be properly obtained by checking a replay for three-finger usage
+    // The tap penalty can be properly obtained by checking a replay for three finger usage
     // However, a custom value can also be provided
     tapPenalty: 1.5,
     stats: stats,
@@ -317,99 +323,33 @@ const performance = new OsuPerformanceCalculator().calculate({
 console.log(performance);
 ```
 
-## Three finger/two hand detection
+## osu!droid replay analyzer
 
-This feature requires a couple of items:
+To use the replay analyzer, you need a replay file (`.odr`).
 
--   A calculated beatmap for osu!droid gamemode. The example provided uses osu! API for doing so. See [this](#osu-difficulty-calculator) section for obtaining one (with and without osu! API).
--   An osu!droid replay file (`.odr`)
+### Using replay analyzer with osu!droid API key
 
-### Obtaining a replay file
-
-The first step is to obtain a `ReplayAnalyzer` instance, which requires a replay file.
-
-There are many ways to obtain a replay file:
-
--   If you have an osu!droid API key, you can get a score's replay:
-
-    ```js
-    import { DroidStarRating, MapInfo, MapStats, Score } from "osu-droid";
-
-    const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
-
-    if (!beatmapInfo.title) {
-        return console.log("Beatmap not found");
-    }
-
-    const score = await Score.getFromHash({
-        uid: 51076,
-        hash: beatmapInfo.hash,
-    });
-
-    await score.downloadReplay();
-
-    // A `ReplayAnalyzer` instance
-    const { replay } = score;
-    ```
-
--   If you know a score's ID, you can use it to directly retrieve a replay:
-
-    ```js
-    import {
-        DroidStarRating,
-        MapInfo,
-        MapStats,
-        ReplayAnalyzer,
-    } from "osu-droid";
-
-    const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
-
-    if (!beatmapInfo.title) {
-        return console.log("Beatmap not found");
-    }
-
-    const replay = await new ReplayAnalyzer({ scoreID: 12783625 });
-    ```
-
--   You can also obtain one from your local machine:
-
-    ```js
-    import { readFile } from "fs";
-    import {
-        DroidStarRating,
-        MapInfo,
-        MapStats,
-        ReplayAnalyzer,
-    } from "osu-droid";
-
-    readFile("path/to/file.odr", async (err, replayFile) => {
-        if (err) throw err;
-
-        const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
-
-        if (!beatmapInfo.title) {
-            return console.log("Beatmap not found");
-        }
-
-        const replay = new ReplayAnalyzer({ scoreID: 0 });
-
-        replay.originalODR = replayFile;
-    });
-    ```
-
-### Analyzing the replay
-
-The second step is to analyze the replay:
+If you have an osu!droid API key, you can get a score's replay:
 
 ```js
-replay.map = new DroidStarRating().calculate({
-    map: beatmapInfo.map,
-    mods: score.mods,
-    stats: stats,
+import { DroidStarRating, MapInfo, MapStats, Score } from "osu-droid";
+
+const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+
+if (!beatmapInfo.title) {
+    return console.log("Beatmap not found");
+}
+
+const score = await Score.getFromHash({
+    uid: 51076,
+    hash: beatmapInfo.hash,
 });
 
-await replay.analyze();
+await score.downloadReplay();
 
+// A `ReplayAnalyzer` instance that contains the replay
+const { replay } = score;
+// The data of the replay
 const { data } = replay;
 
 if (!data) {
@@ -422,12 +362,119 @@ const stats = new MapStats({
     isForceAR: !isNaN(data.forcedAR),
     // In droid version 1.6.7 and below, there exists a bug where NC is slower than DT in a few beatmaps
     // This option checks for said condition
-    oldStatistics: (data.replayVersion ?? 4) <= 3,
+    oldStatistics: data.replayVersion <= 3,
 });
+
+replay.map = new DroidStarRating().calculate({
+    map: beatmapInfo.map,
+    mods: data.convertedMods,
+    stats: stats,
+});
+
+// More data can be obtained after specifying beatmap. We can call this method again to do so
+await replay.analyze();
 
 // Check for three-finger usage
 replay.checkFor3Finger();
 
 // Check for two-hand usage
 replay.checkFor2Hand();
+```
+
+### Using replay analyzer with a score ID
+
+If you know a score's ID, you can use it to directly retrieve a replay:
+
+```js
+import { DroidStarRating, MapInfo, MapStats, ReplayAnalyzer } from "osu-droid";
+
+const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+
+if (!beatmapInfo.title) {
+    return console.log("Beatmap not found");
+}
+
+// A `ReplayAnalyzer` instance that contains the replay
+const replay = await new ReplayAnalyzer({ scoreID: 12948732 }).analyze();
+// The data of the replay
+const { data } = replay;
+
+if (!data) {
+    return console.log("Replay not found");
+}
+
+const stats = new MapStats({
+    ar: data.forcedAR,
+    speedMultiplier: data.speedModification,
+    isForceAR: !isNaN(data.forcedAR),
+    // In droid version 1.6.7 and below, there exists a bug where NC is slower than DT in a few beatmaps
+    // This option checks for said condition
+    oldStatistics: data.replayVersion <= 3,
+});
+
+replay.map = new DroidStarRating().calculate({
+    map: beatmapInfo.map,
+    mods: data.convertedMods,
+    stats: stats,
+});
+
+// More data can be obtained after specifying beatmap. We can call this method again to do so
+await replay.analyze();
+
+// Check for three-finger usage
+replay.checkFor3Finger();
+
+// Check for two-hand usage
+replay.checkFor2Hand();
+```
+
+### Using replay analyzer with a local replay file
+
+```js
+import { readFile } from "fs";
+import { DroidStarRating, MapInfo, MapStats, ReplayAnalyzer } from "osu-droid";
+
+readFile("path/to/file.odr", async (err, replayData) => {
+    if (err) throw err;
+
+    const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+
+    if (!beatmapInfo.title) {
+        return console.log("Beatmap not found");
+    }
+
+    // A `ReplayAnalyzer` instance that contains the replay
+    const replay = new ReplayAnalyzer({ scoreID: 0 });
+
+    replay.originalODR = replayData;
+
+    await replay.analyze();
+
+    // The data of the replay
+    const { data } = replay;
+
+    const stats = new MapStats({
+        ar: data.forcedAR,
+        speedMultiplier: data.speedModification,
+        isForceAR: !isNaN(data.forcedAR),
+        // In droid version 1.6.7 and below, there exists a bug where NC is slower than DT in a few beatmaps
+        // This option checks for said condition
+        oldStatistics: data.replayVersion <= 3,
+    });
+
+    replay.map = new DroidStarRating().calculate({
+        map: beatmapInfo.map,
+        mods: data.convertedMods,
+        stats: stats,
+    });
+
+    // More data can be obtained after specifying beatmap. We can call this method again to do so
+    await replay.analyze();
+
+    // Check for three-finger usage
+    replay.checkFor3Finger();
+
+    // Check for two-hand usage
+    replay.checkFor2Hand();
+});
 ```
