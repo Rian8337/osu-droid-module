@@ -17,6 +17,7 @@
     "osu!droid",
     "osu!"
   ],
+  "files": ["dist/**", "typings/**"],
   "author": "Rian8337",
   "license": "ISC",
   "devDependencies": {
