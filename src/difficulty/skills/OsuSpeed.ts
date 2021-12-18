@@ -81,13 +81,13 @@ export class OsuSpeed extends OsuSkill {
 
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
-            current.movementDistance + current.travelDistance
+            current.jumpDistance + current.travelDistance
         );
 
         return (
             (speedBonus +
                 speedBonus *
-                    Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) /
+                Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) /
             strainTime
         );
     }
@@ -128,7 +128,7 @@ export class OsuSpeed extends OsuSkill {
                 Math.max(
                     0,
                     this.historyTimeMax -
-                        (current.startTime - this.previous[i - 1].startTime)
+                    (current.startTime - this.previous[i - 1].startTime)
                 ) / this.historyTimeMax;
 
             if (currentHistoricalDecay === 0) {
@@ -148,17 +148,17 @@ export class OsuSpeed extends OsuSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                    Math.min(
-                        0.5,
-                        Math.pow(
-                            Math.sin(
-                                Math.PI /
-                                    (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta))
-                            ),
-                            2
-                        )
-                    );
+                Math.min(
+                    0.5,
+                    Math.pow(
+                        Math.sin(
+                            Math.PI /
+                            (Math.min(prevDelta, currentDelta) /
+                                Math.max(prevDelta, currentDelta))
+                        ),
+                        2
+                    )
+                );
 
             const windowPenalty: number = Math.min(
                 1,
@@ -166,7 +166,7 @@ export class OsuSpeed extends OsuSkill {
                     0,
                     Math.abs(prevDelta - currentDelta) - this.greatWindow * 0.6
                 ) /
-                    (this.greatWindow * 0.6)
+                (this.greatWindow * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
