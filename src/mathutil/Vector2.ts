@@ -12,40 +12,37 @@ export class Vector2 {
      */
     y: number;
 
-    constructor(values: { x: number; y: number }) {
-        this.x = values.x;
-        this.y = values.y;
+    constructor(x: number, y: number) {
+        this.x = x;
+        this.y = y;
     }
 
     /**
      * Multiplies the vector with another vector.
      */
     multiply(vec: Vector2): Vector2 {
-        return new Vector2({ x: this.x * vec.x, y: this.y * vec.y });
+        return new Vector2(this.x * vec.x, this.y * vec.y);
     }
 
     divide(divideFactor: number): Vector2 {
         if (divideFactor === 0) {
             throw new Error("Division by 0");
         }
-        return new Vector2({
-            x: this.x / divideFactor,
-            y: this.y / divideFactor,
-        });
+        return new Vector2(this.x / divideFactor, this.y / divideFactor);
     }
 
     /**
      * Adds the vector with another vector.
      */
     add(vec: Vector2): Vector2 {
-        return new Vector2({ x: this.x + vec.x, y: this.y + vec.y });
+        return new Vector2(this.x + vec.x, this.y + vec.y);
     }
 
     /**
      * Subtracts the vector with another vector.
      */
     subtract(vec: Vector2): Vector2 {
-        return new Vector2({ x: this.x - vec.x, y: this.y - vec.y });
+        return new Vector2(this.x - vec.x, this.y - vec.y);
     }
 
     /**
@@ -66,10 +63,7 @@ export class Vector2 {
      * Scales the vector.
      */
     scale(scaleFactor: number): Vector2 {
-        return new Vector2({
-            x: this.x * scaleFactor,
-            y: this.y * scaleFactor,
-        });
+        return new Vector2(this.x * scaleFactor, this.y * scaleFactor);
     }
 
     /**

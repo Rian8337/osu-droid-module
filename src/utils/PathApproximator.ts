@@ -171,16 +171,14 @@ export abstract class PathApproximator {
         const bSq: number = Math.pow(b.length, 2);
         const cSq: number = Math.pow(c.length, 2);
 
-        const center: Vector2 = new Vector2({
-            x:
-                aSq * b.subtract(c).y +
-                bSq * c.subtract(a).y +
-                cSq * a.subtract(b).y,
-            y:
-                aSq * c.subtract(b).x +
-                bSq * a.subtract(c).x +
-                cSq * b.subtract(a).x,
-        }).divide(d);
+        const center: Vector2 = new Vector2(
+            aSq * b.subtract(c).y +
+            bSq * c.subtract(a).y +
+            cSq * a.subtract(b).y,
+            aSq * c.subtract(b).x +
+            bSq * a.subtract(c).x +
+            cSq * b.subtract(a).x,
+        ).divide(d);
 
         const dA: Vector2 = a.subtract(center);
         const dC: Vector2 = c.subtract(center);
@@ -200,7 +198,7 @@ export abstract class PathApproximator {
         // Decide in which direction to draw the circle, depending on which side of
         // AC B lies.
         let orthoAtoC: Vector2 = c.subtract(a);
-        orthoAtoC = new Vector2({ x: orthoAtoC.y, y: -orthoAtoC.x });
+        orthoAtoC = new Vector2(orthoAtoC.y, -orthoAtoC.x);
         if (orthoAtoC.dot(b.subtract(a)) < 0) {
             dir = -dir;
             thetaRange = 2 * Math.PI - thetaRange;
@@ -215,22 +213,22 @@ export abstract class PathApproximator {
             2 * r <= this.circularArcTolerance
                 ? 2
                 : Math.max(
-                      2,
-                      Math.ceil(
-                          thetaRange /
-                              (2 * Math.acos(1 - this.circularArcTolerance / r))
-                      )
-                  );
+                    2,
+                    Math.ceil(
+                        thetaRange /
+                        (2 * Math.acos(1 - this.circularArcTolerance / r))
+                    )
+                );
 
         const output: Vector2[] = [];
 
         for (let i = 0; i < amountPoints; ++i) {
             const fract: number = i / (amountPoints - 1);
             const theta: number = thetaStart + dir * fract * thetaRange;
-            const o: Vector2 = new Vector2({
-                x: Math.cos(theta),
-                y: Math.sin(theta),
-            }).scale(r);
+            const o: Vector2 = new Vector2(
+                Math.cos(theta),
+                Math.sin(theta),
+            ).scale(r);
             output.push(center.add(o));
         }
 
@@ -372,19 +370,17 @@ export abstract class PathApproximator {
         const t2: number = Math.pow(t, 2);
         const t3: number = Math.pow(t, 3);
 
-        return new Vector2({
-            x:
-                0.5 *
-                (2 * vec2.x +
-                    (-vec1.x + vec3.x) * t +
-                    (2 * vec1.x - 5 * vec2.x + 4 * vec3.x - vec4.x) * t2 +
-                    (-vec1.x + 3 * vec2.x - 3 * vec3.x + vec4.x) * t3),
-            y:
-                0.5 *
-                (2 * vec2.y +
-                    (-vec1.y + vec3.y) * t +
-                    (2 * vec1.y - 5 * vec2.y + 4 * vec3.y - vec4.y) * t2 +
-                    (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3),
-        });
+        return new Vector2(
+            0.5 *
+            (2 * vec2.x +
+                (-vec1.x + vec3.x) * t +
+                (2 * vec1.x - 5 * vec2.x + 4 * vec3.x - vec4.x) * t2 +
+                (-vec1.x + 3 * vec2.x - 3 * vec3.x + vec4.x) * t3),
+            0.5 *
+            (2 * vec2.y +
+                (-vec1.y + vec3.y) * t +
+                (2 * vec1.y - 5 * vec2.y + 4 * vec3.y - vec4.y) * t2 +
+                (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3),
+        );
     }
 }

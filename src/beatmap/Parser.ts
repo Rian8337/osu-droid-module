@@ -364,10 +364,10 @@ export class Parser {
             );
         }
 
-        const position: Vector2 = new Vector2({
-            x: parseFloat(this.setPosition(s[0])),
-            y: parseFloat(this.setPosition(s[1])),
-        });
+        const position: Vector2 = new Vector2(
+            parseFloat(this.setPosition(s[0])),
+            parseFloat(this.setPosition(s[1])),
+        );
         if (!this.isVectorValid(position)) {
             return this.warn(
                 "Ignoring malformed hitobject: Value is invalid, too low, or too high"
@@ -425,7 +425,7 @@ export class Parser {
             const msPerBeatTimingPoint: TimingControlPoint =
                 this.getTimingPoint(time, this.map.timingPoints);
 
-            const points: Vector2[] = [new Vector2({ x: 0, y: 0 })];
+            const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");
             let pathType: PathType = this.convertPathType(
                 <string>pointSplit.shift()
@@ -433,7 +433,7 @@ export class Parser {
 
             for (const point of pointSplit) {
                 const temp: string[] = point.split(":");
-                const vec: Vector2 = new Vector2({ x: +temp[0], y: +temp[1] });
+                const vec: Vector2 = new Vector2(+temp[0], +temp[1]);
                 if (!this.isVectorValid(vec)) {
                     return this.warn(
                         "Ignoring malformed slider: Value is invalid, too low, or too high"
@@ -449,8 +449,8 @@ export class Parser {
                 Precision.almostEqualsNumber(
                     0,
                     (points[1].y - points[0].y) * (points[2].x - points[0].x) -
-                        (points[1].x - points[0].x) *
-                            (points[2].y - points[0].y)
+                    (points[1].x - points[0].x) *
+                    (points[2].y - points[0].y)
                 )
             ) {
                 pathType = PathType.Linear;
@@ -610,13 +610,13 @@ export class Parser {
                     const endPositionDistanceCheck: boolean =
                         stackBaseObject instanceof Slider
                             ? stackBaseObject.endPosition.getDistance(
-                                  objectN.position
-                              ) < stackDistance
+                                objectN.position
+                            ) < stackDistance
                             : false;
 
                     if (
                         stackBaseObject.position.getDistance(objectN.position) <
-                            stackDistance ||
+                        stackDistance ||
                         endPositionDistanceCheck
                     ) {
                         stackBaseIndex = n;
@@ -666,8 +666,8 @@ export class Parser {
                     const endPositionDistanceCheck: boolean =
                         objectN instanceof Slider
                             ? objectN.endPosition.getDistance(
-                                  objectI.position
-                              ) < stackDistance
+                                objectI.position
+                            ) < stackDistance
                             : false;
 
                     if (endPositionDistanceCheck) {

@@ -1,4 +1,3 @@
-//@ts-expect-error: Import conflict for whatever reason
 import { Canvas, Image, NodeCanvasRenderingContext2D } from "canvas";
 
 declare module "osu-droid" {
@@ -2686,16 +2685,11 @@ declare module "osu-droid" {
          * The y position of the vector.
          */
         y: number;
-        constructor(values: {
-            /**
-             * The x position of the vector.
-             */
-            x: number;
-            /**
-             * The y position of the vector.
-             */
-            y: number;
-        });
+        /**
+         * @param x The x position of the vector.
+         * @param y The y position of the vector.
+         */
+        constructor(x: number, y: number);
         /**
          * Multiplies the vector with another vector.
          */

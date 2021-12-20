@@ -224,7 +224,7 @@ export class SliderPath {
      */
     private interpolateVerticles(i: number, d: number): Vector2 {
         if (this.calculatedPath.length === 0) {
-            return new Vector2({ x: 0, y: 0 });
+            return new Vector2(0, 0);
         }
 
         if (i <= 0) {

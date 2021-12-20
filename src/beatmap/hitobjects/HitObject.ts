@@ -50,7 +50,7 @@ export abstract class HitObject {
     private get stackOffset(): Vector2 {
         const coordinate: number = this.stackHeight * this.scale * -6.4;
 
-        return new Vector2({ x: coordinate, y: coordinate });
+        return new Vector2(coordinate, coordinate);
     }
 
     /**
