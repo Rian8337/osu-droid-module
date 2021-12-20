@@ -173,11 +173,11 @@ export abstract class PathApproximator {
 
         const center: Vector2 = new Vector2(
             aSq * b.subtract(c).y +
-            bSq * c.subtract(a).y +
-            cSq * a.subtract(b).y,
+                bSq * c.subtract(a).y +
+                cSq * a.subtract(b).y,
             aSq * c.subtract(b).x +
-            bSq * a.subtract(c).x +
-            cSq * b.subtract(a).x,
+                bSq * a.subtract(c).x +
+                cSq * b.subtract(a).x
         ).divide(d);
 
         const dA: Vector2 = a.subtract(center);
@@ -213,12 +213,12 @@ export abstract class PathApproximator {
             2 * r <= this.circularArcTolerance
                 ? 2
                 : Math.max(
-                    2,
-                    Math.ceil(
-                        thetaRange /
-                        (2 * Math.acos(1 - this.circularArcTolerance / r))
-                    )
-                );
+                      2,
+                      Math.ceil(
+                          thetaRange /
+                              (2 * Math.acos(1 - this.circularArcTolerance / r))
+                      )
+                  );
 
         const output: Vector2[] = [];
 
@@ -227,7 +227,7 @@ export abstract class PathApproximator {
             const theta: number = thetaStart + dir * fract * thetaRange;
             const o: Vector2 = new Vector2(
                 Math.cos(theta),
-                Math.sin(theta),
+                Math.sin(theta)
             ).scale(r);
             output.push(center.add(o));
         }
@@ -372,15 +372,15 @@ export abstract class PathApproximator {
 
         return new Vector2(
             0.5 *
-            (2 * vec2.x +
-                (-vec1.x + vec3.x) * t +
-                (2 * vec1.x - 5 * vec2.x + 4 * vec3.x - vec4.x) * t2 +
-                (-vec1.x + 3 * vec2.x - 3 * vec3.x + vec4.x) * t3),
+                (2 * vec2.x +
+                    (-vec1.x + vec3.x) * t +
+                    (2 * vec1.x - 5 * vec2.x + 4 * vec3.x - vec4.x) * t2 +
+                    (-vec1.x + 3 * vec2.x - 3 * vec3.x + vec4.x) * t3),
             0.5 *
-            (2 * vec2.y +
-                (-vec1.y + vec3.y) * t +
-                (2 * vec1.y - 5 * vec2.y + 4 * vec3.y - vec4.y) * t2 +
-                (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3),
+                (2 * vec2.y +
+                    (-vec1.y + vec3.y) * t +
+                    (2 * vec1.y - 5 * vec2.y + 4 * vec3.y - vec4.y) * t2 +
+                    (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3)
         );
     }
 }

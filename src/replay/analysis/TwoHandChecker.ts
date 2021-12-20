@@ -248,10 +248,7 @@ export class TwoHandChecker {
                     break;
                 }
 
-                let hitPosition: Vector2 = new Vector2(
-                    c.x[j],
-                    c.y[j],
-                );
+                let hitPosition: Vector2 = new Vector2(c.x[j], c.y[j]);
 
                 let distanceToObject: number =
                     object.object.stackedPosition.getDistance(hitPosition);
@@ -272,12 +269,12 @@ export class TwoHandChecker {
                     // Interpolate cursor position between two occurrences
                     const initialPosition: Vector2 = new Vector2(
                         c.x[j],
-                        c.y[j],
+                        c.y[j]
                     );
 
                     const nextPosition: Vector2 = new Vector2(
                         c.x[j + 1],
-                        c.y[j + 1],
+                        c.y[j + 1]
                     );
 
                     const displacement: Vector2 =

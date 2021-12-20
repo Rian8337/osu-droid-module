@@ -366,7 +366,7 @@ export class Parser {
 
         const position: Vector2 = new Vector2(
             parseFloat(this.setPosition(s[0])),
-            parseFloat(this.setPosition(s[1])),
+            parseFloat(this.setPosition(s[1]))
         );
         if (!this.isVectorValid(position)) {
             return this.warn(
@@ -449,8 +449,8 @@ export class Parser {
                 Precision.almostEqualsNumber(
                     0,
                     (points[1].y - points[0].y) * (points[2].x - points[0].x) -
-                    (points[1].x - points[0].x) *
-                    (points[2].y - points[0].y)
+                        (points[1].x - points[0].x) *
+                            (points[2].y - points[0].y)
                 )
             ) {
                 pathType = PathType.Linear;
@@ -610,13 +610,13 @@ export class Parser {
                     const endPositionDistanceCheck: boolean =
                         stackBaseObject instanceof Slider
                             ? stackBaseObject.endPosition.getDistance(
-                                objectN.position
-                            ) < stackDistance
+                                  objectN.position
+                              ) < stackDistance
                             : false;
 
                     if (
                         stackBaseObject.position.getDistance(objectN.position) <
-                        stackDistance ||
+                            stackDistance ||
                         endPositionDistanceCheck
                     ) {
                         stackBaseIndex = n;
@@ -666,8 +666,8 @@ export class Parser {
                     const endPositionDistanceCheck: boolean =
                         objectN instanceof Slider
                             ? objectN.endPosition.getDistance(
-                                objectI.position
-                            ) < stackDistance
+                                  objectI.position
+                              ) < stackDistance
                             : false;
 
                     if (endPositionDistanceCheck) {

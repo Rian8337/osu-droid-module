@@ -627,7 +627,7 @@ export class ThreeFingerChecker {
 
                 const cursorPosition: Vector2 = new Vector2(
                     c.x[hitIndex],
-                    c.y[hitIndex],
+                    c.y[hitIndex]
                 );
 
                 let isInObject: boolean = false;
@@ -703,7 +703,7 @@ export class ThreeFingerChecker {
                 if (
                     !inSpeedSection &&
                     objects[i].originalTapStrain >=
-                    ThreeFingerChecker.strainThreshold
+                        ThreeFingerChecker.strainThreshold
                 ) {
                     inSpeedSection = true;
                     newFirstObjectIndex = i;
@@ -713,7 +713,7 @@ export class ThreeFingerChecker {
                 if (
                     inSpeedSection &&
                     objects[i].originalTapStrain <
-                    ThreeFingerChecker.strainThreshold
+                        ThreeFingerChecker.strainThreshold
                 ) {
                     inSpeedSection = false;
                     newBeatmapSections.push({
@@ -770,9 +770,9 @@ export class ThreeFingerChecker {
             // Use an estimation for accidental tap threshold.
             if (
                 cursorInstance.size <=
-                Math.ceil(objects.length / this.accidentalTapThreshold) &&
+                    Math.ceil(objects.length / this.accidentalTapThreshold) &&
                 cursorInstance.size / totalCursorAmount <
-                this.threeFingerRatioThreshold * 2
+                    this.threeFingerRatioThreshold * 2
             ) {
                 --filledCursorAmount;
                 for (const property in cursorInstance) {
@@ -808,14 +808,14 @@ export class ThreeFingerChecker {
             const startTime: number =
                 objects[beatmapSection.firstObjectIndex].object.startTime +
                 (objectData[beatmapSection.firstObjectIndex].result !==
-                    hitResult.RESULT_0
+                hitResult.RESULT_0
                     ? objectData[beatmapSection.firstObjectIndex].accuracy
                     : -this.hitWindow.hitWindowFor50(isPrecise));
 
             const endTime: number =
                 objects[beatmapSection.lastObjectIndex].object.endTime +
                 (objectData[beatmapSection.lastObjectIndex].result !==
-                    hitResult.RESULT_0
+                hitResult.RESULT_0
                     ? objectData[beatmapSection.lastObjectIndex].accuracy
                     : this.hitWindow.hitWindowFor50(isPrecise));
 
@@ -851,7 +851,7 @@ export class ThreeFingerChecker {
                         cursorVectorTimes.push({
                             vector: new Vector2(
                                 cursorData.x[j],
-                                cursorData.y[j],
+                                cursorData.y[j]
                             ),
                             time: cursorData.time[j],
                         });
@@ -887,7 +887,7 @@ export class ThreeFingerChecker {
                 if (pressIndex !== -1) {
                     if (
                         cursorVectorTime.time -
-                        similarPresses[pressIndex].lastTime >=
+                            similarPresses[pressIndex].lastTime >=
                         this.cursorDistancingTimeThreshold
                     ) {
                         similarPresses.splice(pressIndex, 1);
@@ -960,33 +960,33 @@ export class ThreeFingerChecker {
                 const fingerFactor: number =
                     threeFingerRatio > this.threeFingerRatioThreshold
                         ? threeFingerCursorAmounts.reduce(
-                            (acc, value, index) =>
-                                acc +
-                                Math.pow(
-                                    ((index + 1) * value * objectCount) /
-                                    this.strainNoteCount,
-                                    0.8
-                                ),
-                            1
-                        )
+                              (acc, value, index) =>
+                                  acc +
+                                  Math.pow(
+                                      ((index + 1) * value * objectCount) /
+                                          this.strainNoteCount,
+                                      0.8
+                                  ),
+                              1
+                          )
                         : Math.pow(
-                            validPresses.reduce(
-                                (acc, value, index) =>
-                                    acc +
-                                    Math.pow(
-                                        ((index + 1) *
-                                            (value.count /
-                                                (this
-                                                    .cursorDistancingCountThreshold *
-                                                    2)) *
-                                            objectCount) /
-                                        this.strainNoteCount,
-                                        0.2
-                                    ),
-                                1
-                            ),
-                            0.2
-                        );
+                              validPresses.reduce(
+                                  (acc, value, index) =>
+                                      acc +
+                                      Math.pow(
+                                          ((index + 1) *
+                                              (value.count /
+                                                  (this
+                                                      .cursorDistancingCountThreshold *
+                                                      2)) *
+                                              objectCount) /
+                                              this.strainNoteCount,
+                                          0.2
+                                      ),
+                                  1
+                              ),
+                              0.2
+                          );
 
                 // Length factor applies more penalty if there are more 3-fingered object.
                 const lengthFactor: number =
@@ -1011,10 +1011,10 @@ export class ThreeFingerChecker {
                 (a, n) =>
                     a +
                     0.015 *
-                    Math.pow(
-                        n.strainFactor * n.fingerFactor * n.lengthFactor,
-                        1.05
-                    ),
+                        Math.pow(
+                            n.strainFactor * n.fingerFactor * n.lengthFactor,
+                            1.05
+                        ),
                 0
             )
         );
