@@ -16,7 +16,8 @@ export class Spinner extends HitObject {
     constructor(values: { startTime: number; type: number; duration: number }) {
         super({
             startTime: values.startTime,
-            type: values.type,
+            endTime: values.startTime + values.duration,
+            type: values.type | (1 << 2),
             position: new Vector2(256, 192),
         });
         this.duration = values.duration;
