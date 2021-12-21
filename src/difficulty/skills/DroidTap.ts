@@ -125,18 +125,22 @@ export class DroidTap extends DroidSkill {
 
         let firstDeltaSwitch: boolean = false;
 
-        for (let i = this.previous.length - 2; i > 0; --i) {
+        let rhythmStart: number = 0;
+
+        while (
+            rhythmStart < this.previous.length - 2 &&
+            current.startTime - this.previous[rhythmStart].startTime <
+                this.historyTimeMax
+        ) {
+            ++rhythmStart;
+        }
+
+        for (let i = rhythmStart; i > 0; --i) {
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay: number =
-                Math.max(
-                    0,
-                    this.historyTimeMax -
-                        (current.startTime - this.previous[i - 1].startTime)
-                ) / this.historyTimeMax;
-
-            if (currentHistoricalDecay === 0) {
-                continue;
-            }
+                this.historyTimeMax -
+                (current.startTime - this.previous[i - 1].startTime) /
+                    this.historyTimeMax;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
