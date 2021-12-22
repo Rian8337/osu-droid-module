@@ -6,7 +6,7 @@ import {
 } from "../utils/APIRequestBuilder";
 import { Accuracy } from "../utils/Accuracy";
 
-interface ExtraInformation {
+export interface ExtraInformation {
     readonly rank: number;
     readonly recent: {
         readonly filename: string;
@@ -109,35 +109,52 @@ export class Player {
             throw new Error("Error retrieving player data");
         }
 
-        const resArr: string[] = result.data.toString("utf-8").split("<br>");
+        const data: string = result.data.toString("utf-8");
+        const resArr: string[] = data.split("<br>");
         const headerRes: string[] = resArr[0].split(" ");
 
         if (headerRes[0] === "FAILED") {
             return player;
         }
 
+        player.fillInformation(data);
+
+        return player;
+    }
+
+    /**
+     * Fills this instance with player information.
+     *
+     * @param info The player information from API response to fill with.
+     */
+    fillInformation(info: string): Player {
+        const resArr: string[] = info.split("<br>");
+        const headerRes: string[] = resArr[0].split(" ");
+
+        if (headerRes[0] === "FAILED") {
+            return this;
+        }
+
         const obj: ExtraInformation = JSON.parse(resArr[1]);
 
-        player.uid = parseInt(headerRes[1]);
-        player.username = headerRes[2];
-        player.score = parseInt(headerRes[3]);
-        player.playCount = parseInt(headerRes[4]);
-        player.accuracy = parseFloat(
-            (parseFloat(headerRes[5]) * 100).toFixed(2)
-        );
-        player.email = headerRes[6];
-        player.location = headerRes[7];
-        player.avatarURL = `http://ops.dgsrz.com/user/avatar?id=${MD5(
-            player.email.trim().toLowerCase()
+        this.uid = parseInt(headerRes[1]);
+        this.username = headerRes[2];
+        this.score = parseInt(headerRes[3]);
+        this.playCount = parseInt(headerRes[4]);
+        this.accuracy = parseFloat((parseFloat(headerRes[5]) * 100).toFixed(2));
+        this.email = headerRes[6];
+        this.location = headerRes[7];
+        this.avatarURL = `https://osudroid.moe/user/avatar?id=${MD5(
+            this.email.trim().toLowerCase()
         ).toString()}&s=200`;
-        player.rank = obj.rank;
+        this.rank = obj.rank;
 
         const recent: ExtraInformation["recent"] = obj.recent;
         for (const play of recent) {
-            player.recentPlays.push(
+            this.recentPlays.push(
                 new Score({
-                    uid: player.uid,
-                    username: player.username,
+                    uid: this.uid,
+                    username: this.username,
                     scoreID: play.scoreid,
                     score: play.score,
                     accuracy: new Accuracy({
@@ -156,7 +173,7 @@ export class Player {
             );
         }
 
-        return player;
+        return this;
     }
 
     /**
