@@ -405,6 +405,7 @@ export class MapInfo {
 
         return parseFloat(bpm.toFixed(2));
     }
+
     /**
      * Converts the beatmap's status into a string.
      */
@@ -646,7 +647,7 @@ export class MapInfo {
                         }`;
                     }
                 } else {
-                    string += `**BPM**: ${this.convertBPM(
+                    string += `${this.convertBPM(
                         mapStatistics
                     )} - **Length**: ${this.convertTime(
                         mapStatistics
