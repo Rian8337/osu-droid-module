@@ -15,7 +15,6 @@ import {
 import { Precision } from "../utils/Precision";
 import { TimingControlPoint } from "../beatmap/timings/TimingControlPoint";
 import { Score } from "../osu!droid/Score";
-import { Mod } from "../mods/Mod";
 import { Utils } from "../utils/Utils";
 
 export interface OsuAPIResponse {
@@ -463,7 +462,7 @@ export class MapInfo {
     }
 
     /**
-     * Shows the beatmap's statistics based on applied mods and option.
+     * Shows the beatmap's statistics based on applied statistics and option.
      *
      * - Option `0`: return map title and mods used if defined
      * - Option `1`: return song source and map download link to beatmap mirrors
@@ -472,13 +471,13 @@ export class MapInfo {
      * - Option `4`: return last update date and map status
      * - Option `5`: return favorite count and play count
      */
-    showStatistics(option: number, mod?: Mod[], stats?: MapStats): string {
+    showStatistics(option: number, stats?: MapStats): string {
         const mapParams = {
             cs: this.cs,
             ar: this.ar,
             od: this.od,
             hp: this.hp,
-            mods: mod,
+            mods: stats?.mods ?? [],
             isForceAR: false,
             speedMultiplier: 1,
         };
@@ -499,8 +498,10 @@ export class MapInfo {
         switch (option) {
             case 0: {
                 let string: string = `${this.fullTitle}${
-                    (mod?.length ?? 0) > 0
-                        ? ` +${mod?.map((m) => m.acronym).join("")}`
+                    (mapStatistics.mods.length ?? 0) > 0
+                        ? ` +${mapStatistics.mods
+                              .map((m) => m.acronym)
+                              .join("")}`
                         : ""
                 }`;
                 if (
