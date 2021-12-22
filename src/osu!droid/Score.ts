@@ -7,7 +7,7 @@ import { ReplayAnalyzer } from "../replay/ReplayAnalyzer";
 import { Mod } from "../mods/Mod";
 import { ModUtil } from "../utils/ModUtil";
 
-interface ScoreInformation {
+export interface ScoreInformation {
     /**
      * The uid of the player.
      */
@@ -222,7 +222,7 @@ export class Score {
     /**
      * Fills this instance with score information.
      *
-     * @param info The score information to from API response to fill with.
+     * @param info The score information from API response to fill with.
      */
     fillInformation(info: string): Score {
         const play: string[] = info.split(" ");
