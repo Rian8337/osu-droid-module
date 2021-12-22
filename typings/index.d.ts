@@ -878,7 +878,7 @@ declare module "osu-droid" {
         /**
          * The amount of objects in the beatmap.
          */
-        objects: number;
+        get objects(): number;
         /**
          * The maximum combo of the beatmap.
          */

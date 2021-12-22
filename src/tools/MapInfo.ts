@@ -18,7 +18,7 @@ import { Score } from "../osu!droid/Score";
 import { Mod } from "../mods/Mod";
 import { Utils } from "../utils/Utils";
 
-interface OsuAPIResponse {
+export interface OsuAPIResponse {
     readonly approved: string;
     readonly submit_date: string;
     readonly approved_date: string;
@@ -165,7 +165,9 @@ export class MapInfo {
     /**
      * The amount of objects in the beatmap.
      */
-    objects: number = 0;
+    get objects(): number {
+        return this.circles + this.sliders + this.spinners;
+    }
 
     /**
      * The maximum combo of the beatmap.
@@ -342,7 +344,6 @@ export class MapInfo {
         this.spinners = mapinfo.count_spinner
             ? parseInt(mapinfo.count_spinner)
             : 0;
-        this.objects = this.circles + this.sliders + this.spinners;
         this.maxCombo = parseInt(mapinfo.max_combo);
         this.cs = parseFloat(mapinfo.diff_size);
         this.ar = parseFloat(mapinfo.diff_approach);

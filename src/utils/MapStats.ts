@@ -210,7 +210,7 @@ export class MapStats {
                     const assumedHeight: number = 681;
                     let scale: number =
                         ((assumedHeight / 480) * (54.42 - this.cs * 4.48) * 2) /
-                        128 +
+                            128 +
                         (0.5 * (11 - 5.2450170716245195)) / 5;
 
                     if (this.mods.some((m) => m instanceof ModHardRock)) {
