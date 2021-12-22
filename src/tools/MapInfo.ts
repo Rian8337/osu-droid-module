@@ -1,5 +1,4 @@
 import request from "request";
-import { modes } from "../constants/modes";
 import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
 import { Parser } from "../beatmap/Parser";
@@ -470,6 +469,9 @@ export class MapInfo {
      * - Option `3`: return BPM, map length, max combo
      * - Option `4`: return last update date and map status
      * - Option `5`: return favorite count and play count
+     *
+     * @param option The option to pick.
+     * @param stats The custom statistics to apply. This will only be used to apply custom speed multiplier and force AR.
      */
     showStatistics(option: number, stats?: MapStats): string {
         const mapParams = {
@@ -482,14 +484,14 @@ export class MapInfo {
             speedMultiplier: 1,
         };
         if (stats) {
-            mapParams.ar = stats.ar ?? mapParams.ar;
+            if (stats.isForceAR) {
+                mapParams.ar = stats.ar ?? mapParams.ar;
+            }
             mapParams.isForceAR = stats.isForceAR ?? mapParams.isForceAR;
             mapParams.speedMultiplier =
                 stats.speedMultiplier ?? mapParams.speedMultiplier;
         }
-        const mapStatistics: MapStats = new MapStats(mapParams).calculate({
-            mode: modes.osu,
-        });
+        const mapStatistics: MapStats = new MapStats(mapParams).calculate();
         mapStatistics.cs = parseFloat((mapStatistics.cs as number).toFixed(2));
         mapStatistics.ar = parseFloat((mapStatistics.ar as number).toFixed(2));
         mapStatistics.od = parseFloat((mapStatistics.od as number).toFixed(2));
@@ -648,9 +650,11 @@ export class MapInfo {
                         }`;
                     }
                 } else {
-                    string += `${this.convertBPM(
-                        mapStatistics
-                    )} - **Length**: ${this.convertTime(
+                    string += `${this.bpm}${
+                        !Precision.almostEqualsNumber(this.bpm, convertedBPM)
+                            ? ` (${convertedBPM})`
+                            : ""
+                    } - **Length**: ${this.convertTime(
                         mapStatistics
                     )} - **Max Combo**: ${this.maxCombo}x${
                         maxScore > 0

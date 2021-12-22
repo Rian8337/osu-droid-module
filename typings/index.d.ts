@@ -988,6 +988,9 @@ declare module "osu-droid" {
          * - Option `3`: return BPM, map length, max combo
          * - Option `4`: return last update date and map status
          * - Option `5`: return favorite count and play count
+         *
+         * @param option The option to pick.
+         * @param stats The custom statistics to apply. This will only be used to apply custom speed multiplier and force AR.
          */
         showStatistics(option: number, stats?: MapStats): string;
         /**
