@@ -980,7 +980,7 @@ declare module "osu-droid" {
          */
         private timeString(second: number): string;
         /**
-         * Shows the beatmap's statistics based on applied mods and option.
+         * Shows the beatmap's statistics based on applied statistics and option.
          *
          * - Option `0`: return map title and mods used if defined
          * - Option `1`: return song source and map download link to beatmap mirrors
@@ -989,7 +989,7 @@ declare module "osu-droid" {
          * - Option `4`: return last update date and map status
          * - Option `5`: return favorite count and play count
          */
-        showStatistics(option: number, mod?: Mod[], stats?: MapStats): string;
+        showStatistics(option: number, stats?: MapStats): string;
         /**
          * Gets a color integer based on the beatmap's ranking status.
          *
@@ -1087,6 +1087,10 @@ declare module "osu-droid" {
          * Whether to calculate for old statistics for osu!droid gamemode (1.6.7 and older). Defaults to `false`.
          */
         oldStatistics: boolean;
+        /**
+         * Whether this map statistics have been calculated.
+         */
+        private calculated: boolean;
         static readonly OD0_MS: number;
         static readonly OD10_MS: number;
         static readonly AR0_MS: number;
@@ -1130,7 +1134,9 @@ declare module "osu-droid" {
             oldStatistics?: boolean;
         });
         /**
-         * Calculates map statistics with mods applied.
+         * Calculates map statistics.
+         * 
+         * This can only be called once for an instance.
          */
         calculate(params?: {
             /**

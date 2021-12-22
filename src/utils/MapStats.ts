@@ -55,6 +55,11 @@ export class MapStats {
      */
     oldStatistics: boolean;
 
+    /**
+     * Whether this map statistics have been calculated.
+     */
+    private calculated: boolean = false;
+
     static readonly OD0_MS: number = 80;
     static readonly OD10_MS: number = 20;
     static readonly AR0_MS: number = 1800;
@@ -123,7 +128,9 @@ export class MapStats {
     }
 
     /**
-     * Calculates map statistics with mods applied.
+     * Calculates map statistics.
+     *
+     * This can only be called once for an instance.
      */
     calculate(params?: {
         /**
@@ -146,6 +153,12 @@ export class MapStats {
          */
         isForceAR?: boolean;
     }): MapStats {
+        if (this.calculated) {
+            return this;
+        }
+
+        this.calculated = true;
+
         if (params?.mods) {
             this.mods = ModUtil.pcStringToMods(params.mods);
         }
