@@ -2092,6 +2092,12 @@ declare module "osu-droid" {
             username?: string;
         }): Promise<Player>;
         /**
+         * Fills this instance with player information.
+         *
+         * @param info The player information from API response to fill with.
+         */
+        fillInformation(info: string): Player;
+        /**
          * Checks if this player has played the verification beatmap.
          */
         hasPlayedVerificationMap(): Promise<boolean>;
@@ -2427,7 +2433,7 @@ declare module "osu-droid" {
         /**
          * Fills this instance with score information.
          *
-         * @param info The score information to from API response to fill with.
+         * @param info The score information from API response to fill with.
          */
         fillInformation(info: string): Score;
         /**
