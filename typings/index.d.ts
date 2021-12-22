@@ -750,7 +750,15 @@ declare module "osu-droid" {
         /**
          * The stacked position of the hitobject.
          */
-        stackedPosition: Vector2;
+        get stackedPosition(): Vector2;
+        /**
+         * The stacked end position of the hitobject.
+         */
+        get stackedEndPosition(): Vector2;
+        /**
+         * The stack vector to calculate offset for stacked positions.
+         */
+        get stackOffset(): Vector2;
         /**
          * Whether or not this hitobject represents a new combo in the beatmap.
          */
@@ -759,6 +767,14 @@ declare module "osu-droid" {
          * The stack height of the hitobject.
          */
         stackHeight: number;
+        /**
+         * The scale used to calculate stacked position and radius.
+         */
+        scale: number;
+        /**
+         * The radius of the hitobject.
+         */
+        get radius(): number;
         constructor(values: {
             startTime: number;
             position: Vector2;
