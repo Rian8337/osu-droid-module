@@ -34,6 +34,10 @@ export abstract class HitObject {
      * The stacked position of the hitobject.
      */
     get stackedPosition(): Vector2 {
+        if (this.type & objectTypes.spinner) {
+            return this.position;
+        }
+
         return this.position.add(this.stackOffset);
     }
 
@@ -41,13 +45,17 @@ export abstract class HitObject {
      * The stacked end position of the hitobject.
      */
     get stackedEndPosition(): Vector2 {
+        if (this.type & objectTypes.spinner) {
+            return this.position;
+        }
+
         return this.endPosition.add(this.stackOffset);
     }
 
     /**
      * The stack vector to calculate offset for stacked positions.
      */
-    private get stackOffset(): Vector2 {
+    get stackOffset(): Vector2 {
         const coordinate: number = this.stackHeight * this.scale * -6.4;
 
         return new Vector2(coordinate, coordinate);
