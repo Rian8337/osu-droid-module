@@ -338,6 +338,11 @@ export class Parser {
             );
         }
 
+        // Remove the last difficulty control point if another difficulty control point overrides it at the same time.
+        if (this.map.difficultyTimingPoints.at(-1)?.time === time) {
+            this.map.difficultyTimingPoints.pop();
+        }
+
         this.map.difficultyTimingPoints.push(
             new DifficultyControlPoint({
                 time: time,
