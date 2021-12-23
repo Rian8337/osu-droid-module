@@ -396,10 +396,6 @@ declare module "osu-droid" {
      */
     export class DifficultyHitObjectCreator {
         /**
-         * The hitobjects to be generated to difficulty hitobjects.
-         */
-        private objects: HitObject[];
-        /**
          * The threshold for small circle buff for osu!droid.
          */
         private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number;
@@ -2455,10 +2451,6 @@ declare module "osu-droid" {
      */
     export class Slider extends HitObject {
         /**
-         * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
-         */
-        readonly repetitions: number;
-        /**
          * The nested hitobjects of the slider. Consists of headcircle (sliderhead), slider ticks, repeat points, and tailcircle (sliderend).
          */
         readonly nestedHitObjects: HitObject[];
@@ -2508,7 +2500,11 @@ declare module "osu-droid" {
          * The amount of repeat points in this slider.
          */
         get repeatPoints(): number;
-        private readonly legacyLastTickOffset: number;
+        /**
+         * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
+         */
+        private readonly repetitions: number;
+        static readonly legacyLastTickOffset: number;
         constructor(values: {
             startTime: number;
             type: number;

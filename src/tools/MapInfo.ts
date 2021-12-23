@@ -754,8 +754,8 @@ export class MapInfo {
             ).length;
 
             // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * object.repetitions + 10 * tickCount;
-            combo += tickCount + object.repetitions;
+            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
+            combo += tickCount + (object.repeatPoints + 1);
             // Apply sliderend
             score += Math.floor(
                 300 +

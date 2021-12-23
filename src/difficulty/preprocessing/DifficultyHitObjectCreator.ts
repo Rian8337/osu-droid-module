@@ -12,11 +12,6 @@ import { RepeatPoint } from "../../beatmap/hitobjects/sliderObjects/RepeatPoint"
  */
 export class DifficultyHitObjectCreator {
     /**
-     * The hitobjects to be generated to difficulty hitobjects.
-     */
-    private objects: HitObject[] = [];
-
-    /**
      * The threshold for small circle buff for osu!droid.
      */
     private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number = 52.5;
@@ -51,24 +46,23 @@ export class DifficultyHitObjectCreator {
         speedMultiplier: number;
         mode: modes;
     }): DifficultyHitObject[] {
-        this.objects = params.objects;
         this.mode = params.mode;
 
         const circleSize: number = params.circleSize;
 
         const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
 
-        this.objects[0].scale = scale;
+        params.objects[0].scale = scale;
 
         const scalingFactor: number = this.getScalingFactor(
-            this.objects[0].radius
+            params.objects[0].radius
         );
 
         const difficultyObjects: DifficultyHitObject[] = [];
 
-        for (let i = 0; i < this.objects.length; ++i) {
+        for (let i = 0; i < params.objects.length; ++i) {
             const object: DifficultyHitObject = new DifficultyHitObject(
-                this.objects[i]
+                params.objects[i]
             );
             object.object.scale = scale;
 
@@ -276,12 +270,12 @@ export class DifficultyHitObjectCreator {
         // Bonus for repeat sliders until a better per nested object strain system can be achieved.
         if (this.mode === modes.droid) {
             slider.lazyTravelDistance *= Math.pow(
-                1 + (slider.repetitions - 1) / 4,
+                1 + slider.repeatPoints / 4,
                 1 / 4
             );
         } else {
             slider.lazyTravelDistance *= Math.pow(
-                1 + (slider.repetitions - 1) / 2.5,
+                1 + slider.repeatPoints / 2.5,
                 1 / 2.5
             );
         }
