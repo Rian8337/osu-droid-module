@@ -11,11 +11,6 @@ import { TailCircle } from "./sliderObjects/TailCircle";
  */
 export class Slider extends HitObject {
     /**
-     * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
-     */
-    readonly repetitions: number;
-
-    /**
      * The nested hitobjects of the slider. Consists of headcircle (sliderhead), slider ticks, repeat points, and tailcircle (sliderend).
      */
     readonly nestedHitObjects: HitObject[] = [];
@@ -87,9 +82,13 @@ export class Slider extends HitObject {
      * The amount of repeat points in this slider.
      */
     get repeatPoints(): number {
-        return this.nestedHitObjects.filter((v) => v instanceof RepeatPoint)
-            .length;
+        return this.repetitions - 1;
     }
+
+    /**
+     * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
+     */
+    private readonly repetitions: number;
 
     static readonly legacyLastTickOffset: number = 36;
 
@@ -209,7 +208,7 @@ export class Slider extends HitObject {
         // This legacy tick is used for some calculations and judgements where audio output is not required.
         // Generally we are keeping this around just for difficulty compatibility.
         // Optimistically we do not want to ever use this for anything user-facing going forwards.
-        const finalSpanIndex: number = this.repetitions - 1;
+        const finalSpanIndex: number = this.repeatPoints;
         const finalSpanStartTime: number =
             this.startTime + finalSpanIndex * this.spanDuration;
         const finalSpanEndTime: number = Math.max(
