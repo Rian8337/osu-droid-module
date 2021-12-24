@@ -150,9 +150,9 @@ const rating = new MapStars().calculate({
 });
 
 // osu!droid difficulty
-console.log(rating.droid);
+console.log(rating.droidStars);
 // osu!standard difficulty
-console.log(rating.osu);
+console.log(rating.pcStars);
 ```
 
 ### Specifying difficulty calculation parameters
@@ -187,9 +187,9 @@ const rating = new MapStars().calculate({
 });
 
 // osu!droid difficulty
-console.log(rating.droid);
+console.log(rating.droidStars);
 // osu!standard difficulty
-console.log(rating.osu);
+console.log(rating.pcStars);
 ```
 
 ### Generating a strain graph
@@ -246,13 +246,13 @@ const rating = new MapStars().calculate({
 
 // osu!droid performance
 const droidPerformance = new DroidPerformanceCalculator().calculate({
-    stars: rating.droid,
+    stars: rating.droidStars,
 });
 console.log(droidPerformance);
 
 // osu!standard performance
 const osuPerformance = new OsuPerformanceCalculator().calculate({
-    stars: rating.osu,
+    stars: rating.pcStars,
 });
 console.log(osuPerformance);
 ```
