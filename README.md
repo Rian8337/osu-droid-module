@@ -26,7 +26,9 @@ All features that the module offers are interchangeable with two gamemodes where
 
 # Requirements
 
-Generally, nothing is required to use the module. However, online features may require the following:
+You need Node v16 or newer to use this module.
+
+Online features may require the following:
 
 -   For osu!droid online-related features, you need to have an osu!droid API key specified as `DROID_API_KEY` environment variable.
 -   For osu!standard online-related features, you need to have an osu! API key specified as `OSU_API_KEY` environment variable.
