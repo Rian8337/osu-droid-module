@@ -312,7 +312,7 @@ const stats = new MapStats({
 });
 
 const performance = new OsuPerformanceCalculator().calculate({
-    stars: rating.osu,
+    stars: rating,
     combo: 1250,
     accPercent: accuracy,
     // The tap penalty can be properly obtained by checking a replay for three finger usage
