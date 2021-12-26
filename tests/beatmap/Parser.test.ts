@@ -4,7 +4,13 @@ import { join } from "path";
 
 test("Test beatmap parse", async () => {
     const data = await readFile(
-        join(process.cwd(), "tests", "files", "beatmaps", "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu"),
+        join(
+            process.cwd(),
+            "tests",
+            "files",
+            "beatmaps",
+            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu"
+        ),
         { encoding: "utf-8" }
     );
 
