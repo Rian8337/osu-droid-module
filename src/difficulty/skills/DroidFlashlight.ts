@@ -48,7 +48,7 @@ export class DroidFlashlight extends DroidSkill {
             // We also want to nerf stacks so that only the first object of the stack is accounted for.
             const stackNerf: number = Math.min(
                 1,
-                previous.jumpDistance / scalingFactor / 25
+                previous.lazyJumpDistance / scalingFactor / 25
             );
 
             result +=

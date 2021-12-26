@@ -79,9 +79,10 @@ export class OsuSpeed extends OsuSkill {
                 0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
         }
 
+        const travelDistance: number = this.previous[0]?.travelDistance ?? 0;
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
-            current.jumpDistance + current.travelDistance
+            travelDistance + current.lazyJumpDistance
         );
 
         return (

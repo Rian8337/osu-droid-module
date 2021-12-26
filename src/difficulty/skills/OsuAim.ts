@@ -45,17 +45,18 @@ export class OsuAim extends OsuSkill {
         const lastLast: DifficultyHitObject = this.previous[1];
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
-        let currentVelocity: number = current.jumpDistance / current.strainTime;
+        let currentVelocity: number =
+            current.lazyJumpDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (last.object instanceof Slider && this.withSliders) {
-            // Calculate the movement velocity from slider end to current object.
-            const movementVelocity: number =
-                current.movementDistance / current.movementTime;
-
             // Calculate the slider velocity from slider head to slider end.
             const travelVelocity: number =
-                current.travelDistance / current.travelTime;
+                last.travelDistance / last.travelTime;
+
+            // Calculate the movement velocity from slider end to current object.
+            const movementVelocity: number =
+                current.minimumJumpDistance / current.minimumJumpTime;
 
             // Take the larger total combined velocity.
             currentVelocity = Math.max(
@@ -65,14 +66,14 @@ export class OsuAim extends OsuSkill {
         }
 
         // As above, do the same for the previous hitobject.
-        let prevVelocity: number = last.jumpDistance / last.strainTime;
+        let prevVelocity: number = last.lazyJumpDistance / last.strainTime;
 
         if (lastLast.object instanceof Slider && this.withSliders) {
-            const movementVelocity: number =
-                last.movementDistance / last.movementTime;
-
             const travelVelocity: number =
-                last.travelDistance / last.travelTime;
+                lastLast.travelDistance / lastLast.travelTime;
+
+            const movementVelocity: number =
+                last.minimumJumpDistance / last.minimumJumpTime;
 
             prevVelocity = Math.max(
                 prevVelocity,
@@ -130,7 +131,7 @@ export class OsuAim extends OsuSkill {
                             Math.sin(
                                 ((Math.PI / 2) *
                                     (MathUtils.clamp(
-                                        current.jumpDistance,
+                                        current.lazyJumpDistance,
                                         50,
                                         100
                                     ) -
@@ -172,9 +173,10 @@ export class OsuAim extends OsuSkill {
         if (Math.max(prevVelocity, currentVelocity)) {
             // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
             prevVelocity =
-                (last.jumpDistance + last.travelDistance) / last.strainTime;
+                (last.lazyJumpDistance + lastLast.travelDistance) /
+                last.strainTime;
             currentVelocity =
-                (current.jumpDistance + current.travelDistance) /
+                (current.lazyJumpDistance + last.travelDistance) /
                 current.strainTime;
 
             // Scale with ratio of difference compared to half the max distance.
@@ -202,8 +204,8 @@ export class OsuAim extends OsuSkill {
                             Math.min(
                                 1,
                                 Math.min(
-                                    current.jumpDistance,
-                                    last.jumpDistance
+                                    current.lazyJumpDistance,
+                                    last.lazyJumpDistance
                                 ) / 100
                             )
                     ),
@@ -223,9 +225,9 @@ export class OsuAim extends OsuSkill {
             );
         }
 
-        if (current.travelTime) {
+        if (last.travelTime) {
             // Reward sliders based on velocity.
-            sliderBonus = current.travelDistance / current.travelTime;
+            sliderBonus = last.travelDistance / last.travelTime;
         }
 
         // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
