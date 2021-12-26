@@ -7,6 +7,7 @@
   "scripts": {
     "test": "jest",
     "build": "tsc",
+    "analyze-code": "npx eslint \"src/**\" && npx eslint \"tests/**\"",
     "format-code": "npx prettier -w --loglevel=silent \"src/**\" && npx prettier -w --loglevel=silent \"tests/**\"",
     "prepare": "dts-gen -m java-deserialization -o -f ./node_modules/java-deserialization/src/index.d.ts && npm run build"
   },
