@@ -136,9 +136,9 @@ export class OsuSpeed extends OsuSkill {
         for (let i = rhythmStart; i > 0; --i) {
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay: number =
-                this.historyTimeMax -
-                (current.startTime - this.previous[i - 1].startTime) /
-                    this.historyTimeMax;
+                (this.historyTimeMax -
+                    (current.startTime - this.previous[i - 1].startTime)) /
+                this.historyTimeMax;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(

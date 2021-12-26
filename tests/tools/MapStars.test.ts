@@ -2,7 +2,15 @@ import { MapStars, ModDoubleTime, Parser } from "../../src";
 import { readFile } from "fs/promises";
 import { join } from "path";
 
-const testDiffCalc = async (name: string, values: Readonly<{ noModDroidRating: number; noModPcRating: number; clockRateDroidRating: number; clockRatePcRating: number; }>) => {
+const testDiffCalc = async (
+    name: string,
+    values: Readonly<{
+        noModDroidRating: number;
+        noModPcRating: number;
+        clockRateDroidRating: number;
+        clockRatePcRating: number;
+    }>
+) => {
     const data = await readFile(
         join(process.cwd(), "tests", "files", "beatmaps", `${name}.osu`),
         { encoding: "utf-8" }
@@ -22,54 +30,54 @@ const testDiffCalc = async (name: string, values: Readonly<{ noModDroidRating: n
         mods: [new ModDoubleTime()],
     });
 
-    expect(clockRateAdjustedRating.droidStars.total).toBeCloseTo(values.clockRateDroidRating, 5);
-    expect(clockRateAdjustedRating.pcStars.total).toBeCloseTo(values.clockRatePcRating, 5);
+    expect(clockRateAdjustedRating.droidStars.total).toBeCloseTo(
+        values.clockRateDroidRating,
+        5
+    );
+    expect(clockRateAdjustedRating.pcStars.total).toBeCloseTo(
+        values.clockRatePcRating,
+        5
+    );
 };
 
 test("Test difficulty calculation sample beatmap 1", async () => {
     await testDiffCalc(
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
-            noModDroidRating: 3.799928253598726,
-            noModPcRating: 4.522893533799243,
-            clockRateDroidRating: 5.295554844389063,
-            clockRatePcRating: 6.285384944300246,
+            noModDroidRating: 3.794839733139548,
+            noModPcRating: 4.5162943867590135,
+            clockRateDroidRating: 5.294022080364695,
+            clockRatePcRating: 6.283680678062669,
         }
     );
 });
 
 test("Test difficulty calculation sample beatmap 2", async () => {
-    await testDiffCalc(
-        "Kenji Ninuma - DISCOPRINCE (peppy) [Normal]",
-        {
-            noModDroidRating: 2.0936361160076897,
-            noModPcRating: 2.570223819311246,
-            clockRateDroidRating: 2.9093851966230346,
-            clockRatePcRating: 3.5574696898762754,
-        }
-    );
+    await testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
+        noModDroidRating: 2.078365063719003,
+        noModPcRating: 2.556083835486944,
+        clockRateDroidRating: 2.8898656412104398,
+        clockRatePcRating: 3.537483581258033,
+    });
 });
 
 test("Test difficulty calculation sample beatmap 3", async () => {
     await testDiffCalc(
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
-            noModDroidRating: 6.223099365014345,
-            noModPcRating: 6.2401695906695585,
-            clockRateDroidRating: 9.2118647592468,
-            clockRatePcRating: 9.107840877656399,
+            noModDroidRating: 6.223047678094107,
+            noModPcRating: 6.239224338602522,
+            clockRateDroidRating: 9.211863294064479,
+            clockRatePcRating: 9.107824123327186,
         }
     );
 });
 
 test("Test difficulty calculation sample beatmap 4", async () => {
-    await testDiffCalc(
-        "Ocelot - KAEDE (Hollow Wings) [EX EX]",
-        {
-            noModDroidRating: 4.383938283185546,
-            noModPcRating: 7.7798062104458,
-            clockRateDroidRating: 6.141392181000994,
-            clockRatePcRating: 10.344659298946928,
-        }
-    );
+    await testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
+        noModDroidRating: 4.378711505519505,
+        noModPcRating: 7.776311816237997,
+        clockRateDroidRating: 6.140578014529187,
+        clockRatePcRating: 10.344466472971243,
+    });
 });
