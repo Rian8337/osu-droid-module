@@ -25,6 +25,7 @@ import { Accuracy } from "../utils/Accuracy";
 import { ModHidden } from "../mods/ModHidden";
 import { ModFlashlight } from "../mods/ModFlashlight";
 import { Spinner } from "../beatmap/hitobjects/Spinner";
+import { RebalanceDroidStarRating } from "../rebaldifficulty/RebalanceDroidStarRating";
 
 interface HitErrorInformation {
     negativeAvg: number;
@@ -66,9 +67,9 @@ export class ReplayAnalyzer {
     is2Hand?: boolean;
 
     /**
-     * The beatmap that is being analyzed. `DroidStarRating` is required for penalty analyzing.
+     * The beatmap that is being analyzed. `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
      */
-    map?: Beatmap | DroidStarRating;
+    map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
 
     /**
      * The results of the analyzer. `null` when initialized.
@@ -109,9 +110,9 @@ export class ReplayAnalyzer {
         /**
          * The beatmap to analyze.
          *
-         * Using `DroidStarRating` is required to analyze for 3 finger play.
+         * `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
          */
-        map?: Beatmap | DroidStarRating;
+        map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
     }) {
         this.scoreID = values.scoreID;
         this.map = values.map;
@@ -389,10 +390,7 @@ export class ReplayAnalyzer {
         }
 
         // Parse max combo, hit results, and accuracy in old replay version
-        if (
-            resultObject.replayVersion < 3 &&
-            (this.map instanceof DroidStarRating || this.map instanceof Beatmap)
-        ) {
+        if (resultObject.replayVersion < 3 && this.map) {
             let hit300: number = 0;
             let hit300k: number = 0;
             let hit100: number = 0;
@@ -402,7 +400,10 @@ export class ReplayAnalyzer {
             let grantsGekiOrKatu: boolean = true;
 
             const objects: HitObject[] = (
-                this.map instanceof DroidStarRating ? this.map.map : this.map
+                this.map instanceof DroidStarRating ||
+                this.map instanceof RebalanceDroidStarRating
+                    ? this.map.map
+                    : this.map
             ).objects;
 
             for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
@@ -517,7 +518,10 @@ export class ReplayAnalyzer {
         let negativeTotal: number = 0;
 
         const objects: HitObject[] = (
-            this.map instanceof DroidStarRating ? this.map.map : this.map
+            this.map instanceof DroidStarRating ||
+            this.map instanceof RebalanceDroidStarRating
+                ? this.map.map
+                : this.map
         ).objects;
 
         for (let i = 0; i < hitObjectData.length; ++i) {
@@ -605,10 +609,16 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 3 fingers.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating`.
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
      */
     checkFor3Finger(): void {
-        if (!(this.map instanceof DroidStarRating) || !this.data) {
+        if (
+            !(
+                this.map instanceof DroidStarRating ||
+                this.map instanceof RebalanceDroidStarRating
+            ) ||
+            !this.data
+        ) {
             return;
         }
 
@@ -626,10 +636,16 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 2 hands.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating`.
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
      */
     checkFor2Hand(): void {
-        if (!(this.map instanceof DroidStarRating) || !this.data) {
+        if (
+            !(
+                this.map instanceof DroidStarRating ||
+                this.map instanceof RebalanceDroidStarRating
+            ) ||
+            !this.data
+        ) {
             return;
         }
 

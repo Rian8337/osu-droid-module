@@ -17,6 +17,7 @@ import { ModUtil } from "../../utils/ModUtil";
 import { MathUtils } from "../../mathutil/MathUtils";
 import { ThreeFingerBeatmapSection } from "./data/ThreeFingerBeatmapSection";
 import { Interpolation } from "../../mathutil/Interpolation";
+import { RebalanceDroidStarRating } from "../../rebaldifficulty/RebalanceDroidStarRating";
 
 /**
  * Information about the result of a check.
@@ -86,7 +87,7 @@ export class ThreeFingerChecker {
     /**
      * The beatmap to analyze.
      */
-    readonly map: DroidStarRating;
+    readonly map: DroidStarRating | RebalanceDroidStarRating;
 
     /**
      * The data of the replay.
@@ -193,7 +194,10 @@ export class ThreeFingerChecker {
      * @param map The beatmap to analyze.
      * @param data The data of the replay.
      */
-    constructor(map: DroidStarRating, data: ReplayData) {
+    constructor(
+        map: DroidStarRating | RebalanceDroidStarRating,
+        data: ReplayData
+    ) {
         this.map = map;
         this.data = data;
 

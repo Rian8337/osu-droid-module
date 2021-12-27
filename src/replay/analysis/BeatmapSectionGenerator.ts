@@ -1,6 +1,7 @@
 import { DifficultyHitObject } from "../../difficulty/preprocessing/DifficultyHitObject";
 import { StarRating } from "../../difficulty/base/StarRating";
 import { BeatmapSection } from "./data/BeatmapSection";
+import { RebalanceStarRating } from "../../rebaldifficulty/base/RebalanceStarRating";
 
 /**
  * A beatmap section generator that generates beatmap section based on aim/speed strain.
@@ -16,7 +17,7 @@ export abstract class BeatmapSectionGenerator {
      * @param maxSectionDeltaTime The minimum object count required to make a beatmap section. Increasing this number decreases the amount of beatmap sections.
      */
     static generateSections(
-        map: StarRating,
+        map: StarRating | RebalanceStarRating,
         minSectionObjectCount: number,
         maxSectionDeltaTime: number
     ): BeatmapSection[] {

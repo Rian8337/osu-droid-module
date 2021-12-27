@@ -15,6 +15,7 @@ import { Beatmap } from "../../beatmap/Beatmap";
 import { Utils } from "../../utils/Utils";
 import { ModUtil } from "../../utils/ModUtil";
 import { ModPrecise } from "../../mods/ModPrecise";
+import { RebalanceDroidStarRating } from "../../rebaldifficulty/RebalanceDroidStarRating";
 
 interface CursorInformation {
     readonly cursorIndex: number;
@@ -28,7 +29,7 @@ export class TwoHandChecker {
     /**
      * The beatmap that is being analyzed.
      */
-    readonly map: DroidStarRating;
+    readonly map: DroidStarRating | RebalanceDroidStarRating;
 
     /**
      * The data of the replay.
@@ -62,7 +63,10 @@ export class TwoHandChecker {
      * @param map The beatmap to analyze.
      * @param data The data of the replay.
      */
-    constructor(map: DroidStarRating, data: ReplayData) {
+    constructor(
+        map: DroidStarRating | RebalanceDroidStarRating,
+        data: ReplayData
+    ) {
         this.map = map;
         this.data = data;
 
@@ -352,7 +356,8 @@ export class TwoHandChecker {
                 return;
             }
 
-            const starRating: DroidStarRating = Utils.deepCopy(this.map);
+            const starRating: DroidStarRating | RebalanceDroidStarRating =
+                Utils.deepCopy(this.map);
             starRating.map = beatmap;
             starRating.generateDifficultyHitObjects(modes.droid);
             starRating.objects[0].deltaTime =

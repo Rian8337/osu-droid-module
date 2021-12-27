@@ -2847,9 +2847,9 @@ declare module "osu-droid" {
          */
         is2Hand?: boolean;
         /**
-         * The beatmap that is being analyzed. `DroidStarRating` is required for penalty analyzing.
+         * The beatmap that is being analyzed. `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
          */
-        map?: Beatmap | DroidStarRating;
+        map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
         /**
          * The results of the analyzer. `null` when initialized.
          */
@@ -2882,9 +2882,9 @@ declare module "osu-droid" {
             /**
              * The beatmap to analyze.
              *
-             * Using `DroidStarRating` is required to analyze for 3 finger play.
+             * `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
              */
-            map?: Beatmap | DroidStarRating;
+            map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
         });
         /**
          * Analyzes a replay.
@@ -3318,17 +3318,17 @@ declare module "osu-droid" {
         /**
          * The beatmap to analyze.
          */
-        readonly map: DroidStarRating;
+        readonly map: DroidStarRating | RebalanceDroidStarRating;
         /**
          * The data of the replay.
          */
         readonly data: ReplayData;
         /**
-         * Checks whether a beatmap is eligible to be detected for 3-finger.
+         * Checks whether a beatmap is eligible to be detected for three finger.
          *
          * @param map The beatmap.
          */
-        static isEligibleToDetect(map: DroidStarRating): boolean;
+        static isEligibleToDetect(map: DroidStarRating | RebalanceDroidStarRating): boolean;
     }
 
     /**
