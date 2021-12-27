@@ -2564,7 +2564,7 @@ declare module "osu-droid" {
              * Custom map statistics to apply speed multiplier and force AR values as well as old statistics.
              */
             stats?: MapStats;
-        }): MapStars;
+        }): RebalanceMapStars;
         /**
          * Returns a string representative of the class.
          */
