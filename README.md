@@ -9,15 +9,21 @@ This module is published for my own convenience so that I can use it across mult
 
 -   Beatmap parser
 -   osu! difficulty calculator
-    -   This includes a strain graph generator.
+    -   Two versions of difficulty calculators are available:
+        -   Live calculator (based on the current state of difficulty algorithm)
+        -   Local calculator (based on the most recent difficulty algorithm in osu!lazer)
+    -   Includes a strain graph generator.
 -   osu! performance calculator
+    -   Two versions of performance calculators are available:
+        -   Live calculator (based on the current state of performance algorithm)
+        -   Local calculator (based on the most recent performance algorithm in osu!lazer)
 -   osu!droid replay analyzer
     -   Allows parsing osu!droid replay files (`.odr`) to get replay information.
     -   Three finger/two hand detection
         -   Uses cursor movement and beatmap difficulty data to detect.
         -   Two hand detection is not practical as it's still a WIP.
 
-An error margin should be expected from difficulty and performance calculator due to differences between C# (the language that osu!lazer uses) and TypeScript.
+An error margin should be expected from difficulty and performance calculator due to differences between C# and TypeScript.
 
 All features that the module offers are interchangeable with two gamemodes where they are applicable (such as difficulty and performance calculator):
 
@@ -54,7 +60,7 @@ The beatmap parser is the most important part of the module as it is required to
 
 While the beatmap parser provides ways to obtain a `Beatmap` instance with and without osu! API, every examples after the beatmap parser will obtain the `Beatmap` instance using osu! API.
 
--   [Beatmap Parser](#beatmap-parser)
+-   [Beatmap parser](#beatmap-parser)
     -   [Usage with osu! API](#parsing-with-osu-api)
     -   [Usage without osu! API](#parsing-without-osu-api)
 -   [osu! difficulty calculator](#osu-difficulty-calculator)
@@ -118,6 +124,12 @@ const anotherBeatmap = Utils.deepCopy(beatmap);
 ```
 
 The `MapInfo` and `MapStars` class do this internally and thus manual cloning is not required.
+
+All examples use live difficulty calculator. For local difficulty calculator, prefix calculation-related classes with `Rebalance`:
+
+-   `DroidStarRating` → `RebalanceDroidStarRating`
+-   `OsuStarRating` → `RebalanceOsuStarRating`
+-   `MapStars` → `RebalanceMapStars`
 
 ### General difficulty calculator usage
 
@@ -223,6 +235,11 @@ console.log(await rating.getStrainChart(beatmapInfo.beatmapsetID, "#fcba03"));
 ```
 
 ## osu! performance calculator
+
+All examples use live performance calculator. For local performance calculator, prefix calculation-related classes with `Rebalance`:
+
+-   `DroidPerformanceCalculator` → `RebalanceDroidPerformanceCalculator`
+-   `OsuPerformanceCalculator` → `RebalanceOsuPerformanceCalculator`
 
 ### General performance calculator usage
 
