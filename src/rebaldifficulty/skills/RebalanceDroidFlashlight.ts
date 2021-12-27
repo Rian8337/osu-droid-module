@@ -29,7 +29,8 @@ export class RebalanceDroidFlashlight extends RebalanceDroidSkill {
         let last: RebalanceDifficultyHitObject = current;
 
         for (let i = 0; i < this.previous.length; ++i) {
-            const currentObject: RebalanceDifficultyHitObject = this.previous[i];
+            const currentObject: RebalanceDifficultyHitObject =
+                this.previous[i];
 
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number =
