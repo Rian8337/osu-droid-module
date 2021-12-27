@@ -30,12 +30,12 @@ export class RebalanceOsuFlashlight extends RebalanceOsuSkill {
         let last: RebalanceDifficultyHitObject = current;
 
         for (let i = 0; i < this.previous.length; ++i) {
-            const current: RebalanceDifficultyHitObject = this.previous[i];
+            const currentObject: RebalanceDifficultyHitObject = this.previous[i];
 
-            if (!(current.object instanceof Spinner)) {
+            if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number =
                     current.object.stackedPosition.subtract(
-                        current.object.endPosition
+                        currentObject.object.endPosition
                     ).length;
 
                 cumulativeStrainTime += last.strainTime;
@@ -48,7 +48,7 @@ export class RebalanceOsuFlashlight extends RebalanceOsuSkill {
                 // We also want to nerf stacks so that only the first object of the stack is accounted for.
                 const stackNerf: number = Math.min(
                     1,
-                    current.lazyJumpDistance / scalingFactor / 25
+                    currentObject.lazyJumpDistance / scalingFactor / 25
                 );
 
                 result +=
@@ -56,7 +56,7 @@ export class RebalanceOsuFlashlight extends RebalanceOsuSkill {
                     cumulativeStrainTime;
             }
 
-            last = current;
+            last = currentObject;
         }
 
         return Math.pow(smallDistNerf * result, 2);
