@@ -1005,7 +1005,7 @@ declare module "osu-droid" {
          * - Option `5`: return favorite count and play count
          *
          * @param option The option to pick.
-         * @param stats The custom statistics to apply. This will only be used to apply custom speed multiplier and force AR.
+         * @param stats The custom statistics to apply. This will only be used to apply mods, custom speed multiplier, and force AR.
          */
         showStatistics(option: number, stats?: MapStats): string;
         /**
