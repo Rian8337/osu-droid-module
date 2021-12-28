@@ -448,17 +448,28 @@ export class Parser {
                 points.push(vec.subtract(position));
             }
 
-            if (
-                points.length === 3 &&
-                pathType === PathType.PerfectCurve &&
-                Precision.almostEqualsNumber(
-                    0,
-                    (points[1].y - points[0].y) * (points[2].x - points[0].x) -
-                        (points[1].x - points[0].x) *
-                            (points[2].y - points[0].y)
-                )
-            ) {
-                pathType = PathType.Linear;
+            // A special case for old beatmaps where the first
+            // control point is in the position of the slider.
+            if (points[0].equals(points[1])) {
+                points.shift();
+            }
+
+            // Edge-case rules (to match stable).
+            if (pathType === PathType.PerfectCurve) {
+                if (points.length !== 3) {
+                    pathType = PathType.Bezier;
+                } else if (
+                    Precision.almostEqualsNumber(
+                        0,
+                        (points[1].y - points[0].y) *
+                            (points[2].x - points[0].x) -
+                            (points[1].x - points[0].x) *
+                                (points[2].y - points[0].y)
+                    )
+                ) {
+                    // osu-stable special-cased colinear perfect curves to a linear path
+                    pathType = PathType.Linear;
+                }
             }
 
             const path: SliderPath = new SliderPath({
