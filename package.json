@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "typings/index.d.ts",
   "scripts": {
-    "test": "jest",
+    "test": "node --expose-gc ./node_modules/jest/bin/jest.js --runInBand --logHeapUsage",
     "build": "tsc",
     "analyze-code": "npx eslint \"src/**\" && npx eslint \"tests/**\"",
     "format-code": "npx prettier -w --loglevel=silent \"src/**\" && npx prettier -w --loglevel=silent \"tests/**\"",
