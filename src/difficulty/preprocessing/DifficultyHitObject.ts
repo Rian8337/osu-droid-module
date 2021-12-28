@@ -99,11 +99,6 @@ export class DifficultyHitObject {
     startTime: number = 0;
 
     /**
-     * The radius of the hitobject.
-     */
-    radius: number = 0;
-
-    /**
      * @param object The underlying hitobject.
      */
     constructor(object: HitObject) {

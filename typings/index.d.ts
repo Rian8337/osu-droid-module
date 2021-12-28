@@ -433,10 +433,6 @@ declare module "osu-droid" {
          */
         startTime: number;
         /**
-         * The radius of the hitobject.
-         */
-        radius: number;
-        /**
          * @param object The underlying hitobject.
          */
         constructor(object: HitObject);
@@ -2269,10 +2265,6 @@ declare module "osu-droid" {
          * Adjusted start time of the hitobject, taking speed multiplier into account.
          */
         startTime: number;
-        /**
-         * The radius of the hitobject.
-         */
-        radius: number;
         /**
          * @param object The underlying hitobject.
          */
