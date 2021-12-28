@@ -1,5 +1,4 @@
 import { Beatmap } from "./Beatmap";
-import { TimingPoint } from "./timings/TimingPoint";
 import { TimingControlPoint } from "./timings/TimingControlPoint";
 import { DifficultyControlPoint } from "./timings/DifficultyControlPoint";
 import { BreakPoint } from "./timings/BreakPoint";
@@ -311,10 +310,9 @@ export class Parser {
         } else if (s.length < 2) {
             return this.warn("Ignoring malformed timing point");
         }
-        // BeatmapVersion 4 and lower had an incorrect offset (stable has this set as 24ms off)
-        const time: number =
-            parseFloat(this.setPosition(s[0])) +
-            (this.map.formatVersion < 5 ? 24 : 0);
+        const time: number = this.map.getOffsetTime(
+            parseFloat(this.setPosition(s[0]))
+        );
         if (!this.isNumberValid(time)) {
             return this.warn(
                 "Ignoring malformed timing point: Value is invalid, too low, or too high"
@@ -361,7 +359,9 @@ export class Parser {
         } else if (s.length < 4) {
             return this.warn("Ignoring malformed hitobject");
         }
-        const time: number = parseFloat(this.setPosition(s[2]));
+        const time: number = this.map.getOffsetTime(
+            parseFloat(this.setPosition(s[2]))
+        );
         const type: number = parseInt(this.setPosition(s[3]));
         if (!this.isNumberValid(time) || isNaN(type)) {
             return this.warn(
@@ -426,9 +426,9 @@ export class Parser {
             }
 
             const speedMultiplierTimingPoint: DifficultyControlPoint =
-                this.getTimingPoint(time, this.map.difficultyTimingPoints);
+                this.map.difficultyControlPointAt(time);
             const msPerBeatTimingPoint: TimingControlPoint =
-                this.getTimingPoint(time, this.map.timingPoints);
+                this.map.timingControlPointAt(time);
 
             const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");
@@ -528,44 +528,6 @@ export class Parser {
             default:
                 return PathType.Catmull;
         }
-    }
-
-    /**
-     * Gets the timing point that applies at given time.
-     *
-     * @param time The time to search.
-     * @param list The timing points to search in.
-     */
-    private getTimingPoint<T extends TimingPoint>(time: number, list: T[]): T {
-        if (list.length === 0) {
-            throw new Error("No timing points have been loaded");
-        }
-
-        if (time < list[0].time) {
-            return list[0];
-        }
-
-        if (time >= list.at(-1)!.time) {
-            return list.at(-1)!;
-        }
-
-        let l: number = 0;
-        let r: number = list.length - 2;
-
-        while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
-
-            if (list[pivot].time < time) {
-                l = pivot + 1;
-            } else if (list[pivot].time > time) {
-                r = pivot - 1;
-            } else {
-                return list[pivot];
-            }
-        }
-
-        // l will be the first control point with time > list[l].time, but we want the one before it
-        return list[l - 1];
     }
 
     /**
