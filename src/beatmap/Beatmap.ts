@@ -3,6 +3,7 @@ import { HitObject } from "./hitobjects/HitObject";
 import { BreakPoint } from "./timings/BreakPoint";
 import { TimingControlPoint } from "./timings/TimingControlPoint";
 import { DifficultyControlPoint } from "./timings/DifficultyControlPoint";
+import { TimingPoint } from "./timings/TimingPoint";
 
 /**
  * Represents a beatmap with advanced information.
@@ -166,6 +167,73 @@ export class Beatmap {
             this.sliderEnds +
             this.spinners
         );
+    }
+
+    /**
+     * Returns a time combined with beatmap-wide time offset.
+     *
+     * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
+     *
+     * @param time The time.
+     */
+    getOffsetTime(time: number): number {
+        return time + (this.formatVersion < 5 ? 24 : 0);
+    }
+
+    /**
+     * Gets the timing control point that applies at a given time.
+     *
+     * @param time The time.
+     */
+    timingControlPointAt(time: number): TimingControlPoint {
+        return this.getTimingPoint(time, this.timingPoints);
+    }
+
+    /**
+     * Gets the difficulty control point that applies at a given time.
+     *
+     * @param time The time.
+     */
+    difficultyControlPointAt(time: number): DifficultyControlPoint {
+        return this.getTimingPoint(time, this.difficultyTimingPoints);
+    }
+
+    /**
+     * Gets the timing point that applies at a given time.
+     *
+     * @param time The time.
+     * @param list The timing points to search in.
+     */
+    private getTimingPoint<T extends TimingPoint>(time: number, list: T[]): T {
+        if (list.length === 0) {
+            throw new Error("No timing points have been loaded");
+        }
+
+        if (time < list[0].time) {
+            return list[0];
+        }
+
+        if (time >= list.at(-1)!.time) {
+            return list.at(-1)!;
+        }
+
+        let l: number = 0;
+        let r: number = list.length - 2;
+
+        while (l <= r) {
+            const pivot: number = l + ((r - l) >> 1);
+
+            if (list[pivot].time < time) {
+                l = pivot + 1;
+            } else if (list[pivot].time > time) {
+                r = pivot - 1;
+            } else {
+                return list[pivot];
+            }
+        }
+
+        // l will be the first control point with time > list[l].time, but we want the one before it
+        return list[l - 1];
     }
 
     /**
