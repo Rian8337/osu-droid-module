@@ -60,7 +60,8 @@ export class OsuStarRating extends StarRating {
 
         this.calculateSkills(aimSkill);
 
-        this.aimStrainPeaks = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
 
         this.aim = this.starValue(aimSkill.difficultyValue());
 
@@ -86,7 +87,7 @@ export class OsuStarRating extends StarRating {
 
         this.calculateSkills(speedSkill);
 
-        this.speedStrainPeaks = speedSkill.strainPeaks;
+        this.strainPeaks.speed = speedSkill.strainPeaks;
 
         this.speed = this.starValue(speedSkill.difficultyValue());
     }
@@ -99,7 +100,7 @@ export class OsuStarRating extends StarRating {
 
         this.calculateSkills(flashlightSkill);
 
-        this.flashlightStrainPeaks = flashlightSkill.strainPeaks;
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
     }
@@ -117,8 +118,8 @@ export class OsuStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+            Math.pow(speedPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -157,7 +158,8 @@ export class OsuStarRating extends StarRating {
             flashlightSkill = <OsuFlashlight>skills[3];
         }
 
-        this.aimStrainPeaks = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
         this.aim = this.starValue(aimSkill.difficultyValue());
 
         if (this.aim) {
@@ -167,11 +169,11 @@ export class OsuStarRating extends StarRating {
         }
 
         if (speedSkill) {
-            this.speedStrainPeaks = speedSkill.strainPeaks;
+            this.strainPeaks.speed = speedSkill.strainPeaks;
             this.speed = this.starValue(speedSkill.difficultyValue());
         }
 
-        this.flashlightStrainPeaks = flashlightSkill.strainPeaks;
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 
         this.calculateTotal();

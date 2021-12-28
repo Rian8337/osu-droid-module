@@ -40,19 +40,31 @@ export abstract class StarRating {
     stats: MapStats = new MapStats();
 
     /**
-     * The strain peaks of aim difficulty.
+     * The strain peaks of various calculated difficulties.
      */
-    aimStrainPeaks: number[] = [];
-
-    /**
-     * The strain peaks of speed difficulty.
-     */
-    speedStrainPeaks: number[] = [];
-
-    /**
-     * The strain peaks of flashlight difficulty.
-     */
-    flashlightStrainPeaks: number[] = [];
+    readonly strainPeaks: {
+        /**
+         * The strain peaks of aim difficulty if sliders are considered.
+         */
+        aimWithSliders: number[];
+        /**
+         * The strain peaks of aim difficulty if sliders are not considered.
+         */
+        aimWithoutSliders: number[];
+        /**
+         * The strain peaks of speed difficulty.
+         */
+        speed: number[];
+        /**
+         * The strain peaks of flashlight difficulty.
+         */
+        flashlight: number[];
+    } = {
+            aimWithSliders: [],
+            aimWithoutSliders: [],
+            speed: [],
+            flashlight: [],
+        }
 
     /**
      * Additional data that is used in performance calculation.
@@ -179,9 +191,10 @@ export abstract class StarRating {
     ): Promise<Buffer | null> {
         if (
             [
-                this.aimStrainPeaks.length,
-                this.speedStrainPeaks.length,
-                this.flashlightStrainPeaks.length,
+                this.strainPeaks.aimWithSliders.length,
+                this.strainPeaks.aimWithoutSliders.length,
+                this.strainPeaks.speed.length,
+                this.strainPeaks.flashlight.length,
             ].some((v) => v === 0)
         ) {
             return null;
@@ -196,16 +209,16 @@ export abstract class StarRating {
             readonly strain: number;
         }[] = new Array(
             Math.max(
-                this.aimStrainPeaks.length,
-                this.speedStrainPeaks.length,
-                this.flashlightStrainPeaks.length
+                this.strainPeaks.aimWithSliders.length,
+                this.strainPeaks.speed.length,
+                this.strainPeaks.flashlight.length
             )
         );
 
         for (let i = 0; i < strainInformations.length; ++i) {
-            const aimStrain: number = this.aimStrainPeaks[i] ?? 0;
-            const speedStrain: number = this.speedStrainPeaks[i] ?? 0;
-            const flashlightStrain: number = this.flashlightStrainPeaks[i] ?? 0;
+            const aimStrain: number = this.strainPeaks.aimWithSliders[i] ?? 0;
+            const speedStrain: number = this.strainPeaks.speed[i] ?? 0;
+            const flashlightStrain: number = this.strainPeaks.flashlight[i] ?? 0;
 
             strainInformations[i] = {
                 time: (currentSectionEnd + this.sectionLength * i) / 1000,

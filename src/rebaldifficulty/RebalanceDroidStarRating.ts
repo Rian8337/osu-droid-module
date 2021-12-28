@@ -83,7 +83,8 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         this.calculateSkills(aimSkill, aimSkillWithoutSliders);
 
-        this.aimStrainPeaks = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
 
         this.aim = this.starValue(aimSkill.difficultyValue());
 
@@ -109,7 +110,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         this.calculateSkills(tapSkill);
 
-        this.speedStrainPeaks = tapSkill.strainPeaks;
+        this.strainPeaks.speed = tapSkill.strainPeaks;
 
         this.tap = this.starValue(tapSkill.difficultyValue());
 
@@ -135,7 +136,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         this.calculateSkills(flashlightSkill);
 
-        this.flashlightStrainPeaks = flashlightSkill.strainPeaks;
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
     }
@@ -153,8 +154,8 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+            Math.pow(speedPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -195,7 +196,8 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
             flashlightSkill = <RebalanceDroidFlashlight>skills[2];
         }
 
-        this.aimStrainPeaks = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
         this.aim = this.starValue(aimSkill.difficultyValue());
 
         if (this.aim) {
@@ -205,7 +207,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
         }
 
         if (tapSkill) {
-            this.speedStrainPeaks = tapSkill.strainPeaks;
+            this.strainPeaks.speed = tapSkill.strainPeaks;
 
             this.tap = this.starValue(tapSkill.difficultyValue());
 
@@ -225,7 +227,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
             }
         }
 
-        this.flashlightStrainPeaks = flashlightSkill.strainPeaks;
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 
         this.calculateTotal();
