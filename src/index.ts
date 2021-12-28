@@ -4,6 +4,7 @@ export * from "./beatmap/timings/BreakPoint";
 export * from "./utils/Chart";
 export * from "./beatmap/hitobjects/Circle";
 export * from "./replay/data/CursorData";
+export * from "./beatmap/timings/DifficultyControlPoint";
 export * from "./difficulty/preprocessing/DifficultyHitObject";
 export * from "./difficulty/preprocessing/DifficultyHitObjectCreator";
 export * from "./difficulty/skills/DroidAim";
@@ -81,7 +82,7 @@ export * from "./beatmap/hitobjects/sliderObjects/SliderTick";
 export * from "./beatmap/hitobjects/Spinner";
 export * from "./beatmap/hitobjects/sliderObjects/TailCircle";
 export * from "./replay/analysis/ThreeFingerChecker";
-export * from "./beatmap/timings/TimingPoint";
+export * from "./beatmap/timings/TimingControlPoint";
 export * from "./utils/Utils";
 export * from "./mathutil/Vector2";
 
