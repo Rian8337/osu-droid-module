@@ -1,11 +1,13 @@
 import {
     Beatmap,
     Circle,
+    DifficultyControlPoint,
     objectTypes,
     PathType,
     Slider,
     SliderPath,
     Spinner,
+    TimingControlPoint,
     Vector2,
 } from "../../src";
 
@@ -32,6 +34,68 @@ const createGlobalSliderValues = () => {
         tickDistanceMultiplier: 1,
     };
 };
+
+test("Test time offset", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.formatVersion = 3;
+
+    expect(beatmap.getOffsetTime(1000)).toBe(1024);
+
+    beatmap.formatVersion = 4;
+
+    expect(beatmap.getOffsetTime(1000)).toBe(1024);
+
+    beatmap.formatVersion = 10;
+
+    expect(beatmap.getOffsetTime(1000)).toBe(1000);
+});
+
+test("Test timing control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.timingPoints.push(
+        new TimingControlPoint({
+            time: 1000,
+            msPerBeat: 100,
+        }),
+        new TimingControlPoint({
+            time: 5000,
+            msPerBeat: 100,
+        })
+    );
+
+    let timingPoint = beatmap.timingControlPointAt(0);
+
+    expect(timingPoint.time).toBe(1000);
+
+    timingPoint = beatmap.timingControlPointAt(7000);
+
+    expect(timingPoint.time).toBe(5000);
+});
+
+test("Test difficulty control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.difficultyTimingPoints.push(
+        new DifficultyControlPoint({
+            time: 1000,
+            speedMultiplier: 1,
+        }),
+        new DifficultyControlPoint({
+            time: 5000,
+            speedMultiplier: 1,
+        })
+    );
+
+    let timingPoint = beatmap.difficultyControlPointAt(0);
+
+    expect(timingPoint.time).toBe(1000);
+
+    timingPoint = beatmap.difficultyControlPointAt(7000);
+
+    expect(timingPoint.time).toBe(5000);
+});
 
 test("Test slider ticks getter", () => {
     const beatmap = new Beatmap();
