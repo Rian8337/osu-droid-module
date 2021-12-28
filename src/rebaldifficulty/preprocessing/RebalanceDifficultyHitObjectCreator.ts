@@ -83,6 +83,8 @@ export class RebalanceDifficultyHitObjectCreator {
             const lastLastObject: RebalanceDifficultyHitObject =
                 difficultyObjects[i - 2];
 
+            object.startTime = object.object.startTime / params.speedMultiplier;
+
             if (!lastObject) {
                 difficultyObjects.push(object);
                 continue;
@@ -93,7 +95,6 @@ export class RebalanceDifficultyHitObjectCreator {
                 params.speedMultiplier;
             // Cap to 25ms to prevent difficulty calculation breaking from simulatenous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
-            object.startTime = object.object.startTime / params.speedMultiplier;
 
             if (
                 object.object instanceof Spinner ||
