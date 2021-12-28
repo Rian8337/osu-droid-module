@@ -311,7 +311,11 @@ export class DroidAim extends DroidSkill {
      * @param current The hitobject to save to.
      */
     protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.aimStrain = this.currentStrain;
+        if (this.withSliders) {
+            current.aimStrainWithSliders = this.currentStrain;
+        } else {
+            current.aimStrainWithoutSliders = this.currentStrain;
+        }
     }
 
     /**

@@ -315,7 +315,11 @@ export class RebalanceDroidAim extends RebalanceDroidSkill {
     protected override saveToHitObject(
         current: RebalanceDifficultyHitObject
     ): void {
-        current.aimStrain = this.currentStrain;
+        if (this.withSliders) {
+            current.aimStrainWithSliders = this.currentStrain;
+        } else {
+            current.aimStrainWithoutSliders = this.currentStrain;
+        }
     }
 
     /**

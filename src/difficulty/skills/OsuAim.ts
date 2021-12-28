@@ -259,8 +259,8 @@ export class OsuAim extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    override saveToHitObject(current: DifficultyHitObject): void {
-        current.aimStrain = this.currentStrain;
+    protected override saveToHitObject(current: DifficultyHitObject): void {
+        current.aimStrainWithSliders = this.currentStrain;
     }
 
     /**

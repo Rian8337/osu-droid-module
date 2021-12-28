@@ -261,8 +261,14 @@ export class RebalanceOsuAim extends RebalanceOsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    override saveToHitObject(current: RebalanceDifficultyHitObject): void {
-        current.aimStrain = this.currentStrain;
+    protected override saveToHitObject(
+        current: RebalanceDifficultyHitObject
+    ): void {
+        if (this.withSliders) {
+            current.aimStrainWithSliders = this.currentStrain;
+        } else {
+            current.aimStrainWithoutSliders = this.currentStrain;
+        }
     }
 
     /**
