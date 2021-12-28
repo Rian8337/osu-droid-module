@@ -154,8 +154,8 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(speedPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(speedPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 

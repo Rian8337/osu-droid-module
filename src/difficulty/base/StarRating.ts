@@ -60,11 +60,11 @@ export abstract class StarRating {
          */
         flashlight: number[];
     } = {
-            aimWithSliders: [],
-            aimWithoutSliders: [],
-            speed: [],
-            flashlight: [],
-        }
+        aimWithSliders: [],
+        aimWithoutSliders: [],
+        speed: [],
+        flashlight: [],
+    };
 
     /**
      * Additional data that is used in performance calculation.
@@ -218,7 +218,8 @@ export abstract class StarRating {
         for (let i = 0; i < strainInformations.length; ++i) {
             const aimStrain: number = this.strainPeaks.aimWithSliders[i] ?? 0;
             const speedStrain: number = this.strainPeaks.speed[i] ?? 0;
-            const flashlightStrain: number = this.strainPeaks.flashlight[i] ?? 0;
+            const flashlightStrain: number =
+                this.strainPeaks.flashlight[i] ?? 0;
 
             strainInformations[i] = {
                 time: (currentSectionEnd + this.sectionLength * i) / 1000,
