@@ -141,6 +141,33 @@ declare module "osu-droid" {
          */
         get maxCombo(): number;
         /**
+         * Returns a time combined with beatmap-wide time offset.
+         * 
+         * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
+         * 
+         * @param time The time.
+         */
+        getOffsetTime(time: number): number;
+        /**
+         * Gets the timing control point that applies at a given time.
+         *
+         * @param time The time.
+         */
+        timingControlPointAt(time: number): TimingControlPoint;
+        /**
+         * Gets the difficulty control point that applies at a given time.
+         *
+         * @param time The time.
+         */
+        difficultyControlPointAt(time: number): DifficultyControlPoint;
+        /**
+         * Gets the timing point that applies at a given time.
+         *
+         * @param time The time.
+         * @param list The timing points to search in.
+         */
+        private getTimingPoint<T extends TimingPoint>(time: number, list: T[]): T;
+        /**
          * Returns a string representative of the class.
          */
         toString(): string;
@@ -1925,16 +1952,6 @@ declare module "osu-droid" {
          */
         private objects(): void;
         /**
-         * Gets the timing point that applies at given time.
-         *
-         * @param time The time to search.
-         * @param timingPoints The timing points to search in.
-         */
-        private getTimingPoint<T extends TimingPoint>(
-            time: number,
-            timingPoints: T[]
-        ): T;
-        /**
          * Applies stacking to hitobjects for beatmap version 6 or above.
          */
         private applyStacking(startIndex: number, endIndex: number): void;
@@ -3370,26 +3387,6 @@ declare module "osu-droid" {
         readonly msPerBeat: number;
         constructor(values: { time: number; msPerBeat: number });
         override toString(): string;
-    }
-
-    /**
-     * Represents a timing point in a beatmap.
-     */
-    export abstract class TimingPoint {
-        /**
-         * The time at which the timing point takes effect in milliseconds.
-         */
-        readonly time: number;
-        constructor(values: {
-            /**
-             * The time at which the timing point takes effect in milliseconds.
-             */
-            time: number;
-        });
-        /**
-         * Returns a string representative of the class.
-         */
-        abstract toString(): string;
     }
 
     /**
@@ -5006,6 +5003,26 @@ declare module "osu-droid" {
          * Saves the current strain to a hitobject.
          */
         protected abstract saveToHitObject(current: DifficultyHitObject): void;
+    }
+
+    /**
+     * Represents a timing point in a beatmap.
+     */
+    abstract class TimingPoint {
+        /**
+         * The time at which the timing point takes effect in milliseconds.
+         */
+        readonly time: number;
+        constructor(values: {
+            /**
+             * The time at which the timing point takes effect in milliseconds.
+             */
+            time: number;
+        });
+        /**
+         * Returns a string representative of the class.
+         */
+        abstract toString(): string;
     }
 
     //#endregion
