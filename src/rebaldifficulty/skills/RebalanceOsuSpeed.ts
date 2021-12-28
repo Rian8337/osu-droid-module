@@ -254,7 +254,9 @@ export class RebalanceOsuSpeed extends RebalanceOsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    override saveToHitObject(current: RebalanceDifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: RebalanceDifficultyHitObject
+    ): void {
         current.tapStrain = this.currentStrain;
         current.rhythmMultiplier = this.currentRhythm;
     }
