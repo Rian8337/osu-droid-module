@@ -3784,6 +3784,28 @@ declare module "osu-droid" {
     }
 
     /**
+     * The strain peaks of various calculated difficulties.
+     */
+    export interface RebalanceStrainPeaks {
+        /**
+         * The strain peaks of aim difficulty if sliders are considered.
+         */
+        aimWithSliders: number[];
+        /**
+         * The strain peaks of aim difficulty if sliders are not considered.
+         */
+        aimWithoutSliders: number[];
+        /**
+         * The strain peaks of speed difficulty.
+         */
+        speed: number[];
+        /**
+         * The strain peaks of flashlight difficulty.
+         */
+        flashlight: number[];
+    }
+
+    /**
      * Contains information about a replay.
      */
     export interface ReplayInformation {
@@ -4045,6 +4067,28 @@ declare module "osu-droid" {
          * MD5 hash of the play.
          */
         hash: string;
+    }
+
+    /**
+     * The strain peaks of various calculated difficulties.
+     */
+    export interface StrainPeaks {
+        /**
+         * The strain peaks of aim difficulty if sliders are considered.
+         */
+        aimWithSliders: number[];
+        /**
+         * The strain peaks of aim difficulty if sliders are not considered.
+         */
+        aimWithoutSliders: number[];
+        /**
+         * The strain peaks of speed difficulty.
+         */
+        speed: number[];
+        /**
+         * The strain peaks of flashlight difficulty.
+         */
+        flashlight: number[];
     }
 
     //#endregion
@@ -4657,17 +4701,9 @@ declare module "osu-droid" {
          */
         stats: MapStats;
         /**
-         * The strain peaks of aim difficulty.
+         * The strain peaks of various calculated difficulties.
          */
-        aimStrainPeaks: number[];
-        /**
-         * The strain peaks of speed difficulty.
-         */
-        speedStrainPeaks: number[];
-        /**
-         * The strain peaks of flashlight difficulty.
-         */
-        flashlightStrainPeaks: number[];
+        readonly strainPeaks: RebalanceStrainPeaks;
         /**
          * Additional data that is used in performance calculation.
          */
@@ -4805,17 +4841,9 @@ declare module "osu-droid" {
          */
         stats: MapStats;
         /**
-         * The strain peaks of aim difficulty.
+         * The strain peaks of various calculated difficulties.
          */
-        aimStrainPeaks: number[];
-        /**
-         * The strain peaks of speed difficulty.
-         */
-        speedStrainPeaks: number[];
-        /**
-         * The strain peaks of flashlight difficulty.
-         */
-        flashlightStrainPeaks: number[];
+        readonly strainPeaks: StrainPeaks;
         /**
          * Additional data that is used in performance calculation.
          */
