@@ -45,7 +45,7 @@ The table below lists all classes along with their methods that require an osu!d
     | Class | Method(s) |
     |-|-|
     | `MapInfo` | `fetchDroidLeaderboard()` |
-    | `Player` | `static getInformation()` |
+    | `Player` | <ul><li>`static getInformation()`</li><li>`hasPlayedVerificationMap()`</li></ul> |
     | `Score` | `static getFromHash()` |
 -   osu! API key
     | Class | Method(s) |
