@@ -73,8 +73,6 @@ export abstract class RebalanceStarRating {
     readonly attributes: RebalanceDifficultyAttributes = {
         speedNoteCount: 0,
         sliderFactor: 1,
-        aimDifficultStrainCount: 0,
-        speedDifficultStrainCount: 0,
     };
 
     protected readonly sectionLength: number = 400;
