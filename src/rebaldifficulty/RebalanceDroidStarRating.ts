@@ -88,13 +88,6 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         this.aim = this.starValue(aimSkill.difficultyValue());
 
-        const maxStrain: number = Math.max(...aimSkill.strainPeaks);
-
-        this.attributes.aimDifficultStrainCount = Math.floor(
-            aimSkill.strainPeaks.filter((s) => s > maxStrain * 0.66).length *
-                this.stats.speedMultiplier
-        );
-
         if (this.aim) {
             this.attributes.sliderFactor =
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
@@ -123,14 +116,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
 
         const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
 
-        // Real implementation uses strain peaks, but this shouldn't matter as
-        // strain peaks always happen in objects.
         const maxStrain: number = Math.max(...objectStrains);
-
-        this.attributes.speedDifficultStrainCount = Math.floor(
-            tapSkill.strainPeaks.filter((s) => s > maxStrain * 0.66).length *
-                this.stats.speedMultiplier
-        );
 
         if (maxStrain) {
             this.attributes.speedNoteCount = objectStrains.reduce(
@@ -212,13 +198,6 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
         this.aim = this.starValue(aimSkill.difficultyValue());
 
-        const aimMaxStrain: number = Math.max(...aimSkill.strainPeaks);
-
-        this.attributes.aimDifficultStrainCount = Math.floor(
-            aimSkill.strainPeaks.filter((s) => s > aimMaxStrain * 0.66).length *
-                this.stats.speedMultiplier
-        );
-
         if (this.aim) {
             this.attributes.sliderFactor =
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
@@ -234,14 +213,7 @@ export class RebalanceDroidStarRating extends RebalanceStarRating {
                 (v) => v.tapStrain
             );
 
-            // Real implementation uses strain peaks, but this shouldn't matter as
-            // strain peaks always happen in objects.
             const maxStrain: number = Math.max(...objectStrains);
-
-            this.attributes.speedDifficultStrainCount = Math.floor(
-                tapSkill.strainPeaks.filter((s) => s > maxStrain * 0.66)
-                    .length * this.stats.speedMultiplier
-            );
 
             if (maxStrain) {
                 this.attributes.speedNoteCount = objectStrains.reduce(

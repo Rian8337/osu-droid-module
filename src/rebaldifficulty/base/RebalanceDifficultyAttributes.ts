@@ -4,6 +4,4 @@
 export interface RebalanceDifficultyAttributes {
     speedNoteCount: number;
     sliderFactor: number;
-    aimDifficultStrainCount: number;
-    speedDifficultStrainCount: number;
 }

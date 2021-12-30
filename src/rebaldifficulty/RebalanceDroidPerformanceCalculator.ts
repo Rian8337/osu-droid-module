@@ -119,10 +119,16 @@ export class RebalanceDroidPerformanceCalculator extends RebalancePerformanceCal
         this.aim = this.baseValue(Math.pow(this.stars.aim, 0.8));
 
         if (this.effectiveMissCount > 0) {
-            this.aim *= this.calculateMissPenalty(
-                this.stars.attributes.aimDifficultStrainCount
-            );
+            this.aim *=
+                0.97 *
+                Math.pow(
+                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    this.effectiveMissCount
+                );
         }
+
+        // Combo scaling
+        this.aim *= this.comboPenalty;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
         let hiddenBonus: number = 1;
@@ -177,10 +183,16 @@ export class RebalanceDroidPerformanceCalculator extends RebalancePerformanceCal
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            this.tap *= this.calculateMissPenalty(
-                this.stars.attributes.speedDifficultStrainCount
-            );
+            this.tap *=
+                0.97 *
+                Math.pow(
+                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    this.effectiveMissCount
+                );
         }
+
+        // Combo scaling
+        this.tap *= this.comboPenalty;
 
         // AR scaling
         if (calculatedAR > 10.33) {
@@ -334,12 +346,6 @@ export class RebalanceDroidPerformanceCalculator extends RebalancePerformanceCal
         const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
         this.flashlight *=
             0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
-    }
-
-    private calculateMissPenalty(strainCount: number): number {
-        return (
-            0.95 / (this.effectiveMissCount / (3 * Math.sqrt(strainCount)) + 1)
-        );
     }
 
     override toString(): string {
