@@ -66,14 +66,10 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
         }
 
         // Cap deltatime to the OD 300 hitwindow.
-        // This equation is derived from making sure 260 BPM 1/4 OD7 streams aren't nerfed harshly.
+        // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
         strainTime /= MathUtils.clamp(
-            strainTime /
-                new OsuHitWindow(
-                    this.overallDifficulty - 21.5
-                ).hitWindowFor300() /
-                0.35,
-            0.9,
+            strainTime / greatWindowFull / 0.93,
+            0.92,
             1
         );
 
