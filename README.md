@@ -114,17 +114,6 @@ Both examples return a `Beatmap` instance, which is necessary for some features 
 
 ## osu! difficulty calculator
 
-It is important to note that the difficulty calculator will mutate the original `Beatmap` instance.
-If you don't want this to happen, use the clone utility provided in the module:
-
-```js
-import { Utils } from "osu-droid";
-
-const anotherBeatmap = Utils.deepCopy(beatmap);
-```
-
-The `MapInfo` and `MapStars` class do this internally and thus manual cloning is not required.
-
 All examples use live difficulty calculator. For local difficulty calculator, prefix calculation-related classes with `Rebalance`:
 
 -   `DroidStarRating` → `RebalanceDroidStarRating`

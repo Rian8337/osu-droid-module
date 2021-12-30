@@ -9,6 +9,7 @@ import { Chart } from "../../utils/Chart";
 import { Mod } from "../../mods/Mod";
 import { ModFlashlight } from "../../mods/ModFlashlight";
 import { DifficultyAttributes } from "./DifficultyAttributes";
+import { Utils } from "../../utils/Utils";
 
 /**
  * The base of difficulty calculation.
@@ -114,7 +115,7 @@ export abstract class StarRating {
         },
         mode: modes
     ): this {
-        const map: Beatmap = (this.map = params.map);
+        const map: Beatmap = (this.map = Utils.deepCopy(params.map));
 
         const mod: Mod[] = (this.mods = params.mods ?? this.mods);
 

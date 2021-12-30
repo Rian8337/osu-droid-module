@@ -3,7 +3,6 @@ import { MapStats } from "../utils/MapStats";
 import { DroidStarRating } from "../difficulty/DroidStarRating";
 import { OsuStarRating } from "../difficulty/OsuStarRating";
 import { Mod } from "../mods/Mod";
-import { Utils } from "../utils/Utils";
 
 /**
  * A star rating calculator that configures which mode to calculate difficulty for and what mods are applied.
@@ -47,12 +46,12 @@ export class MapStars {
         });
 
         this.droidStars.calculate({
-            map: Utils.deepCopy(params.map),
+            map: params.map,
             mods: mod,
             stats,
         });
         this.pcStars.calculate({
-            map: Utils.deepCopy(params.map),
+            map: params.map,
             mods: mod,
             stats,
         });
