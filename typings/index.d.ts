@@ -2444,6 +2444,7 @@ declare module "osu-droid" {
          * Calculates the flashlight performance value of the beatmap.
          */
         private calculateFlashlightValue(): void;
+        private calculateMissPenalty(strainCount: number): number;
         override toString(): string;
     }
 
@@ -3770,6 +3771,8 @@ declare module "osu-droid" {
     export interface RebalanceDifficultyAttributes {
         speedNoteCount: number;
         sliderFactor: number;
+        aimDifficultStrainCount: number;
+        speedDifficultStrainCount: number;
     }
 
     /**
