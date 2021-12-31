@@ -66,9 +66,9 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
         }
 
         // Cap deltatime to the OD 300 hitwindow.
-        // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
+        // 0.93 is derived from making sure 260 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
         strainTime /= MathUtils.clamp(
-            strainTime / greatWindowFull / 0.93,
+            strainTime / greatWindowFull / 0.58,
             0.92,
             1
         );
@@ -128,7 +128,7 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
         while (
             rhythmStart < this.previous.length - 2 &&
             current.startTime - this.previous[rhythmStart].startTime <
-                this.historyTimeMax
+            this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -153,26 +153,26 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                    Math.min(
-                        0.5,
-                        Math.pow(
-                            Math.sin(
-                                Math.PI /
-                                    (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta))
-                            ),
-                            2
-                        )
-                    );
+                Math.min(
+                    0.5,
+                    Math.pow(
+                        Math.sin(
+                            Math.PI /
+                            (Math.min(prevDelta, currentDelta) /
+                                Math.max(prevDelta, currentDelta))
+                        ),
+                        2
+                    )
+                );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                        this.hitWindow.hitWindowFor300() * 0.6
+                    this.hitWindow.hitWindowFor300() * 0.6
                 ) /
-                    (this.hitWindow.hitWindowFor300() * 0.6)
+                (this.hitWindow.hitWindowFor300() * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
