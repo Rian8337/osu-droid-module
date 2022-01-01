@@ -96,10 +96,12 @@ export class ReplayAnalyzer {
      */
     hasBeenCheckedFor2Hand: boolean = false;
 
-    private readonly BYTE_LENGTH = 1;
-    private readonly SHORT_LENGTH = 2;
-    private readonly INT_LENGTH = 4;
-    private readonly LONG_LENGTH = 8;
+    // Sizes of primitive data types in Java (in bytes)
+    private readonly BYTE_LENGTH: number = 1;
+    private readonly SHORT_LENGTH: number = 2;
+    private readonly INT_LENGTH: number = 4;
+    private readonly FLOAT_LENGTH: number = 4;
+    private readonly LONG_LENGTH: number = 8;
 
     constructor(values: {
         /**
@@ -332,12 +334,21 @@ export class ReplayAnalyzer {
                 moveArray.id[i] = moveArray.time[i] & 3;
                 moveArray.time[i] >>= 2;
                 if (moveArray.id[i] !== movementType.UP) {
-                    moveArray.x[i] =
-                        replayDataBuffer.readInt16BE(bufferCounter);
-                    bufferCounter += this.SHORT_LENGTH;
-                    moveArray.y[i] =
-                        replayDataBuffer.readInt16BE(bufferCounter);
-                    bufferCounter += this.SHORT_LENGTH;
+                    if (resultObject.replayVersion >= 5) {
+                        moveArray.x[i] =
+                            replayDataBuffer.readFloatBE(bufferCounter);
+                        bufferCounter += this.FLOAT_LENGTH;
+                        moveArray.y[i] =
+                            replayDataBuffer.readFloatBE(bufferCounter);
+                        bufferCounter += this.FLOAT_LENGTH;
+                    } else {
+                        moveArray.x[i] =
+                            replayDataBuffer.readInt16BE(bufferCounter);
+                        bufferCounter += this.SHORT_LENGTH;
+                        moveArray.y[i] =
+                            replayDataBuffer.readInt16BE(bufferCounter);
+                        bufferCounter += this.SHORT_LENGTH;
+                    }
                 } else {
                     moveArray.x[i] = -1;
                     moveArray.y[i] = -1;
