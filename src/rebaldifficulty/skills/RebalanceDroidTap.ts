@@ -128,7 +128,7 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
         while (
             rhythmStart < this.previous.length - 2 &&
             current.startTime - this.previous[rhythmStart].startTime <
-            this.historyTimeMax
+                this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -153,26 +153,26 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                Math.min(
-                    0.5,
-                    Math.pow(
-                        Math.sin(
-                            Math.PI /
-                            (Math.min(prevDelta, currentDelta) /
-                                Math.max(prevDelta, currentDelta))
-                        ),
-                        2
-                    )
-                );
+                    Math.min(
+                        0.5,
+                        Math.pow(
+                            Math.sin(
+                                Math.PI /
+                                    (Math.min(prevDelta, currentDelta) /
+                                        Math.max(prevDelta, currentDelta))
+                            ),
+                            2
+                        )
+                    );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                    this.hitWindow.hitWindowFor300() * 0.6
+                        this.hitWindow.hitWindowFor300() * 0.6
                 ) /
-                (this.hitWindow.hitWindowFor300() * 0.6)
+                    (this.hitWindow.hitWindowFor300() * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
