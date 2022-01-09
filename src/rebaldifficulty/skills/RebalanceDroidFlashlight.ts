@@ -11,7 +11,7 @@ export class RebalanceDroidFlashlight extends RebalanceDroidSkill {
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly starsPerDouble: number = 1.1;
+    protected override readonly starsPerDouble: number = 1.05;
 
     protected strainValueOf(current: RebalanceDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
