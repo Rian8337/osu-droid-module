@@ -59,7 +59,7 @@ export class RebalanceDroidFlashlight extends RebalanceDroidSkill {
             last = currentObject;
         }
 
-        return Math.pow(smallDistNerf * result, 2) * this.skillMultiplier;
+        return Math.pow(smallDistNerf * result, 2);
     }
 
     /**
