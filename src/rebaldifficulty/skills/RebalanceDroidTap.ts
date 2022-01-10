@@ -24,7 +24,7 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
     private currentTapStrain: number = 0;
     private currentOriginalTapStrain: number = 0;
 
-    private readonly rhythmMultiplier: number = 1.5;
+    private readonly rhythmMultiplier: number = 0.75;
     private readonly historyTimeMax: number = 5000; // 5 seconds of calculateRhythmBonus max.
     private currentRhythm: number = 1;
 
@@ -170,9 +170,9 @@ export class RebalanceDroidTap extends RebalanceDroidSkill {
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                        this.hitWindow.hitWindowFor300() * 0.4
+                        this.hitWindow.hitWindowFor300() * 0.6
                 ) /
-                    (this.hitWindow.hitWindowFor300() * 0.4)
+                    (this.hitWindow.hitWindowFor300() * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
