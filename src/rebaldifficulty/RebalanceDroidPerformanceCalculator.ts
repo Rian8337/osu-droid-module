@@ -238,7 +238,7 @@ export class RebalanceDroidPerformanceCalculator extends RebalancePerformanceCal
                         this.stars.attributes.speedNoteCount
                     )) /
                     2,
-                (12 - Math.max(od, 2.5)) / 2
+                (14 - Math.max(od, 2.5)) / 2
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
