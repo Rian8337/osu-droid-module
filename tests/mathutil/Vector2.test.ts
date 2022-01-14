@@ -26,6 +26,8 @@ test("Test vector multiplication", () => {
 test("Test vector division", () => {
     const vec = new Vector2(10, 10);
 
+    expect(() => vec.divide(0)).toThrow();
+
     let finalVec = vec.divide(1);
 
     expect(finalVec.x).toBeCloseTo(10);
