@@ -1,0 +1,42 @@
+{
+  "name": "@rian8337/osu-base",
+  "version": "1.0.0",
+  "description": "Base module for all osu! related modules.",
+  "keywords": [
+    "osu",
+    "beatmap-parser"
+  ],
+  "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
+  "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
+  "license": "MIT",
+  "main": "dist/index.js",
+  "types": "typings/index.d.ts",
+  "files": [
+    "dist/**",
+    "typings/**"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepare": "npm run build",
+    "test": "jest -i"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Rian8337/osu-droid-module.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Rian8337/osu-droid-module/issues"
+  },
+  "dependencies": {
+    "@types/lodash.clonedeep": "^4.5.6",
+    "dotenv": "^14.2.0",
+    "lodash.clonedeep": "^4.5.0",
+    "request": "^2.88.2"
+  },
+  "devDependencies": {
+    "@types/request": "^2.48.8"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}
