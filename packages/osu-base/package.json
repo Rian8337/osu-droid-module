@@ -18,6 +18,7 @@
   "scripts": {
     "build": "tsc",
     "generate-docs": "typedoc src/index.ts",
+    "lint": "eslint --ext ts",
     "prepare": "npm run build",
     "test": "jest -i"
   },
