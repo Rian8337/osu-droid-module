@@ -64,13 +64,6 @@ export class DroidStarRating extends StarRating {
     }
 
     /**
-     * Generates difficulty hitobjects for this calculator.
-     */
-    override generateDifficultyHitObjects(): void {
-        super.generateDifficultyHitObjects(modes.droid);
-    }
-
-    /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
