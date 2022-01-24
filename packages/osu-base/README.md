@@ -1,11 +1,64 @@
-# `osu-base`
+# About
 
-> TODO: description
+The base module required for all my osu! modules.
 
-## Usage
+# Features
+
+This module provides the required feature for all my osu! related modules, which is the beatmap parser.
+
+# Specific Requirements
+
+If you want to retrieve a beatmap using osu! API, you need to have an osu! API key set as `OSU_API_KEY` environment variable.
+
+See usage for more details.
+
+# Installation
 
 ```
-const osuBase = require('osu-base');
+npm i @rian8337/osu-base
+```
 
-// TODO: DEMONSTRATE API
+or
+
+```
+yarn add @rian8337/osu-base
+```
+
+# Usage
+
+## Using osu! API
+
+```js
+import { MapInfo } from "@rian8337/osu-base";
+
+// MD5 hash is also supported, but when both options are specified, beatmap ID is used
+const beatmapInfo = await MapInfo.getInformation({
+    beatmapID: 901854,
+    hash: "hash123",
+    file: true,
+});
+
+if (!beatmapInfo.title) {
+    return console.log("Beatmap not found");
+}
+
+// Parsed beatmap can be accessed via the `map` field
+// Note that the parsed beatmap will be cloned every time this is called. This allows caching of the original instance when needed
+console.log(beatmapInfo.map);
+```
+
+## Using without osu! API
+
+```js
+import { readFile } from "fs";
+import { Parser } from "@rian8337/osu-base";
+
+readFile("path/to/file.osu", { encoding: "utf-8" }, (err, data) => {
+    if (err) throw err;
+
+    const parser = new Parser().parse(data);
+
+    // Parsed beatmap can be accessed via the `map` field
+    console.log(parser.map);
+});
 ```
