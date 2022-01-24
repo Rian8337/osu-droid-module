@@ -31,9 +31,13 @@
   },
   "dependencies": {
     "@rian8337/osu-base": "^1.0.1",
-    "@rian8337/osu-droid-replay-analyzer": "^1.0.1"
+    "@rian8337/osu-droid-replay-analyzer": "^1.0.1",
+    "crypto-js": "^4.1.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.1.0"
   }
 }
