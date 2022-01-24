@@ -946,16 +946,6 @@ declare module "@rian8337/osu-difficulty-calculator" {
          */
         abstract calculateAll(): void;
         /**
-         * Generates the strain chart of this beatmap and returns the chart as a buffer.
-         *
-         * @param beatmapsetID The beatmapset ID to get background image from. If omitted, the background will be plain white.
-         * @param color The color of the graph.
-         */
-        getStrainChart(
-            beatmapsetID?: number,
-            color?: string
-        ): Promise<Buffer | null>;
-        /**
          * Returns a string representative of the class.
          */
         abstract toString(): string;
