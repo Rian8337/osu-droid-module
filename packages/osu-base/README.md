@@ -47,6 +47,10 @@ if (!beatmapInfo.title) {
 console.log(beatmapInfo.map);
 ```
 
+### Not retrieving beatmap file
+
+You can also opt out from downloading the beatmap (`.osu`) file if you just want to retrieve information from the API by setting `file` to `false`, however a parsed beatmap will not be provided.
+
 ## Using without osu! API
 
 ```js
