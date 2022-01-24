@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-difficulty-calculator",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "A module for calculating osu!standard beatmap difficulty and performance value with respect to the current difficulty and performance algorithm.",
   "keywords": [
     "osu",
@@ -28,7 +28,7 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^1.0.0"
+    "@rian8337/osu-base": "^1.0.1"
   },
   "publishConfig": {
     "access": "public"
