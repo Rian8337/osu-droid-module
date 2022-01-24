@@ -21,6 +21,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "generate-docs": "typedoc src/index.ts",
     "prepare": "npm run build",
     "test": "echo \"No tests for this module\""
   },

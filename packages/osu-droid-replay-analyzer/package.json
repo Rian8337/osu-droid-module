@@ -22,6 +22,7 @@
   },
   "scripts": {
     "build": "tsc",
+    "generate-docs": "typedoc src/index.ts",
     "prepare": "dts-gen -m java-deserialization -o -f ./node_modules/java-deserialization/src/index.d.ts && npm run build",
     "test": "echo \"No tests for this module\""
   },

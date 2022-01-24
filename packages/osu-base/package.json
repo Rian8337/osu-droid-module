@@ -17,6 +17,7 @@
   ],
   "scripts": {
     "build": "tsc",
+    "generate-docs": "typedoc src/index.ts",
     "prepare": "npm run build",
     "test": "jest -i"
   },
