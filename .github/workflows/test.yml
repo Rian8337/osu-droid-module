@@ -3,24 +3,24 @@ on: [push, pull_request]
 jobs:
   lint:
     name: Lint
-      runs-on: ubuntu-latest
-      steps:
-        - name: Checkout repository
-          uses: actions/checkout@v2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
 
-        - name: Install Node.js v16
-          uses: actions/setup-node@v2
-          with:
-            node-version: 16
+      - name: Install Node.js v16
+        uses: actions/setup-node@v2
+        with:
+          node-version: 16
 
-        - name: Install main dependencies
-          run: npm i
+      - name: Install main dependencies
+        run: npm i
 
-        - name: Lerna bootstrap
-          run: lerna bootstrap
+      - name: Lerna bootstrap
+        run: lerna bootstrap
 
-        - name: ESLint
-          run: lerna run lint
+      - name: ESLint
+        run: lerna run lint
 
-        - name: Tests
-          run: lerna run test
+      - name: Tests
+        run: lerna run test
