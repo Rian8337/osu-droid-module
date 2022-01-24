@@ -133,7 +133,7 @@ export abstract class StarRating {
      *
      * @param mode The gamemode to generate difficulty hitobjects for.
      */
-    generateDifficultyHitObjects(mode: modes): void {
+    protected generateDifficultyHitObjects(mode: modes): void {
         this.objects.length = 0;
         this.objects.push(
             ...new DifficultyHitObjectCreator().generateDifficultyObjects(
