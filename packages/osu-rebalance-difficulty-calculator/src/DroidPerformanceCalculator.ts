@@ -189,7 +189,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 0.97 *
                 Math.pow(
                     1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
-                    this.effectiveMissCount
+                    Math.pow(this.effectiveMissCount, 0.875)
                 );
         }
 
