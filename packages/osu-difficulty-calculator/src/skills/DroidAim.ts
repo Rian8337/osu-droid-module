@@ -144,7 +144,7 @@ export class DroidAim extends DroidSkill {
                         Math.pow(
                             Math.sin(
                                 (Math.PI / 2) *
-                                Math.min(1, (100 - current.strainTime) / 25)
+                                    Math.min(1, (100 - current.strainTime) / 25)
                             ),
                             2
                         ) *
@@ -158,7 +158,7 @@ export class DroidAim extends DroidSkill {
                                         100
                                     ) -
                                         50)) /
-                                50
+                                    50
                             ),
                             2
                         );
@@ -179,16 +179,16 @@ export class DroidAim extends DroidSkill {
                 acuteAngleBonus *=
                     0.5 +
                     0.5 *
-                    (1 -
-                        Math.min(
-                            acuteAngleBonus,
-                            Math.pow(
-                                this.calculateAcuteAngleBonus(
-                                    lastLast.angle
-                                ),
-                                3
-                            )
-                        ));
+                        (1 -
+                            Math.min(
+                                acuteAngleBonus,
+                                Math.pow(
+                                    this.calculateAcuteAngleBonus(
+                                        lastLast.angle
+                                    ),
+                                    3
+                                )
+                            ));
             }
         }
 
@@ -205,7 +205,7 @@ export class DroidAim extends DroidSkill {
             const distanceRatio: number = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
-                    Math.max(prevVelocity, currentVelocity)
+                        Math.max(prevVelocity, currentVelocity)
                 ),
                 2
             );
@@ -223,13 +223,13 @@ export class DroidAim extends DroidSkill {
                 Math.pow(
                     Math.sin(
                         (Math.PI / 2) *
-                        Math.min(
-                            1,
                             Math.min(
-                                current.lazyJumpDistance,
-                                last.lazyJumpDistance
-                            ) / 100
-                        )
+                                1,
+                                Math.min(
+                                    current.lazyJumpDistance,
+                                    last.lazyJumpDistance
+                                ) / 100
+                            )
                     ),
                     2
                 );
@@ -242,7 +242,7 @@ export class DroidAim extends DroidSkill {
             // Penalize for rhythm changes.
             velocityChangeBonus *= Math.pow(
                 Math.min(current.strainTime, last.strainTime) /
-                Math.max(current.strainTime, last.strainTime),
+                    Math.max(current.strainTime, last.strainTime),
                 2
             );
         }
@@ -256,7 +256,7 @@ export class DroidAim extends DroidSkill {
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
             wideAngleBonus * this.wideAngleMultiplier +
-            velocityChangeBonus * this.velocityChangeMultiplier
+                velocityChangeBonus * this.velocityChangeMultiplier
         );
 
         // Add in additional slider velocity bonus.
@@ -322,8 +322,8 @@ export class DroidAim extends DroidSkill {
         return Math.pow(
             Math.sin(
                 (3 / 4) *
-                (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
-                    Math.PI / 6)
+                    (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
+                        Math.PI / 6)
             ),
             2
         );

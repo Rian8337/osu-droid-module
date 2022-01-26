@@ -222,7 +222,9 @@ declare module "@rian8337/osu-droid-replay-analyzer" {
          *
          * @param map The beatmap.
          */
-        static isEligibleToDetect(map: DroidStarRating | RebalanceDroidStarRating): boolean;
+        static isEligibleToDetect(
+            map: DroidStarRating | RebalanceDroidStarRating
+        ): boolean;
     }
 
     //#endregion
@@ -315,7 +317,6 @@ declare module "@rian8337/osu-droid-replay-analyzer" {
          */
         readonly unstableRate: number;
     }
-
 
     /**
      * Contains information about a replay.

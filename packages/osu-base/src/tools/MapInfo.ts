@@ -431,13 +431,15 @@ export class MapInfo {
         hitLength /= stats.speedMultiplier;
         totalLength /= stats.speedMultiplier;
 
-        return `${this.timeString(this.hitLength)}${this.hitLength === hitLength
+        return `${this.timeString(this.hitLength)}${
+            this.hitLength === hitLength
                 ? ""
                 : ` (${this.timeString(hitLength)})`
-            }/${this.timeString(this.totalLength)}${this.totalLength === totalLength
+        }/${this.timeString(this.totalLength)}${
+            this.totalLength === totalLength
                 ? ""
                 : ` (${this.timeString(totalLength)})`
-            }`;
+        }`;
     }
 
     /**
@@ -495,12 +497,13 @@ export class MapInfo {
 
         switch (option) {
             case 0: {
-                let string: string = `${this.fullTitle}${(mapStatistics.mods.length ?? 0) > 0
+                let string: string = `${this.fullTitle}${
+                    (mapStatistics.mods.length ?? 0) > 0
                         ? ` +${mapStatistics.mods
-                            .map((m) => m.acronym)
-                            .join("")}`
+                              .map((m) => m.acronym)
+                              .join("")}`
                         : ""
-                    }`;
+                }`;
                 if (
                     mapParams.speedMultiplier !== 1 ||
                     mapStatistics.isForceAR
@@ -520,22 +523,30 @@ export class MapInfo {
                 return string;
             }
             case 1: {
-                let string: string = `${this.source ? `**Source**: ${this.source}\n` : ""
-                    }**Download**: [osu!](https://osu.ppy.sh/d/${this.beatmapsetID
-                    })${this.videoAvailable
+                let string: string = `${
+                    this.source ? `**Source**: ${this.source}\n` : ""
+                }**Download**: [osu!](https://osu.ppy.sh/d/${
+                    this.beatmapsetID
+                })${
+                    this.videoAvailable
                         ? ` [(no video)](https://osu.ppy.sh/d/${this.beatmapsetID}n)`
                         : ""
-                    } - [Chimu](https://chimu.moe/en/d/${this.beatmapsetID
-                    }) - [Sayobot](https://txy1.sayobot.cn/beatmaps/download/full/${this.beatmapsetID
-                    })${this.videoAvailable
+                } - [Chimu](https://chimu.moe/en/d/${
+                    this.beatmapsetID
+                }) - [Sayobot](https://txy1.sayobot.cn/beatmaps/download/full/${
+                    this.beatmapsetID
+                })${
+                    this.videoAvailable
                         ? ` [(no video)](https://txy1.sayobot.cn/beatmaps/download/novideo/${this.beatmapsetID})`
                         : ""
-                    } - [Beatconnect](https://beatconnect.io/b/${this.beatmapsetID
-                    }/) - [Nerina](https://nerina.pw/d/${this.beatmapsetID})${this.approved >= rankedStatus.RANKED &&
-                        this.approved !== rankedStatus.QUALIFIED
+                } - [Beatconnect](https://beatconnect.io/b/${
+                    this.beatmapsetID
+                }/) - [Nerina](https://nerina.pw/d/${this.beatmapsetID})${
+                    this.approved >= rankedStatus.RANKED &&
+                    this.approved !== rankedStatus.QUALIFIED
                         ? ` - [Ripple](https://storage.ripple.moe/d/${this.beatmapsetID})`
                         : ""
-                    }`;
+                }`;
                 if (this.packs.length > 0) {
                     string += "\n**Beatmap Pack**: ";
                     for (let i = 0; i < this.packs.length; i++) {
@@ -545,17 +556,23 @@ export class MapInfo {
                         }
                     }
                 }
-                string += `\n🖼️ ${this.storyboardAvailable ? "✅" : "❎"
-                    } **|** 🎞️ ${this.videoAvailable ? "✅" : "❎"}`;
+                string += `\n🖼️ ${
+                    this.storyboardAvailable ? "✅" : "❎"
+                } **|** 🎞️ ${this.videoAvailable ? "✅" : "❎"}`;
                 return string;
             }
             case 2:
-                return `**Circles**: ${this.circles} - **Sliders**: ${this.sliders
-                    } - **Spinners**: ${this.spinners}\n**CS**: ${this.cs}${this.cs === mapStatistics.cs ? "" : ` (${mapStatistics.cs})`
-                    } - **AR**: ${this.ar}${this.ar === mapStatistics.ar ? "" : ` (${mapStatistics.ar})`
-                    } - **OD**: ${this.od}${this.od === mapStatistics.od ? "" : ` (${mapStatistics.od})`
-                    } - **HP**: ${this.hp}${this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
-                    }`;
+                return `**Circles**: ${this.circles} - **Sliders**: ${
+                    this.sliders
+                } - **Spinners**: ${this.spinners}\n**CS**: ${this.cs}${
+                    this.cs === mapStatistics.cs ? "" : ` (${mapStatistics.cs})`
+                } - **AR**: ${this.ar}${
+                    this.ar === mapStatistics.ar ? "" : ` (${mapStatistics.ar})`
+                } - **OD**: ${this.od}${
+                    this.od === mapStatistics.od ? "" : ` (${mapStatistics.od})`
+                } - **HP**: ${this.hp}${
+                    this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
+                }`;
             case 3: {
                 const maxScore: number = this.maxScore(mapStatistics);
                 const convertedBPM: number = this.convertBPM(mapStatistics);
@@ -565,18 +582,20 @@ export class MapInfo {
                         this.map.timingPoints;
 
                     if (uninheritedTimingPoints.length === 1) {
-                        string += `${this.bpm}${!Precision.almostEqualsNumber(
-                            this.bpm,
-                            convertedBPM
-                        )
+                        string += `${this.bpm}${
+                            !Precision.almostEqualsNumber(
+                                this.bpm,
+                                convertedBPM
+                            )
                                 ? ` (${convertedBPM})`
                                 : ""
-                            } - **Length**: ${this.convertTime(
-                                mapStatistics
-                            )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                        } - **Length**: ${this.convertTime(
+                            mapStatistics
+                        )} - **Max Combo**: ${this.maxCombo}x${
+                            maxScore > 0
                                 ? `\n**Max Score**: ${maxScore.toLocaleString()}`
                                 : ""
-                            }`;
+                        }`;
                     } else {
                         let maxBPM: number = this.bpm;
                         let minBPM: number = this.bpm;
@@ -598,7 +617,7 @@ export class MapInfo {
 
                         string +=
                             Precision.almostEqualsNumber(minBPM, this.bpm) &&
-                                Precision.almostEqualsNumber(maxBPM, this.bpm)
+                            Precision.almostEqualsNumber(maxBPM, this.bpm)
                                 ? `${this.bpm} `
                                 : `${minBPM}-${maxBPM} (${this.bpm}) `;
 
@@ -622,21 +641,24 @@ export class MapInfo {
 
                         string += `- **Length**: ${this.convertTime(
                             mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                        )} - **Max Combo**: ${this.maxCombo}x${
+                            maxScore > 0
                                 ? `\n**Max score**: ${maxScore.toLocaleString()}`
                                 : ""
-                            }`;
+                        }`;
                     }
                 } else {
-                    string += `${this.bpm}${!Precision.almostEqualsNumber(this.bpm, convertedBPM)
+                    string += `${this.bpm}${
+                        !Precision.almostEqualsNumber(this.bpm, convertedBPM)
                             ? ` (${convertedBPM})`
                             : ""
-                        } - **Length**: ${this.convertTime(
-                            mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                    } - **Length**: ${this.convertTime(
+                        mapStatistics
+                    )} - **Max Combo**: ${this.maxCombo}x${
+                        maxScore > 0
                             ? `\n**Max score**: ${maxScore.toLocaleString()}`
                             : ""
-                        }`;
+                    }`;
                 }
                 return string;
             }
@@ -718,8 +740,8 @@ export class MapInfo {
             if (!(object instanceof Slider)) {
                 score += Math.floor(
                     300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                    25
+                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
+                            25
                 );
                 ++combo;
                 continue;
@@ -735,7 +757,7 @@ export class MapInfo {
             // Apply sliderend
             score += Math.floor(
                 300 +
-                (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
+                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
             );
             ++combo;
         }

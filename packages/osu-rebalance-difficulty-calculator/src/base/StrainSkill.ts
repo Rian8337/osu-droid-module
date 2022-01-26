@@ -109,14 +109,10 @@ export abstract class StrainSkill extends Skill {
     /**
      * Calculates the strain value at a hitobject.
      */
-    protected abstract strainValueAt(
-        current: DifficultyHitObject
-    ): number;
+    protected abstract strainValueAt(current: DifficultyHitObject): number;
 
     /**
      * Saves the current strain to a hitobject.
      */
-    protected abstract saveToHitObject(
-        current: DifficultyHitObject
-    ): void;
+    protected abstract saveToHitObject(current: DifficultyHitObject): void;
 }

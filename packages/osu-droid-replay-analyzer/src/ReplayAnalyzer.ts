@@ -1,4 +1,16 @@
-import { Accuracy, Beatmap, DroidAPIRequestBuilder, HitObject, MathUtils, Mod, ModFlashlight, ModHidden, ModUtil, RequestResponse, Spinner } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    Beatmap,
+    DroidAPIRequestBuilder,
+    HitObject,
+    MathUtils,
+    Mod,
+    ModFlashlight,
+    ModHidden,
+    ModUtil,
+    RequestResponse,
+    Spinner,
+} from "@rian8337/osu-base";
 import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
 import { DroidStarRating as RebalanceDroidStarRating } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
@@ -400,7 +412,7 @@ export class ReplayAnalyzer {
 
             const objects: HitObject[] = (
                 this.map instanceof DroidStarRating ||
-                    this.map instanceof RebalanceDroidStarRating
+                this.map instanceof RebalanceDroidStarRating
                     ? this.map.map
                     : this.map
             ).objects;
@@ -518,7 +530,7 @@ export class ReplayAnalyzer {
 
         const objects: HitObject[] = (
             this.map instanceof DroidStarRating ||
-                this.map instanceof RebalanceDroidStarRating
+            this.map instanceof RebalanceDroidStarRating
                 ? this.map.map
                 : this.map
         ).objects;
@@ -549,7 +561,7 @@ export class ReplayAnalyzer {
                 MathUtils.calculateStandardDeviation(
                     hitObjectData.map((v, i) =>
                         v.result !== hitResult.RESULT_0 &&
-                            !(objects[i] instanceof Spinner)
+                        !(objects[i] instanceof Spinner)
                             ? v.accuracy
                             : 0
                     )
@@ -589,7 +601,7 @@ export class ReplayAnalyzer {
                 }
                 modString +=
                     replayModsConstants[
-                    property as keyof typeof replayModsConstants
+                        property as keyof typeof replayModsConstants
                     ];
                 break;
             }

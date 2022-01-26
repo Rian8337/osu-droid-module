@@ -1,4 +1,13 @@
-import { Accuracy, MapStats, modes, Mod, ModNoFail, ModSpunOut, ModRelax, MathUtils } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    Mod,
+    ModNoFail,
+    ModSpunOut,
+    ModRelax,
+    MathUtils,
+} from "@rian8337/osu-base";
 import { StarRating } from "./StarRating";
 
 /**
@@ -200,8 +209,8 @@ export abstract class PerformanceCalculator {
         const estimateSliderEndsDropped: number = MathUtils.clamp(
             Math.min(
                 this.computedAccuracy.n300 +
-                this.computedAccuracy.n50 +
-                this.computedAccuracy.nmiss,
+                    this.computedAccuracy.n50 +
+                    this.computedAccuracy.nmiss,
                 maxCombo - combo
             ),
             0,
@@ -211,12 +220,12 @@ export abstract class PerformanceCalculator {
         if (this.stars.map.sliders > 0) {
             this.sliderNerfFactor =
                 (1 - this.stars.attributes.sliderFactor) *
-                Math.pow(
-                    1 -
-                    estimateSliderEndsDropped /
-                    estimateDifficultSliders,
-                    3
-                ) +
+                    Math.pow(
+                        1 -
+                            estimateSliderEndsDropped /
+                                estimateDifficultSliders,
+                        3
+                    ) +
                 this.stars.attributes.sliderFactor;
         }
 

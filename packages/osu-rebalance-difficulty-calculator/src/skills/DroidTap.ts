@@ -1,4 +1,11 @@
-import { OsuHitWindow, Mod, Spinner, Interpolation, MathUtils, Slider } from "@rian8337/osu-base";
+import {
+    OsuHitWindow,
+    Mod,
+    Spinner,
+    Interpolation,
+    MathUtils,
+    Slider,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -102,9 +109,7 @@ export class DroidTap extends DroidSkill {
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated with historic data of the current object.
      */
-    private calculateRhythmBonus(
-        current: DifficultyHitObject
-    ): number {
+    private calculateRhythmBonus(current: DifficultyHitObject): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
@@ -123,7 +128,7 @@ export class DroidTap extends DroidSkill {
         while (
             rhythmStart < this.previous.length - 2 &&
             current.startTime - this.previous[rhythmStart].startTime <
-            this.historyTimeMax
+                this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -148,26 +153,26 @@ export class DroidTap extends DroidSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                Math.min(
-                    0.5,
-                    Math.pow(
-                        Math.sin(
-                            Math.PI /
-                            (Math.min(prevDelta, currentDelta) /
-                                Math.max(prevDelta, currentDelta))
-                        ),
-                        2
-                    )
-                );
+                    Math.min(
+                        0.5,
+                        Math.pow(
+                            Math.sin(
+                                Math.PI /
+                                    (Math.min(prevDelta, currentDelta) /
+                                        Math.max(prevDelta, currentDelta))
+                            ),
+                            2
+                        )
+                    );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                    this.hitWindow.hitWindowFor300() * 0.6
+                        this.hitWindow.hitWindowFor300() * 0.6
                 ) /
-                (this.hitWindow.hitWindowFor300() * 0.6)
+                    (this.hitWindow.hitWindowFor300() * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
@@ -253,18 +258,14 @@ export class DroidTap extends DroidSkill {
     /**
      * @param current The hitobject to calculate.
      */
-    protected override strainValueAt(
-        current: DifficultyHitObject
-    ): number {
+    protected override strainValueAt(current: DifficultyHitObject): number {
         return this.strainValueOf(current);
     }
 
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(
-        current: DifficultyHitObject
-    ): void {
+    protected override saveToHitObject(current: DifficultyHitObject): void {
         current.tapStrain = this.currentStrain;
         current.rhythmMultiplier = this.currentRhythm;
         current.originalTapStrain =

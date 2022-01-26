@@ -228,9 +228,7 @@ export class Chart implements ChartInitializer {
         c.strokeStyle = c.fillStyle = color;
 
         c.beginPath();
-        data.forEach((d) =>
-            c.lineTo(d.x * this.scaleX, d.y * this.scaleY)
-        );
+        data.forEach((d) => c.lineTo(d.x * this.scaleX, d.y * this.scaleY));
         c.stroke();
         c.lineTo(data.at(-1)!.x * this.scaleX, 0);
         c.lineTo(0, 0);
@@ -285,14 +283,14 @@ export class Chart implements ChartInitializer {
             c.beginPath();
             c.moveTo(
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
-                this.x +
-                yLabelOffset,
+                    this.x +
+                    yLabelOffset,
                 this.y + this.height - labelOffset
             );
             c.lineTo(
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
-                this.x +
-                yLabelOffset,
+                    this.x +
+                    yLabelOffset,
                 this.y + this.height - labelOffset - this.tickSize
             );
             c.stroke();
@@ -317,8 +315,8 @@ export class Chart implements ChartInitializer {
             c.save();
             c.translate(
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
-                this.x +
-                yLabelOffset,
+                    this.x +
+                    yLabelOffset,
                 this.y + this.height + this.padding - labelOffset
             );
             c.fillText(stringLabel, 0, 0);

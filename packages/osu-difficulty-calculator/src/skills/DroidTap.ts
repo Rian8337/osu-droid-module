@@ -1,4 +1,11 @@
-import { OsuHitWindow, Mod, Spinner, MathUtils, Slider, Interpolation } from "@rian8337/osu-base";
+import {
+    OsuHitWindow,
+    Mod,
+    Spinner,
+    MathUtils,
+    Slider,
+    Interpolation,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -64,10 +71,10 @@ export class DroidTap extends DroidSkill {
         // This equation is derived from making sure 260 BPM 1/4 OD7 streams aren't nerfed harshly.
         strainTime /= MathUtils.clamp(
             strainTime /
-            new OsuHitWindow(
-                this.overallDifficulty - 21.5
-            ).hitWindowFor300() /
-            0.35,
+                new OsuHitWindow(
+                    this.overallDifficulty - 21.5
+                ).hitWindowFor300() /
+                0.35,
             0.9,
             1
         );
@@ -125,7 +132,7 @@ export class DroidTap extends DroidSkill {
         while (
             rhythmStart < this.previous.length - 2 &&
             current.startTime - this.previous[rhythmStart].startTime <
-            this.historyTimeMax
+                this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -150,26 +157,26 @@ export class DroidTap extends DroidSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                Math.min(
-                    0.5,
-                    Math.pow(
-                        Math.sin(
-                            Math.PI /
-                            (Math.min(prevDelta, currentDelta) /
-                                Math.max(prevDelta, currentDelta))
-                        ),
-                        2
-                    )
-                );
+                    Math.min(
+                        0.5,
+                        Math.pow(
+                            Math.sin(
+                                Math.PI /
+                                    (Math.min(prevDelta, currentDelta) /
+                                        Math.max(prevDelta, currentDelta))
+                            ),
+                            2
+                        )
+                    );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                    this.hitWindow.hitWindowFor300() * 0.6
+                        this.hitWindow.hitWindowFor300() * 0.6
                 ) /
-                (this.hitWindow.hitWindowFor300() * 0.6)
+                    (this.hitWindow.hitWindowFor300() * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;

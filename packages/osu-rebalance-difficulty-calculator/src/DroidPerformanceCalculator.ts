@@ -1,4 +1,12 @@
-import { Accuracy, MapStats, modes, ModHidden, ModRelax, ModScoreV2, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    ModHidden,
+    ModRelax,
+    ModScoreV2,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 import { DroidStarRating } from "./DroidStarRating";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 
@@ -77,9 +85,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                Math.pow(this.tap, 1.1) +
-                Math.pow(this.accuracy, 1.1) +
-                Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.tap, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier;
 
@@ -98,7 +106,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aggregatedRhythmMultiplier = Math.max(
             1,
             rhythmMultipliers.reduce((total, value) => total + value, 0) /
-            Math.max(500, rhythmMultipliers.length)
+                Math.max(500, rhythmMultipliers.length)
         );
     }
 
@@ -149,9 +157,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *=
             1 +
             arFactor *
-            (1.650668 +
-                (0.4845796 - 1.650668) /
-                (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                (1.650668 +
+                    (0.4845796 - 1.650668) /
+                        (1 + Math.pow(objectCount / 817.9306, 1.147469)));
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -194,10 +202,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.tap *=
                 1 +
                 0.3 *
-                (calculatedAR - 10.33) *
-                (1.650668 +
-                    (0.4845796 - 1.650668) /
-                    (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                    (calculatedAR - 10.33) *
+                    (1.650668 +
+                        (0.4845796 - 1.650668) /
+                            (1 + Math.pow(objectCount / 817.9306, 1.147469)));
         }
 
         // Calculate accuracy assuming the worst case scenario.
@@ -231,7 +239,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     relevantAccuracy.value(
                         this.stars.attributes.speedNoteCount
                     )) /
-                2,
+                    2,
                 (14 - Math.max(od, 2.5)) / 2
             );
 

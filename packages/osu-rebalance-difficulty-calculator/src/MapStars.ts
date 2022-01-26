@@ -9,8 +9,7 @@ export class MapStars {
     /**
      * The osu!droid star rating of the beatmap.
      */
-    readonly droidStars: DroidStarRating =
-        new DroidStarRating();
+    readonly droidStars: DroidStarRating = new DroidStarRating();
 
     /**
      * The osu!standard star rating of the beatmap.

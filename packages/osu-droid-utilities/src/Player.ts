@@ -1,4 +1,8 @@
-import { DroidAPIRequestBuilder, RequestResponse, Accuracy } from "@rian8337/osu-base";
+import {
+    DroidAPIRequestBuilder,
+    RequestResponse,
+    Accuracy,
+} from "@rian8337/osu-base";
 import { Score } from "./Score";
 import { MD5 } from "crypto-js";
 

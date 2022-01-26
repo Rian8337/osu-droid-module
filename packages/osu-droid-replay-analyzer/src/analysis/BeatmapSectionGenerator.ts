@@ -1,5 +1,11 @@
-import { DifficultyHitObject, StarRating } from "@rian8337/osu-difficulty-calculator";
-import { DifficultyHitObject as RebalanceDifficultyHitObject, StarRating as RebalanceStarRating } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    DifficultyHitObject,
+    StarRating,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    DifficultyHitObject as RebalanceDifficultyHitObject,
+    StarRating as RebalanceStarRating,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { BeatmapSection } from "./data/BeatmapSection";
 
 /**
@@ -24,8 +30,10 @@ export abstract class BeatmapSectionGenerator {
         let firstObjectIndex: number = 0;
 
         for (let i = 0; i < map.objects.length - 1; ++i) {
-            const current: DifficultyHitObject | RebalanceDifficultyHitObject = map.objects[i];
-            const next: DifficultyHitObject | RebalanceDifficultyHitObject = map.objects[i + 1];
+            const current: DifficultyHitObject | RebalanceDifficultyHitObject =
+                map.objects[i];
+            const next: DifficultyHitObject | RebalanceDifficultyHitObject =
+                map.objects[i + 1];
 
             const realDeltaTime: number =
                 next.object.startTime - current.object.endTime;

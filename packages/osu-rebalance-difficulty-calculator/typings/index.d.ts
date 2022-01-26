@@ -1,5 +1,15 @@
 declare module "@rian8337/osu-rebalance-difficulty-calculator" {
-    import { Accuracy, Beatmap, HitObject, MapStats, Mod, modes, OsuHitWindow, Slider, Vector2 } from "@rian8337/osu-base";
+    import {
+        Accuracy,
+        Beatmap,
+        HitObject,
+        MapStats,
+        Mod,
+        modes,
+        OsuHitWindow,
+        Slider,
+        Vector2,
+    } from "@rian8337/osu-base";
 
     //#region Classes
 
@@ -38,7 +48,7 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
         flashlightStrain: number;
         /**
          * The normalized distance from the "lazy" end position of the previous hitobject to the start position of this hitobject.
-         * 
+         *
          * The "lazy" end position is the position at which the cursor ends up if the previous hitobject is followed with as minimal movement as possible (i.e. on the edge of slider follow circles).
          */
         lazyJumpDistance: number;
@@ -854,7 +864,10 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
         /**
          * Calculates the amount of misses + sliderbreaks from combo.
          */
-        private calculateEffectiveMissCount(combo: number, maxCombo: number): number;
+        private calculateEffectiveMissCount(
+            combo: number,
+            maxCombo: number
+        ): number;
     }
 
     /**

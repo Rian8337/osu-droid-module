@@ -29,8 +29,7 @@ export class DroidFlashlight extends DroidSkill {
         let last: DifficultyHitObject = current;
 
         for (let i = 0; i < this.previous.length; ++i) {
-            const currentObject: DifficultyHitObject =
-                this.previous[i];
+            const currentObject: DifficultyHitObject = this.previous[i];
 
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number =
@@ -65,9 +64,7 @@ export class DroidFlashlight extends DroidSkill {
     /**
      * @param current The hitobject to calculate.
      */
-    protected override strainValueAt(
-        current: DifficultyHitObject
-    ): number {
+    protected override strainValueAt(current: DifficultyHitObject): number {
         this.currentStrain *= this.strainDecay(current.deltaTime);
         this.currentStrain +=
             this.strainValueOf(current) * this.skillMultiplier;
@@ -75,9 +72,7 @@ export class DroidFlashlight extends DroidSkill {
         return this.currentStrain;
     }
 
-    protected override saveToHitObject(
-        current: DifficultyHitObject
-    ): void {
+    protected override saveToHitObject(current: DifficultyHitObject): void {
         current.flashlightStrain = this.currentStrain;
     }
 }

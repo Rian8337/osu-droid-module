@@ -3,7 +3,14 @@ import { DroidTap } from "./skills/DroidTap";
 import { StarRating } from "./base/StarRating";
 import { DroidSkill } from "./skills/DroidSkill";
 import { DroidFlashlight } from "./skills/DroidFlashlight";
-import { Beatmap, Mod, MapStats, modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    modes,
+    ModRelax,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 
 /**
  * Difficulty calculator for osu!droid gamemode.
@@ -139,8 +146,8 @@ export class DroidStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(speedPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(speedPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 

@@ -1,6 +1,15 @@
 import { OsuStarRating } from "./OsuStarRating";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
-import { Accuracy, MapStats, modes, ModTouchDevice, ModHidden, ModRelax, ModScoreV2, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    ModTouchDevice,
+    ModHidden,
+    ModRelax,
+    ModScoreV2,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -65,9 +74,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                Math.pow(this.speed, 1.1) +
-                Math.pow(this.accuracy, 1.1) +
-                Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.speed, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier;
 

@@ -1,6 +1,22 @@
-import { DroidHitWindow, MapStats, ModUtil, Utils, Spinner, ModPrecise, Vector2, Beatmap, modes } from "@rian8337/osu-base";
-import { DroidStarRating, DifficultyHitObject } from "@rian8337/osu-difficulty-calculator";
-import { DroidStarRating as RebalanceDroidStarRating, DifficultyHitObject as RebalanceDifficultyHitObject } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    DroidHitWindow,
+    MapStats,
+    ModUtil,
+    Utils,
+    Spinner,
+    ModPrecise,
+    Vector2,
+    Beatmap,
+    modes,
+} from "@rian8337/osu-base";
+import {
+    DroidStarRating,
+    DifficultyHitObject,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    DroidStarRating as RebalanceDroidStarRating,
+    DifficultyHitObject as RebalanceDifficultyHitObject,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { movementType, hitResult } from "..";
 import { CursorData } from "./../data/CursorData";
 import { ReplayData } from "./../data/ReplayData";
@@ -125,12 +141,14 @@ export class TwoHandChecker {
      * Converts hitobjects into indexed hit objects.
      */
     private indexHitObjects(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
         const indexes: number[] = [];
 
         for (let i = 0; i < this.map.objects.length; ++i) {
-            const current: DifficultyHitObject | RebalanceDifficultyHitObject = objects[i];
+            const current: DifficultyHitObject | RebalanceDifficultyHitObject =
+                objects[i];
             const currentData: ReplayObjectData = objectData[i];
             const index: number = this.getCursorIndex(current, currentData);
 

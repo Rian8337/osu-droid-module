@@ -1,4 +1,10 @@
-import { Accuracy, Mod, ModUtil, DroidAPIRequestBuilder, RequestResponse } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    Mod,
+    ModUtil,
+    DroidAPIRequestBuilder,
+    RequestResponse,
+} from "@rian8337/osu-base";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 
 interface ScoreInformation {
@@ -268,8 +274,9 @@ export class Score {
      * Returns the complete mod string of this score (mods, speed multiplier, and force AR combined).
      */
     getCompleteModString(): string {
-        let finalString: string = `+${this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
-            }`;
+        let finalString: string = `+${
+            this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
+        }`;
 
         if (this.forcedAR !== undefined || this.speedMultiplier !== 1) {
             finalString += " (";

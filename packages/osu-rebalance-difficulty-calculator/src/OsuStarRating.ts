@@ -1,4 +1,12 @@
-import { Beatmap, Mod, MapStats, modes, ModRelax, OsuHitWindow, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    modes,
+    ModRelax,
+    OsuHitWindow,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 import { OsuAim } from "./skills/OsuAim";
 import { RebalanceOsuSpeed } from "./skills/OsuSpeed";
 import { StarRating } from "./base/StarRating";
@@ -50,10 +58,7 @@ export class OsuStarRating extends StarRating {
      */
     calculateAim(): void {
         const aimSkill: OsuAim = new OsuAim(this.mods, true);
-        const aimSkillWithoutSliders: OsuAim = new OsuAim(
-            this.mods,
-            false
-        );
+        const aimSkillWithoutSliders: OsuAim = new OsuAim(this.mods, false);
 
         this.calculateSkills(aimSkill);
 
@@ -93,8 +98,7 @@ export class OsuStarRating extends StarRating {
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill: OsuFlashlight =
-            new OsuFlashlight(this.mods);
+        const flashlightSkill: OsuFlashlight = new OsuFlashlight(this.mods);
 
         this.calculateSkills(flashlightSkill);
 
@@ -116,8 +120,8 @@ export class OsuStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(speedPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(speedPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -145,9 +149,7 @@ export class OsuStarRating extends StarRating {
         this.calculateSkills(...skills);
 
         const aimSkill: OsuAim = <OsuAim>skills[0];
-        const aimSkillWithoutSliders: OsuAim = <OsuAim>(
-            skills[1]
-        );
+        const aimSkillWithoutSliders: OsuAim = <OsuAim>skills[1];
         let speedSkill: RebalanceOsuSpeed | undefined;
         let flashlightSkill: OsuFlashlight;
 

@@ -3,7 +3,15 @@ import { OsuSpeed } from "./skills/OsuSpeed";
 import { StarRating } from "./base/StarRating";
 import { OsuSkill } from "./skills/OsuSkill";
 import { OsuFlashlight } from "./skills/OsuFlashlight";
-import { Beatmap, Mod, MapStats, modes, ModRelax, OsuHitWindow, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    modes,
+    ModRelax,
+    OsuHitWindow,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 
 /**
  * Difficulty calculator for osu!standard gamemode.
@@ -112,8 +120,8 @@ export class OsuStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(speedPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(speedPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 

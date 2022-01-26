@@ -1,4 +1,11 @@
-import { Beatmap, Mod, MapStats, modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    modes,
+    ModRelax,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 import { DroidAim } from "./skills/DroidAim";
 import { DroidTap } from "./skills/DroidTap";
 import { StarRating } from "./base/StarRating";
@@ -67,14 +74,8 @@ export class DroidStarRating extends StarRating {
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
-        const aimSkill: DroidAim = new DroidAim(
-            this.mods,
-            true
-        );
-        const aimSkillWithoutSliders: DroidAim = new DroidAim(
-            this.mods,
-            false
-        );
+        const aimSkill: DroidAim = new DroidAim(this.mods, true);
+        const aimSkillWithoutSliders: DroidAim = new DroidAim(this.mods, false);
 
         this.calculateSkills(aimSkill, aimSkillWithoutSliders);
 
@@ -98,10 +99,7 @@ export class DroidStarRating extends StarRating {
             return;
         }
 
-        const tapSkill: DroidTap = new DroidTap(
-            this.mods,
-            this.stats.od!
-        );
+        const tapSkill: DroidTap = new DroidTap(this.mods, this.stats.od!);
 
         this.calculateSkills(tapSkill);
 
@@ -126,8 +124,7 @@ export class DroidStarRating extends StarRating {
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill: DroidFlashlight =
-            new DroidFlashlight(this.mods);
+        const flashlightSkill: DroidFlashlight = new DroidFlashlight(this.mods);
 
         this.calculateSkills(flashlightSkill);
 
@@ -147,8 +144,8 @@ export class DroidStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(tapPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(tapPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -176,9 +173,7 @@ export class DroidStarRating extends StarRating {
         this.calculateSkills(...skills);
 
         const aimSkill: DroidAim = <DroidAim>skills[0];
-        const aimSkillWithoutSliders: DroidAim = <DroidAim>(
-            skills[1]
-        );
+        const aimSkillWithoutSliders: DroidAim = <DroidAim>skills[1];
         let tapSkill: DroidTap | undefined;
         let flashlightSkill: DroidFlashlight;
 
