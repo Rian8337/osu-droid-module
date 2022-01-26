@@ -211,20 +211,21 @@ export abstract class PerformanceCalculator {
             mods: mod,
         });
 
-        // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-        const estimateDifficultSliders: number = this.stars.map.sliders * 0.15;
-        const estimateSliderEndsDropped: number = MathUtils.clamp(
-            Math.min(
-                this.computedAccuracy.n300 +
-                    this.computedAccuracy.n50 +
-                    this.computedAccuracy.nmiss,
-                maxCombo - combo
-            ),
-            0,
-            estimateDifficultSliders
-        );
-
         if (this.stars.map.sliders > 0) {
+            // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
+            const estimateDifficultSliders: number =
+                this.stars.map.sliders * 0.15;
+            const estimateSliderEndsDropped: number = MathUtils.clamp(
+                Math.min(
+                    this.computedAccuracy.n300 +
+                        this.computedAccuracy.n50 +
+                        this.computedAccuracy.nmiss,
+                    maxCombo - combo
+                ),
+                0,
+                estimateDifficultSliders
+            );
+
             this.sliderNerfFactor =
                 (1 - this.stars.attributes.sliderFactor) *
                     Math.pow(
