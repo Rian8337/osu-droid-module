@@ -133,12 +133,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         this.aim *= 1 + arFactor * lengthBonus;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        let hiddenBonus: number = 1;
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
-            hiddenBonus += 0.04 * (12 - calculatedAR);
+            this.aim *= 1 + 0.04 * (12 - calculatedAR);
         }
-
-        this.aim *= hiddenBonus;
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
