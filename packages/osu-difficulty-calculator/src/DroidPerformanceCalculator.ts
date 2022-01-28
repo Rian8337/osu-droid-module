@@ -134,17 +134,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *= this.comboPenalty;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        let hiddenBonus: number = 1;
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             // The bonus starts decreasing twice as fast
             // beyond AR10 and reaches 1 at AR11.
             if (calculatedAR > 10) {
-                hiddenBonus += Math.max(0, 0.08 * (11 - calculatedAR));
+                this.aim *= 1 + Math.max(0, 0.08 * (11 - calculatedAR));
             } else {
-                hiddenBonus += 0.04 * (12 - calculatedAR);
+                this.aim *= 1 + 0.04 * (12 - calculatedAR);
             }
         }
-        this.aim *= hiddenBonus;
 
         // AR scaling
         let arFactor: number = 0;
