@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-droid-replay-analyzer",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A replay analyzer for analyzing osu!droid replay files.",
   "keywords": [
     "osu",
@@ -31,9 +31,9 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^1.0.2",
-    "@rian8337/osu-difficulty-calculator": "^1.0.2",
-    "@rian8337/osu-rebalance-difficulty-calculator": "^1.0.2",
+    "@rian8337/osu-base": "^1.0.4",
+    "@rian8337/osu-difficulty-calculator": "^1.0.4",
+    "@rian8337/osu-rebalance-difficulty-calculator": "^1.0.4",
     "java-deserialization": "^0.1.0",
     "unzipper": "^0.10.11"
   },
