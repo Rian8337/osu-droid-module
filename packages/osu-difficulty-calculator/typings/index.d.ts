@@ -404,6 +404,41 @@ declare module "@rian8337/osu-difficulty-calculator" {
     }
 
     /**
+     * A star rating calculator that configures which mode to calculate difficulty for and what mods are applied.
+     */
+    export class MapStars {
+        /**
+         * The osu!droid star rating of the beatmap.
+         */
+        readonly droidStars: DroidStarRating;
+        /**
+         * The osu!standard star rating of the beatmap.
+         */
+        readonly pcStars: OsuStarRating;
+        /**
+         * Calculates the star rating of a beatmap.
+         */
+        calculate(params: {
+            /**
+             * The beatmap to calculate.
+             */
+            map: Beatmap;
+            /**
+             * Applied modifications.
+             */
+            mods?: Mod[];
+            /**
+             * Custom map statistics to apply speed multiplier and force AR values as well as old statistics.
+             */
+            stats?: MapStats;
+        }): MapStars;
+        /**
+         * Returns a string representative of the class.
+         */
+        toString(): string;
+    }
+
+    /**
      * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
      */
     export class OsuAim extends OsuSkill {
