@@ -11,6 +11,7 @@ import {
     ModRelax,
     ModFlashlight,
 } from "@rian8337/osu-base";
+import { DroidRhythm } from "./skills/DroidRhythm";
 
 /**
  * Difficulty calculator for osu!droid gamemode.
@@ -25,6 +26,11 @@ export class DroidStarRating extends StarRating {
      * The tap star rating of the beatmap.
      */
     tap: number = 0;
+
+    /**
+     * The rhythm star rating of the beatmap.
+     */
+    rhythm: number = 0;
 
     /**
      * The flashlight star rating of the beatmap.
@@ -121,6 +127,20 @@ export class DroidStarRating extends StarRating {
     }
 
     /**
+     * Calculates the rhythm star rating of the beatmap and stores it in this instance.
+     */
+    calculateRhythm(): void {
+        const rhythmSkill: DroidRhythm = new DroidRhythm(
+            this.mods,
+            this.stats.od!
+        );
+
+        this.calculateSkills(rhythmSkill);
+
+        this.rhythm = this.starValue(rhythmSkill.difficultyValue());
+    }
+
+    /**
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
@@ -135,9 +155,7 @@ export class DroidStarRating extends StarRating {
 
     override calculateTotal(): void {
         const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
-        const speedPerformanceValue: number = this.basePerformanceValue(
-            this.tap
-        );
+        const tapPerformanceValue: number = this.basePerformanceValue(this.tap);
         const flashlightPerformanceValue: number = this.mods.some(
             (m) => m instanceof ModFlashlight
         )
@@ -146,8 +164,8 @@ export class DroidStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+            Math.pow(tapPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -168,8 +186,8 @@ export class DroidStarRating extends StarRating {
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
         if (isRelax) {
-            // Remove speed skill to prevent overhead
-            skills.splice(2, 1);
+            // Remove tap and rhythm skill to prevent overhead. These values will be 0 anyways.
+            skills.splice(2, 2);
         }
 
         this.calculateSkills(...skills);
@@ -177,11 +195,13 @@ export class DroidStarRating extends StarRating {
         const aimSkill: DroidAim = <DroidAim>skills[0];
         const aimSkillWithoutSliders: DroidAim = <DroidAim>skills[1];
         let tapSkill: DroidTap | undefined;
+        let rhythmSkill: DroidRhythm | undefined;
         let flashlightSkill: DroidFlashlight;
 
         if (!isRelax) {
-            tapSkill = <DroidTap>skills[2];
-            flashlightSkill = <DroidFlashlight>skills[3];
+            rhythmSkill = <DroidRhythm>skills[2];
+            tapSkill = <DroidTap>skills[3];
+            flashlightSkill = <DroidFlashlight>skills[4];
         } else {
             flashlightSkill = <DroidFlashlight>skills[2];
         }
@@ -217,6 +237,12 @@ export class DroidStarRating extends StarRating {
             }
         }
 
+        if (rhythmSkill) {
+            this.calculateSkills(rhythmSkill);
+
+            this.rhythm = this.starValue(rhythmSkill.difficultyValue());
+        }
+
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 
@@ -234,6 +260,8 @@ export class DroidStarRating extends StarRating {
             " aim, " +
             this.tap.toFixed(2) +
             " tap, " +
+            this.rhythm.toFixed(2) +
+            " rhythm, " +
             this.flashlight.toFixed(2) +
             " flashlight)"
         );
@@ -246,6 +274,8 @@ export class DroidStarRating extends StarRating {
         return [
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
+            // Tap skill depends on rhythm skill, so we put it first
+            new DroidRhythm(this.mods, this.stats.od!),
             new DroidTap(this.mods, this.stats.od!),
             new DroidFlashlight(this.mods),
         ];
