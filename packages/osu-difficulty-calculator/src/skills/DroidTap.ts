@@ -62,10 +62,10 @@ export class DroidTap extends DroidSkill {
         // This equation is derived from making sure 260 BPM 1/4 OD7 streams aren't nerfed harshly.
         strainTime /= MathUtils.clamp(
             strainTime /
-            new OsuHitWindow(
-                this.hitWindow.overallDifficulty - 21.5
-            ).hitWindowFor300() /
-            0.35,
+                new OsuHitWindow(
+                    this.hitWindow.overallDifficulty - 21.5
+                ).hitWindowFor300() /
+                0.35,
             0.9,
             1
         );
