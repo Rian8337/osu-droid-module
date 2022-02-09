@@ -101,10 +101,6 @@ export class DroidStarRating extends StarRating {
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            return;
-        }
-
         const tapSkill: DroidTap = new DroidTap(this.mods, this.stats.od!);
 
         this.calculateSkills(tapSkill);
@@ -185,26 +181,13 @@ export class DroidStarRating extends StarRating {
 
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
-        if (isRelax) {
-            // Remove tap and rhythm skill to prevent overhead. These values will be 0 anyways.
-            skills.splice(2, 2);
-        }
-
         this.calculateSkills(...skills);
 
         const aimSkill: DroidAim = <DroidAim>skills[0];
         const aimSkillWithoutSliders: DroidAim = <DroidAim>skills[1];
-        let tapSkill: DroidTap | undefined;
-        let rhythmSkill: DroidRhythm | undefined;
-        let flashlightSkill: DroidFlashlight;
-
-        if (!isRelax) {
-            rhythmSkill = <DroidRhythm>skills[2];
-            tapSkill = <DroidTap>skills[3];
-            flashlightSkill = <DroidFlashlight>skills[4];
-        } else {
-            flashlightSkill = <DroidFlashlight>skills[2];
-        }
+        const rhythmSkill: DroidRhythm = <DroidRhythm>skills[2];
+        const tapSkill: DroidTap = <DroidTap>skills[3];
+        const flashlightSkill: DroidFlashlight = <DroidFlashlight>skills[4];
 
         this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
@@ -216,30 +199,25 @@ export class DroidStarRating extends StarRating {
                 this.aim;
         }
 
-        if (tapSkill) {
+        if (!isRelax) {
             this.strainPeaks.speed = tapSkill.strainPeaks;
 
             this.tap = this.starValue(tapSkill.difficultyValue());
-
-            const objectStrains: number[] = this.objects.map(
-                (v) => v.tapStrain
-            );
-
-            const maxStrain: number = Math.max(...objectStrains);
-
-            if (maxStrain) {
-                this.attributes.speedNoteCount = objectStrains.reduce(
-                    (total, next) =>
-                        total +
-                        1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                    0
-                );
-            }
         }
 
-        if (rhythmSkill) {
-            this.calculateSkills(rhythmSkill);
+        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
 
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.speedNoteCount = objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+        }
+
+        if (!isRelax) {
             this.rhythm = this.starValue(rhythmSkill.difficultyValue());
         }
 

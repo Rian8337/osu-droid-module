@@ -173,10 +173,15 @@ export abstract class PerformanceCalculator {
             });
         }
 
+        this.effectiveMissCount = this.calculateEffectiveMissCount(
+            combo,
+            maxCombo
+        );
+
         if (this.stars.mods.some((m) => m instanceof ModNoFail)) {
             this.finalMultiplier *= Math.max(
                 0.9,
-                1 - 0.02 * this.computedAccuracy.nmiss
+                1 - 0.02 * this.effectiveMissCount
             );
         }
         if (this.stars.mods.some((m) => m instanceof ModSpunOut)) {
@@ -188,15 +193,17 @@ export abstract class PerformanceCalculator {
                 );
         }
         if (this.stars.mods.some((m) => m instanceof ModRelax)) {
-            this.computedAccuracy.nmiss +=
-                this.computedAccuracy.n100 + this.computedAccuracy.n50;
+            // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
+            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
+            this.effectiveMissCount = Math.min(
+                this.effectiveMissCount +
+                    this.computedAccuracy.n100 +
+                    this.computedAccuracy.n50,
+                this.stars.objects.length
+            );
+
             this.finalMultiplier *= 0.6;
         }
-
-        this.effectiveMissCount = this.calculateEffectiveMissCount(
-            combo,
-            maxCombo
-        );
 
         this.mapStatistics = new MapStats({
             ar: baseAR,
