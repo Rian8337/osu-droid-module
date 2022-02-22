@@ -383,6 +383,38 @@ declare module "@rian8337/osu-difficulty-calculator" {
          */
         protected override createSkills(): DroidSkill[];
         /**
+         * Called after aim skill calculation.
+         *
+         * @param aimSkill The aim skill that considers sliders.
+         * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
+         */
+        private postCalculateAim(
+            aimSkill: DroidAim,
+            aimSkillWithoutSliders: DroidAim
+        ): void;
+        /**
+         * Called after tap skill calculation.
+         *
+         * @param tapSkill The tap skill.
+         */
+        private postCalculateTap(tapSkill: DroidTap): void;
+        /**
+         * Calculates the speed note count attribute.
+         */
+        private calculateSpeedNoteCount(): void;
+        /**
+         * Called after rhythm skill calculation.
+         *
+         * @param rhythmSkill The rhythm skill.
+         */
+        private postCalculateRhythm(rhythmSkill: DroidRhythm): void;
+        /**
+         * Called after flashlight skill calculation.
+         *
+         * @param flashlightSkill The flashlight skill.
+         */
+        private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void;
+        /**
          * Calculates the base rating value of a difficulty.
          */
         private baseRatingValue(difficulty: number): number;

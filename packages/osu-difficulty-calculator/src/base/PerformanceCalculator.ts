@@ -273,9 +273,6 @@ export abstract class PerformanceCalculator {
             }
         }
 
-        return Math.max(
-            this.computedAccuracy.nmiss,
-            Math.floor(comboBasedMissCount)
-        );
+        return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
     }
 }
