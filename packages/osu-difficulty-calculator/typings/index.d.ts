@@ -711,7 +711,10 @@ declare module "@rian8337/osu-difficulty-calculator" {
          * @param aimSkill The aim skill that considers sliders.
          * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
          */
-        private postCalculateAim(aimSkill: OsuAim, aimSkillWithoutSliders: OsuAim): void;
+        private postCalculateAim(
+            aimSkill: OsuAim,
+            aimSkillWithoutSliders: OsuAim
+        ): void;
         /**
          * Called after speed skill calculation.
          *
@@ -720,7 +723,7 @@ declare module "@rian8337/osu-difficulty-calculator" {
         private postCalculateSpeed(speedSkill: OsuSpeed): void;
         /**
          * Called after flashlight skill calculation.
-         * 
+         *
          * @param flashlightSkill The flashlight skill.
          */
         private postCalculateFlashlight(flashlightSkill: OsuFlashlight): void;

@@ -168,9 +168,9 @@ export class DroidStarRating extends StarRating {
 
         if (!isRelax) {
             this.postCalculateTap(tapSkill);
+        } else {
+            this.calculateSpeedNoteCount();
         }
-
-        this.calculateSpeedNoteCount();
 
         if (!isRelax) {
             this.postCalculateRhythm(rhythmSkill);

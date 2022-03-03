@@ -90,7 +90,7 @@ export class OsuSpeed extends OsuSkill {
         return (
             (speedBonus +
                 speedBonus *
-                Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) /
+                    Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) /
             strainTime
         );
     }
@@ -130,7 +130,7 @@ export class OsuSpeed extends OsuSkill {
         while (
             rhythmStart < this.previous.length - 2 &&
             current.startTime - this.previous[rhythmStart].startTime <
-            this.historyTimeMax
+                this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -155,17 +155,17 @@ export class OsuSpeed extends OsuSkill {
             const currentRatio: number =
                 1 +
                 6 *
-                Math.min(
-                    0.5,
-                    Math.pow(
-                        Math.sin(
-                            Math.PI /
-                            (Math.min(prevDelta, currentDelta) /
-                                Math.max(prevDelta, currentDelta))
-                        ),
-                        2
-                    )
-                );
+                    Math.min(
+                        0.5,
+                        Math.pow(
+                            Math.sin(
+                                Math.PI /
+                                    (Math.min(prevDelta, currentDelta) /
+                                        Math.max(prevDelta, currentDelta))
+                            ),
+                            2
+                        )
+                    );
 
             const windowPenalty: number = Math.min(
                 1,
@@ -173,7 +173,7 @@ export class OsuSpeed extends OsuSkill {
                     0,
                     Math.abs(prevDelta - currentDelta) - this.greatWindow * 0.6
                 ) /
-                (this.greatWindow * 0.6)
+                    (this.greatWindow * 0.6)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
