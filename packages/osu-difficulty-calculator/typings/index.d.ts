@@ -414,16 +414,6 @@ declare module "@rian8337/osu-difficulty-calculator" {
          * @param flashlightSkill The flashlight skill.
          */
         private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void;
-        /**
-         * Calculates the base rating value of a difficulty.
-         */
-        private baseRatingValue(difficulty: number): number;
-        /**
-         * Calculates the base performance value of a difficulty rating.
-         *
-         * @param rating The difficulty rating.
-         */
-        private basePerformanceValue(rating: number): number;
     }
 
     /**
@@ -716,17 +706,24 @@ declare module "@rian8337/osu-difficulty-calculator" {
          */
         protected override createSkills(): OsuSkill[];
         /**
-         * Calculates the base performance value of a difficulty rating.
+         * Called after aim skill calculation.
          *
-         * @param rating The difficulty rating.
+         * @param aimSkill The aim skill that considers sliders.
+         * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
          */
-        private basePerformanceValue(rating: number): number;
+        private postCalculateAim(aimSkill: OsuAim, aimSkillWithoutSliders: OsuAim): void;
         /**
-         * Calculates the star rating value of a difficulty.
+         * Called after speed skill calculation.
          *
-         * @param difficulty The difficulty to calculate.
+         * @param speedSkill The speed skill.
          */
-        private starValue(difficulty: number): number;
+        private postCalculateSpeed(speedSkill: OsuSpeed): void;
+        /**
+         * Called after flashlight skill calculation.
+         * 
+         * @param flashlightSkill The flashlight skill.
+         */
+        private postCalculateFlashlight(flashlightSkill: OsuFlashlight): void;
     }
 
     //#endregion
@@ -1061,6 +1058,18 @@ declare module "@rian8337/osu-difficulty-calculator" {
          * Creates skills to be calculated.
          */
         protected abstract createSkills(): Skill[];
+        /**
+         * Calculates the star rating value of a difficulty.
+         *
+         * @param difficulty The difficulty to calculate.
+         */
+        protected starValue(difficulty: number): number;
+        /**
+         * Calculates the base performance value of a difficulty rating.
+         *
+         * @param rating The difficulty rating.
+         */
+        protected basePerformanceValue(rating: number): number;
     }
 
     /**
