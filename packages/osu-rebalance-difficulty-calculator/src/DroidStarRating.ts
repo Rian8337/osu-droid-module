@@ -135,8 +135,8 @@ export class DroidStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(tapPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(tapPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -168,9 +168,9 @@ export class DroidStarRating extends StarRating {
 
         if (!isRelax) {
             this.postCalculateTap(tapSkill);
+        } else {
+            this.calculateSpeedAttributes();
         }
-
-        this.calculateSpeedNoteCount();
 
         if (!isRelax) {
             this.postCalculateRhythm(rhythmSkill);
@@ -233,6 +233,19 @@ export class DroidStarRating extends StarRating {
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
+
+        const objectStrains: number[] = this.objects.map(
+            (v) => v.aimStrainWithSliders
+        );
+
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.aimDifficultStrainCount = objectStrains.reduce(
+                (a, v) => a + Math.pow(v / maxStrain, 4),
+                0
+            );
+        }
     }
 
     /**
@@ -245,13 +258,13 @@ export class DroidStarRating extends StarRating {
 
         this.tap = this.starValue(tapSkill.difficultyValue());
 
-        this.calculateSpeedNoteCount();
+        this.calculateSpeedAttributes();
     }
 
     /**
-     * Calculates the speed note count attribute.
+     * Calculates speed-related attributes.
      */
-    private calculateSpeedNoteCount(): void {
+    private calculateSpeedAttributes(): void {
         const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
 
         const maxStrain: number = Math.max(...objectStrains);
@@ -260,6 +273,11 @@ export class DroidStarRating extends StarRating {
             this.attributes.speedNoteCount = objectStrains.reduce(
                 (total, next) =>
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+
+            this.attributes.speedDifficultStrainCount = objectStrains.reduce(
+                (a, v) => a + Math.pow(v / maxStrain, 4),
                 0
             );
         }

@@ -66,6 +66,8 @@ export abstract class StarRating {
     readonly attributes: DifficultyAttributes = {
         speedNoteCount: 0,
         sliderFactor: 1,
+        aimDifficultStrainCount: 0,
+        speedDifficultStrainCount: 0,
     };
 
     protected readonly sectionLength: number = 400;
