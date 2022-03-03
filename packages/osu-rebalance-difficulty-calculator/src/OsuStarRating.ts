@@ -8,7 +8,7 @@ import {
     ModFlashlight,
 } from "@rian8337/osu-base";
 import { OsuAim } from "./skills/OsuAim";
-import { RebalanceOsuSpeed } from "./skills/OsuSpeed";
+import { OsuSpeed } from "./skills/OsuSpeed";
 import { StarRating } from "./base/StarRating";
 import { OsuSkill } from "./skills/OsuSkill";
 import { OsuFlashlight } from "./skills/OsuFlashlight";
@@ -60,18 +60,9 @@ export class OsuStarRating extends StarRating {
         const aimSkill: OsuAim = new OsuAim(this.mods, true);
         const aimSkillWithoutSliders: OsuAim = new OsuAim(this.mods, false);
 
-        this.calculateSkills(aimSkill);
+        this.calculateSkills(aimSkill, aimSkillWithoutSliders);
 
-        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
-
-        this.aim = this.starValue(aimSkill.difficultyValue());
-
-        if (this.aim) {
-            this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
-                this.aim;
-        }
+        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
     }
 
     /**
@@ -82,16 +73,14 @@ export class OsuStarRating extends StarRating {
             return;
         }
 
-        const speedSkill: RebalanceOsuSpeed = new RebalanceOsuSpeed(
+        const speedSkill: OsuSpeed = new OsuSpeed(
             this.mods,
             new OsuHitWindow(this.stats.od!).hitWindowFor300()
         );
 
         this.calculateSkills(speedSkill);
 
-        this.strainPeaks.speed = speedSkill.strainPeaks;
-
-        this.speed = this.starValue(speedSkill.difficultyValue());
+        this.postCalculateSpeed(speedSkill);
     }
 
     /**
@@ -120,8 +109,8 @@ export class OsuStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+            Math.pow(speedPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -150,33 +139,23 @@ export class OsuStarRating extends StarRating {
 
         const aimSkill: OsuAim = <OsuAim>skills[0];
         const aimSkillWithoutSliders: OsuAim = <OsuAim>skills[1];
-        let speedSkill: RebalanceOsuSpeed | undefined;
+        let speedSkill: OsuSpeed | undefined;
         let flashlightSkill: OsuFlashlight;
 
         if (isRelax) {
             flashlightSkill = <OsuFlashlight>skills[2];
         } else {
-            speedSkill = <RebalanceOsuSpeed>skills[2];
+            speedSkill = <OsuSpeed>skills[2];
             flashlightSkill = <OsuFlashlight>skills[3];
         }
 
-        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
-        this.aim = this.starValue(aimSkill.difficultyValue());
-
-        if (this.aim) {
-            this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
-                this.aim;
-        }
+        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
         if (speedSkill) {
-            this.strainPeaks.speed = speedSkill.strainPeaks;
-            this.speed = this.starValue(speedSkill.difficultyValue());
+            this.postCalculateSpeed(speedSkill);
         }
 
-        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.postCalculateFlashlight(flashlightSkill);
 
         this.calculateTotal();
     }
@@ -204,11 +183,55 @@ export class OsuStarRating extends StarRating {
         return [
             new OsuAim(this.mods, true),
             new OsuAim(this.mods, false),
-            new RebalanceOsuSpeed(
+            new OsuSpeed(
                 this.mods,
                 new OsuHitWindow(this.stats.od!).hitWindowFor300()
             ),
             new OsuFlashlight(this.mods),
         ];
+    }
+
+    /**
+     * Called after aim skill calculation.
+     *
+     * @param aimSkill The aim skill that considers sliders.
+     * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
+     */
+    private postCalculateAim(
+        aimSkill: OsuAim,
+        aimSkillWithoutSliders: OsuAim
+    ): void {
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
+
+        this.aim = this.starValue(aimSkill.difficultyValue());
+
+        if (this.aim) {
+            this.attributes.sliderFactor =
+                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
+                this.aim;
+        }
+    }
+
+    /**
+     * Called after speed skill calculation.
+     *
+     * @param speedSkill The speed skill.
+     */
+    private postCalculateSpeed(speedSkill: OsuSpeed): void {
+        this.strainPeaks.speed = speedSkill.strainPeaks;
+
+        this.speed = this.starValue(speedSkill.difficultyValue());
+    }
+
+    /**
+     * Called after flashlight skill calculation.
+     * 
+     * @param flashlightSkill The flashlight skill.
+     */
+    private postCalculateFlashlight(flashlightSkill: OsuFlashlight): void {
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
+
+        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
     }
 }
