@@ -121,12 +121,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim = this.baseValue(Math.pow(this.stars.aim, 0.8));
 
         if (this.effectiveMissCount > 0) {
-            this.aim *=
-                0.97 *
-                Math.pow(
-                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
-                    this.effectiveMissCount
-                );
+            this.aim *= this.calculateMissPenalty(
+                this.stars.attributes.aimDifficultStrainCount
+            );
         }
 
         // Combo scaling
@@ -182,13 +179,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap = this.baseValue(this.stars.tap);
 
         if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            this.tap *=
-                0.97 *
-                Math.pow(
-                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
-                    Math.pow(this.effectiveMissCount, 0.875)
-                );
+            this.tap *= this.calculateMissPenalty(
+                this.stars.attributes.speedDifficultStrainCount
+            );
         }
 
         // Combo scaling
@@ -360,6 +353,23 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             " acc, " +
             this.flashlight.toFixed(2) +
             " flashlight)"
+        );
+    }
+
+    /**
+     * Calculates miss penalty.
+     *
+     * @param difficultStrainCount Difficult strain count from calculation.
+     * @returns The miss penalty.
+     */
+    private calculateMissPenalty(difficultStrainCount: number): number {
+        // Miss penalty assumes that a player will miss on the hardest parts of a map,
+        // so we use the amount of relatively difficult sections to adjust miss penalty
+        // to make it more punishing on maps with lower amount of hard sections.
+        return (
+            0.97 /
+            (this.effectiveMissCount / (2 * Math.sqrt(difficultStrainCount)) +
+                1)
         );
     }
 }
