@@ -280,8 +280,14 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          * Calculates the flashlight performance value of the beatmap.
          */
         private calculateFlashlightValue(): void;
-        private calculateMissPenalty(strainCount: number): number;
         override toString(): string;
+        /**
+         * Calculates miss penalty.
+         *
+         * @param difficultStrainCount Difficult strain count from calculation.
+         * @returns The miss penalty.
+         */
+        private calculateMissPenalty(difficultStrainCount: number): number;
     }
 
     /**
@@ -392,6 +398,38 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          * Creates skills to be calculated.
          */
         protected override createSkills(): DroidSkill[];
+        /**
+         * Called after aim skill calculation.
+         *
+         * @param aimSkill The aim skill that considers sliders.
+         * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
+         */
+        private postCalculateAim(
+            aimSkill: DroidAim,
+            aimSkillWithoutSliders: DroidAim
+        ): void;
+        /**
+         * Called after tap skill calculation.
+         *
+         * @param tapSkill The tap skill.
+         */
+        private postCalculateTap(tapSkill: DroidTap): void;
+        /**
+         * Calculates speed-related attributes.
+         */
+        private calculateSpeedAttributes(): void;
+        /**
+         * Called after rhythm skill calculation.
+         *
+         * @param rhythmSkill The rhythm skill.
+         */
+        private postCalculateRhythm(rhythmSkill: DroidRhythm): void;
+        /**
+         * Called after flashlight skill calculation.
+         *
+         * @param flashlightSkill The flashlight skill.
+         */
+        private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void;
     }
 
     /**
@@ -709,6 +747,8 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
     export interface DifficultyAttributes {
         speedNoteCount: number;
         sliderFactor: number;
+        aimDifficultStrainCount: number;
+        speedDifficultStrainCount: number;
     }
 
     /**
