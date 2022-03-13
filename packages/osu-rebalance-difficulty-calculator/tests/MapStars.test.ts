@@ -117,11 +117,11 @@ test("Test difficulty calculation sample beatmap 1", async () => {
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
             noModDroidRating: {
-                aim: 2.02939979795515,
-                tap: 1.5506258971277869,
-                rhythm: 1.5426084373586018,
-                flashlight: 0.24456120234814863,
-                total: 3.794839733139548,
+                aim: 1.8295910280371157,
+                tap: 1.5115331624055754,
+                rhythm: 1.5377117670255913,
+                flashlight: 0.225694317194747,
+                total: 3.5066639138039273,
             },
             noModPcRating: {
                 aim: 2.380333686066187,
@@ -130,11 +130,11 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 total: 4.474849930732708,
             },
             clockRateDroidRating: {
-                aim: 2.825276908106492,
-                tap: 2.2422560286844067,
-                rhythm: 1.8382004882446554,
-                flashlight: 0.4073993190774762,
-                total: 5.343061775714969,
+                aim: 2.590043298514958,
+                tap: 2.1877752621456166,
+                rhythm: 1.8318289324612351,
+                flashlight: 0.3716529651499846,
+                total: 5.002753184597694,
             },
             clockRatePcRating: {
                 aim: 3.26222073103768,
@@ -149,11 +149,11 @@ test("Test difficulty calculation sample beatmap 1", async () => {
 test("Test difficulty calculation sample beatmap 2", async () => {
     await testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noModDroidRating: {
-            aim: 0.9798373149240929,
-            tap: 1.0241290720215277,
-            rhythm: 0.9344156069260946,
-            flashlight: 0.11137810944618322,
-            total: 2.082351577002906,
+            aim: 0.9270619986405371,
+            tap: 1.0123885327669215,
+            rhythm: 0.9282964447870795,
+            flashlight: 0.10205750839075388,
+            total: 2.01885148665673,
         },
         noModPcRating: {
             aim: 1.2853681936311694,
@@ -162,11 +162,11 @@ test("Test difficulty calculation sample beatmap 2", async () => {
             total: 2.5604050687408564,
         },
         clockRateDroidRating: {
-            aim: 1.3195263091903684,
-            tap: 1.457898058221944,
-            rhythm: 1.226445970997132,
-            flashlight: 0.1847324852220605,
-            total: 2.8928884665601844,
+            aim: 1.2443608411982154,
+            tap: 1.4328918034375808,
+            rhythm: 1.2172236339401532,
+            flashlight: 0.16849909805896887,
+            total: 2.7967322432597492,
         },
         clockRatePcRating: {
             aim: 1.7277106868093492,
@@ -182,11 +182,11 @@ test("Test difficulty calculation sample beatmap 3", async () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noModDroidRating: {
-                aim: 2.3953211346822942,
-                tap: 3.4643635042538454,
-                rhythm: 2.283845672497245,
-                flashlight: 0.5671860188989748,
-                total: 6.312718468588076,
+                aim: 2.295171707414334,
+                tap: 3.077152907005145,
+                rhythm: 2.2753761830431656,
+                flashlight: 0.4983526398081243,
+                total: 5.714105018816514,
             },
             noModPcRating: {
                 aim: 2.9844158923979682,
@@ -195,11 +195,11 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 total: 6.236337650265726,
             },
             clockRateDroidRating: {
-                aim: 3.487517365342624,
-                tap: 5.154081568294732,
-                rhythm: 2.4593210072446596,
-                flashlight: 0.8460822622701135,
-                total: 9.345288029884623,
+                aim: 3.348466390587024,
+                tap: 4.609443423437646,
+                rhythm: 2.4485959600621654,
+                flashlight: 0.7377154404369851,
+                total: 8.498553862064147,
             },
             clockRatePcRating: {
                 aim: 4.203173691714608,
@@ -214,11 +214,11 @@ test("Test difficulty calculation sample beatmap 3", async () => {
 test("Test difficulty calculation sample beatmap 4", async () => {
     await testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noModDroidRating: {
-            aim: 2.4787385216640407,
-            tap: 1.4376913945438932,
-            rhythm: 1.401255712783972,
-            flashlight: 0.3314714347245659,
-            total: 4.378711505519505,
+            aim: 2.413178874945639,
+            tap: 1.4314786692695294,
+            rhythm: 1.397992075678283,
+            flashlight: 0.30248668483662416,
+            total: 4.276712852793362,
         },
         noModPcRating: {
             aim: 4.537924998518297,
@@ -227,11 +227,11 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             total: 7.76412829688975,
         },
         clockRateDroidRating: {
-            aim: 3.4686482652957387,
-            tap: 2.049324193281434,
-            rhythm: 1.6705114180892922,
-            flashlight: 0.5440515212983436,
-            total: 6.140578014529187,
+            aim: 3.360491614242885,
+            tap: 2.0380006744361094,
+            rhythm: 1.6656871186145086,
+            flashlight: 0.4997280074590331,
+            total: 5.97298843965641,
         },
         clockRatePcRating: {
             aim: 6.010075838404166,
