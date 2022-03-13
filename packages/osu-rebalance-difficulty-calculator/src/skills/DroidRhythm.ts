@@ -88,9 +88,9 @@ export class DroidRhythm extends DroidSkill {
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                        this.hitWindow.hitWindowFor300() * 0.6
+                        this.hitWindow.hitWindowFor300() * 0.2
                 ) /
-                    (this.hitWindow.hitWindowFor300() * 0.6)
+                    (this.hitWindow.hitWindowFor300() * 0.2)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
