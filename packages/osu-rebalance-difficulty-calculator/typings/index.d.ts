@@ -233,7 +233,6 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          * The flashlight performance value.
          */
         flashlight: number;
-        private averageRhythmMultiplier: number;
         override calculate(params: {
             /**
              * The star rating instance to calculate.
@@ -260,10 +259,6 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
              */
             stats?: MapStats;
         }): this;
-        /**
-         * Calculates the average rhythm multiplier of the beatmap.
-         */
-        private calculateAverageRhythmMultiplier(): void;
         /**
          * Calculates the aim performance value of the beatmap.
          */
