@@ -37,8 +37,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     flashlight: number = 0;
 
-    private aggregatedRhythmMultiplier: number = 0;
-
     override calculate(params: {
         /**
          * The star rating instance to calculate.
@@ -72,8 +70,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }): this {
         this.handleParams(params, modes.droid);
 
-        this.calculateAverageRhythmMultiplier();
-
         this.calculateAimValue();
         this.calculateTapValue();
         this.calculateAccuracyValue();
@@ -92,22 +88,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             ) * this.finalMultiplier;
 
         return this;
-    }
-
-    /**
-     * Calculates the average rhythm multiplier of the beatmap.
-     */
-    private calculateAverageRhythmMultiplier(): void {
-        // The first object doesn't have any rhythm multiplier, so we begin with the second object
-        const rhythmMultipliers: number[] = this.stars.objects
-            .map((v) => v.rhythmMultiplier)
-            .slice(1);
-
-        this.aggregatedRhythmMultiplier = Math.max(
-            1,
-            rhythmMultipliers.reduce((total, value) => total + value, 0) /
-                Math.max(500, rhythmMultipliers.length)
-        );
     }
 
     /**
@@ -278,10 +258,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
         // Scale the accuracy value with rhythm complexity.
-        this.accuracy *= Math.min(
-            1,
-            Math.pow(Math.exp(this.aggregatedRhythmMultiplier - 0.5), 0.85) / 2
-        );
+        this.accuracy *= 0.6 + Math.pow(this.stars.rhythm, 2) / 50;
 
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             this.accuracy *= 1.08;
