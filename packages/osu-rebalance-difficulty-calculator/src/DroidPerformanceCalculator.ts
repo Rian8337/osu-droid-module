@@ -230,10 +230,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         // Global variables
+        const objectCount: number = this.stars.objects.length;
         const ncircles: number = this.stars.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? this.stars.objects.length - this.stars.map.spinners
+            ? objectCount - this.stars.map.spinners
             : this.stars.map.circles;
 
         if (ncircles === 0) {
@@ -242,9 +243,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         const realAccuracy: Accuracy = new Accuracy({
             ...this.computedAccuracy,
-            n300:
-                this.computedAccuracy.n300 -
-                (this.stars.objects.length - ncircles),
+            n300: this.computedAccuracy.n300 - (objectCount - ncircles),
         });
 
         // Lots of arbitrary values from testing.
@@ -258,7 +257,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
         // Scale the accuracy value with rhythm complexity.
-        this.accuracy *= 0.6 + Math.pow(this.stars.rhythm, 2) / 50;
+        this.accuracy *= 1.5 / (1 + Math.exp(-(this.stars.rhythm - 1) / 2));
 
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             this.accuracy *= 1.08;
