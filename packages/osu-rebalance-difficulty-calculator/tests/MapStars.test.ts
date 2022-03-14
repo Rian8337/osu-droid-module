@@ -119,7 +119,7 @@ test("Test difficulty calculation sample beatmap 1", async () => {
             noModDroidRating: {
                 aim: 1.8295910280371157,
                 tap: 1.5115331624055754,
-                rhythm: 1.5377117670255913,
+                rhythm: 0.7448667747240706,
                 flashlight: 0.225694317194747,
                 total: 3.5066639138039273,
             },
@@ -132,7 +132,7 @@ test("Test difficulty calculation sample beatmap 1", async () => {
             clockRateDroidRating: {
                 aim: 2.590043298514958,
                 tap: 2.1877752621456166,
-                rhythm: 1.8318289324612351,
+                rhythm: 0.9052506157819825,
                 flashlight: 0.3716529651499846,
                 total: 5.002753184597694,
             },
@@ -151,7 +151,7 @@ test("Test difficulty calculation sample beatmap 2", async () => {
         noModDroidRating: {
             aim: 0.9270619986405371,
             tap: 1.0123885327669215,
-            rhythm: 0.9282964447870795,
+            rhythm: 0.5509900947313762,
             flashlight: 0.10205750839075388,
             total: 2.01885148665673,
         },
@@ -164,7 +164,7 @@ test("Test difficulty calculation sample beatmap 2", async () => {
         clockRateDroidRating: {
             aim: 1.2443608411982154,
             tap: 1.4328918034375808,
-            rhythm: 1.2172236339401532,
+            rhythm: 0.7007110069672926,
             flashlight: 0.16849909805896887,
             total: 2.7967322432597492,
         },
@@ -184,7 +184,7 @@ test("Test difficulty calculation sample beatmap 3", async () => {
             noModDroidRating: {
                 aim: 2.295171707414334,
                 tap: 3.077152907005145,
-                rhythm: 2.2753761830431656,
+                rhythm: 1.168165247220996,
                 flashlight: 0.4983526398081243,
                 total: 5.714105018816514,
             },
@@ -197,7 +197,7 @@ test("Test difficulty calculation sample beatmap 3", async () => {
             clockRateDroidRating: {
                 aim: 3.348466390587024,
                 tap: 4.609443423437646,
-                rhythm: 2.4485959600621654,
+                rhythm: 1.2852948740984846,
                 flashlight: 0.7377154404369851,
                 total: 8.498553862064147,
             },
@@ -216,7 +216,7 @@ test("Test difficulty calculation sample beatmap 4", async () => {
         noModDroidRating: {
             aim: 2.413178874945639,
             tap: 1.4314786692695294,
-            rhythm: 1.397992075678283,
+            rhythm: 0.6963342354213469,
             flashlight: 0.30248668483662416,
             total: 4.276712852793362,
         },
@@ -229,7 +229,7 @@ test("Test difficulty calculation sample beatmap 4", async () => {
         clockRateDroidRating: {
             aim: 3.360491614242885,
             tap: 2.0380006744361094,
-            rhythm: 1.6656871186145086,
+            rhythm: 0.8455851630982683,
             flashlight: 0.4997280074590331,
             total: 5.97298843965641,
         },
