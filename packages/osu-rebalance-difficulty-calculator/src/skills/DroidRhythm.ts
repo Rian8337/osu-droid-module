@@ -24,7 +24,7 @@ export class DroidRhythm extends DroidSkill {
         this.hitWindow = new OsuHitWindow(overallDifficulty);
 
         const odScaling: number =
-            Math.pow(this.hitWindow.overallDifficulty, 2) / 250;
+            Math.pow(this.hitWindow.overallDifficulty, 2) / 400;
 
         this.rhythmMultiplier =
             0.75 +
