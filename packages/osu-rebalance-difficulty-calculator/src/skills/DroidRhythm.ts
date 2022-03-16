@@ -13,7 +13,7 @@ export class DroidRhythm extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly starsPerDouble: number = 1.75;
 
-    private readonly rhythmMultiplier: number = 0.75;
+    private readonly rhythmMultiplier: number;
     private readonly historyTimeMax: number = 5000; // 5 seconds of calculateRhythmBonus max.
     private currentRhythm: number = 1;
     private readonly hitWindow: OsuHitWindow;
@@ -22,6 +22,13 @@ export class DroidRhythm extends DroidSkill {
         super(mods);
 
         this.hitWindow = new OsuHitWindow(overallDifficulty);
+
+        const odScaling: number =
+            Math.pow(this.hitWindow.overallDifficulty, 2) / 250;
+
+        this.rhythmMultiplier =
+            0.75 +
+            (this.hitWindow.overallDifficulty >= 0 ? odScaling : -odScaling);
     }
 
     /**
