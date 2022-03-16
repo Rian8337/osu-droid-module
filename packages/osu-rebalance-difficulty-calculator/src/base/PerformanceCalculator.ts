@@ -86,9 +86,9 @@ export abstract class PerformanceCalculator {
         mode?: modes;
 
         /**
-         * The speed penalty to apply for penalized scores. Only applies to droid gamemode.
+         * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
          */
-        speedPenalty?: number;
+        tapPenalty?: number;
 
         /**
          * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.

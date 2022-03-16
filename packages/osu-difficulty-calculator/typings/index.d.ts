@@ -872,9 +872,9 @@ declare module "@rian8337/osu-difficulty-calculator" {
              */
             mode?: modes;
             /**
-             * The speed penalty to apply for penalized scores. Only applies to droid gamemode.
+             * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
              */
-            speedPenalty?: number;
+            tapPenalty?: number;
             /**
              * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
              */
@@ -914,9 +914,9 @@ declare module "@rian8337/osu-difficulty-calculator" {
                  */
                 mode?: modes;
                 /**
-                 * The speed penalty to apply for penalized scores.
+                 * The tap penalty to apply for penalized scores.
                  */
-                speedPenalty?: number;
+                tapPenalty?: number;
                 /**
                  * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
                  */
