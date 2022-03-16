@@ -7,6 +7,10 @@ This is a monorepo for osu! modules that are published mainly for my own conveni
 
 Keep in mind that I mainly develop these modules for my use case. Therefore, all modules **only supports osu!standard beatmaps**.
 
+# Requirements
+
+You need Node v16 or newer to use all modules in this repository.
+
 # Projects in this monorepo
 
 | Name                                                                                    | Description                                                                                                  |
