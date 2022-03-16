@@ -3,7 +3,7 @@
   "private": true,
   "scripts": {
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
-    "generate-docs": "typedoc --name \"Rian's osu! modules\" --entryPointStrategy packages . \"packages/*\" --excludeExternals --excludePrivate --excludeProtected",
+    "generate-docs": "typedoc \"packages/*\"",
     "generate-docs-windows": "rmdir docs /s /q & npm run generate-docs",
     "generate-docs-linux": "rm -rf docs & npm run generate-docs"
   },
