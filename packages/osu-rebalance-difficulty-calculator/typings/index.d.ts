@@ -276,13 +276,6 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          */
         private calculateFlashlightValue(): void;
         override toString(): string;
-        /**
-         * Calculates miss penalty.
-         *
-         * @param difficultStrainCount Difficult strain count from calculation.
-         * @returns The miss penalty.
-         */
-        private calculateMissPenalty(difficultStrainCount: number): number;
     }
 
     /**

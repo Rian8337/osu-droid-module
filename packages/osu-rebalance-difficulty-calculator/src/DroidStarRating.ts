@@ -233,19 +233,6 @@ export class DroidStarRating extends StarRating {
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
-
-        const objectStrains: number[] = this.objects.map(
-            (v) => v.aimStrainWithSliders
-        );
-
-        const maxStrain: number = Math.max(...objectStrains);
-
-        if (maxStrain) {
-            this.attributes.aimDifficultStrainCount = objectStrains.reduce(
-                (a, v) => a + Math.pow(v / maxStrain, 4),
-                0
-            );
-        }
     }
 
     /**
@@ -273,11 +260,6 @@ export class DroidStarRating extends StarRating {
             this.attributes.speedNoteCount = objectStrains.reduce(
                 (total, next) =>
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0
-            );
-
-            this.attributes.speedDifficultStrainCount = objectStrains.reduce(
-                (a, v) => a + Math.pow(v / maxStrain, 4),
                 0
             );
         }
