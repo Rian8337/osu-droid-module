@@ -131,9 +131,7 @@ export class Beatmap {
         const sliders: Slider[] = <Slider[]>(
             this.objects.filter((v) => v instanceof Slider)
         );
-        return sliders
-            .map((v) => v.ticks)
-            .reduce((acc, value) => acc + value, 0);
+        return sliders.reduce((acc, value) => acc + value.ticks, 0);
     }
 
     /**
@@ -150,9 +148,7 @@ export class Beatmap {
         const sliders: Slider[] = <Slider[]>(
             this.objects.filter((v) => v instanceof Slider)
         );
-        return sliders
-            .map((v) => v.repeatPoints)
-            .reduce((acc, value) => acc + value, 0);
+        return sliders.reduce((acc, value) => acc + value.repeatPoints, 0);
     }
 
     /**

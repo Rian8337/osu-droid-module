@@ -9,6 +9,7 @@ import {
     ModScoreV2,
     ModFlashlight,
 } from "@rian8337/osu-base";
+import { DifficultyHitObject } from "./preprocessing/DifficultyHitObject";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -99,14 +100,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAverageRhythmMultiplier(): void {
         // The first object doesn't have any rhythm multiplier, so we begin with the second object
-        const rhythmMultipliers: number[] = this.stars.objects
-            .map((v) => v.rhythmMultiplier)
-            .slice(1);
+        const rhythmObjects: DifficultyHitObject[] =
+            this.stars.objects.slice(1);
 
         this.aggregatedRhythmMultiplier = Math.max(
             1,
-            rhythmMultipliers.reduce((total, value) => total + value, 0) /
-                Math.max(500, rhythmMultipliers.length)
+            rhythmObjects.reduce(
+                (total, value) => total + value.rhythmMultiplier,
+                0
+            ) / Math.max(500, rhythmObjects.length)
         );
     }
 

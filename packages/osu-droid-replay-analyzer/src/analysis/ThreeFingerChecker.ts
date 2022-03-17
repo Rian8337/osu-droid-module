@@ -774,11 +774,10 @@ export class ThreeFingerChecker {
 
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
             this.map.objects;
-        const totalCursorAmount: number = this.downCursorInstances
-            .map((v) => {
-                return v.size;
-            })
-            .reduce((acc, value) => acc + value, 0);
+        const totalCursorAmount: number = this.downCursorInstances.reduce(
+            (acc, value) => acc + value.size,
+            0
+        );
 
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
             if (filledCursorAmount <= 3) {
@@ -954,16 +953,11 @@ export class ThreeFingerChecker {
                             beatmapSection.firstObjectIndex,
                             beatmapSection.lastObjectIndex
                         )
-                        .map((v) => {
-                            return v.originalTapStrain;
-                        })
-                        .sort((a, b) => {
-                            return b - a;
-                        })
                         .reduce(
                             (acc, value) =>
                                 acc +
-                                value / ThreeFingerChecker.strainThreshold,
+                                value.originalTapStrain /
+                                    ThreeFingerChecker.strainThreshold,
                             0
                         ),
                     0.85
