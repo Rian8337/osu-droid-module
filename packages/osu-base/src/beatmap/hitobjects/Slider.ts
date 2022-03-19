@@ -54,14 +54,14 @@ export class Slider extends HitObject {
     readonly spanDuration: number;
 
     /**
-     * The slider's head (sliderhead).
+     * The slider's head.
      */
-    readonly headCircle: SliderHead;
+    readonly head: SliderHead;
 
     /**
-     * The slider's tail (sliderend).
+     * The slider's tail.
      */
-    readonly tailCircle: SliderTail;
+    readonly tail: SliderTail;
 
     /**
      * The duration of this slider.
@@ -81,7 +81,7 @@ export class Slider extends HitObject {
     /**
      * The amount of repeat points in this slider.
      */
-    get repeatPoints(): number {
+    get repeats(): number {
         return this.repetitions - 1;
     }
 
@@ -128,13 +128,13 @@ export class Slider extends HitObject {
 
         // Creating nested hit objects
         // Slider start
-        this.headCircle = new SliderHead({
+        this.head = new SliderHead({
             position: this.position,
             startTime: this.startTime,
             type: 0,
         });
 
-        this.nestedHitObjects.push(this.headCircle);
+        this.nestedHitObjects.push(this.head);
 
         // Slider ticks and repeat points
         // A very lenient maximum length of a slider for ticks to be generated.
@@ -208,7 +208,7 @@ export class Slider extends HitObject {
         // This legacy tick is used for some calculations and judgements where audio output is not required.
         // Generally we are keeping this around just for difficulty compatibility.
         // Optimistically we do not want to ever use this for anything user-facing going forwards.
-        const finalSpanIndex: number = this.repeatPoints;
+        const finalSpanIndex: number = this.repeats;
         const finalSpanStartTime: number =
             this.startTime + finalSpanIndex * this.spanDuration;
         const finalSpanEndTime: number = Math.max(
@@ -217,12 +217,12 @@ export class Slider extends HitObject {
         );
 
         // Slider end
-        this.tailCircle = new SliderTail({
+        this.tail = new SliderTail({
             position: this.endPosition,
             startTime: finalSpanEndTime,
         });
 
-        this.nestedHitObjects.push(this.tailCircle);
+        this.nestedHitObjects.push(this.tail);
 
         this.nestedHitObjects.sort((a, b) => {
             return a.startTime - b.startTime;
