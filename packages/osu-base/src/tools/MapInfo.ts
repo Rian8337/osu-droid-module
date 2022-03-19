@@ -571,7 +571,8 @@ export class MapInfo {
                     this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
                 }`;
             case 3: {
-                const maxScore: number = this.maxScore(mapStatistics);
+                const maxScore: number =
+                    this.map?.maxDroidScore(mapStatistics) ?? 0;
                 const convertedBPM: number = this.convertBPM(mapStatistics);
                 let string = "**BPM**: ";
                 if (this.map) {
@@ -695,15 +696,6 @@ export class MapInfo {
             default:
                 return 0;
         }
-    }
-
-    /**
-     * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
-     *
-     * This requires .osu file to be downloaded.
-     */
-    maxScore(stats: MapStats): number {
-        return this.map?.maxDroidScore(stats) ?? 0;
     }
 
     /**
