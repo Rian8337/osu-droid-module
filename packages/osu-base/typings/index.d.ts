@@ -170,7 +170,7 @@ declare module "@rian8337/osu-base" {
          *
          * @param mods The modifications to calculate for. Defaults to No Mod.
          */
-        maxOsuScore(mods: Mod[] = []): number;
+        maxOsuScore(mods?: Mod[]): number;
         /**
          * Calculates the maximum score with a given difficulty and score multiplier.
          *
@@ -290,7 +290,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the headcircle of a slider (sliderhead).
      */
-    export class HeadCircle extends Circle {}
+    export class HeadCircle extends Circle { }
 
     /**
      * Represents a hitobject in a beatmap.
@@ -1589,7 +1589,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the tailcircle of a slider (sliderend).
      */
-    export class TailCircle extends Circle {}
+    export class TailCircle extends Circle { }
 
     /**
      * Represents a timing point that changes the beatmap's BPM.
