@@ -170,7 +170,7 @@ describe("Test OD conversion without speed multiplier", () => {
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(9.83);
+            expect(stats.od).toBeCloseTo(9.8);
         });
 
         test("OD 10 with PR", () => {
@@ -402,7 +402,7 @@ describe("Test OD conversion with speed multiplier", () => {
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(11.58);
+            expect(stats.od).toBeCloseTo(11.567);
         });
 
         test("OD 10 with PR, 1.2x speed multiplier", () => {

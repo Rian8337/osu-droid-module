@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-droid-utilities",
-  "version": "1.0.1",
+  "version": "1.2.9",
   "description": "A module containing utilities for osu!droid.",
   "keywords": [
     "osu",
@@ -11,6 +11,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "typings": "typings/index.d.ts",
+  "typedocMain": "src/index.ts",
   "files": [
     "dist/**",
     "typings/**"
@@ -21,7 +22,7 @@
   },
   "scripts": {
     "build": "tsc",
-    "generate-docs": "typedoc src/index.ts",
+    "lint": "eslint --ext ts",
     "prepare": "npm run build",
     "test": "jest -i"
   },
@@ -29,10 +30,14 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^1.0.1",
-    "@rian8337/osu-droid-replay-analyzer": "^1.0.1"
+    "@rian8337/osu-base": "^1.2.9",
+    "@rian8337/osu-droid-replay-analyzer": "^1.2.9",
+    "crypto-js": "^4.1.1"
   },
   "publishConfig": {
     "access": "public"
+  },
+  "devDependencies": {
+    "@types/crypto-js": "^4.1.0"
   }
 }

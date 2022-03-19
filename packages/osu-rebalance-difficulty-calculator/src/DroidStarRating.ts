@@ -1,9 +1,17 @@
-import { Beatmap, Mod, MapStats, modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
 import { DroidAim } from "./skills/DroidAim";
 import { DroidTap } from "./skills/DroidTap";
 import { StarRating } from "./base/StarRating";
 import { DroidSkill } from "./skills/DroidSkill";
 import { DroidFlashlight } from "./skills/DroidFlashlight";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    modes,
+    ModRelax,
+    ModFlashlight,
+} from "@rian8337/osu-base";
+import { DroidRhythm } from "./skills/DroidRhythm";
 
 /**
  * Difficulty calculator for osu!droid gamemode.
@@ -18,6 +26,11 @@ export class DroidStarRating extends StarRating {
      * The tap star rating of the beatmap.
      */
     tap: number = 0;
+
+    /**
+     * The rhythm star rating of the beatmap.
+     */
+    rhythm: number = 0;
 
     /**
      * The flashlight star rating of the beatmap.
@@ -67,73 +80,48 @@ export class DroidStarRating extends StarRating {
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
-        const aimSkill: DroidAim = new DroidAim(
-            this.mods,
-            true
-        );
-        const aimSkillWithoutSliders: DroidAim = new DroidAim(
-            this.mods,
-            false
-        );
+        const aimSkill: DroidAim = new DroidAim(this.mods, true);
+        const aimSkillWithoutSliders: DroidAim = new DroidAim(this.mods, false);
 
         this.calculateSkills(aimSkill, aimSkillWithoutSliders);
 
-        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
-
-        this.aim = this.starValue(aimSkill.difficultyValue());
-
-        if (this.aim) {
-            this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
-                this.aim;
-        }
+        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
     }
 
     /**
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            return;
-        }
+        const tapSkill: DroidTap = new DroidTap(this.mods, this.stats.od!);
 
-        const tapSkill: DroidTap = new DroidTap(
+        this.calculateSkills(tapSkill);
+
+        this.postCalculateTap(tapSkill);
+    }
+
+    /**
+     * Calculates the rhythm star rating of the beatmap and stores it in this instance.
+     */
+    calculateRhythm(): void {
+        const rhythmSkill: DroidRhythm = new DroidRhythm(
             this.mods,
             this.stats.od!
         );
 
-        this.calculateSkills(tapSkill);
+        this.calculateSkills(rhythmSkill);
 
-        this.strainPeaks.speed = tapSkill.strainPeaks;
-
-        this.tap = this.starValue(tapSkill.difficultyValue());
-
-        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
-
-        const maxStrain: number = Math.max(...objectStrains);
-
-        if (maxStrain) {
-            this.attributes.speedNoteCount = objectStrains.reduce(
-                (total, next) =>
-                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0
-            );
-        }
+        this.postCalculateRhythm(rhythmSkill);
     }
 
     /**
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill: DroidFlashlight =
-            new DroidFlashlight(this.mods);
+        const flashlightSkill: DroidFlashlight = new DroidFlashlight(this.mods);
 
         this.calculateSkills(flashlightSkill);
 
-        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
-
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.postCalculateFlashlight(flashlightSkill);
     }
 
     override calculateTotal(): void {
@@ -147,8 +135,8 @@ export class DroidStarRating extends StarRating {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(tapPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(tapPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -168,60 +156,27 @@ export class DroidStarRating extends StarRating {
 
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
-        if (isRelax) {
-            // Remove speed skill to prevent overhead
-            skills.splice(2, 1);
-        }
-
         this.calculateSkills(...skills);
 
         const aimSkill: DroidAim = <DroidAim>skills[0];
-        const aimSkillWithoutSliders: DroidAim = <DroidAim>(
-            skills[1]
-        );
-        let tapSkill: DroidTap | undefined;
-        let flashlightSkill: DroidFlashlight;
+        const aimSkillWithoutSliders: DroidAim = <DroidAim>skills[1];
+        const rhythmSkill: DroidRhythm = <DroidRhythm>skills[2];
+        const tapSkill: DroidTap = <DroidTap>skills[3];
+        const flashlightSkill: DroidFlashlight = <DroidFlashlight>skills[4];
+
+        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
         if (!isRelax) {
-            tapSkill = <DroidTap>skills[2];
-            flashlightSkill = <DroidFlashlight>skills[3];
+            this.postCalculateTap(tapSkill);
         } else {
-            flashlightSkill = <DroidFlashlight>skills[2];
+            this.calculateSpeedAttributes();
         }
 
-        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
-        this.aim = this.starValue(aimSkill.difficultyValue());
-
-        if (this.aim) {
-            this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
-                this.aim;
+        if (!isRelax) {
+            this.postCalculateRhythm(rhythmSkill);
         }
 
-        if (tapSkill) {
-            this.strainPeaks.speed = tapSkill.strainPeaks;
-
-            this.tap = this.starValue(tapSkill.difficultyValue());
-
-            const objectStrains: number[] = this.objects.map(
-                (v) => v.tapStrain
-            );
-
-            const maxStrain: number = Math.max(...objectStrains);
-
-            if (maxStrain) {
-                this.attributes.speedNoteCount = objectStrains.reduce(
-                    (total, next) =>
-                        total +
-                        1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                    0
-                );
-            }
-        }
-
-        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.postCalculateFlashlight(flashlightSkill);
 
         this.calculateTotal();
     }
@@ -237,6 +192,8 @@ export class DroidStarRating extends StarRating {
             " aim, " +
             this.tap.toFixed(2) +
             " tap, " +
+            this.rhythm.toFixed(2) +
+            " rhythm, " +
             this.flashlight.toFixed(2) +
             " flashlight)"
         );
@@ -249,8 +206,82 @@ export class DroidStarRating extends StarRating {
         return [
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
+            // Tap skill depends on rhythm skill, so we put it first
+            new DroidRhythm(this.mods, this.stats.od!),
             new DroidTap(this.mods, this.stats.od!),
             new DroidFlashlight(this.mods),
         ];
+    }
+
+    /**
+     * Called after aim skill calculation.
+     *
+     * @param aimSkill The aim skill that considers sliders.
+     * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
+     */
+    private postCalculateAim(
+        aimSkill: DroidAim,
+        aimSkillWithoutSliders: DroidAim
+    ): void {
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
+
+        this.aim = this.starValue(aimSkill.difficultyValue());
+
+        if (this.aim) {
+            this.attributes.sliderFactor =
+                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
+                this.aim;
+        }
+    }
+
+    /**
+     * Called after tap skill calculation.
+     *
+     * @param tapSkill The tap skill.
+     */
+    private postCalculateTap(tapSkill: DroidTap): void {
+        this.strainPeaks.speed = tapSkill.strainPeaks;
+
+        this.tap = this.starValue(tapSkill.difficultyValue());
+
+        this.calculateSpeedAttributes();
+    }
+
+    /**
+     * Calculates speed-related attributes.
+     */
+    private calculateSpeedAttributes(): void {
+        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
+
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.speedNoteCount = objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+        }
+    }
+
+    /**
+     * Called after rhythm skill calculation.
+     *
+     * @param rhythmSkill The rhythm skill.
+     */
+    private postCalculateRhythm(rhythmSkill: DroidRhythm): void {
+        this.rhythm = this.starValue(rhythmSkill.difficultyValue());
+    }
+
+    /**
+     * Called after flashlight skill calculation.
+     *
+     * @param flashlightSkill The flashlight skill.
+     */
+    private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void {
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
+
+        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
     }
 }

@@ -1,6 +1,15 @@
 import { DroidStarRating } from "./DroidStarRating";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
-import { Accuracy, MapStats, modes, ModHidden, ModRelax, ModScoreV2, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    ModHidden,
+    ModRelax,
+    ModScoreV2,
+    ModFlashlight,
+} from "@rian8337/osu-base";
+import { DifficultyHitObject } from "./preprocessing/DifficultyHitObject";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -77,9 +86,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                Math.pow(this.tap, 1.1) +
-                Math.pow(this.accuracy, 1.1) +
-                Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.tap, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier;
 
@@ -91,14 +100,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAverageRhythmMultiplier(): void {
         // The first object doesn't have any rhythm multiplier, so we begin with the second object
-        const rhythmMultipliers: number[] = this.stars.objects
-            .map((v) => v.rhythmMultiplier)
-            .slice(1);
+        const rhythmObjects: DifficultyHitObject[] =
+            this.stars.objects.slice(1);
 
         this.aggregatedRhythmMultiplier = Math.max(
             1,
-            rhythmMultipliers.reduce((total, value) => total + value, 0) /
-            Math.max(500, rhythmMultipliers.length)
+            rhythmObjects.reduce(
+                (total, value) => total + value.rhythmMultiplier,
+                0
+            ) / Math.max(500, rhythmObjects.length)
         );
     }
 
@@ -126,17 +136,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *= this.comboPenalty;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        let hiddenBonus: number = 1;
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             // The bonus starts decreasing twice as fast
             // beyond AR10 and reaches 1 at AR11.
             if (calculatedAR > 10) {
-                hiddenBonus += Math.max(0, 0.08 * (11 - calculatedAR));
+                this.aim *= 1 + Math.max(0, 0.08 * (11 - calculatedAR));
             } else {
-                hiddenBonus += 0.04 * (12 - calculatedAR);
+                this.aim *= 1 + 0.04 * (12 - calculatedAR);
             }
         }
-        this.aim *= hiddenBonus;
 
         // AR scaling
         let arFactor: number = 0;
@@ -150,9 +158,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *=
             1 +
             arFactor *
-            (1.650668 +
-                (0.4845796 - 1.650668) /
-                (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                (1.650668 +
+                    (0.4845796 - 1.650668) /
+                        (1 + Math.pow(objectCount / 817.9306, 1.147469)));
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -195,10 +203,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.tap *=
                 1 +
                 0.3 *
-                (calculatedAR - 10.33) *
-                (1.650668 +
-                    (0.4845796 - 1.650668) /
-                    (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                    (calculatedAR - 10.33) *
+                    (1.650668 +
+                        (0.4845796 - 1.650668) /
+                            (1 + Math.pow(objectCount / 817.9306, 1.147469)));
         }
 
         // Calculate accuracy assuming the worst case scenario.
@@ -232,8 +240,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     relevantAccuracy.value(
                         this.stars.attributes.speedNoteCount
                     )) /
-                2,
-                (12 - Math.max(od, 2.5)) / 2
+                    2,
+                (14 - Math.max(od, 2.5)) / 2
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.

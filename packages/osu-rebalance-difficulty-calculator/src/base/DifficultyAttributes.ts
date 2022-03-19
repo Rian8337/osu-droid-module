@@ -4,4 +4,6 @@
 export interface DifficultyAttributes {
     speedNoteCount: number;
     sliderFactor: number;
+    aimDifficultStrainCount: number;
+    speedDifficultStrainCount: number;
 }

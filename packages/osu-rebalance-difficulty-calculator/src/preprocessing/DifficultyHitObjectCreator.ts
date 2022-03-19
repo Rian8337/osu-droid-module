@@ -1,4 +1,12 @@
-import { HitObject, modes, Precision, RepeatPoint, Slider, Spinner, Vector2 } from "@rian8337/osu-base";
+import {
+    HitObject,
+    modes,
+    Precision,
+    RepeatPoint,
+    Slider,
+    Spinner,
+    Vector2,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -55,8 +63,9 @@ export class DifficultyHitObjectCreator {
         const difficultyObjects: DifficultyHitObject[] = [];
 
         for (let i = 0; i < params.objects.length; ++i) {
-            const object: DifficultyHitObject =
-                new DifficultyHitObject(params.objects[i]);
+            const object: DifficultyHitObject = new DifficultyHitObject(
+                params.objects[i]
+            );
             object.object.scale = scale;
 
             if (object.object instanceof Slider) {
@@ -72,8 +81,7 @@ export class DifficultyHitObjectCreator {
                 );
             }
 
-            const lastObject: DifficultyHitObject =
-                difficultyObjects[i - 1];
+            const lastObject: DifficultyHitObject = difficultyObjects[i - 1];
             const lastLastObject: DifficultyHitObject =
                 difficultyObjects[i - 2];
 
@@ -142,8 +150,8 @@ export class DifficultyHitObjectCreator {
                     0,
                     Math.min(
                         object.lazyJumpDistance -
-                        (this.maximumSliderRadius -
-                            this.assumedSliderRadius),
+                            (this.maximumSliderRadius -
+                                this.assumedSliderRadius),
                         tailJumpDistance - this.maximumSliderRadius
                     )
                 );
@@ -261,7 +269,7 @@ export class DifficultyHitObjectCreator {
                 currentCursorPosition = currentCursorPosition.add(
                     currentMovement.scale(
                         (currentMovementLength - requiredMovement) /
-                        currentMovementLength
+                            currentMovementLength
                     )
                 );
                 currentMovementLength *=
@@ -308,7 +316,7 @@ export class DifficultyHitObjectCreator {
                             this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius,
                             20
                         ) /
-                        40;
+                            40;
                 }
                 break;
             case modes.osu:
@@ -319,7 +327,7 @@ export class DifficultyHitObjectCreator {
                             this.PC_CIRCLESIZE_BUFF_THRESHOLD - radius,
                             5
                         ) /
-                        50;
+                            50;
                 }
         }
 

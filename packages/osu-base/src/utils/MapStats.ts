@@ -1,5 +1,5 @@
 import { modes } from "../constants/modes";
-import { DroidHitWindow } from "../utils/HitWindow";
+import { DroidHitWindow, OsuHitWindow } from "../utils/HitWindow";
 import { Mod } from "../mods/Mod";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModHalfTime } from "../mods/ModHalfTime";
@@ -363,12 +363,11 @@ export class MapStats {
         speedMultiplier: number,
         statisticsMultiplier: number
     ): number {
-        let od: number = baseOD;
-        od *= statisticsMultiplier;
-        let odMS: number = this.OD0_MS - Math.ceil(this.OD_MS_STEP * od);
-        odMS = Math.min(this.OD0_MS, Math.max(this.OD10_MS, odMS));
-        odMS /= speedMultiplier;
-        od = (this.OD0_MS - odMS) / this.OD_MS_STEP;
-        return od;
+        const hitWindowGreat: number =
+            new OsuHitWindow(
+                Math.min(10, baseOD * statisticsMultiplier)
+            ).hitWindowFor300() / speedMultiplier;
+
+        return (this.OD0_MS - hitWindowGreat) / this.OD_MS_STEP;
     }
 }

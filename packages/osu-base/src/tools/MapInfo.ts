@@ -3,9 +3,6 @@ import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
 import { Parser } from "../beatmap/Parser";
 import { rankedStatus } from "../constants/rankedStatus";
-import { HitObject } from "../beatmap/hitobjects/HitObject";
-import { Slider } from "../beatmap/hitobjects/Slider";
-import { SliderTick } from "../beatmap/hitobjects/sliderObjects/SliderTick";
 import {
     OsuAPIRequestBuilder,
     RequestResponse,
@@ -431,13 +428,15 @@ export class MapInfo {
         hitLength /= stats.speedMultiplier;
         totalLength /= stats.speedMultiplier;
 
-        return `${this.timeString(this.hitLength)}${this.hitLength === hitLength
+        return `${this.timeString(this.hitLength)}${
+            this.hitLength === hitLength
                 ? ""
                 : ` (${this.timeString(hitLength)})`
-            }/${this.timeString(this.totalLength)}${this.totalLength === totalLength
+        }/${this.timeString(this.totalLength)}${
+            this.totalLength === totalLength
                 ? ""
                 : ` (${this.timeString(totalLength)})`
-            }`;
+        }`;
     }
 
     /**
@@ -495,12 +494,13 @@ export class MapInfo {
 
         switch (option) {
             case 0: {
-                let string: string = `${this.fullTitle}${(mapStatistics.mods.length ?? 0) > 0
+                let string: string = `${this.fullTitle}${
+                    (mapStatistics.mods.length ?? 0) > 0
                         ? ` +${mapStatistics.mods
-                            .map((m) => m.acronym)
-                            .join("")}`
+                              .map((m) => m.acronym)
+                              .join("")}`
                         : ""
-                    }`;
+                }`;
                 if (
                     mapParams.speedMultiplier !== 1 ||
                     mapStatistics.isForceAR
@@ -520,22 +520,30 @@ export class MapInfo {
                 return string;
             }
             case 1: {
-                let string: string = `${this.source ? `**Source**: ${this.source}\n` : ""
-                    }**Download**: [osu!](https://osu.ppy.sh/d/${this.beatmapsetID
-                    })${this.videoAvailable
+                let string: string = `${
+                    this.source ? `**Source**: ${this.source}\n` : ""
+                }**Download**: [osu!](https://osu.ppy.sh/d/${
+                    this.beatmapsetID
+                })${
+                    this.videoAvailable
                         ? ` [(no video)](https://osu.ppy.sh/d/${this.beatmapsetID}n)`
                         : ""
-                    } - [Chimu](https://chimu.moe/en/d/${this.beatmapsetID
-                    }) - [Sayobot](https://txy1.sayobot.cn/beatmaps/download/full/${this.beatmapsetID
-                    })${this.videoAvailable
+                } - [Chimu](https://chimu.moe/en/d/${
+                    this.beatmapsetID
+                }) - [Sayobot](https://txy1.sayobot.cn/beatmaps/download/full/${
+                    this.beatmapsetID
+                })${
+                    this.videoAvailable
                         ? ` [(no video)](https://txy1.sayobot.cn/beatmaps/download/novideo/${this.beatmapsetID})`
                         : ""
-                    } - [Beatconnect](https://beatconnect.io/b/${this.beatmapsetID
-                    }/) - [Nerina](https://nerina.pw/d/${this.beatmapsetID})${this.approved >= rankedStatus.RANKED &&
-                        this.approved !== rankedStatus.QUALIFIED
+                } - [Beatconnect](https://beatconnect.io/b/${
+                    this.beatmapsetID
+                }/) - [Nerina](https://nerina.pw/d/${this.beatmapsetID})${
+                    this.approved >= rankedStatus.RANKED &&
+                    this.approved !== rankedStatus.QUALIFIED
                         ? ` - [Ripple](https://storage.ripple.moe/d/${this.beatmapsetID})`
                         : ""
-                    }`;
+                }`;
                 if (this.packs.length > 0) {
                     string += "\n**Beatmap Pack**: ";
                     for (let i = 0; i < this.packs.length; i++) {
@@ -545,17 +553,23 @@ export class MapInfo {
                         }
                     }
                 }
-                string += `\n🖼️ ${this.storyboardAvailable ? "✅" : "❎"
-                    } **|** 🎞️ ${this.videoAvailable ? "✅" : "❎"}`;
+                string += `\n🖼️ ${
+                    this.storyboardAvailable ? "✅" : "❎"
+                } **|** 🎞️ ${this.videoAvailable ? "✅" : "❎"}`;
                 return string;
             }
             case 2:
-                return `**Circles**: ${this.circles} - **Sliders**: ${this.sliders
-                    } - **Spinners**: ${this.spinners}\n**CS**: ${this.cs}${this.cs === mapStatistics.cs ? "" : ` (${mapStatistics.cs})`
-                    } - **AR**: ${this.ar}${this.ar === mapStatistics.ar ? "" : ` (${mapStatistics.ar})`
-                    } - **OD**: ${this.od}${this.od === mapStatistics.od ? "" : ` (${mapStatistics.od})`
-                    } - **HP**: ${this.hp}${this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
-                    }`;
+                return `**Circles**: ${this.circles} - **Sliders**: ${
+                    this.sliders
+                } - **Spinners**: ${this.spinners}\n**CS**: ${this.cs}${
+                    this.cs === mapStatistics.cs ? "" : ` (${mapStatistics.cs})`
+                } - **AR**: ${this.ar}${
+                    this.ar === mapStatistics.ar ? "" : ` (${mapStatistics.ar})`
+                } - **OD**: ${this.od}${
+                    this.od === mapStatistics.od ? "" : ` (${mapStatistics.od})`
+                } - **HP**: ${this.hp}${
+                    this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
+                }`;
             case 3: {
                 const maxScore: number = this.maxScore(mapStatistics);
                 const convertedBPM: number = this.convertBPM(mapStatistics);
@@ -565,18 +579,20 @@ export class MapInfo {
                         this.map.timingPoints;
 
                     if (uninheritedTimingPoints.length === 1) {
-                        string += `${this.bpm}${!Precision.almostEqualsNumber(
-                            this.bpm,
-                            convertedBPM
-                        )
+                        string += `${this.bpm}${
+                            !Precision.almostEqualsNumber(
+                                this.bpm,
+                                convertedBPM
+                            )
                                 ? ` (${convertedBPM})`
                                 : ""
-                            } - **Length**: ${this.convertTime(
-                                mapStatistics
-                            )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                        } - **Length**: ${this.convertTime(
+                            mapStatistics
+                        )} - **Max Combo**: ${this.maxCombo}x${
+                            maxScore > 0
                                 ? `\n**Max Score**: ${maxScore.toLocaleString()}`
                                 : ""
-                            }`;
+                        }`;
                     } else {
                         let maxBPM: number = this.bpm;
                         let minBPM: number = this.bpm;
@@ -598,7 +614,7 @@ export class MapInfo {
 
                         string +=
                             Precision.almostEqualsNumber(minBPM, this.bpm) &&
-                                Precision.almostEqualsNumber(maxBPM, this.bpm)
+                            Precision.almostEqualsNumber(maxBPM, this.bpm)
                                 ? `${this.bpm} `
                                 : `${minBPM}-${maxBPM} (${this.bpm}) `;
 
@@ -622,21 +638,24 @@ export class MapInfo {
 
                         string += `- **Length**: ${this.convertTime(
                             mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                        )} - **Max Combo**: ${this.maxCombo}x${
+                            maxScore > 0
                                 ? `\n**Max score**: ${maxScore.toLocaleString()}`
                                 : ""
-                            }`;
+                        }`;
                     }
                 } else {
-                    string += `${this.bpm}${!Precision.almostEqualsNumber(this.bpm, convertedBPM)
+                    string += `${this.bpm}${
+                        !Precision.almostEqualsNumber(this.bpm, convertedBPM)
                             ? ` (${convertedBPM})`
                             : ""
-                        } - **Length**: ${this.convertTime(
-                            mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${maxScore > 0
+                    } - **Length**: ${this.convertTime(
+                        mapStatistics
+                    )} - **Max Combo**: ${this.maxCombo}x${
+                        maxScore > 0
                             ? `\n**Max score**: ${maxScore.toLocaleString()}`
                             : ""
-                        }`;
+                    }`;
                 }
                 return string;
             }
@@ -679,67 +698,12 @@ export class MapInfo {
     }
 
     /**
-     * Calculates the osu!droid maximum score of the beatmap.
+     * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
      *
      * This requires .osu file to be downloaded.
      */
     maxScore(stats: MapStats): number {
-        if (!this.map) {
-            return 0;
-        }
-
-        const difficultyMultiplier: number =
-            1 + this.od / 10 + this.hp / 10 + (this.cs - 3) / 4;
-
-        // score multiplier
-        let scoreMultiplier: number = 1;
-
-        if (stats.mods.every((m) => m.droidRanked)) {
-            let scoreSpeedMultiplier: number = 1;
-            const speedMultiplier: number = stats.speedMultiplier;
-            if (speedMultiplier > 1) {
-                scoreSpeedMultiplier += (speedMultiplier - 1) * 0.24;
-            } else if (speedMultiplier < 1) {
-                scoreSpeedMultiplier = Math.pow(0.3, (1 - speedMultiplier) * 4);
-            }
-            scoreMultiplier =
-                stats.mods.reduce((a, v) => a * v.scoreMultiplier, 1) *
-                scoreSpeedMultiplier;
-        } else {
-            scoreMultiplier = 0;
-        }
-
-        const objects: HitObject[] = this.map.objects;
-        let combo: number = 0;
-        let score: number = 0;
-
-        for (let i = 0; i < objects.length; ++i) {
-            const object: HitObject = objects[i];
-            if (!(object instanceof Slider)) {
-                score += Math.floor(
-                    300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                    25
-                );
-                ++combo;
-                continue;
-            }
-
-            const tickCount: number = object.nestedHitObjects.filter(
-                (v) => v instanceof SliderTick
-            ).length;
-
-            // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
-            combo += tickCount + (object.repeatPoints + 1);
-            // Apply sliderend
-            score += Math.floor(
-                300 +
-                (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
-            );
-            ++combo;
-        }
-        return score;
+        return this.map?.maxDroidScore(stats) ?? 0;
     }
 
     /**

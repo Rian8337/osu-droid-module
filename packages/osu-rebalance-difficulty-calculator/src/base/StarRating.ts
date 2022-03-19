@@ -54,11 +54,11 @@ export abstract class StarRating {
          */
         flashlight: number[];
     } = {
-            aimWithSliders: [],
-            aimWithoutSliders: [],
-            speed: [],
-            flashlight: [],
-        };
+        aimWithSliders: [],
+        aimWithoutSliders: [],
+        speed: [],
+        flashlight: [],
+    };
 
     /**
      * Additional data that is used in performance calculation.
@@ -66,6 +66,8 @@ export abstract class StarRating {
     readonly attributes: DifficultyAttributes = {
         speedNoteCount: 0,
         sliderFactor: 1,
+        aimDifficultStrainCount: 0,
+        speedDifficultStrainCount: 0,
     };
 
     protected readonly sectionLength: number = 400;
@@ -136,14 +138,12 @@ export abstract class StarRating {
     generateDifficultyHitObjects(mode: modes): void {
         this.objects.length = 0;
         this.objects.push(
-            ...new DifficultyHitObjectCreator().generateDifficultyObjects(
-                {
-                    objects: this.map.objects,
-                    circleSize: <number>this.stats.cs,
-                    speedMultiplier: this.stats.speedMultiplier,
-                    mode: mode,
-                }
-            )
+            ...new DifficultyHitObjectCreator().generateDifficultyObjects({
+                objects: this.map.objects,
+                circleSize: <number>this.stats.cs,
+                speedMultiplier: this.stats.speedMultiplier,
+                mode: mode,
+            })
         );
     }
 

@@ -141,9 +141,9 @@ declare module "@rian8337/osu-base" {
         get maxCombo(): number;
         /**
          * Returns a time combined with beatmap-wide time offset.
-         * 
+         *
          * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
-         * 
+         *
          * @param time The time.
          */
         getOffsetTime(time: number): number;
@@ -160,12 +160,37 @@ declare module "@rian8337/osu-base" {
          */
         difficultyControlPointAt(time: number): DifficultyControlPoint;
         /**
+         * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
+         *
+         * @param stats The statistics used for calculation.
+         */
+        maxDroidScore(stats: MapStats): number;
+        /**
+         * Calculates the osu!standard maximum score of the beatmap without taking spinner bonus into account.
+         *
+         * @param mods The modifications to calculate for. Defaults to No Mod.
+         */
+        maxOsuScore(mods: Mod[] = []): number;
+        /**
+         * Calculates the maximum score with a given difficulty and score multiplier.
+         *
+         * @param difficultyMultiplier The difficulty multiplier.
+         * @param scoreMultiplier The score multiplier.
+         */
+        private maxScore(
+            difficultyMultiplier: number,
+            scoreMultiplier: number
+        ): number;
+        /**
          * Gets the timing point that applies at a given time.
          *
          * @param time The time.
          * @param list The timing points to search in.
          */
-        private getTimingPoint<T extends TimingPoint>(time: number, list: T[]): T;
+        private getTimingPoint<T extends TimingPoint>(
+            time: number,
+            list: T[]
+        ): T;
         /**
          * Returns a string representative of the class.
          */
@@ -265,7 +290,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the headcircle of a slider (sliderhead).
      */
-    export class HeadCircle extends Circle { }
+    export class HeadCircle extends Circle {}
 
     /**
      * Represents a hitobject in a beatmap.
@@ -548,7 +573,7 @@ declare module "@rian8337/osu-base" {
          */
         get statusColor(): number;
         /**
-         * Calculates the osu!droid maximum score of the beatmap.
+         * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
          *
          * This requires .osu file to be downloaded.
          */
@@ -643,7 +668,7 @@ declare module "@rian8337/osu-base" {
         });
         /**
          * Calculates map statistics.
-         * 
+         *
          * This can only be called once for an instance.
          */
         calculate(params?: {
@@ -1564,7 +1589,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the tailcircle of a slider (sliderend).
      */
-    export class TailCircle extends Circle { }
+    export class TailCircle extends Circle {}
 
     /**
      * Represents a timing point that changes the beatmap's BPM.
@@ -1882,7 +1907,7 @@ declare module "@rian8337/osu-base" {
         buildURL(): string;
         /**
          * Sends a request to the API using built parameters.
-         * 
+         *
          * If the request fails, it will be redone 5 times.
          */
         sendRequest(): Promise<RequestResponse>;

@@ -119,7 +119,7 @@ export class OsuAim extends OsuSkill {
                         Math.pow(
                             Math.sin(
                                 (Math.PI / 2) *
-                                Math.min(1, (100 - current.strainTime) / 25)
+                                    Math.min(1, (100 - current.strainTime) / 25)
                             ),
                             2
                         ) *
@@ -133,7 +133,7 @@ export class OsuAim extends OsuSkill {
                                         100
                                     ) -
                                         50)) /
-                                50
+                                    50
                             ),
                             2
                         );
@@ -154,16 +154,16 @@ export class OsuAim extends OsuSkill {
                 acuteAngleBonus *=
                     0.5 +
                     0.5 *
-                    (1 -
-                        Math.min(
-                            acuteAngleBonus,
-                            Math.pow(
-                                this.calculateAcuteAngleBonus(
-                                    lastLast.angle
-                                ),
-                                3
-                            )
-                        ));
+                        (1 -
+                            Math.min(
+                                acuteAngleBonus,
+                                Math.pow(
+                                    this.calculateAcuteAngleBonus(
+                                        lastLast.angle
+                                    ),
+                                    3
+                                )
+                            ));
             }
         }
 
@@ -180,7 +180,7 @@ export class OsuAim extends OsuSkill {
             const distanceRatio: number = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
-                    Math.max(prevVelocity, currentVelocity)
+                        Math.max(prevVelocity, currentVelocity)
                 ),
                 2
             );
@@ -198,13 +198,13 @@ export class OsuAim extends OsuSkill {
                 Math.pow(
                     Math.sin(
                         (Math.PI / 2) *
-                        Math.min(
-                            1,
                             Math.min(
-                                current.lazyJumpDistance,
-                                last.lazyJumpDistance
-                            ) / 100
-                        )
+                                1,
+                                Math.min(
+                                    current.lazyJumpDistance,
+                                    last.lazyJumpDistance
+                                ) / 100
+                            )
                     ),
                     2
                 );
@@ -217,7 +217,7 @@ export class OsuAim extends OsuSkill {
             // Penalize for rhythm changes.
             velocityChangeBonus *= Math.pow(
                 Math.min(current.strainTime, last.strainTime) /
-                Math.max(current.strainTime, last.strainTime),
+                    Math.max(current.strainTime, last.strainTime),
                 2
             );
         }
@@ -231,7 +231,7 @@ export class OsuAim extends OsuSkill {
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
             wideAngleBonus * this.wideAngleMultiplier +
-            velocityChangeBonus * this.velocityChangeMultiplier
+                velocityChangeBonus * this.velocityChangeMultiplier
         );
 
         // Add in additional slider velocity bonus.
@@ -245,9 +245,7 @@ export class OsuAim extends OsuSkill {
     /**
      * @param current The hitobject to calculate.
      */
-    protected override strainValueAt(
-        current: DifficultyHitObject
-    ): number {
+    protected override strainValueAt(current: DifficultyHitObject): number {
         this.currentStrain *= this.strainDecay(current.deltaTime);
         this.currentStrain +=
             this.strainValueOf(current) * this.skillMultiplier;
@@ -258,9 +256,7 @@ export class OsuAim extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(
-        current: DifficultyHitObject
-    ): void {
+    protected override saveToHitObject(current: DifficultyHitObject): void {
         if (this.withSliders) {
             current.aimStrainWithSliders = this.currentStrain;
         } else {
@@ -275,8 +271,8 @@ export class OsuAim extends OsuSkill {
         return Math.pow(
             Math.sin(
                 (3 / 4) *
-                (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
-                    Math.PI / 6)
+                    (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
+                        Math.PI / 6)
             ),
             2
         );
