@@ -1,10 +1,10 @@
 import { SliderPath } from "../../utils/SliderPath";
 import { Vector2 } from "../../mathutil/Vector2";
 import { HitObject } from "./HitObject";
-import { HeadCircle } from "./sliderObjects/HeadCircle";
-import { RepeatPoint } from "./sliderObjects/RepeatPoint";
+import { SliderHead } from "./sliderObjects/SliderHead";
+import { SliderRepeat } from "./sliderObjects/SliderRepeat";
 import { SliderTick } from "./sliderObjects/SliderTick";
-import { TailCircle } from "./sliderObjects/TailCircle";
+import { SliderTail } from "./sliderObjects/SliderTail";
 
 /**
  * Represents a slider in a beatmap.
@@ -56,12 +56,12 @@ export class Slider extends HitObject {
     /**
      * The slider's head (sliderhead).
      */
-    readonly headCircle: HeadCircle;
+    readonly headCircle: SliderHead;
 
     /**
      * The slider's tail (sliderend).
      */
-    readonly tailCircle: TailCircle;
+    readonly tailCircle: SliderTail;
 
     /**
      * The duration of this slider.
@@ -128,7 +128,7 @@ export class Slider extends HitObject {
 
         // Creating nested hit objects
         // Slider start
-        this.headCircle = new HeadCircle({
+        this.headCircle = new SliderHead({
             position: this.position,
             startTime: this.startTime,
             type: 0,
@@ -190,7 +190,7 @@ export class Slider extends HitObject {
                     const repeatPosition: Vector2 = this.position.add(
                         this.path.positionAt((span + 1) % 2)
                     );
-                    const repeatPoint: RepeatPoint = new RepeatPoint({
+                    const repeatPoint: SliderRepeat = new SliderRepeat({
                         position: repeatPosition,
                         startTime: spanStartTime + this.spanDuration,
                         repeatIndex: span,
@@ -217,7 +217,7 @@ export class Slider extends HitObject {
         );
 
         // Slider end
-        this.tailCircle = new TailCircle({
+        this.tailCircle = new SliderTail({
             position: this.endPosition,
             startTime: finalSpanEndTime,
         });
