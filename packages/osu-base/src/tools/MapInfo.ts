@@ -3,9 +3,6 @@ import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
 import { Parser } from "../beatmap/Parser";
 import { rankedStatus } from "../constants/rankedStatus";
-import { HitObject } from "../beatmap/hitobjects/HitObject";
-import { Slider } from "../beatmap/hitobjects/Slider";
-import { SliderTick } from "../beatmap/hitobjects/sliderObjects/SliderTick";
 import {
     OsuAPIRequestBuilder,
     RequestResponse,
@@ -701,67 +698,12 @@ export class MapInfo {
     }
 
     /**
-     * Calculates the osu!droid maximum score of the beatmap.
+     * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
      *
      * This requires .osu file to be downloaded.
      */
     maxScore(stats: MapStats): number {
-        if (!this.map) {
-            return 0;
-        }
-
-        const difficultyMultiplier: number =
-            1 + this.od / 10 + this.hp / 10 + (this.cs - 3) / 4;
-
-        // score multiplier
-        let scoreMultiplier: number = 1;
-
-        if (stats.mods.every((m) => m.droidRanked)) {
-            let scoreSpeedMultiplier: number = 1;
-            const speedMultiplier: number = stats.speedMultiplier;
-            if (speedMultiplier > 1) {
-                scoreSpeedMultiplier += (speedMultiplier - 1) * 0.24;
-            } else if (speedMultiplier < 1) {
-                scoreSpeedMultiplier = Math.pow(0.3, (1 - speedMultiplier) * 4);
-            }
-            scoreMultiplier =
-                stats.mods.reduce((a, v) => a * v.scoreMultiplier, 1) *
-                scoreSpeedMultiplier;
-        } else {
-            scoreMultiplier = 0;
-        }
-
-        const objects: HitObject[] = this.map.objects;
-        let combo: number = 0;
-        let score: number = 0;
-
-        for (let i = 0; i < objects.length; ++i) {
-            const object: HitObject = objects[i];
-            if (!(object instanceof Slider)) {
-                score += Math.floor(
-                    300 +
-                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                            25
-                );
-                ++combo;
-                continue;
-            }
-
-            const tickCount: number = object.nestedHitObjects.filter(
-                (v) => v instanceof SliderTick
-            ).length;
-
-            // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
-            combo += tickCount + (object.repeatPoints + 1);
-            // Apply sliderend
-            score += Math.floor(
-                300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
-            );
-            ++combo;
-        }
-        return score;
+        return this.map?.maxDroidScore(stats) ?? 0;
     }
 
     /**
