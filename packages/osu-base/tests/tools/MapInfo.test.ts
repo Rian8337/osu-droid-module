@@ -401,9 +401,3 @@ test("Test status color", () => {
 
     expect(beatmapInfo.statusColor).toBe(16711796);
 });
-
-test("Test maximum score calculator", () => {
-    const beatmapInfo = new MapInfo();
-
-    expect(beatmapInfo.maxScore(new MapStats())).toBe(0);
-});
