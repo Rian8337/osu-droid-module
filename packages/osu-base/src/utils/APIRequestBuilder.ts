@@ -183,7 +183,7 @@ abstract class APIRequestBuilder {
  * API request builder for osu!droid.
  */
 export class DroidAPIRequestBuilder extends APIRequestBuilder {
-    protected override readonly host: string = "http://ops.dgsrz.com/api/";
+    protected override readonly host: string = "https://osudroid.moe/api/";
     protected override readonly APIkey: string = process.env
         .DROID_API_KEY as string;
     protected override readonly APIkeyParam: string = `apiKey=${this.APIkey}&`;

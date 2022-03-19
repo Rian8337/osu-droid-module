@@ -10,7 +10,7 @@ test("Test fill information", () => {
 
     expect(player.accuracy).toBe(97.64);
     expect(player.avatarURL).toBe(
-        `http://ops.dgsrz.com/user/avatar?id=${MD5(
+        `https://osudroid.moe/user/avatar?id=${MD5(
             "sampleemail@idk.com"
         )}&s=200`
     );

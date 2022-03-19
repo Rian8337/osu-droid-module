@@ -4,6 +4,9 @@ import { BreakPoint } from "./timings/BreakPoint";
 import { TimingControlPoint } from "./timings/TimingControlPoint";
 import { DifficultyControlPoint } from "./timings/DifficultyControlPoint";
 import { TimingPoint } from "./timings/TimingPoint";
+import { MapStats } from "../utils/MapStats";
+import { SliderTick } from "./hitobjects/sliderObjects/SliderTick";
+import { Mod } from "../mods/Mod";
 
 /**
  * Represents a beatmap with advanced information.
@@ -131,9 +134,7 @@ export class Beatmap {
         const sliders: Slider[] = <Slider[]>(
             this.objects.filter((v) => v instanceof Slider)
         );
-        return sliders
-            .map((v) => v.ticks)
-            .reduce((acc, value) => acc + value, 0);
+        return sliders.reduce((acc, value) => acc + value.ticks, 0);
     }
 
     /**
@@ -150,9 +151,7 @@ export class Beatmap {
         const sliders: Slider[] = <Slider[]>(
             this.objects.filter((v) => v instanceof Slider)
         );
-        return sliders
-            .map((v) => v.repeatPoints)
-            .reduce((acc, value) => acc + value, 0);
+        return sliders.reduce((acc, value) => acc + value.repeatPoints, 0);
     }
 
     /**
@@ -196,6 +195,112 @@ export class Beatmap {
      */
     difficultyControlPointAt(time: number): DifficultyControlPoint {
         return this.getTimingPoint(time, this.difficultyTimingPoints);
+    }
+
+    /**
+     * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
+     *
+     * @param stats The statistics used for calculation.
+     */
+    maxDroidScore(stats: MapStats): number {
+        let scoreMultiplier: number = 1;
+
+        if (stats.mods.every((m) => m.droidRanked)) {
+            let scoreSpeedMultiplier: number = 1;
+            const speedMultiplier: number = stats.speedMultiplier;
+            if (speedMultiplier > 1) {
+                scoreSpeedMultiplier += (speedMultiplier - 1) * 0.24;
+            } else if (speedMultiplier < 1) {
+                scoreSpeedMultiplier = Math.pow(0.3, (1 - speedMultiplier) * 4);
+            }
+            scoreMultiplier =
+                stats.mods.reduce((a, v) => a * v.scoreMultiplier, 1) *
+                scoreSpeedMultiplier;
+        } else {
+            scoreMultiplier = 0;
+        }
+
+        return this.maxScore(
+            1 + this.od / 10 + this.hp / 10 + (this.cs - 3) / 4,
+            scoreMultiplier
+        );
+    }
+
+    /**
+     * Calculates the osu!standard maximum score of the beatmap without taking spinner bonus into account.
+     *
+     * @param mods The modifications to calculate for. Defaults to No Mod.
+     */
+    maxOsuScore(mods: Mod[] = []): number {
+        const accumulatedDiffPoints: number = this.cs + this.hp + this.od;
+
+        let difficultyMultiplier: number = 2;
+
+        switch (true) {
+            case accumulatedDiffPoints <= 5:
+                difficultyMultiplier = 2;
+                break;
+            case accumulatedDiffPoints <= 12:
+                difficultyMultiplier = 3;
+                break;
+            case accumulatedDiffPoints <= 17:
+                difficultyMultiplier = 4;
+                break;
+            case accumulatedDiffPoints <= 24:
+                difficultyMultiplier = 5;
+                break;
+            case accumulatedDiffPoints >= 25:
+                difficultyMultiplier = 6;
+                break;
+        }
+
+        return this.maxScore(
+            difficultyMultiplier,
+            mods.reduce((a, v) => a * v.scoreMultiplier, 1)
+        );
+    }
+
+    /**
+     * Calculates the maximum score with a given difficulty and score multiplier.
+     *
+     * @param difficultyMultiplier The difficulty multiplier.
+     * @param scoreMultiplier The score multiplier.
+     */
+    private maxScore(
+        difficultyMultiplier: number,
+        scoreMultiplier: number
+    ): number {
+        let combo: number = 0;
+        let score: number = 0;
+
+        for (const object of this.objects) {
+            if (!(object instanceof Slider)) {
+                score += Math.floor(
+                    300 +
+                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
+                            25
+                );
+                ++combo;
+                continue;
+            }
+
+            const tickCount: number = object.nestedHitObjects.filter(
+                (v) => v instanceof SliderTick
+            ).length;
+
+            // Apply sliderhead, slider repeats, and slider ticks
+            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
+            combo += tickCount + (object.repeatPoints + 1);
+
+            // Apply sliderend
+            score += Math.floor(
+                300 +
+                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
+            );
+            ++combo;
+        }
+
+        return score;
     }
 
     /**

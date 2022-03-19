@@ -1,4 +1,13 @@
-import { Accuracy, MapStats, modes, Mod, ModNoFail, ModSpunOut, ModRelax, MathUtils } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    Mod,
+    ModNoFail,
+    ModSpunOut,
+    ModRelax,
+    MathUtils,
+} from "@rian8337/osu-base";
 import { StarRating } from "./StarRating";
 
 /**
@@ -77,9 +86,9 @@ export abstract class PerformanceCalculator {
         mode?: modes;
 
         /**
-         * The speed penalty to apply for penalized scores. Only applies to droid gamemode.
+         * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
          */
-        speedPenalty?: number;
+        tapPenalty?: number;
 
         /**
          * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
@@ -164,10 +173,15 @@ export abstract class PerformanceCalculator {
             });
         }
 
+        this.effectiveMissCount = this.calculateEffectiveMissCount(
+            combo,
+            maxCombo
+        );
+
         if (this.stars.mods.some((m) => m instanceof ModNoFail)) {
             this.finalMultiplier *= Math.max(
                 0.9,
-                1 - 0.02 * this.computedAccuracy.nmiss
+                1 - 0.02 * this.effectiveMissCount
             );
         }
         if (this.stars.mods.some((m) => m instanceof ModSpunOut)) {
@@ -179,15 +193,17 @@ export abstract class PerformanceCalculator {
                 );
         }
         if (this.stars.mods.some((m) => m instanceof ModRelax)) {
-            this.computedAccuracy.nmiss +=
-                this.computedAccuracy.n100 + this.computedAccuracy.n50;
+            // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
+            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
+            this.effectiveMissCount = Math.min(
+                this.effectiveMissCount +
+                    this.computedAccuracy.n100 +
+                    this.computedAccuracy.n50,
+                this.stars.objects.length
+            );
+
             this.finalMultiplier *= 0.6;
         }
-
-        this.effectiveMissCount = this.calculateEffectiveMissCount(
-            combo,
-            maxCombo
-        );
 
         this.mapStatistics = new MapStats({
             ar: baseAR,
@@ -200,8 +216,8 @@ export abstract class PerformanceCalculator {
         const estimateSliderEndsDropped: number = MathUtils.clamp(
             Math.min(
                 this.computedAccuracy.n300 +
-                this.computedAccuracy.n50 +
-                this.computedAccuracy.nmiss,
+                    this.computedAccuracy.n50 +
+                    this.computedAccuracy.nmiss,
                 maxCombo - combo
             ),
             0,
@@ -211,12 +227,12 @@ export abstract class PerformanceCalculator {
         if (this.stars.map.sliders > 0) {
             this.sliderNerfFactor =
                 (1 - this.stars.attributes.sliderFactor) *
-                Math.pow(
-                    1 -
-                    estimateSliderEndsDropped /
-                    estimateDifficultSliders,
-                    3
-                ) +
+                    Math.pow(
+                        1 -
+                            estimateSliderEndsDropped /
+                                estimateDifficultSliders,
+                        3
+                    ) +
                 this.stars.attributes.sliderFactor;
         }
 
@@ -257,9 +273,6 @@ export abstract class PerformanceCalculator {
             }
         }
 
-        return Math.max(
-            this.computedAccuracy.nmiss,
-            Math.floor(comboBasedMissCount)
-        );
+        return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
     }
 }

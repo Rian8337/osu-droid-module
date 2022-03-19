@@ -3,6 +3,7 @@ export * from "./preprocessing/DifficultyHitObjectCreator";
 export * from "./skills/DroidAim";
 export * from "./skills/DroidFlashlight";
 export * from "./DroidPerformanceCalculator";
+export * from "./skills/DroidRhythm";
 export * from "./DroidStarRating";
 export * from "./skills/DroidTap";
 export * from "./MapStars";

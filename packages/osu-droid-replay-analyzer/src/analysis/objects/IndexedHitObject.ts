@@ -19,7 +19,10 @@ export class IndexedHitObject {
      * @param object The underlying difficulty hitobject.
      * @param cursorIndex The index of the cursor that hits the hitobject.
      */
-    constructor(object: DifficultyHitObject | RebalanceDifficultyHitObject, cursorIndex: number) {
+    constructor(
+        object: DifficultyHitObject | RebalanceDifficultyHitObject,
+        cursorIndex: number
+    ) {
         this.object = object;
         this.cursorIndex = cursorIndex;
     }

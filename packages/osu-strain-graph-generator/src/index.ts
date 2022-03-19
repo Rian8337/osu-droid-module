@@ -47,8 +47,7 @@ export default async function getStrainChart(
     for (let i = 0; i < strainInformations.length; ++i) {
         const aimStrain: number = beatmap.strainPeaks.aimWithSliders[i] ?? 0;
         const speedStrain: number = beatmap.strainPeaks.speed[i] ?? 0;
-        const flashlightStrain: number =
-            beatmap.strainPeaks.flashlight[i] ?? 0;
+        const flashlightStrain: number = beatmap.strainPeaks.flashlight[i] ?? 0;
 
         strainInformations[i] = {
             time: (currentSectionEnd + sectionLength * i) / 1000,
@@ -72,8 +71,7 @@ export default async function getStrainChart(
     const maxYUnits: number = 10;
 
     const unitsPerTickX: number = Math.ceil(maxTime / maxXUnits / 10) * 10;
-    const unitsPerTickY: number =
-        Math.ceil(maxStrain / maxYUnits / 20) * 20;
+    const unitsPerTickY: number = Math.ceil(maxStrain / maxYUnits / 20) * 20;
 
     const chart: Chart = new Chart({
         graphWidth: 900,

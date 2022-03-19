@@ -205,6 +205,28 @@ declare module "@rian8337/osu-droid-replay-analyzer" {
         });
     }
 
+    /**
+     * Utility to check whether or not a beatmap is three-fingered.
+     */
+    export class ThreeFingerChecker {
+        /**
+         * The beatmap to analyze.
+         */
+        readonly map: DroidStarRating | RebalanceDroidStarRating;
+        /**
+         * The data of the replay.
+         */
+        readonly data: ReplayData;
+        /**
+         * Checks whether a beatmap is eligible to be detected for three finger.
+         *
+         * @param map The beatmap.
+         */
+        static isEligibleToDetect(
+            map: DroidStarRating | RebalanceDroidStarRating
+        ): boolean;
+    }
+
     //#endregion
 
     //#region Enums
@@ -295,7 +317,6 @@ declare module "@rian8337/osu-droid-replay-analyzer" {
          */
         readonly unstableRate: number;
     }
-
 
     /**
      * Contains information about a replay.

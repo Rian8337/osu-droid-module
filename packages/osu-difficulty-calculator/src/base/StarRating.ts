@@ -54,11 +54,11 @@ export abstract class StarRating {
          */
         flashlight: number[];
     } = {
-            aimWithSliders: [],
-            aimWithoutSliders: [],
-            speed: [],
-            flashlight: [],
-        };
+        aimWithSliders: [],
+        aimWithoutSliders: [],
+        speed: [],
+        flashlight: [],
+    };
 
     /**
      * Additional data that is used in performance calculation.

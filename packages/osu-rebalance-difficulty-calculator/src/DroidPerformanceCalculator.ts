@@ -1,4 +1,12 @@
-import { Accuracy, MapStats, modes, ModHidden, ModRelax, ModScoreV2, ModFlashlight } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    MapStats,
+    modes,
+    ModHidden,
+    ModRelax,
+    ModScoreV2,
+    ModFlashlight,
+} from "@rian8337/osu-base";
 import { DroidStarRating } from "./DroidStarRating";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 
@@ -28,8 +36,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      * The flashlight performance value.
      */
     flashlight: number = 0;
-
-    private aggregatedRhythmMultiplier: number = 0;
 
     override calculate(params: {
         /**
@@ -64,8 +70,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }): this {
         this.handleParams(params, modes.droid);
 
-        this.calculateAverageRhythmMultiplier();
-
         this.calculateAimValue();
         this.calculateTapValue();
         this.calculateAccuracyValue();
@@ -77,29 +81,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                Math.pow(this.tap, 1.1) +
-                Math.pow(this.accuracy, 1.1) +
-                Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.tap, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier;
 
         return this;
-    }
-
-    /**
-     * Calculates the average rhythm multiplier of the beatmap.
-     */
-    private calculateAverageRhythmMultiplier(): void {
-        // The first object doesn't have any rhythm multiplier, so we begin with the second object
-        const rhythmMultipliers: number[] = this.stars.objects
-            .map((v) => v.rhythmMultiplier)
-            .slice(1);
-
-        this.aggregatedRhythmMultiplier = Math.max(
-            1,
-            rhythmMultipliers.reduce((total, value) => total + value, 0) /
-            Math.max(500, rhythmMultipliers.length)
-        );
     }
 
     /**
@@ -113,6 +101,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim = this.baseValue(Math.pow(this.stars.aim, 0.8));
 
         if (this.effectiveMissCount > 0) {
+            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
             this.aim *=
                 0.97 *
                 Math.pow(
@@ -125,17 +114,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *= this.comboPenalty;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        let hiddenBonus: number = 1;
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             // The bonus starts decreasing twice as fast
             // beyond AR10 and reaches 1 at AR11.
             if (calculatedAR > 10) {
-                hiddenBonus += Math.max(0, 0.08 * (11 - calculatedAR));
+                this.aim *= 1 + Math.max(0, 0.08 * (11 - calculatedAR));
             } else {
-                hiddenBonus += 0.04 * (12 - calculatedAR);
+                this.aim *= 1 + 0.04 * (12 - calculatedAR);
             }
         }
-        this.aim *= hiddenBonus;
 
         // AR scaling
         let arFactor: number = 0;
@@ -149,9 +136,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *=
             1 +
             arFactor *
-            (1.650668 +
-                (0.4845796 - 1.650668) /
-                (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                (1.650668 +
+                    (0.4845796 - 1.650668) /
+                        (1 + Math.pow(objectCount / 817.9306, 1.147469)));
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -181,7 +168,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 0.97 *
                 Math.pow(
                     1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
-                    this.effectiveMissCount
+                    Math.pow(this.effectiveMissCount, 0.875)
                 );
         }
 
@@ -194,10 +181,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.tap *=
                 1 +
                 0.3 *
-                (calculatedAR - 10.33) *
-                (1.650668 +
-                    (0.4845796 - 1.650668) /
-                    (1 + Math.pow(objectCount / 817.9306, 1.147469)));
+                    (calculatedAR - 10.33) *
+                    (1.650668 +
+                        (0.4845796 - 1.650668) /
+                            (1 + Math.pow(objectCount / 817.9306, 1.147469)));
         }
 
         // Calculate accuracy assuming the worst case scenario.
@@ -231,7 +218,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     relevantAccuracy.value(
                         this.stars.attributes.speedNoteCount
                     )) /
-                2,
+                    2,
                 (14 - Math.max(od, 2.5)) / 2
             );
 
@@ -251,10 +238,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         // Global variables
+        const objectCount: number = this.stars.objects.length;
         const ncircles: number = this.stars.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? this.stars.objects.length - this.stars.map.spinners
+            ? objectCount - this.stars.map.spinners
             : this.stars.map.circles;
 
         if (ncircles === 0) {
@@ -263,9 +251,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         const realAccuracy: Accuracy = new Accuracy({
             ...this.computedAccuracy,
-            n300:
-                this.computedAccuracy.n300 -
-                (this.stars.objects.length - ncircles),
+            n300: this.computedAccuracy.n300 - (objectCount - ncircles),
         });
 
         // Lots of arbitrary values from testing.
@@ -279,10 +265,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
         // Scale the accuracy value with rhythm complexity.
-        this.accuracy *= Math.min(
-            1,
-            Math.pow(Math.exp(this.aggregatedRhythmMultiplier - 0.5), 0.85) / 2
-        );
+        this.accuracy *= 1.5 / (1 + Math.exp(-(this.stars.rhythm - 1) / 2));
 
         if (this.stars.mods.some((m) => m instanceof ModHidden)) {
             this.accuracy *= 1.08;

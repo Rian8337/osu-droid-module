@@ -1,0 +1,7 @@
+{
+    "name": "Rian's osu! modules",
+    "entryPointStrategy": "packages",
+    "excludeExternals": true,
+    "excludePrivate": true,
+    "excludeProtected": true
+}

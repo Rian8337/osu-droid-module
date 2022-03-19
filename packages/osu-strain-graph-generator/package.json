@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-strain-graph-generator",
-  "version": "1.0.2",
+  "version": "1.2.9",
   "description": "A module for generating strain graph of an osu!standard beatmap.",
   "keywords": [
     "osu",
@@ -11,6 +11,7 @@
   "license": "MIT",
   "main": "dist/index.js",
   "types": "typings/index.d.ts",
+  "typedocMain": "src/index.ts",
   "files": [
     "dist/**",
     "typings/**"
@@ -22,7 +23,6 @@
   "scripts": {
     "build": "tsc",
     "lint": "eslint --ext ts",
-    "generate-docs": "typedoc src/index.ts",
     "prepare": "npm run build",
     "test": "echo \"No tests for this module\""
   },
@@ -30,9 +30,9 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^1.0.2",
-    "@rian8337/osu-difficulty-calculator": "^1.0.2",
-    "@rian8337/osu-rebalance-difficulty-calculator": "^1.0.2",
+    "@rian8337/osu-base": "^1.2.9",
+    "@rian8337/osu-difficulty-calculator": "^1.2.9",
+    "@rian8337/osu-rebalance-difficulty-calculator": "^1.2.9",
     "canvas": "^2.9.0"
   },
   "publishConfig": {

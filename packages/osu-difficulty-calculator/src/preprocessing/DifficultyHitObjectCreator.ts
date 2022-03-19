@@ -1,4 +1,12 @@
-import { modes, HitObject, Slider, Spinner, Vector2, Precision, RepeatPoint } from "@rian8337/osu-base";
+import {
+    modes,
+    HitObject,
+    Slider,
+    Spinner,
+    Vector2,
+    Precision,
+    RepeatPoint,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -142,8 +150,8 @@ export class DifficultyHitObjectCreator {
                     0,
                     Math.min(
                         object.lazyJumpDistance -
-                        (this.maximumSliderRadius -
-                            this.assumedSliderRadius),
+                            (this.maximumSliderRadius -
+                                this.assumedSliderRadius),
                         tailJumpDistance - this.maximumSliderRadius
                     )
                 );
@@ -261,7 +269,7 @@ export class DifficultyHitObjectCreator {
                 currentCursorPosition = currentCursorPosition.add(
                     currentMovement.scale(
                         (currentMovementLength - requiredMovement) /
-                        currentMovementLength
+                            currentMovementLength
                     )
                 );
                 currentMovementLength *=
@@ -308,7 +316,7 @@ export class DifficultyHitObjectCreator {
                             this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius,
                             20
                         ) /
-                        40;
+                            40;
                 }
                 break;
             case modes.osu:
@@ -319,7 +327,7 @@ export class DifficultyHitObjectCreator {
                             this.PC_CIRCLESIZE_BUFF_THRESHOLD - radius,
                             5
                         ) /
-                        50;
+                            50;
                 }
         }
 

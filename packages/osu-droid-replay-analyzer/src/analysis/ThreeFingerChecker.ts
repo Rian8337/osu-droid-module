@@ -1,6 +1,22 @@
-import { Vector2, DroidHitWindow, MapStats, ModUtil, ModPrecise, MathUtils, Circle, Spinner, Interpolation } from "@rian8337/osu-base";
-import { DroidStarRating, DifficultyHitObject } from "@rian8337/osu-difficulty-calculator";
-import { DifficultyHitObject as RebalanceDifficultyHitObject, DroidStarRating as RebalanceDroidStarRating } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    Vector2,
+    DroidHitWindow,
+    MapStats,
+    ModUtil,
+    ModPrecise,
+    MathUtils,
+    Circle,
+    Spinner,
+    Interpolation,
+} from "@rian8337/osu-base";
+import {
+    DroidStarRating,
+    DifficultyHitObject,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    DifficultyHitObject as RebalanceDifficultyHitObject,
+    DroidStarRating as RebalanceDroidStarRating,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { hitResult, movementType } from "..";
 import { CursorData } from "../data/CursorData";
 import { ReplayData } from "../data/ReplayData";
@@ -203,7 +219,9 @@ export class ThreeFingerChecker {
 
         this.hitWindow = new DroidHitWindow(stats.od!);
 
-        const strainNotes: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = map.objects.filter(
+        const strainNotes:
+            | DifficultyHitObject[]
+            | RebalanceDifficultyHitObject[] = map.objects.filter(
             (v) => v.originalTapStrain >= ThreeFingerChecker.strainThreshold
         );
         this.strainNoteCount = strainNotes.length;
@@ -263,7 +281,8 @@ export class ThreeFingerChecker {
      * start of the hitobject before it and do not end right at the first hitobject after it.
      */
     private getAccurateBreakPoints(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
 
         const isPrecise: boolean = this.map.mods.some(
@@ -334,7 +353,8 @@ export class ThreeFingerChecker {
      * This also filters cursors that are in break period or happen before start/after end of the beatmap.
      */
     private filterCursorInstances(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
 
         const firstObjectResult: hitResult = objectData[0].result;
@@ -473,7 +493,8 @@ export class ThreeFingerChecker {
      * @param section The section to check.
      */
     private checkDrag(section: BeatmapSection): number {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
         const isPrecise: boolean = this.map.mods.some(
             (m) => m instanceof ModPrecise
@@ -589,7 +610,8 @@ export class ThreeFingerChecker {
                 break;
             }
 
-            const o: DifficultyHitObject | RebalanceDifficultyHitObject = sectionObjects[objectIndex];
+            const o: DifficultyHitObject | RebalanceDifficultyHitObject =
+                sectionObjects[objectIndex];
             const s: ReplayObjectData = sectionReplayObjectData[objectIndex];
             ++objectIndex;
 
@@ -682,7 +704,8 @@ export class ThreeFingerChecker {
      * sections.
      */
     private getDetailedBeatmapSections(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const newBeatmapSections: ThreeFingerBeatmapSection[] = [];
 
         for (const beatmapSection of this.beatmapSections) {
@@ -697,7 +720,7 @@ export class ThreeFingerChecker {
                 if (
                     !inSpeedSection &&
                     objects[i].originalTapStrain >=
-                    ThreeFingerChecker.strainThreshold
+                        ThreeFingerChecker.strainThreshold
                 ) {
                     inSpeedSection = true;
                     newFirstObjectIndex = i;
@@ -707,7 +730,7 @@ export class ThreeFingerChecker {
                 if (
                     inSpeedSection &&
                     objects[i].originalTapStrain <
-                    ThreeFingerChecker.strainThreshold
+                        ThreeFingerChecker.strainThreshold
                 ) {
                     inSpeedSection = false;
                     newBeatmapSections.push({
@@ -749,12 +772,12 @@ export class ThreeFingerChecker {
             return;
         }
 
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
-        const totalCursorAmount: number = this.downCursorInstances
-            .map((v) => {
-                return v.size;
-            })
-            .reduce((acc, value) => acc + value, 0);
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
+        const totalCursorAmount: number = this.downCursorInstances.reduce(
+            (acc, value) => acc + value.size,
+            0
+        );
 
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
             if (filledCursorAmount <= 3) {
@@ -764,9 +787,9 @@ export class ThreeFingerChecker {
             // Use an estimation for accidental tap threshold.
             if (
                 cursorInstance.size <=
-                Math.ceil(objects.length / this.accidentalTapThreshold) &&
+                    Math.ceil(objects.length / this.accidentalTapThreshold) &&
                 cursorInstance.size / totalCursorAmount <
-                this.threeFingerRatioThreshold * 2
+                    this.threeFingerRatioThreshold * 2
             ) {
                 --filledCursorAmount;
                 for (const property in cursorInstance) {
@@ -788,7 +811,8 @@ export class ThreeFingerChecker {
      * This check will ignore all objects with speed strain below `strainThreshold`.
      */
     private calculateNerfFactors(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] = this.map.objects;
+        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
+            this.map.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
         const isPrecise: boolean = this.data.convertedMods.some(
             (m) => m instanceof ModPrecise
@@ -802,14 +826,14 @@ export class ThreeFingerChecker {
             const startTime: number =
                 objects[beatmapSection.firstObjectIndex].object.startTime +
                 (objectData[beatmapSection.firstObjectIndex].result !==
-                    hitResult.RESULT_0
+                hitResult.RESULT_0
                     ? objectData[beatmapSection.firstObjectIndex].accuracy
                     : -this.hitWindow.hitWindowFor50(isPrecise));
 
             const endTime: number =
                 objects[beatmapSection.lastObjectIndex].object.endTime +
                 (objectData[beatmapSection.lastObjectIndex].result !==
-                    hitResult.RESULT_0
+                hitResult.RESULT_0
                     ? objectData[beatmapSection.lastObjectIndex].accuracy
                     : this.hitWindow.hitWindowFor50(isPrecise));
 
@@ -881,7 +905,7 @@ export class ThreeFingerChecker {
                 if (pressIndex !== -1) {
                     if (
                         cursorVectorTime.time -
-                        similarPresses[pressIndex].lastTime >=
+                            similarPresses[pressIndex].lastTime >=
                         this.cursorDistancingTimeThreshold
                     ) {
                         similarPresses.splice(pressIndex, 1);
@@ -929,19 +953,14 @@ export class ThreeFingerChecker {
                             beatmapSection.firstObjectIndex,
                             beatmapSection.lastObjectIndex
                         )
-                        .map((v) => {
-                            return v.originalTapStrain;
-                        })
-                        .sort((a, b) => {
-                            return b - a;
-                        })
                         .reduce(
                             (acc, value) =>
                                 acc +
-                                value / ThreeFingerChecker.strainThreshold,
+                                value.originalTapStrain /
+                                    ThreeFingerChecker.strainThreshold,
                             0
                         ),
-                    0.75
+                    0.85
                 );
 
                 // We can ignore the first 3 (2 for drag) filled cursor instances
@@ -954,33 +973,33 @@ export class ThreeFingerChecker {
                 const fingerFactor: number =
                     threeFingerRatio > this.threeFingerRatioThreshold
                         ? threeFingerCursorAmounts.reduce(
-                            (acc, value, index) =>
-                                acc +
-                                Math.pow(
-                                    ((index + 1) * value * objectCount) /
-                                    this.strainNoteCount,
-                                    0.8
-                                ),
-                            1
-                        )
+                              (acc, value, index) =>
+                                  acc +
+                                  Math.pow(
+                                      ((index + 1) * value * objectCount) /
+                                          this.strainNoteCount,
+                                      0.8
+                                  ),
+                              1
+                          )
                         : Math.pow(
-                            validPresses.reduce(
-                                (acc, value, index) =>
-                                    acc +
-                                    Math.pow(
-                                        ((index + 1) *
-                                            (value.count /
-                                                (this
-                                                    .cursorDistancingCountThreshold *
-                                                    2)) *
-                                            objectCount) /
-                                        this.strainNoteCount,
-                                        0.2
-                                    ),
-                                1
-                            ),
-                            0.2
-                        );
+                              validPresses.reduce(
+                                  (acc, value, index) =>
+                                      acc +
+                                      Math.pow(
+                                          ((index + 1) *
+                                              (value.count /
+                                                  (this
+                                                      .cursorDistancingCountThreshold *
+                                                      2)) *
+                                              objectCount) /
+                                              this.strainNoteCount,
+                                          0.2
+                                      ),
+                                  1
+                              ),
+                              0.2
+                          );
 
                 // Length factor applies more penalty if there are more 3-fingered object.
                 const lengthFactor: number =
@@ -1005,10 +1024,10 @@ export class ThreeFingerChecker {
                 (a, n) =>
                     a +
                     0.015 *
-                    Math.pow(
-                        n.strainFactor * n.fingerFactor * n.lengthFactor,
-                        1.05
-                    ),
+                        Math.pow(
+                            n.strainFactor * n.fingerFactor * n.lengthFactor,
+                            1.05
+                        ),
                 0
             )
         );

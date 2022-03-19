@@ -26,7 +26,7 @@ yarn add @rian8337/osu-base @rian8337/osu-difficulty-calculator
 
 # Usage
 
-## General usage
+## Difficulty calculator
 
 ```js
 import { MapInfo } from "@rian8337/osu-base";
@@ -67,7 +67,7 @@ console.log(rating.droidStars);
 console.log(rating.pcStars);
 ```
 
-## Specifying parameters
+### Specifying difficulty calculation parameters
 
 Parameters can be applied to alter the result of the calculation:
 
@@ -103,4 +103,104 @@ const rating = new MapStars().calculate({
 console.log(rating.droidStars);
 // osu!standard difficulty
 console.log(rating.pcStars);
+```
+
+## Performance calculator
+
+```js
+import { MapInfo } from "@rian8337/osu-base";
+import {
+    DroidPerformanceCalculator,
+    MapStars,
+    OsuPerformanceCalculator,
+} from "@rian8337/osu-difficulty-calculator";
+
+const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+
+if (!beatmapInfo.title) {
+    return console.log("Beatmap not found");
+}
+
+const rating = new MapStars().calculate({
+    map: beatmapInfo.map,
+});
+
+// osu!droid performance
+const droidPerformance = new DroidPerformanceCalculator().calculate({
+    stars: rating.droidStars,
+});
+
+console.log(droidPerformance);
+
+// osu!standard performance
+const osuPerformance = new OsuPerformanceCalculator().calculate({
+    stars: rating.pcStars,
+});
+
+console.log(osuPerformance);
+```
+
+### Specifying performance calculation parameters
+
+Parameters can be passed to alter the result of the calculation:
+
+-   Combo: The maximum combo achieved. Defaults to the beatmap's maximum combo.
+-   Accuracy: The accuracy achieved. Defaults to 100%.
+-   Misses: The amount of misses achieved.
+-   Tap penalty: Penalty given from three-finger detection. Only applied for osu!droid gamemode. Defaults to 1.
+-   Custom statistics: Used to apply a custom speed multiplier and force AR. Defaults to none.
+
+```js
+import { Accuracy, MapInfo, MapStats } from "@rian8337/osu-base";
+import {
+    OsuPerformanceCalculator,
+    OsuStarRating,
+} from "@rian8337/osu-difficulty-calculator";
+
+const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+
+if (!beatmapInfo.title) {
+    return console.log("Beatmap not found");
+}
+
+const rating = new OsuStarRating().calculate({
+    map: beatmapInfo.map,
+});
+
+const accuracy = new Accuracy({
+    // Specify your misses here
+    nmiss: 1,
+
+    // The module provides a convenient way to specify accuracy based on the data that you have
+    // Remove the codes below as you see fit
+
+    // If you have hit data (amount of 300s, 100s, and 50s)
+    n300: 1000,
+    n100: 0,
+    n50: 0,
+
+    // If you have accuracy percentage
+    // While this method is more convenient to use, the amount of 300s, 100s, and 50s will be estimated
+    // This will lead to values being off when calculating for specific accuracies
+    percent: 100,
+    nobjects: beatmapInfo.objects,
+});
+
+const stats = new MapStats({
+    ar: 9.5,
+    isForceAR: true,
+    speedMultiplier: 1.25,
+});
+
+const performance = new OsuPerformanceCalculator().calculate({
+    stars: rating,
+    combo: 1250,
+    accPercent: accuracy,
+    // The tap penalty can be properly obtained by checking a replay for three finger usage
+    // However, a custom value can also be provided
+    tapPenalty: 1.5,
+    stats: stats,
+});
+
+console.log(performance);
 ```
