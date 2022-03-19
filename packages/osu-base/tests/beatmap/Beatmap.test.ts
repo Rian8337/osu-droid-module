@@ -249,7 +249,7 @@ test("Test osu!droid max score calculation", () => {
 
     stats.mods.push(new ModHidden());
 
-    expect(beatmap.maxDroidScore(stats)).toBeCloseTo(300 * 1.06);
+    expect(beatmap.maxDroidScore(stats)).toBeCloseTo(300);
 });
 
 test("Test osu!standard max score calculation", () => {
@@ -268,5 +268,5 @@ test("Test osu!standard max score calculation", () => {
 
     expect(beatmap.maxOsuScore()).toBe(300);
 
-    expect(beatmap.maxOsuScore([new ModHidden()])).toBeCloseTo(300 * 1.06);
+    expect(beatmap.maxOsuScore([new ModHidden()])).toBeCloseTo(300);
 });
