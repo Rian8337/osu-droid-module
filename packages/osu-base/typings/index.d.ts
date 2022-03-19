@@ -160,6 +160,28 @@ declare module "@rian8337/osu-base" {
          */
         difficultyControlPointAt(time: number): DifficultyControlPoint;
         /**
+         * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
+         *
+         * @param stats The statistics used for calculation.
+         */
+        maxDroidScore(stats: MapStats): number;
+        /**
+         * Calculates the osu!standard maximum score of the beatmap without taking spinner bonus into account.
+         *
+         * @param mods The modifications to calculate for. Defaults to No Mod.
+         */
+        maxOsuScore(mods: Mod[] = []): number;
+        /**
+         * Calculates the maximum score with a given difficulty and score multiplier.
+         *
+         * @param difficultyMultiplier The difficulty multiplier.
+         * @param scoreMultiplier The score multiplier.
+         */
+        private maxScore(
+            difficultyMultiplier: number,
+            scoreMultiplier: number
+        ): number;
+        /**
          * Gets the timing point that applies at a given time.
          *
          * @param time The time.
@@ -551,7 +573,7 @@ declare module "@rian8337/osu-base" {
          */
         get statusColor(): number;
         /**
-         * Calculates the osu!droid maximum score of the beatmap.
+         * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
          *
          * This requires .osu file to be downloaded.
          */
