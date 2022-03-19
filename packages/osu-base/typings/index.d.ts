@@ -170,7 +170,7 @@ declare module "@rian8337/osu-base" {
          *
          * @param mods The modifications to calculate for. Defaults to No Mod.
          */
-        maxOsuScore(mods: Mod[] = []): number;
+        maxOsuScore(mods?: Mod[]): number;
         /**
          * Calculates the maximum score with a given difficulty and score multiplier.
          *
