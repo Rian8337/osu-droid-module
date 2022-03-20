@@ -1416,7 +1416,7 @@ declare module "@rian8337/osu-base" {
         /**
          * The amount of repeat points in this slider.
          */
-        get repeatPoints(): number;
+        get repeats(): number;
         /**
          * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
          */
