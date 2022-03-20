@@ -4,8 +4,9 @@ This is a monorepo for osu! modules that are published mainly for my own conveni
 
 -   [Alice](https://github.com/Rian8337/Alice)
 -   [droidppboard](https://github.com/Rian8337/droidppboard)
+-   [Tournament set maker](https://github.com/Rian8337/tournament-set-maker)
 
-Keep in mind that I mainly develop these modules for my use case. Therefore, all modules **only supports osu!standard beatmaps**.
+Keep in mind that I mainly develop these modules for my use case. Therefore, they **only support osu!standard beatmaps**.
 
 # Requirements
 
