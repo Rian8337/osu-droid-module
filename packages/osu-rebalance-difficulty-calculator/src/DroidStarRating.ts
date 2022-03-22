@@ -12,6 +12,7 @@ import {
     ModFlashlight,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/DroidRhythm";
+import { DroidVisual } from "./skills/DroidVisual";
 
 /**
  * Difficulty calculator for osu!droid gamemode.
@@ -36,6 +37,11 @@ export class DroidStarRating extends StarRating {
      * The flashlight star rating of the beatmap.
      */
     flashlight: number = 0;
+
+    /**
+     * The visual star rating of the beatmap.
+     */
+    visual: number = 0;
 
     protected override readonly difficultyMultiplier: number = 0.18;
 
@@ -124,6 +130,20 @@ export class DroidStarRating extends StarRating {
         this.postCalculateFlashlight(flashlightSkill);
     }
 
+    /**
+     * Calculates the visual star rating of the beatmap and stores it in this instance.
+     */
+    calculateVisual(): void {
+        const visualSkill: DroidVisual = new DroidVisual(
+            this.mods,
+            MapStats.arToMS(this.stats.ar!)
+        );
+
+        this.calculateSkills(visualSkill);
+
+        this.postCalculateVisual(visualSkill);
+    }
+
     override calculateTotal(): void {
         const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
         const tapPerformanceValue: number = this.basePerformanceValue(this.tap);
@@ -132,11 +152,13 @@ export class DroidStarRating extends StarRating {
         )
             ? Math.pow(this.flashlight, 2) * 25
             : 0;
+        const visualPerformanceValue: number = Math.pow(this.visual, 2) * 25;
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
                 Math.pow(tapPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+                Math.pow(flashlightPerformanceValue, 1.1) +
+                Math.pow(visualPerformanceValue, 1.1),
             1 / 1.1
         );
 
@@ -163,6 +185,7 @@ export class DroidStarRating extends StarRating {
         const rhythmSkill: DroidRhythm = <DroidRhythm>skills[2];
         const tapSkill: DroidTap = <DroidTap>skills[3];
         const flashlightSkill: DroidFlashlight = <DroidFlashlight>skills[4];
+        const visualSkill: DroidVisual = <DroidVisual>skills[5];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
@@ -177,6 +200,8 @@ export class DroidStarRating extends StarRating {
         }
 
         this.postCalculateFlashlight(flashlightSkill);
+
+        this.postCalculateVisual(visualSkill);
 
         this.calculateTotal();
     }
@@ -195,7 +220,9 @@ export class DroidStarRating extends StarRating {
             this.rhythm.toFixed(2) +
             " rhythm, " +
             this.flashlight.toFixed(2) +
-            " flashlight)"
+            " flashlight, " +
+            this.visual.toFixed(2) +
+            " visual)"
         );
     }
 
@@ -210,6 +237,7 @@ export class DroidStarRating extends StarRating {
             new DroidRhythm(this.mods, this.stats.od!),
             new DroidTap(this.mods, this.stats.od!),
             new DroidFlashlight(this.mods),
+            new DroidVisual(this.mods, MapStats.arToMS(this.stats.ar!)),
         ];
     }
 
@@ -283,5 +311,14 @@ export class DroidStarRating extends StarRating {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+    }
+
+    /**
+     * Called after visual skill calculation.
+     *
+     * @param visualSkill The visual skill.
+     */
+    private postCalculateVisual(visualSkill: DroidVisual): void {
+        this.visual = this.starValue(visualSkill.difficultyValue());
     }
 }

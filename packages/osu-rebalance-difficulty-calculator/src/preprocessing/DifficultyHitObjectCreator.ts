@@ -47,7 +47,10 @@ export class DifficultyHitObjectCreator {
         circleSize: number;
         speedMultiplier: number;
         mode: modes;
+        preempt?: number;
     }): DifficultyHitObject[] {
+        params.preempt ??= 600;
+
         this.mode = params.mode;
 
         const circleSize: number = params.circleSize;
@@ -74,6 +77,7 @@ export class DifficultyHitObjectCreator {
                 });
 
                 this.calculateSliderCursorPosition(object.object);
+
                 object.travelDistance = object.object.lazyTravelDistance;
                 object.travelTime = Math.max(
                     object.object.lazyTravelTime / params.speedMultiplier,
@@ -95,8 +99,53 @@ export class DifficultyHitObjectCreator {
             object.deltaTime =
                 (object.object.startTime - lastObject.object.startTime) /
                 params.speedMultiplier;
-            // Cap to 25ms to prevent difficulty calculation breaking from simulatenous objects.
+            // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
+
+            const visibleObjects: HitObject[] = params.objects.filter(
+                (o) =>
+                    o.startTime / params.speedMultiplier > object.startTime &&
+                    o.startTime / params.speedMultiplier <=
+                        object.startTime + params.preempt!
+            );
+
+            object.noteDensity = 1;
+
+            for (const hitObject of visibleObjects) {
+                const deltaTime: number = Math.abs(
+                    hitObject.startTime / params.speedMultiplier -
+                        object.startTime
+                );
+
+                object.noteDensity += 1 - deltaTime / params.preempt;
+
+                if (!(hitObject instanceof Spinner)) {
+                    object.overlappingFactor +=
+                        0.8 *
+                        // Penalize objects that are too close to the object in both distance
+                        // and delta time to prevent stream maps from being overweighted.
+                        Math.max(
+                            0,
+                            1 -
+                                object.object.stackedPosition.getDistance(
+                                    hitObject.stackedEndPosition
+                                ) /
+                                    (1.5 * object.object.radius)
+                        ) *
+                        // Set delta time penalty cap to 150 BPM 1/2.
+                        (1 +
+                            49 /
+                                (1 +
+                                    Math.exp(
+                                        0.15 *
+                                            (Math.max(
+                                                deltaTime,
+                                                this.minDeltaTime
+                                            ) -
+                                                75)
+                                    )));
+                }
+            }
 
             if (
                 object.object instanceof Spinner ||
