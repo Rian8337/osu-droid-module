@@ -81,11 +81,6 @@ export abstract class PerformanceCalculator {
         miss?: number;
 
         /**
-         * The gamemode to calculate.
-         */
-        mode?: modes;
-
-        /**
          * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
          */
         tapPenalty?: number;
@@ -132,11 +127,6 @@ export abstract class PerformanceCalculator {
              * The amount of misses achieved in the score.
              */
             miss?: number;
-
-            /**
-             * The gamemode to calculate.
-             */
-            mode?: modes;
 
             /**
              * The tap penalty to apply for penalized scores.
