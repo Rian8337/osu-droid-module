@@ -11,6 +11,7 @@ const testDiffCalc = async (
             tap: number;
             rhythm: number;
             flashlight: number;
+            visual: number;
             total: number;
         }>;
         noModPcRating: Readonly<{
@@ -24,6 +25,7 @@ const testDiffCalc = async (
             tap: number;
             rhythm: number;
             flashlight: number;
+            visual: number;
             total: number;
         }>;
         clockRatePcRating: Readonly<{
@@ -53,6 +55,10 @@ const testDiffCalc = async (
     );
     expect(rating.droidStars.flashlight).toBeCloseTo(
         values.noModDroidRating.flashlight,
+        3
+    );
+    expect(rating.droidStars.visual).toBeCloseTo(
+        values.noModDroidRating.visual,
         3
     );
     expect(rating.droidStars.total).toBeCloseTo(
@@ -89,6 +95,10 @@ const testDiffCalc = async (
         values.clockRateDroidRating.flashlight,
         3
     );
+    expect(clockRateAdjustedRating.droidStars.visual).toBeCloseTo(
+        values.clockRateDroidRating.visual,
+        3
+    );
     expect(clockRateAdjustedRating.droidStars.total).toBeCloseTo(
         values.clockRateDroidRating.total,
         4
@@ -121,7 +131,8 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 tap: 1.5133006978671943,
                 rhythm: 0.8968106940174971,
                 flashlight: 0.225694317194747,
-                total: 3.508075836957196,
+                visual: 0.9652821187551722,
+                total: 4.081634116752951,
             },
             noModPcRating: {
                 aim: 2.380333686066187,
@@ -134,7 +145,8 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 tap: 2.1998871190827574,
                 rhythm: 1.1531543860309408,
                 flashlight: 0.3716529651499846,
-                total: 5.0128232921124845,
+                visual: 1.098105213816852,
+                total: 5.3767132606047285,
             },
             clockRatePcRating: {
                 aim: 3.26222073103768,
@@ -153,7 +165,8 @@ test("Test difficulty calculation sample beatmap 2", async () => {
             tap: 1.0130903153652016,
             rhythm: 0.6478989372640993,
             flashlight: 0.10205750839075388,
-            total: 2.0193545623643816,
+            visual: 1.767406985471814,
+            total: 4.699516974796241,
         },
         noModPcRating: {
             aim: 1.2853681936311694,
@@ -166,7 +179,8 @@ test("Test difficulty calculation sample beatmap 2", async () => {
             tap: 1.4435941001796837,
             rhythm: 0.8627236948014744,
             flashlight: 0.16849909805896887,
-            total: 2.809672950686977,
+            visual: 0.8638759373779293,
+            total: 3.5033846499794348,
         },
         clockRatePcRating: {
             aim: 1.7277106868093492,
@@ -186,7 +200,8 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 tap: 3.0590572602295913,
                 rhythm: 1.420300795672753,
                 flashlight: 0.4983526398081243,
-                total: 5.68971877353032,
+                visual: 1.0739431366859953,
+                total: 5.954923261732749,
             },
             noModPcRating: {
                 aim: 2.9844158923979682,
@@ -199,7 +214,8 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 tap: 4.622568937726299,
                 rhythm: 1.6484876063306988,
                 flashlight: 0.7377154404369851,
-                total: 8.51655868393099,
+                visual: 1.6611761805147256,
+                total: 8.790815312271393,
             },
             clockRatePcRating: {
                 aim: 4.203173691714608,
@@ -218,7 +234,8 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             tap: 1.4362043100177355,
             rhythm: 0.8596924560716204,
             flashlight: 0.30248668483662416,
-            total: 4.278789298253782,
+            visual: 0.9518374739917135,
+            total: 4.657542000837657,
         },
         noModPcRating: {
             aim: 4.537924998518297,
@@ -231,7 +248,8 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             tap: 2.0587703986545245,
             rhythm: 1.1051858279903457,
             flashlight: 0.4997280074590331,
-            total: 5.982679574739373,
+            visual: 2.2951163303254276,
+            total: 7.060173428160265,
         },
         clockRatePcRating: {
             aim: 6.010075838404166,
