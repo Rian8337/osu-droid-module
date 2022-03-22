@@ -175,7 +175,8 @@ export abstract class PerformanceCalculator {
 
         this.effectiveMissCount = this.calculateEffectiveMissCount(
             combo,
-            maxCombo
+            maxCombo,
+            mode
         );
 
         if (this.stars.mods.some((m) => m instanceof ModNoFail)) {
@@ -255,7 +256,8 @@ export abstract class PerformanceCalculator {
      */
     private calculateEffectiveMissCount(
         combo: number,
-        maxCombo: number
+        maxCombo: number,
+        mode: modes
     ): number {
         let comboBasedMissCount: number = 0;
 
@@ -273,6 +275,11 @@ export abstract class PerformanceCalculator {
             }
         }
 
-        return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
+        return Math.max(
+            this.computedAccuracy.nmiss,
+            mode === modes.droid
+                ? comboBasedMissCount
+                : Math.floor(comboBasedMissCount)
+        );
     }
 }
