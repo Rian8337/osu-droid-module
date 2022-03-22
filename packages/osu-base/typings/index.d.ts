@@ -706,6 +706,13 @@ declare module "@rian8337/osu-base" {
             statisticsMultiplier: number
         ): number;
         /**
+         * Converts an AR value to its milliseconds value.
+         *
+         * @param ar The AR to convert.
+         * @returns The milliseconds value represented by the AR.
+         */
+        static arToMS(ar: number): number;
+        /**
          * Utility function to apply speed and flat multipliers to stats where speed changes apply for OD.
          *
          * @param baseOD The base OD value.

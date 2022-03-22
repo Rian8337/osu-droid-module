@@ -338,10 +338,7 @@ export class MapStats {
     ): number {
         let ar: number = baseAR;
         ar *= statisticsMultiplier;
-        let arMS: number =
-            ar < 5.0
-                ? this.AR0_MS - this.AR_MS_STEP1 * ar
-                : this.AR5_MS - this.AR_MS_STEP2 * (ar - 5);
+        let arMS: number = this.arToMS(ar);
         arMS = Math.min(this.AR0_MS, Math.max(this.AR10_MS, arMS));
         arMS /= speedMultiplier;
         ar =
@@ -349,6 +346,18 @@ export class MapStats {
                 ? (this.AR0_MS - arMS) / this.AR_MS_STEP1
                 : 5 + (this.AR5_MS - arMS) / this.AR_MS_STEP2;
         return ar;
+    }
+
+    /**
+     * Converts an AR value to its milliseconds value.
+     *
+     * @param ar The AR to convert.
+     * @returns The milliseconds value represented by the AR.
+     */
+    static arToMS(ar: number): number {
+        return ar < 5.0
+            ? this.AR0_MS - this.AR_MS_STEP1 * ar
+            : this.AR5_MS - this.AR_MS_STEP2 * (ar - 5);
     }
 
     /**
