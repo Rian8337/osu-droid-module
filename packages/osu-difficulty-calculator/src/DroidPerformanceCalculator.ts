@@ -39,6 +39,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     flashlight: number = 0;
 
     private aggregatedRhythmMultiplier: number = 0;
+    private tapPenalty: number = 1;
 
     override calculate(params: {
         /**
@@ -71,8 +72,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
          */
         stats?: MapStats;
     }): this {
-        this.handleParams(params, modes.droid);
+        this.tapPenalty = params.tapPenalty ?? 1;
 
+        return this.calculateInternal(params, modes.droid);
+    }
+
+    protected override calculateValues(): void {
         this.calculateAverageRhythmMultiplier();
 
         this.calculateAimValue();
@@ -81,18 +86,19 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.calculateFlashlightValue();
 
         // Apply tap penalty for penalized plays.
-        this.tap /= params.tapPenalty ?? 1;
+        this.tap /= this.tapPenalty;
+    }
 
-        this.total =
+    protected override calculateTotalValue(): number {
+        return (
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.tap, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1),
                 1 / 1.1
-            ) * this.finalMultiplier;
-
-        return this;
+            ) * this.finalMultiplier
+        );
     }
 
     /**

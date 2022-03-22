@@ -233,6 +233,7 @@ declare module "@rian8337/osu-difficulty-calculator" {
          */
         flashlight: number;
         private averageRhythmMultiplier: number;
+        private tapPenalty: number;
         override calculate(params: {
             /**
              * The star rating instance to calculate.
@@ -259,6 +260,8 @@ declare module "@rian8337/osu-difficulty-calculator" {
              */
             stats?: MapStats;
         }): this;
+        protected override calculateValues(): void;
+        protected override calculateTotalValue(): number;
         /**
          * Calculates the average rhythm multiplier of the beatmap.
          */
@@ -587,6 +590,8 @@ declare module "@rian8337/osu-difficulty-calculator" {
              */
             stats?: MapStats;
         }): this;
+        protected override calculateValues(): void;
+        protected override calculateTotalValue(): number;
         /**
          * Calculates the aim performance value of the beatmap.
          */
@@ -881,13 +886,53 @@ declare module "@rian8337/osu-difficulty-calculator" {
          */
         abstract toString(): string;
         /**
-         * Calculates the base performance value for of a star rating.
+         * Internal calculation method, used to process calculation from implementations.
+         */
+        protected calculateInternal(
+            params: {
+                /**
+                 * The star rating instance to calculate.
+                 */
+                stars: StarRating;
+                /**
+                 * The maximum combo achieved in the score.
+                 */
+                combo?: number;
+                /**
+                 * The accuracy achieved in the score.
+                 */
+                accPercent?: Accuracy | number;
+                /**
+                 * The amount of misses achieved in the score.
+                 */
+                miss?: number;
+                /**
+                 * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
+                 */
+                tapPenalty?: number;
+                /**
+                 * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
+                 */
+                stats?: MapStats;
+            },
+            mode: modes
+        ): this;
+        /**
+         * Calculates values that will be used for calculating the total performance value of the beatmap.
+         */
+        protected abstract calculateValues(): void;
+        /**
+         * Calculates the total performance value of the beatmap.
+         */
+        protected abstract calculateTotalValue(): number;
+        /**
+         * Calculates the base performance value of a star rating.
          */
         protected baseValue(stars: number): number;
         /**
          * Processes given parameters for usage in performance calculation.
          */
-        protected handleParams(
+        private handleParams(
             params: {
                 /**
                  * The star rating instance to calculate.

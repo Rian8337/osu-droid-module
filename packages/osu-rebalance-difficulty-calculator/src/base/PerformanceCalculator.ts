@@ -97,7 +97,63 @@ export abstract class PerformanceCalculator {
     abstract toString(): string;
 
     /**
-     * Calculates the base performance value for of a star rating.
+     * Internal calculation method, used to process calculation from implementations.
+     */
+    protected calculateInternal(
+        params: {
+            /**
+             * The star rating instance to calculate.
+             */
+            stars: StarRating;
+
+            /**
+             * The maximum combo achieved in the score.
+             */
+            combo?: number;
+
+            /**
+             * The accuracy achieved in the score.
+             */
+            accPercent?: Accuracy | number;
+
+            /**
+             * The amount of misses achieved in the score.
+             */
+            miss?: number;
+
+            /**
+             * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
+             */
+            tapPenalty?: number;
+
+            /**
+             * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
+             */
+            stats?: MapStats;
+        },
+        mode: modes
+    ): this {
+        this.handleParams(params, mode);
+
+        this.calculateValues();
+
+        this.total = this.calculateTotalValue();
+
+        return this;
+    }
+
+    /**
+     * Calculates values that will be used for calculating the total performance value of the beatmap.
+     */
+    protected abstract calculateValues(): void;
+
+    /**
+     * Calculates the total performance value of the beatmap.
+     */
+    protected abstract calculateTotalValue(): number;
+
+    /**
+     * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
         return Math.pow(5 * Math.max(1, stars / 0.0675) - 4, 3) / 100000;
@@ -106,7 +162,7 @@ export abstract class PerformanceCalculator {
     /**
      * Processes given parameters for usage in performance calculation.
      */
-    protected handleParams(
+    private handleParams(
         params: {
             /**
              * The star rating instance to calculate.
