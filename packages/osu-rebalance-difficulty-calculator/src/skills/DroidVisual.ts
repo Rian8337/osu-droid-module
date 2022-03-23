@@ -31,6 +31,8 @@ export class DroidVisual extends DroidSkill {
             return 0;
         }
 
+        const last: DifficultyHitObject | undefined = this.previous.at(0);
+
         // Start with base density and give minimum global bonus for Hidden.
         let strain: number =
             (0.25 * current.noteDensity) / (1 + current.overlappingFactor * 5);
@@ -50,6 +52,26 @@ export class DroidVisual extends DroidSkill {
             strain +=
                 ((this.isHidden ? 0.007 : 0.006) * (this.preempt - 750)) /
                 (1 + current.overlappingFactor * 2);
+        }
+
+        if (current.travelTime) {
+            const currentVelocity: number =
+                current.travelDistance / current.travelTime;
+
+            // Reward sliders based on velocity, while avoiding overbuffing extremely fast sliders.
+            strain += Math.min(10, currentVelocity * 1.5);
+
+            // Reward for velocity changes if the previous object is a slider.
+            if (last?.travelTime) {
+                const prevVelocity: number =
+                    last.travelDistance / last.travelTime;
+
+                // Avoid overbuffing extremely fast sliders.
+                strain += Math.min(
+                    10,
+                    Math.abs(currentVelocity - prevVelocity) * 2.5
+                );
+            }
         }
 
         return strain;
