@@ -44,7 +44,7 @@ export class DroidVisual extends DroidSkill {
         // Give bonus for AR higher than 10.33 or lower than 8.
         if (this.preempt < 400) {
             strain +=
-                (0.0225 * (400 - this.preempt)) /
+                (0.02375 * (400 - this.preempt)) /
                 (1 + current.overlappingFactor * 1.5);
         } else if (this.preempt > 750) {
             strain +=
