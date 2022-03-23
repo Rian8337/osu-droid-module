@@ -121,29 +121,24 @@ export class DifficultyHitObjectCreator {
 
                 if (!(hitObject instanceof Spinner)) {
                     object.overlappingFactor +=
-                        0.8 *
-                        // Penalize objects that are too close to the object in both distance
-                        // and delta time to prevent stream maps from being overweighted.
-                        Math.max(
-                            0,
-                            1 -
-                                object.object.stackedPosition.getDistance(
-                                    hitObject.stackedEndPosition
-                                ) /
-                                    (1.5 * object.object.radius)
-                        ) *
-                        // Set delta time penalty cap to 150 BPM 1/2.
+                        (0.8 *
+                            // Penalize objects that are too close to the object in both distance
+                            // and delta time to prevent stream maps from being overweighted.
+                            Math.max(
+                                0,
+                                1 -
+                                    object.object.stackedPosition.getDistance(
+                                        hitObject.stackedEndPosition
+                                    ) /
+                                        (1.5 * object.object.radius)
+                            ) *
+                            50) /
                         (1 +
-                            49 /
-                                (1 +
-                                    Math.exp(
-                                        0.15 *
-                                            (Math.max(
-                                                deltaTime,
-                                                this.minDeltaTime
-                                            ) -
-                                                75)
-                                    )));
+                            Math.exp(
+                                0.15 *
+                                    (Math.max(deltaTime, this.minDeltaTime) -
+                                        75)
+                            ));
                 }
             }
 
