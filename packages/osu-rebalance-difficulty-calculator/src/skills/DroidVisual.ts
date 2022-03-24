@@ -46,7 +46,7 @@ export class DroidVisual extends DroidSkill {
 
         // Give bonus for AR higher than 10.33.
         if (this.preempt < 400) {
-            strain += 0.025 * (400 - this.preempt);
+            strain += 0.03 * (400 - this.preempt);
         }
 
         if (current.object instanceof Slider) {
