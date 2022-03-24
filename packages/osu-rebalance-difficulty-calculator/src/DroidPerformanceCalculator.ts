@@ -15,7 +15,7 @@ import { PerformanceCalculator } from "./base/PerformanceCalculator";
  */
 export class DroidPerformanceCalculator extends PerformanceCalculator {
     override stars: DroidStarRating = new DroidStarRating();
-    protected override finalMultiplier = 1.3;
+    protected override finalMultiplier = 1.24;
 
     /**
      * The aim performance value.
