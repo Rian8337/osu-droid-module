@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-droid-utilities",
-  "version": "1.4.7",
+  "version": "1.4.8-alpha.0",
   "description": "A module containing utilities for osu!droid.",
   "keywords": [
     "osu",
@@ -31,7 +31,7 @@
   },
   "dependencies": {
     "@rian8337/osu-base": "^1.4.2",
-    "@rian8337/osu-droid-replay-analyzer": "^1.4.7",
+    "@rian8337/osu-droid-replay-analyzer": "^1.4.8-alpha.0",
     "crypto-js": "^4.1.1"
   },
   "publishConfig": {
