@@ -39,14 +39,14 @@ export class DroidVisual extends DroidSkill {
 
         if (this.isHidden) {
             strain +=
-                Math.min(15, Math.pow(current.noteDensity, 2)) /
+                Math.min(25, Math.pow(current.noteDensity, 1.25)) /
                 10 /
                 (1 + current.overlappingFactor * 1.5);
         }
 
         // Give bonus for AR higher than 10.33.
         if (this.preempt < 400) {
-            strain += 0.03 * (400 - this.preempt);
+            strain += Math.pow(400 - this.preempt, 1.3) / 125;
         }
 
         if (current.object instanceof Slider) {
