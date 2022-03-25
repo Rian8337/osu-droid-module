@@ -35,13 +35,13 @@ export class DroidVisual extends DroidSkill {
         let strain: number =
             Math.min(20, Math.pow(current.noteDensity, 2)) /
             10 /
-            (1 + current.overlappingFactor * 2);
+            (1 + current.overlappingFactor);
 
         if (this.isHidden) {
             strain +=
                 Math.min(25, Math.pow(current.noteDensity, 1.25)) /
                 10 /
-                (1 + current.overlappingFactor * 1.5);
+                (1 + current.overlappingFactor * 1.25);
         }
 
         // Give bonus for AR higher than 10.33.
