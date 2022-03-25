@@ -125,14 +125,13 @@ export class DifficultyHitObjectCreator {
                         // and delta time to prevent stream maps from being overweighted.
                         Math.max(
                             0,
-                            2 *
-                                (1 -
-                                    object.object.stackedPosition.getDistance(
-                                        hitObject.stackedEndPosition
-                                    ) /
-                                        (3 * object.object.radius))
+                            1 -
+                                object.object.stackedPosition.getDistance(
+                                    hitObject.stackedEndPosition
+                                ) /
+                                    (3 * object.object.radius)
                         ) *
-                        (50 /
+                        (7.5 /
                             (1 +
                                 Math.exp(
                                     0.15 *
