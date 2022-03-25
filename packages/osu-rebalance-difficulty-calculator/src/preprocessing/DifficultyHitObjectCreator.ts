@@ -130,7 +130,7 @@ export class DifficultyHitObjectCreator {
                                     object.object.stackedPosition.getDistance(
                                         hitObject.stackedEndPosition
                                     ) /
-                                        (4 * object.object.radius))
+                                        (3 * object.object.radius))
                         ) *
                         (50 /
                             (1 +
