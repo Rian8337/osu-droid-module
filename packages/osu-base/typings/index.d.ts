@@ -355,10 +355,6 @@ declare module "@rian8337/osu-base" {
          */
         typeStr(): string;
         /**
-         * Calculates the stacked position of the hitobject.
-         */
-        calculateStackedPosition(scale: number): void;
-        /**
          * Returns the string representative of the class.
          */
         abstract toString(): string;
