@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-droid-replay-analyzer",
-  "version": "1.4.9-alpha.1",
+  "version": "1.4.9",
   "description": "A replay analyzer for analyzing osu!droid replay files.",
   "keywords": [
     "osu",
