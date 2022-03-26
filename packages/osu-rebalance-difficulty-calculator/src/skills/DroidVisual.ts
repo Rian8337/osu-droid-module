@@ -6,6 +6,7 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to read every object in the map.
  */
 export class DroidVisual extends DroidSkill {
+    protected override readonly historyLength: number = 4;
     protected override readonly starsPerDouble: number = 1.025;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
@@ -53,14 +54,24 @@ export class DroidVisual extends DroidSkill {
             const currentVelocity: number =
                 current.travelDistance / current.travelTime;
 
-            // Reward sliders based on velocity, while avoiding overbuffing extremely fast sliders.
-            strain += Math.min(15, currentVelocity * 2.5);
+            const scalingFactor: number = 50 / current.object.radius;
 
-            // Reward for velocity changes based on last few objects.
+            // Reward sliders based on velocity.
+            strain += Math.min(
+                // Avoid overbuffing extremely fast sliders.
+                Math.min(15, currentVelocity * 6) *
+                    // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
+                    Math.min(1, current.travelDistance / scalingFactor / 100)
+            );
+
+            let cumulativeStrainTime: number = 0;
+
+            // Reward for velocity changes based on last few sliders.
             for (let i = 0; i < this.previous.length; ++i) {
                 const last: DifficultyHitObject = this.previous[i];
 
-                // Only reward velocity changes for sliders.
+                cumulativeStrainTime += last.strainTime;
+
                 if (!(last.object instanceof Slider)) {
                     continue;
                 }
@@ -68,14 +79,13 @@ export class DroidVisual extends DroidSkill {
                 const prevVelocity: number =
                     last.travelDistance / last.travelTime;
 
-                // Avoid overbuffing extremely fast sliders.
                 strain += Math.min(
-                    15,
-                    (Math.abs(currentVelocity - prevVelocity) *
-                        5 *
-                        // Add a decay as past objects become more irrelevant
-                        (this.previous.length - i)) /
-                        this.previous.length
+                    // Avoid overbuffing extremely fast velocity changes.
+                    Math.min(15, 6 * Math.abs(currentVelocity - prevVelocity)) *
+                        // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
+                        Math.min(1, last.travelDistance / scalingFactor / 100) *
+                        // Scale with cumulative strain time to avoid overbuffing past sliders.
+                        Math.min(1, Math.pow(500 / cumulativeStrainTime, 0.8))
                 );
             }
         }
