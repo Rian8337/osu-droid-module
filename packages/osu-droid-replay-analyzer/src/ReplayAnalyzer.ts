@@ -625,7 +625,7 @@ export class ReplayAnalyzer {
     checkFor3Finger(): void {
         if (
             !(
-                this.map instanceof DroidStarRating &&
+                this.map instanceof DroidStarRating ||
                 this.map instanceof RebalanceDroidStarRating
             ) ||
             !this.data
@@ -652,7 +652,7 @@ export class ReplayAnalyzer {
     checkFor2Hand(): void {
         if (
             !(
-                this.map instanceof DroidStarRating &&
+                this.map instanceof DroidStarRating ||
                 this.map instanceof RebalanceDroidStarRating
             ) ||
             !this.data
