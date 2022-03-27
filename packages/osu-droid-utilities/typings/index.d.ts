@@ -144,7 +144,7 @@ declare module "@rian8337/osu-droid-utilities" {
         /**
          * Retrieves play information.
          *
-         * @param values Function parameters.
+         * @param params Function parameters.
          */
         static getFromHash(params: {
             /**
