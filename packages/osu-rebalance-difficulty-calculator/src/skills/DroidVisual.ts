@@ -51,15 +51,12 @@ export class DroidVisual extends DroidSkill {
         }
 
         if (current.object instanceof Slider) {
-            const currentVelocity: number =
-                current.travelDistance / current.travelTime;
-
             const scalingFactor: number = 50 / current.object.radius;
 
             // Reward sliders based on velocity.
             strain += Math.min(
                 // Avoid overbuffing extremely fast sliders.
-                Math.min(15, currentVelocity * 3) *
+                Math.min(15, current.object.velocity * 3) *
                     // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                     Math.min(1, current.travelDistance / scalingFactor / 100)
             );
@@ -76,14 +73,14 @@ export class DroidVisual extends DroidSkill {
                     continue;
                 }
 
-                const prevVelocity: number =
-                    last.travelDistance / last.travelTime;
-
                 strain += Math.min(
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
                         15,
-                        2.5 * Math.abs(currentVelocity - prevVelocity)
+                        2.5 *
+                            Math.abs(
+                                current.object.velocity - last.object.velocity
+                            )
                     ) *
                         // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                         Math.min(1, last.travelDistance / scalingFactor / 100) *
