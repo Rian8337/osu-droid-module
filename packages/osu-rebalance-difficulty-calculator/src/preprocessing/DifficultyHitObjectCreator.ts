@@ -93,6 +93,7 @@ export class DifficultyHitObjectCreator {
                 difficultyObjects[i - 2];
 
             object.startTime = object.object.startTime / params.speedMultiplier;
+            object.endTime = object.object.endTime / params.speedMultiplier;
 
             if (!lastObject) {
                 difficultyObjects.push(object);
@@ -109,16 +110,38 @@ export class DifficultyHitObjectCreator {
                 (o) =>
                     o.startTime / params.speedMultiplier > object.startTime &&
                     o.startTime / params.speedMultiplier <=
-                        object.startTime + params.preempt!
+                        object.endTime + params.preempt!
             );
 
             object.noteDensity = 1;
 
             for (const hitObject of visibleObjects) {
-                const deltaTime: number = Math.abs(
+                // Calculate delta time assuming the current object is a circle.
+                let deltaTime: number = Math.abs(
                     hitObject.startTime / params.speedMultiplier -
                         object.startTime
                 );
+
+                // But if the current object is a slider, then we alter the delta time to account for slider end time.
+                if (object.object instanceof Slider) {
+                    if (
+                        object.object.startTime >= hitObject.startTime &&
+                        object.object.endTime <= hitObject.startTime
+                    ) {
+                        // If the object starts when the slider is active, then the slider is technically still visible.
+                        // Set delta time to 0.
+                        deltaTime = 0;
+                    } else {
+                        // Otherwise, we take the delta time from the slider head or tail, whichever is smaller as it's the closest time.
+                        deltaTime = Math.min(
+                            deltaTime,
+                            Math.abs(
+                                hitObject.startTime / params.speedMultiplier -
+                                    object.endTime
+                            )
+                        );
+                    }
+                }
 
                 object.noteDensity += 1 - deltaTime / params.preempt;
 
