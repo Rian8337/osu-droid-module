@@ -116,6 +116,10 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          */
         overlappingFactor: number;
         /**
+         * Adjusted velocity of the hitobject, taking speed multiplier into account.
+         */
+        velocity: number;
+        /**
          * @param object The underlying hitobject.
          */
         constructor(object: HitObject);

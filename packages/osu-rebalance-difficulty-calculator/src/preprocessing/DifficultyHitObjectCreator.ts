@@ -72,6 +72,9 @@ export class DifficultyHitObjectCreator {
             object.object.scale = scale;
 
             if (object.object instanceof Slider) {
+                object.velocity =
+                    object.object.velocity * params.speedMultiplier;
+
                 object.object.nestedHitObjects.forEach((h) => {
                     h.scale = scale;
                 });

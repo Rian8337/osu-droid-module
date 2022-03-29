@@ -123,6 +123,11 @@ export class DifficultyHitObject {
     overlappingFactor: number = 0;
 
     /**
+     * Adjusted velocity of the hitobject, taking speed multiplier into account.
+     */
+    velocity: number = 0;
+
+    /**
      * @param object The underlying hitobject.
      */
     constructor(object: HitObject) {
