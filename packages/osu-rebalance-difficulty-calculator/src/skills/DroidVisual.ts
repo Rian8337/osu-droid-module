@@ -54,12 +54,11 @@ export class DroidVisual extends DroidSkill {
             const scalingFactor: number = 50 / current.object.radius;
 
             // Reward sliders based on velocity.
-            strain += Math.min(
+            strain +=
                 // Avoid overbuffing extremely fast sliders.
                 Math.min(15, current.object.velocity * 3) *
-                    // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
-                    Math.min(1, current.travelDistance / scalingFactor / 100)
-            );
+                // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
+                Math.min(1, current.travelDistance / scalingFactor / 100);
 
             let cumulativeStrainTime: number = 0;
 
@@ -73,7 +72,7 @@ export class DroidVisual extends DroidSkill {
                     continue;
                 }
 
-                strain += Math.min(
+                strain +=
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
                         15,
@@ -82,11 +81,10 @@ export class DroidVisual extends DroidSkill {
                                 current.object.velocity - last.object.velocity
                             )
                     ) *
-                        // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
-                        Math.min(1, last.travelDistance / scalingFactor / 100) *
-                        // Scale with cumulative strain time to avoid overbuffing past sliders.
-                        Math.min(1, 300 / cumulativeStrainTime)
-                );
+                    // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
+                    Math.min(1, last.travelDistance / scalingFactor / 100) *
+                    // Scale with cumulative strain time to avoid overbuffing past sliders.
+                    Math.min(1, 300 / cumulativeStrainTime);
             }
         }
 
