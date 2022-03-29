@@ -111,6 +111,11 @@ export class DifficultyHitObject {
     startTime: number = 0;
 
     /**
+     * Adjusted end time of the hitobject, taking speed multiplier into account.
+     */
+    endTime: number = 0;
+
+    /**
      * The note density of the hitobject.
      */
     noteDensity: number = 0;

@@ -106,6 +106,10 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          */
         startTime: number;
         /**
+         * Adjusted end time of the hitobject, taking speed multiplier into account.
+         */
+        endTime: number;
+        /**
          * The note density of the hitobject.
          */
         noteDensity: number;
