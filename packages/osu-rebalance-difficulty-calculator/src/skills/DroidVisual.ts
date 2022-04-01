@@ -42,7 +42,7 @@ export class DroidVisual extends DroidSkill {
             strain +=
                 Math.min(25, Math.pow(current.noteDensity, 1.25)) /
                 10 /
-                (1 + current.overlappingFactor * 1.25);
+                (1 + current.overlappingFactor / 1.25);
         }
 
         // Give bonus for AR higher than 10.33.
