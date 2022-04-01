@@ -31,7 +31,7 @@ export class DroidVisual extends DroidSkill {
             return 0;
         }
 
-        // Start with base density and give minimum global bonus for Hidden.
+        // Start with base density and give global bonus for Hidden.
         // Add density caps for sanity.
         let strain: number =
             Math.min(20, Math.pow(current.noteDensity, 2)) /
@@ -56,9 +56,9 @@ export class DroidVisual extends DroidSkill {
             // Reward sliders based on velocity.
             strain +=
                 // Avoid overbuffing extremely fast sliders.
-                Math.min(15, current.velocity * 3) *
+                Math.min(15, current.velocity * 1.5) *
                 // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
-                Math.min(1, current.travelDistance / scalingFactor / 100);
+                Math.min(1, current.travelDistance / scalingFactor / 125);
 
             let cumulativeStrainTime: number = 0;
 
