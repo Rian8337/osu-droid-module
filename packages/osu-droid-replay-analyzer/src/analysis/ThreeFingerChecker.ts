@@ -830,7 +830,7 @@ export class ThreeFingerChecker {
                 }
 
                 // Add 2f cursor presses to valid cursor count and the rest to invalid cursor count.
-                if (validIndexes.length <= 2) {
+                if (validIndexes.length < 2) {
                     validCursorPressCount += cursorAmounts[i];
                 } else {
                     invalidCursorPressCount += cursorAmounts[i];
