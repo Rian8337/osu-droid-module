@@ -5,16 +5,23 @@ import { BeatmapSection } from "./BeatmapSection";
  */
 export class ThreeFingerBeatmapSection extends BeatmapSection {
     /**
-     * The index of the cursor that is aiming for objects in this section.
+     * Whether or not this beatmap section is dragged.
      */
-    mainFingerIndex: number;
+    isDragged: boolean;
+
+    /**
+     * The index of the cursor that is dragging this section.
+     */
+    dragFingerIndex: number;
 
     constructor(values: {
         firstObjectIndex: number;
         lastObjectIndex: number;
-        mainFingerIndex: number;
+        isDragged: boolean;
+        dragFingerIndex: number;
     }) {
         super(values.firstObjectIndex, values.lastObjectIndex);
-        this.mainFingerIndex = values.mainFingerIndex;
+        this.isDragged = values.isDragged;
+        this.dragFingerIndex = values.dragFingerIndex;
     }
 }
