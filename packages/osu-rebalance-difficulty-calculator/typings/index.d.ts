@@ -472,7 +472,6 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
      * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
      */
     export class DroidTap extends DroidSkill {
-        protected override readonly historyLength: number;
         protected override readonly skillMultiplier: number;
         protected override readonly strainDecayBase: number;
         protected override readonly reducedSectionBaseline: number;
