@@ -375,7 +375,6 @@ export class TwoHandChecker {
                 50,
                 starRating.objects[0].deltaTime
             );
-            //@ts-expect-error: Collision with rebalance star rating, but this works fine.
             this.map.objects.push(...starRating.objects);
         });
 
