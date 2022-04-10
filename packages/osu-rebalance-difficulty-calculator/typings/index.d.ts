@@ -412,14 +412,8 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          * Calculates the visual star rating of the beatmap and stores it in this instance.
          */
         calculateVisual(): void;
-        /**
-         * Calculates the total star rating of the beatmap and stores it in this instance.
-         */
-        calculateTotal(): void;
-        /**
-         * Calculates every star rating of the beatmap and stores it in this instance.
-         */
-        calculateAll(): void;
+        override calculateTotal(): void;
+        override calculateAll(): void;
         /**
          * Returns a string representative of the class.
          */
@@ -760,14 +754,8 @@ declare module "@rian8337/osu-rebalance-difficulty-calculator" {
          * Calculates the flashlight star rating of the beatmap and stores it in this instance.
          */
         calculateFlashlight(): void;
-        /**
-         * Calculates the total star rating of the beatmap and stores it in this instance.
-         */
-        calculateTotal(): void;
-        /**
-         * Calculates every star rating of the beatmap and stores it in this instance.
-         */
-        calculateAll(): void;
+        override calculateTotal(): void;
+        override calculateAll(): void;
         /**
          * Returns a string representative of the class.
          */
