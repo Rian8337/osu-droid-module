@@ -141,6 +141,7 @@ export abstract class StarRating {
                 circleSize: <number>this.stats.cs,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: mode,
+                preempt: MapStats.arToMS(this.stats.ar!),
             })
         );
     }

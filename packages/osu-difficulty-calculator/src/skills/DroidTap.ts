@@ -12,7 +12,6 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
  */
 export class DroidTap extends DroidSkill {
-    protected override readonly historyLength: number = 32;
     protected override readonly skillMultiplier: number = 1375;
     protected override readonly reducedSectionCount: number = 5;
     protected override readonly reducedSectionBaseline: number = 0.75;
@@ -59,10 +58,10 @@ export class DroidTap extends DroidSkill {
         }
 
         // Cap deltatime to the OD 300 hitwindow.
-        // 0.58 is derived from making sure 260 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
+        // 0.58 is derived from making sure 260 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.91 limits the effect of the cap.
         strainTime /= MathUtils.clamp(
             strainTime / greatWindowFull / 0.58,
-            0.92,
+            0.91,
             1
         );
 
