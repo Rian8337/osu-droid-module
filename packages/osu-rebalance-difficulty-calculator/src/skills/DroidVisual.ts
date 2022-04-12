@@ -56,7 +56,7 @@ export class DroidVisual extends DroidSkill {
             // Reward sliders based on velocity.
             strain +=
                 // Avoid overbuffing extremely fast sliders.
-                Math.min(15, current.velocity * 1.5) *
+                Math.min(5, current.velocity * 1.25) *
                 // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                 Math.min(1, current.travelDistance / scalingFactor / 125);
 
@@ -75,8 +75,8 @@ export class DroidVisual extends DroidSkill {
                 strain +=
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
-                        15,
-                        2.5 * Math.abs(current.velocity - last.velocity)
+                        8,
+                        2 * Math.abs(current.velocity - last.velocity)
                     ) *
                     // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                     Math.min(1, last.travelDistance / scalingFactor / 100) *
