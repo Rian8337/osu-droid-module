@@ -329,7 +329,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         );
 
         // Scale the visual value with accuracy harshly.
-        this.visual *= Math.pow(this.computedAccuracy.value(), 4);
+        this.visual *= Math.pow(this.computedAccuracy.value(), 8);
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
