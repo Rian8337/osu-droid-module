@@ -90,6 +90,7 @@ export class DroidTap extends DroidSkill {
         this.currentOriginalTapStrain +=
             this.tapStrainOf(originalSpeedBonus, current.strainTime) *
             this.skillMultiplier;
+        this.currentOriginalTapStrain *= current.rhythmMultiplier;
 
         return this.currentTapStrain * current.rhythmMultiplier;
     }
@@ -113,7 +114,6 @@ export class DroidTap extends DroidSkill {
      */
     protected override saveToHitObject(current: DifficultyHitObject): void {
         current.tapStrain = this.currentStrain;
-        current.originalTapStrain =
-            this.currentOriginalTapStrain * current.rhythmMultiplier;
+        current.originalTapStrain = this.currentOriginalTapStrain;
     }
 }
