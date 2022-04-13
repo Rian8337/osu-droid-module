@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-rebalance-difficulty-calculator",
-  "version": "1.4.13-alpha.0",
+  "version": "1.4.13",
   "description": "A module for calculating osu!standard beatmap difficulty and performance value with respect to the latest osu!lazer difficulty and performance algorithm.",
   "keywords": [
     "osu",
