@@ -36,6 +36,10 @@ declare module "@rian8337/osu-base" {
          */
         audioFileName: string;
         /**
+         * The name of the background file of the beatmap.
+         */
+        backgroundFileName: string;
+        /**
          * The format version of the beatmap.
          */
         formatVersion: number;

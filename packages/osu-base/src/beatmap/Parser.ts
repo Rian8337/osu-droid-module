@@ -277,16 +277,20 @@ export class Parser {
     private events(): void {
         const s: string[] = this.currentLine.split(",");
 
-        if (s[0] !== "2" && s[0] !== "Break") {
-            return;
+        switch (s[0]) {
+            case "0":
+                this.map.backgroundFileName = s[2].replace(/"/g, "");
+                break;
+            case "2":
+            case "Break":
+                this.map.breakPoints.push(
+                    new BreakPoint({
+                        startTime: parseInt(this.setPosition(s[1])),
+                        endTime: parseInt(this.setPosition(s[2])),
+                    })
+                );
+                break;
         }
-
-        this.map.breakPoints.push(
-            new BreakPoint({
-                startTime: parseInt(this.setPosition(s[1])),
-                endTime: parseInt(this.setPosition(s[2])),
-            })
-        );
     }
 
     /**

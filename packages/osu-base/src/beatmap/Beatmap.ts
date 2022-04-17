@@ -18,6 +18,11 @@ export class Beatmap {
     audioFileName: string = "";
 
     /**
+     * The name of the background file of the beatmap.
+     */
+    backgroundFileName: string = "";
+
+    /**
      * The format version of the beatmap.
      */
     formatVersion: number = 1;

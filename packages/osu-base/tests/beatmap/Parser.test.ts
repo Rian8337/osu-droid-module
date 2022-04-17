@@ -22,6 +22,7 @@ test("Test beatmap parse", async () => {
     expect(beatmap.artist).toBe("YOASOBI");
     expect(beatmap.artistUnicode).toBe("YOASOBI");
     expect(beatmap.audioFileName).toBe("audio.mp3");
+    expect(beatmap.backgroundFileName).toBe("school.jpg");
     expect(beatmap.beatmapId).toBe(3324715);
     expect(beatmap.beatmapSetId).toBe(1585863);
     expect(beatmap.breakPoints.length).toBe(0);
