@@ -32,6 +32,10 @@ declare module "@rian8337/osu-base" {
      */
     export class Beatmap {
         /**
+         * The name of the audio file of the beatmap.
+         */
+        audioFileName: string;
+        /**
          * The format version of the beatmap.
          */
         formatVersion: number;
@@ -1119,7 +1123,7 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * A beatmap parser with just enough data for pp calculation.
+     * A beatmap parser.
      */
     export class Parser {
         /**
