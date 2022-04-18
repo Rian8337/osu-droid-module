@@ -32,117 +32,41 @@ declare module "@rian8337/osu-base" {
      */
     export class Beatmap {
         /**
-         * The name of the audio file of the beatmap.
-         */
-        audioFileName: string;
-        /**
-         * The name of the background file of the beatmap.
-         */
-        backgroundFileName: string;
-        /**
          * The format version of the beatmap.
          */
         formatVersion: number;
         /**
-         * The title of the song of the beatmap.
+         * General information about the beatmap.
          */
-        title: string;
+        readonly general: BeatmapGeneral;
         /**
-         * The unicode title of the song of the beatmap.
+         * Saved settings for the beatmap editor.
          */
-        titleUnicode: string;
+        readonly editor: BeatmapEditor;
         /**
-         * The artist of the song of the beatmap.
+         * Information used to identify the beatmap.
          */
-        artist: string;
+        readonly metadata: BeatmapMetadata;
         /**
-         * The unicode artist of the song of the beatmap.
+         * Difficulty settings of the beatmap.
          */
-        artistUnicode: string;
+        readonly difficulty: BeatmapDifficulty;
         /**
-         * The creator of the beatmap.
+         * Beatmap and storyboard graphic events of the beatmap.
          */
-        creator: string;
+        readonly events: BeatmapEvents;
         /**
-         * The difficulty name of the beatmap.
+         * Timing and control points of the beatmap.
          */
-        version: string;
+        readonly controlPoints: BeatmapControlPoints;
         /**
-         * The ID of the beatmap.
+         * Combo and skin colors of the beatmap.
          */
-        beatmapId?: number;
+        readonly colors: BeatmapColor;
         /**
-         * The ID of the beatmapset containing this beatmap.
+         * Hit objects of the beatmap.
          */
-        beatmapSetId?: number;
-        /**
-         * The approach rate of the beatmap.
-         */
-        ar?: number;
-        /**
-         * The circle size of the beatmap.
-         */
-        cs: number;
-        /**
-         * The overall difficulty of the beatmap.
-         */
-        od: number;
-        /**
-         * The health drain rate of the beatmap.
-         */
-        hp: number;
-        /**
-         * The slider velocity of the beatmap.
-         */
-        sv: number;
-        /**
-         * The slider tick rate of the beatmap.
-         */
-        tickRate: number;
-        /**
-         * The amount of circles in the beatmap.
-         */
-        circles: number;
-        /**
-         * The amount of sliders in the beatmap.
-         */
-        sliders: number;
-        /**
-         * The amount of spinners in the beatmap.
-         */
-        spinners: number;
-        /**
-         * The objects of the beatmap.
-         */
-        readonly objects: HitObject[];
-        /**
-         * The timing points of the beatmap.
-         */
-        readonly timingPoints: TimingControlPoint[];
-        /**
-         * The difficulty timing points of the beatmap.
-         */
-        readonly difficultyTimingPoints: DifficultyControlPoint[];
-        /**
-         * The break points of the beatmap.
-         */
-        readonly breakPoints: BreakPoint[];
-        /**
-         * The stack leniency of the beatmap.
-         */
-        stackLeniency: number;
-        /**
-         * The amount of slider ticks in the beatmap.
-         */
-        get sliderTicks(): number;
-        /**
-         * The amount of sliderends in the beatmap.
-         */
-        get sliderEnds(): number;
-        /**
-         * The amount of slider repeat points in the beatmap.
-         */
-        get sliderRepeatPoints(): number;
+        readonly hitObjects: BeatmapHitObjects;
         /**
          * The maximum combo of the beatmap.
          */
@@ -155,18 +79,6 @@ declare module "@rian8337/osu-base" {
          * @param time The time.
          */
         getOffsetTime(time: number): number;
-        /**
-         * Gets the timing control point that applies at a given time.
-         *
-         * @param time The time.
-         */
-        timingControlPointAt(time: number): TimingControlPoint;
-        /**
-         * Gets the difficulty control point that applies at a given time.
-         *
-         * @param time The time.
-         */
-        difficultyControlPointAt(time: number): DifficultyControlPoint;
         /**
          * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
          *
@@ -190,19 +102,310 @@ declare module "@rian8337/osu-base" {
             scoreMultiplier: number
         ): number;
         /**
-         * Gets the timing point that applies at a given time.
-         *
-         * @param time The time.
-         * @param list The timing points to search in.
-         */
-        private getTimingPoint<T extends TimingPoint>(
-            time: number,
-            list: T[]
-        ): T;
-        /**
          * Returns a string representative of the class.
          */
         toString(): string;
+    }
+
+    /**
+     * Represents a beatmap's background.
+     */
+    export class BeatmapBackground {
+        /**
+         * The location of the background image relative to the beatmap directory.
+         */
+        filename: string;
+        /**
+         * Offset in osu! pixels from the centre of the screen.
+         *
+         * For example, an offset of `50,100` would have the background shown 50 osu!
+         * pixels to the right and 100 osu! pixels down from the centre of the screen.
+         */
+        offset: Vector2;
+        constructor(filename: string, offset: Vector2);
+    }
+
+    /**
+     * Contains information about combo and skin colors of a beatmap.
+     */
+    export class BeatmapColor {
+        /**
+         * The combo colors of the beatmap.
+         */
+        readonly combo: RGBColor[];
+        /**
+         * Additive slider track color.
+         */
+        sliderTrackOverride?: RGBColor;
+        /**
+         * The color of slider borders.
+         */
+        sliderBorder?: RGBColor;
+    }
+
+    /**
+     * Contains information about timing and control points of a beatmap.
+     */
+    export class BeatmapControlPoints {
+        /**
+         * The manager for timing control points of the beatmap.
+         */
+        readonly timing: ControlPointManager<TimingControlPoint>;
+        /**
+         * The manager for difficulty control points of the beatmap.
+         */
+        readonly difficulty: ControlPointManager<DifficultyControlPoint>;
+        /**
+         * The manager for effect control points of the beatmap.
+         */
+        readonly effect: ControlPointManager<EffectControlPoint>;
+        /**
+         * The manager for sample control points of the beatmap.
+         */
+        readonly sample: ControlPointManager<SampleControlPoint>;
+    }
+
+    /**
+     * Contains difficulty settings of a beatmap.
+     */
+    export class BeatmapDifficulty {
+        /**
+         * The approach rate of the beatmap.
+         */
+        ar?: number;
+        /**
+         * The circle size of the beatmap.
+         */
+        cs: number;
+        /**
+         * The overall difficulty of the beatmap.
+         */
+        od: number;
+        /**
+         * The health drain rate of the beatmap.
+         */
+        hp: number;
+        /**
+         * The base slider velocity in hundreds of osu! pixels per beat.
+         */
+        sliderMultiplier: number;
+        /**
+         * The amount of slider ticks per beat.
+         */
+        sliderTickRate: number;
+    }
+
+    /**
+     * Contains saved settings for the beatmap editor.
+     */
+    export class BeatmapEditor {
+        /**
+         * Time in milliseconds of bookmarks.
+         */
+        bookmarks: number[];
+        /**
+         * The multiplier at which distance between consecutive notes will be snapped based on their rhythmical difference.
+         */
+        distanceSnap: number;
+        /**
+         * Determines the editor's behaviour in quantizing hit objects based on the {@link https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Beat_Snap Beat Snap} principles.
+         */
+        beatDivisor: number;
+        /**
+         * The grid size setting in the editor.
+         */
+        gridSize: EditorGridSize;
+        /**
+         * The scale factor for the {@link https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Compose#top-left-(hit-objects-timeline) object timeline}.
+         */
+        timelineZoom: number;
+    }
+
+    /**
+     * Contains beatmap and storyboard graphic events.
+     */
+    export class BeatmapEvents {
+        /**
+         * The beatmap's background.
+         */
+        background?: BeatmapBackground;
+        /**
+         * The beatmap's video.
+         */
+        video?: BeatmapVideo;
+        /**
+         * The breaks this beatmap has.
+         */
+        readonly breaks: BreakPoint[];
+    }
+
+    /**
+     * Contains general information about a beatmap.
+     */
+    export class BeatmapGeneral {
+        /**
+         * The location of the audio file relative to the beatmapset file.
+         */
+        audioFilename: string;
+        /**
+         * The amount of milliseconds of silence before the audio starts playing.
+         */
+        audioLeadIn: number;
+        /**
+         * The time in milliseconds when the audio preview should start.
+         */
+        previewTime: number;
+        /**
+         * The speed of the countdown before the first hit object.
+         */
+        countdown: BeatmapCountdown;
+        /**
+         * The sample bank that will be used if timing points do not override it.
+         */
+        sampleBank: SampleBank;
+        /**
+         * The multiplier for the threshold in time where hit objects
+         * placed close together stack, ranging from 0 to 1.
+         */
+        stackLeniency: number;
+        /**
+         * The game mode of the beatmap.
+         */
+        mode: GameMode;
+        /**
+         * Whether or not breaks have a letterboxing effect.
+         */
+        letterBoxInBreaks: boolean;
+        /**
+         * Whether or not the storyboard can use the user's skin images.
+         */
+        useSkinSprites: boolean;
+        /**
+         * The draw order of hit circle overlays compared to hit numbers.
+         */
+        overlayPosition: BeatmapOverlayPosition;
+        /**
+         * The preffered skin to use during gameplay.
+         */
+        skinPreference: string;
+        /**
+         * Whether or not a warning about flashing colours should be shown at the beginning of the map.
+         */
+        epilepsyWarning: boolean;
+        /**
+         * The time in beats that the countdown starts before the first hit object.
+         */
+        countdownOffset: number;
+        /**
+         * Whether or not the storyboard allows widescreen viewing.
+         */
+        widescreenStoryboard: boolean;
+        /**
+         * Whether or not sound samples will change rate when playing with speed-changing mods.
+         */
+        samplesMatchPlaybackRate: boolean;
+    }
+
+    /**
+     * Contains information about hit objects of a beatmap.
+     */
+    export class BeatmapHitObjects {
+        /**
+         * The objects of the beatmap.
+         */
+        readonly objects: HitObject[];
+        /**
+         * The amount of circles in the beatmap.
+         */
+        circles: number;
+        /**
+         * The amount of sliders in the beatmap.
+         */
+        sliders: number;
+        /**
+         * The amount of spinners in the beatmap.
+         */
+        spinners: number;
+        /**
+         * The amount of slider ticks in the beatmap.
+         */
+        get sliderTicks(): number;
+        /**
+         * The amount of sliderends in the beatmap.
+         */
+        get sliderEnds(): number;
+        /**
+         * The amount of slider repeat points in the beatmap.
+         */
+        get sliderRepeatPoints(): number;
+    }
+
+    /**
+     * Contains information used to identify a beatmap.
+     */
+    export class BeatmapMetadata {
+        /**
+         * The romanized song title of the beatmap.
+         */
+        title: string;
+        /**
+         * The song title of the beatmap.
+         */
+        titleUnicode: string;
+        /**
+         * The romanized artist of the song of the beatmap.
+         */
+        artist: string;
+        /**
+         * The song artist of the beatmap.
+         */
+        artistUnicode: string;
+        /**
+         * The creator of the beatmap.
+         */
+        creator: string;
+        /**
+         * The difficulty name of the beatmap.
+         */
+        version: string;
+        /**
+         * The original media the song was produced for.
+         */
+        source: string;
+        /**
+         * The search terms of the beatmap.
+         */
+        tags: string[];
+        /**
+         * The ID of the beatmap.
+         */
+        beatmapId?: number;
+        /**
+         * The ID of the beatmapset containing this beatmap.
+         */
+        beatmapSetId?: number;
+    }
+
+    /**
+     * Represents a beatmap's video.
+     */
+    export class BeatmapVideo {
+        /**
+         * The location of the video relative to the beatmap directory.
+         */
+        filename: string;
+        /**
+         * The start time of the video, in milliseconds from the beginning of the beatmap's audio.
+         */
+        startTime: number;
+        /**
+         * Offset in osu! pixels from the centre of the screen.
+         *
+         * For example, an offset of `50,100` would have the video shown 50 osu! pixels
+         * to the right and 100 osu! pixels down from the centre of the screen.
+         */
+        offset: Vector2;
+        constructor(startTime: number, filename: string, offset: Vector2);
     }
 
     /**
@@ -256,11 +459,28 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * Represents a timing point that changes speed multiplier.
+     * A manager for a type of control point.
      */
-    export class DifficultyControlPoint extends TimingPoint {
+    export class ControlPointManager<T extends ControlPoint> {
         /**
-         * The slider speed multiplier of the timing point.
+         * The control points in this manager.
+         */
+        readonly points: T[];
+
+        /**
+         * Gets the control point that applies at a given time.
+         *
+         * @param time The time.
+         */
+        controlPointAt(time: number): T;
+    }
+
+    /**
+     * Represents a control point that changes speed multiplier.
+     */
+    export class DifficultyControlPoint extends ControlPoint {
+        /**
+         * The slider speed multiplier of the control point.
          */
         readonly speedMultiplier: number;
         constructor(values: { time: number; speedMultiplier: number });
@@ -293,6 +513,18 @@ declare module "@rian8337/osu-base" {
          * @param isPrecise Whether or not to calculate for Precise mod.
          */
         override hitWindowFor50(isPrecise?: boolean): number;
+    }
+
+    /**
+     * Represents a control point that applies an effect to a beatmap.
+     */
+    export class EffectControlPoint extends ControlPoint {
+        /**
+         * Whether or not kiai time is enabled at this control point.
+         */
+        readonly isKiai: boolean;
+        constructor(values: { time: number; effectBitFlags: number });
+        override toString(): string;
     }
 
     /**
@@ -1188,6 +1420,10 @@ declare module "@rian8337/osu-base" {
          */
         private general(): void;
         /**
+         * Processes the editor section of a beatmap.
+         */
+        private editor(): void;
+        /**
          * Processes the metadata section of a beatmap.
          */
         private metadata(): void;
@@ -1200,9 +1436,13 @@ declare module "@rian8337/osu-base" {
          */
         private difficulty(): void;
         /**
-         * Processes the timing points section of a beatmap.
+         * Processes the control points section of a beatmap.
          */
         private timingPoints(): void;
+        /**
+         * Processes the colors section of a beatmap.
+         */
+        private colors(): void;
         /**
          * Processes the objects section of a beatmap.
          */
@@ -1391,6 +1631,45 @@ declare module "@rian8337/osu-base" {
             startTime: number;
             repeatIndex: number;
             spanDuration: number;
+        });
+        override toString(): string;
+    }
+
+    /**
+     * Represents an RGB color.
+     */
+    export class RGBColor {
+        /**
+         * The red component of the color.
+         */
+        r: number;
+        /**
+         * The green component of the color.
+         */
+        g: number;
+        /**
+         * The blue component of the color.
+         */
+        b: number;
+        constructor(r: number, g: number, b: number);
+    }
+
+    /**
+     * Represents a control point that handles sample sounds.
+     */
+    export class SampleControlPoint extends ControlPoint {
+        /**
+         * The sample bank at this control point.
+         */
+        readonly sampleBank: SampleBank;
+        /**
+         * The sample volume at this control point.
+         */
+        readonly sampleVolume: number;
+        constructor(values: {
+            time: number;
+            sampleBank: SampleBank;
+            sampleVolume: number;
         });
         override toString(): string;
     }
@@ -1603,9 +1882,9 @@ declare module "@rian8337/osu-base" {
     export class TailCircle extends Circle {}
 
     /**
-     * Represents a timing point that changes the beatmap's BPM.
+     * Represents a control point that changes the beatmap's BPM.
      */
-    export class TimingControlPoint extends TimingPoint {
+    export class TimingControlPoint extends ControlPoint {
         /**
          * The amount of milliseconds passed for each beat.
          */
@@ -1696,6 +1975,49 @@ declare module "@rian8337/osu-base" {
     //#region Enums
 
     /**
+     * Represents the speed of the countdown before the first hit object.
+     */
+    export enum BeatmapCountdown {
+        noCountDown,
+        normal,
+        half,
+        double,
+    }
+
+    /**
+     * Represents the draw order of hit circle overlays compared to hit numbers.
+     *
+     * - `noChange` = use skin setting
+     * - `below` = draw overlays under numbers
+     * - `above` = draw overlays on top of numbers
+     */
+    export enum BeatmapOverlayPosition {
+        noChange = "NoChange",
+        below = "Below",
+        above = "Above",
+    }
+
+    /**
+     * Represents the grid size setting in the editor.
+     */
+    export enum EditorGridSize {
+        tiny = 1 << 2,
+        small = 1 << 3,
+        medium = 1 << 4,
+        large = 1 << 5,
+    }
+
+    /**
+     * Represents game modes available in the game.
+     */
+    export enum GameMode {
+        osu,
+        taiko,
+        catch,
+        mania,
+    }
+
+    /**
      * Mode enum to switch things between osu!droid and osu!standard.
      */
     export enum modes {
@@ -1749,6 +2071,16 @@ declare module "@rian8337/osu-base" {
         APPROVED = 2,
         QUALIFIED = 3,
         LOVED = 4,
+    }
+
+    /**
+     * Represents available sample banks.
+     */
+    export enum SampleBank {
+        none = 0,
+        normal = 1,
+        soft = 2,
+        drum = 3,
     }
 
     //#endregion
@@ -1937,6 +2269,26 @@ declare module "@rian8337/osu-base" {
         removeParameter(param: string): this;
     }
 
+    /**
+     * Represents a control point in a beatmap.
+     */
+    abstract class ControlPoint {
+        /**
+         * The time at which the control point takes effect in milliseconds.
+         */
+        readonly time: number;
+        constructor(values: {
+            /**
+             * The time at which the control point takes effect in milliseconds.
+             */
+            time: number;
+        });
+        /**
+         * Returns a string representative of the class.
+         */
+        abstract toString(): string;
+    }
+
     abstract class HitWindow {
         /**
          * The overall difficulty of this hit window.
@@ -1961,26 +2313,6 @@ declare module "@rian8337/osu-base" {
          */
         abstract hitWindowFor50(isPrecise?: boolean): number;
         constructor(overallDifficulty: number);
-    }
-
-    /**
-     * Represents a timing point in a beatmap.
-     */
-    abstract class TimingPoint {
-        /**
-         * The time at which the timing point takes effect in milliseconds.
-         */
-        readonly time: number;
-        constructor(values: {
-            /**
-             * The time at which the timing point takes effect in milliseconds.
-             */
-            time: number;
-        });
-        /**
-         * Returns a string representative of the class.
-         */
-        abstract toString(): string;
     }
 
     //#endregion

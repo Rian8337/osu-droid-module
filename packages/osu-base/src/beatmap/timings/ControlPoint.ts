@@ -1,15 +1,15 @@
 /**
- * Represents a timing point in a beatmap.
+ * Represents a control point in a beatmap.
  */
-export abstract class TimingPoint {
+export abstract class ControlPoint {
     /**
-     * The time at which the timing point takes effect in milliseconds.
+     * The time at which the control point takes effect in milliseconds.
      */
     readonly time: number;
 
     constructor(values: {
         /**
-         * The time at which the timing point takes effect in milliseconds.
+         * The time at which the control point takes effect in milliseconds.
          */
         time: number;
     }) {

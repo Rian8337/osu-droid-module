@@ -15,6 +15,18 @@ import { MapStats } from "../utils/MapStats";
 import { MathUtils } from "../mathutil/MathUtils";
 import { ParserConstants } from "../constants/ParserConstants";
 import { Mod } from "../mods/Mod";
+import { BeatmapBackground } from "./events/BeatmapBackground";
+import { BeatmapCountdown } from "../constants/BeatmapCountdown";
+import { SampleBank } from "../constants/SampleBank";
+import { GameMode } from "../constants/GameMode";
+import { BeatmapOverlayPosition } from "../constants/BeatmapOverlayPosition";
+import { EditorGridSize } from "../constants/EditorGridSize";
+import { BeatmapVideo } from "./events/BeatmapVideo";
+import { EffectControlPoint } from "./timings/EffectControlPoint";
+import { ControlPoint } from "./timings/ControlPoint";
+import { SampleControlPoint } from "./timings/SampleControlPoint";
+import { ControlPointManager } from "./timings/ControlPointManager";
+import { RGBColor } from "../utils/RGBColor";
 
 /**
  * A beatmap parser.
@@ -63,23 +75,23 @@ export class Parser {
         // Objects may be out of order *only* if a user has manually edited an .osu file.
         // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
         // Sort is used to guarantee that the parsing order of hitobjects with equal start times is maintained (stably-sorted).
-        this.map.objects.sort((a, b) => {
+        this.map.hitObjects.objects.sort((a, b) => {
             return a.startTime - b.startTime;
         });
 
         if (this.map.formatVersion >= 6) {
-            this.applyStacking(0, this.map.objects.length - 1);
+            this.applyStacking(0, this.map.hitObjects.objects.length - 1);
         } else {
             this.applyStackingOld();
         }
 
         const circleSize: number = new MapStats({
-            cs: this.map.cs,
+            cs: this.map.difficulty.cs,
             mods,
         }).calculate().cs!;
         const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
 
-        this.map.objects.forEach((h) => {
+        this.map.hitObjects.objects.forEach((h) => {
             h.scale = scale;
 
             if (h instanceof Slider) {
@@ -130,8 +142,11 @@ export class Parser {
 
         // [SectionName]
         if (line.startsWith("[")) {
-            if (this.section === "Difficulty" && !this.map.ar) {
-                this.map.ar = this.map.od;
+            if (
+                this.section === "Difficulty" &&
+                this.map.difficulty.ar === undefined
+            ) {
+                this.map.difficulty.ar = this.map.difficulty.od;
             }
             this.section = line.substring(1, line.length - 1);
             return this;
@@ -145,6 +160,9 @@ export class Parser {
             case "General":
                 this.general();
                 break;
+            case "Editor":
+                this.editor();
+                break;
             case "Metadata":
                 this.metadata();
                 break;
@@ -157,17 +175,21 @@ export class Parser {
             case "TimingPoints":
                 this.timingPoints();
                 break;
+            case "Colours":
+                this.colors();
+                break;
             case "HitObjects":
                 // Need to check if the beatmap doesn't have an uninherited timing point.
                 // This exists in cases such as /b/2290233 where the beatmap has been
                 // edited by the user.
                 //
                 // In lazer, the default BPM is set to 60 (60000 / 1000).
-                if (this.map.timingPoints.length === 0) {
-                    this.map.timingPoints.push(
+                if (this.map.controlPoints.timing.points.length === 0) {
+                    this.map.controlPoints.timing.points.push(
                         new TimingControlPoint({
                             time: Number.NEGATIVE_INFINITY,
                             msPerBeat: 1000,
+                            timeSignature: 4,
                         })
                     );
                 }
@@ -215,8 +237,8 @@ export class Parser {
     private property(): string[] {
         const s: string[] = this.currentLine.split(":");
 
-        s[0] = this.setPosition(s[0]);
-        s[1] = this.setPosition(s.slice(1).join(":"));
+        s[0] = this.setPosition(s[0]).trim();
+        s[1] = this.setPosition(s.slice(1).join(":")).trim();
 
         return s;
     }
@@ -229,10 +251,86 @@ export class Parser {
 
         switch (p[0]) {
             case "AudioFilename":
-                this.map.audioFileName = p[1];
+                this.map.general.audioFilename = p[1];
+                break;
+            case "AudioLeadIn":
+                this.map.general.audioLeadIn = parseInt(p[1]);
+                break;
+            case "PreviewTime":
+                this.map.general.previewTime = parseInt(p[1]);
+                break;
+            case "Countdown":
+                this.map.general.countdown = <BeatmapCountdown>parseInt(p[1]);
+                break;
+            case "SampleSet":
+                switch (p[1]) {
+                    case "Normal":
+                        this.map.general.sampleBank = SampleBank.normal;
+                        break;
+                    case "Soft":
+                        this.map.general.sampleBank = SampleBank.soft;
+                        break;
+                    case "Drum":
+                        this.map.general.sampleBank = SampleBank.drum;
+                        break;
+                }
                 break;
             case "StackLeniency":
-                this.map.stackLeniency = parseFloat(p[1]);
+                this.map.general.stackLeniency = parseFloat(p[1]);
+                break;
+            case "Mode":
+                this.map.general.mode = <GameMode>parseInt(p[1]);
+                break;
+            case "LetterboxInBreaks":
+                this.map.general.letterBoxInBreaks = !!parseInt(p[1]);
+                break;
+            case "UseSkinSprites":
+                this.map.general.useSkinSprites = !!parseInt(p[1]);
+                break;
+            case "OverlayPosition":
+                this.map.general.overlayPosition = <BeatmapOverlayPosition>p[1];
+                break;
+            case "SkinPreference":
+                this.map.general.skinPreference = p[1] ?? "";
+                break;
+            case "EpilepsyWarning":
+                this.map.general.epilepsyWarning = !!parseInt(p[1]);
+                break;
+            case "CountdownOffset":
+                this.map.general.countdownOffset = parseInt(p[1] || "0");
+                break;
+            case "WidescreenStoryboard":
+                this.map.general.widescreenStoryboard = !!parseInt(p[1]);
+                break;
+            case "SamplesMatchPlaybackRate":
+                this.map.general.samplesMatchPlaybackRate = !!parseInt(p[1]);
+                break;
+        }
+    }
+
+    /**
+     * Processes the editor section of a beatmap.
+     */
+    private editor(): void {
+        const p: string[] = this.property();
+
+        switch (p[0]) {
+            case "Bookmarks":
+                this.map.editor.bookmarks = p[1]
+                    .split(",")
+                    .map((v) => parseInt(v));
+                break;
+            case "DistanceSpacing":
+                this.map.editor.distanceSnap = parseFloat(p[1]);
+                break;
+            case "BeatDivisor":
+                this.map.editor.beatDivisor = parseFloat(p[1]);
+                break;
+            case "GridSize":
+                this.map.editor.gridSize = <EditorGridSize>parseInt(p[1]);
+                break;
+            case "TimelineZoom":
+                this.map.editor.timelineZoom = parseFloat(p[1]);
                 break;
         }
     }
@@ -245,28 +343,34 @@ export class Parser {
 
         switch (p[0]) {
             case "Title":
-                this.map.title = p[1];
+                this.map.metadata.title = p[1];
                 break;
             case "TitleUnicode":
-                this.map.titleUnicode = p[1];
+                this.map.metadata.titleUnicode = p[1];
                 break;
             case "Artist":
-                this.map.artist = p[1];
+                this.map.metadata.artist = p[1];
                 break;
             case "ArtistUnicode":
-                this.map.artistUnicode = p[1];
+                this.map.metadata.artistUnicode = p[1];
                 break;
             case "Creator":
-                this.map.creator = p[1];
+                this.map.metadata.creator = p[1];
                 break;
             case "Version":
-                this.map.version = p[1];
+                this.map.metadata.version = p[1];
+                break;
+            case "Source":
+                this.map.metadata.source = p[1];
+                break;
+            case "Tags":
+                this.map.metadata.tags = p[1].split(" ");
                 break;
             case "BeatmapID":
-                this.map.beatmapId = parseInt(p[1]);
+                this.map.metadata.beatmapId = parseInt(p[1]);
                 break;
             case "BeatmapSetID":
-                this.map.beatmapSetId = parseInt(p[1]);
+                this.map.metadata.beatmapSetId = parseInt(p[1]);
                 break;
         }
     }
@@ -279,11 +383,28 @@ export class Parser {
 
         switch (s[0]) {
             case "0":
-                this.map.backgroundFileName = s[2].replace(/"/g, "");
+                this.map.events.background = new BeatmapBackground(
+                    this.setPosition(s[2]).replace(/"/g, ""),
+                    new Vector2(
+                        parseFloat(this.setPosition(s[3] ?? "0")),
+                        parseFloat(this.setPosition(s[4] ?? "0"))
+                    )
+                );
+                break;
+            case "1":
+            case "Video":
+                this.map.events.video = new BeatmapVideo(
+                    parseInt(this.setPosition(s[1])),
+                    this.setPosition(s[2]).replace(/"/g, ""),
+                    new Vector2(
+                        parseFloat(this.setPosition(s[3] ?? "0")),
+                        parseFloat(this.setPosition(s[4] ?? "0"))
+                    )
+                );
                 break;
             case "2":
             case "Break":
-                this.map.breakPoints.push(
+                this.map.events.breaks.push(
                     new BreakPoint({
                         startTime: parseInt(this.setPosition(s[1])),
                         endTime: parseInt(this.setPosition(s[2])),
@@ -301,22 +422,26 @@ export class Parser {
 
         switch (p[0]) {
             case "CircleSize":
-                this.map.cs = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.cs = parseFloat(this.setPosition(p[1]));
                 break;
             case "OverallDifficulty":
-                this.map.od = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.od = parseFloat(this.setPosition(p[1]));
                 break;
             case "ApproachRate":
-                this.map.ar = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.ar = parseFloat(this.setPosition(p[1]));
                 break;
             case "HPDrainRate":
-                this.map.hp = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.hp = parseFloat(this.setPosition(p[1]));
                 break;
             case "SliderMultiplier":
-                this.map.sv = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.sliderMultiplier = parseFloat(
+                    this.setPosition(p[1])
+                );
                 break;
             case "SliderTickRate":
-                this.map.tickRate = parseFloat(this.setPosition(p[1]));
+                this.map.difficulty.sliderTickRate = parseFloat(
+                    this.setPosition(p[1])
+                );
         }
     }
 
@@ -343,34 +468,140 @@ export class Parser {
         }
 
         const msPerBeat: number = parseFloat(this.setPosition(s[1]));
+
         if (!this.isNumberValid(msPerBeat)) {
             return this.warn(
                 "Ignoring malformed timing point: Value is invalid, too low, or too high"
             );
         }
 
-        const speedMultiplier = msPerBeat < 0 ? 100 / -msPerBeat : 1;
+        const timeSignature: number = parseInt(this.setPosition(s[2])) || 4;
 
-        if (msPerBeat >= 0) {
-            this.map.timingPoints.push(
-                new TimingControlPoint({
-                    time: time,
-                    msPerBeat: msPerBeat,
-                })
+        if (!this.isNumberValid(timeSignature)) {
+            return this.warn(
+                "Ignoring malformed timing point: Value is invalid, too low, or too high"
             );
         }
 
-        // Remove the last difficulty control point if another difficulty control point overrides it at the same time.
-        if (this.map.difficultyTimingPoints.at(-1)?.time === time) {
-            this.map.difficultyTimingPoints.pop();
+        const sampleSet: SampleBank = <SampleBank>(
+            parseInt(this.setPosition(s[3]))
+        );
+
+        if (!this.isNumberValid(sampleSet)) {
+            return this.warn(
+                "Ignoring malformed timing point: Value is invalid, too low, or too high"
+            );
         }
 
-        this.map.difficultyTimingPoints.push(
+        const customSampleBank: number = parseInt(this.setPosition(s[4]));
+
+        if (!this.isNumberValid(customSampleBank)) {
+            return this.warn(
+                "Ignoring malformed timing point: Value is invalid, too low, or too high"
+            );
+        }
+
+        const sampleVolume: number = parseInt(this.setPosition(s[5]));
+
+        if (!this.isNumberValid(sampleVolume)) {
+            return this.warn(
+                "Ignoring malformed timing point: Value is invalid, too low, or too high"
+            );
+        }
+
+        const effectBitFlags: number = parseInt(this.setPosition(s[7]));
+
+        if (!this.isNumberValid(effectBitFlags)) {
+            return this.warn(
+                "Ignoring malformed timing point: Value is invalid, too low, or too high"
+            );
+        }
+
+        if (msPerBeat >= 0) {
+            this.addControlPoint(
+                new TimingControlPoint({
+                    time: time,
+                    msPerBeat: msPerBeat,
+                    timeSignature: timeSignature || 4,
+                }),
+                this.map.controlPoints.timing
+            );
+        }
+
+        this.addControlPoint(
             new DifficultyControlPoint({
                 time: time,
-                speedMultiplier: speedMultiplier,
-            })
+                speedMultiplier: msPerBeat < 0 ? 100 / -msPerBeat : 1,
+            }),
+            this.map.controlPoints.difficulty
         );
+
+        this.addControlPoint(
+            new EffectControlPoint({
+                time: time,
+                effectBitFlags: effectBitFlags,
+            }),
+            this.map.controlPoints.effect
+        );
+
+        this.addControlPoint(
+            new SampleControlPoint({
+                time: time,
+                sampleBank: sampleSet,
+                sampleVolume: sampleVolume,
+            }),
+            this.map.controlPoints.sample
+        );
+    }
+
+    /**
+     * Adds a control point into an array of control point.
+     *
+     * @param controlPoint The control point to add.
+     * @param manager The manager of the control points to add to.
+     */
+    private addControlPoint<T extends ControlPoint>(
+        controlPoint: T,
+        manager: ControlPointManager<T>
+    ): void {
+        // Remove the last control point if another control point overrides it at the same time.
+        if (manager.points.at(-1)?.time === controlPoint.time) {
+            manager.points.pop();
+        }
+
+        manager.points.push(controlPoint);
+    }
+
+    /**
+     * Processes the colors section of a beatmap.
+     */
+    private colors(): void {
+        const p: string[] = this.property();
+
+        const s: number[] = this.setPosition(p[1])
+            .split(",")
+            .map((v) => parseInt(v));
+
+        if ((s.length !== 3 && s.length !== 4) || s.some(Number.isNaN)) {
+            return this.warn("Ignoring malformed color");
+        }
+
+        const color: RGBColor = new RGBColor(s[0], s[1], s[2], s[3]);
+
+        if (p[0].startsWith("Combo")) {
+            this.map.colors.combo.push(color);
+
+            return;
+        }
+
+        switch (p[0]) {
+            case "SliderTrackOverride":
+                this.map.colors.sliderTrackOverride = color;
+                break;
+            case "SliderBorder":
+                this.map.colors.sliderBorder = color;
+                break;
+        }
     }
 
     /**
@@ -390,6 +621,7 @@ export class Parser {
         );
 
         const type: number = parseInt(this.setPosition(s[3]));
+
         if (!this.isNumberValid(time) || isNaN(type)) {
             return this.warn(
                 "Ignoring malformed hitobject: Value is invalid, too low, or too high"
@@ -414,9 +646,9 @@ export class Parser {
                 position: position,
             });
 
-            ++this.map.circles;
+            ++this.map.hitObjects.circles;
 
-            this.map.objects.push(object);
+            this.map.hitObjects.objects.push(object);
         } else if (type & objectTypes.slider) {
             if (s.length < 8) {
                 return this.warn("Ignoring malformed slider");
@@ -457,9 +689,9 @@ export class Parser {
             }
 
             const speedMultiplierTimingPoint: DifficultyControlPoint =
-                this.map.difficultyControlPointAt(time);
+                this.map.controlPoints.difficulty.controlPointAt(time);
             const msPerBeatTimingPoint: TimingControlPoint =
-                this.map.timingControlPointAt(time);
+                this.map.controlPoints.timing.controlPointAt(time);
 
             const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");
@@ -521,8 +753,8 @@ export class Parser {
                     ParserConstants.MAX_SPEEDMULTIPLIER_VALUE
                 ),
                 msPerBeat: msPerBeatTimingPoint.msPerBeat,
-                mapSliderVelocity: this.map.sv,
-                mapTickRate: this.map.tickRate,
+                mapSliderVelocity: this.map.difficulty.sliderMultiplier,
+                mapTickRate: this.map.difficulty.sliderTickRate,
                 // Prior to v8, speed multipliers don't adjust for how many ticks are generated over the same distance.
                 // This results in more (or less) ticks being generated in <v8 maps for the same time duration.
                 //
@@ -538,8 +770,8 @@ export class Parser {
                         : 1
                     : 0,
             });
-            ++this.map.sliders;
-            this.map.objects.push(object);
+            ++this.map.hitObjects.sliders;
+            this.map.hitObjects.objects.push(object);
         } else if (type & objectTypes.spinner) {
             const object = new Spinner({
                 startTime: time,
@@ -553,9 +785,9 @@ export class Parser {
                 );
             }
 
-            ++this.map.spinners;
+            ++this.map.hitObjects.spinners;
 
-            this.map.objects.push(object);
+            this.map.hitObjects.objects.push(object);
         }
     }
 
@@ -582,7 +814,7 @@ export class Parser {
         const stackDistance: number = 3;
 
         let timePreempt: number = 600;
-        const ar: number = <number>this.map.ar;
+        const ar: number = this.map.difficulty.ar!;
         if (ar > 5) {
             timePreempt = 1200 + ((450 - 1200) * (ar - 5)) / 5;
         } else if (ar < 5) {
@@ -592,23 +824,24 @@ export class Parser {
         }
 
         let extendedEndIndex: number = endIndex;
-        const stackThreshold: number = timePreempt * this.map.stackLeniency;
+        const stackThreshold: number =
+            timePreempt * this.map.general.stackLeniency;
 
-        if (endIndex < this.map.objects.length - 1) {
+        if (endIndex < this.map.hitObjects.objects.length - 1) {
             for (let i = endIndex; i >= startIndex; --i) {
                 let stackBaseIndex: number = i;
                 for (
                     let n: number = stackBaseIndex + 1;
-                    n < this.map.objects.length;
+                    n < this.map.hitObjects.objects.length;
                     ++n
                 ) {
                     const stackBaseObject: HitObject =
-                        this.map.objects[stackBaseIndex];
+                        this.map.hitObjects.objects[stackBaseIndex];
                     if (stackBaseObject instanceof Spinner) {
                         break;
                     }
 
-                    const objectN: HitObject = this.map.objects[n];
+                    const objectN: HitObject = this.map.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         break;
                     }
@@ -638,7 +871,10 @@ export class Parser {
 
                 if (stackBaseIndex > extendedEndIndex) {
                     extendedEndIndex = stackBaseIndex;
-                    if (extendedEndIndex === this.map.objects.length - 1) {
+                    if (
+                        extendedEndIndex ===
+                        this.map.hitObjects.objects.length - 1
+                    ) {
                         break;
                     }
                 }
@@ -649,7 +885,7 @@ export class Parser {
         for (let i = extendedEndIndex; i > startIndex; --i) {
             let n: number = i;
 
-            let objectI: HitObject = this.map.objects[i];
+            let objectI: HitObject = this.map.hitObjects.objects[i];
             if (
                 objectI.stackHeight !== 0 ||
                 objectI.type & objectTypes.spinner
@@ -659,7 +895,7 @@ export class Parser {
 
             if (objectI.type & objectTypes.circle) {
                 while (--n >= 0) {
-                    const objectN: HitObject = this.map.objects[n];
+                    const objectN: HitObject = this.map.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         continue;
                     }
@@ -686,7 +922,8 @@ export class Parser {
                         const offset: number =
                             objectI.stackHeight - objectN.stackHeight + 1;
                         for (let j = n + 1; j <= i; ++j) {
-                            const objectJ: HitObject = this.map.objects[j];
+                            const objectJ: HitObject =
+                                this.map.hitObjects.objects[j];
                             if (
                                 (<Slider>objectN).endPosition.getDistance(
                                     objectJ.position
@@ -708,7 +945,7 @@ export class Parser {
                 }
             } else if (objectI instanceof Slider) {
                 while (--n >= startIndex) {
-                    const objectN: HitObject = this.map.objects[n];
+                    const objectN: HitObject = this.map.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         continue;
                     }
@@ -742,7 +979,7 @@ export class Parser {
     private applyStackingOld(): void {
         const stackDistance: number = 3;
         let timePreempt: number = 600;
-        const ar: number = <number>this.map.ar;
+        const ar: number = this.map.difficulty.ar!;
 
         if (ar > 5) {
             timePreempt = 1200 + ((450 - 1200) * (ar - 5)) / 5;
@@ -752,8 +989,8 @@ export class Parser {
             timePreempt = 1200;
         }
 
-        for (let i = 0; i < this.map.objects.length; ++i) {
-            const currentObject: HitObject = this.map.objects[i];
+        for (let i = 0; i < this.map.hitObjects.objects.length; ++i) {
+            const currentObject: HitObject = this.map.hitObjects.objects[i];
 
             if (
                 currentObject.stackHeight !== 0 &&
@@ -765,12 +1002,12 @@ export class Parser {
             let startTime: number = currentObject.endTime;
             let sliderStack: number = 0;
 
-            for (let j = i + 1; j < this.map.objects.length; ++j) {
+            for (let j = i + 1; j < this.map.hitObjects.objects.length; ++j) {
                 const stackThreshold: number =
-                    timePreempt * this.map.stackLeniency;
+                    timePreempt * this.map.general.stackLeniency;
 
                 if (
-                    this.map.objects[j].startTime - stackThreshold >
+                    this.map.hitObjects.objects[j].startTime - stackThreshold >
                     startTime
                 ) {
                     break;
@@ -783,20 +1020,21 @@ export class Parser {
                         : currentObject.position;
 
                 if (
-                    this.map.objects[j].position.getDistance(
+                    this.map.hitObjects.objects[j].position.getDistance(
                         currentObject.position
                     ) < stackDistance
                 ) {
                     ++currentObject.stackHeight;
-                    startTime = this.map.objects[j].endTime;
+                    startTime = this.map.hitObjects.objects[j].endTime;
                 } else if (
-                    this.map.objects[j].position.getDistance(position2) <
-                    stackDistance
+                    this.map.hitObjects.objects[j].position.getDistance(
+                        position2
+                    ) < stackDistance
                 ) {
                     // Case for sliders - bump notes down and right, rather than up and left.
                     ++sliderStack;
-                    this.map.objects[j].stackHeight -= sliderStack;
-                    startTime = this.map.objects[j].endTime;
+                    this.map.hitObjects.objects[j].stackHeight -= sliderStack;
+                    startTime = this.map.hitObjects.objects[j].endTime;
                 }
             }
         }
