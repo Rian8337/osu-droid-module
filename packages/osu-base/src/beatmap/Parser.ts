@@ -130,7 +130,7 @@ export class Parser {
 
         // [SectionName]
         if (line.startsWith("[")) {
-            if (this.section === "Difficulty" && !this.map.ar) {
+            if (this.section === "Difficulty" && this.map.ar === undefined) {
                 this.map.ar = this.map.od;
             }
             this.section = line.substring(1, line.length - 1);
