@@ -15,21 +15,31 @@ export class SampleControlPoint extends ControlPoint {
      */
     readonly sampleVolume: number;
 
+    /**
+     * The index of the sample bank, if this sample bank uses custom samples.
+     *
+     * If this is 0, the beatmap's sample should be used instead.
+     */
+    readonly customSampleBank: number;
+
     constructor(values: {
         time: number;
         sampleBank: SampleBank;
         sampleVolume: number;
+        customSampleBank: number;
     }) {
         super(values);
 
         this.sampleBank = values.sampleBank;
         this.sampleVolume = values.sampleVolume;
+        this.customSampleBank = values.customSampleBank;
     }
 
     override isRedundant(existing: SampleControlPoint): boolean {
         return (
             this.sampleBank === existing.sampleBank &&
-            this.sampleVolume === existing.sampleVolume
+            this.sampleVolume === existing.sampleVolume &&
+            this.customSampleBank === existing.customSampleBank
         );
     }
 

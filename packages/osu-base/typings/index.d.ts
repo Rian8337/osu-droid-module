@@ -1763,10 +1763,17 @@ declare module "@rian8337/osu-base" {
          * The sample volume at this control point.
          */
         readonly sampleVolume: number;
+        /**
+         * The index of the sample bank, if this sample bank uses custom samples.
+         *
+         * If this is 0, the beatmap's sample should be used instead.
+         */
+        readonly customSampleBank: number;
         constructor(values: {
             time: number;
             sampleBank: SampleBank;
             sampleVolume: number;
+            customSampleBank: number;
         });
         override isRedundant(existing: EffectControlPoint): boolean;
         override toString(): string;

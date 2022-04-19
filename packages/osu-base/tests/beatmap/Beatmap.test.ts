@@ -146,11 +146,13 @@ test("Test sample control point getter", () => {
             time: 1000,
             sampleBank: SampleBank.none,
             sampleVolume: 100,
+            customSampleBank: 0,
         }),
         new SampleControlPoint({
             time: 5000,
             sampleBank: SampleBank.none,
             sampleVolume: 100,
+            customSampleBank: 0,
         })
     );
 

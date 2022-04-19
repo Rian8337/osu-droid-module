@@ -44,7 +44,7 @@ test("Test control points section", () => {
     expect(beatmap.controlPoints.difficulty.points.length).toBe(13);
     expect(beatmap.controlPoints.effect.points.length).toBe(15);
     expect(beatmap.controlPoints.timing.points.length).toBe(5);
-    expect(beatmap.controlPoints.sample.points.length).toBe(44);
+    expect(beatmap.controlPoints.sample.points.length).toBe(526);
 });
 
 test("Test difficulty section", () => {

@@ -555,6 +555,7 @@ export class Parser {
                 time: time,
                 sampleBank: sampleSet,
                 sampleVolume: sampleVolume,
+                customSampleBank: customSampleBank,
             }),
             this.map.controlPoints.sample
         );
