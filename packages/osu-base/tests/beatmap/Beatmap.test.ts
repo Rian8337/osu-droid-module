@@ -70,11 +70,11 @@ test("Test timing control point getter", () => {
 
     let timingPoint = beatmap.controlPoints.timing.controlPointAt(0);
 
-    expect(timingPoint.time).toBe(1000);
+    expect(timingPoint?.time).toBeUndefined();
 
     timingPoint = beatmap.controlPoints.timing.controlPointAt(7000);
 
-    expect(timingPoint.time).toBe(5000);
+    expect(timingPoint?.time).toBe(5000);
 });
 
 test("Test difficulty control point getter", () => {
@@ -93,11 +93,11 @@ test("Test difficulty control point getter", () => {
 
     let timingPoint = beatmap.controlPoints.difficulty.controlPointAt(0);
 
-    expect(timingPoint.time).toBe(1000);
+    expect(timingPoint?.time).toBeUndefined();
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
 
-    expect(timingPoint.time).toBe(5000);
+    expect(timingPoint?.time).toBe(5000);
 });
 
 test("Test slider ticks getter", () => {
