@@ -30,7 +30,7 @@ export default async function getStrainChart(
     const sectionLength: number = 400;
 
     const currentSectionEnd: number =
-        Math.ceil(beatmap.map.objects[0].startTime / sectionLength) *
+        Math.ceil(beatmap.map.hitObjects.objects[0].startTime / sectionLength) *
         sectionLength;
 
     const strainInformations: {
