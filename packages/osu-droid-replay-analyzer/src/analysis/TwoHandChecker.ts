@@ -77,7 +77,7 @@ export class TwoHandChecker {
         this.data = data;
 
         const stats: MapStats = new MapStats({
-            od: this.map.map.od,
+            od: this.map.map.difficulty.od,
             mods: this.map.mods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods
@@ -354,7 +354,7 @@ export class TwoHandChecker {
                 beatmaps[o.cursorIndex] = map;
             }
 
-            beatmaps[o.cursorIndex].objects.push(o.object.object);
+            beatmaps[o.cursorIndex].hitObjects.objects.push(o.object.object);
         });
 
         this.map.objects.length = 0;

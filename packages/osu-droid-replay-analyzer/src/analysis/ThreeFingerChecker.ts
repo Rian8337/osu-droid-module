@@ -208,7 +208,7 @@ export class ThreeFingerChecker {
         this.data = data;
 
         const stats: MapStats = new MapStats({
-            od: this.map.map.od,
+            od: this.map.map.difficulty.od,
             mods: this.map.mods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods
@@ -289,7 +289,7 @@ export class ThreeFingerChecker {
             (m) => m instanceof ModPrecise
         );
 
-        for (const breakPoint of this.map.map.breakPoints) {
+        for (const breakPoint of this.map.map.events.breaks) {
             const beforeIndex: number = MathUtils.clamp(
                 objects.findIndex(
                     (o) => o.object.endTime >= breakPoint.startTime
