@@ -26,6 +26,13 @@ export class SampleControlPoint extends ControlPoint {
         this.sampleVolume = values.sampleVolume;
     }
 
+    override isRedundant(existing: SampleControlPoint): boolean {
+        return (
+            this.sampleBank === existing.sampleBank &&
+            this.sampleVolume === existing.sampleVolume
+        );
+    }
+
     override toString(): string {
         return (
             "{ time: " +

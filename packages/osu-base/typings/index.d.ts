@@ -468,11 +468,24 @@ declare module "@rian8337/osu-base" {
         readonly points: T[];
 
         /**
-         * Gets the control point that applies at a given time.
+         * Finds the control point that is active at a given time.
          *
          * @param time The time.
+         * @returns The active control point at the given time, `null` if there is none.
          */
-        controlPointAt(time: number): T;
+        controlPointAt(time: number): T | null;
+
+        /**
+         * Adds a new control point.
+         *
+         * Note that the provided control point may not be added if the correct state is already present at the control point's time.
+         *
+         * Additionally, it is advised to use this instead of manually adding as array sorting will be ensured.
+         *
+         * @param controlPoint The control point to add.
+         * @returns Whether the control point was added.
+         */
+        add(controlPoint: T): boolean;
     }
 
     /**
@@ -484,6 +497,7 @@ declare module "@rian8337/osu-base" {
          */
         readonly speedMultiplier: number;
         constructor(values: { time: number; speedMultiplier: number });
+        override isRedundant(existing: DifficultyControlPoint): boolean;
         override toString(): string;
     }
 
@@ -524,6 +538,7 @@ declare module "@rian8337/osu-base" {
          */
         readonly isKiai: boolean;
         constructor(values: { time: number; effectBitFlags: number });
+        override isRedundant(existing: EffectControlPoint): boolean;
         override toString(): string;
     }
 
@@ -1753,6 +1768,7 @@ declare module "@rian8337/osu-base" {
             sampleBank: SampleBank;
             sampleVolume: number;
         });
+        override isRedundant(existing: EffectControlPoint): boolean;
         override toString(): string;
     }
 
@@ -1972,6 +1988,7 @@ declare module "@rian8337/osu-base" {
          */
         readonly msPerBeat: number;
         constructor(values: { time: number; msPerBeat: number });
+        override isRedundant(existing: TimingControlPoint): boolean;
         override toString(): string;
     }
 
@@ -2367,6 +2384,12 @@ declare module "@rian8337/osu-base" {
              */
             time: number;
         });
+        /**
+         * Determines whether this control point results in a meaningful change when placed alongside another.
+         *
+         * @param existing An existing control point to compare with.
+         */
+        abstract isRedundant(existing: ControlPoint): boolean;
         /**
          * Returns a string representative of the class.
          */

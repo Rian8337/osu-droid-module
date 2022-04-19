@@ -561,21 +561,20 @@ export class Parser {
     }
 
     /**
-     * Adds a control point into an array of control point.
+     * Adds a control point.
      *
      * @param controlPoint The control point to add.
-     * @param manager The manager of the control points to add to.
      */
     private addControlPoint<T extends ControlPoint>(
         controlPoint: T,
         manager: ControlPointManager<T>
     ): void {
         // Remove the last control point if another control point overrides it at the same time.
-        if (manager.points.at(-1)?.time === controlPoint.time) {
+        while (manager.points.at(-1)?.time === controlPoint.time) {
             manager.points.pop();
         }
 
-        manager.points.push(controlPoint);
+        manager.add(controlPoint);
     }
 
     /**
@@ -723,9 +722,9 @@ export class Parser {
             }
 
             const speedMultiplierTimingPoint: DifficultyControlPoint =
-                this.map.controlPoints.difficulty.controlPointAt(time);
+                this.map.controlPoints.difficulty.controlPointAt(time)!;
             const msPerBeatTimingPoint: TimingControlPoint =
-                this.map.controlPoints.timing.controlPointAt(time);
+                this.map.controlPoints.timing.controlPointAt(time)!;
 
             const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");

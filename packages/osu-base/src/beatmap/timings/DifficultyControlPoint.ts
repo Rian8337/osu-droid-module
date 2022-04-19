@@ -14,6 +14,10 @@ export class DifficultyControlPoint extends ControlPoint {
         this.speedMultiplier = values.speedMultiplier;
     }
 
+    override isRedundant(existing: DifficultyControlPoint): boolean {
+        return this.speedMultiplier === existing.speedMultiplier;
+    }
+
     override toString(): string {
         return (
             "{ time: " +

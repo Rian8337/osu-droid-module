@@ -17,6 +17,13 @@ export abstract class ControlPoint {
     }
 
     /**
+     * Determines whether this control point results in a meaningful change when placed alongside another.
+     *
+     * @param existing An existing control point to compare with.
+     */
+    abstract isRedundant(existing: ControlPoint): boolean;
+
+    /**
      * Returns a string representative of the class.
      */
     abstract toString(): string;

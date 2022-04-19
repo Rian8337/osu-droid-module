@@ -25,6 +25,11 @@ export class TimingControlPoint extends ControlPoint {
         this.timeSignature = values.timeSignature;
     }
 
+    override isRedundant(): boolean {
+        // Timing points are never redundant as they can change the time signature.
+        return false;
+    }
+
     override toString(): string {
         return (
             "{ time: " +

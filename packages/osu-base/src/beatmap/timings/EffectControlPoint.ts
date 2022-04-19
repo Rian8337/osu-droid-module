@@ -15,6 +15,10 @@ export class EffectControlPoint extends ControlPoint {
         this.isKiai = !!(values.effectBitFlags & (1 << 0));
     }
 
+    override isRedundant(existing: EffectControlPoint): boolean {
+        return this.isKiai === existing.isKiai;
+    }
+
     override toString(): string {
         return "{ time: " + this.time + ", " + "kiai: " + this.isKiai + " }";
     }
