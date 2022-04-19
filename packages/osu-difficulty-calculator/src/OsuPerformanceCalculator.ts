@@ -219,8 +219,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         const ncircles: number = this.stars.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? nobjects - this.stars.map.spinners
-            : this.stars.map.circles;
+            ? nobjects - this.stars.map.hitObjects.spinners
+            : this.stars.map.hitObjects.circles;
 
         if (ncircles === 0) {
             return;

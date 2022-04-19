@@ -202,8 +202,8 @@ export abstract class PerformanceCalculator {
         const miss: number = this.computedAccuracy.nmiss;
         const combo: number = params.combo ?? maxCombo - miss;
         const mod: Mod[] = this.stars.mods;
-        const baseAR: number = this.stars.map.ar!;
-        const baseOD: number = this.stars.map.od;
+        const baseAR: number = this.stars.map.difficulty.ar!;
+        const baseOD: number = this.stars.map.difficulty.od;
 
         // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
         this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
@@ -235,7 +235,8 @@ export abstract class PerformanceCalculator {
             this.finalMultiplier *=
                 1 -
                 Math.pow(
-                    this.stars.map.spinners / this.stars.objects.length,
+                    this.stars.map.hitObjects.spinners /
+                        this.stars.objects.length,
                     0.85
                 );
         }
@@ -259,7 +260,8 @@ export abstract class PerformanceCalculator {
         });
 
         // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-        const estimateDifficultSliders: number = this.stars.map.sliders * 0.15;
+        const estimateDifficultSliders: number =
+            this.stars.map.hitObjects.sliders * 0.15;
         const estimateSliderEndsDropped: number = MathUtils.clamp(
             Math.min(
                 this.computedAccuracy.n300 +
@@ -271,7 +273,7 @@ export abstract class PerformanceCalculator {
             estimateDifficultSliders
         );
 
-        if (this.stars.map.sliders > 0) {
+        if (this.stars.map.hitObjects.sliders > 0) {
             this.sliderNerfFactor =
                 (1 - this.stars.attributes.sliderFactor) *
                     Math.pow(
@@ -307,9 +309,9 @@ export abstract class PerformanceCalculator {
     ): number {
         let comboBasedMissCount: number = 0;
 
-        if (this.stars.map.sliders > 0) {
+        if (this.stars.map.hitObjects.sliders > 0) {
             const fullComboThreshold: number =
-                maxCombo - 0.1 * this.stars.map.sliders;
+                maxCombo - 0.1 * this.stars.map.hitObjects.sliders;
 
             if (combo < fullComboThreshold) {
                 // We're clamping miss count because since it's derived from combo, it can

@@ -113,10 +113,10 @@ export abstract class StarRating {
         const mod: Mod[] = (this.mods = params.mods ?? this.mods);
 
         this.stats = new MapStats({
-            cs: map.cs,
-            ar: map.ar,
-            od: map.od,
-            hp: map.hp,
+            cs: map.difficulty.cs,
+            ar: map.difficulty.ar,
+            od: map.difficulty.od,
+            hp: map.difficulty.hp,
             mods: mod,
             speedMultiplier: params.stats?.speedMultiplier ?? 1,
             oldStatistics: params.stats?.oldStatistics ?? false,
@@ -137,7 +137,7 @@ export abstract class StarRating {
         this.objects.length = 0;
         this.objects.push(
             ...new DifficultyHitObjectCreator().generateDifficultyObjects({
-                objects: this.map.objects,
+                objects: this.map.hitObjects.objects,
                 circleSize: <number>this.stats.cs,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: mode,
