@@ -72,6 +72,10 @@ test("Test timing control point getter", () => {
 
     expect(timingPoint?.time).toBeUndefined();
 
+    timingPoint = beatmap.controlPoints.timing.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
+
     timingPoint = beatmap.controlPoints.timing.controlPointAt(7000);
 
     expect(timingPoint?.time).toBe(5000);
@@ -94,6 +98,10 @@ test("Test difficulty control point getter", () => {
     let timingPoint = beatmap.controlPoints.difficulty.controlPointAt(0);
 
     expect(timingPoint?.time).toBeUndefined();
+
+    timingPoint = beatmap.controlPoints.difficulty.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
 
