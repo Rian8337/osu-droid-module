@@ -20,6 +20,7 @@ const createGlobalSliderValues = () => {
         type: objectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 1,
+        nodeSamples: [],
         path: new SliderPath({
             pathType: PathType.Linear,
             controlPoints: controlPoints,

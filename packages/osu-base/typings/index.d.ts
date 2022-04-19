@@ -569,9 +569,20 @@ declare module "@rian8337/osu-base" {
          */
         get stackOffset(): Vector2;
         /**
-         * Whether or not this hitobject represents a new combo in the beatmap.
+         * Whether this hit object represents a new combo.
          */
         readonly isNewCombo: boolean;
+        /**
+         * How many combo colors to skip, if this object starts a new combo.
+         */
+        readonly comboOffset: number;
+        /**
+         * The samples to be played when this hit object is hit.
+         *
+         * In the case of sliders, this is the sample of the curve body
+         * and can be treated as the default samples for the hit object.
+         */
+        samples: HitSampleInfo[];
         /**
          * The stack height of the hitobject.
          */
@@ -598,6 +609,50 @@ declare module "@rian8337/osu-base" {
          * Returns the string representative of the class.
          */
         abstract toString(): string;
+    }
+
+    /**
+     * Represents a gameplay hit sample.
+     */
+    export class HitSampleInfo {
+        static readonly HIT_WHISTLE: string;
+        static readonly HIT_FINISH: string;
+        static readonly HIT_NORMAL: string;
+        static readonly HIT_CLAP: string;
+        /**
+         * The name of the sample.
+         */
+        readonly name: string;
+        /**
+         * The bank to load the sample from.
+         */
+        readonly bank?: SampleBank;
+        /**
+         * The sample volume.
+         *
+         * If this is 0, the control point's volume should be used instead.
+         */
+        readonly volume: number;
+        /**
+         * The index of the sample bank, if this sample bank uses custom samples.
+         *
+         * If this is 0, the control point's sample index should be used instead.
+         */
+        readonly customSampleBank: number;
+        /**
+         * Whether this hit sample is layered.
+         *
+         * Layered hit sample are automatically added in all modes (except osu!mania),
+         * but can be disabled using the layered skin config option.
+         */
+        readonly isLayered: boolean;
+        constructor(
+            name: string,
+            bank?: SampleBank,
+            customSampleBank?: number,
+            volume?: number,
+            isLayered?: boolean
+        );
     }
 
     export abstract class Interpolation {
@@ -1655,6 +1710,33 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
+     * Represents an information about a hitobject-specific sample bank.
+     */
+    export class SampleBankInfo {
+        /**
+         * The name of the sample bank file, if this sample bank uses custom samples.
+         */
+        filename: string;
+        /**
+         * The main sample bank.
+         */
+        normal: SampleBank;
+        /**
+         * The addition sample bank.
+         */
+        add: SampleBank;
+        /**
+         * The volume at which the sample bank is played.
+         */
+        volume: number;
+        /**
+         * The index of the sample bank, if this sample bank uses custom samples.
+         */
+        customSampleBank: number;
+        constructor(bankInfo?: SampleBankInfo);
+    }
+
+    /**
      * Represents a control point that handles sample sounds.
      */
     export class SampleControlPoint extends ControlPoint {
@@ -2031,7 +2113,9 @@ declare module "@rian8337/osu-base" {
     export enum objectTypes {
         circle = 1 << 0,
         slider = 1 << 1,
+        newCombo = 1 << 2,
         spinner = 1 << 3,
+        comboOffset = (1 << 4) | (1 << 5) | (1 << 6),
     }
 
     /**

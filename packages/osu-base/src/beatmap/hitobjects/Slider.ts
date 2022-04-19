@@ -5,6 +5,7 @@ import { HeadCircle } from "./sliderObjects/HeadCircle";
 import { RepeatPoint } from "./sliderObjects/RepeatPoint";
 import { SliderTick } from "./sliderObjects/SliderTick";
 import { TailCircle } from "./sliderObjects/TailCircle";
+import { HitSampleInfo } from "./HitSampleInfo";
 
 /**
  * Represents a slider in a beatmap.
@@ -64,6 +65,11 @@ export class Slider extends HitObject {
     readonly tailCircle: TailCircle;
 
     /**
+     * The node samples of this slider.
+     */
+    readonly nodeSamples: HitSampleInfo[][];
+
+    /**
      * The duration of this slider.
      */
     get duration(): number {
@@ -96,6 +102,9 @@ export class Slider extends HitObject {
         startTime: number;
         type: number;
         position: Vector2;
+        newCombo?: boolean;
+        comboOffset?: number;
+        nodeSamples: HitSampleInfo[][];
         repetitions: number;
         path: SliderPath;
         speedMultiplier: number;
@@ -113,6 +122,7 @@ export class Slider extends HitObject {
         // Basically equal to span count
         this.repetitions = values.repetitions;
         this.path = values.path;
+        this.nodeSamples = values.nodeSamples;
 
         const scoringDistance: number =
             100 * values.mapSliderVelocity * values.speedMultiplier;

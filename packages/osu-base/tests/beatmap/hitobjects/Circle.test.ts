@@ -4,7 +4,8 @@ const createCircle = (newCombo?: boolean) => {
     return new Circle({
         startTime: 1000,
         position: new Vector2(256, 192),
-        type: objectTypes.circle | (newCombo ? 1 << 2 : 0),
+        type: objectTypes.circle,
+        newCombo: newCombo,
     });
 };
 

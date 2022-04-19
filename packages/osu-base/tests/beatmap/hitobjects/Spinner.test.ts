@@ -99,5 +99,5 @@ test("Test end time", () => {
 test("Test new combo", () => {
     const spinner = createSpinner();
 
-    expect(spinner.isNewCombo).toBe(true);
+    expect(spinner.isNewCombo).toBe(false);
 });

@@ -27,6 +27,9 @@ import { ControlPoint } from "./timings/ControlPoint";
 import { SampleControlPoint } from "./timings/SampleControlPoint";
 import { ControlPointManager } from "./timings/ControlPointManager";
 import { RGBColor } from "../utils/RGBColor";
+import { SampleBankInfo } from "./hitobjects/SampleBankInfo";
+import { HitSoundType } from "../constants/HitSoundType";
+import { HitSampleInfo } from "./hitobjects/HitSampleInfo";
 
 /**
  * A beatmap parser.
@@ -56,6 +59,9 @@ export class Parser {
      * The currently processed section.
      */
     private section: string = "";
+
+    private extraComboOffset: number = 0;
+    private forceNewCombo: boolean = false;
 
     /**
      * Parses a beatmap.
@@ -628,6 +634,14 @@ export class Parser {
             );
         }
 
+        let tempType: number = type;
+
+        let comboOffset: number = (tempType & objectTypes.comboOffset) >> 4;
+        tempType &= ~objectTypes.comboOffset;
+
+        let newCombo: boolean = !!(type & objectTypes.newCombo);
+        tempType &= ~objectTypes.newCombo;
+
         const position: Vector2 = new Vector2(
             parseFloat(this.setPosition(s[0])),
             parseFloat(this.setPosition(s[1]))
@@ -639,16 +653,36 @@ export class Parser {
             );
         }
 
+        const soundType: HitSoundType = <HitSoundType>parseInt(s[4]);
+
+        if (isNaN(soundType)) {
+            return this.warn(
+                "Ignoring malformed hitobject: Value is invalid, too low, or too high"
+            );
+        }
+
+        const bankInfo: SampleBankInfo = new SampleBankInfo();
+
+        let object: HitObject | null = null;
+
         if (type & objectTypes.circle) {
-            const object = new Circle({
+            newCombo ||= this.forceNewCombo;
+            comboOffset += this.extraComboOffset;
+
+            this.forceNewCombo = false;
+            this.extraComboOffset = 0;
+
+            object = new Circle({
                 startTime: time,
                 type: type,
                 position: position,
+                newCombo: newCombo,
+                comboOffset: comboOffset,
             });
 
-            ++this.map.hitObjects.circles;
-
-            this.map.hitObjects.objects.push(object);
+            if (s.length > 5) {
+                this.readCustomSampleBanks(bankInfo, s[5]);
+            }
         } else if (type & objectTypes.slider) {
             if (s.length < 8) {
                 return this.warn("Ignoring malformed slider");
@@ -741,10 +775,64 @@ export class Parser {
                 expectedDistance: distance,
             });
 
-            const object: Slider = new Slider({
+            if (s.length > 10) {
+                this.readCustomSampleBanks(bankInfo, s[10]);
+            }
+
+            // One node for each repeat + the start and end nodes
+            const nodes: number = repetitions + 1;
+
+            // Populate node sample bank infos with the default hit object sample bank
+            const nodeBankInfos: SampleBankInfo[] = [];
+            for (let i = 0; i < nodes; ++i) {
+                nodeBankInfos.push(new SampleBankInfo(bankInfo));
+            }
+
+            // Read any per-node sample banks
+            if (s.length > 9 && s[9]) {
+                const sets: string[] = s[9].split("|");
+
+                for (let i = 0; i < Math.min(sets.length, nodes); ++i) {
+                    this.readCustomSampleBanks(nodeBankInfos[i], sets[i]);
+                }
+            }
+
+            // Populate node sound types with the default hit object sound type
+            const nodeSoundTypes: HitSoundType[] = [];
+            for (let i = 0; i < nodes; ++i) {
+                nodeSoundTypes.push(soundType);
+            }
+
+            // Read any per-node sound types
+            if (s.length > 8 && s[8]) {
+                const adds: string[] = s[8].split("|");
+
+                for (let i = 0; i < Math.min(adds.length, nodes); ++i) {
+                    nodeSoundTypes[i] = <HitSoundType>parseInt(adds[i]);
+                }
+            }
+
+            // Generate the final per-node samples
+            const nodeSamples: HitSampleInfo[][] = [];
+            for (let i = 0; i < nodes; ++i) {
+                nodeSamples.push(
+                    this.convertSoundType(nodeSoundTypes[i], nodeBankInfos[i])
+                );
+            }
+
+            newCombo ||= this.forceNewCombo;
+            comboOffset += this.extraComboOffset;
+
+            this.forceNewCombo = false;
+            this.extraComboOffset = 0;
+
+            object = new Slider({
                 position: position,
                 startTime: time,
                 type: type,
+                newCombo: newCombo,
+                comboOffset: comboOffset,
+                nodeSamples: nodeSamples,
                 repetitions: repetitions,
                 path: path,
                 speedMultiplier: MathUtils.clamp(
@@ -770,25 +858,46 @@ export class Parser {
                         : 1
                     : 0,
             });
-            ++this.map.hitObjects.sliders;
-            this.map.hitObjects.objects.push(object);
         } else if (type & objectTypes.spinner) {
-            const object = new Spinner({
-                startTime: time,
-                type: type,
-                duration: parseInt(this.setPosition(s[5])) - time,
-            });
+            // Spinners don't create the new combo themselves, but force the next non-spinner hitobject to create a new combo.
+            // Their combo offset is still added to that next hitobject's combo index.
+            this.forceNewCombo ||= this.map.formatVersion <= 8 || newCombo;
+            this.extraComboOffset += comboOffset;
 
-            if (!this.isNumberValid(object.duration)) {
+            const duration: number = parseInt(this.setPosition(s[5])) - time;
+
+            if (!this.isNumberValid(duration)) {
                 return this.warn(
                     "Ignoring malformed spinner: Value is invalid, too low, or too high"
                 );
             }
 
-            ++this.map.hitObjects.spinners;
-
-            this.map.hitObjects.objects.push(object);
+            object = new Spinner({
+                startTime: time,
+                type: type,
+                duration: duration,
+            });
         }
+
+        if (!object) {
+            return this.warn("Ignoring malformed hitobject");
+        }
+
+        switch (true) {
+            case object instanceof Circle:
+                ++this.map.hitObjects.circles;
+                break;
+            case object instanceof Slider:
+                ++this.map.hitObjects.sliders;
+                break;
+            case object instanceof Spinner:
+                ++this.map.hitObjects.spinners;
+                break;
+        }
+
+        object.samples = this.convertSoundType(soundType, bankInfo);
+
+        this.map.hitObjects.objects.push(object);
     }
 
     /**
@@ -804,6 +913,106 @@ export class Parser {
                 return PathType.PerfectCurve;
             default:
                 return PathType.Catmull;
+        }
+    }
+
+    /**
+     * Converts a sound type to hit samples.
+     *
+     * @param type The sound type.
+     * @param bankInfo The bank
+     */
+    private convertSoundType(
+        type: HitSoundType,
+        bankInfo: SampleBankInfo
+    ): HitSampleInfo[] {
+        if (bankInfo.filename) {
+            return [
+                new HitSampleInfo(
+                    bankInfo.filename,
+                    undefined,
+                    bankInfo.customSampleBank,
+                    bankInfo.volume
+                ),
+            ];
+        }
+
+        const soundTypes: HitSampleInfo[] = [
+            new HitSampleInfo(
+                HitSampleInfo.HIT_NORMAL,
+                bankInfo.normal,
+                bankInfo.customSampleBank,
+                bankInfo.volume,
+                // If the sound type doesn't have the Normal flag set, attach it anyway as a layered sample.
+                // None also counts as a normal non-layered sample: https://osu.ppy.sh/help/wiki/osu!_File_Formats/Osu_(file_format)#hitsounds
+                type !== HitSoundType.none && !(type & HitSoundType.normal)
+            ),
+        ];
+
+        if (type & HitSoundType.finish) {
+            soundTypes.push(
+                new HitSampleInfo(
+                    HitSampleInfo.HIT_FINISH,
+                    bankInfo.add,
+                    bankInfo.customSampleBank,
+                    bankInfo.volume
+                )
+            );
+        }
+
+        if (type & HitSoundType.whistle) {
+            soundTypes.push(
+                new HitSampleInfo(
+                    HitSampleInfo.HIT_WHISTLE,
+                    bankInfo.add,
+                    bankInfo.customSampleBank,
+                    bankInfo.volume
+                )
+            );
+        }
+
+        if (type & HitSoundType.clap) {
+            soundTypes.push(
+                new HitSampleInfo(
+                    HitSampleInfo.HIT_CLAP,
+                    bankInfo.add,
+                    bankInfo.customSampleBank,
+                    bankInfo.volume
+                )
+            );
+        }
+
+        return soundTypes;
+    }
+
+    /**
+     * Populates a sample bank info with custom sample bank information.
+     *
+     * @param bankInfo The sample bank info to populate.
+     * @param str The information.
+     */
+    private readCustomSampleBanks(bankInfo: SampleBankInfo, str: string): void {
+        if (!str) {
+            return;
+        }
+
+        const s: string[] = str.split(":");
+
+        bankInfo.normal = <SampleBank>parseInt(s[0]);
+
+        const addBank: SampleBank = <SampleBank>parseInt(s[1]);
+        bankInfo.add = addBank === SampleBank.none ? bankInfo.normal : addBank;
+
+        if (s.length > 2) {
+            bankInfo.customSampleBank = parseInt(s[2]);
+        }
+
+        if (s.length > 3) {
+            bankInfo.volume = Math.max(0, parseInt(s[3]));
+        }
+
+        if (s.length > 4) {
+            bankInfo.filename = s[4];
         }
     }
 

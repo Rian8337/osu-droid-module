@@ -10,7 +10,7 @@ import {
     Vector2,
 } from "../../../src";
 
-const createGlobalSliderValues = () => {
+const createGlobalSliderValues = (newCombo?: boolean) => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
 
     // Will generate 1 slider tick by default
@@ -19,6 +19,8 @@ const createGlobalSliderValues = () => {
         type: objectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 1,
+        nodeSamples: [],
+        newCombo: newCombo,
         path: new SliderPath({
             pathType: PathType.Linear,
             controlPoints: controlPoints,
@@ -399,7 +401,7 @@ test("Test slider duration", () => {
 });
 
 test("Test new combo", () => {
-    const sliderValues = createGlobalSliderValues();
+    const sliderValues = createGlobalSliderValues(true);
 
     sliderValues.type |= 1 << 2;
 

@@ -1,4 +1,5 @@
 import {
+    Beatmap,
     BeatmapCountdown,
     BeatmapOverlayPosition,
     EditorGridSize,
@@ -6,12 +7,15 @@ import {
     Parser,
     RGBColor,
     SampleBank,
+    Slider,
     Vector2,
 } from "../../src";
 import { readFile } from "fs/promises";
 import { join } from "path";
 
-test("Test beatmap parse", async () => {
+let beatmap = new Beatmap();
+
+beforeAll(async () => {
     const data = await readFile(
         join(
             process.cwd(),
@@ -23,10 +27,10 @@ test("Test beatmap parse", async () => {
         { encoding: "utf-8" }
     );
 
-    const parser = new Parser().parse(data);
+    beatmap = new Parser().parse(data).map;
+});
 
-    const beatmap = parser.map;
-
+test("Test colors section", () => {
     expect(beatmap.colors.combo.length).toBe(4);
     expect(beatmap.colors.combo[0]).toEqual(new RGBColor(98, 243, 255));
     expect(beatmap.colors.combo[1]).toEqual(new RGBColor(251, 170, 251));
@@ -34,27 +38,45 @@ test("Test beatmap parse", async () => {
     expect(beatmap.colors.combo[3]).toEqual(new RGBColor(162, 205, 232));
     expect(beatmap.colors.sliderBorder).toBeUndefined();
     expect(beatmap.colors.sliderTrackOverride).toBeUndefined();
+});
+
+test("Test control points section", () => {
     expect(beatmap.controlPoints.difficulty.points.length).toBe(530);
     expect(beatmap.controlPoints.effect.points.length).toBe(530);
     expect(beatmap.controlPoints.timing.points.length).toBe(5);
     expect(beatmap.controlPoints.sample.points.length).toBe(530);
+});
+
+test("Test difficulty section", () => {
     expect(beatmap.difficulty.ar).toBe(9);
     expect(beatmap.difficulty.cs).toBe(4);
     expect(beatmap.difficulty.hp).toBe(5);
     expect(beatmap.difficulty.od).toBe(8);
     expect(beatmap.difficulty.sliderMultiplier).toBe(1.9);
     expect(beatmap.difficulty.sliderTickRate).toBe(1);
+});
+
+test("Test editor section", () => {
     expect(beatmap.editor.beatDivisor).toBe(4);
     expect(beatmap.editor.bookmarks.length).toBe(0);
     expect(beatmap.editor.distanceSnap).toBe(0.2);
     expect(beatmap.editor.gridSize).toBe(EditorGridSize.small);
     expect(beatmap.editor.timelineZoom).toBeCloseTo(3);
+});
+
+test("Test events section", () => {
     expect(beatmap.events.background?.filename).toBe("school.jpg");
     expect(beatmap.events.background?.offset).toEqual(new Vector2(0, 0));
     expect(beatmap.events.breaks.length).toBe(0);
     expect(beatmap.events.video?.filename).toBe("Yoasobi.mp4");
     expect(beatmap.events.video?.offset).toEqual(new Vector2(0, 0));
+});
+
+test("Test format version header", () => {
     expect(beatmap.formatVersion).toBe(14);
+});
+
+test("Test general section", () => {
     expect(beatmap.general.audioFilename).toBe("audio.mp3");
     expect(beatmap.general.audioLeadIn).toBe(0);
     expect(beatmap.general.countdown).toBe(BeatmapCountdown.noCountDown);
@@ -72,13 +94,59 @@ test("Test beatmap parse", async () => {
     expect(beatmap.general.stackLeniency).toBe(0.2);
     expect(beatmap.general.useSkinSprites).toBe(false);
     expect(beatmap.general.widescreenStoryboard).toBe(true);
+});
+
+test("Test counters", () => {
     expect(beatmap.hitObjects.circles).toBe(198);
     expect(beatmap.hitObjects.objects.length).toBe(592);
     expect(beatmap.hitObjects.sliderEnds).toBe(393);
     expect(beatmap.hitObjects.sliderRepeatPoints).toBe(27);
     expect(beatmap.hitObjects.sliders).toBe(393);
     expect(beatmap.hitObjects.spinners).toBe(1);
+});
+
+test("Test hit object samples", () => {
+    const slider = <Slider>beatmap.hitObjects.objects[1];
+
+    expect(slider.samples.length).toBe(2);
+    expect(slider.samples[0].name).toBe("hitnormal");
+    expect(slider.samples[0].bank).toBe(SampleBank.soft);
+    expect(slider.samples[0].customSampleBank).toBe(0);
+    expect(slider.samples[0].volume).toBe(0);
+    expect(slider.samples[0].isLayered).toBe(true);
+    expect(slider.samples[1].name).toBe("hitclap");
+    expect(slider.samples[1].bank).toBe(SampleBank.drum);
+    expect(slider.samples[1].customSampleBank).toBe(0);
+    expect(slider.samples[1].volume).toBe(0);
+    expect(slider.samples[1].isLayered).toBe(false);
+});
+
+test("Test hit object per-node samples", () => {
+    const slider = <Slider>beatmap.hitObjects.objects[1];
+
+    for (const nodeSample of slider.nodeSamples) {
+        const firstSample = nodeSample[0];
+        const lastSample = nodeSample[1];
+
+        expect(firstSample.name).toBe("hitnormal");
+        expect(firstSample.bank).toBe(SampleBank.soft);
+        expect(firstSample.customSampleBank).toBe(0);
+        expect(firstSample.volume).toBe(0);
+        expect(firstSample.isLayered).toBe(true);
+
+        expect(lastSample.name).toBe("hitclap");
+        expect(lastSample.bank).toBe(SampleBank.drum);
+        expect(lastSample.customSampleBank).toBe(0);
+        expect(lastSample.volume).toBe(0);
+        expect(lastSample.isLayered).toBe(false);
+    }
+});
+
+test("Test max combo getter", () => {
     expect(beatmap.maxCombo).toBe(1033);
+});
+
+test("Test metadata section", () => {
     expect(beatmap.metadata.artist).toBe("YOASOBI");
     expect(beatmap.metadata.artistUnicode).toBe("YOASOBI");
     expect(beatmap.metadata.beatmapId).toBe(3324715);
