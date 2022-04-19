@@ -877,6 +877,10 @@ export class Parser {
                 type: type,
                 duration: duration,
             });
+
+            if (s.length > 6) {
+                this.readCustomSampleBanks(bankInfo, s[6]);
+            }
         }
 
         if (!object) {
