@@ -215,8 +215,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const ncircles: number = this.stars.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? objectCount - this.stars.map.spinners
-            : this.stars.map.circles;
+            ? objectCount - this.stars.map.hitObjects.spinners
+            : this.stars.map.hitObjects.circles;
 
         if (ncircles === 0) {
             return;
