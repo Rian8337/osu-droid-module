@@ -2,8 +2,11 @@ import {
     Beatmap,
     Circle,
     DifficultyControlPoint,
+    EffectControlPoint,
     objectTypes,
     PathType,
+    SampleBank,
+    SampleControlPoint,
     Slider,
     SliderPath,
     Spinner,
@@ -104,6 +107,62 @@ test("Test difficulty control point getter", () => {
     expect(timingPoint?.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
+});
+
+test("Test effect control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.controlPoints.effect.points.push(
+        new EffectControlPoint({
+            time: 1000,
+            effectBitFlags: 0,
+        }),
+        new EffectControlPoint({
+            time: 5000,
+            effectBitFlags: 0,
+        })
+    );
+
+    let timingPoint = beatmap.controlPoints.effect.controlPointAt(0);
+
+    expect(timingPoint?.time).toBeUndefined();
+
+    timingPoint = beatmap.controlPoints.effect.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.effect.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
+});
+
+test("Test sample control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.controlPoints.sample.points.push(
+        new SampleControlPoint({
+            time: 1000,
+            sampleBank: SampleBank.none,
+            sampleVolume: 100,
+        }),
+        new SampleControlPoint({
+            time: 5000,
+            sampleBank: SampleBank.none,
+            sampleVolume: 100,
+        })
+    );
+
+    let timingPoint = beatmap.controlPoints.sample.controlPointAt(0);
+
+    expect(timingPoint?.time).toBeUndefined();
+
+    timingPoint = beatmap.controlPoints.sample.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.sample.controlPointAt(7000);
 
     expect(timingPoint?.time).toBe(5000);
 });
