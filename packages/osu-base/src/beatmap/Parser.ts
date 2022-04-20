@@ -115,7 +115,7 @@ export class Parser {
     private processLine(line: string): void {
         ++this.line;
 
-        // comments
+        // Storyboards
         if (line.startsWith(" ") || line.startsWith("_")) {
             return;
         }

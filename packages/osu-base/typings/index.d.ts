@@ -52,7 +52,7 @@ declare module "@rian8337/osu-base" {
          */
         readonly difficulty: BeatmapDifficulty;
         /**
-         * Beatmap and storyboard graphic events of the beatmap.
+         * Events of the beatmap.
          */
         readonly events: BeatmapEvents;
         /**
@@ -222,7 +222,7 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * Contains beatmap and storyboard graphic events.
+     * Contains beatmap events.
      */
     export class BeatmapEvents {
         /**

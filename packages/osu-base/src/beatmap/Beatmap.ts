@@ -42,7 +42,7 @@ export class Beatmap {
     readonly difficulty: BeatmapDifficulty = new BeatmapDifficulty();
 
     /**
-     * Beatmap and storyboard graphic events of the beatmap.
+     * Events of the beatmap.
      */
     readonly events: BeatmapEvents = new BeatmapEvents();
 

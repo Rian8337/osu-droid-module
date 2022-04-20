@@ -3,7 +3,7 @@ import { BeatmapVideo } from "../events/BeatmapVideo";
 import { BreakPoint } from "../timings/BreakPoint";
 
 /**
- * Contains beatmap and storyboard graphic events.
+ * Contains beatmap events.
  */
 export class BeatmapEvents {
     /**
