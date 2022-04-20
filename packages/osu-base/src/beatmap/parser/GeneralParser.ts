@@ -75,6 +75,11 @@ export class GeneralParser extends BaseParser {
                     p[1]
                 );
                 break;
+            case "EditorBookmarks":
+                // This somehow makes it in v5 (https://osu.ppy.sh/beatmapsets/2459#osu/19753)
+                this.map.editor.bookmarks = p[1]
+                    .split(",")
+                    .map((v) => this.tryParseInt(v));
         }
     }
 }
