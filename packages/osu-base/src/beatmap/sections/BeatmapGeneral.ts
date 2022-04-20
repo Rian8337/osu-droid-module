@@ -81,5 +81,5 @@ export class BeatmapGeneral {
     /**
      * Whether or not sound samples will change rate when playing with speed-changing mods.
      */
-    samplesMatchPlaybackRate: boolean = false;
+    samplesMatchPlaybackRate: boolean = true;
 }
