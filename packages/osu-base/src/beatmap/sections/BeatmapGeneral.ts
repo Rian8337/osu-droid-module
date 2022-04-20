@@ -19,6 +19,8 @@ export class BeatmapGeneral {
 
     /**
      * The time in milliseconds when the audio preview should start.
+     * 
+     * If -1, the audio should begin playing at 40% of its length.
      */
     previewTime: number = -1;
 
