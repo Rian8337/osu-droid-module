@@ -27,6 +27,10 @@ export class ControlPointsParser extends BaseParser {
         const timeSignature: number =
             this.tryParseInt(this.setPosition(s[2])) || 4;
 
+        if (timeSignature < 1) {
+            throw new RangeError("The numerator of a time signature must be positive");
+        }
+
         const sampleSet: SampleBank = <SampleBank>(
             this.tryParseInt(this.setPosition(s[3]))
         );
