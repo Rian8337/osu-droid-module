@@ -113,7 +113,6 @@ export class Parser {
      * Processes a line of the file.
      */
     private processLine(line: string): void {
-        this.currentLine = line;
         ++this.line;
 
         // comments
@@ -121,23 +120,33 @@ export class Parser {
             return;
         }
 
-        // now that we've handled space comments we can trim space
-        line = this.currentLine = line.trim();
-
-        // c++ style comments
-        if (line.startsWith("//")) {
-            return;
+        if (this.section !== BeatmapSection.metadata) {
+            // Comments should not be stripped from metadata lines, as the song metadata may contain "//" as valid data.
+            const index = line.indexOf("//");
+            if (index > 0) {
+                line = line.substring(0, index);
+            }
         }
 
+        // Now that we've handled comments, we can trim space
+        line = this.currentLine = line.trim();
+
         // [SectionName]
-        if (line.startsWith("[")) {
+        if (line.startsWith("[") && line.endsWith("]")) {
+            const section: string = line.substring(1, line.length - 1);
+
+            if (!Object.values<string>(BeatmapSection).includes(section)) {
+                console.warn(`Unknown section "${line}" at line ${this.line}`);
+                return;
+            }
+
             if (
-                this.section === "Difficulty" &&
+                this.section === BeatmapSection.difficulty &&
                 this.map.difficulty.ar === undefined
             ) {
                 this.map.difficulty.ar = this.map.difficulty.od;
             }
-            this.section = <BeatmapSection>line.substring(1, line.length - 1);
+            this.section = <BeatmapSection>section;
             return;
         }
 
