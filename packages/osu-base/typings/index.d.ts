@@ -1437,21 +1437,21 @@ declare module "@rian8337/osu-base" {
          */
         readonly map: Beatmap;
         /**
-         * The amount of lines of `.osu` file.
+         * The available per-section parsers, mapped by its section name.
          */
-        private line: string;
+        private readonly parsers: Map<BeatmapSection, BaseParser>;
+        /**
+         * The amount of lines of `.osu` file that have been processed up to this point.
+         */
+        private line: number;
         /**
          * The currently processed line.
          */
         private currentLine: string;
         /**
-         * The previously processed line.
-         */
-        private lastPosition: string;
-        /**
          * The currently processed section.
          */
-        private section: string;
+        private section: BeatmapSection | null;
         /**
          * Parses a beatmap.
          *
@@ -1462,84 +1462,9 @@ declare module "@rian8337/osu-base" {
          */
         parse(str: string, mods?: Mod[]): Parser;
         /**
-         * Logs the line at which an exception occurs.
-         */
-        private logError(): string;
-        /**
          * Processes a line of the file.
          */
         private processLine(line: string): Parser;
-        /**
-         * Sets the last position of the current parser state.
-         *
-         * This is useful to debug syntax errors.
-         */
-        private setPosition(str: string): string;
-        /**
-         * Logs any syntax errors into the console.
-         */
-        private warn(message: string): void;
-        /**
-         * Processes a property of the beatmap. This takes the current line as parameter.
-         *
-         * For example, `ApproachRate:9` will be split into `[ApproachRate, 9]`.
-         */
-        private property(): string[];
-        /**
-         * Processes the general section of a beatmap.
-         */
-        private general(): void;
-        /**
-         * Processes the editor section of a beatmap.
-         */
-        private editor(): void;
-        /**
-         * Processes the metadata section of a beatmap.
-         */
-        private metadata(): void;
-        /**
-         * Processes the events section of a beatmap.
-         */
-        private events(): void;
-        /**
-         * Processes the difficulty section of a beatmap.
-         */
-        private difficulty(): void;
-        /**
-         * Processes the control points section of a beatmap.
-         */
-        private timingPoints(): void;
-        /**
-         * Processes the colors section of a beatmap.
-         */
-        private colors(): void;
-        /**
-         * Processes the objects section of a beatmap.
-         */
-        private objects(): void;
-        /**
-         * Applies stacking to hitobjects for beatmap version 6 or above.
-         */
-        private applyStacking(startIndex: number, endIndex: number): void;
-        /**
-         * Applies stacking to hitobjects for beatmap version 5 or below.
-         */
-        private applyStackingOld(): void;
-        /**
-         * Checks if a number is within a given threshold.
-         *
-         * @param num The number to check.
-         * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
-         * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
-         */
-        private isNumberValid(num: number, min: number, max: number): boolean;
-        /**
-         * Checks if each coordinates of a vector is within a given threshold.
-         *
-         * @param vec The vector to check.
-         * @param limit The threshold. Defaults to `ParserConstants.MAX_COORDINATE_VALUE`.
-         */
-        private isVectorValid(vec: Vector2, limit: number): boolean;
     }
 
     /**
@@ -2104,6 +2029,20 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
+     * Beatmap sections that exist in an `.osu` file.
+     */
+    export enum BeatmapSection {
+        general = "General",
+        editor = "Editor",
+        metadata = "Metadata",
+        difficulty = "Difficulty",
+        events = "Events",
+        timingPoints = "TimingPoints",
+        colors = "Colours",
+        hitObjects = "HitObjects",
+    }
+
+    /**
      * Represents the grid size setting in the editor.
      */
     export enum EditorGridSize {
@@ -2401,6 +2340,81 @@ declare module "@rian8337/osu-base" {
          * Returns a string representative of the class.
          */
         abstract toString(): string;
+    }
+
+    /**
+     * The base class of per-section beatmap parsers.
+     */
+    abstract class BaseParser {
+        /**
+         * The beatmap to store parsed information to.
+         */
+        protected readonly map: Beatmap;
+        constructor(map: Beatmap);
+        /**
+         * The string in the line at which the parser is processing.
+         */
+        private lastPosition: string;
+        /**
+         * Parses a line and stores it in the beatmap instance.
+         *
+         * @param line The line to parse.
+         */
+        abstract parse(line: string): void;
+        /**
+         * Logs the position at the line at which an exception occurs.
+         */
+        logExceptionPosition(): string;
+        /**
+         * Processes a property of the beatmap. This takes the current line as parameter.
+         *
+         * For example, `ApproachRate:9` will be split into `[ApproachRate, 9]`.
+         */
+        protected property(line: string): string[];
+        /**
+         * Sets the last position of the current parser state.
+         *
+         * This is useful to debug syntax errors.
+         */
+        protected setPosition(str: string): string;
+        /**
+         * Attempts to parse a string into an integer.
+         *
+         * Throws an exception when the resulting value is invalid (such as NaN), too low, or too high.
+         *
+         * @param str The string to parse.
+         * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
+         * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
+         * @returns The parsed integer.
+         */
+        protected tryParseInt(str: string, min?: number, max?: number): number;
+        /**
+         * Attempts to parse a string into a float.
+         *
+         * Throws an exception when the resulting value is invalid (such as NaN), too low, or too high.
+         *
+         * @param str The string to parse.
+         * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
+         * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
+         * @returns The parsed float.
+         */
+        protected tryParseFloat(
+            str: string,
+            min?: number,
+            max?: number
+        ): number;
+        /**
+         * Checks if a number is within a given threshold.
+         *
+         * @param num The number to check.
+         * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
+         * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
+         */
+        protected isNumberValid(
+            num: number,
+            min?: number,
+            max?: number
+        ): boolean;
     }
 
     abstract class HitWindow {
