@@ -125,8 +125,8 @@ export class DifficultyHitObjectCreator {
                 // But if the current object is a slider, then we alter the delta time to account for slider end time.
                 if (object.object instanceof Slider) {
                     if (
-                        object.object.startTime >= hitObject.startTime &&
-                        object.object.endTime <= hitObject.startTime
+                        hitObject.startTime >= object.object.startTime &&
+                        hitObject.startTime <= object.object.endTime
                     ) {
                         // If the object starts when the slider is active, then the slider is technically still visible.
                         // Set delta time to 0.
