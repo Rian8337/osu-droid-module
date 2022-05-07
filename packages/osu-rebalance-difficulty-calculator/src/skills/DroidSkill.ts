@@ -43,7 +43,7 @@ export abstract class DroidSkill extends StrainSkill {
         // This also applies to two sets of notes with equal difficulty.
         return Math.pow(
             sortedStrains.reduce((a, v) => {
-                if (v <= 0) {
+                if (v === 0) {
                     return a;
                 }
 
