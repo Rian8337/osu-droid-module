@@ -415,7 +415,7 @@ export class ReplayAnalyzer {
                 this.map instanceof RebalanceDroidStarRating
                     ? this.map.map
                     : this.map
-            ).objects;
+            ).hitObjects.objects;
 
             for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
                 // Hit result
@@ -533,7 +533,7 @@ export class ReplayAnalyzer {
             this.map instanceof RebalanceDroidStarRating
                 ? this.map.map
                 : this.map
-        ).objects;
+        ).hitObjects.objects;
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v: ReplayObjectData = hitObjectData[i];
