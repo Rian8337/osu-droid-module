@@ -4,11 +4,20 @@ on:
     branches:
       - master
       - v1
+  release:
+    types:
+      - published
+env:
+  docVersion_PATH: /
 jobs:
   build-and-deploy:
     concurrency: ci-${{ github.ref }} # Recommended if you intend to make multiple deployments in quick succession.
     runs-on: ubuntu-latest
     steps:
+      - name: Update version path
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: echo docVersion_PATH=/version/$(echo $GITHUB_REF | cut -d / -f 3 | cut -d v -f 2- | cut -d . -f 1,2)/ >> $GITHUB_ENV
+
       - name: Checkout repository
         uses: actions/checkout@v3
 
@@ -31,3 +40,6 @@ jobs:
         with:
           branch: gh-pages # The branch the action should deploy to.
           folder: docs # The folder the action should deploy.
+          target-folder: ${{ env.docVersion_PATH }}
+          clean: true
+          clean-exclude: '["version"]'
