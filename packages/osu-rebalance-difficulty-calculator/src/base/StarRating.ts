@@ -140,9 +140,10 @@ export abstract class StarRating {
         this.objects.push(
             ...new DifficultyHitObjectCreator().generateDifficultyObjects({
                 objects: this.map.objects,
-                circleSize: <number>this.stats.cs,
+                circleSize: this.stats.cs!,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: mode,
+                preempt: MapStats.arToMS(this.stats.ar!),
             })
         );
     }

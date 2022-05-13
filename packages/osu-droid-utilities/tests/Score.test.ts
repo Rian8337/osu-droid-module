@@ -15,7 +15,7 @@ test("Test fill information", () => {
     expect(score.accuracy.nmiss).toBe(0);
     expect(score.accuracy.value()).toBeCloseTo(0.98392);
     expect(score.combo).toBe(2376);
-    expect(score.date).toEqual(new Date((1639619724 + 3600 * 7) * 1000));
+    expect(score.date).toEqual(new Date((1639619724 + 3600 * 6) * 1000));
     expect(score.forcedAR).toBeUndefined();
     expect(score.hash).toBe("70b1226af3d8b76d859982b505c4ce11");
     expect(score.mods.length).toBe(1);

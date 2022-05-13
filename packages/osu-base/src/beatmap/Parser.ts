@@ -17,7 +17,7 @@ import { ParserConstants } from "../constants/ParserConstants";
 import { Mod } from "../mods/Mod";
 
 /**
- * A beatmap parser with just enough data for pp calculation.
+ * A beatmap parser.
  */
 export class Parser {
     /**
@@ -130,7 +130,7 @@ export class Parser {
 
         // [SectionName]
         if (line.startsWith("[")) {
-            if (this.section === "Difficulty" && !this.map.ar) {
+            if (this.section === "Difficulty" && this.map.ar === undefined) {
                 this.map.ar = this.map.od;
             }
             this.section = line.substring(1, line.length - 1);
@@ -194,6 +194,7 @@ export class Parser {
      */
     private setPosition(str: string): string {
         this.lastPosition = str.trim();
+
         return this.lastPosition;
     }
 
@@ -202,6 +203,7 @@ export class Parser {
      */
     private warn(message: string): void {
         console.warn(message);
+
         console.warn(this.logError());
     }
 
@@ -212,8 +214,10 @@ export class Parser {
      */
     private property(): string[] {
         const s: string[] = this.currentLine.split(":");
+
         s[0] = this.setPosition(s[0]);
         s[1] = this.setPosition(s.slice(1).join(":"));
+
         return s;
     }
 
@@ -222,8 +226,14 @@ export class Parser {
      */
     private general(): void {
         const p: string[] = this.property();
-        if (p[0] === "StackLeniency") {
-            this.map.stackLeniency = parseFloat(p[1]);
+
+        switch (p[0]) {
+            case "AudioFilename":
+                this.map.audioFileName = p[1];
+                break;
+            case "StackLeniency":
+                this.map.stackLeniency = parseFloat(p[1]);
+                break;
         }
     }
 
@@ -232,6 +242,7 @@ export class Parser {
      */
     private metadata(): void {
         const p: string[] = this.property();
+
         switch (p[0]) {
             case "Title":
                 this.map.title = p[1];
@@ -265,13 +276,21 @@ export class Parser {
      */
     private events(): void {
         const s: string[] = this.currentLine.split(",");
-        if (s[0] !== "2" && s[0] !== "Break") return;
-        this.map.breakPoints.push(
-            new BreakPoint({
-                startTime: parseInt(this.setPosition(s[1])),
-                endTime: parseInt(this.setPosition(s[2])),
-            })
-        );
+
+        switch (s[0]) {
+            case "0":
+                this.map.backgroundFileName = s[2].replace(/"/g, "");
+                break;
+            case "2":
+            case "Break":
+                this.map.breakPoints.push(
+                    new BreakPoint({
+                        startTime: parseInt(this.setPosition(s[1])),
+                        endTime: parseInt(this.setPosition(s[2])),
+                    })
+                );
+                break;
+        }
     }
 
     /**
@@ -279,6 +298,7 @@ export class Parser {
      */
     private difficulty(): void {
         const p: string[] = this.property();
+
         switch (p[0]) {
             case "CircleSize":
                 this.map.cs = parseFloat(this.setPosition(p[1]));
@@ -305,14 +325,17 @@ export class Parser {
      */
     private timingPoints(): void {
         const s: string[] = this.currentLine.split(",");
+
         if (s.length > 8) {
             this.warn("Timing point with trailing values");
         } else if (s.length < 2) {
             return this.warn("Ignoring malformed timing point");
         }
+
         const time: number = this.map.getOffsetTime(
             parseFloat(this.setPosition(s[0]))
         );
+
         if (!this.isNumberValid(time)) {
             return this.warn(
                 "Ignoring malformed timing point: Value is invalid, too low, or too high"
@@ -325,6 +348,7 @@ export class Parser {
                 "Ignoring malformed timing point: Value is invalid, too low, or too high"
             );
         }
+
         const speedMultiplier = msPerBeat < 0 ? 100 / -msPerBeat : 1;
 
         if (msPerBeat >= 0) {
@@ -354,14 +378,17 @@ export class Parser {
      */
     private objects(): void {
         const s: string[] = this.currentLine.split(",");
+
         if (s.length > 11) {
             this.warn("Object with trailing values");
         } else if (s.length < 4) {
             return this.warn("Ignoring malformed hitobject");
         }
+
         const time: number = this.map.getOffsetTime(
             parseFloat(this.setPosition(s[2]))
         );
+
         const type: number = parseInt(this.setPosition(s[3]));
         if (!this.isNumberValid(time) || isNaN(type)) {
             return this.warn(
@@ -373,6 +400,7 @@ export class Parser {
             parseFloat(this.setPosition(s[0])),
             parseFloat(this.setPosition(s[1]))
         );
+
         if (!this.isVectorValid(position)) {
             return this.warn(
                 "Ignoring malformed hitobject: Value is invalid, too low, or too high"
@@ -385,12 +413,15 @@ export class Parser {
                 type: type,
                 position: position,
             });
+
             ++this.map.circles;
+
             this.map.objects.push(object);
         } else if (type & objectTypes.slider) {
             if (s.length < 8) {
                 return this.warn("Ignoring malformed slider");
             }
+
             const repetitions: number = Math.max(
                 parseInt(this.setPosition(s[6])),
                 ParserConstants.MIN_REPETITIONS_VALUE
@@ -515,12 +546,15 @@ export class Parser {
                 type: type,
                 duration: parseInt(this.setPosition(s[5])) - time,
             });
+
             if (!this.isNumberValid(object.duration)) {
                 return this.warn(
                     "Ignoring malformed spinner: Value is invalid, too low, or too high"
                 );
             }
+
             ++this.map.spinners;
+
             this.map.objects.push(object);
         }
     }

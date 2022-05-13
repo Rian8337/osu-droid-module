@@ -273,7 +273,7 @@ export class MapInfo {
         const result: RequestResponse = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
-            throw new Error("API error");
+            throw new Error("osu! API error");
         }
 
         const mapinfo: OsuAPIResponse = JSON.parse(

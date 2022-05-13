@@ -36,7 +36,7 @@ export class DroidRhythm extends DroidSkill {
      */
     private calculateRhythmBonus(current: DifficultyHitObject): number {
         if (current.object instanceof Spinner) {
-            return 0;
+            return 1;
         }
 
         let previousIslandSize: number = 0;

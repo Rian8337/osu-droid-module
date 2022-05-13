@@ -64,23 +64,26 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
          */
         stats?: MapStats;
     }): this {
-        this.handleParams(params, modes.osu);
+        return this.calculateInternal(params, modes.osu);
+    }
 
+    protected override calculateValues(): void {
         this.calculateAimValue();
         this.calculateSpeedValue();
         this.calculateAccuracyValue();
         this.calculateFlashlightValue();
+    }
 
-        this.total =
+    protected override calculateTotalValue(): number {
+        return (
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.speed, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1),
                 1 / 1.1
-            ) * this.finalMultiplier;
-
-        return this;
+            ) * this.finalMultiplier
+        );
     }
 
     /**

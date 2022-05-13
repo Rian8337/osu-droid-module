@@ -1,7 +1,7 @@
 import { BeatmapSection } from "./BeatmapSection";
 
 /**
- * A section of a beatmap. This is used to detect dragged sections.
+ * A section of a beatmap with extra information used for detecting three-finger usage.
  */
 export class ThreeFingerBeatmapSection extends BeatmapSection {
     /**

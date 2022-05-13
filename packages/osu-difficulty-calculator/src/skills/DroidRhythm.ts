@@ -11,9 +11,9 @@ export class DroidRhythm extends DroidSkill {
     protected override readonly reducedSectionCount: number = 5;
     protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly starsPerDouble: number = 2;
+    protected override readonly starsPerDouble: number = 1.75;
 
-    private readonly rhythmMultiplier: number = 0.75;
+    private readonly rhythmMultiplier: number;
     private readonly historyTimeMax: number = 5000; // 5 seconds of calculateRhythmBonus max.
     private currentRhythm: number = 1;
     private readonly hitWindow: OsuHitWindow;
@@ -22,6 +22,13 @@ export class DroidRhythm extends DroidSkill {
         super(mods);
 
         this.hitWindow = new OsuHitWindow(overallDifficulty);
+
+        const odScaling: number =
+            Math.pow(this.hitWindow.overallDifficulty, 2) / 400;
+
+        this.rhythmMultiplier =
+            0.75 +
+            (this.hitWindow.overallDifficulty >= 0 ? odScaling : -odScaling);
     }
 
     /**
@@ -88,9 +95,9 @@ export class DroidRhythm extends DroidSkill {
                 Math.max(
                     0,
                     Math.abs(prevDelta - currentDelta) -
-                        this.hitWindow.hitWindowFor300() * 0.6
+                        this.hitWindow.hitWindowFor300() * 0.4
                 ) /
-                    (this.hitWindow.hitWindowFor300() * 0.6)
+                    (this.hitWindow.hitWindowFor300() * 0.4)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;

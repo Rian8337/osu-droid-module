@@ -32,6 +32,14 @@ declare module "@rian8337/osu-base" {
      */
     export class Beatmap {
         /**
+         * The name of the audio file of the beatmap.
+         */
+        audioFileName: string;
+        /**
+         * The name of the background file of the beatmap.
+         */
+        backgroundFileName: string;
+        /**
          * The format version of the beatmap.
          */
         formatVersion: number;
@@ -349,10 +357,6 @@ declare module "@rian8337/osu-base" {
          * Returns the hitobject type.
          */
         typeStr(): string;
-        /**
-         * Calculates the stacked position of the hitobject.
-         */
-        calculateStackedPosition(scale: number): void;
         /**
          * Returns the string representative of the class.
          */
@@ -700,6 +704,13 @@ declare module "@rian8337/osu-base" {
             speedMultiplier: number,
             statisticsMultiplier: number
         ): number;
+        /**
+         * Converts an AR value to its milliseconds value.
+         *
+         * @param ar The AR to convert.
+         * @returns The milliseconds value represented by the AR.
+         */
+        static arToMS(ar: number): number;
         /**
          * Utility function to apply speed and flat multipliers to stats where speed changes apply for OD.
          *
@@ -1111,7 +1122,7 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * A beatmap parser with just enough data for pp calculation.
+     * A beatmap parser.
      */
     export class Parser {
         /**

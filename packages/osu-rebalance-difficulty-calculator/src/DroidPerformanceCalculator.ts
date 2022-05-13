@@ -15,7 +15,7 @@ import { PerformanceCalculator } from "./base/PerformanceCalculator";
  */
 export class DroidPerformanceCalculator extends PerformanceCalculator {
     override stars: DroidStarRating = new DroidStarRating();
-    protected override finalMultiplier = 1.42;
+    protected override finalMultiplier = 1.24;
 
     /**
      * The aim performance value.
@@ -36,6 +36,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      * The flashlight performance value.
      */
     flashlight: number = 0;
+
+    /**
+     * The visual performance value.
+     */
+    visual: number = 0;
+
+    private tapPenalty: number = 1;
 
     override calculate(params: {
         /**
@@ -68,26 +75,33 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
          */
         stats?: MapStats;
     }): this {
-        this.handleParams(params, modes.droid);
+        this.tapPenalty = params.tapPenalty ?? 1;
 
+        return this.calculateInternal(params, modes.droid);
+    }
+
+    protected override calculateValues(): void {
         this.calculateAimValue();
         this.calculateTapValue();
         this.calculateAccuracyValue();
         this.calculateFlashlightValue();
+        this.calculateVisualValue();
 
         // Apply tap penalty for penalized plays.
-        this.tap /= params.tapPenalty ?? 1;
+        this.tap /= this.tapPenalty;
+    }
 
-        this.total =
+    protected override calculateTotalValue(): number {
+        return (
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.tap, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.flashlight, 1.1) +
+                    Math.pow(this.visual, 1.1),
                 1 / 1.1
-            ) * this.finalMultiplier;
-
-        return this;
+            ) * this.finalMultiplier
+        );
     }
 
     /**
@@ -96,7 +110,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private calculateAimValue(): void {
         // Global variables
         const objectCount: number = this.stars.objects.length;
-        const calculatedAR: number = this.mapStatistics.ar!;
 
         this.aim = this.baseValue(Math.pow(this.stars.aim, 0.8));
 
@@ -112,33 +125,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Combo scaling
         this.aim *= this.comboPenalty;
-
-        // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
-            // The bonus starts decreasing twice as fast
-            // beyond AR10 and reaches 1 at AR11.
-            if (calculatedAR > 10) {
-                this.aim *= 1 + Math.max(0, 0.08 * (11 - calculatedAR));
-            } else {
-                this.aim *= 1 + 0.04 * (12 - calculatedAR);
-            }
-        }
-
-        // AR scaling
-        let arFactor: number = 0;
-        if (calculatedAR > 10.33) {
-            arFactor += 0.3 * (calculatedAR - 10.33);
-        } else if (calculatedAR < 8) {
-            arFactor += 0.1 * (8 - calculatedAR);
-        }
-
-        // Buff for longer maps with high AR.
-        this.aim *=
-            1 +
-            arFactor *
-                (1.650668 +
-                    (0.4845796 - 1.650668) /
-                        (1 + Math.pow(objectCount / 817.9306, 1.147469)));
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -158,7 +144,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private calculateTapValue(): void {
         // Global variables
         const objectCount: number = this.stars.objects.length;
-        const calculatedAR: number = this.mapStatistics.ar!;
 
         this.tap = this.baseValue(this.stars.tap);
 
@@ -174,18 +159,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Combo scaling
         this.tap *= this.comboPenalty;
-
-        // AR scaling
-        if (calculatedAR > 10.33) {
-            // Buff for longer maps with high AR.
-            this.tap *=
-                1 +
-                0.3 *
-                    (calculatedAR - 10.33) *
-                    (1.650668 +
-                        (0.4845796 - 1.650668) /
-                            (1 + Math.pow(objectCount / 817.9306, 1.147469)));
-        }
 
         // Calculate accuracy assuming the worst case scenario.
         const countGreat: number = this.computedAccuracy.n300;
@@ -325,6 +298,45 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
     }
 
+    /**
+     * Calculates the visual performance value of the beatmap.
+     */
+    private calculateVisualValue(): void {
+        // Global variables
+        const objectCount: number = this.stars.objects.length;
+
+        this.visual = Math.pow(Math.pow(this.stars.visual, 0.8), 2) * 25;
+
+        if (this.effectiveMissCount > 0) {
+            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
+            this.visual *=
+                0.97 *
+                Math.pow(
+                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    this.effectiveMissCount
+                );
+        }
+
+        // Combo scaling
+        this.visual *= this.comboPenalty;
+
+        // Scale the visual value with object count to penalize short maps.
+        this.visual *= Math.min(
+            1,
+            1.650668 +
+                (0.4845796 - 1.650668) /
+                    (1 + Math.pow(objectCount / 817.9306, 1.147469))
+        );
+
+        // Scale the visual value with accuracy harshly.
+        this.visual *= Math.pow(this.computedAccuracy.value(), 8);
+
+        // It is also important to consider accuracy difficulty when doing that.
+        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
+        this.visual *=
+            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+    }
+
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -336,7 +348,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.accuracy.toFixed(2) +
             " acc, " +
             this.flashlight.toFixed(2) +
-            " flashlight)"
+            " flashlight, " +
+            this.visual.toFixed(2) +
+            " visual)"
         );
     }
 }

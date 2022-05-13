@@ -65,7 +65,7 @@ export class DroidAim extends DroidSkill {
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (
             last.object instanceof Slider &&
-            last.object.ticks > 1 &&
+            last.object.ticks > 0 &&
             this.withSliders
         ) {
             // Calculate the slider velocity from slider head to slider end.
@@ -88,7 +88,7 @@ export class DroidAim extends DroidSkill {
 
         if (
             lastLast.object instanceof Slider &&
-            lastLast.object.ticks > 1 &&
+            lastLast.object.ticks > 0 &&
             this.withSliders
         ) {
             const travelVelocity: number =

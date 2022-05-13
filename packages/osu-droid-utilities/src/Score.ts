@@ -174,7 +174,7 @@ export class Score {
     /**
      * Retrieves play information.
      *
-     * @param values Function parameters.
+     * @param params Function parameters.
      */
     static async getFromHash(params: {
         /**
@@ -261,7 +261,7 @@ export class Score {
             nmiss: parseInt(play[11]),
         });
         const date: Date = new Date(parseInt(play[12]) * 1000);
-        date.setUTCHours(date.getUTCHours() + 7);
+        date.setUTCHours(date.getUTCHours() + 6);
         this.date = date;
         this.title = play[13]
             .substring(0, play[13].length - 4)

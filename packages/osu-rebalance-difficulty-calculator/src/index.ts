@@ -6,6 +6,7 @@ export * from "./DroidPerformanceCalculator";
 export * from "./skills/DroidRhythm";
 export * from "./DroidStarRating";
 export * from "./skills/DroidTap";
+export * from "./skills/DroidVisual";
 export * from "./MapStars";
 export * from "./skills/OsuAim";
 export * from "./skills/OsuFlashlight";

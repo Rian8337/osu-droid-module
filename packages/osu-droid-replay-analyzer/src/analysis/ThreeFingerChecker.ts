@@ -960,7 +960,7 @@ export class ThreeFingerChecker {
                                     ThreeFingerChecker.strainThreshold,
                             0
                         ),
-                    0.85
+                    0.75
                 );
 
                 // We can ignore the first 3 (2 for drag) filled cursor instances

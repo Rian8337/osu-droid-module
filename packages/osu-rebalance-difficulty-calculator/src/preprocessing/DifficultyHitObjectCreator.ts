@@ -47,7 +47,10 @@ export class DifficultyHitObjectCreator {
         circleSize: number;
         speedMultiplier: number;
         mode: modes;
+        preempt?: number;
     }): DifficultyHitObject[] {
+        params.preempt ??= 600;
+
         this.mode = params.mode;
 
         const circleSize: number = params.circleSize;
@@ -69,11 +72,15 @@ export class DifficultyHitObjectCreator {
             object.object.scale = scale;
 
             if (object.object instanceof Slider) {
+                object.velocity =
+                    object.object.velocity * params.speedMultiplier;
+
                 object.object.nestedHitObjects.forEach((h) => {
                     h.scale = scale;
                 });
 
                 this.calculateSliderCursorPosition(object.object);
+
                 object.travelDistance = object.object.lazyTravelDistance;
                 object.travelTime = Math.max(
                     object.object.lazyTravelTime / params.speedMultiplier,
@@ -86,6 +93,7 @@ export class DifficultyHitObjectCreator {
                 difficultyObjects[i - 2];
 
             object.startTime = object.object.startTime / params.speedMultiplier;
+            object.endTime = object.object.endTime / params.speedMultiplier;
 
             if (!lastObject) {
                 difficultyObjects.push(object);
@@ -95,8 +103,72 @@ export class DifficultyHitObjectCreator {
             object.deltaTime =
                 (object.object.startTime - lastObject.object.startTime) /
                 params.speedMultiplier;
-            // Cap to 25ms to prevent difficulty calculation breaking from simulatenous objects.
+            // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
+
+            const visibleObjects: HitObject[] = params.objects.filter(
+                (o) =>
+                    o.startTime / params.speedMultiplier > object.startTime &&
+                    o.startTime / params.speedMultiplier <=
+                        object.endTime + params.preempt!
+            );
+
+            object.noteDensity = 1;
+
+            for (const hitObject of visibleObjects) {
+                // Calculate delta time assuming the current object is a circle.
+                let deltaTime: number = Math.abs(
+                    hitObject.startTime / params.speedMultiplier -
+                        object.startTime
+                );
+
+                // But if the current object is a slider, then we alter the delta time to account for slider end time.
+                if (object.object instanceof Slider) {
+                    if (
+                        hitObject.startTime >= object.object.startTime &&
+                        hitObject.startTime <= object.object.endTime
+                    ) {
+                        // If the object starts when the slider is active, then the slider is technically still visible.
+                        // Set delta time to 0.
+                        deltaTime = 0;
+                    } else {
+                        // Otherwise, we take the delta time from the slider head or tail, whichever is smaller as it's the closest time.
+                        deltaTime = Math.min(
+                            deltaTime,
+                            Math.abs(
+                                hitObject.startTime / params.speedMultiplier -
+                                    object.endTime
+                            )
+                        );
+                    }
+                }
+
+                object.noteDensity += 1 - deltaTime / params.preempt;
+
+                if (!(hitObject instanceof Spinner)) {
+                    object.overlappingFactor +=
+                        // Penalize objects that are too close to the object in both distance
+                        // and delta time to prevent stream maps from being overweighted.
+                        Math.max(
+                            0,
+                            1 -
+                                object.object.stackedPosition.getDistance(
+                                    hitObject.stackedEndPosition
+                                ) /
+                                    (3 * object.object.radius)
+                        ) *
+                        (7.5 /
+                            (1 +
+                                Math.exp(
+                                    0.15 *
+                                        (Math.max(
+                                            deltaTime,
+                                            this.minDeltaTime
+                                        ) -
+                                            75)
+                                )));
+                }
+            }
 
             if (
                 object.object instanceof Spinner ||
