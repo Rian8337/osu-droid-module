@@ -1,12 +1,12 @@
 import {
-    HeadCircle,
+    SliderHead,
     objectTypes,
     PathType,
-    RepeatPoint,
+    SliderRepeat,
     Slider,
     SliderPath,
     SliderTick,
-    TailCircle,
+    SliderTail,
     Vector2,
 } from "../../../src";
 
@@ -151,7 +151,7 @@ describe("Test slider without slider ticks", () => {
     test("Slider head", () => {
         const head = slider.nestedHitObjects[0];
 
-        expect(head).toBeInstanceOf(HeadCircle);
+        expect(head).toBeInstanceOf(SliderHead);
 
         expect(head).toEqual(slider.headCircle);
 
@@ -164,7 +164,7 @@ describe("Test slider without slider ticks", () => {
     test("Slider tail", () => {
         const tail = slider.nestedHitObjects.at(-1)!;
 
-        expect(tail).toBeInstanceOf(TailCircle);
+        expect(tail).toBeInstanceOf(SliderTail);
 
         expect(tail).toEqual(slider.tailCircle);
 
@@ -188,7 +188,7 @@ describe("Test slider with 1 slider tick", () => {
     test("Slider head", () => {
         const head = slider.nestedHitObjects[0];
 
-        expect(head).toBeInstanceOf(HeadCircle);
+        expect(head).toBeInstanceOf(SliderHead);
 
         expect(head).toEqual(slider.headCircle);
 
@@ -212,7 +212,7 @@ describe("Test slider with 1 slider tick", () => {
     test("Slider tail", () => {
         const tail = slider.nestedHitObjects.at(-1)!;
 
-        expect(tail).toBeInstanceOf(TailCircle);
+        expect(tail).toBeInstanceOf(SliderTail);
 
         expect(tail).toEqual(slider.tailCircle);
 
@@ -240,7 +240,7 @@ describe("Test slider with 3 slider ticks", () => {
     test("Slider head", () => {
         const head = slider.nestedHitObjects[0];
 
-        expect(head).toBeInstanceOf(HeadCircle);
+        expect(head).toBeInstanceOf(SliderHead);
 
         expect(head).toEqual(slider.headCircle);
 
@@ -270,7 +270,7 @@ describe("Test slider with 3 slider ticks", () => {
     test("Slider tail", () => {
         const tail = slider.nestedHitObjects.at(-1)!;
 
-        expect(tail).toBeInstanceOf(TailCircle);
+        expect(tail).toBeInstanceOf(SliderTail);
 
         expect(tail).toEqual(slider.tailCircle);
 
@@ -301,7 +301,7 @@ describe("Test slider repeat points", () => {
 
         const repeatPoint = slider.nestedHitObjects[2];
 
-        expect(repeatPoint).toBeInstanceOf(RepeatPoint);
+        expect(repeatPoint).toBeInstanceOf(SliderRepeat);
 
         expect(repeatPoint.startTime).toBeCloseTo(3000);
         expect(repeatPoint.endTime).toBeCloseTo(3000);
@@ -324,7 +324,7 @@ describe("Test slider repeat points", () => {
         const slider = new Slider(sliderValues);
 
         const repeatPoints = slider.nestedHitObjects.filter(
-            (v) => v instanceof RepeatPoint
+            (v) => v instanceof SliderRepeat
         );
 
         expect(repeatPoints.length).toBe(3);
@@ -332,7 +332,7 @@ describe("Test slider repeat points", () => {
         for (let i = 0; i < repeatPoints.length; ++i) {
             const repeatPoint = repeatPoints[i];
 
-            expect(repeatPoint).toBeInstanceOf(RepeatPoint);
+            expect(repeatPoint).toBeInstanceOf(SliderRepeat);
 
             expect(repeatPoint.startTime).toBeCloseTo(1000 + 2000 * (i + 1));
             expect(repeatPoint.endTime).toBeCloseTo(1000 + 2000 * (i + 1));

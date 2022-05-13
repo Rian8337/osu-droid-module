@@ -161,7 +161,7 @@ export class Beatmap {
         const sliders: Slider[] = <Slider[]>(
             this.objects.filter((v) => v instanceof Slider)
         );
-        return sliders.reduce((acc, value) => acc + value.repeatPoints, 0);
+        return sliders.reduce((acc, value) => acc + value.repeats, 0);
     }
 
     /**
@@ -299,8 +299,8 @@ export class Beatmap {
             ).length;
 
             // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
-            combo += tickCount + (object.repeatPoints + 1);
+            score += 30 * (object.repeats + 1) + 10 * tickCount;
+            combo += tickCount + (object.repeats + 1);
 
             // Apply sliderend
             score += Math.floor(
