@@ -577,12 +577,6 @@ declare module "@rian8337/osu-base" {
          */
         get statusColor(): number;
         /**
-         * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
-         *
-         * This requires .osu file to be downloaded.
-         */
-        maxScore(stats: MapStats): number;
-        /**
          * Returns a string representative of the class.
          */
         toString(): string;
