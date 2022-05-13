@@ -2,8 +2,8 @@ import {
     HitObject,
     modes,
     Precision,
-    RepeatPoint,
     Slider,
+    SliderRepeat,
     Spinner,
     Vector2,
 } from "@rian8337/osu-base";
@@ -214,7 +214,7 @@ export class DifficultyHitObjectCreator {
                 //
                 // Thus, the player is assumed to jump the minimum of these two distances in all cases.
                 const tailJumpDistance: number =
-                    lastObject.object.tailCircle.stackedPosition.subtract(
+                    lastObject.object.tail.stackedPosition.subtract(
                         object.object.stackedPosition
                     ).length * scalingFactor;
 
@@ -261,8 +261,8 @@ export class DifficultyHitObjectCreator {
         // Droid doesn't have a legacy slider tail. Since beatmap parser defaults slider tail
         // to legacy slider tail, it needs to be changed to real slider tail first.
         if (this.mode === modes.droid) {
-            slider.tailCircle.startTime += Slider.legacyLastTickOffset;
-            slider.tailCircle.endTime += Slider.legacyLastTickOffset;
+            slider.tail.startTime += Slider.legacyLastTickOffset;
+            slider.tail.endTime += Slider.legacyLastTickOffset;
 
             slider.nestedHitObjects.sort((a, b) => {
                 return a.startTime - b.startTime;
@@ -330,7 +330,7 @@ export class DifficultyHitObjectCreator {
                 }
 
                 currentMovementLength = scalingFactor * currentMovement.length;
-            } else if (currentMovementObject instanceof RepeatPoint) {
+            } else if (currentMovementObject instanceof SliderRepeat) {
                 // For a slider repeat, assume a tighter movement threshold to better assess repeat sliders.
                 requiredMovement = this.normalizedRadius;
             }
@@ -358,12 +358,12 @@ export class DifficultyHitObjectCreator {
         // Bonus for repeat sliders until a better per nested object strain system can be achieved.
         if (this.mode === modes.droid) {
             slider.lazyTravelDistance *= Math.pow(
-                1 + slider.repeatPoints / 4,
+                1 + slider.repeats / 4,
                 1 / 4
             );
         } else {
             slider.lazyTravelDistance *= Math.pow(
-                1 + slider.repeatPoints / 2.5,
+                1 + slider.repeats / 2.5,
                 1 / 2.5
             );
         }
