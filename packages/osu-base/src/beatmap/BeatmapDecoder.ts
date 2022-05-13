@@ -20,25 +20,19 @@ export class BeatmapDecoder {
     /**
      * The decoded beatmap.
      */
-    readonly map: Beatmap = new Beatmap();
+    private decodedBeatmap: Beatmap = new Beatmap();
+
+    /**
+     * The decoded beatmap.
+     */
+    get map(): Beatmap {
+        return this.decodedBeatmap;
+    }
 
     /**
      * Available per-section decoders, mapped by its section name.
      */
-    private readonly decoders: Map<BeatmapSection, BeatmapBaseDecoder> =
-        new Map([
-            [BeatmapSection.general, new BeatmapGeneralDecoder(this.map)],
-            [BeatmapSection.editor, new BeatmapEditorDecoder(this.map)],
-            [BeatmapSection.metadata, new BeatmapMetadataDecoder(this.map)],
-            [BeatmapSection.difficulty, new BeatmapDifficultyDecoder(this.map)],
-            [BeatmapSection.events, new BeatmapEventsDecoder(this.map)],
-            [
-                BeatmapSection.timingPoints,
-                new BeatmapControlPointsDecoder(this.map),
-            ],
-            [BeatmapSection.colors, new BeatmapColorDecoder(this.map)],
-            [BeatmapSection.hitObjects, new BeatmapHitObjectsDecoder(this.map)],
-        ]);
+    private decoders: Map<BeatmapSection, BeatmapBaseDecoder> = new Map();
 
     /**
      * The amount of lines of `.osu` file that have been processed up to this point.
@@ -55,6 +49,10 @@ export class BeatmapDecoder {
      */
     private section: BeatmapSection | null = null;
 
+    constructor() {
+        this.reset();
+    }
+
     /**
      * Decodes a beatmap.
      *
@@ -64,6 +62,8 @@ export class BeatmapDecoder {
      * @param mods The mods to decode the beatmap for.
      */
     decode(str: string, mods: Mod[] = []): BeatmapDecoder {
+        this.reset();
+
         const lines: string[] = str.split("\n");
 
         for (const line of lines) {
@@ -177,5 +177,29 @@ export class BeatmapDecoder {
             console.log(`at line ${this.line}\n${this.currentLine}\n`);
             decoder.logExceptionPosition();
         }
+    }
+
+    /**
+     * Resets this decoder's instance.
+     */
+    private reset(): void {
+        this.decodedBeatmap = new Beatmap();
+        this.line = 0;
+        this.currentLine = "";
+        this.section = null;
+
+        this.decoders = new Map([
+            [BeatmapSection.general, new BeatmapGeneralDecoder(this.map)],
+            [BeatmapSection.editor, new BeatmapEditorDecoder(this.map)],
+            [BeatmapSection.metadata, new BeatmapMetadataDecoder(this.map)],
+            [BeatmapSection.difficulty, new BeatmapDifficultyDecoder(this.map)],
+            [BeatmapSection.events, new BeatmapEventsDecoder(this.map)],
+            [
+                BeatmapSection.timingPoints,
+                new BeatmapControlPointsDecoder(this.map),
+            ],
+            [BeatmapSection.colors, new BeatmapColorDecoder(this.map)],
+            [BeatmapSection.hitObjects, new BeatmapHitObjectsDecoder(this.map)],
+        ]);
     }
 }

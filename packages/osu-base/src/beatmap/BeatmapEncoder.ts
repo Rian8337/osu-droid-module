@@ -19,12 +19,12 @@ export class BeatmapEncoder {
     /**
      * The beatmap to encode.
      */
-    readonly map: Beatmap;
+    map: Beatmap;
 
     /**
      * Available per-section encoders.
      */
-    private readonly encoders: BeatmapBaseEncoder[];
+    private encoders: BeatmapBaseEncoder[] = [];
 
     private readonly latestVersion: number = 14;
 
@@ -33,16 +33,7 @@ export class BeatmapEncoder {
     constructor(map: Beatmap) {
         this.map = map;
 
-        this.encoders = [
-            new BeatmapGeneralEncoder(this.map),
-            new BeatmapEditorEncoder(this.map),
-            new BeatmapMetadataEncoder(this.map),
-            new BeatmapDifficultyEncoder(this.map),
-            new BeatmapEventsEncoder(this.map),
-            new BeatmapControlPointsEncoder(this.map),
-            new BeatmapColorEncoder(this.map),
-            new BeatmapHitObjectsEncoder(this.map),
-        ];
+        this.reset();
     }
 
     /**
@@ -78,5 +69,16 @@ export class BeatmapEncoder {
      */
     private reset(): void {
         this.encodedText = "";
+
+        this.encoders = [
+            new BeatmapGeneralEncoder(this.map),
+            new BeatmapEditorEncoder(this.map),
+            new BeatmapMetadataEncoder(this.map),
+            new BeatmapDifficultyEncoder(this.map),
+            new BeatmapEventsEncoder(this.map),
+            new BeatmapControlPointsEncoder(this.map),
+            new BeatmapColorEncoder(this.map),
+            new BeatmapHitObjectsEncoder(this.map),
+        ];
     }
 }

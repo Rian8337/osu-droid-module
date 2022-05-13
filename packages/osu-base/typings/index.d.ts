@@ -202,11 +202,15 @@ declare module "@rian8337/osu-base" {
         /**
          * The decoded beatmap.
          */
-        readonly map: Beatmap;
+        private decodedBeatmap: Beatmap;
+        /**
+         * The decoded beatmap.
+         */
+        get map(): Beatmap;
         /**
          * The available per-section decoders, mapped by its section name.
          */
-        private readonly decoders: Map<BeatmapSection, BeatmapBaseDecoder>;
+        private decoders: Map<BeatmapSection, BeatmapBaseDecoder>;
         /**
          * The amount of lines of `.osu` file that have been processed up to this point.
          */
@@ -232,6 +236,10 @@ declare module "@rian8337/osu-base" {
          * Processes a line of the file.
          */
         private processLine(line: string): BeatmapDecoder;
+        /**
+         * Resets this decoder's instance.
+         */
+        private reset(): void;
     }
 
     /**
@@ -270,12 +278,12 @@ declare module "@rian8337/osu-base" {
         /**
          * The beatmap to encode.
          */
-        readonly map: Beatmap;
+        map: Beatmap;
 
         /**
          * Available per-section encoders.
          */
-        private readonly encoders: BeatmapBaseEncoder[];
+        private encoders: BeatmapBaseEncoder[];
 
         private readonly latestVersion: number;
 
