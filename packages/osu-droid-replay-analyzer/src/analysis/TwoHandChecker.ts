@@ -7,7 +7,6 @@ import {
     ModPrecise,
     Vector2,
     Beatmap,
-    modes,
 } from "@rian8337/osu-base";
 import {
     DroidStarRating,
@@ -367,7 +366,7 @@ export class TwoHandChecker {
             const starRating: DroidStarRating | RebalanceDroidStarRating =
                 Utils.deepCopy(this.map);
             starRating.map = beatmap;
-            starRating.generateDifficultyHitObjects(modes.droid);
+            starRating.generateDifficultyHitObjects();
             starRating.objects[0].deltaTime =
                 starRating.objects[0].object.startTime -
                 this.indexedHitObjects[0].object.object.startTime;

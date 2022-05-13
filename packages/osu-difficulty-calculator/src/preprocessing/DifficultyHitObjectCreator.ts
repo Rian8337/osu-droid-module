@@ -2,15 +2,10 @@ import {
     HitObject,
     modes,
     Precision,
-    RepeatPoint,
     Slider,
     SliderRepeat,
     Spinner,
     Vector2,
-<<<<<<< HEAD
-    Precision,
-=======
->>>>>>> origin/master
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
