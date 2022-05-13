@@ -42,13 +42,13 @@ export abstract class DroidSkill extends StrainSkill {
         // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
         // This also applies to two sets of notes with equal difficulty.
         return Math.pow(
-            sortedStrains
-                .filter((v) => v > 0)
-                .reduce(
-                    (a, v) =>
-                        a + Math.pow(v, 1 / Math.log2(this.starsPerDouble)),
-                    0
-                ),
+            sortedStrains.reduce((a, v) => {
+                if (v <= 0) {
+                    return a;
+                }
+
+                return a + Math.pow(v, 1 / Math.log2(this.starsPerDouble));
+            }, 0),
             Math.log2(this.starsPerDouble)
         );
     }
