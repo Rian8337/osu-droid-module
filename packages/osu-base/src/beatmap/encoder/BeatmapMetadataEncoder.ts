@@ -29,6 +29,10 @@ export class BeatmapMetadataEncoder extends BeatmapBaseEncoder {
             this.writeLine(`Source: ${metadata.source}`);
         }
 
+        if (metadata.tags.length > 0) {
+            this.writeLine(`Tags: ${metadata.tags.join(" ")}`);
+        }
+
         if ((metadata.beatmapId ?? -1) > 0) {
             this.writeLine(`BeatmapID: ${metadata.beatmapId}`);
         }
