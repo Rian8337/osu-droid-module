@@ -25,8 +25,6 @@ export abstract class BeatmapBaseEncoder {
      * @returns The encoded section.
      */
     encode(): string {
-        this.reset();
-
         this.encodeInternal();
 
         return this.encodedText;
@@ -53,13 +51,6 @@ export abstract class BeatmapBaseEncoder {
      */
     protected writeLine(line: string = ""): void {
         this.encodedText += line + "\n";
-    }
-
-    /**
-     * Resets this encoder's instance.
-     */
-    protected reset(): void {
-        this.encodedText = "";
     }
 
     /**

@@ -60,12 +60,6 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
         }
     }
 
-    protected override reset(): void {
-        super.reset();
-
-        this.controlPointGroups.clear();
-    }
-
     private collectTimingControlPointInfo(): void {
         for (const t of this.map.controlPoints.timing.points) {
             const group = this.controlPointGroups.get(t.time) ?? {};

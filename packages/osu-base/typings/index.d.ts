@@ -2496,10 +2496,6 @@ declare module "@rian8337/osu-base" {
          */
         protected writeLine(line?: string): void;
         /**
-         * Resets this encoder's instance.
-         */
-        protected reset(): void;
-        /**
          * Converts a sample bank to its string equivalent.
          *
          * @param sampleBank The sample bank.
