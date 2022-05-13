@@ -28,5 +28,12 @@ export class BeatmapEventsEncoder extends BeatmapBaseEncoder {
         for (const b of events.breaks) {
             this.writeLine(`2,${b.startTime},${b.endTime}`);
         }
+
+        this.writeLine("//Storyboard Layer 0 (Background)");
+        this.writeLine("//Storyboard Layer 1 (Fail)");
+        this.writeLine("//Storyboard Layer 2 (Pass)");
+        this.writeLine("//Storyboard Layer 3 (Foreground)");
+        this.writeLine("//Storyboard Layer 4 (Overlay)");
+        this.writeLine("//Storyboard Sound Samples");
     }
 }
