@@ -24,8 +24,10 @@ export class ControlPointsParser extends BaseParser {
 
         const msPerBeat: number = this.tryParseFloat(this.setPosition(s[1]));
 
-        const timeSignature: number =
-            this.tryParseInt(this.setPosition(s[2])) || 4;
+        let timeSignature: number = 4;
+        if (s.length >= 3) {
+            timeSignature = this.tryParseInt(this.setPosition(s[2]));
+        }
 
         if (timeSignature < 1) {
             throw new RangeError(
@@ -33,24 +35,36 @@ export class ControlPointsParser extends BaseParser {
             );
         }
 
-        const sampleSet: SampleBank = <SampleBank>(
-            this.tryParseInt(this.setPosition(s[3]))
-        );
+        let sampleSet: SampleBank = this.map.general.sampleBank;
+        if (s.length >= 4) {
+            sampleSet = <SampleBank>this.tryParseInt(this.setPosition(s[3]));
+        }
 
-        const customSampleBank: number = this.tryParseInt(
-            this.setPosition(s[4])
-        );
+        let customSampleBank: number = 0;
+        if (s.length >= 5) {
+            customSampleBank = this.tryParseInt(this.setPosition(s[4]));
+        }
 
-        const sampleVolume: number = this.tryParseInt(this.setPosition(s[5]));
+        let sampleVolume: number = this.map.general.sampleVolume;
+        if (s.length >= 6) {
+            sampleVolume = this.tryParseInt(this.setPosition(s[5]));
+        }
 
-        const effectBitFlags: number = this.tryParseInt(this.setPosition(s[7]));
+        let kiaiMode: boolean = false;
+
+        if (s.length >= 8) {
+            const effectBitFlags: number = this.tryParseInt(
+                this.setPosition(s[7])
+            );
+            kiaiMode = !!(effectBitFlags & (1 << 0));
+        }
 
         if (msPerBeat >= 0) {
             this.addControlPoint(
                 new TimingControlPoint({
                     time: time,
                     msPerBeat: msPerBeat,
-                    timeSignature: timeSignature || 4,
+                    timeSignature: timeSignature,
                 }),
                 this.map.controlPoints.timing
             );
@@ -67,7 +81,7 @@ export class ControlPointsParser extends BaseParser {
         this.addControlPoint(
             new EffectControlPoint({
                 time: time,
-                effectBitFlags: effectBitFlags,
+                isKiai: kiaiMode,
             }),
             this.map.controlPoints.effect
         );

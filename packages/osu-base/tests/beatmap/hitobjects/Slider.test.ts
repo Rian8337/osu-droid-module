@@ -155,7 +155,7 @@ describe("Test slider without slider ticks", () => {
 
         expect(head).toBeInstanceOf(SliderHead);
 
-        expect(head).toEqual(slider.headCircle);
+        expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
 
@@ -168,7 +168,7 @@ describe("Test slider without slider ticks", () => {
 
         expect(tail).toBeInstanceOf(SliderTail);
 
-        expect(tail).toEqual(slider.tailCircle);
+        expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
             slider.endTime - Slider.legacyLastTickOffset
@@ -192,7 +192,7 @@ describe("Test slider with 1 slider tick", () => {
 
         expect(head).toBeInstanceOf(SliderHead);
 
-        expect(head).toEqual(slider.headCircle);
+        expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
 
@@ -216,7 +216,7 @@ describe("Test slider with 1 slider tick", () => {
 
         expect(tail).toBeInstanceOf(SliderTail);
 
-        expect(tail).toEqual(slider.tailCircle);
+        expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
             slider.endTime - Slider.legacyLastTickOffset
@@ -244,7 +244,7 @@ describe("Test slider with 3 slider ticks", () => {
 
         expect(head).toBeInstanceOf(SliderHead);
 
-        expect(head).toEqual(slider.headCircle);
+        expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
 
@@ -274,7 +274,7 @@ describe("Test slider with 3 slider ticks", () => {
 
         expect(tail).toBeInstanceOf(SliderTail);
 
-        expect(tail).toEqual(slider.tailCircle);
+        expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
             slider.endTime - Slider.legacyLastTickOffset
@@ -289,7 +289,7 @@ describe("Test slider repeat points", () => {
     test("Slider with no repeat points", () => {
         const slider = new Slider(createGlobalSliderValues());
 
-        expect(slider.repeatPoints).toBe(0);
+        expect(slider.repeats).toBe(0);
     });
 
     test("Slider with 1 repeat point", () => {
@@ -299,7 +299,7 @@ describe("Test slider repeat points", () => {
 
         const slider = new Slider(sliderValues);
 
-        expect(slider.repeatPoints).toBe(1);
+        expect(slider.repeats).toBe(1);
 
         const repeatPoint = slider.nestedHitObjects[2];
 

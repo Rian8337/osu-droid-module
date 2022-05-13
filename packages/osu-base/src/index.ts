@@ -55,6 +55,7 @@ export * from "./beatmap/Parser";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
 export * from "./utils/Precision";
+export * from "./utils/RGBColor";
 export * from "./constants/rankedStatus";
 export * from "./constants/SampleBank";
 export * from "./beatmap/hitobjects/SampleBankInfo";

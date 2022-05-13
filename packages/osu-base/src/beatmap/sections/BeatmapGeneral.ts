@@ -35,6 +35,11 @@ export class BeatmapGeneral {
     sampleBank: SampleBank = SampleBank.normal;
 
     /**
+     * The sample volume that will be used if timing points do not override it.
+     */
+    sampleVolume: number = 100;
+
+    /**
      * The multiplier for the threshold in time where hit objects
      * placed close together stack, ranging from 0 to 1.
      */

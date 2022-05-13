@@ -89,7 +89,8 @@ test("Test general section", () => {
     );
     expect(beatmap.general.previewTime).toBe(49037);
     expect(beatmap.general.sampleBank).toBe(SampleBank.soft);
-    expect(beatmap.general.samplesMatchPlaybackRate).toBe(false);
+    expect(beatmap.general.sampleVolume).toBe(100);
+    expect(beatmap.general.samplesMatchPlaybackRate).toBe(true);
     expect(beatmap.general.skinPreference).toBe("");
     expect(beatmap.general.stackLeniency).toBe(0.2);
     expect(beatmap.general.useSkinSprites).toBe(false);

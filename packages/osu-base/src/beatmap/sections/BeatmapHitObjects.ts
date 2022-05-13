@@ -51,6 +51,6 @@ export class BeatmapHitObjects {
             this.objects.filter((v) => v instanceof Slider)
         );
 
-        return sliders.reduce((acc, value) => acc + value.repeatPoints, 0);
+        return sliders.reduce((acc, value) => acc + value.repeats, 0);
     }
 }

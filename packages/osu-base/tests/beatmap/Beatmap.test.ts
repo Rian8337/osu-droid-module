@@ -119,11 +119,11 @@ test("Test effect control point getter", () => {
     beatmap.controlPoints.effect.points.push(
         new EffectControlPoint({
             time: 1000,
-            effectBitFlags: 0,
+            isKiai: false,
         }),
         new EffectControlPoint({
             time: 5000,
-            effectBitFlags: 0,
+            isKiai: false,
         })
     );
 
@@ -308,14 +308,14 @@ test("Test osu!droid max score calculation", () => {
 
     expect(beatmap.maxDroidScore(stats)).toBe(0);
 
-    beatmap.hitObjects.push(
+    beatmap.hitObjects.objects.push(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),
         })
     );
 
-    ++beatmap.circles;
+    ++beatmap.hitObjects.circles;
 
     expect(beatmap.maxDroidScore(stats)).toBe(300);
 
@@ -329,14 +329,14 @@ test("Test osu!standard max score calculation", () => {
 
     expect(beatmap.maxOsuScore()).toBe(0);
 
-    beatmap.hitObjects.push(
+    beatmap.hitObjects.objects.push(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),
         })
     );
 
-    ++beatmap.circles;
+    ++beatmap.hitObjects.circles;
 
     expect(beatmap.maxOsuScore()).toBe(300);
 

@@ -543,11 +543,6 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * Represents the headcircle of a slider (sliderhead).
-     */
-    export class HeadCircle extends Circle { }
-
-    /**
      * Represents a hitobject in a beatmap.
      */
     export abstract class HitObject {
@@ -1604,27 +1599,6 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * Represents a repeat point in a slider.
-     */
-    export class RepeatPoint extends HitObject {
-        /**
-         * The index of the repeat point.
-         */
-        readonly repeatIndex: number;
-        /**
-         * The duration of the repeat point.
-         */
-        readonly spanDuration: number;
-        constructor(values: {
-            position: Vector2;
-            startTime: number;
-            repeatIndex: number;
-            spanDuration: number;
-        });
-        override toString(): string;
-    }
-
-    /**
      * Represents an RGB color.
      */
     export class RGBColor {
@@ -1780,7 +1754,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the head of a slider.
      */
-    export class SliderHead extends Circle { }
+    export class SliderHead extends Circle {}
 
     /**
      * Represents a slider's path.
@@ -1889,7 +1863,7 @@ declare module "@rian8337/osu-base" {
     /**
      * Represents the tail of a slider.
      */
-    export class SliderTail extends Circle { }
+    export class SliderTail extends Circle {}
 
     /**
      * Represents a slider tick in a slider.
@@ -1930,11 +1904,6 @@ declare module "@rian8337/osu-base" {
         });
         override toString(): string;
     }
-
-    /**
-     * Represents the tailcircle of a slider (sliderend).
-     */
-    export class TailCircle extends Circle { }
 
     /**
      * Represents a control point that changes the beatmap's BPM.

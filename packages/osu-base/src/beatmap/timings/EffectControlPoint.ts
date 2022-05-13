@@ -9,10 +9,10 @@ export class EffectControlPoint extends ControlPoint {
      */
     readonly isKiai: boolean;
 
-    constructor(values: { time: number; effectBitFlags: number }) {
+    constructor(values: { time: number; isKiai: boolean }) {
         super(values);
 
-        this.isKiai = !!(values.effectBitFlags & (1 << 0));
+        this.isKiai = values.isKiai;
     }
 
     override isRedundant(existing: EffectControlPoint): boolean {

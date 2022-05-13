@@ -111,9 +111,9 @@ export class Beatmap {
 
         return this.maxScore(
             1 +
-            this.difficulty.od / 10 +
-            this.difficulty.hp / 10 +
-            (this.difficulty.cs - 3) / 4,
+                this.difficulty.od / 10 +
+                this.difficulty.hp / 10 +
+                (this.difficulty.cs - 3) / 4,
             scoreMultiplier
         );
     }
@@ -170,8 +170,8 @@ export class Beatmap {
             if (!(object instanceof Slider)) {
                 score += Math.floor(
                     300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                    25
+                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
+                            25
                 );
                 ++combo;
                 continue;
@@ -182,13 +182,13 @@ export class Beatmap {
             ).length;
 
             // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * (object.repeatPoints + 1) + 10 * tickCount;
-            combo += tickCount + (object.repeatPoints + 1);
+            score += 30 * (object.repeats + 1) + 10 * tickCount;
+            combo += tickCount + (object.repeats + 1);
 
             // Apply sliderend
             score += Math.floor(
                 300 +
-                (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
+                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
             );
             ++combo;
         }

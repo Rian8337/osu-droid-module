@@ -39,6 +39,9 @@ export class GeneralParser extends BaseParser {
                         break;
                 }
                 break;
+            case "SampleVolume":
+                this.map.general.sampleVolume = this.tryParseInt(p[1]);
+                break;
             case "StackLeniency":
                 this.map.general.stackLeniency = this.tryParseFloat(p[1]);
                 break;
