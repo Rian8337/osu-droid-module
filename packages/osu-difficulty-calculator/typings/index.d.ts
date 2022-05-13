@@ -393,6 +393,10 @@ declare module "@rian8337/osu-difficulty-calculator" {
             stats?: MapStats;
         }): this;
         /**
+         * Generates difficulty hitobjects for this calculator.
+         */
+        override generateDifficultyHitObjects(): void;
+        /**
          * Calculates the aim star rating of the beatmap and stores it in this instance.
          */
         calculateAim(): void;
@@ -742,6 +746,10 @@ declare module "@rian8337/osu-difficulty-calculator" {
              */
             stats?: MapStats;
         }): this;
+        /**
+         * Generates difficulty hitobjects for this calculator.
+         */
+        override generateDifficultyHitObjects(): void;
         /**
          * Calculates the aim star rating of the beatmap and stores it in this instance.
          */
@@ -1214,7 +1222,7 @@ declare module "@rian8337/osu-difficulty-calculator" {
          *
          * @param mode The gamemode to generate difficulty hitobjects for.
          */
-        generateDifficultyHitObjects(mode: modes): void;
+        protected generateDifficultyHitObjects(mode: modes): void;
         /**
          * Calculates the skills provided.
          *

@@ -54,6 +54,13 @@ export class OsuStarRating extends StarRating {
     }
 
     /**
+     * Generates difficulty hitobjects for this calculator.
+     */
+    override generateDifficultyHitObjects(): void {
+        super.generateDifficultyHitObjects(modes.osu);
+    }
+
+    /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {

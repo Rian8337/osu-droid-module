@@ -63,12 +63,12 @@ export class Parser {
         const lines: string[] = str.split("\n");
 
         for (const line of lines) {
-            this.currentLine = line;
+            this.hitObjectsLine = line;
 
             ++this.line;
 
             this.processLine(line);
-        }
+        } hitObjects
 
         // Objects may be out of order *only* if a user has manually edited an .osu file.
         // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
@@ -79,7 +79,7 @@ export class Parser {
 
         const hitObjectsParser: HitObjectsParser = <HitObjectsParser>(
             this.parsers.get(BeatmapSection.hitObjects)
-        );
+        ); hitObjects
 
         if (this.map.formatVersion >= 6) {
             hitObjectsParser.applyStacking(
@@ -175,3 +175,4 @@ export class Parser {
         }
     }
 }
+hitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjectshitObjects

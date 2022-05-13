@@ -4,7 +4,7 @@ import { Vector2 } from "../../../mathutil/Vector2";
 /**
  * Represents a repeat point in a slider.
  */
-export class RepeatPoint extends HitObject {
+export class SliderRepeat extends HitObject {
     /**
      * The index of the repeat point.
      */

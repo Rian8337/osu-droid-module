@@ -57,7 +57,7 @@ export class Beatmap {
     readonly colors: BeatmapColor = new BeatmapColor();
 
     /**
-     * Hit objects of the beatmap.
+     * The objects of the beatmap.
      */
     readonly hitObjects: BeatmapHitObjects = new BeatmapHitObjects();
 
@@ -111,9 +111,9 @@ export class Beatmap {
 
         return this.maxScore(
             1 +
-                this.difficulty.od / 10 +
-                this.difficulty.hp / 10 +
-                (this.difficulty.cs - 3) / 4,
+            this.difficulty.od / 10 +
+            this.difficulty.hp / 10 +
+            (this.difficulty.cs - 3) / 4,
             scoreMultiplier
         );
     }
@@ -170,8 +170,8 @@ export class Beatmap {
             if (!(object instanceof Slider)) {
                 score += Math.floor(
                     300 +
-                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                            25
+                    (300 * combo * difficultyMultiplier * scoreMultiplier) /
+                    25
                 );
                 ++combo;
                 continue;
@@ -188,7 +188,7 @@ export class Beatmap {
             // Apply sliderend
             score += Math.floor(
                 300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
+                (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
             );
             ++combo;
         }

@@ -1,10 +1,10 @@
 import { SliderPath } from "../../utils/SliderPath";
 import { Vector2 } from "../../mathutil/Vector2";
 import { HitObject } from "./HitObject";
-import { HeadCircle } from "./sliderObjects/HeadCircle";
-import { RepeatPoint } from "./sliderObjects/RepeatPoint";
+import { SliderHead } from "./sliderObjects/SliderHead";
+import { SliderRepeat } from "./sliderObjects/SliderRepeat";
 import { SliderTick } from "./sliderObjects/SliderTick";
-import { TailCircle } from "./sliderObjects/TailCircle";
+import { SliderTail } from "./sliderObjects/SliderTail";
 import { HitSampleInfo } from "./HitSampleInfo";
 
 /**
@@ -55,14 +55,14 @@ export class Slider extends HitObject {
     readonly spanDuration: number;
 
     /**
-     * The slider's head (sliderhead).
+     * The slider's head.
      */
-    readonly headCircle: HeadCircle;
+    readonly head: SliderHead;
 
     /**
-     * The slider's tail (sliderend).
+     * The slider's tail.
      */
-    readonly tailCircle: TailCircle;
+    readonly tail: SliderTail;
 
     /**
      * The node samples of this slider.
@@ -87,7 +87,7 @@ export class Slider extends HitObject {
     /**
      * The amount of repeat points in this slider.
      */
-    get repeatPoints(): number {
+    get repeats(): number {
         return this.repetitions - 1;
     }
 
@@ -138,13 +138,13 @@ export class Slider extends HitObject {
 
         // Creating nested hit objects
         // Slider start
-        this.headCircle = new HeadCircle({
+        this.head = new SliderHead({
             position: this.position,
             startTime: this.startTime,
             type: 0,
         });
 
-        this.nestedHitObjects.push(this.headCircle);
+        this.nestedHitObjects.push(this.head);
 
         // Slider ticks and repeat points
         // A very lenient maximum length of a slider for ticks to be generated.
@@ -200,7 +200,7 @@ export class Slider extends HitObject {
                     const repeatPosition: Vector2 = this.position.add(
                         this.path.positionAt((span + 1) % 2)
                     );
-                    const repeatPoint: RepeatPoint = new RepeatPoint({
+                    const repeatPoint: SliderRepeat = new SliderRepeat({
                         position: repeatPosition,
                         startTime: spanStartTime + this.spanDuration,
                         repeatIndex: span,
@@ -218,7 +218,7 @@ export class Slider extends HitObject {
         // This legacy tick is used for some calculations and judgements where audio output is not required.
         // Generally we are keeping this around just for difficulty compatibility.
         // Optimistically we do not want to ever use this for anything user-facing going forwards.
-        const finalSpanIndex: number = this.repeatPoints;
+        const finalSpanIndex: number = this.repeats;
         const finalSpanStartTime: number =
             this.startTime + finalSpanIndex * this.spanDuration;
         const finalSpanEndTime: number = Math.max(
@@ -227,12 +227,12 @@ export class Slider extends HitObject {
         );
 
         // Slider end
-        this.tailCircle = new TailCircle({
+        this.tail = new SliderTail({
             position: this.endPosition,
             startTime: finalSpanEndTime,
         });
 
-        this.nestedHitObjects.push(this.tailCircle);
+        this.nestedHitObjects.push(this.tail);
 
         this.nestedHitObjects.sort((a, b) => {
             return a.startTime - b.startTime;
@@ -240,10 +240,8 @@ export class Slider extends HitObject {
     }
 
     override toString(): string {
-        return `Position: [${this.position.x}, ${this.position.y}], distance: ${
-            this.path.expectedDistance
-        }, repetitions: ${this.repetitions}, slider ticks: ${
-            this.nestedHitObjects.filter((v) => v instanceof SliderTick).length
-        }`;
+        return `Position: [${this.position.x}, ${this.position.y}], distance: ${this.path.expectedDistance
+            }, repetitions: ${this.repetitions}, slider ticks: ${this.nestedHitObjects.filter((v) => v instanceof SliderTick).length
+            }`;
     }
 }

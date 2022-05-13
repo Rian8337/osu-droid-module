@@ -3,6 +3,8 @@ import {
     Circle,
     DifficultyControlPoint,
     EffectControlPoint,
+    MapStats,
+    ModHidden,
     objectTypes,
     PathType,
     SampleBank,
@@ -297,4 +299,46 @@ test("Test max combo getter", () => {
     ++beatmap.hitObjects.spinners;
 
     expect(beatmap.maxCombo).toBe(5);
+});
+
+test("Test osu!droid max score calculation", () => {
+    const beatmap = new Beatmap();
+
+    const stats = new MapStats();
+
+    expect(beatmap.maxDroidScore(stats)).toBe(0);
+
+    beatmap.hitObjects.push(
+        new Circle({
+            startTime: 1000,
+            position: new Vector2(0, 0),
+        })
+    );
+
+    ++beatmap.circles;
+
+    expect(beatmap.maxDroidScore(stats)).toBe(300);
+
+    stats.mods.push(new ModHidden());
+
+    expect(beatmap.maxDroidScore(stats)).toBeCloseTo(300);
+});
+
+test("Test osu!standard max score calculation", () => {
+    const beatmap = new Beatmap();
+
+    expect(beatmap.maxOsuScore()).toBe(0);
+
+    beatmap.hitObjects.push(
+        new Circle({
+            startTime: 1000,
+            position: new Vector2(0, 0),
+        })
+    );
+
+    ++beatmap.circles;
+
+    expect(beatmap.maxOsuScore()).toBe(300);
+
+    expect(beatmap.maxOsuScore([new ModHidden()])).toBeCloseTo(300);
 });
