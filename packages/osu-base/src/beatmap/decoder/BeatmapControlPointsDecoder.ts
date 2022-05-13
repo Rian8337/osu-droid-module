@@ -1,3 +1,4 @@
+import { EffectFlags } from "../../constants/EffectFlags";
 import { SampleBank } from "../../constants/SampleBank";
 import { ControlPoint } from "../timings/ControlPoint";
 import { ControlPointManager } from "../timings/ControlPointManager";
@@ -5,13 +6,13 @@ import { DifficultyControlPoint } from "../timings/DifficultyControlPoint";
 import { EffectControlPoint } from "../timings/EffectControlPoint";
 import { SampleControlPoint } from "../timings/SampleControlPoint";
 import { TimingControlPoint } from "../timings/TimingControlPoint";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's timing points section.
+ * A decoder for decoding a beatmap's timing points section.
  */
-export class ControlPointsParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapControlPointsDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const s: string[] = line.split(",");
 
         if (s.length < 2) {
@@ -51,12 +52,16 @@ export class ControlPointsParser extends BaseParser {
         }
 
         let kiaiMode: boolean = false;
+        let omitFirstBarSignature: boolean = false;
 
         if (s.length >= 8) {
             const effectBitFlags: number = this.tryParseInt(
                 this.setPosition(s[7])
             );
-            kiaiMode = !!(effectBitFlags & (1 << 0));
+            kiaiMode = !!(effectBitFlags & EffectFlags.kiai);
+            omitFirstBarSignature = !!(
+                effectBitFlags & EffectFlags.omitFirstBarLine
+            );
         }
 
         if (msPerBeat >= 0) {
@@ -82,6 +87,7 @@ export class ControlPointsParser extends BaseParser {
             new EffectControlPoint({
                 time: time,
                 isKiai: kiaiMode,
+                omitFirstBarLine: omitFirstBarSignature,
             }),
             this.map.controlPoints.effect
         );

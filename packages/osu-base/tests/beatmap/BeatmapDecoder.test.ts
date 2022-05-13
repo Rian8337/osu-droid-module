@@ -1,10 +1,10 @@
 import {
     Beatmap,
     BeatmapCountdown,
+    BeatmapDecoder,
     BeatmapOverlayPosition,
     EditorGridSize,
     GameMode,
-    Parser,
     RGBColor,
     SampleBank,
     Slider,
@@ -27,7 +27,7 @@ beforeAll(async () => {
         { encoding: "utf-8" }
     );
 
-    beatmap = new Parser().parse(data).map;
+    beatmap = new BeatmapDecoder().decode(data).map;
 });
 
 test("Test colors section", () => {
@@ -41,8 +41,8 @@ test("Test colors section", () => {
 });
 
 test("Test control points section", () => {
-    expect(beatmap.controlPoints.difficulty.points.length).toBe(13);
-    expect(beatmap.controlPoints.effect.points.length).toBe(15);
+    expect(beatmap.controlPoints.difficulty.points.length).toBe(12);
+    expect(beatmap.controlPoints.effect.points.length).toBe(14);
     expect(beatmap.controlPoints.timing.points.length).toBe(5);
     expect(beatmap.controlPoints.sample.points.length).toBe(526);
 });
@@ -109,37 +109,40 @@ test("Test counters", () => {
 test("Test hit object samples", () => {
     const slider = <Slider>beatmap.hitObjects.objects[1];
 
+    const [firstSample, lastSample] = slider.samples;
+
     expect(slider.samples.length).toBe(2);
-    expect(slider.samples[0].name).toBe("hitnormal");
-    expect(slider.samples[0].bank).toBe(SampleBank.soft);
-    expect(slider.samples[0].customSampleBank).toBe(0);
-    expect(slider.samples[0].volume).toBe(0);
-    expect(slider.samples[0].isLayered).toBe(true);
-    expect(slider.samples[1].name).toBe("hitclap");
-    expect(slider.samples[1].bank).toBe(SampleBank.drum);
-    expect(slider.samples[1].customSampleBank).toBe(0);
-    expect(slider.samples[1].volume).toBe(0);
-    expect(slider.samples[1].isLayered).toBe(false);
+    expect(firstSample.name).toBe("hitnormal");
+    expect(firstSample.bank).toBe(SampleBank.soft);
+    expect(firstSample.customSampleBank).toBe(0);
+    expect(firstSample.volume).toBe(0);
+    expect(firstSample.isLayered).toBe(true);
+    expect(lastSample.name).toBe("hitclap");
+    expect(lastSample.bank).toBe(SampleBank.drum);
+    expect(lastSample.customSampleBank).toBe(0);
+    expect(lastSample.volume).toBe(0);
+    expect(lastSample.isLayered).toBe(false);
 });
 
 test("Test hit object per-node samples", () => {
     const slider = <Slider>beatmap.hitObjects.objects[1];
 
     for (const nodeSample of slider.nodeSamples) {
-        const firstSample = nodeSample[0];
-        const lastSample = nodeSample[1];
+        const [firstSample, lastSample] = nodeSample;
 
         expect(firstSample.name).toBe("hitnormal");
         expect(firstSample.bank).toBe(SampleBank.soft);
         expect(firstSample.customSampleBank).toBe(0);
         expect(firstSample.volume).toBe(0);
         expect(firstSample.isLayered).toBe(true);
+        expect(firstSample.isCustom).toBe(false);
 
         expect(lastSample.name).toBe("hitclap");
         expect(lastSample.bank).toBe(SampleBank.drum);
         expect(lastSample.customSampleBank).toBe(0);
         expect(lastSample.volume).toBe(0);
         expect(lastSample.isLayered).toBe(false);
+        expect(lastSample.isCustom).toBe(false);
     }
 });
 

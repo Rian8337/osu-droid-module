@@ -2,13 +2,13 @@ import { Vector2 } from "../../mathutil/Vector2";
 import { BeatmapBackground } from "../events/BeatmapBackground";
 import { BeatmapVideo } from "../events/BeatmapVideo";
 import { BreakPoint } from "../timings/BreakPoint";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's events section.
+ * A decoder for decoding a beatmap's events section.
  */
-export class EventsParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapEventsDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const s: string[] = line.split(",");
 
         switch (s[0]) {

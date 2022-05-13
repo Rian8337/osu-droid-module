@@ -1,10 +1,10 @@
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's difficulty section.
+ * A decoder for decoding a beatmap's difficulty section.
  */
-export class DifficultyParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapDifficultyDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const p: string[] = this.property(line);
 
         switch (p[0]) {

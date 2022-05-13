@@ -15,16 +15,16 @@ import { Slider } from "../hitobjects/Slider";
 import { Spinner } from "../hitobjects/Spinner";
 import { DifficultyControlPoint } from "../timings/DifficultyControlPoint";
 import { TimingControlPoint } from "../timings/TimingControlPoint";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's hitobjects section.
+ * A decoder for decoding a beatmap's hitobjects section.
  */
-export class HitObjectsParser extends BaseParser {
+export class BeatmapHitObjectsDecoder extends BeatmapBaseDecoder {
     private extraComboOffset: number = 0;
     private forceNewCombo: boolean = false;
 
-    parse(line: string): void {
+    override decode(line: string): void {
         // Need to check if the beatmap doesn't have an uninherited timing point.
         // This exists in cases such as /b/2290233 where the beatmap has been
         // edited by the user.
@@ -123,7 +123,7 @@ export class HitObjectsParser extends BaseParser {
 
             const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");
-            let pathType: PathType = this.convertPathType(pointSplit.shift()!);
+            let pathType: PathType = <PathType>pointSplit.shift()!;
 
             for (const point of pointSplit) {
                 const temp: string[] = point.split(":");
@@ -262,13 +262,10 @@ export class HitObjectsParser extends BaseParser {
             this.forceNewCombo ||= this.map.formatVersion <= 8 || newCombo;
             this.extraComboOffset += comboOffset;
 
-            const duration: number =
-                this.tryParseInt(this.setPosition(s[5])) - time;
-
             object = new Spinner({
                 startTime: time,
                 type: type,
-                duration: duration,
+                endTime: this.tryParseInt(this.setPosition(s[5])),
             });
 
             if (s.length > 6) {
@@ -535,22 +532,6 @@ export class HitObjectsParser extends BaseParser {
                     startTime = this.map.hitObjects.objects[j].endTime;
                 }
             }
-        }
-    }
-
-    /**
-     * Converts string slider path to a `PathType`.
-     */
-    private convertPathType(input: string): PathType {
-        switch (input) {
-            case "B":
-                return PathType.Bezier;
-            case "L":
-                return PathType.Linear;
-            case "P":
-                return PathType.PerfectCurve;
-            default:
-                return PathType.Catmull;
         }
     }
 

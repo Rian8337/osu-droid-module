@@ -2,9 +2,9 @@ import { ParserConstants } from "../../constants/ParserConstants";
 import { Beatmap } from "../Beatmap";
 
 /**
- * A beatmap parser.
+ * The base of per-section beatmap decoders.
  */
-export abstract class BaseParser {
+export abstract class BeatmapBaseDecoder {
     /**
      * The beatmap to store parsed information to.
      */
@@ -20,11 +20,11 @@ export abstract class BaseParser {
     private lastPosition: string = "";
 
     /**
-     * Parses a line and stores it in the beatmap instance.
+     * Decodes a line and stores it in the beatmap instance.
      *
-     * @param line The line to parse.
+     * @param line The line to decode.
      */
-    abstract parse(line: string): void;
+    abstract decode(line: string): void;
 
     /**
      * Logs the position at the line at which an exception occurs.
@@ -48,7 +48,7 @@ export abstract class BaseParser {
     }
 
     /**
-     * Sets the last position of the current parser state.
+     * Sets the last position of the current decoder state.
      *
      * This is useful to debug syntax errors.
      */

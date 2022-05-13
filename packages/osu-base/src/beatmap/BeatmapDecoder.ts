@@ -2,39 +2,43 @@ import { Beatmap } from "./Beatmap";
 import { Slider } from "./hitobjects/Slider";
 import { MapStats } from "../utils/MapStats";
 import { Mod } from "../mods/Mod";
-import { HitObjectsParser } from "./parser/HitObjectsParser";
-import { GeneralParser } from "./parser/GeneralParser";
-import { BaseParser } from "./parser/BaseParser";
-import { EditorParser } from "./parser/EditorParser";
-import { EventsParser } from "./parser/EventsParser";
-import { DifficultyParser } from "./parser/DifficultyParser";
-import { MetadataParser } from "./parser/MetadataParser";
-import { ControlPointsParser } from "./parser/ControlPointsParser";
-import { ColorParser } from "./parser/ColorParser";
+import { BeatmapHitObjectsDecoder } from "./decoder/BeatmapHitObjectsDecoder";
+import { BeatmapGeneralDecoder } from "./decoder/BeatmapGeneralDecoder";
+import { BeatmapBaseDecoder } from "./decoder/BeatmapBaseDecoder";
+import { BeatmapEditorDecoder } from "./decoder/BeatmapEditorDecoder";
+import { BeatmapEventsDecoder } from "./decoder/BeatmapEventsDecoder";
+import { BeatmapDifficultyDecoder } from "./decoder/BeatmapDifficultyDecoder";
+import { BeatmapMetadataDecoder } from "./decoder/BeatmapMetadataDecoder";
+import { BeatmapControlPointsDecoder } from "./decoder/BeatmapControlPointsDecoder";
+import { BeatmapColorDecoder } from "./decoder/BeatmapColorDecoder";
 import { BeatmapSection } from "../constants/BeatmapSection";
 
 /**
- * A beatmap parser.
+ * A beatmap decoder.
  */
-export class Parser {
+export class BeatmapDecoder {
     /**
-     * The parsed beatmap.
+     * The decoded beatmap.
      */
     readonly map: Beatmap = new Beatmap();
 
     /**
-     * The available per-section parsers, mapped by its section name.
+     * Available per-section decoders, mapped by its section name.
      */
-    private readonly parsers: Map<BeatmapSection, BaseParser> = new Map([
-        [BeatmapSection.general, new GeneralParser(this.map)],
-        [BeatmapSection.editor, new EditorParser(this.map)],
-        [BeatmapSection.metadata, new MetadataParser(this.map)],
-        [BeatmapSection.difficulty, new DifficultyParser(this.map)],
-        [BeatmapSection.events, new EventsParser(this.map)],
-        [BeatmapSection.timingPoints, new ControlPointsParser(this.map)],
-        [BeatmapSection.colors, new ColorParser(this.map)],
-        [BeatmapSection.hitObjects, new HitObjectsParser(this.map)],
-    ]);
+    private readonly decoders: Map<BeatmapSection, BeatmapBaseDecoder> =
+        new Map([
+            [BeatmapSection.general, new BeatmapGeneralDecoder(this.map)],
+            [BeatmapSection.editor, new BeatmapEditorDecoder(this.map)],
+            [BeatmapSection.metadata, new BeatmapMetadataDecoder(this.map)],
+            [BeatmapSection.difficulty, new BeatmapDifficultyDecoder(this.map)],
+            [BeatmapSection.events, new BeatmapEventsDecoder(this.map)],
+            [
+                BeatmapSection.timingPoints,
+                new BeatmapControlPointsDecoder(this.map),
+            ],
+            [BeatmapSection.colors, new BeatmapColorDecoder(this.map)],
+            [BeatmapSection.hitObjects, new BeatmapHitObjectsDecoder(this.map)],
+        ]);
 
     /**
      * The amount of lines of `.osu` file that have been processed up to this point.
@@ -52,14 +56,14 @@ export class Parser {
     private section: BeatmapSection | null = null;
 
     /**
-     * Parses a beatmap.
+     * Decodes a beatmap.
      *
      * This will process a `.osu` file and returns the current instance of the parser for easy chaining.
      *
-     * @param str The `.osu` file to parse.
-     * @param mods The mods to parse the beatmap for.
+     * @param str The `.osu` file to decode.
+     * @param mods The mods to decode the beatmap for.
      */
-    parse(str: string, mods: Mod[] = []): Parser {
+    decode(str: string, mods: Mod[] = []): BeatmapDecoder {
         const lines: string[] = str.split("\n");
 
         for (const line of lines) {
@@ -77,9 +81,9 @@ export class Parser {
             return a.startTime - b.startTime;
         });
 
-        const hitObjectsParser: HitObjectsParser = <HitObjectsParser>(
-            this.parsers.get(BeatmapSection.hitObjects)
-        );
+        const hitObjectsParser: BeatmapHitObjectsDecoder = <
+            BeatmapHitObjectsDecoder
+        >this.decoders.get(BeatmapSection.hitObjects);
 
         if (this.map.formatVersion >= 6) {
             hitObjectsParser.applyStacking(
@@ -164,14 +168,14 @@ export class Parser {
             return;
         }
 
-        const parser: BaseParser = this.parsers.get(this.section)!;
+        const decoder: BeatmapBaseDecoder = this.decoders.get(this.section)!;
 
         try {
-            parser.parse(line);
+            decoder.decode(line);
         } catch (e) {
             console.warn((<Error>e).message);
             console.log(`at line ${this.line}\n${this.currentLine}\n`);
-            parser.logExceptionPosition();
+            decoder.logExceptionPosition();
         }
     }
 }

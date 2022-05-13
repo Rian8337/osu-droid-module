@@ -41,6 +41,18 @@ export class HitSampleInfo {
      */
     readonly isLayered: boolean;
 
+    /**
+     * Whether this hit sample is a custom sample.
+     */
+    get isCustom(): boolean {
+        return (
+            this.name !== HitSampleInfo.HIT_NORMAL &&
+            this.name !== HitSampleInfo.HIT_WHISTLE &&
+            this.name !== HitSampleInfo.HIT_FINISH &&
+            this.name !== HitSampleInfo.HIT_CLAP
+        );
+    }
+
     constructor(
         name: string,
         bank?: SampleBank,

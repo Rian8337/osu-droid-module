@@ -75,15 +75,15 @@ test("Test timing control point getter", () => {
 
     let timingPoint = beatmap.controlPoints.timing.controlPointAt(0);
 
-    expect(timingPoint?.time).toBeUndefined();
+    expect(timingPoint.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.timing.controlPointAt(3000);
 
-    expect(timingPoint?.time).toBe(1000);
+    expect(timingPoint.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.timing.controlPointAt(7000);
 
-    expect(timingPoint?.time).toBe(5000);
+    expect(timingPoint.time).toBe(5000);
 });
 
 test("Test difficulty control point getter", () => {
@@ -102,7 +102,7 @@ test("Test difficulty control point getter", () => {
 
     let timingPoint = beatmap.controlPoints.difficulty.controlPointAt(0);
 
-    expect(timingPoint?.time).toBeUndefined();
+    expect(timingPoint.time).toBe(0);
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(3000);
 
@@ -120,24 +120,26 @@ test("Test effect control point getter", () => {
         new EffectControlPoint({
             time: 1000,
             isKiai: false,
+            omitFirstBarLine: false,
         }),
         new EffectControlPoint({
             time: 5000,
             isKiai: false,
+            omitFirstBarLine: false,
         })
     );
 
     let timingPoint = beatmap.controlPoints.effect.controlPointAt(0);
 
-    expect(timingPoint?.time).toBeUndefined();
+    expect(timingPoint.time).toBe(0);
 
     timingPoint = beatmap.controlPoints.effect.controlPointAt(3000);
 
-    expect(timingPoint?.time).toBe(1000);
+    expect(timingPoint.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.effect.controlPointAt(7000);
 
-    expect(timingPoint?.time).toBe(5000);
+    expect(timingPoint.time).toBe(5000);
 });
 
 test("Test sample control point getter", () => {
@@ -160,15 +162,15 @@ test("Test sample control point getter", () => {
 
     let timingPoint = beatmap.controlPoints.sample.controlPointAt(0);
 
-    expect(timingPoint?.time).toBeUndefined();
+    expect(timingPoint.time).toBe(0);
 
     timingPoint = beatmap.controlPoints.sample.controlPointAt(3000);
 
-    expect(timingPoint?.time).toBe(1000);
+    expect(timingPoint.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.sample.controlPointAt(7000);
 
-    expect(timingPoint?.time).toBe(5000);
+    expect(timingPoint.time).toBe(5000);
 });
 
 test("Test slider ticks getter", () => {
@@ -293,7 +295,7 @@ test("Test max combo getter", () => {
         new Spinner({
             startTime: 1000,
             type: objectTypes.spinner,
-            duration: 100,
+            endTime: 1100,
         })
     );
     ++beatmap.hitObjects.spinners;

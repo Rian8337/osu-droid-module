@@ -1,8 +1,7 @@
-import { DifficultyControlPoint } from "../timings/DifficultyControlPoint";
-import { EffectControlPoint } from "../timings/EffectControlPoint";
-import { SampleControlPoint } from "../timings/SampleControlPoint";
-import { TimingControlPoint } from "../timings/TimingControlPoint";
-import { ControlPointManager } from "../timings/ControlPointManager";
+import { TimingControlPointManager } from "../timings/TimingControlPointManager";
+import { DifficultyControlPointManager } from "../timings/DifficultyControlPointManager";
+import { EffectControlPointManager } from "../timings/EffectControlPointManager";
+import { SampleControlPointManager } from "../timings/SampleControlPointManager";
 
 /**
  * Contains information about timing and control points of a beatmap.
@@ -11,24 +10,24 @@ export class BeatmapControlPoints {
     /**
      * The manager for timing control points of the beatmap.
      */
-    readonly timing: ControlPointManager<TimingControlPoint> =
-        new ControlPointManager();
+    readonly timing: TimingControlPointManager =
+        new TimingControlPointManager();
 
     /**
      * The manager for difficulty control points of the beatmap.
      */
-    readonly difficulty: ControlPointManager<DifficultyControlPoint> =
-        new ControlPointManager();
+    readonly difficulty: DifficultyControlPointManager =
+        new DifficultyControlPointManager();
 
     /**
      * The manager for effect control points of the beatmap.
      */
-    readonly effect: ControlPointManager<EffectControlPoint> =
-        new ControlPointManager();
+    readonly effect: EffectControlPointManager =
+        new EffectControlPointManager();
 
     /**
      * The manager for sample control points of the beatmap.
      */
-    readonly sample: ControlPointManager<SampleControlPoint> =
-        new ControlPointManager();
+    readonly sample: SampleControlPointManager =
+        new SampleControlPointManager();
 }

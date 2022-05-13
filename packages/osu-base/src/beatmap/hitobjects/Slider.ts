@@ -70,13 +70,6 @@ export class Slider extends HitObject {
     readonly nodeSamples: HitSampleInfo[][];
 
     /**
-     * The duration of this slider.
-     */
-    get duration(): number {
-        return this.endTime - this.startTime;
-    }
-
-    /**
      * The amount of slider ticks in this slider.
      */
     get ticks(): number {

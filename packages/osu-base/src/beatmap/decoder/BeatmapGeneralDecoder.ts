@@ -2,13 +2,13 @@ import { BeatmapCountdown } from "../../constants/BeatmapCountdown";
 import { BeatmapOverlayPosition } from "../../constants/BeatmapOverlayPosition";
 import { GameMode } from "../../constants/GameMode";
 import { SampleBank } from "../../constants/SampleBank";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's general section.
+ * A decoder for decoding a beatmap's general section.
  */
-export class GeneralParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapGeneralDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const p: string[] = this.property(line);
 
         switch (p[0]) {

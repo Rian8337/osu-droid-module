@@ -2,8 +2,8 @@
  * Types of slider paths.
  */
 export enum PathType {
-    Catmull,
-    Bezier,
-    Linear,
-    PerfectCurve,
+    Catmull = "C",
+    Bezier = "B",
+    Linear = "L",
+    PerfectCurve = "P",
 }

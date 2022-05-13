@@ -1,11 +1,11 @@
 import { RGBColor } from "../../utils/RGBColor";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's colors section.
+ * A decoder for decoding a beatmap's colors section.
  */
-export class ColorParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapColorDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const p: string[] = this.property(line);
 
         const s: number[] = this.setPosition(p[1])

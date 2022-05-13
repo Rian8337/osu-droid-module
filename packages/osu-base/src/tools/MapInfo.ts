@@ -1,7 +1,7 @@
 import request from "request";
 import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
-import { Parser } from "../beatmap/Parser";
+import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { rankedStatus } from "../constants/rankedStatus";
 import {
     OsuAPIRequestBuilder,
@@ -381,7 +381,7 @@ export class MapInfo {
                     if (response.statusCode !== 200) {
                         return resolve(this);
                     }
-                    this.cachedBeatmap = new Parser().parse(
+                    this.cachedBeatmap = new BeatmapDecoder().decode(
                         Buffer.concat(dataArray).toString("utf8")
                     ).map;
                     resolve(this);

@@ -1,10 +1,10 @@
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's metadata section.
+ * A decoder for decoding a beatmap's metadata section.
  */
-export class MetadataParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapMetadataDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const p: string[] = this.property(line);
 
         switch (p[0]) {

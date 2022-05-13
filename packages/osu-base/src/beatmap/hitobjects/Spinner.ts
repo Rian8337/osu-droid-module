@@ -8,19 +8,11 @@ import { HitObject } from "./HitObject";
  * position of a spinner is always at 256x192.
  */
 export class Spinner extends HitObject {
-    /**
-     * The duration of the spinner.
-     */
-    readonly duration: number;
-
-    constructor(values: { startTime: number; type: number; duration: number }) {
+    constructor(values: { startTime: number; type: number; endTime: number }) {
         super({
-            startTime: values.startTime,
-            endTime: values.startTime + values.duration,
-            type: values.type | (1 << 2),
+            ...values,
             position: new Vector2(256, 192),
         });
-        this.duration = values.duration;
     }
 
     override toString(): string {

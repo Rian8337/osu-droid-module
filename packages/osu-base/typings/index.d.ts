@@ -196,6 +196,45 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
+     * A beatmap decoder.
+     */
+    export class BeatmapDecoder {
+        /**
+         * The decoded beatmap.
+         */
+        readonly map: Beatmap;
+        /**
+         * The available per-section decoders, mapped by its section name.
+         */
+        private readonly decoders: Map<BeatmapSection, BeatmapBaseDecoder>;
+        /**
+         * The amount of lines of `.osu` file that have been processed up to this point.
+         */
+        private line: number;
+        /**
+         * The currently processed line.
+         */
+        private currentLine: string;
+        /**
+         * The currently processed section.
+         */
+        private section: BeatmapSection | null;
+        /**
+         * Decodes a beatmap.
+         *
+         * This will process a `.osu` file and returns the current instance of the parser for easy chaining.
+         *
+         * @param str The `.osu` file to decode.
+         * @param mods The mods to decode the beatmap for.
+         */
+        decode(str: string, mods?: Mod[]): BeatmapDecoder;
+        /**
+         * Processes a line of the file.
+         */
+        private processLine(line: string): BeatmapDecoder;
+    }
+
+    /**
      * Contains saved settings for the beatmap editor.
      */
     export class BeatmapEditor {
@@ -219,6 +258,47 @@ declare module "@rian8337/osu-base" {
          * The scale factor for the {@link https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Compose#top-left-(hit-objects-timeline) object timeline}.
          */
         timelineZoom: number;
+    }
+
+    /**
+     * A beatmap encoder.
+     *
+     * Note that this beatmap encoder does not encode storyboards, and as such equality with the
+     * original beatmap file is not guaranteed (and usually will not be equal).
+     */
+    export class BeatmapEncoder {
+        /**
+         * The beatmap to encode.
+         */
+        readonly map: Beatmap;
+
+        /**
+         * Available per-section encoders.
+         */
+        private readonly encoders: BeatmapBaseEncoder[];
+
+        private readonly latestVersion: number;
+
+        private encodedText: string;
+
+        constructor(map: Beatmap);
+
+        /**
+         * Encodes the beatmap.
+         *
+         * Keep in mind that this will not produce the exact same file as the original beatmap.
+         */
+        encode(): string;
+        /**
+         * Writes a line to encoded text.
+         *
+         * @param line The line to write.
+         */
+        private writeLine(line?: string): void;
+        /**
+         * Resets this encoder's instance.
+         */
+        private reset(): void;
     }
 
     /**
@@ -567,6 +647,10 @@ declare module "@rian8337/osu-base" {
          */
         endTime: number;
         /**
+         * The duration of the hitobject.
+         */
+        get duration(): number;
+        /**
          * The stacked position of the hitobject.
          */
         get stackedPosition(): Vector2;
@@ -656,6 +740,10 @@ declare module "@rian8337/osu-base" {
          * but can be disabled using the layered skin config option.
          */
         readonly isLayered: boolean;
+        /**
+         * Whether this hit sample is a custom sample.
+         */
+        get isCustom(): boolean;
         constructor(
             name: string,
             bank?: SampleBank,
@@ -1418,45 +1506,6 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * A beatmap parser.
-     */
-    export class Parser {
-        /**
-         * The parsed beatmap.
-         */
-        readonly map: Beatmap;
-        /**
-         * The available per-section parsers, mapped by its section name.
-         */
-        private readonly parsers: Map<BeatmapSection, BaseParser>;
-        /**
-         * The amount of lines of `.osu` file that have been processed up to this point.
-         */
-        private line: number;
-        /**
-         * The currently processed line.
-         */
-        private currentLine: string;
-        /**
-         * The currently processed section.
-         */
-        private section: BeatmapSection | null;
-        /**
-         * Parses a beatmap.
-         *
-         * This will process a `.osu` file and returns the current instance of the parser for easy chaining.
-         *
-         * @param str The `.osu` file to parse.
-         * @param mods The mods to parse the beatmap for.
-         */
-        parse(str: string, mods?: Mod[]): Parser;
-        /**
-         * Processes a line of the file.
-         */
-        private processLine(line: string): Parser;
-    }
-
-    /**
      * Path approximator for sliders.
      */
     export abstract class PathApproximator {
@@ -1720,10 +1769,6 @@ declare module "@rian8337/osu-base" {
          */
         readonly tail: SliderTail;
         /**
-         * The duration of this slider.
-         */
-        get duration(): number;
-        /**
          * The amount of slider ticks in this slider.
          */
         get ticks(): number;
@@ -1893,14 +1938,10 @@ declare module "@rian8337/osu-base" {
      * position of a spinner is always at 256x192.
      */
     export class Spinner extends HitObject {
-        /**
-         * The duration of the spinner.
-         */
-        readonly duration: number;
         constructor(values: {
             startTime: number;
             type: number;
-            duration: number;
+            endTime: number;
         });
         override toString(): string;
     }
@@ -2337,24 +2378,24 @@ declare module "@rian8337/osu-base" {
     }
 
     /**
-     * The base class of per-section beatmap parsers.
+     * The base class of per-section beatmap decoders.
      */
-    abstract class BaseParser {
+    abstract class BeatmapBaseDecoder {
         /**
-         * The beatmap to store parsed information to.
+         * The beatmap to store decoded information to.
          */
         protected readonly map: Beatmap;
         constructor(map: Beatmap);
         /**
-         * The string in the line at which the parser is processing.
+         * The string in the line at which the decoder is processing.
          */
         private lastPosition: string;
         /**
-         * Parses a line and stores it in the beatmap instance.
+         * Decodes a line and stores it in the beatmap instance.
          *
-         * @param line The line to parse.
+         * @param line The line to decode.
          */
-        abstract parse(line: string): void;
+        abstract decode(line: string): void;
         /**
          * Logs the position at the line at which an exception occurs.
          */
@@ -2409,6 +2450,53 @@ declare module "@rian8337/osu-base" {
             min?: number,
             max?: number
         ): boolean;
+    }
+
+    /**
+     * The base of per-section beatmap encoders.
+     */
+    export abstract class BeatmapBaseEncoder {
+        /**
+         * The beatmap that is being parsed.
+         */
+        readonly map: Beatmap;
+        /**
+         * The final encoded text.
+         */
+        private encodedText: string;
+        constructor(map: Beatmap);
+        /**
+         * Encodes the beatmap's section.
+         *
+         * @returns The encoded section.
+         */
+        encode(): string;
+        /**
+         * Internal encoder of a section.
+         */
+        protected abstract encodeInternal(): void;
+        /**
+         * Writes a line to encoded text.
+         *
+         * @param line The line to write.
+         */
+        protected write(line: string): void;
+        /**
+         * Writes a line to encoded text, followed by a line feed character (`\n`).
+         *
+         * @param line The line to write.
+         */
+        protected writeLine(line?: string): void;
+        /**
+         * Resets this encoder's instance.
+         */
+        protected reset(): void;
+        /**
+         * Converts a sample bank to its string equivalent.
+         *
+         * @param sampleBank The sample bank.
+         */
+        protected sampleBankToString(sampleBank: SampleBank): string;
     }
 
     abstract class HitWindow {

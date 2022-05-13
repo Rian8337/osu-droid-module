@@ -1,11 +1,11 @@
 import { EditorGridSize } from "../../constants/EditorGridSize";
-import { BaseParser } from "./BaseParser";
+import { BeatmapBaseDecoder } from "./BeatmapBaseDecoder";
 
 /**
- * A parser for parsing a beatmap's editor section.
+ * A decoder for decoding a beatmap's editor section.
  */
-export class EditorParser extends BaseParser {
-    parse(line: string): void {
+export class BeatmapEditorDecoder extends BeatmapBaseDecoder {
+    override decode(line: string): void {
         const p: string[] = this.property(line);
 
         switch (p[0]) {

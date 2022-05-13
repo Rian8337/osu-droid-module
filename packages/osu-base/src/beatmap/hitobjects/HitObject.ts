@@ -32,6 +32,13 @@ export abstract class HitObject {
     endTime: number;
 
     /**
+     * The duration of the hitobject.
+     */
+    get duration(): number {
+        return this.endTime - this.startTime;
+    }
+
+    /**
      * The stacked position of the hitobject.
      */
     get stackedPosition(): Vector2 {

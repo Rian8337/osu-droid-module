@@ -4,7 +4,7 @@ const createSpinner = (duration: number = 100) => {
     return new Spinner({
         startTime: 1000,
         type: objectTypes.spinner,
-        duration: duration,
+        endTime: 1000 + duration,
     });
 };
 
