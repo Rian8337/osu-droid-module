@@ -199,4 +199,6 @@ test("Test metadata section", () => {
     expect(parsed.title).toBe(original.title);
     expect(parsed.titleUnicode).toBe(original.titleUnicode);
     expect(parsed.version).toBe(original.version);
+    expect(parsed.source).toBe(original.source);
+    expect(parsed.tags.length).toBe(original.tags.length);
 });

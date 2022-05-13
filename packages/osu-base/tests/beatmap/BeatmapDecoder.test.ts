@@ -161,4 +161,6 @@ test("Test metadata section", () => {
     expect(beatmap.metadata.version).toBe(
         "Please accept my overflowing emotions."
     );
+    expect(beatmap.metadata.source).toBe("");
+    expect(beatmap.metadata.tags.length).toBe(27);
 });
