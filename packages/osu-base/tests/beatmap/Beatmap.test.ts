@@ -2,10 +2,13 @@ import {
     Beatmap,
     Circle,
     DifficultyControlPoint,
+    EffectControlPoint,
     MapStats,
     ModHidden,
     objectTypes,
     PathType,
+    SampleBank,
+    SampleControlPoint,
     Slider,
     SliderPath,
     Spinner,
@@ -22,6 +25,7 @@ const createGlobalSliderValues = () => {
         type: objectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 1,
+        nodeSamples: [],
         path: new SliderPath({
             pathType: PathType.Linear,
             controlPoints: controlPoints,
@@ -56,30 +60,36 @@ test("Test time offset", () => {
 test("Test timing control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.timingPoints.push(
+    beatmap.controlPoints.timing.points.push(
         new TimingControlPoint({
             time: 1000,
             msPerBeat: 100,
+            timeSignature: 4,
         }),
         new TimingControlPoint({
             time: 5000,
             msPerBeat: 100,
+            timeSignature: 4,
         })
     );
 
-    let timingPoint = beatmap.timingControlPointAt(0);
+    let timingPoint = beatmap.controlPoints.timing.controlPointAt(0);
 
-    expect(timingPoint.time).toBe(1000);
+    expect(timingPoint?.time).toBeUndefined();
 
-    timingPoint = beatmap.timingControlPointAt(7000);
+    timingPoint = beatmap.controlPoints.timing.controlPointAt(3000);
 
-    expect(timingPoint.time).toBe(5000);
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.timing.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
 });
 
 test("Test difficulty control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.difficultyTimingPoints.push(
+    beatmap.controlPoints.difficulty.points.push(
         new DifficultyControlPoint({
             time: 1000,
             speedMultiplier: 1,
@@ -90,111 +100,173 @@ test("Test difficulty control point getter", () => {
         })
     );
 
-    let timingPoint = beatmap.difficultyControlPointAt(0);
+    let timingPoint = beatmap.controlPoints.difficulty.controlPointAt(0);
 
-    expect(timingPoint.time).toBe(1000);
+    expect(timingPoint?.time).toBeUndefined();
 
-    timingPoint = beatmap.difficultyControlPointAt(7000);
+    timingPoint = beatmap.controlPoints.difficulty.controlPointAt(3000);
 
-    expect(timingPoint.time).toBe(5000);
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
+});
+
+test("Test effect control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.controlPoints.effect.points.push(
+        new EffectControlPoint({
+            time: 1000,
+            effectBitFlags: 0,
+        }),
+        new EffectControlPoint({
+            time: 5000,
+            effectBitFlags: 0,
+        })
+    );
+
+    let timingPoint = beatmap.controlPoints.effect.controlPointAt(0);
+
+    expect(timingPoint?.time).toBeUndefined();
+
+    timingPoint = beatmap.controlPoints.effect.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.effect.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
+});
+
+test("Test sample control point getter", () => {
+    const beatmap = new Beatmap();
+
+    beatmap.controlPoints.sample.points.push(
+        new SampleControlPoint({
+            time: 1000,
+            sampleBank: SampleBank.none,
+            sampleVolume: 100,
+            customSampleBank: 0,
+        }),
+        new SampleControlPoint({
+            time: 5000,
+            sampleBank: SampleBank.none,
+            sampleVolume: 100,
+            customSampleBank: 0,
+        })
+    );
+
+    let timingPoint = beatmap.controlPoints.sample.controlPointAt(0);
+
+    expect(timingPoint?.time).toBeUndefined();
+
+    timingPoint = beatmap.controlPoints.sample.controlPointAt(3000);
+
+    expect(timingPoint?.time).toBe(1000);
+
+    timingPoint = beatmap.controlPoints.sample.controlPointAt(7000);
+
+    expect(timingPoint?.time).toBe(5000);
 });
 
 test("Test slider ticks getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
 
-    expect(beatmap.sliderTicks).toBe(1);
+    expect(beatmap.hitObjects.sliderTicks).toBe(1);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 2,
         })
     );
 
-    expect(beatmap.sliderTicks).toBe(3);
+    expect(beatmap.hitObjects.sliderTicks).toBe(3);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 4,
         })
     );
 
-    expect(beatmap.sliderTicks).toBe(7);
+    expect(beatmap.hitObjects.sliderTicks).toBe(7);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 8,
         })
     );
 
-    expect(beatmap.sliderTicks).toBe(15);
+    expect(beatmap.hitObjects.sliderTicks).toBe(15);
 });
 
 test("Test slider ends getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
-    ++beatmap.sliders;
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
+    ++beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderEnds).toBe(1);
+    expect(beatmap.hitObjects.sliderEnds).toBe(1);
 
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
-    beatmap.sliders += 2;
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
+    beatmap.hitObjects.sliders += 2;
 
-    expect(beatmap.sliderEnds).toBe(3);
+    expect(beatmap.hitObjects.sliderEnds).toBe(3);
 
-    beatmap.objects.pop();
-    --beatmap.sliders;
+    beatmap.hitObjects.objects.pop();
+    --beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderEnds).toBe(2);
+    expect(beatmap.hitObjects.sliderEnds).toBe(2);
 
-    beatmap.objects.length = beatmap.sliders = 0;
+    beatmap.hitObjects.objects.length = beatmap.hitObjects.sliders = 0;
 
-    expect(beatmap.sliderEnds).toBe(0);
+    expect(beatmap.hitObjects.sliderEnds).toBe(0);
 });
 
 test("Test slider repeat points getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
-    ++beatmap.sliders;
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
+    ++beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderRepeatPoints).toBe(0);
+    expect(beatmap.hitObjects.sliderRepeatPoints).toBe(0);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 2,
         })
     );
-    ++beatmap.sliders;
+    ++beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderRepeatPoints).toBe(1);
+    expect(beatmap.hitObjects.sliderRepeatPoints).toBe(1);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 4,
         })
     );
-    ++beatmap.sliders;
+    ++beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderRepeatPoints).toBe(4);
+    expect(beatmap.hitObjects.sliderRepeatPoints).toBe(4);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Slider({
             ...createGlobalSliderValues(),
             repetitions: 8,
         })
     );
-    ++beatmap.sliders;
+    ++beatmap.hitObjects.sliders;
 
-    expect(beatmap.sliderRepeatPoints).toBe(11);
+    expect(beatmap.hitObjects.sliderRepeatPoints).toBe(11);
 });
 
 test("Test max combo getter", () => {
@@ -202,29 +274,29 @@ test("Test max combo getter", () => {
 
     expect(beatmap.maxCombo).toBe(0);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),
         })
     );
-    ++beatmap.circles;
+    ++beatmap.hitObjects.circles;
 
     expect(beatmap.maxCombo).toBe(1);
 
-    beatmap.objects.push(new Slider(createGlobalSliderValues()));
-    ++beatmap.sliders;
+    beatmap.hitObjects.objects.push(new Slider(createGlobalSliderValues()));
+    ++beatmap.hitObjects.sliders;
 
     expect(beatmap.maxCombo).toBe(4);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.objects.push(
         new Spinner({
             startTime: 1000,
             type: objectTypes.spinner,
             duration: 100,
         })
     );
-    ++beatmap.spinners;
+    ++beatmap.hitObjects.spinners;
 
     expect(beatmap.maxCombo).toBe(5);
 });
@@ -236,7 +308,7 @@ test("Test osu!droid max score calculation", () => {
 
     expect(beatmap.maxDroidScore(stats)).toBe(0);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.push(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),
@@ -257,7 +329,7 @@ test("Test osu!standard max score calculation", () => {
 
     expect(beatmap.maxOsuScore()).toBe(0);
 
-    beatmap.objects.push(
+    beatmap.hitObjects.push(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),

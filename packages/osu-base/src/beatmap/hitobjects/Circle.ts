@@ -11,6 +11,8 @@ import { HitObject } from "./HitObject";
 export class Circle extends HitObject {
     constructor(values: {
         startTime: number;
+        newCombo?: boolean;
+        comboOffset?: number;
         type?: number;
         position: Vector2;
     }) {

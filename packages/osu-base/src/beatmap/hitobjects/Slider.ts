@@ -5,6 +5,7 @@ import { SliderHead } from "./sliderObjects/SliderHead";
 import { SliderRepeat } from "./sliderObjects/SliderRepeat";
 import { SliderTick } from "./sliderObjects/SliderTick";
 import { SliderTail } from "./sliderObjects/SliderTail";
+import { HitSampleInfo } from "./HitSampleInfo";
 
 /**
  * Represents a slider in a beatmap.
@@ -64,6 +65,11 @@ export class Slider extends HitObject {
     readonly tail: SliderTail;
 
     /**
+     * The node samples of this slider.
+     */
+    readonly nodeSamples: HitSampleInfo[][];
+
+    /**
      * The duration of this slider.
      */
     get duration(): number {
@@ -96,6 +102,9 @@ export class Slider extends HitObject {
         startTime: number;
         type: number;
         position: Vector2;
+        newCombo?: boolean;
+        comboOffset?: number;
+        nodeSamples: HitSampleInfo[][];
         repetitions: number;
         path: SliderPath;
         speedMultiplier: number;
@@ -113,6 +122,7 @@ export class Slider extends HitObject {
         // Basically equal to span count
         this.repetitions = values.repetitions;
         this.path = values.path;
+        this.nodeSamples = values.nodeSamples;
 
         const scoringDistance: number =
             100 * values.mapSliderVelocity * values.speedMultiplier;
@@ -230,10 +240,8 @@ export class Slider extends HitObject {
     }
 
     override toString(): string {
-        return `Position: [${this.position.x}, ${this.position.y}], distance: ${
-            this.path.expectedDistance
-        }, repetitions: ${this.repetitions}, slider ticks: ${
-            this.nestedHitObjects.filter((v) => v instanceof SliderTick).length
-        }`;
+        return `Position: [${this.position.x}, ${this.position.y}], distance: ${this.path.expectedDistance
+            }, repetitions: ${this.repetitions}, slider ticks: ${this.nestedHitObjects.filter((v) => v instanceof SliderTick).length
+            }`;
     }
 }

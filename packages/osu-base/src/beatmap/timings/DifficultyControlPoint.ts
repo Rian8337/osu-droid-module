@@ -1,11 +1,11 @@
-import { TimingPoint } from "./TimingPoint";
+import { ControlPoint } from "./ControlPoint";
 
 /**
- * Represents a timing point that changes speed multiplier.
+ * Represents a control point that changes speed multiplier.
  */
-export class DifficultyControlPoint extends TimingPoint {
+export class DifficultyControlPoint extends ControlPoint {
     /**
-     * The slider speed multiplier of the timing point.
+     * The slider speed multiplier of the control point.
      */
     readonly speedMultiplier: number;
 
@@ -14,10 +14,14 @@ export class DifficultyControlPoint extends TimingPoint {
         this.speedMultiplier = values.speedMultiplier;
     }
 
+    override isRedundant(existing: DifficultyControlPoint): boolean {
+        return this.speedMultiplier === existing.speedMultiplier;
+    }
+
     override toString(): string {
         return (
             "{ time: " +
-            this.time.toFixed(2) +
+            this.time +
             ", " +
             "speed multiplier: " +
             this.speedMultiplier.toFixed(2) +

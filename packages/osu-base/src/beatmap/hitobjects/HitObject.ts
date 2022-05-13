@@ -1,5 +1,6 @@
 import { objectTypes } from "../../constants/objectTypes";
 import { Vector2 } from "../../mathutil/Vector2";
+import { HitSampleInfo } from "./HitSampleInfo";
 
 /**
  * Represents a hitobject in a beatmap.
@@ -62,9 +63,22 @@ export abstract class HitObject {
     }
 
     /**
-     * Whether or not this hitobject represents a new combo in the beatmap.
+     * Whether this hit object represents a new combo.
      */
     readonly isNewCombo: boolean;
+
+    /**
+     * How many combo colors to skip, if this object starts a new combo.
+     */
+    readonly comboOffset: number;
+
+    /**
+     * The samples to be played when this hit object is hit.
+     *
+     * In the case of sliders, this is the sample of the curve body
+     * and can be treated as the default samples for the hit object.
+     */
+    samples: HitSampleInfo[] = [];
 
     /**
      * The stack height of the hitobject.
@@ -86,6 +100,8 @@ export abstract class HitObject {
     constructor(values: {
         startTime: number;
         position: Vector2;
+        newCombo?: boolean;
+        comboOffset?: number;
         type?: number;
         endTime?: number;
         endPosition?: Vector2;
@@ -95,7 +111,8 @@ export abstract class HitObject {
         this.type = values.type ?? objectTypes.circle;
         this.position = values.position;
         this.endPosition = values.endPosition ?? this.position;
-        this.isNewCombo = !!(this.type & (1 << 2));
+        this.isNewCombo = values.newCombo ?? false;
+        this.comboOffset = values.comboOffset ?? 0;
     }
 
     /**
