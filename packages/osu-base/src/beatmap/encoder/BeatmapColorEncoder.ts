@@ -25,8 +25,7 @@ export class BeatmapColorEncoder extends BeatmapBaseEncoder {
             this.write(`Combo${i + 1}: `);
             this.write(`${color.r},`);
             this.write(`${color.g},`);
-            this.write(`${color.b},`);
-            this.write(`${color.a}`);
+            this.write(`${color.b}`);
             this.writeLine();
         }
     }
