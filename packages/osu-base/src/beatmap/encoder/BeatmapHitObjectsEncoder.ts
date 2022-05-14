@@ -1,5 +1,6 @@
 import { HitSoundType } from "../../constants/HitSoundType";
 import { SampleBank } from "../../constants/SampleBank";
+import { Vector2 } from "../../mathutil/Vector2";
 import { HitObject } from "../hitobjects/HitObject";
 import { HitSampleInfo } from "../hitobjects/HitSampleInfo";
 import { Slider } from "../hitobjects/Slider";
@@ -64,10 +65,15 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         this.write(slider.path.pathType + "|");
 
         // curvePoints
-        for (let i = 0; i < slider.path.controlPoints.length; ++i) {
-            this.write(
-                `${slider.path.controlPoints[i].x}:${slider.path.controlPoints[i].y}`
+
+        // Skip the first control point as it is right on the
+        // start position of the slider.
+        for (let i = 1; i < slider.path.controlPoints.length; ++i) {
+            const realPosition: Vector2 = slider.path.controlPoints[i].add(
+                slider.position
             );
+
+            this.write(`${realPosition.x}:${realPosition.y}`);
             this.write(i != slider.path.controlPoints.length - 1 ? "|" : ",");
         }
 
