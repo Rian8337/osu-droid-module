@@ -1,12 +1,10 @@
 name: Publish to GitHub Pages
 on:
   push:
-    branches:
-      - master
-      - v1
+    tags:
+      - "*"
   release:
-    types:
-      - published
+    types: [published]
 env:
   docVersion_PATH: /
 jobs:
