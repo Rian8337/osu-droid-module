@@ -17,7 +17,7 @@
     "typings/**"
   ],
   "scripts": {
-    "build": "tsc",
+    "build": "rollup -c ../../rollup.config.js",
     "lint": "eslint --ext ts",
     "prepare": "npm run build",
     "test": "jest -i"
@@ -30,13 +30,12 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@discordjs/collection": "^0.6.0",
-    "@types/lodash.clonedeep": "^4.5.6",
     "dotenv": "^14.2.0",
     "lodash.clonedeep": "^4.5.0",
     "request": "^2.88.2"
   },
   "devDependencies": {
+    "@types/lodash.clonedeep": "^4.5.7",
     "@types/request": "^2.48.8"
   },
   "publishConfig": {
