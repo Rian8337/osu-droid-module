@@ -30,7 +30,7 @@ export default [
         plugins: [dts()],
         input: `${PACKAGE_ROOT}/src/index.ts`,
         output: {
-            file: `${PACKAGE_ROOT}/dist/index.d.ts`,
+            file: `${PACKAGE_ROOT}/typings/index.d.ts`,
         },
     },
 ];
