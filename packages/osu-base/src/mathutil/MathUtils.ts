@@ -40,4 +40,24 @@ export abstract class MathUtils {
                 data.length
         );
     }
+
+    /**
+     * Converts degrees to radians.
+     *
+     * @param degrees An angle in degrees.
+     * @returns The angle expressed in radians.
+     */
+    static degreesToRadians(degrees: number): number {
+        return (degrees * Math.PI) / 180;
+    }
+
+    /**
+     * Converts radians to degrees.
+     *
+     * @param radians An angle in radians.
+     * @returns The angle expressed in degrees.
+     */
+    static radiansToDegrees(radians: number): number {
+        return (radians * 180) / Math.PI;
+    }
 }

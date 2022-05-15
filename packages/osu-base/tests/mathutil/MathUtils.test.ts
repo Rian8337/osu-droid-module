@@ -25,3 +25,27 @@ test("Test standard deviation", () => {
         4
     );
 });
+
+test("Test degrees to radians conversion", () => {
+    expect(MathUtils.degreesToRadians(0)).toBe(0);
+    expect(MathUtils.degreesToRadians(30)).toBeCloseTo(Math.PI / 6);
+    expect(MathUtils.degreesToRadians(45)).toBeCloseTo(Math.PI / 4);
+    expect(MathUtils.degreesToRadians(60)).toBeCloseTo(Math.PI / 3);
+    expect(MathUtils.degreesToRadians(90)).toBeCloseTo(Math.PI / 2);
+    expect(MathUtils.degreesToRadians(120)).toBeCloseTo((2 * Math.PI) / 3);
+    expect(MathUtils.degreesToRadians(135)).toBeCloseTo((3 * Math.PI) / 4);
+    expect(MathUtils.degreesToRadians(150)).toBeCloseTo((5 * Math.PI) / 6);
+    expect(MathUtils.degreesToRadians(180)).toBe(Math.PI);
+});
+
+test("Test radians to degrees conversion", () => {
+    expect(MathUtils.radiansToDegrees(0)).toBe(0);
+    expect(MathUtils.radiansToDegrees(Math.PI / 6)).toBeCloseTo(30);
+    expect(MathUtils.radiansToDegrees(Math.PI / 4)).toBeCloseTo(45);
+    expect(MathUtils.radiansToDegrees(Math.PI / 3)).toBeCloseTo(60);
+    expect(MathUtils.radiansToDegrees(Math.PI / 2)).toBeCloseTo(90);
+    expect(MathUtils.radiansToDegrees((2 * Math.PI) / 3)).toBeCloseTo(120);
+    expect(MathUtils.radiansToDegrees((3 * Math.PI) / 4)).toBeCloseTo(135);
+    expect(MathUtils.radiansToDegrees((5 * Math.PI) / 6)).toBeCloseTo(150);
+    expect(MathUtils.radiansToDegrees(Math.PI)).toBe(180);
+});
