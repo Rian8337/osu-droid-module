@@ -17,11 +17,11 @@ beforeAll(async () => {
         { encoding: "utf-8" }
     );
 
-    originalBeatmap = new BeatmapDecoder().decode(data).map;
+    originalBeatmap = new BeatmapDecoder().decode(data).result;
 
     parsedBeatmap = new BeatmapDecoder().decode(
         new BeatmapEncoder(originalBeatmap).encode()
-    ).map;
+    ).result;
 });
 
 test("Test colors section", () => {

@@ -30,4 +30,20 @@ export class RGBColor {
         this.b = MathUtils.clamp(b, 0, 255);
         this.a = MathUtils.clamp(a, 0, 1);
     }
+
+    /**
+     * Returns a string representation of the color.
+     */
+    toString(): string {
+        return `${this.r},${this.g},${this.b}`;
+    }
+
+    /**
+     * Checks whether this color is equal to another color.
+     *
+     * @param other The other color.
+     */
+    equals(other: RGBColor): boolean {
+        return this.r === other.r && this.g === other.g && this.b === other.b;
+    }
 }

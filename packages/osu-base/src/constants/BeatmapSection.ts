@@ -1,5 +1,5 @@
 /**
- * Beatmap sections that exist in an `.osu` file.
+ * Sections that exist in `.osu` and `.osb` files.
  */
 export enum BeatmapSection {
     general = "General",
@@ -7,6 +7,7 @@ export enum BeatmapSection {
     metadata = "Metadata",
     difficulty = "Difficulty",
     events = "Events",
+    variables = "Variables",
     timingPoints = "TimingPoints",
     colors = "Colours",
     hitObjects = "HitObjects",

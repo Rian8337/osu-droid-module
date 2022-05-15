@@ -1,0 +1,43 @@
+/**
+ * Types of easing.
+ *
+ * See {@link http://easings.net/ this} page for more samples.
+ */
+export enum Easing {
+    none,
+    out,
+    in,
+    inQuad,
+    outQuad,
+    inOutQuad,
+    inCubic,
+    outCubic,
+    inOutCubic,
+    inQuart,
+    outQuart,
+    inOutQuart,
+    inQuint,
+    outQuint,
+    inOutQuint,
+    inSine,
+    outSine,
+    inOutSine,
+    inExpo,
+    outExpo,
+    inOutExpo,
+    inCirc,
+    outCirc,
+    inOutCirc,
+    inElastic,
+    outElastic,
+    outElasticHalf,
+    outElasticQuarter,
+    inOutElastic,
+    inBack,
+    outBack,
+    inOutBack,
+    inBounce,
+    outBounce,
+    inOutBounce,
+    outPow10,
+}

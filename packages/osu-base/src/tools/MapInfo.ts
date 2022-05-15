@@ -1,7 +1,6 @@
 import request from "request";
 import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
-import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { rankedStatus } from "../constants/rankedStatus";
 import {
     OsuAPIRequestBuilder,
@@ -10,6 +9,7 @@ import {
 import { Precision } from "../utils/Precision";
 import { TimingControlPoint } from "../beatmap/timings/TimingControlPoint";
 import { Utils } from "../utils/Utils";
+import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 
 export interface OsuAPIResponse {
     readonly approved: string;
@@ -383,7 +383,7 @@ export class MapInfo {
                     }
                     this.cachedBeatmap = new BeatmapDecoder().decode(
                         Buffer.concat(dataArray).toString("utf8")
-                    ).map;
+                    ).result;
                     resolve(this);
                 });
         });

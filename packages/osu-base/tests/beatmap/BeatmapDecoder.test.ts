@@ -27,7 +27,7 @@ beforeAll(async () => {
         { encoding: "utf-8" }
     );
 
-    beatmap = new BeatmapDecoder().decode(data).map;
+    beatmap = new BeatmapDecoder().decode(data).result;
 });
 
 test("Test colors section", () => {
