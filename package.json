@@ -5,7 +5,8 @@
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
     "generate-docs": "typedoc \"packages/*\"",
     "generate-docs-windows": "rmdir docs /s /q & npm run generate-docs",
-    "generate-docs-linux": "rm -rf docs & npm run generate-docs"
+    "generate-docs-linux": "rm -rf docs & npm run generate-docs",
+    "test": "lerna run test"
   },
   "devDependencies": {
     "@rollup/plugin-typescript": "^8.3.2",
