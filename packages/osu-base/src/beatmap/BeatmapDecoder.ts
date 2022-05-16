@@ -24,6 +24,8 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
         Record<BeatmapSection, SectionDecoder<Beatmap>>
     > = {};
 
+    private previousSection: BeatmapSection = BeatmapSection.general;
+
     /**
      * @param str The string to decode.
      * @param mods The mods to decode for.
@@ -92,10 +94,16 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             this.finalResult.formatVersion = this.formatVersion;
         }
 
-        if (this.section === BeatmapSection.difficulty) {
-            if (this.finalResult.difficulty.ar === undefined) {
+        // We need to track the previous section in case AR isn't specified in the beatmap file.
+        if (this.previousSection !== this.section) {
+            if (
+                this.previousSection === BeatmapSection.difficulty &&
+                this.finalResult.difficulty.ar === undefined
+            ) {
                 this.finalResult.difficulty.ar = this.finalResult.difficulty.od;
             }
+
+            this.previousSection = this.section;
         }
 
         super.decodeLine(line);
