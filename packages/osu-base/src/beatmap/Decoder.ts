@@ -100,7 +100,11 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
                 this.decodeLine(line);
             } catch (e) {
                 console.warn((<Error>e).message);
-                console.log(`at line ${this.line}\n${this.currentLine}\n`);
+                console.log(
+                    `at line ${this.line}\n${this.currentLine}\n${this.decoders[
+                        this.section
+                    ]?.logExceptionPosition()}`
+                );
             }
         }
 
@@ -114,13 +118,6 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
      */
     protected decodeLine(line: string): void {
         this.decoders[this.section]?.decode(line);
-    }
-
-    /**
-     * Logs the position at the line at which an exception occurs.
-     */
-    protected logExceptionPosition(): void {
-        this.decoders[this.section]?.logExceptionPosition();
     }
 
     /**
