@@ -1,4 +1,4 @@
-import { ModDoubleTime, Parser } from "@rian8337/osu-base";
+import { BeatmapDecoder, ModDoubleTime } from "@rian8337/osu-base";
 import { MapStars } from "../src/MapStars";
 import { readFile } from "fs/promises";
 import { join } from "path";
@@ -41,10 +41,10 @@ const testDiffCalc = async (
         { encoding: "utf-8" }
     );
 
-    const parser = new Parser().parse(data);
+    const decoder = new BeatmapDecoder().decode(data);
 
     const rating = new MapStars().calculate({
-        map: parser.map,
+        map: decoder.result,
     });
 
     expect(rating.droidStars.aim).toBeCloseTo(values.noModDroidRating.aim, 3);
@@ -75,7 +75,7 @@ const testDiffCalc = async (
     expect(rating.pcStars.total).toBeCloseTo(values.noModPcRating.total, 4);
 
     const clockRateAdjustedRating = new MapStars().calculate({
-        map: parser.map,
+        map: decoder.result,
         mods: [new ModDoubleTime()],
     });
 

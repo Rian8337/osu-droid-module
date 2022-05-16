@@ -13,3 +13,4 @@ export * from "./skills/OsuFlashlight";
 export * from "./OsuPerformanceCalculator";
 export * from "./skills/OsuSpeed";
 export * from "./OsuStarRating";
+export * from "./base/StarRating";
