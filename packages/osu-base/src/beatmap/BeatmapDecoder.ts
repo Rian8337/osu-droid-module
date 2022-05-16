@@ -88,9 +88,11 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
     }
 
     protected override decodeLine(line: string): void {
-        if (this.section === BeatmapSection.difficulty) {
+        if (this.finalResult.formatVersion !== this.formatVersion) {
             this.finalResult.formatVersion = this.formatVersion;
+        }
 
+        if (this.section === BeatmapSection.difficulty) {
             if (this.finalResult.difficulty.ar === undefined) {
                 this.finalResult.difficulty.ar = this.finalResult.difficulty.od;
             }
