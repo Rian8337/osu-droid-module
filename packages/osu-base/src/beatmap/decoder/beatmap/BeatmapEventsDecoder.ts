@@ -44,7 +44,7 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
             this.setPosition(s[2]).replace(/"/g, ""),
             new Vector2(
                 this.tryParseFloat(this.setPosition(s[3] ?? "0")),
-                parseFloat(this.setPosition(s[4] ?? "0"))
+                this.tryParseFloat(this.setPosition(s[4] ?? "0"))
             )
         );
     }
