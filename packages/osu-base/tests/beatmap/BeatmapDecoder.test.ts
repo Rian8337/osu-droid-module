@@ -41,7 +41,7 @@ test("Test colors section", () => {
 });
 
 test("Test control points section", () => {
-    expect(beatmap.controlPoints.difficulty.points.length).toBe(12);
+    expect(beatmap.controlPoints.difficulty.points.length).toBe(14);
     expect(beatmap.controlPoints.effect.points.length).toBe(14);
     expect(beatmap.controlPoints.timing.points.length).toBe(5);
     expect(beatmap.controlPoints.sample.points.length).toBe(526);
