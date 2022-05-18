@@ -32,13 +32,13 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      *
      * Note that the provided control point may not be added if the correct state is already present at the control point's time.
      *
-     * Additionally, it is advised to use this instead of manually adding as array sorting will be ensured.
+     * Additionally, any control point that exists in the same time will be removed.
      *
      * @param controlPoint The control point to add.
      * @returns Whether the control point was added.
      */
     add(controlPoint: T): boolean {
-        const existing: T = this.controlPointAt(controlPoint.time);
+        let existing: T = this.controlPointAt(controlPoint.time);
 
         // Timing points are a special case and need to be added regardless of fallback availability.
         if (
@@ -46,6 +46,13 @@ export abstract class ControlPointManager<T extends ControlPoint> {
             controlPoint.isRedundant(existing)
         ) {
             return false;
+        }
+
+        // Remove the existing control point if the new control point overrides it at the same time.
+        while (controlPoint.time === existing.time) {
+            this.remove(existing);
+
+            existing = this.controlPointAt(controlPoint.time);
         }
 
         // Get the index at which to add the control point.
@@ -61,6 +68,42 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         this.#points.push(controlPoint);
 
         return true;
+    }
+
+    /**
+     * Removes a control point.
+     *
+     * @param controlPoint The control point to remove.
+     * @returns Whether the control point was removed.
+     */
+    remove(controlPoint: T): boolean {
+        for (let i = 0; i < this.#points.length; ++i) {
+            if (this.#points[i].time > controlPoint.time) {
+                break;
+            }
+
+            // isRedundant doesn't check for time equality, so we need to specify it separately.
+            if (
+                this.#points[i].time === controlPoint.time &&
+                this.#points[i].isRedundant(controlPoint)
+            ) {
+                this.#points.splice(i, 1);
+
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Removes a control point at an index.
+     *
+     * @param index The index of the control point to remove.
+     * @returns The control point that was removed.
+     */
+    removeAt(index: number): T {
+        return this.#points.splice(index, 1)[0];
     }
 
     /**
