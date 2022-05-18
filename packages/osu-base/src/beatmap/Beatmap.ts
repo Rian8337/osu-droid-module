@@ -76,6 +76,44 @@ export class Beatmap {
     }
 
     /**
+     * The most common beat length of the beatmap.
+     */
+    get mostCommonBeatLength(): number {
+        // The last playable time in the beatmap - the last timing point extends to this time.
+        // Note: This is more accurate and may present different results because osu-stable didn't have the ability to calculate slider durations in this context.
+        const lastTime: number =
+            this.hitObjects.objects[this.hitObjects.objects.length - 1]
+                ?.endTime ??
+            this.controlPoints.timing.points[
+                this.controlPoints.timing.points.length - 1
+            ]?.time ??
+            0;
+
+        const mostCommon: { beatLength: number; duration: number } =
+            // Construct a set of {beatLength, duration} objects for each individual timing point.
+            this.controlPoints.timing.points
+                .map((t, i, a) => {
+                    if (t.time > lastTime) {
+                        return { beatLength: t.msPerBeat, duration: 0 };
+                    }
+
+                    // osu-stable forced the first control point to start at 0.
+                    const currentTime: number = i === 0 ? 0 : t.time;
+                    const nextTime: number =
+                        i === a.length - 1 ? lastTime : a[i + 1].time;
+
+                    return {
+                        beatLength: t.msPerBeat,
+                        duration: nextTime - currentTime,
+                    };
+                })
+                // Get the most common one, or 0 as a suitable default.
+                .sort((a, b) => b.duration - a.duration)[0];
+
+        return mostCommon?.beatLength ?? 0;
+    }
+
+    /**
      * Returns a time combined with beatmap-wide time offset.
      *
      * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
