@@ -9,21 +9,21 @@ import { StoryboardElement } from "./StoryboardElement";
  * Represents a storyboard sprite.
  */
 export class StoryboardSprite extends StoryboardElement {
-    readonly #loops: CommandLoop[] = [];
-    readonly #triggers: CommandTrigger[] = [];
+    private readonly _loops: CommandLoop[] = [];
+    private readonly _triggers: CommandTrigger[] = [];
 
     /**
      * The loop commands of the sprite.
      */
     get loops(): CommandLoop[] {
-        return this.#loops;
+        return this._loops;
     }
 
     /**
      * The trigger commands of the sprite.
      */
     get triggers(): CommandTrigger[] {
-        return this.#triggers;
+        return this._triggers;
     }
 
     /**
@@ -47,7 +47,7 @@ export class StoryboardSprite extends StoryboardElement {
             this.timelineGroup.earliestDisplayedTime ??
             Number.POSITIVE_INFINITY;
 
-        for (const l of this.#loops) {
+        for (const l of this._loops) {
             const { earliestDisplayedTime: loopEarliestDisplayTime } = l;
 
             if (loopEarliestDisplayTime !== null) {
@@ -66,14 +66,14 @@ export class StoryboardSprite extends StoryboardElement {
             ? earliestStartTime
             : Math.min(
                   this.timelineGroup.startTime,
-                  ...this.#loops.map((l) => l.startTime)
+                  ...this._loops.map((l) => l.startTime)
               );
     }
 
     override get endTime(): number {
         return Math.max(
             this.timelineGroup.endTime,
-            ...this.#loops.map((l) => l.endTime)
+            ...this._loops.map((l) => l.endTime)
         );
     }
 
@@ -83,7 +83,7 @@ export class StoryboardSprite extends StoryboardElement {
     get hasCommands(): boolean {
         return (
             this.timelineGroup.hasCommands ||
-            this.#loops.some((l) => l.hasCommands)
+            this._loops.some((l) => l.hasCommands)
         );
     }
 
@@ -104,7 +104,7 @@ export class StoryboardSprite extends StoryboardElement {
     addLoop(startTime: number, repeatCount: number): CommandLoop {
         const loop: CommandLoop = new CommandLoop(startTime, repeatCount);
 
-        this.#loops.push(loop);
+        this._loops.push(loop);
 
         return loop;
     }
@@ -131,7 +131,7 @@ export class StoryboardSprite extends StoryboardElement {
             groupNumber
         );
 
-        this.#triggers.push(trigger);
+        this._triggers.push(trigger);
 
         return trigger;
     }

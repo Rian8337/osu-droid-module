@@ -41,62 +41,43 @@ export class CommandTimeline<T> implements ICommandTimeline {
      */
     readonly parameterType?: StoryboardParameterCommandType;
 
-    /**
-     * The commands in this command timeline.
-     */
-    #commands: Command<T>[] = [];
-
-    /**
-     * The start time of the command timeline.
-     */
-    #startTime: number = Number.MAX_SAFE_INTEGER;
-
-    /**
-     * The end time of the command timeline.
-     */
-    #endTime: number = Number.MIN_SAFE_INTEGER;
-
-    /**
-     * The start value of the command timeline.
-     */
-    #startValue: T | null = null;
-
-    /**
-     * The end value of the command timeline.
-     */
-    #endValue: T | null = null;
+    private _commands: Command<T>[] = [];
+    private _startTime: number = Number.MAX_SAFE_INTEGER;
+    private _endTime: number = Number.MIN_SAFE_INTEGER;
+    private _startValue: T | null = null;
+    private _endValue: T | null = null;
 
     /**
      * The commands in this command timeline.
      */
     get commands(): Command<T>[] {
-        return this.#commands;
+        return this._commands;
     }
 
     get startTime(): number {
-        return this.#startTime;
+        return this._startTime;
     }
 
     get endTime(): number {
-        return this.#endTime;
+        return this._endTime;
     }
 
     /**
      * The start value of the command timeline.
      */
     get startValue(): T | null {
-        return this.#startValue;
+        return this._startValue;
     }
 
     /**
      * The end value of the command timeline.
      */
     get endValue(): T | null {
-        return this.#endValue;
+        return this._endValue;
     }
 
     get hasCommands(): boolean {
-        return this.#commands.length > 0;
+        return this._commands.length > 0;
     }
 
     constructor(
@@ -127,7 +108,7 @@ export class CommandTimeline<T> implements ICommandTimeline {
             return;
         }
 
-        this.#commands.push(
+        this._commands.push(
             new Command(
                 easing,
                 startTime,
@@ -139,16 +120,16 @@ export class CommandTimeline<T> implements ICommandTimeline {
             )
         );
 
-        if (startTime < this.#startTime) {
-            this.#startValue = startValue;
-            this.#startTime = startTime;
+        if (startTime < this._startTime) {
+            this._startValue = startValue;
+            this._startTime = startTime;
         }
 
-        if (endTime > this.#endTime) {
-            this.#endValue = endValue;
-            this.#endTime = endTime;
+        if (endTime > this._endTime) {
+            this._endValue = endValue;
+            this._endTime = endTime;
         }
 
-        this.#commands.sort((a, b) => a.startTime - b.startTime);
+        this._commands.sort((a, b) => a.startTime - b.startTime);
     }
 }

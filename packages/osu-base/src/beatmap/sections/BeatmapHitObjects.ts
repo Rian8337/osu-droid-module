@@ -9,49 +9,49 @@ import { Spinner } from "../hitobjects/Spinner";
  * Contains information about hit objects of a beatmap.
  */
 export class BeatmapHitObjects {
-    #objects: HitObject[] = [];
+    private _objects: HitObject[] = [];
 
     /**
      * The objects of the beatmap.
      */
     get objects(): readonly HitObject[] {
-        return this.#objects;
+        return this._objects;
     }
 
-    #circles: number = 0;
+    private _circles: number = 0;
 
     /**
      * The amount of circles in the beatmap.
      */
     get circles(): number {
-        return this.#circles;
+        return this._circles;
     }
 
-    #sliders: number = 0;
+    private _sliders: number = 0;
 
     /**
      * The amount of sliders in the beatmap.
      */
     get sliders(): number {
-        return this.#sliders;
+        return this._sliders;
     }
 
-    #spinners: number = 0;
+    private _spinners: number = 0;
 
     /**
      * The amount of spinners in the beatmap.
      */
     get spinners(): number {
-        return this.#spinners;
+        return this._spinners;
     }
 
-    #sliderTicks: number = 0;
+    private _sliderTicks: number = 0;
 
     /**
      * The amount of slider ticks in the beatmap.
      */
     get sliderTicks(): number {
-        return this.#sliderTicks;
+        return this._sliderTicks;
     }
 
     /**
@@ -61,13 +61,13 @@ export class BeatmapHitObjects {
         return this.sliders;
     }
 
-    #sliderRepeatPoints: number = 0;
+    private _sliderRepeatPoints: number = 0;
 
     /**
      * The amount of slider repeat points in the beatmap.
      */
     get sliderRepeatPoints(): number {
-        return this.#sliderRepeatPoints;
+        return this._sliderRepeatPoints;
     }
 
     /**
@@ -82,26 +82,26 @@ export class BeatmapHitObjects {
             // Objects may be out of order *only* if a user has manually edited an .osu file.
             // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
             // Finding index is used to guarantee that the parsing order of hitobjects with equal start times is maintained (stably-sorted).
-            this.#objects.splice(
+            this._objects.splice(
                 this.findInsertionIndex(object.startTime),
                 0,
                 object
             );
 
             if (object instanceof Circle) {
-                ++this.#circles;
+                ++this._circles;
             } else if (object instanceof Slider) {
-                ++this.#sliders;
+                ++this._sliders;
 
                 for (const nestedHitObject of object.nestedHitObjects) {
                     if (nestedHitObject instanceof SliderTick) {
-                        ++this.#sliderTicks;
+                        ++this._sliderTicks;
                     } else if (nestedHitObject instanceof SliderRepeat) {
-                        ++this.#sliderRepeatPoints;
+                        ++this._sliderRepeatPoints;
                     }
                 }
             } else if (object instanceof Spinner) {
-                ++this.#spinners;
+                ++this._spinners;
             }
         }
     }
@@ -113,22 +113,22 @@ export class BeatmapHitObjects {
      * @returns The hitobject that was removed.
      */
     removeAt(index: number): HitObject {
-        const object: HitObject = this.#objects.splice(index, 1)[0];
+        const object: HitObject = this._objects.splice(index, 1)[0];
 
         if (object instanceof Circle) {
-            --this.#circles;
+            --this._circles;
         } else if (object instanceof Slider) {
-            --this.#sliders;
+            --this._sliders;
 
             for (const nestedHitObject of object.nestedHitObjects) {
                 if (nestedHitObject instanceof SliderTick) {
-                    --this.#sliderTicks;
+                    --this._sliderTicks;
                 } else if (nestedHitObject instanceof SliderRepeat) {
-                    --this.#sliderRepeatPoints;
+                    --this._sliderRepeatPoints;
                 }
             }
         } else if (object instanceof Spinner) {
-            --this.#spinners;
+            --this._spinners;
         }
 
         return object;
@@ -138,12 +138,12 @@ export class BeatmapHitObjects {
      * Clears all hitobjects.
      */
     clear(): void {
-        this.#objects.length = 0;
-        this.#circles = 0;
-        this.#sliders = 0;
-        this.#spinners = 0;
-        this.#sliderTicks = 0;
-        this.#sliderRepeatPoints = 0;
+        this._objects.length = 0;
+        this._circles = 0;
+        this._sliders = 0;
+        this._spinners = 0;
+        this._sliderTicks = 0;
+        this._sliderRepeatPoints = 0;
     }
 
     /**

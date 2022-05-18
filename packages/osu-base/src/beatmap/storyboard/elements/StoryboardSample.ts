@@ -4,10 +4,10 @@ import { StoryboardElement } from "./StoryboardElement";
  * Represents a storyboard sample.
  */
 export class StoryboardSample extends StoryboardElement {
-    #startTime: number;
+    private _startTime: number;
 
     get startTime(): number {
-        return this.#startTime;
+        return this._startTime;
     }
 
     /**
@@ -18,7 +18,7 @@ export class StoryboardSample extends StoryboardElement {
     constructor(path: string, time: number, volume: number) {
         super(path);
 
-        this.#startTime = time;
+        this._startTime = time;
         this.volume = volume;
     }
 }

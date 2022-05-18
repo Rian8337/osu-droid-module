@@ -10,13 +10,13 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      */
     abstract readonly defaultControlPoint: T;
 
-    #points: T[] = [];
+    private _points: T[] = [];
 
     /**
      * The control points in this manager.
      */
     get points(): readonly T[] {
-        return this.#points;
+        return this._points;
     }
 
     /**
@@ -56,16 +56,16 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         }
 
         // Get the index at which to add the control point.
-        for (let i = 0; i < this.#points.length; ++i) {
-            if (this.#points[i].time >= controlPoint.time) {
-                this.#points.splice(i - 1, 0, controlPoint);
+        for (let i = 0; i < this._points.length; ++i) {
+            if (this._points[i].time >= controlPoint.time) {
+                this._points.splice(i - 1, 0, controlPoint);
 
                 return true;
             }
         }
 
         // Append the control point if it hasn't been added yet.
-        this.#points.push(controlPoint);
+        this._points.push(controlPoint);
 
         return true;
     }
@@ -77,17 +77,17 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      * @returns Whether the control point was removed.
      */
     remove(controlPoint: T): boolean {
-        for (let i = 0; i < this.#points.length; ++i) {
-            if (this.#points[i].time > controlPoint.time) {
+        for (let i = 0; i < this._points.length; ++i) {
+            if (this._points[i].time > controlPoint.time) {
                 break;
             }
 
             // isRedundant doesn't check for time equality, so we need to specify it separately.
             if (
-                this.#points[i].time === controlPoint.time &&
-                this.#points[i].isRedundant(controlPoint)
+                this._points[i].time === controlPoint.time &&
+                this._points[i].isRedundant(controlPoint)
             ) {
-                this.#points.splice(i, 1);
+                this._points.splice(i, 1);
 
                 return true;
             }
@@ -103,7 +103,7 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      * @returns The control point that was removed.
      */
     removeAt(index: number): T {
-        return this.#points.splice(index, 1)[0];
+        return this._points.splice(index, 1)[0];
     }
 
     /**
@@ -129,30 +129,30 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      * @returns The active control point at the given time, `null` if none found.
      */
     protected binarySearch(time: number): T | null {
-        if (this.#points.length === 0 || time < this.#points[0].time) {
+        if (this._points.length === 0 || time < this._points[0].time) {
             return null;
         }
 
-        if (time >= this.#points.at(-1)!.time) {
-            return this.#points.at(-1)!;
+        if (time >= this._points.at(-1)!.time) {
+            return this._points.at(-1)!;
         }
 
         let l: number = 0;
-        let r: number = this.#points.length - 2;
+        let r: number = this._points.length - 2;
 
         while (l <= r) {
             const pivot: number = l + ((r - l) >> 1);
 
-            if (this.#points[pivot].time < time) {
+            if (this._points[pivot].time < time) {
                 l = pivot + 1;
-            } else if (this.#points[pivot].time > time) {
+            } else if (this._points[pivot].time > time) {
                 r = pivot - 1;
             } else {
-                return this.#points[pivot];
+                return this._points[pivot];
             }
         }
 
         // l will be the first control point with time > this.controlPoints[l].time, but we want the one before it
-        return this.#points[l - 1];
+        return this._points[l - 1];
     }
 }
