@@ -60,21 +60,26 @@ test("Test time offset", () => {
 test("Test timing control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.controlPoints.timing.add(
-        new TimingControlPoint({
-            time: 1000,
-            msPerBeat: 100,
-            timeSignature: 4,
-        })
-    );
+    expect(
+        beatmap.controlPoints.timing.add(
+            new TimingControlPoint({
+                time: 1000,
+                msPerBeat: 100,
+                timeSignature: 4,
+            })
+        )
+    ).toBe(true);
 
-    beatmap.controlPoints.timing.add(
-        new TimingControlPoint({
-            time: 5000,
-            msPerBeat: 100,
-            timeSignature: 4,
-        })
-    );
+    // Redundant control point, but should be added
+    expect(
+        beatmap.controlPoints.timing.add(
+            new TimingControlPoint({
+                time: 5000,
+                msPerBeat: 100,
+                timeSignature: 4,
+            })
+        )
+    ).toBe(true);
 
     let timingPoint = beatmap.controlPoints.timing.controlPointAt(0);
 
@@ -92,19 +97,24 @@ test("Test timing control point getter", () => {
 test("Test difficulty control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.controlPoints.difficulty.add(
-        new DifficultyControlPoint({
-            time: 1000,
-            speedMultiplier: 1,
-        })
-    );
+    expect(
+        beatmap.controlPoints.difficulty.add(
+            new DifficultyControlPoint({
+                time: 1000,
+                speedMultiplier: 0.9,
+            })
+        )
+    ).toBe(true);
 
-    beatmap.controlPoints.difficulty.add(
-        new DifficultyControlPoint({
-            time: 5000,
-            speedMultiplier: 1,
-        })
-    );
+    // Redundant control point
+    expect(
+        beatmap.controlPoints.difficulty.add(
+            new DifficultyControlPoint({
+                time: 5000,
+                speedMultiplier: 0.9,
+            })
+        )
+    ).toBe(false);
 
     let timingPoint = beatmap.controlPoints.difficulty.controlPointAt(0);
 
@@ -112,31 +122,49 @@ test("Test difficulty control point getter", () => {
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(3000);
 
-    expect(timingPoint?.time).toBe(1000);
+    expect(timingPoint.time).toBe(1000);
 
     timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
 
-    expect(timingPoint?.time).toBe(5000);
+    expect(timingPoint.time).toBe(1000);
+
+    expect(
+        beatmap.controlPoints.difficulty.add(
+            new DifficultyControlPoint({
+                time: 5000,
+                speedMultiplier: 0.5,
+            })
+        )
+    ).toBe(true);
+
+    timingPoint = beatmap.controlPoints.difficulty.controlPointAt(7000);
+
+    expect(timingPoint.time).toBe(5000);
 });
 
 test("Test effect control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.controlPoints.effect.add(
-        new EffectControlPoint({
-            time: 1000,
-            isKiai: false,
-            omitFirstBarLine: false,
-        })
-    );
+    expect(
+        beatmap.controlPoints.effect.add(
+            new EffectControlPoint({
+                time: 1000,
+                isKiai: true,
+                omitFirstBarLine: false,
+            })
+        )
+    ).toBe(true);
 
-    beatmap.controlPoints.effect.add(
-        new EffectControlPoint({
-            time: 5000,
-            isKiai: false,
-            omitFirstBarLine: false,
-        })
-    );
+    // Redundant control point
+    expect(
+        beatmap.controlPoints.effect.add(
+            new EffectControlPoint({
+                time: 5000,
+                isKiai: true,
+                omitFirstBarLine: false,
+            })
+        )
+    ).toBe(false);
 
     let timingPoint = beatmap.controlPoints.effect.controlPointAt(0);
 
@@ -148,29 +176,48 @@ test("Test effect control point getter", () => {
 
     timingPoint = beatmap.controlPoints.effect.controlPointAt(7000);
 
+    expect(timingPoint.time).toBe(1000);
+
+    expect(
+        beatmap.controlPoints.effect.add(
+            new EffectControlPoint({
+                time: 5000,
+                isKiai: false,
+                omitFirstBarLine: false,
+            })
+        )
+    ).toBe(true);
+
+    timingPoint = beatmap.controlPoints.effect.controlPointAt(7000);
+
     expect(timingPoint.time).toBe(5000);
 });
 
 test("Test sample control point getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.controlPoints.sample.add(
-        new SampleControlPoint({
-            time: 1000,
-            sampleBank: SampleBank.none,
-            sampleVolume: 100,
-            customSampleBank: 0,
-        })
-    );
+    expect(
+        beatmap.controlPoints.sample.add(
+            new SampleControlPoint({
+                time: 1000,
+                sampleBank: SampleBank.none,
+                sampleVolume: 100,
+                customSampleBank: 0,
+            })
+        )
+    ).toBe(true);
 
-    beatmap.controlPoints.sample.add(
-        new SampleControlPoint({
-            time: 5000,
-            sampleBank: SampleBank.none,
-            sampleVolume: 100,
-            customSampleBank: 0,
-        })
-    );
+    // Redundant control point
+    expect(
+        beatmap.controlPoints.sample.add(
+            new SampleControlPoint({
+                time: 5000,
+                sampleBank: SampleBank.none,
+                sampleVolume: 100,
+                customSampleBank: 0,
+            })
+        )
+    ).toBe(false);
 
     let timingPoint = beatmap.controlPoints.sample.controlPointAt(0);
 
@@ -182,7 +229,58 @@ test("Test sample control point getter", () => {
 
     timingPoint = beatmap.controlPoints.sample.controlPointAt(7000);
 
+    expect(timingPoint.time).toBe(1000);
+
+    expect(
+        beatmap.controlPoints.sample.add(
+            new SampleControlPoint({
+                time: 5000,
+                sampleBank: SampleBank.none,
+                sampleVolume: 90,
+                customSampleBank: 0,
+            })
+        )
+    ).toBe(true);
+
+    timingPoint = beatmap.controlPoints.sample.controlPointAt(7000);
+
     expect(timingPoint.time).toBe(5000);
+});
+
+test("Test most common beat length getter", () => {
+    const beatmap = new Beatmap();
+
+    expect(beatmap.mostCommonBeatLength).toBe(0);
+
+    beatmap.controlPoints.timing.add(
+        new TimingControlPoint({
+            time: 1000,
+            msPerBeat: 1000,
+            timeSignature: 4,
+        })
+    );
+
+    expect(beatmap.mostCommonBeatLength).toBe(1000);
+
+    beatmap.controlPoints.timing.add(
+        new TimingControlPoint({
+            time: 1500,
+            msPerBeat: 800,
+            timeSignature: 4,
+        })
+    );
+
+    // Objects are not added yet, so most common beat length should still default to the first timing point.
+    expect(beatmap.mostCommonBeatLength).toBe(1000);
+
+    beatmap.hitObjects.add(
+        new Slider({
+            ...createGlobalSliderValues(),
+            startTime: 1500,
+        })
+    );
+
+    expect(beatmap.mostCommonBeatLength).toBe(800);
 });
 
 test("Test slider ticks getter", () => {
