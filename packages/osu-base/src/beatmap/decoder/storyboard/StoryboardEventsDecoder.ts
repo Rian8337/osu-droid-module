@@ -1,3 +1,4 @@
+import { normalize } from "path";
 import { Easing } from "../../../constants/Easing";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { MathUtils } from "../../../mathutil/MathUtils";
@@ -15,6 +16,7 @@ import { StoryboardCommandType } from "../../storyboard/enums/StoryboardCommandT
 import { StoryboardLayerType } from "../../storyboard/enums/StoryboardLayerType";
 import { StoryboardParameterCommandType } from "../../storyboard/enums/StoryboardParameterCommandType";
 import { SectionDecoder } from "../SectionDecoder";
+import { Anchor } from "../../../constants/Anchor";
 
 /**
  * A decoder for decoding a storyboard's events section.
@@ -24,6 +26,15 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
     private timelineGroup?: CommandTimelineGroup;
 
     protected override decodeInternal(line: string): void {
+        // Ignore comments, background, and video.
+        if (
+            ["//", "0", "1", "Video", "2", "Break", "3"].some((v) =>
+                line.startsWith(v)
+            )
+        ) {
+            return;
+        }
+
         let depth: number = 0;
 
         for (const c of line) {
@@ -54,19 +65,19 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
         if (depth === 0) {
             this.storyboardSprite = null;
 
-            switch (s[0]) {
+            switch (this.setPosition(s[0])) {
                 case StoryboardEventType.sprite: {
                     this.storyboardSprite = new StoryboardSprite(
-                        this.cleanFilename(s[3]),
-                        this.tryParseInt(s[2]),
+                        this.cleanFilename(this.setPosition(s[3])),
+                        <Anchor>this.setPosition(s[2]),
                         new Vector2(
                             this.tryParseFloat(
-                                s[4],
+                                this.setPosition(s[4]),
                                 -ParserConstants.MAX_COORDINATE_VALUE,
                                 ParserConstants.MAX_COORDINATE_VALUE
                             ),
                             this.tryParseFloat(
-                                s[5],
+                                this.setPosition(s[5]),
                                 -ParserConstants.MAX_COORDINATE_VALUE,
                                 ParserConstants.MAX_COORDINATE_VALUE
                             )
@@ -74,18 +85,18 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     );
 
                     this.target
-                        .getLayer(<StoryboardLayerType>s[1])
+                        .getLayer(<StoryboardLayerType>this.setPosition(s[1]))
                         .elements.push(this.storyboardSprite);
                     break;
                 }
                 case StoryboardEventType.animation: {
-                    let frameDelay: number = this.tryParseInt(s[7]);
-                    let loopType: AnimationLoopType = <AnimationLoopType>(
-                        this.tryParseInt(s[8])
+                    let frameDelay: number = this.tryParseInt(
+                        this.setPosition(s[7])
                     );
-                    loopType = Number.isFinite(loopType)
-                        ? loopType
-                        : AnimationLoopType.loopForever;
+                    const loopType: AnimationLoopType =
+                        s[8] === "1" || s[8] === "LoopOnce"
+                            ? AnimationLoopType.loopOnce
+                            : AnimationLoopType.loopForever;
 
                     if (this.formatVersion < 6) {
                         // This is random as hell but taken straight from osu-stable.
@@ -96,83 +107,100 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     }
 
                     this.storyboardSprite = new StoryboardAnimation(
-                        this.cleanFilename(s[3]),
-                        this.tryParseInt(s[2]),
+                        this.cleanFilename(this.setPosition(s[3])),
+                        <Anchor>this.setPosition(s[2]),
                         new Vector2(
                             this.tryParseFloat(
-                                s[4],
+                                this.setPosition(s[4]),
                                 -ParserConstants.MAX_COORDINATE_VALUE,
                                 ParserConstants.MAX_COORDINATE_VALUE
                             ),
                             this.tryParseFloat(
-                                s[5],
+                                this.setPosition(s[5]),
                                 -ParserConstants.MAX_COORDINATE_VALUE,
                                 ParserConstants.MAX_COORDINATE_VALUE
                             )
                         ),
-                        this.tryParseInt(s[6]),
+                        this.tryParseInt(this.setPosition(s[6])),
                         frameDelay,
                         loopType
                     );
 
                     this.target
-                        .getLayer(<StoryboardLayerType>s[1])
+                        .getLayer(<StoryboardLayerType>this.setPosition(s[1]))
                         .elements.push(this.storyboardSprite);
                     break;
                 }
                 case StoryboardEventType.sample:
                     this.target
-                        .getLayer(<StoryboardLayerType>s[2])
+                        .getLayer(<StoryboardLayerType>this.setPosition(s[2]))
                         .elements.push(
                             new StoryboardSample(
-                                this.cleanFilename(s[3]),
-                                this.tryParseInt(s[1]),
-                                s.length > 4 ? this.tryParseInt(s[4]) : 100
+                                this.cleanFilename(this.setPosition(s[3])),
+                                this.tryParseInt(this.setPosition(s[1])),
+                                s.length > 4
+                                    ? this.tryParseInt(this.setPosition(s[4]))
+                                    : 100
                             )
                         );
                     break;
                 default:
-                    throw new TypeError(`Unknown event type: ${s[0]}`);
+                    throw new TypeError(
+                        `Unknown event type: ${this.setPosition(s[0])}`
+                    );
             }
         } else {
             if (depth < 2) {
                 this.timelineGroup = this.storyboardSprite?.timelineGroup;
             }
 
-            switch (s[0]) {
+            switch (this.setPosition(s[0])) {
                 case StoryboardCommandType.trigger:
                     this.timelineGroup = this.storyboardSprite?.addTrigger(
-                        s[1],
+                        this.setPosition(s[1]),
                         s.length > 2
-                            ? this.tryParseInt(s[2])
+                            ? this.tryParseInt(this.setPosition(s[2]))
                             : Number.MIN_SAFE_INTEGER,
                         s.length > 3
-                            ? this.tryParseInt(s[3])
+                            ? this.tryParseInt(this.setPosition(s[3]))
                             : Number.MAX_SAFE_INTEGER,
-                        s.length > 4 ? this.tryParseInt(s[4]) : 0
+                        s.length > 4
+                            ? this.tryParseInt(this.setPosition(s[4]))
+                            : 0
                     );
                     break;
                 case StoryboardCommandType.loop:
                     this.timelineGroup = this.storyboardSprite?.addLoop(
-                        this.tryParseInt(s[1]),
-                        Math.max(0, this.tryParseInt(s[2]) - 1)
+                        this.tryParseInt(this.setPosition(s[1])),
+                        Math.max(
+                            0,
+                            this.tryParseInt(this.setPosition(s[2])) - 1
+                        )
                     );
                     break;
                 default: {
                     if (!s[3]) {
-                        s[3] = s[2];
+                        s[3] = this.setPosition(s[2]);
                     }
 
-                    const easing: Easing = <Easing>this.tryParseInt(s[1]);
-                    const startTime: number = this.tryParseInt(s[2]);
-                    const endTime: number = this.tryParseInt(s[3]);
+                    const easing: Easing = <Easing>(
+                        this.tryParseInt(this.setPosition(s[1]))
+                    );
+                    const startTime: number = this.tryParseInt(
+                        this.setPosition(s[2])
+                    );
+                    const endTime: number = this.tryParseInt(
+                        this.setPosition(s[3])
+                    );
 
                     switch (s[0]) {
                         case StoryboardCommandType.fade: {
-                            const startValue: number = this.tryParseInt(s[4]);
+                            const startValue: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
                             const endValue: number =
                                 s.length > 5
-                                    ? this.tryParseInt(s[5])
+                                    ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
 
                             this.timelineGroup?.alpha.add(
@@ -186,10 +214,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.scale: {
-                            const startValue: number = this.tryParseInt(s[4]);
+                            const startValue: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
                             const endValue: number =
                                 s.length > 5
-                                    ? this.tryParseInt(s[5])
+                                    ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
 
                             this.timelineGroup?.scale.add(
@@ -203,12 +233,20 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.vectorScale: {
-                            const startX: number = this.tryParseInt(s[4]);
-                            const startY: number = this.tryParseInt(s[5]);
+                            const startX: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
+                            const startY: number = this.tryParseFloat(
+                                this.setPosition(s[5])
+                            );
                             const endX: number =
-                                s.length > 6 ? this.tryParseInt(s[6]) : startX;
+                                s.length > 6
+                                    ? this.tryParseFloat(this.setPosition(s[6]))
+                                    : startX;
                             const endY: number =
-                                s.length > 7 ? this.tryParseInt(s[7]) : startY;
+                                s.length > 7
+                                    ? this.tryParseFloat(this.setPosition(s[7]))
+                                    : startY;
 
                             this.timelineGroup?.vectorScale.add(
                                 easing,
@@ -221,10 +259,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.rotation: {
-                            const startValue: number = this.tryParseInt(s[4]);
+                            const startValue: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
                             const endValue: number =
                                 s.length > 5
-                                    ? this.tryParseInt(s[5])
+                                    ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
 
                             this.timelineGroup?.rotation.add(
@@ -238,12 +278,20 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.movement: {
-                            const startX: number = this.tryParseInt(s[4]);
-                            const startY: number = this.tryParseInt(s[5]);
+                            const startX: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
+                            const startY: number = this.tryParseFloat(
+                                this.setPosition(s[5])
+                            );
                             const endX: number =
-                                s.length > 6 ? this.tryParseInt(s[6]) : startX;
+                                s.length > 6
+                                    ? this.tryParseFloat(this.setPosition(s[6]))
+                                    : startX;
                             const endY: number =
-                                s.length > 7 ? this.tryParseInt(s[7]) : startY;
+                                s.length > 7
+                                    ? this.tryParseFloat(this.setPosition(s[7]))
+                                    : startY;
 
                             this.timelineGroup?.move.add(
                                 easing,
@@ -256,10 +304,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.movementX: {
-                            const startValue: number = this.tryParseInt(s[4]);
+                            const startValue: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
                             const endValue: number =
                                 s.length > 5
-                                    ? this.tryParseInt(s[5])
+                                    ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
 
                             this.timelineGroup?.x.add(
@@ -273,10 +323,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.movementY: {
-                            const startValue: number = this.tryParseInt(s[4]);
+                            const startValue: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
                             const endValue: number =
                                 s.length > 5
-                                    ? this.tryParseInt(s[5])
+                                    ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
 
                             this.timelineGroup?.y.add(
@@ -290,12 +342,18 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.color: {
-                            const startRed: number = this.tryParseFloat(s[4]);
-                            const startGreen: number = this.tryParseFloat(s[5]);
-                            const startBlue: number = this.tryParseFloat(s[6]);
+                            const startRed: number = this.tryParseFloat(
+                                this.setPosition(s[4])
+                            );
+                            const startGreen: number = this.tryParseFloat(
+                                this.setPosition(s[5])
+                            );
+                            const startBlue: number = this.tryParseFloat(
+                                this.setPosition(s[6])
+                            );
                             const endRed: number =
                                 s.length > 7
-                                    ? this.tryParseFloat(s[7])
+                                    ? this.tryParseFloat(this.setPosition(s[7]))
                                     : startRed;
                             const endGreen: number =
                                 s.length > 8
@@ -317,7 +375,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
                         case StoryboardCommandType.parameter:
-                            switch (s[4]) {
+                            switch (this.setPosition(s[4])) {
                                 case StoryboardParameterCommandType.blendingMode:
                                     this.timelineGroup?.blendingParameters.add(
                                         easing,
@@ -354,7 +412,9 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         default:
                             throw new TypeError(
-                                `Unknown command type: ${s[0]}`
+                                `Unknown command type: ${this.setPosition(
+                                    s[0]
+                                )}`
                             );
                     }
                 }
@@ -363,6 +423,6 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
     }
 
     private cleanFilename(name: string): string {
-        return name.replace(/"/g, "");
+        return normalize(name.replace(/"/g, ""));
     }
 }

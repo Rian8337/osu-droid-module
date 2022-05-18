@@ -13,6 +13,7 @@ import { StoryboardEventType } from "../../storyboard/enums/StoryboardEventType"
 import { StoryboardCommandType } from "../../storyboard/enums/StoryboardCommandType";
 import { StoryboardLayerType } from "../../storyboard/enums/StoryboardLayerType";
 import { StoryboardBaseEncoder } from "./StoryboardBaseEncoder";
+import { MathUtils } from "../../../mathutil/MathUtils";
 
 /**
  * An encoder for encoding a storyboard's events section.
@@ -43,17 +44,13 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     }
 
     private encodeLayer(layerType: StoryboardLayerType): void {
-        const layer: StoryboardLayer = this.storyboard.getLayer(layerType);
+        // Do not use getLayer as it may create an unexisting storyboard layer.
+        const layer: StoryboardLayer | undefined =
+            this.storyboard.layers[layerType];
 
-        for (const element of layer.elements) {
-            if (element instanceof StoryboardSprite) {
-                this.write(`${StoryboardEventType.sprite},`);
-                this.write(`${layerType},`);
-                this.write(`${element.origin},`);
-                this.write(`"${element.path}",`);
-                this.writeLine(`${element.initialPosition}`);
-                this.encodeElement(element);
-            } else if (element instanceof StoryboardAnimation) {
+        for (const element of layer?.elements ?? []) {
+            // Checking for StoryboardAnimation first is mandatory as it extends StoryboardSprite.
+            if (element instanceof StoryboardAnimation) {
                 this.write(`${StoryboardEventType.animation},`);
                 this.write(`${layerType},`);
                 this.write(`${element.origin},`);
@@ -62,6 +59,13 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
                 this.write(`${element.frameCount},`);
                 this.write(`${element.frameDelay},`);
                 this.writeLine(`${element.loopType}`);
+                this.encodeElement(element);
+            } else if (element instanceof StoryboardSprite) {
+                this.write(`${StoryboardEventType.sprite},`);
+                this.write(`${layerType},`);
+                this.write(`${element.origin},`);
+                this.write(`"${element.path}",`);
+                this.writeLine(`${element.initialPosition}`);
                 this.encodeElement(element);
             } else if (element instanceof StoryboardSample) {
                 this.write(`${StoryboardEventType.sample},`);
@@ -164,12 +168,25 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
             typeof command.startValue === "number" &&
             typeof command.endValue === "number"
         ) {
-            // Move X, move Y, scale, and fade commands
-            this.write(command.startValue.toString());
+            // Move X, move Y, scale, fade, and rotation commands
+            if (command.type === StoryboardCommandType.rotation) {
+                this.write(
+                    MathUtils.degreesToRadians(command.startValue).toString()
+                );
+            } else {
+                this.write(command.startValue.toString());
+            }
 
             if (command.startValue !== command.endValue) {
                 this.write(",");
-                this.write(command.endValue.toString());
+
+                if (command.type === StoryboardCommandType.rotation) {
+                    this.write(
+                        MathUtils.degreesToRadians(command.endValue).toString()
+                    );
+                } else {
+                    this.write(command.endValue.toString());
+                }
             }
         }
 

@@ -67,7 +67,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
             }
 
             // Now that we've handled comments, we can trim space
-            line = this.currentLine = line.trim();
+            line = this.currentLine = line.trimEnd();
 
             // [SectionName]
             if (line.startsWith("[") && line.endsWith("]")) {
