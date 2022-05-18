@@ -32,7 +32,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
         //
         // In lazer, the default BPM is set to 60 (60000 / 1000).
         if (this.target.controlPoints.timing.points.length === 0) {
-            this.target.controlPoints.timing.points.push(
+            this.target.controlPoints.timing.add(
                 new TimingControlPoint({
                     time: Number.NEGATIVE_INFINITY,
                     msPerBeat: 1000,
@@ -278,21 +278,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             throw new Error("Ignoring malformed hitobject");
         }
 
-        switch (true) {
-            case object instanceof Circle:
-                ++this.target.hitObjects.circles;
-                break;
-            case object instanceof Slider:
-                ++this.target.hitObjects.sliders;
-                break;
-            case object instanceof Spinner:
-                ++this.target.hitObjects.spinners;
-                break;
-        }
-
         object.samples = this.convertSoundType(soundType, bankInfo);
 
-        this.target.hitObjects.objects.push(object);
+        this.target.hitObjects.add(object);
     }
 
     /**

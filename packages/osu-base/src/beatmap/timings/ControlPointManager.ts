@@ -10,10 +10,14 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      */
     abstract readonly defaultControlPoint: T;
 
+    #points: T[] = [];
+
     /**
      * The control points in this manager.
      */
-    readonly points: T[] = [];
+    get points(): readonly T[] {
+        return this.#points;
+    }
 
     /**
      * Finds the control point that is active at a given time.
@@ -45,16 +49,16 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         }
 
         // Get the index at which to add the control point.
-        for (let i = 0; i < this.points.length; ++i) {
-            if (this.points[i].time >= controlPoint.time) {
-                this.points.splice(i - 1, 0, controlPoint);
+        for (let i = 0; i < this.#points.length; ++i) {
+            if (this.#points[i].time >= controlPoint.time) {
+                this.#points.splice(i - 1, 0, controlPoint);
 
                 return true;
             }
         }
 
         // Append the control point if it hasn't been added yet.
-        this.points.push(controlPoint);
+        this.#points.push(controlPoint);
 
         return true;
     }
@@ -82,30 +86,30 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      * @returns The active control point at the given time, `null` if none found.
      */
     protected binarySearch(time: number): T | null {
-        if (this.points.length === 0 || time < this.points[0].time) {
+        if (this.#points.length === 0 || time < this.#points[0].time) {
             return null;
         }
 
-        if (time >= this.points.at(-1)!.time) {
-            return this.points.at(-1)!;
+        if (time >= this.#points.at(-1)!.time) {
+            return this.#points.at(-1)!;
         }
 
         let l: number = 0;
-        let r: number = this.points.length - 2;
+        let r: number = this.#points.length - 2;
 
         while (l <= r) {
             const pivot: number = l + ((r - l) >> 1);
 
-            if (this.points[pivot].time < time) {
+            if (this.#points[pivot].time < time) {
                 l = pivot + 1;
-            } else if (this.points[pivot].time > time) {
+            } else if (this.#points[pivot].time > time) {
                 r = pivot - 1;
             } else {
-                return this.points[pivot];
+                return this.#points[pivot];
             }
         }
 
         // l will be the first control point with time > this.controlPoints[l].time, but we want the one before it
-        return this.points[l - 1];
+        return this.#points[l - 1];
     }
 }

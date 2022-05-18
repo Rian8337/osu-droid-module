@@ -38,13 +38,6 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
     ): this {
         super.decode(str);
 
-        // Objects may be out of order *only* if a user has manually edited an .osu file.
-        // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
-        // Sort is used to guarantee that the parsing order of hitobjects with equal start times is maintained (stably-sorted).
-        this.finalResult.hitObjects.objects.sort((a, b) => {
-            return a.startTime - b.startTime;
-        });
-
         if (parseStoryboard) {
             const eventsDecoder: BeatmapEventsDecoder = <BeatmapEventsDecoder>(
                 this.decoders[BeatmapSection.events]
