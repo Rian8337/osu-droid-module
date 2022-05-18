@@ -43,7 +43,7 @@ export class DifficultyHitObjectCreator {
      * Generates difficulty hitobjects for difficulty calculation.
      */
     generateDifficultyObjects(params: {
-        objects: HitObject[];
+        objects: readonly HitObject[];
         circleSize: number;
         speedMultiplier: number;
         mode: modes;

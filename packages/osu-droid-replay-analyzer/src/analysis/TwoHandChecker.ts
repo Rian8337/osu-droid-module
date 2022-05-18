@@ -353,7 +353,7 @@ export class TwoHandChecker {
                 beatmaps[o.cursorIndex] = map;
             }
 
-            beatmaps[o.cursorIndex].hitObjects.objects.push(o.object.object);
+            beatmaps[o.cursorIndex].hitObjects.add(o.object.object);
         });
 
         this.map.objects.length = 0;

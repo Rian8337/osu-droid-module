@@ -410,7 +410,7 @@ export class ReplayAnalyzer {
             let hit0: number = 0;
             let grantsGekiOrKatu: boolean = true;
 
-            const objects: HitObject[] = (
+            const objects: readonly HitObject[] = (
                 this.map instanceof DroidStarRating ||
                 this.map instanceof RebalanceDroidStarRating
                     ? this.map.map
@@ -528,7 +528,7 @@ export class ReplayAnalyzer {
         let positiveTotal: number = 0;
         let negativeTotal: number = 0;
 
-        const objects: HitObject[] = (
+        const objects: readonly HitObject[] = (
             this.map instanceof DroidStarRating ||
             this.map instanceof RebalanceDroidStarRating
                 ? this.map.map
