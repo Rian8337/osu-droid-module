@@ -576,7 +576,7 @@ export class MapInfo {
                 const convertedBPM: number = this.convertBPM(mapStatistics);
                 let string = "**BPM**: ";
                 if (this.map) {
-                    const uninheritedTimingPoints: TimingControlPoint[] =
+                    const uninheritedTimingPoints: readonly TimingControlPoint[] =
                         this.map.controlPoints.timing.points;
 
                     if (uninheritedTimingPoints.length === 1) {
