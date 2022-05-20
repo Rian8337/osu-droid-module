@@ -423,6 +423,20 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
     }
 
     private cleanFilename(name: string): string {
-        return normalize(name.replace(/"/g, ""));
+        // Trim double quotes from filenames.
+        let start: number = 0;
+        let end: number = name.length;
+
+        while (start < end && name.charAt(start) === '"') {
+            ++start;
+        }
+
+        while (end > start && name.charAt(end - 1) === '"') {
+            --end;
+        }
+
+        return normalize(
+            start > 0 || end < name.length ? name.substring(start, end) : name
+        );
     }
 }
