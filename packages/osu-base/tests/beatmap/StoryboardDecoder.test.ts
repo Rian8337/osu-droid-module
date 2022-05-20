@@ -30,6 +30,10 @@ describe("Test decode storyboard events", () => {
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
 
+    test("Test storyboard use skin sprites", () => {
+        expect(storyboard.useSkinSprites).toBe(false);
+    });
+
     test("Test layer count", () => {
         expect(Object.keys(storyboard.layers).length).toBe(5);
     });
