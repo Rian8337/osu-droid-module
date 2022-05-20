@@ -69,12 +69,24 @@ export class Storyboard {
      * Gets a layer of the storyboard.
      *
      * @param type The layer type.
+     * @param createIfNotAvailable Whether to create the storyboard layer if it's not available. Defaults to `true`.
      * @returns The storyboard layer.
      */
-    getLayer(type: StoryboardLayerType): StoryboardLayer {
+    getLayer(
+        type: StoryboardLayerType,
+        createIfNotAvailable?: boolean
+    ): StoryboardLayer;
+    getLayer(
+        type: StoryboardLayerType,
+        createIfNotAvailable: false
+    ): StoryboardLayer | undefined;
+    getLayer(
+        type: StoryboardLayerType,
+        createIfNotAvailable: boolean = true
+    ): StoryboardLayer | undefined {
         let layer: StoryboardLayer | undefined = this.layers[type];
 
-        if (!layer) {
+        if (!layer && createIfNotAvailable) {
             layer = new StoryboardLayer(type, --this.minimumLayerDepth);
 
             this.layers[type] = layer;

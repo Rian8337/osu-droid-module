@@ -63,9 +63,10 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     }
 
     private encodeLayer(layerType: StoryboardLayerType): void {
-        // Do not use getLayer as it may create an unexisting storyboard layer.
-        const layer: StoryboardLayer | undefined =
-            this.storyboard.layers[layerType];
+        const layer: StoryboardLayer | undefined = this.storyboard.getLayer(
+            layerType,
+            false
+        );
 
         for (const element of layer?.elements ?? []) {
             // Checking for StoryboardAnimation first is mandatory as it extends StoryboardSprite.
