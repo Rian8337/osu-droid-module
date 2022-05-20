@@ -91,7 +91,7 @@ export abstract class StarRating {
      * Also don't forget to manually add the peak strain for the last
      * section which would otherwise be ignored.
      */
-    protected calculate(
+    calculate(
         params: {
             /**
              * The beatmap to calculate.
