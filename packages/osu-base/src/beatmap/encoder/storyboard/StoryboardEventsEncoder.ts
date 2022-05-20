@@ -43,6 +43,25 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         this.encodeLayer(StoryboardLayerType.sample);
     }
 
+    protected override write(line: string): void {
+        super.write(this.encodeVariables(line));
+    }
+
+    protected override writeLine(line: string = ""): void {
+        super.writeLine(this.encodeVariables(line));
+    }
+
+    private encodeVariables(str: string): string {
+        for (const key in this.storyboard.variables) {
+            str = str.replace(
+                new RegExp(this.storyboard.variables[key], "g"),
+                key
+            );
+        }
+
+        return str;
+    }
+
     private encodeLayer(layerType: StoryboardLayerType): void {
         // Do not use getLayer as it may create an unexisting storyboard layer.
         const layer: StoryboardLayer | undefined =
