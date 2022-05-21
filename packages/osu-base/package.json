@@ -19,7 +19,6 @@
   "scripts": {
     "build": "rollup -c ../../rollup.config.js",
     "lint": "eslint --ext ts",
-    "prepare": "npm run build",
     "test": "jest -i"
   },
   "repository": {
