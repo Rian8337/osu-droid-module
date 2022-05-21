@@ -26,21 +26,6 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
     private forceNewCombo: boolean = false;
 
     protected override decodeInternal(line: string): void {
-        // Need to check if the beatmap doesn't have an uninherited timing point.
-        // This exists in cases such as /b/2290233 where the beatmap has been
-        // edited by the user.
-        //
-        // In lazer, the default BPM is set to 60 (60000 / 1000).
-        if (this.target.controlPoints.timing.points.length === 0) {
-            this.target.controlPoints.timing.add(
-                new TimingControlPoint({
-                    time: Number.NEGATIVE_INFINITY,
-                    msPerBeat: 1000,
-                    timeSignature: 4,
-                })
-            );
-        }
-
         const s: string[] = line.split(",");
 
         if (s.length < 4) {
@@ -118,9 +103,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             );
 
             const speedMultiplierTimingPoint: DifficultyControlPoint =
-                this.target.controlPoints.difficulty.controlPointAt(time)!;
+                this.target.controlPoints.difficulty.controlPointAt(time);
             const msPerBeatTimingPoint: TimingControlPoint =
-                this.target.controlPoints.timing.controlPointAt(time)!;
+                this.target.controlPoints.timing.controlPointAt(time);
 
             const points: Vector2[] = [new Vector2(0, 0)];
             const pointSplit: string[] = this.setPosition(s[5]).split("|");
