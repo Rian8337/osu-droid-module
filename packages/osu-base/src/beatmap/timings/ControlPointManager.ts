@@ -49,7 +49,7 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         }
 
         // Remove the existing control point if the new control point overrides it at the same time.
-        while (controlPoint.time === existing.time) {
+        while (controlPoint.time === existing.time && this._points.length > 0) {
             this.remove(existing);
 
             existing = this.controlPointAt(controlPoint.time);
