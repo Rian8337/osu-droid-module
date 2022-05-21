@@ -230,7 +230,9 @@ export class ThreeFingerChecker {
     /**
      * Checks whether a beatmap is eligible to be detected for 3-finger.
      */
-    static isEligibleToDetect(map: DroidStarRating): boolean {
+    static isEligibleToDetect(
+        map: DroidStarRating | RebalanceDroidStarRating
+    ): boolean {
         return map.objects.some(
             (v) => v.originalTapStrain >= this.strainThreshold
         );
