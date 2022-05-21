@@ -24,6 +24,7 @@
   "scripts": {
     "build": "dts-gen -m java-deserialization -o -f ./node_modules/java-deserialization/src/index.d.ts && rollup -c ../../rollup.config.js",
     "lint": "eslint --ext ts",
+    "prepublishOnly": "npm run build",
     "test": "echo \"No tests for this module\""
   },
   "bugs": {
