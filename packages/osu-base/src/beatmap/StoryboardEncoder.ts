@@ -4,6 +4,12 @@ import { StoryboardEventsEncoder } from "./encoder/storyboard/StoryboardEventsEn
 import { StoryboardVariablesEncoder } from "./encoder/storyboard/StoryboardVariablesEncoder";
 import { Storyboard } from "./Storyboard";
 
+/**
+ * A storyboard encoder.
+ *
+ * Note that this storyboard encoder does not encode storyboards, and as such equality with the
+ * original beatmap or storyboard file is not guaranteed (and usually will not be equal).
+ */
 export class StoryboardEncoder extends Encoder<
     Storyboard,
     StoryboardBaseEncoder
