@@ -34,7 +34,7 @@ export interface CursorInformation {
 /**
  * Represents a cursor instance in an osu!droid replay.
  *
- * Stores cursor movement data such as x and y coordinates, movement size, etc.
+ * Stores cursor movement data in the form of `CursorOccurrence`s.
  *
  * This is used when analyzing replays using replay analyzer.
  */
