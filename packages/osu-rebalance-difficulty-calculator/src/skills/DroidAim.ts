@@ -74,7 +74,9 @@ export class DroidAim extends DroidSkill {
 
             // Calculate the movement velocity from slider end to current object.
             const movementVelocity: number =
-                current.minimumJumpDistance / current.minimumJumpTime;
+                current.minimumJumpTime !== 0
+                    ? current.minimumJumpDistance / current.minimumJumpTime
+                    : 0;
 
             // Take the larger total combined velocity.
             currentVelocity = Math.max(
@@ -95,7 +97,9 @@ export class DroidAim extends DroidSkill {
                 lastLast.travelDistance / lastLast.travelTime;
 
             const movementVelocity: number =
-                last.minimumJumpDistance / last.minimumJumpTime;
+                last.minimumJumpTime !== 0
+                    ? last.minimumJumpDistance / last.minimumJumpTime
+                    : 0;
 
             prevVelocity = Math.max(
                 prevVelocity,
