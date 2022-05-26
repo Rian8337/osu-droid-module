@@ -321,40 +321,41 @@ export class ReplayAnalyzer {
             const moveSize: number =
                 replayDataBuffer.readInt32BE(bufferCounter);
             bufferCounter += this.INT_LENGTH;
-            const moveArray: CursorData = {
-                size: moveSize,
-                time: [],
-                x: [],
-                y: [],
-                id: [],
-            };
+            const time: number[] = [];
+            const x: number[] = [];
+            const y: number[] = [];
+            const id: movementType[] = [];
             for (let i = 0; i < moveSize; i++) {
-                moveArray.time[i] = replayDataBuffer.readInt32BE(bufferCounter);
+                time[i] = replayDataBuffer.readInt32BE(bufferCounter);
                 bufferCounter += this.INT_LENGTH;
-                moveArray.id[i] = moveArray.time[i] & 3;
-                moveArray.time[i] >>= 2;
-                if (moveArray.id[i] !== movementType.UP) {
+                id[i] = time[i] & 3;
+                time[i] >>= 2;
+                if (id[i] !== movementType.UP) {
                     if (resultObject.replayVersion >= 5) {
-                        moveArray.x[i] =
-                            replayDataBuffer.readFloatBE(bufferCounter);
+                        x[i] = replayDataBuffer.readFloatBE(bufferCounter);
                         bufferCounter += this.FLOAT_LENGTH;
-                        moveArray.y[i] =
-                            replayDataBuffer.readFloatBE(bufferCounter);
+                        y[i] = replayDataBuffer.readFloatBE(bufferCounter);
                         bufferCounter += this.FLOAT_LENGTH;
                     } else {
-                        moveArray.x[i] =
-                            replayDataBuffer.readInt16BE(bufferCounter);
+                        x[i] = replayDataBuffer.readInt16BE(bufferCounter);
                         bufferCounter += this.SHORT_LENGTH;
-                        moveArray.y[i] =
-                            replayDataBuffer.readInt16BE(bufferCounter);
+                        y[i] = replayDataBuffer.readInt16BE(bufferCounter);
                         bufferCounter += this.SHORT_LENGTH;
                     }
                 } else {
-                    moveArray.x[i] = -1;
-                    moveArray.y[i] = -1;
+                    x[i] = -1;
+                    y[i] = -1;
                 }
             }
-            resultObject.cursorMovement.push(moveArray);
+            resultObject.cursorMovement.push(
+                new CursorData({
+                    size: moveSize,
+                    time: time,
+                    x: x,
+                    y: y,
+                    id: id,
+                })
+            );
         }
 
         const replayObjectLength: number =

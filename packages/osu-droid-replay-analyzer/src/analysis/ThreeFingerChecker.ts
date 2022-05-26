@@ -19,6 +19,7 @@ import {
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { hitResult, movementType } from "..";
 import { CursorData } from "../data/CursorData";
+import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { BeatmapSectionGenerator } from "./BeatmapSectionGenerator";
@@ -256,7 +257,10 @@ export class ThreeFingerChecker {
         this.getAccurateBreakPoints();
         this.filterCursorInstances();
 
-        if (this.downCursorInstances.filter((v) => v.size > 0).length <= 3) {
+        if (
+            this.downCursorInstances.filter((v) => v.occurrences.length > 0)
+                .length <= 3
+        ) {
             return { is3Finger: false, penalty: 1 };
         }
 
@@ -265,7 +269,10 @@ export class ThreeFingerChecker {
         this.getDetailedBeatmapSections();
         this.preventAccidentalTaps();
 
-        if (this.downCursorInstances.filter((v) => v.size > 0).length <= 3) {
+        if (
+            this.downCursorInstances.filter((v) => v.occurrences.length > 0)
+                .length <= 3
+        ) {
             return { is3Finger: false, penalty: 1 };
         }
 
@@ -422,12 +429,12 @@ export class ThreeFingerChecker {
                 id: [],
             });
 
-            for (let j = 0; j < cursorInstance.size; ++j) {
-                if (cursorInstance.id[j] !== movementType.DOWN) {
+            for (let j = 0; j < cursorInstance.occurrences.length; ++j) {
+                if (cursorInstance.occurrences[j].id !== movementType.DOWN) {
                     continue;
                 }
 
-                const time: number = cursorInstance.time[j];
+                const time: number = cursorInstance.occurrences[j].time;
 
                 if (time < firstObjectHitTime || time > lastObjectHitTime) {
                     continue;
@@ -441,11 +448,14 @@ export class ThreeFingerChecker {
                     continue;
                 }
 
-                ++newCursorData.size;
-                newCursorData.time.push(time);
-                newCursorData.x.push(cursorInstance.x[j]);
-                newCursorData.y.push(cursorInstance.y[j]);
-                newCursorData.id.push(cursorInstance.id[j]);
+                newCursorData.addOccurrences(
+                    new CursorOccurrence(
+                        time,
+                        cursorInstance.occurrences[j].position.x,
+                        cursorInstance.occurrences[j].position.y,
+                        cursorInstance.occurrences[j].id
+                    )
+                );
             }
 
             this.downCursorInstances.push(newCursorData);
@@ -550,23 +560,27 @@ export class ThreeFingerChecker {
         const cursorIndexes: number[] = [];
         for (let i = 0; i < this.data.cursorMovement.length; ++i) {
             const c: CursorData = this.data.cursorMovement[i];
-            if (c.size === 0) {
+            if (c.occurrences.length === 0) {
                 continue;
             }
 
             // Do not include cursors that don't have an occurence in this section
             // this speeds up checking process.
             if (
-                c.time.filter(
+                c.occurrences.filter(
                     (v) =>
-                        v >= firstObjectMinHitTime && v <= lastObjectMaxHitTime
+                        v.time >= firstObjectMinHitTime &&
+                        v.time <= lastObjectMaxHitTime
                 ).length === 0
             ) {
                 continue;
             }
 
             // If this cursor instance doesn't move, it's not the cursor instance we want.
-            if (c.id.filter((v) => v === movementType.MOVE).length === 0) {
+            if (
+                c.occurrences.filter((v) => v.id === movementType.MOVE)
+                    .length === 0
+            ) {
                 continue;
             }
 
@@ -630,48 +644,49 @@ export class ThreeFingerChecker {
                 // therefore the game emulates the movement between
                 // movementType.MOVE cursors.
                 const hitTime: number = o.object.startTime + s.accuracy;
-                const nextHitIndex: number = c.time.findIndex(
-                    (v) => v >= hitTime
+                const nextHitIndex: number = c.occurrences.findIndex(
+                    (v) => v.time >= hitTime
                 );
                 const hitIndex: number = nextHitIndex - 1;
                 if (hitIndex <= -1) {
                     cursorIndexes[j] = -1;
                     continue;
                 }
-                if (c.id[hitIndex] === movementType.UP) {
+                if (c.occurrences[hitIndex].id === movementType.UP) {
                     cursorIndexes[j] = -1;
                     continue;
                 }
 
                 const cursorPosition: Vector2 = new Vector2(
-                    c.x[hitIndex],
-                    c.y[hitIndex]
+                    c.occurrences[hitIndex].position.x,
+                    c.occurrences[hitIndex].position.y
                 );
 
                 let isInObject: boolean = false;
 
                 if (
-                    c.id[nextHitIndex] === movementType.MOVE ||
-                    c.id[hitIndex] === movementType.MOVE
+                    c.occurrences[nextHitIndex].id === movementType.MOVE ||
+                    c.occurrences[hitIndex].id === movementType.MOVE
                 ) {
                     // Try to interpolate movement between two movementType.MOVE cursor every 1ms.
                     // This minimizes rounding error.
                     for (
-                        let mSecPassed = c.time[hitIndex];
-                        mSecPassed <= c.time[nextHitIndex];
+                        let mSecPassed = c.occurrences[hitIndex].time;
+                        mSecPassed <= c.occurrences[nextHitIndex].time;
                         ++mSecPassed
                     ) {
                         const t: number =
-                            (mSecPassed - c.time[nextHitIndex]) /
-                            (c.time[hitIndex] - c.time[nextHitIndex]);
+                            (mSecPassed - c.occurrences[nextHitIndex].time) /
+                            (c.occurrences[hitIndex].time -
+                                c.occurrences[nextHitIndex].time);
                         cursorPosition.x = Interpolation.lerp(
-                            c.x[hitIndex],
-                            c.x[nextHitIndex],
+                            c.occurrences[hitIndex].position.x,
+                            c.occurrences[nextHitIndex].position.x,
                             t
                         );
                         cursorPosition.y = Interpolation.lerp(
-                            c.y[hitIndex],
-                            c.y[nextHitIndex],
+                            c.occurrences[hitIndex].position.y,
+                            c.occurrences[nextHitIndex].position.y,
                             t
                         );
 
@@ -768,7 +783,7 @@ export class ThreeFingerChecker {
      */
     private preventAccidentalTaps(): void {
         let filledCursorAmount: number = this.downCursorInstances.filter(
-            (v) => v.size > 0
+            (v) => v.occurrences.length > 0
         ).length;
         if (filledCursorAmount <= 3) {
             return;
@@ -777,7 +792,7 @@ export class ThreeFingerChecker {
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
             this.map.objects;
         const totalCursorAmount: number = this.downCursorInstances.reduce(
-            (acc, value) => acc + value.size,
+            (acc, value) => acc + value.occurrences.length,
             0
         );
 
@@ -788,20 +803,13 @@ export class ThreeFingerChecker {
             const cursorInstance: CursorData = this.downCursorInstances[i];
             // Use an estimation for accidental tap threshold.
             if (
-                cursorInstance.size <=
+                cursorInstance.occurrences.length <=
                     Math.ceil(objects.length / this.accidentalTapThreshold) &&
-                cursorInstance.size / totalCursorAmount <
+                cursorInstance.occurrences.length / totalCursorAmount <
                     this.threeFingerRatioThreshold * 2
             ) {
                 --filledCursorAmount;
-                for (const property in cursorInstance) {
-                    const prop = <keyof CursorData>property;
-                    if (Array.isArray(cursorInstance[prop])) {
-                        (<number[]>cursorInstance[prop]).length = 0;
-                    } else {
-                        (<number>cursorInstance[prop]) = 0;
-                    }
-                }
+                cursorInstance.clearOccurrences();
             }
             this.downCursorInstances[i] = cursorInstance;
         }
@@ -841,13 +849,11 @@ export class ThreeFingerChecker {
 
             // Filter cursor instances during section.
             this.downCursorInstances.forEach((c) => {
-                const i: number = c.time.findIndex((t) => t >= startTime);
+                const i: number = c.occurrences.findIndex(
+                    (t) => t.time >= startTime
+                );
                 if (i !== -1) {
-                    c.size -= i;
-                    c.time.splice(0, i);
-                    c.x.splice(0, i);
-                    c.y.splice(0, i);
-                    c.id.splice(0, i);
+                    c.occurrences = c.occurrences.slice(0, i);
                 }
             });
             const cursorAmounts: number[] = [];
@@ -862,18 +868,22 @@ export class ThreeFingerChecker {
                 }
                 const cursorData: CursorData = this.downCursorInstances[i];
                 let amount = 0;
-                for (let j: number = 0; j < cursorData.size; ++j) {
+                for (
+                    let j: number = 0;
+                    j < cursorData.occurrences.length;
+                    ++j
+                ) {
                     if (
-                        cursorData.time[j] >= startTime &&
-                        cursorData.time[j] <= endTime
+                        cursorData.occurrences[j].time >= startTime &&
+                        cursorData.occurrences[j].time <= endTime
                     ) {
                         ++amount;
                         cursorVectorTimes.push({
                             vector: new Vector2(
-                                cursorData.x[j],
-                                cursorData.y[j]
+                                cursorData.occurrences[j].position.x,
+                                cursorData.occurrences[j].position.y
                             ),
-                            time: cursorData.time[j],
+                            time: cursorData.occurrences[j].time,
                         });
                     }
                 }
