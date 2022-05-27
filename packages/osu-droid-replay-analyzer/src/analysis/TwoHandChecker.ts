@@ -218,10 +218,6 @@ export class TwoHandChecker {
             return -1;
         }
 
-        if (object.object.startTime === 12514) {
-            console.log("Hi");
-        }
-
         const isPrecise: boolean = this.data.convertedMods.some(
             (m) => m instanceof ModPrecise
         );
@@ -372,6 +368,9 @@ export class TwoHandChecker {
             // to the significant move cursor occurrence produces an angle that is acute enough.
             let isAngleFulfilled: boolean = false;
 
+            // Aside of angles, we need to consider if the player dragged from the previous object to the current object.
+            let isDragged: boolean = false;
+
             // For sliders, we need to consider two cases. The first case is when the player doesn't drag
             // the slider. The second case is when the player drags the slider.
             // TODO: check for cursor occurrences in nested objects
@@ -422,6 +421,7 @@ export class TwoHandChecker {
             const next: DifficultyHitObject | RebalanceDifficultyHitObject =
                 this.map.objects[index + 1];
 
+            // Angle detection.
             if (nextSignificantOccurrence?.id === movementType.MOVE && next) {
                 // Get the object's actual end position.
                 let actualEndPosition: Vector2 =
@@ -470,9 +470,59 @@ export class TwoHandChecker {
                 isAngleFulfilled = movementToNextAngle < Math.PI / 6;
             }
 
+            // Dragging detection.
+            let timeThreshold: number = 0;
+            const prev: DifficultyHitObject | RebalanceDifficultyHitObject =
+                this.map.objects[index - 1];
+
+            if (prev) {
+                // The previous object might be a slider, so we need to get
+                // the hit data of it to get an accurate time threshold.
+                const prevData: ReplayObjectData =
+                    this.data.hitObjectData[index - 1];
+
+                timeThreshold = prev.object.startTime + prevData.accuracy;
+
+                if (prev.object instanceof Slider) {
+                    timeThreshold = Math.max(
+                        timeThreshold,
+                        prev.object.endTime
+                    );
+                }
+            }
+
+            let occurrenceStartIndex: number = hitTimeAfterIndex;
+
+            while (
+                c.occurrences[occurrenceStartIndex]?.time >= timeThreshold &&
+                occurrenceStartIndex > 0
+            ) {
+                --occurrenceStartIndex;
+            }
+
+            // The above loop will make the start index before or right when
+            // the previous object was hit or ended, but we want the index after it.
+            ++occurrenceStartIndex;
+
+            const dragOccurrences: CursorOccurrence[] = c.occurrences.slice(
+                occurrenceStartIndex,
+                hitTimeAfterIndex
+            );
+
+            isDragged =
+                dragOccurrences.length > 0 &&
+                // We only care when the cursor approaches the current object. It doesn't
+                // matter whether the previous object was pressed or dragged.
+                dragOccurrences
+                    .at(-1)!
+                    .position.getDistance(object.object.stackedPosition) <=
+                    acceptableRadius &&
+                dragOccurrences.every((v) => v.id === movementType.MOVE);
+
             cursorInformations.push({
-                // If the angle is fulfilled, we set the cursor index to the main cursor index.
-                cursorIndex: isAngleFulfilled ? -1 : i,
+                // If the angle is fulfilled or the player dragged,
+                // we set the cursor index to the main cursor index.
+                cursorIndex: isAngleFulfilled || isDragged ? -1 : i,
                 distanceDiff: distance,
             });
         }
