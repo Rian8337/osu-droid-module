@@ -515,7 +515,7 @@ export class TwoHandChecker {
 
             cursorInformations.push({
                 // If the angle is fulfilled, we set the cursor index to the main cursor index.
-                cursorIndex: isAngleFulfilled ? i : -1,
+                cursorIndex: isAngleFulfilled ? -1 : i,
                 distanceDiff: distance,
             });
         }
