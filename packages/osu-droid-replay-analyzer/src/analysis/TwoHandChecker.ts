@@ -76,8 +76,6 @@ export class TwoHandChecker {
      */
     private readonly currentAngleDiffApproxThreshold: number = 200;
 
-    private assignCurrentIndexToOne: boolean = false;
-
     /**
      * @param map The beatmap to analyze.
      * @param data The data of the replay.
@@ -140,7 +138,7 @@ export class TwoHandChecker {
             const index: number =
                 overallDiffApprox >= this.currentAngleDiffApproxThreshold
                     ? this.getCursorIndex(i, hitWindowOffset)
-                    : 0;
+                    : -1;
 
             indexes.push(index);
             this.indexedHitObjects.push(
@@ -278,11 +276,10 @@ export class TwoHandChecker {
         const isPrecise: boolean = this.data.convertedMods.some(
             (m) => m instanceof ModPrecise
         );
-        const isSlider: boolean = object.object instanceof Slider;
 
         // For sliders, automatically set hit window to be as lenient as possible.
         let hitWindowLength: number = this.hitWindow.hitWindowFor50(isPrecise);
-        if (!isSlider) {
+        if (!(object.object instanceof Slider)) {
             switch (data.result) {
                 case hitResult.RESULT_300:
                     hitWindowLength = this.hitWindow.hitWindowFor300(isPrecise);
@@ -308,12 +305,11 @@ export class TwoHandChecker {
                 continue;
             }
 
-            let hitTimeBeforeIndex: number =
-                MathUtils.clamp(
-                    c.occurrences.findIndex((v) => v.time >= minimumHitTime),
-                    1,
-                    c.occurrences.length - 1
-                ) - 1;
+            let hitTimeBeforeIndex: number = MathUtils.clamp(
+                c.occurrences.findIndex((v) => v.time >= minimumHitTime),
+                0,
+                c.occurrences.length - 2
+            );
             let hitTimeAfterIndex: number = c.occurrences.findIndex(
                 // There is a special case for sliders where the time leniency in droid is a lot bigger compared to PC.
                 // To prevent slider end time from ending earlier than hit window leniency, we use the maximum value between both.
@@ -344,7 +340,7 @@ export class TwoHandChecker {
             let acceptableRadius: number = object.object.radius;
 
             // Sliders have a bigger radius tolerance due to slider ball.
-            if (isSlider) {
+            if (object.object instanceof Slider) {
                 acceptableRadius *= 2.4;
             }
 
@@ -356,8 +352,7 @@ export class TwoHandChecker {
 
                 const cursorPosition: Vector2 = occurrence.position;
 
-                if (occurrence.time > hitTime + hitWindowOffset + 10) {
-                    // Give an additional 10ms in case registration in-game is late.
+                if (occurrence.time > hitTime + hitWindowOffset) {
                     // Set distance to minimum just for the last.
                     if (occurrence.id !== movementType.UP) {
                         distance = Math.min(
@@ -419,10 +414,10 @@ export class TwoHandChecker {
 
             let acceptedCursorIndex: number = i;
 
-            if (isSlider) {
-                this.assignCurrentIndexToOne = acceptedCursorIndex % 2 === 0;
+            if (object.object instanceof Slider) {
+                // TODO: actually consider slider lol
             } else {
-                // Get the latest down instance.
+                // Get the latest down occurrence index.
                 while (
                     c.occurrences[j]?.id !== movementType.DOWN &&
                     j > hitTimeBeforeIndex
@@ -430,83 +425,75 @@ export class TwoHandChecker {
                     --j;
                 }
 
-                if (c.occurrences[j].id === movementType.DOWN) {
-                    let isAngleFulfilled: boolean = false;
+                // Theoretically there can only be 1 up occurrence, but this is a
+                // consideration if the user manually adds cursor occurrences.
+                if (c.occurrences[j]?.id === movementType.UP) {
+                    ++j;
+                }
 
-                    // Special case where a cursor is "dragged" into the next object.
-                    if (
-                        c.occurrences[j + 1]?.id === movementType.MOVE &&
-                        c.occurrences[j + 2]?.id === movementType.UP &&
-                        // Some move instances move in the exact same place. Not sure why, most likely
-                        // because the position is recorded as int in the game and the movement is too small to
-                        // convert into +1 or -1.
-                        !c.occurrences[j].position.equals(
-                            c.occurrences[j + 1].position
+                if (c.occurrences[j].id === movementType.DOWN) {
+                    // Some move instances move in the exact same place. Not sure why, most likely
+                    // because the position is recorded as int in the game and the movement is too small to
+                    // convert into +1 or -1.
+                    let nextOccurrenceIndex: number = j + 1;
+
+                    while (
+                        c.occurrences[j].position.equals(
+                            c.occurrences[nextOccurrenceIndex].position
                         )
                     ) {
-                        const movementVec: Vector2 = c.occurrences[
-                            j + 1
-                        ].position.subtract(object.object.endPosition);
-
-                        if (this.map.objects[index + 1]) {
-                            const next:
-                                | DifficultyHitObject
-                                | RebalanceDifficultyHitObject =
-                                this.map.objects[index + 1];
-
-                            const currentToNext: Vector2 =
-                                next.object.stackedPosition.subtract(
-                                    object.object.endPosition
-                                );
-
-                            const dot: number = currentToNext.dot(movementVec);
-                            const det: number =
-                                currentToNext.x * movementVec.y -
-                                currentToNext.y * movementVec.x;
-
-                            const movementToNextAngle: number = Math.abs(
-                                Math.atan2(det, dot)
-                            );
-
-                            isAngleFulfilled =
-                                movementToNextAngle < Math.PI / 6;
-                        }
-
-                        if (this.map.objects[index - 1] && !isAngleFulfilled) {
-                            const prev:
-                                | DifficultyHitObject
-                                | RebalanceDifficultyHitObject =
-                                this.map.objects[index - 1];
-
-                            const extendedCurrent: Vector2 =
-                                object.object.endPosition
-                                    .subtract(prev.object.stackedPosition)
-                                    .scale(1.5)
-                                    .subtract(object.object.endPosition);
-
-                            const dot: number =
-                                extendedCurrent.dot(movementVec);
-                            const det: number =
-                                extendedCurrent.x * movementVec.y -
-                                extendedCurrent.y * movementVec.x;
-
-                            const extendedCurrentToMovementAngle: number =
-                                Math.abs(Math.atan2(det, dot));
-
-                            isAngleFulfilled =
-                                extendedCurrentToMovementAngle < Math.PI / 6;
-                        }
+                        ++nextOccurrenceIndex;
                     }
 
+                    const nextSignificantOccurrence: CursorOccurrence =
+                        c.occurrences[nextOccurrenceIndex];
+
+                    const next:
+                        | DifficultyHitObject
+                        | RebalanceDifficultyHitObject =
+                        this.map.objects[index + 1];
+
+                    // The case for a one-handed object is that there will be a slight movement in the cursor towards
+                    // the next object in fast patterns. We should not be worried about slow patterns as they will only
+                    // make a minimal difference and the difficulty approximation we did earlier should filter them out.
+
+                    // In order to verify if the player does that, we check if the movement towards the next
+                    // object is sufficient enough to be two-handed. This is done by checking if the
+                    // movement to the next object and the movement from the position of the current object to
+                    // the significant move cursor occurrence produces an angle that is acute enough.
+                    let isAngleFulfilled: boolean = false;
+
+                    if (
+                        nextSignificantOccurrence?.id === movementType.MOVE &&
+                        next
+                    ) {
+                        // Get the movement vector towards the next cursor occurrence by subtracting
+                        // the next cursor occurrence with the object's position.
+                        const movementVec: Vector2 =
+                            nextSignificantOccurrence.position.subtract(
+                                object.object.stackedEndPosition
+                            );
+
+                        const currentToNext: Vector2 =
+                            next.object.stackedPosition.subtract(
+                                object.object.stackedEndPosition
+                            );
+
+                        const dot: number = currentToNext.dot(movementVec);
+                        const det: number =
+                            currentToNext.x * movementVec.y -
+                            currentToNext.y * movementVec.x;
+
+                        const movementToNextAngle: number = Math.abs(
+                            Math.atan2(det, dot)
+                        );
+
+                        isAngleFulfilled = movementToNextAngle < Math.PI / 6;
+                    }
+
+                    // If the angle is fulfilled, we set the accepted cursor index to the main cursor index.
                     if (isAngleFulfilled) {
-                        this.assignCurrentIndexToOne = true;
-                        acceptedCursorIndex = 0;
-                    } else {
-                        acceptedCursorIndex = this.assignCurrentIndexToOne
-                            ? 1
-                            : 0;
-                        this.assignCurrentIndexToOne =
-                            !this.assignCurrentIndexToOne;
+                        acceptedCursorIndex = -1;
                     }
                 }
             }
