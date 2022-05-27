@@ -226,7 +226,7 @@ export class TwoHandChecker {
                 if (
                     c.occurrences[j].time <
                     this.map.map.hitObjects.objects[0].startTime -
-                    this.hitWindow.hitWindowFor50()
+                        this.hitWindow.hitWindowFor50()
                 ) {
                     continue;
                 }
@@ -321,7 +321,7 @@ export class TwoHandChecker {
             // or a cursor is recorded twice in one time, therefore this check is required.
             while (
                 c.occurrences[hitTimeBeforeIndex]?.time ===
-                c.occurrences[hitTimeBeforeIndex - 1]?.time &&
+                    c.occurrences[hitTimeBeforeIndex - 1]?.time &&
                 hitTimeBeforeIndex > 0
             ) {
                 --hitTimeBeforeIndex;
@@ -551,14 +551,18 @@ export class TwoHandChecker {
             beatmaps[o.cursorIndex].hitObjects.add(o.object.object);
         });
 
-        // Keep rhythm values as we don't intend to calculate for them.
-        const rhythmValues: { strain: number; multiplier: number }[] =
-            this.map.objects.map((v) => {
-                return {
-                    strain: v.rhythmStrain,
-                    multiplier: v.rhythmMultiplier,
-                };
-            });
+        // Preserve some values that aren't reasonable for them to be changed.
+        const preservedValues: {
+            noteDensity: number;
+            rhythmStrain: number;
+            rhythmMultiplier: number;
+        }[] = this.map.objects.map((v) => {
+            return {
+                noteDensity: v.noteDensity,
+                rhythmStrain: v.rhythmStrain,
+                rhythmMultiplier: v.rhythmMultiplier,
+            };
+        });
 
         this.map.objects.length = 0;
 
@@ -585,8 +589,10 @@ export class TwoHandChecker {
 
         // Reassign rhythm values before calculating.
         for (let i = 0; i < this.map.objects.length; ++i) {
-            this.map.objects[i].rhythmStrain = rhythmValues[i].strain;
-            this.map.objects[i].rhythmMultiplier = rhythmValues[i].multiplier;
+            this.map.objects[i].noteDensity = preservedValues[i].noteDensity;
+            this.map.objects[i].rhythmStrain = preservedValues[i].rhythmStrain;
+            this.map.objects[i].rhythmMultiplier =
+                preservedValues[i].rhythmMultiplier;
         }
 
         // Do not include rhythm skill.
