@@ -65,19 +65,6 @@ export class TwoHandChecker {
     private readonly minCursorIndexCount: number = 5;
 
     /**
-     * The approximated difficulty of the current object such that the object is likely to be 2-handed by a player.
-     *
-     * This scales with an object's angle and speed relative to the previous object.
-     * Acute angles or fast speed will accumulate this number. Conversely, wide angles or slow speed will decay this number.
-     */
-    private readonly currentAngleDiffApproxDefault: number = 10;
-
-    /**
-     * The threshold at which objects will be started getting considered to be 2-handable.
-     */
-    private readonly currentAngleDiffApproxThreshold: number = 200;
-
-    /**
      * @param map The beatmap to analyze.
      * @param data The data of the replay.
      */
@@ -125,19 +112,9 @@ export class TwoHandChecker {
         const hitWindowOffset: number = this.getHitWindowOffset();
         const indexes: number[] = [];
 
-        let overallDiffApprox: number = this.currentAngleDiffApproxDefault;
-
         for (let i = 0; i < this.map.objects.length; ++i) {
-            const diff: number = i > 0 ? this.getSpacingAngleDiffApprox(i) : 1;
-
-            overallDiffApprox = MathUtils.clamp(
-                overallDiffApprox * diff,
-                this.currentAngleDiffApproxDefault,
-                this.currentAngleDiffApproxThreshold + 100
-            );
-
             const index: number =
-                overallDiffApprox >= this.currentAngleDiffApproxThreshold
+                this.map.objects[i].aimStrainWithSliders >= 175
                     ? this.getCursorIndex(i, hitWindowOffset)
                     : -1;
 
@@ -186,31 +163,6 @@ export class TwoHandChecker {
                 this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
             );
         }
-    }
-
-    /**
-     * Gets the approximation of an object's difficulty such that the object is likely to be 2-handed.
-     *
-     * @param index The index of the object.
-     */
-    private getSpacingAngleDiffApprox(index: number): number {
-        const object: DifficultyHitObject | RebalanceDifficultyHitObject =
-            this.map.objects[index];
-
-        if (object.object instanceof Spinner) {
-            return 0.1;
-        }
-
-        const angleDiff: number =
-            object.angle !== null
-                ? 0.5 + Math.pow(Math.cos(object.angle / 2), 2)
-                : 1;
-
-        const speedDiff: number =
-            object.lazyJumpDistance / Math.max(1, object.deltaTime);
-
-        // Make decay slower.
-        return Math.max(0.8, angleDiff * speedDiff);
     }
 
     /**
@@ -266,6 +218,10 @@ export class TwoHandChecker {
             return -1;
         }
 
+        if (object.object.startTime === 12514) {
+            console.log("Hi");
+        }
+
         const isPrecise: boolean = this.data.convertedMods.some(
             (m) => m instanceof ModPrecise
         );
@@ -298,11 +254,12 @@ export class TwoHandChecker {
                 continue;
             }
 
-            let hitTimeBeforeIndex: number = MathUtils.clamp(
-                c.occurrences.findIndex((v) => v.time >= minimumHitTime),
-                0,
-                c.occurrences.length - 2
-            );
+            let hitTimeBeforeIndex: number =
+                MathUtils.clamp(
+                    c.occurrences.findIndex((v) => v.time >= minimumHitTime),
+                    1,
+                    c.occurrences.length - 1
+                ) - 1;
             let hitTimeAfterIndex: number = c.occurrences.findIndex(
                 // There is a special case for sliders where the time leniency in droid is a lot bigger compared to PC.
                 // To prevent slider end time from ending earlier than hit window leniency, we use the maximum value between both.
@@ -407,7 +364,7 @@ export class TwoHandChecker {
 
             // The case for a one-handed object is that there will be a slight movement in the cursor towards
             // the next object in fast patterns. We should not be worried about slow patterns as they will only
-            // make a minimal difference and the difficulty approximation we did earlier should filter them out.
+            // make a minimal difference and aim strain threshold should filter them out.
 
             // In order to verify if the player does that, we check if the movement towards the next
             // object is sufficient enough to be two-handed. This is done by checking if the movement
@@ -523,9 +480,7 @@ export class TwoHandChecker {
         // Cursors have been filtered to see which of them is inside the object.
         // Now we look at which cursor is closest to the center of the object.
         const minDistanceDiff: number = Math.min(
-            ...cursorInformations.map((v) => {
-                return v.distanceDiff;
-            })
+            ...cursorInformations.map((v) => v.distanceDiff)
         );
         return (
             cursorInformations.find((c) => c.distanceDiff === minDistanceDiff)
