@@ -109,13 +109,21 @@ export class DroidStarRating extends StarRating {
 
         this.calculateSkills(tapSkill);
 
-        this.postCalculateTap(tapSkill);
+        if (!this.mods.some((m) => m instanceof ModRelax)) {
+            this.postCalculateTap(tapSkill);
+        } else {
+            this.calculateSpeedAttributes();
+        }
     }
 
     /**
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            return;
+        }
+
         const rhythmSkill: DroidRhythm = new DroidRhythm(
             this.mods,
             this.stats.od!
