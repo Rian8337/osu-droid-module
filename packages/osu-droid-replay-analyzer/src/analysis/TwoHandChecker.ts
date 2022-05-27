@@ -226,7 +226,7 @@ export class TwoHandChecker {
                 if (
                     c.occurrences[j].time <
                     this.map.map.hitObjects.objects[0].startTime -
-                        this.hitWindow.hitWindowFor50()
+                    this.hitWindow.hitWindowFor50()
                 ) {
                     continue;
                 }
@@ -321,7 +321,7 @@ export class TwoHandChecker {
             // or a cursor is recorded twice in one time, therefore this check is required.
             while (
                 c.occurrences[hitTimeBeforeIndex]?.time ===
-                    c.occurrences[hitTimeBeforeIndex - 1]?.time &&
+                c.occurrences[hitTimeBeforeIndex - 1]?.time &&
                 hitTimeBeforeIndex > 0
             ) {
                 --hitTimeBeforeIndex;
@@ -450,6 +450,8 @@ export class TwoHandChecker {
             let nextSignificantOccurrenceIndex: number = j + 1;
 
             while (
+                c.occurrences[j] &&
+                c.occurrences[nextSignificantOccurrenceIndex] &&
                 c.occurrences[j].position.equals(
                     c.occurrences[nextSignificantOccurrenceIndex].position
                 )
