@@ -9,6 +9,7 @@ import {
     Slider,
     Vector2,
     Beatmap,
+    Circle,
 } from "@rian8337/osu-base";
 import {
     DroidStarRating,
@@ -146,17 +147,6 @@ export class TwoHandChecker {
             );
         }
 
-        // const notFound = this.indexedHitObjects.filter(v => v.cursorIndex === -1);
-
-        console.log("Spinners:", this.map.map.hitObjects.spinners);
-        console.log("Misses:", this.data.accuracy.nmiss);
-        console.log(
-            indexes.filter((v) => v !== -1).length,
-            "cursors found,",
-            indexes.filter((v) => v === -1).length,
-            "not found"
-        );
-
         const indexCounts: number[] = Utils.initializeArray(
             this.data.cursorMovement.length,
             0
@@ -171,7 +161,10 @@ export class TwoHandChecker {
         const mainCursorIndex = indexCounts.indexOf(Math.max(...indexCounts));
         const ignoredCursorIndexes: number[] = [];
         for (let i = 0; i < indexCounts.length; ++i) {
-            if (indexCounts[i] < this.minCursorIndexCount) {
+            if (
+                indexCounts[i] < this.minCursorIndexCount &&
+                i !== mainCursorIndex
+            ) {
                 ignoredCursorIndexes.push(i);
             }
         }
@@ -190,7 +183,7 @@ export class TwoHandChecker {
                 "Index",
                 i,
                 "count:",
-                indexes.filter((v) => v === i).length
+                this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
             );
         }
     }
@@ -412,94 +405,115 @@ export class TwoHandChecker {
                 continue;
             }
 
-            let acceptedCursorIndex: number = i;
+            // The case for a one-handed object is that there will be a slight movement in the cursor towards
+            // the next object in fast patterns. We should not be worried about slow patterns as they will only
+            // make a minimal difference and the difficulty approximation we did earlier should filter them out.
 
-            if (object.object instanceof Slider) {
-                // TODO: actually consider slider lol
-            } else {
-                // Get the latest down occurrence index.
+            // In order to verify if the player does that, we check if the movement towards the next
+            // object is sufficient enough to be two-handed. This is done by checking if the movement
+            // from the current object to the next object and the movement from the current object
+            // to the significant move cursor occurrence produces an angle that is acute enough.
+            let isAngleFulfilled: boolean = false;
+
+            // For sliders, we need to consider two cases. The first case is when the player doesn't drag
+            // the slider. The second case is when the player drags the slider.
+            // TODO: check for cursor occurrences in nested objects
+
+            // Get the latest down or movement cursor occurrence.
+            while (
+                c.occurrences[j]?.id === movementType.UP &&
+                j > hitTimeBeforeIndex
+            ) {
+                --j;
+            }
+
+            if (object.object instanceof Circle) {
+                // For circles, we only need to consider the actual press on the circle.
+                // Therefore, we need to get the latest down cursor occurrence instead.
                 while (
                     c.occurrences[j]?.id !== movementType.DOWN &&
                     j > hitTimeBeforeIndex
                 ) {
                     --j;
                 }
+            }
 
-                // Theoretically there can only be 1 up occurrence, but this is a
-                // consideration if the user manually adds cursor occurrences.
-                if (c.occurrences[j]?.id === movementType.UP) {
-                    ++j;
-                }
+            // Theoretically there can only be 1 up occurrence, but this is a
+            // consideration if the user manually adds cursor occurrences.
+            if (c.occurrences[j]?.id === movementType.UP) {
+                ++j;
+            }
 
-                if (c.occurrences[j].id === movementType.DOWN) {
-                    // Some move instances move in the exact same place. Not sure why, most likely
-                    // because the position is recorded as int in the game and the movement is too small to
-                    // convert into +1 or -1.
-                    let nextOccurrenceIndex: number = j + 1;
+            // Some move instances move in the exact same place. Not sure why, most likely
+            // because the position is recorded as int in the game and the movement is too small to
+            // convert into +1 or -1.
+            let nextSignificantOccurrenceIndex: number = j + 1;
 
-                    while (
-                        c.occurrences[j].position.equals(
-                            c.occurrences[nextOccurrenceIndex].position
-                        )
-                    ) {
-                        ++nextOccurrenceIndex;
-                    }
+            while (
+                c.occurrences[j].position.equals(
+                    c.occurrences[nextSignificantOccurrenceIndex].position
+                )
+            ) {
+                ++nextSignificantOccurrenceIndex;
+            }
 
-                    const nextSignificantOccurrence: CursorOccurrence =
-                        c.occurrences[nextOccurrenceIndex];
+            const nextSignificantOccurrence: CursorOccurrence =
+                c.occurrences[nextSignificantOccurrenceIndex];
 
-                    const next:
-                        | DifficultyHitObject
-                        | RebalanceDifficultyHitObject =
-                        this.map.objects[index + 1];
+            const next: DifficultyHitObject | RebalanceDifficultyHitObject =
+                this.map.objects[index + 1];
 
-                    // The case for a one-handed object is that there will be a slight movement in the cursor towards
-                    // the next object in fast patterns. We should not be worried about slow patterns as they will only
-                    // make a minimal difference and the difficulty approximation we did earlier should filter them out.
+            if (nextSignificantOccurrence?.id === movementType.MOVE && next) {
+                // Get the object's actual end position.
+                let actualEndPosition: Vector2 =
+                    object.object.stackedEndPosition;
 
-                    // In order to verify if the player does that, we check if the movement towards the next
-                    // object is sufficient enough to be two-handed. This is done by checking if the
-                    // movement to the next object and the movement from the position of the current object to
-                    // the significant move cursor occurrence produces an angle that is acute enough.
-                    let isAngleFulfilled: boolean = false;
-
-                    if (
-                        nextSignificantOccurrence?.id === movementType.MOVE &&
-                        next
-                    ) {
-                        // Get the movement vector towards the next cursor occurrence by subtracting
-                        // the next cursor occurrence with the object's position.
-                        const movementVec: Vector2 =
-                            nextSignificantOccurrence.position.subtract(
-                                object.object.stackedEndPosition
-                            );
-
-                        const currentToNext: Vector2 =
-                            next.object.stackedPosition.subtract(
-                                object.object.stackedEndPosition
-                            );
-
-                        const dot: number = currentToNext.dot(movementVec);
-                        const det: number =
-                            currentToNext.x * movementVec.y -
-                            currentToNext.y * movementVec.x;
-
-                        const movementToNextAngle: number = Math.abs(
-                            Math.atan2(det, dot)
+                if (
+                    object.object instanceof Slider &&
+                    object.object.lazyEndPosition
+                ) {
+                    // For sliders, we take the closest distance between the lazy end position
+                    // and stacked end position towards the next significant cursor occurrence.
+                    // This assumes that the player takes the simpler movement.
+                    const lazyEndDistance: number =
+                        object.object.lazyEndPosition.getDistance(
+                            nextSignificantOccurrence.position
+                        );
+                    const actualEndDistance: number =
+                        object.object.stackedEndPosition.getDistance(
+                            nextSignificantOccurrence.position
                         );
 
-                        isAngleFulfilled = movementToNextAngle < Math.PI / 6;
-                    }
-
-                    // If the angle is fulfilled, we set the accepted cursor index to the main cursor index.
-                    if (isAngleFulfilled) {
-                        acceptedCursorIndex = -1;
+                    if (lazyEndDistance < actualEndDistance) {
+                        actualEndPosition = object.object.lazyEndPosition;
                     }
                 }
+
+                // Get the movement vector towards the next cursor occurrence by subtracting
+                // the next cursor occurrence with the object's position.
+                const movementVec: Vector2 =
+                    nextSignificantOccurrence.position.subtract(
+                        actualEndPosition
+                    );
+
+                const currentToNext: Vector2 =
+                    next.object.stackedPosition.subtract(actualEndPosition);
+
+                const dot: number = currentToNext.dot(movementVec);
+                const det: number =
+                    currentToNext.x * movementVec.y -
+                    currentToNext.y * movementVec.x;
+
+                const movementToNextAngle: number = Math.abs(
+                    Math.atan2(det, dot)
+                );
+
+                isAngleFulfilled = movementToNextAngle < Math.PI / 6;
             }
 
             cursorInformations.push({
-                cursorIndex: acceptedCursorIndex,
+                // If the angle is fulfilled, we set the cursor index to the main cursor index.
+                cursorIndex: isAngleFulfilled ? i : -1,
                 distanceDiff: distance,
             });
         }
@@ -535,6 +549,15 @@ export class TwoHandChecker {
             beatmaps[o.cursorIndex].hitObjects.add(o.object.object);
         });
 
+        // Keep rhythm values as we don't intend to calculate for them.
+        const rhythmValues: { strain: number; multiplier: number }[] =
+            this.map.objects.map((v) => {
+                return {
+                    strain: v.rhythmStrain,
+                    multiplier: v.rhythmMultiplier,
+                };
+            });
+
         this.map.objects.length = 0;
 
         beatmaps.forEach((beatmap) => {
@@ -557,6 +580,18 @@ export class TwoHandChecker {
         });
 
         this.map.objects.sort((a, b) => a.startTime - b.startTime);
-        this.map.calculateAll();
+
+        // Reassign rhythm values before calculating.
+        for (let i = 0; i < this.map.objects.length; ++i) {
+            this.map.objects[i].rhythmStrain = rhythmValues[i].strain;
+            this.map.objects[i].rhythmMultiplier = rhythmValues[i].multiplier;
+        }
+
+        // Do not include rhythm skill.
+        this.map.calculateAim();
+        this.map.calculateTap();
+        this.map.calculateFlashlight();
+        this.map.calculateVisual();
+        this.map.calculateTotal();
     }
 }
