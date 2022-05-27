@@ -93,7 +93,7 @@ export class DroidVisual extends DroidSkill {
         this.currentStrain +=
             this.strainValueOf(current) * this.skillMultiplier;
 
-        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 5);
+        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 7.5);
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
