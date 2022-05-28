@@ -23,7 +23,7 @@ import {
     ThreeFingerChecker,
     ThreeFingerInformation,
 } from "./analysis/ThreeFingerChecker";
-import { TwoHandChecker } from "./analysis/TwoHandChecker";
+import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
 import { movementType } from "./constants/movementType";
 import { hitResult } from "./constants/hitResult";
 
@@ -95,6 +95,13 @@ export class ReplayAnalyzer {
      * Whether this replay has been checked against 2 hand usage.
      */
     hasBeenCheckedFor2Hand: boolean = false;
+
+    /**
+     * The cursor indexes at which each object was hit.
+     *
+     * This is filled after 2 hand usage has been checked.
+     */
+    twoHandCursorIndexes: number[] = [];
 
     // Sizes of primitive data types in Java (in bytes)
     private readonly BYTE_LENGTH: number = 1;
@@ -665,7 +672,10 @@ export class ReplayAnalyzer {
             this.map,
             this.data
         );
-        this.is2Hand = twoHandChecker.check();
+        const result: TwoHandInformation = twoHandChecker.check();
+
+        this.is2Hand = result.is2Hand;
+        this.twoHandCursorIndexes = result.hitObjectIndexes;
         this.hasBeenCheckedFor2Hand = true;
     }
 }

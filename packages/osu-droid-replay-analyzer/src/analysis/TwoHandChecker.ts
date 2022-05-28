@@ -36,6 +36,21 @@ interface CursorInformation {
 }
 
 /**
+ * Information about the result of a check.
+ */
+export interface TwoHandInformation {
+    /**
+     * Whether or not the beatmap is 2-handed.
+     */
+    readonly is2Hand: boolean;
+
+    /**
+     * The indexes of hitobjects.
+     */
+    readonly hitObjectIndexes: number[];
+}
+
+/**
  * Utility to check whether or not a beatmap is two-handed.
  */
 export class TwoHandChecker {
@@ -94,18 +109,25 @@ export class TwoHandChecker {
     /**
      * Checks if a beatmap is two-handed.
      */
-    check(): boolean {
+    check(): TwoHandInformation {
         if (
             this.data.cursorMovement.filter((v) => v.occurrences.length > 0)
                 .length <= 1
         ) {
-            return false;
+            return { is2Hand: false, hitObjectIndexes: [] };
         }
 
         this.indexHitObjects();
         this.applyPenalty();
 
-        return true;
+        const indexes: number[] = this.indexedHitObjects.map(
+            (v) => v.acceptedCursorIndex
+        );
+
+        return {
+            is2Hand: new Set(indexes).size !== indexes.length,
+            hitObjectIndexes: indexes,
+        };
     }
 
     /**
