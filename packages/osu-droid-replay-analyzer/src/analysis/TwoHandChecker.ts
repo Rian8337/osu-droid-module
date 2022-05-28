@@ -10,6 +10,7 @@ import {
     Vector2,
     Beatmap,
     Circle,
+    HitObject,
 } from "@rian8337/osu-base";
 import {
     DroidStarRating,
@@ -28,7 +29,9 @@ import { ReplayObjectData } from "../data/ReplayObjectData";
 import { IndexedHitObject } from "./objects/IndexedHitObject";
 
 interface CursorInformation {
-    readonly cursorIndex: number;
+    readonly acceptedCursorIndex: number;
+    readonly actualCursorIndex: number;
+    readonly occurrenceIndex: number;
     readonly distanceDiff: number;
 }
 
@@ -113,15 +116,19 @@ export class TwoHandChecker {
         const indexes: number[] = [];
 
         for (let i = 0; i < this.map.objects.length; ++i) {
-            const index: number =
+            const indexedHitObject: IndexedHitObject =
                 this.map.objects[i].aimStrainWithSliders >= 175
-                    ? this.getCursorIndex(i, hitWindowOffset)
-                    : -1;
+                    ? this.getIndexedHitObject(i, hitWindowOffset)
+                    : new IndexedHitObject(
+                          this.map.objects[i],
+                          -1,
+                          -1,
+                          -1,
+                          false
+                      );
 
-            indexes.push(index);
-            this.indexedHitObjects.push(
-                new IndexedHitObject(this.map.objects[i], index)
-            );
+            indexes.push(indexedHitObject.acceptedCursorIndex);
+            this.indexedHitObjects.push(indexedHitObject);
         }
 
         const indexCounts: number[] = Utils.initializeArray(
@@ -146,12 +153,26 @@ export class TwoHandChecker {
             }
         }
 
-        this.indexedHitObjects.forEach((indexedHitObject) => {
+        this.indexedHitObjects.forEach((indexedHitObject, i) => {
             if (
-                indexedHitObject.cursorIndex === -1 ||
-                ignoredCursorIndexes.includes(indexedHitObject.cursorIndex)
+                indexedHitObject.acceptedCursorIndex === -1 ||
+                indexedHitObject.actualCursorIndex === -1 ||
+                ignoredCursorIndexes.includes(
+                    indexedHitObject.acceptedCursorIndex
+                )
             ) {
-                indexedHitObject.cursorIndex = mainCursorIndex;
+                indexedHitObject.acceptedCursorIndex = mainCursorIndex;
+                indexedHitObject.actualCursorIndex = mainCursorIndex;
+            }
+
+            // For sliders, we need to consider two cases. The first case is when the player doesn't drag
+            // the slider. The second case is when the player drags the slider.
+            if (indexedHitObject.object.object instanceof Slider) {
+                indexedHitObject.sliderCheesed = this.checkSliderCheesing(
+                    indexedHitObject,
+                    this.data.hitObjectData[i],
+                    hitWindowOffset
+                );
             }
         });
 
@@ -160,7 +181,9 @@ export class TwoHandChecker {
                 "Index",
                 i,
                 "count:",
-                this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
+                this.indexedHitObjects.filter(
+                    (v) => v.acceptedCursorIndex === i
+                ).length
             );
         }
     }
@@ -206,7 +229,10 @@ export class TwoHandChecker {
      * @param hitWindowOffset The offset for hit window to compensate for replay hit inaccuracies.
      * @returns The cursor index that hits the given object, -1 if the index is not found, the object is a spinner, or the object was missed.
      */
-    private getCursorIndex(index: number, hitWindowOffset: number): number {
+    private getIndexedHitObject(
+        index: number,
+        hitWindowOffset: number
+    ): IndexedHitObject {
         const object: DifficultyHitObject | RebalanceDifficultyHitObject =
             this.map.objects[index];
         const data: ReplayObjectData = this.data.hitObjectData[index];
@@ -215,7 +241,7 @@ export class TwoHandChecker {
             object.object instanceof Spinner ||
             data.result === hitResult.RESULT_0
         ) {
-            return -1;
+            return new IndexedHitObject(object, -1, -1, -1, false);
         }
 
         const isPrecise: boolean = this.data.convertedMods.some(
@@ -371,10 +397,6 @@ export class TwoHandChecker {
             // Aside of angles, we need to consider if the player dragged from the previous object to the current object.
             let isDragged: boolean = false;
 
-            // For sliders, we need to consider two cases. The first case is when the player doesn't drag
-            // the slider. The second case is when the player drags the slider.
-            // TODO: check for cursor occurrences in nested objects
-
             // Get the latest down or movement cursor occurrence.
             while (
                 c.occurrences[j]?.id === movementType.UP &&
@@ -522,7 +544,9 @@ export class TwoHandChecker {
             cursorInformations.push({
                 // If the angle is fulfilled or the player dragged,
                 // we set the cursor index to the main cursor index.
-                cursorIndex: isAngleFulfilled || isDragged ? -1 : i,
+                acceptedCursorIndex: isAngleFulfilled || isDragged ? -1 : i,
+                actualCursorIndex: i,
+                occurrenceIndex: j,
                 distanceDiff: distance,
             });
         }
@@ -532,10 +556,103 @@ export class TwoHandChecker {
         const minDistanceDiff: number = Math.min(
             ...cursorInformations.map((v) => v.distanceDiff)
         );
-        return (
-            cursorInformations.find((c) => c.distanceDiff === minDistanceDiff)
-                ?.cursorIndex ?? -1
+        const acceptedCursorInformation: CursorInformation | undefined =
+            cursorInformations.find((c) => c.distanceDiff === minDistanceDiff);
+
+        return new IndexedHitObject(
+            object,
+            acceptedCursorInformation?.acceptedCursorIndex ?? -1,
+            acceptedCursorInformation?.actualCursorIndex ?? -1,
+            acceptedCursorInformation?.occurrenceIndex ?? -1,
+            false
         );
+    }
+
+    /**
+     * Checks whether a slider was cheesed.
+     *
+     * This is done by checking if a cursor follows a slider all the way to its end position.
+     *
+     * @param indexedHitObject The indexed slider.
+     * @param hitData The hit data of the slider.
+     * @param actualCursorIndex The actual cursor index that hit the slider.
+     * @param hitWindowOffset The offset that was calculated by `getHitWindowOffset()`
+     * @returns Whether the slider was cheesed.
+     */
+    private checkSliderCheesing(
+        indexedHitObject: IndexedHitObject,
+        hitData: ReplayObjectData,
+        hitWindowOffset: number
+    ): boolean {
+        if (
+            !(indexedHitObject.object.object instanceof Slider) ||
+            hitData.result === hitResult.RESULT_0
+        ) {
+            return false;
+        }
+
+        let cursorLoopIndex: number = Math.max(
+            0,
+            indexedHitObject.occurrenceIndex
+        );
+        const c: CursorData =
+            this.data.cursorMovement[indexedHitObject.actualCursorIndex];
+
+        const acceptableRadius: number =
+            indexedHitObject.object.object.radius * 2.4;
+
+        for (
+            let i = 1;
+            i < indexedHitObject.object.object.nestedHitObjects.length;
+            ++i
+        ) {
+            const tickWasHit: boolean = hitData.tickset[i - 1];
+
+            if (!tickWasHit) {
+                continue;
+            }
+
+            const object: HitObject =
+                indexedHitObject.object.object.nestedHitObjects[i];
+
+            let j = cursorLoopIndex;
+
+            let cursorHitTick: boolean = false;
+
+            for (j; j < c.occurrences.length; ++j) {
+                if (
+                    c.occurrences[j].time <
+                    object.startTime - hitWindowOffset
+                ) {
+                    continue;
+                }
+
+                if (
+                    c.occurrences[j].time >
+                    object.startTime + hitWindowOffset
+                ) {
+                    break;
+                }
+
+                if (
+                    c.occurrences[j].position.getDistance(
+                        object.stackedPosition
+                    ) <= acceptableRadius
+                ) {
+                    cursorHitTick = true;
+
+                    break;
+                }
+            }
+
+            if (!cursorHitTick) {
+                return true;
+            }
+
+            cursorLoopIndex = j;
+        }
+
+        return false;
     }
 
     /**
@@ -545,15 +662,15 @@ export class TwoHandChecker {
         const beatmaps: Beatmap[] = new Array(this.data.cursorMovement.length);
 
         this.indexedHitObjects.forEach((o) => {
-            if (!beatmaps[o.cursorIndex]) {
+            if (!beatmaps[o.acceptedCursorIndex]) {
                 const map: Beatmap = Utils.deepCopy(this.map.map);
 
                 map.hitObjects.clear();
 
-                beatmaps[o.cursorIndex] = map;
+                beatmaps[o.acceptedCursorIndex] = map;
             }
 
-            beatmaps[o.cursorIndex].hitObjects.add(o.object.object);
+            beatmaps[o.acceptedCursorIndex].hitObjects.add(o.object.object);
         });
 
         // Preserve some values that aren't reasonable for them to be changed.
@@ -594,10 +711,20 @@ export class TwoHandChecker {
 
         // Reassign rhythm values before calculating.
         for (let i = 0; i < this.map.objects.length; ++i) {
-            this.map.objects[i].noteDensity = preservedValues[i].noteDensity;
-            this.map.objects[i].rhythmStrain = preservedValues[i].rhythmStrain;
-            this.map.objects[i].rhythmMultiplier =
-                preservedValues[i].rhythmMultiplier;
+            const diffObject:
+                | DifficultyHitObject
+                | RebalanceDifficultyHitObject = this.map.objects[i];
+            const indexedHitObject: IndexedHitObject =
+                this.indexedHitObjects[i];
+
+            diffObject.noteDensity = preservedValues[i].noteDensity;
+            diffObject.rhythmStrain = preservedValues[i].rhythmStrain;
+            diffObject.rhythmMultiplier = preservedValues[i].rhythmMultiplier;
+
+            // Set slider travel distance to 0 if the slider was cheesed.
+            if (indexedHitObject.sliderCheesed) {
+                diffObject.travelDistance = 0;
+            }
         }
 
         // Do not include rhythm skill.

@@ -6,9 +6,24 @@ import { DifficultyHitObject as RebalanceDifficultyHitObject } from "@rian8337/o
  */
 export class IndexedHitObject {
     /**
-     * The index of the cursor that hits the hitobject.
+     * The accepted index of the cursor that hits the hitobject.
      */
-    cursorIndex: number;
+    acceptedCursorIndex: number;
+
+    /**
+     * The actual index of the cursor that hits the hitobject.
+     */
+    actualCursorIndex: number;
+
+    /**
+     * The occurrence index of the cursor that hits the hitobject.
+     */
+    occurrenceIndex: number;
+
+    /**
+     * If this is a slider, whether the slider was cheesed.
+     */
+    sliderCheesed: boolean;
 
     /**
      * The underlying difficulty hitobject.
@@ -17,13 +32,22 @@ export class IndexedHitObject {
 
     /**
      * @param object The underlying difficulty hitobject.
-     * @param cursorIndex The index of the cursor that hits the hitobject.
+     * @param acceptedCursorIndex The accepted index of the cursor that hits the hitobject.
+     * @param actualCursorIndex The actual index of the cursor that hits the hitobject.
+     * @param occurrenceIndex The occurrence index of the cursor that hits the hitobject.
+     * @param sliderCheesed If this is a slider, whether the slider was cheesed.
      */
     constructor(
         object: DifficultyHitObject | RebalanceDifficultyHitObject,
-        cursorIndex: number
+        acceptedCursorIndex: number,
+        actualCursorIndex: number,
+        occurrenceIndex: number,
+        sliderCheesed: boolean
     ) {
         this.object = object;
-        this.cursorIndex = cursorIndex;
+        this.acceptedCursorIndex = acceptedCursorIndex;
+        this.actualCursorIndex = actualCursorIndex;
+        this.occurrenceIndex = occurrenceIndex;
+        this.sliderCheesed = sliderCheesed;
     }
 }
