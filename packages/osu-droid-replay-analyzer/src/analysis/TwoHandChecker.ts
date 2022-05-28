@@ -180,16 +180,36 @@ export class TwoHandChecker {
             }
         }
 
+        // Add cursor presses that don't fulfill minimum cursor
+        // count to the farthest cursor index that isn't 0.
+        let defaultMinCursorCountIndex: number = 0;
+
+        for (
+            ;
+            defaultMinCursorCountIndex < this.data.cursorMovement.length - 1;
+            ++defaultMinCursorCountIndex
+        ) {
+            if (indexCounts[defaultMinCursorCountIndex] === 0) {
+                break;
+            }
+        }
+
         this.indexedHitObjects.forEach((indexedHitObject, i) => {
             if (
                 indexedHitObject.acceptedCursorIndex === -1 ||
-                indexedHitObject.actualCursorIndex === -1 ||
+                indexedHitObject.actualCursorIndex === -1
+            ) {
+                indexedHitObject.acceptedCursorIndex = mainCursorIndex;
+                indexedHitObject.actualCursorIndex = mainCursorIndex;
+            }
+
+            if (
                 ignoredCursorIndexes.includes(
                     indexedHitObject.acceptedCursorIndex
                 )
             ) {
-                indexedHitObject.acceptedCursorIndex = mainCursorIndex;
-                indexedHitObject.actualCursorIndex = mainCursorIndex;
+                indexedHitObject.acceptedCursorIndex =
+                    defaultMinCursorCountIndex;
             }
 
             // For sliders, we need to consider two cases. The first case is when the player doesn't drag
