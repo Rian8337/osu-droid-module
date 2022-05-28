@@ -131,7 +131,9 @@ export class TwoHandChecker {
 
         return {
             is2Hand: indexes.filter((v) => v > 0).length !== 1,
-            cursorIndexes: indexes,
+            cursorIndexes: this.indexedHitObjects.map(
+                (v) => v.acceptedCursorIndex
+            ),
         };
     }
 
