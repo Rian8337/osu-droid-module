@@ -189,10 +189,15 @@ export class TwoHandChecker {
             defaultMinCursorCountIndex < this.data.cursorMovement.length - 1;
             ++defaultMinCursorCountIndex
         ) {
-            if (indexCounts[defaultMinCursorCountIndex] === 0) {
+            if (
+                indexCounts[defaultMinCursorCountIndex] <
+                this.minCursorIndexCount
+            ) {
                 break;
             }
         }
+
+        --defaultMinCursorCountIndex;
 
         this.indexedHitObjects.forEach((indexedHitObject, i) => {
             if (
