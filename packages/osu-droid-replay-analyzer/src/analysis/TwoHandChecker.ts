@@ -309,12 +309,6 @@ export class TwoHandChecker {
             // We track the cursor movement along those indexes.
             // Current cursor position is in `hitTimeBeforeIndex`.
             let distance: number = Number.POSITIVE_INFINITY;
-            let acceptableRadius: number = object.object.radius;
-
-            // Sliders have a bigger radius tolerance due to slider ball.
-            if (object.object instanceof Slider) {
-                acceptableRadius *= 2.4;
-            }
 
             let j: number = hitTimeBeforeIndex;
 
@@ -380,7 +374,7 @@ export class TwoHandChecker {
                 }
             }
 
-            if (distance > acceptableRadius) {
+            if (distance > object.object.radius) {
                 continue;
             }
 
@@ -392,7 +386,7 @@ export class TwoHandChecker {
             // object is sufficient enough to be two-handed. This is done by checking if the movement
             // from the current object to the next object and the movement from the current object
             // to the significant move cursor occurrence produces an angle that is acute enough.
-            let isAngleFulfilled: boolean = false;
+            // let isAngleFulfilled: boolean = false;
 
             // Aside of angles, we need to consider if the player dragged from the previous object to the current object.
             let isDragged: boolean = false;
@@ -425,26 +419,26 @@ export class TwoHandChecker {
             // Some move instances move in the exact same place. Not sure why, most likely
             // because the position is recorded as int in the game and the movement is too small to
             // convert into +1 or -1.
-            let nextSignificantOccurrenceIndex: number = j + 1;
+            // let nextSignificantOccurrenceIndex: number = j + 1;
 
-            while (
-                c.occurrences[j] &&
-                c.occurrences[nextSignificantOccurrenceIndex] &&
-                c.occurrences[j].position.equals(
-                    c.occurrences[nextSignificantOccurrenceIndex].position
-                )
-            ) {
-                ++nextSignificantOccurrenceIndex;
-            }
+            // while (
+            //     c.occurrences[j] &&
+            //     c.occurrences[nextSignificantOccurrenceIndex] &&
+            //     c.occurrences[j].position.equals(
+            //         c.occurrences[nextSignificantOccurrenceIndex].position
+            //     )
+            // ) {
+            //     ++nextSignificantOccurrenceIndex;
+            // }
 
-            const nextSignificantOccurrence: CursorOccurrence =
-                c.occurrences[nextSignificantOccurrenceIndex];
+            // const nextSignificantOccurrence: CursorOccurrence =
+            //     c.occurrences[nextSignificantOccurrenceIndex];
 
-            const next: DifficultyHitObject | RebalanceDifficultyHitObject =
-                this.map.objects[index + 1];
+            // const next: DifficultyHitObject | RebalanceDifficultyHitObject =
+            //     this.map.objects[index + 1];
 
             // Angle detection.
-            if (nextSignificantOccurrence?.id === movementType.MOVE && next) {
+            /* if (nextSignificantOccurrence?.id === movementType.MOVE && next) {
                 // Get the object's actual end position.
                 let actualEndPosition: Vector2 =
                     object.object.stackedEndPosition;
@@ -490,10 +484,10 @@ export class TwoHandChecker {
                 );
 
                 isAngleFulfilled = movementToNextAngle < Math.PI / 6;
-            }
+            } */
 
             // Dragging detection.
-            let timeThreshold: number = 0;
+            let dragTimeThreshold: number = 0;
             const prev: DifficultyHitObject | RebalanceDifficultyHitObject =
                 this.map.objects[index - 1];
 
@@ -503,11 +497,15 @@ export class TwoHandChecker {
                 const prevData: ReplayObjectData =
                     this.data.hitObjectData[index - 1];
 
-                timeThreshold = prev.object.startTime + prevData.accuracy;
+                dragTimeThreshold = prev.object.startTime;
+
+                if (!(prev.object instanceof Spinner)) {
+                    dragTimeThreshold += prevData.accuracy;
+                }
 
                 if (prev.object instanceof Slider) {
-                    timeThreshold = Math.max(
-                        timeThreshold,
+                    dragTimeThreshold = Math.max(
+                        dragTimeThreshold,
                         prev.object.endTime
                     );
                 }
@@ -516,7 +514,8 @@ export class TwoHandChecker {
             let occurrenceStartIndex: number = hitTimeAfterIndex;
 
             while (
-                c.occurrences[occurrenceStartIndex]?.time >= timeThreshold &&
+                c.occurrences[occurrenceStartIndex]?.time >=
+                    dragTimeThreshold &&
                 occurrenceStartIndex > 0
             ) {
                 --occurrenceStartIndex;
@@ -538,13 +537,39 @@ export class TwoHandChecker {
                 dragOccurrences
                     .at(-1)!
                     .position.getDistance(object.object.stackedPosition) <=
-                    acceptableRadius &&
+                    object.object.radius &&
                 dragOccurrences.every((v) => v.id === movementType.MOVE);
+
+            // Check if cursor indexes past this are hold for a very long time such that
+            // the current index may be flagged as two-handed.
+            let cursorHoldTimeThreshold: number = 0;
+
+            if (prev) {
+                // The previous object might be a slider, so we need to get
+                // the hit data of it to get an accurate time threshold.
+                const prevData: ReplayObjectData =
+                    this.data.hitObjectData[index - 1];
+
+                cursorHoldTimeThreshold = prev.object.startTime;
+
+                if (!(prev.object instanceof Spinner)) {
+                    cursorHoldTimeThreshold += prevData.accuracy;
+                }
+
+                if (prev.object instanceof Slider) {
+                    cursorHoldTimeThreshold = Math.max(
+                        cursorHoldTimeThreshold,
+                        prev.object.endTime
+                    );
+                }
+            }
 
             cursorInformations.push({
                 // If the angle is fulfilled or the player dragged,
                 // we set the cursor index to the main cursor index.
-                acceptedCursorIndex: isAngleFulfilled || isDragged ? -1 : i,
+                acceptedCursorIndex: /* isAngleFulfilled ||  */ isDragged
+                    ? -1
+                    : i,
                 actualCursorIndex: i,
                 occurrenceIndex: j,
                 distanceDiff: distance,
