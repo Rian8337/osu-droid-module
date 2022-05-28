@@ -47,7 +47,7 @@ export interface TwoHandInformation {
     /**
      * The indexes of hitobjects.
      */
-    readonly hitObjectIndexes: number[];
+    readonly cursorIndexes: number[];
 }
 
 /**
@@ -114,19 +114,24 @@ export class TwoHandChecker {
             this.data.cursorMovement.filter((v) => v.occurrences.length > 0)
                 .length <= 1
         ) {
-            return { is2Hand: false, hitObjectIndexes: [] };
+            return { is2Hand: false, cursorIndexes: [] };
         }
 
         this.indexHitObjects();
         this.applyPenalty();
 
-        const indexes: number[] = this.indexedHitObjects.map(
-            (v) => v.acceptedCursorIndex
+        const indexes: number[] = Utils.initializeArray(
+            this.data.cursorMovement.length,
+            0
         );
 
+        for (const object of this.indexedHitObjects) {
+            ++indexes[object.acceptedCursorIndex];
+        }
+
         return {
-            is2Hand: new Set(indexes).size !== indexes.length,
-            hitObjectIndexes: indexes,
+            is2Hand: indexes.filter((v) => v > 0).length !== 1,
+            cursorIndexes: indexes,
         };
     }
 

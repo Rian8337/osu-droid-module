@@ -675,7 +675,7 @@ export class ReplayAnalyzer {
         const result: TwoHandInformation = twoHandChecker.check();
 
         this.is2Hand = result.is2Hand;
-        this.twoHandCursorIndexes = result.hitObjectIndexes;
+        this.twoHandCursorIndexes = result.cursorIndexes;
         this.hasBeenCheckedFor2Hand = true;
     }
 }
