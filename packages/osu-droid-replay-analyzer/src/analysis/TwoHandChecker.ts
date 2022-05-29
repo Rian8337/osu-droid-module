@@ -755,11 +755,13 @@ export class TwoHandChecker {
         // Preserve some values that aren't reasonable for them to be changed.
         const preservedValues: {
             noteDensity: number;
+            overlappingFactor: number;
             rhythmStrain: number;
             rhythmMultiplier: number;
         }[] = this.map.objects.map((v) => {
             return {
                 noteDensity: v.noteDensity,
+                overlappingFactor: v.overlappingFactor,
                 rhythmStrain: v.rhythmStrain,
                 rhythmMultiplier: v.rhythmMultiplier,
             };
@@ -796,9 +798,12 @@ export class TwoHandChecker {
             const indexedHitObject: IndexedHitObject =
                 this.indexedHitObjects[i];
 
-            diffObject.noteDensity = preservedValues[i].noteDensity;
-            diffObject.rhythmStrain = preservedValues[i].rhythmStrain;
-            diffObject.rhythmMultiplier = preservedValues[i].rhythmMultiplier;
+            const preservedValue = preservedValues[i];
+
+            diffObject.noteDensity = preservedValue.noteDensity;
+            diffObject.overlappingFactor = preservedValue.overlappingFactor;
+            diffObject.rhythmStrain = preservedValue.rhythmStrain;
+            diffObject.rhythmMultiplier = preservedValue.rhythmMultiplier;
 
             // Set slider travel distance to 0 if the slider was cheesed.
             if (indexedHitObject.sliderCheesed) {
