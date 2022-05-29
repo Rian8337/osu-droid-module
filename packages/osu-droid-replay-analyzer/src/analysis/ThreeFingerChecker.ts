@@ -990,7 +990,7 @@ export class ThreeFingerChecker {
                                   Math.pow(
                                       ((index + 1) * value * objectCount) /
                                           this.strainNoteCount,
-                                      0.8
+                                      0.9
                                   ),
                               1
                           )
