@@ -171,7 +171,10 @@ export class TwoHandChecker {
             ++indexCounts[index];
         }
 
-        const mainCursorIndex = indexCounts.indexOf(Math.max(...indexCounts));
+        const mainCursorIndex: number =
+            indexCounts.length > 0
+                ? indexCounts.indexOf(Math.max(...indexCounts))
+                : 0;
         const ignoredCursorIndexes: number[] = [];
         for (let i = 0; i < indexCounts.length; ++i) {
             if (
@@ -184,22 +187,18 @@ export class TwoHandChecker {
 
         // Add cursor presses that don't fulfill minimum cursor
         // count to the farthest cursor index that isn't 0.
-        let defaultMinCursorCountIndex: number = 0;
+        let defaultMinCursorCountIndex: number =
+            this.data.cursorMovement.length - 1;
 
-        for (
-            ;
-            defaultMinCursorCountIndex < this.data.cursorMovement.length - 1;
-            ++defaultMinCursorCountIndex
-        ) {
+        for (; defaultMinCursorCountIndex > 0; --defaultMinCursorCountIndex) {
             if (
-                indexCounts[defaultMinCursorCountIndex] <
-                this.minCursorIndexCount
+                indexCounts[defaultMinCursorCountIndex] >=
+                    this.minCursorIndexCount &&
+                !ignoredCursorIndexes.includes(defaultMinCursorCountIndex)
             ) {
                 break;
             }
         }
-
-        --defaultMinCursorCountIndex;
 
         this.indexedHitObjects.forEach((indexedHitObject, i) => {
             if (
@@ -790,7 +789,7 @@ export class TwoHandChecker {
 
         this.map.objects.sort((a, b) => a.startTime - b.startTime);
 
-        // Reassign rhythm values before calculating.
+        // Reassign preserved values before calculating.
         for (let i = 0; i < this.map.objects.length; ++i) {
             const diffObject:
                 | DifficultyHitObject
