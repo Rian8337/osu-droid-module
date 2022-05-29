@@ -145,16 +145,10 @@ export class TwoHandChecker {
         const indexes: number[] = [];
 
         for (let i = 0; i < this.map.objects.length; ++i) {
-            const indexedHitObject: IndexedHitObject =
-                this.map.objects[i].aimStrainWithSliders >= 175
-                    ? this.getIndexedHitObject(i, hitWindowOffset)
-                    : new IndexedHitObject(
-                          this.map.objects[i],
-                          -1,
-                          -1,
-                          -1,
-                          false
-                      );
+            const indexedHitObject: IndexedHitObject = this.getIndexedHitObject(
+                i,
+                hitWindowOffset
+            );
 
             indexes.push(indexedHitObject.acceptedCursorIndex);
             this.indexedHitObjects.push(indexedHitObject);
