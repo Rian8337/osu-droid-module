@@ -115,6 +115,14 @@ export class DifficultyHitObjectCreator {
 
             object.noteDensity = 1;
 
+            if (
+                object.object instanceof Spinner ||
+                lastObject.object instanceof Spinner
+            ) {
+                difficultyObjects.push(object);
+                continue;
+            }
+
             for (const hitObject of visibleObjects) {
                 // Calculate delta time assuming the current object is a circle.
                 let deltaTime: number = Math.abs(
@@ -168,14 +176,6 @@ export class DifficultyHitObjectCreator {
                                             75)
                                 )));
                 }
-            }
-
-            if (
-                object.object instanceof Spinner ||
-                lastObject.object instanceof Spinner
-            ) {
-                difficultyObjects.push(object);
-                continue;
             }
 
             const lastCursorPosition: Vector2 = this.getEndCursorPosition(
