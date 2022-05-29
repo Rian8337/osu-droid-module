@@ -853,7 +853,7 @@ export class ThreeFingerChecker {
                     (t) => t.time >= startTime
                 );
                 if (i !== -1) {
-                    c.occurrences = c.occurrences.slice(0, i);
+                    c.occurrences = c.occurrences.slice(i);
                 }
             });
             const cursorAmounts: number[] = [];
