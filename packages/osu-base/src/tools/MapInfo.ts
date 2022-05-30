@@ -10,6 +10,8 @@ import { Precision } from "../utils/Precision";
 import { TimingControlPoint } from "../beatmap/timings/TimingControlPoint";
 import { Utils } from "../utils/Utils";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
+import { modes } from "../constants/modes";
+import { MathUtils } from "../mathutil/MathUtils";
 
 export interface OsuAPIResponse {
     readonly approved: string;
@@ -460,10 +462,12 @@ export class MapInfo {
      *
      * - Option `0`: return map title and mods used if defined
      * - Option `1`: return song source and map download link to beatmap mirrors
-     * - Option `2`: return CS, AR, OD, HP
-     * - Option `3`: return BPM, map length, max combo
-     * - Option `4`: return last update date and map status
-     * - Option `5`: return favorite count and play count
+     * - Option `2`: return circle, slider, and spinner count
+     * - Option `3`: return CS, AR, OD, and HP statistics for droid
+     * - Option `4`: return CS, AR, OD, and HP statistics for PC
+     * - Option `5`: return BPM, map length, max combo, and max score
+     * - Option `6`: return last update date and map status
+     * - Option `7`: return favorite count and play count
      *
      * @param option The option to pick.
      * @param stats The custom statistics to apply. This will only be used to apply mods, custom speed multiplier, and force AR.
@@ -486,14 +490,13 @@ export class MapInfo {
             mapParams.speedMultiplier =
                 stats.speedMultiplier ?? mapParams.speedMultiplier;
         }
-        const mapStatistics: MapStats = new MapStats(mapParams).calculate();
-        mapStatistics.cs = parseFloat((mapStatistics.cs as number).toFixed(2));
-        mapStatistics.ar = parseFloat((mapStatistics.ar as number).toFixed(2));
-        mapStatistics.od = parseFloat((mapStatistics.od as number).toFixed(2));
-        mapStatistics.hp = parseFloat((mapStatistics.hp as number).toFixed(2));
 
         switch (option) {
             case 0: {
+                const mapStatistics: MapStats = new MapStats(
+                    mapParams
+                ).calculate();
+
                 let string: string = `${this.fullTitle}${
                     (mapStatistics.mods.length ?? 0) > 0
                         ? ` +${mapStatistics.mods
@@ -559,20 +562,122 @@ export class MapInfo {
                 return string;
             }
             case 2:
-                return `**Circles**: ${this.circles} - **Sliders**: ${
-                    this.sliders
-                } - **Spinners**: ${this.spinners}\n**CS**: ${this.cs}${
-                    this.cs === mapStatistics.cs ? "" : ` (${mapStatistics.cs})`
-                } - **AR**: ${this.ar}${
-                    this.ar === mapStatistics.ar ? "" : ` (${mapStatistics.ar})`
-                } - **OD**: ${this.od}${
-                    this.od === mapStatistics.od ? "" : ` (${mapStatistics.od})`
-                } - **HP**: ${this.hp}${
-                    this.hp === mapStatistics.hp ? "" : ` (${mapStatistics.hp})`
-                }`;
+                return `**Circles**: ${this.circles} - **Sliders**: ${this.sliders} - **Spinners**: ${this.spinners}`;
             case 3: {
-                const maxScore: number =
+                const droidOriginalStats: MapStats = new MapStats({
+                    cs: this.cs,
+                    ar: this.ar,
+                    od: this.od,
+                    hp: this.hp,
+                }).calculate({ mode: modes.droid });
+
+                const droidModifiedStats: MapStats = new MapStats(
+                    mapParams
+                ).calculate({ mode: modes.droid });
+
+                droidOriginalStats.cs = MathUtils.round(
+                    droidOriginalStats.cs!,
+                    2
+                );
+                droidOriginalStats.ar = MathUtils.round(
+                    droidOriginalStats.ar!,
+                    2
+                );
+                droidOriginalStats.od = MathUtils.round(
+                    droidOriginalStats.od!,
+                    2
+                );
+                droidOriginalStats.hp = MathUtils.round(
+                    droidOriginalStats.hp!,
+                    2
+                );
+
+                droidModifiedStats.cs = MathUtils.round(
+                    droidModifiedStats.cs!,
+                    2
+                );
+                droidModifiedStats.ar = MathUtils.round(
+                    droidModifiedStats.ar!,
+                    2
+                );
+                droidModifiedStats.od = MathUtils.round(
+                    droidModifiedStats.od!,
+                    2
+                );
+                droidModifiedStats.hp = MathUtils.round(
+                    droidModifiedStats.hp!,
+                    2
+                );
+
+                return `**CS**: ${droidOriginalStats.cs}${
+                    Precision.almostEqualsNumber(
+                        droidOriginalStats.cs!,
+                        droidModifiedStats.cs!
+                    )
+                        ? ""
+                        : ` (${droidModifiedStats.cs})`
+                } - **AR**: ${droidOriginalStats.ar}${
+                    Precision.almostEqualsNumber(
+                        droidOriginalStats.ar!,
+                        droidModifiedStats.ar!
+                    )
+                        ? ""
+                        : ` (${droidModifiedStats.ar})`
+                } - **OD**: ${droidOriginalStats.od}${
+                    Precision.almostEqualsNumber(
+                        droidOriginalStats.od!,
+                        droidModifiedStats.od!
+                    )
+                        ? ""
+                        : ` (${droidModifiedStats.od})`
+                } - **HP**: ${droidOriginalStats.hp}${
+                    Precision.almostEqualsNumber(
+                        droidOriginalStats.hp!,
+                        droidModifiedStats.hp!
+                    )
+                        ? ""
+                        : ` (${droidModifiedStats.hp})`
+                }`;
+            }
+            case 4: {
+                const mapStatistics: MapStats = new MapStats(
+                    mapParams
+                ).calculate();
+
+                mapStatistics.cs = MathUtils.round(mapStatistics.cs!, 2);
+                mapStatistics.ar = MathUtils.round(mapStatistics.ar!, 2);
+                mapStatistics.od = MathUtils.round(mapStatistics.od!, 2);
+                mapStatistics.hp = MathUtils.round(mapStatistics.hp!, 2);
+
+                return `**CS**: ${this.cs}${
+                    Precision.almostEqualsNumber(this.cs, mapStatistics.cs!)
+                        ? ""
+                        : ` (${mapStatistics.cs})`
+                } - **AR**: ${this.ar}${
+                    Precision.almostEqualsNumber(this.ar, mapStatistics.ar!)
+                        ? ""
+                        : ` (${mapStatistics.ar})`
+                } - **OD**: ${this.od}${
+                    Precision.almostEqualsNumber(this.od, mapStatistics.od!)
+                        ? ""
+                        : ` (${mapStatistics.od})`
+                } - **HP**: ${this.hp}${
+                    Precision.almostEqualsNumber(this.hp, mapStatistics.hp!)
+                        ? ""
+                        : ` (${mapStatistics.hp})`
+                }`;
+            }
+            case 5: {
+                const mapStatistics: MapStats = new MapStats(
+                    mapParams
+                ).calculate();
+
+                const droidMaxScore: number =
                     this.map?.maxDroidScore(mapStatistics) ?? 0;
+
+                const osuMaxScore: number =
+                    this.map?.maxOsuScore(mapStatistics.mods) ?? 0;
+
                 const convertedBPM: number = this.convertBPM(mapStatistics);
                 let string = "**BPM**: ";
                 if (this.map) {
@@ -590,8 +695,13 @@ export class MapInfo {
                         } - **Length**: ${this.convertTime(
                             mapStatistics
                         )} - **Max Combo**: ${this.maxCombo}x${
-                            maxScore > 0
-                                ? `\n**Max Score**: ${maxScore.toLocaleString()}`
+                            droidMaxScore > 0
+                                ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
+                                : ""
+                        }${
+                            osuMaxScore > 0
+                                ? (droidMaxScore > 0 ? " - " : "") +
+                                  `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
                                 : ""
                         }`;
                     } else {
@@ -640,8 +750,8 @@ export class MapInfo {
                         string += `- **Length**: ${this.convertTime(
                             mapStatistics
                         )} - **Max Combo**: ${this.maxCombo}x${
-                            maxScore > 0
-                                ? `\n**Max score**: ${maxScore.toLocaleString()}`
+                            droidMaxScore > 0
+                                ? `\n**Max score**: ${droidMaxScore.toLocaleString()}`
                                 : ""
                         }`;
                     }
@@ -653,16 +763,16 @@ export class MapInfo {
                     } - **Length**: ${this.convertTime(
                         mapStatistics
                     )} - **Max Combo**: ${this.maxCombo}x${
-                        maxScore > 0
-                            ? `\n**Max score**: ${maxScore.toLocaleString()}`
+                        droidMaxScore > 0
+                            ? `\n**Max score**: ${droidMaxScore.toLocaleString()}`
                             : ""
                     }`;
                 }
                 return string;
             }
-            case 4:
+            case 6:
                 return `**Last Update**: ${this.lastUpdate.toUTCString()} | **${this.convertStatus()}**`;
-            case 5:
+            case 7:
                 return `❤️ **${this.favorites.toLocaleString()}** - ▶️ **${this.plays.toLocaleString()}**`;
             default:
                 throw {
