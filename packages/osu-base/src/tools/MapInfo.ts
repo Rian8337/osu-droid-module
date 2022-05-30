@@ -700,7 +700,7 @@ export class MapInfo {
                                 : ""
                         }${
                             osuMaxScore > 0
-                                ? (droidMaxScore > 0 ? " - " : "") +
+                                ? (droidMaxScore > 0 ? " - " : "\n") +
                                   `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
                                 : ""
                         }`;
