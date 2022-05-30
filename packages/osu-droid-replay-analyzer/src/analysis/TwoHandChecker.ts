@@ -365,6 +365,13 @@ export class TwoHandChecker {
 
                 const cursorPosition: Vector2 = occurrence.position;
 
+                if (
+                    occurrence.time < minimumHitTime &&
+                    nextOccurrence?.id !== movementType.MOVE
+                ) {
+                    continue;
+                }
+
                 if (occurrence.time > hitTime + hitWindowOffset) {
                     // Set distance to minimum just for the last.
                     if (occurrence.id !== movementType.UP) {
@@ -386,8 +393,7 @@ export class TwoHandChecker {
                     object.object.stackedPosition.getDistance(cursorPosition);
 
                 if (
-                    nextOccurrence &&
-                    nextOccurrence.id === movementType.MOVE &&
+                    nextOccurrence?.id === movementType.MOVE &&
                     occurrence.time !== nextOccurrence.time &&
                     !occurrence.position.equals(nextOccurrence.position)
                 ) {
@@ -403,11 +409,7 @@ export class TwoHandChecker {
                             minimumHitTime,
                             occurrence.time
                         );
-                        mSecPassed <=
-                        Math.min(
-                            hitTime + hitWindowOffset,
-                            nextOccurrence.time
-                        );
+                        mSecPassed <= Math.min(hitTime, nextOccurrence.time);
                         ++mSecPassed
                     ) {
                         const progress: number =
@@ -586,30 +588,6 @@ export class TwoHandChecker {
                     .position.getDistance(object.object.stackedPosition) <=
                     object.object.radius &&
                 dragOccurrences.every((v) => v.id === movementType.MOVE);
-
-            // Check if cursor indexes past this are hold for a very long time such that
-            // the current index may be flagged as two-handed.
-            let cursorHoldTimeThreshold: number = 0;
-
-            if (prev) {
-                // The previous object might be a slider, so we need to get
-                // the hit data of it to get an accurate time threshold.
-                const prevData: ReplayObjectData =
-                    this.data.hitObjectData[index - 1];
-
-                cursorHoldTimeThreshold = prev.object.startTime;
-
-                if (!(prev.object instanceof Spinner)) {
-                    cursorHoldTimeThreshold += prevData.accuracy;
-                }
-
-                if (prev.object instanceof Slider) {
-                    cursorHoldTimeThreshold = Math.max(
-                        cursorHoldTimeThreshold,
-                        prev.object.endTime
-                    );
-                }
-            }
 
             cursorInformations.push({
                 // If the angle is fulfilled or the player dragged,
