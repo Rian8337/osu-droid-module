@@ -463,9 +463,9 @@ export class MapInfo {
      * - Option `0`: return map title and mods used if defined
      * - Option `1`: return song source and map download link to beatmap mirrors
      * - Option `2`: return circle, slider, and spinner count
-     * - Option `3`: return CS, AR, OD, and HP statistics for droid
-     * - Option `4`: return CS, AR, OD, and HP statistics for PC
-     * - Option `5`: return BPM, map length, max combo, and max score
+     * - Option `3`: return CS, AR, OD, HP, and max score statistics for droid
+     * - Option `4`: return CS, AR, OD, HP, and max score statistics for PC
+     * - Option `5`: return BPM, map length, and max combo
      * - Option `6`: return last update date and map status
      * - Option `7`: return favorite count and play count
      *
@@ -609,6 +609,9 @@ export class MapInfo {
                     2
                 );
 
+                const maxScore: number =
+                    this.map?.maxDroidScore(new MapStats(mapParams)) ?? 0;
+
                 return `**CS**: ${droidOriginalStats.cs}${
                     Precision.almostEqualsNumber(
                         droidOriginalStats.cs!,
@@ -637,6 +640,10 @@ export class MapInfo {
                     )
                         ? ""
                         : ` (${droidModifiedStats.hp})`
+                }${
+                    maxScore > 0
+                        ? `\n**Max Score**: ${maxScore.toLocaleString()}`
+                        : ""
                 }`;
             }
             case 4: {
@@ -648,6 +655,9 @@ export class MapInfo {
                 mapStatistics.ar = MathUtils.round(mapStatistics.ar!, 2);
                 mapStatistics.od = MathUtils.round(mapStatistics.od!, 2);
                 mapStatistics.hp = MathUtils.round(mapStatistics.hp!, 2);
+
+                const maxScore: number =
+                    this.map?.maxOsuScore(mapStatistics.mods) ?? 0;
 
                 return `**CS**: ${this.cs}${
                     Precision.almostEqualsNumber(this.cs, mapStatistics.cs!)
@@ -665,18 +675,16 @@ export class MapInfo {
                     Precision.almostEqualsNumber(this.hp, mapStatistics.hp!)
                         ? ""
                         : ` (${mapStatistics.hp})`
+                }${
+                    maxScore > 0
+                        ? `\n**Max Score**: ${maxScore.toLocaleString()}`
+                        : ""
                 }`;
             }
             case 5: {
                 const mapStatistics: MapStats = new MapStats(
                     mapParams
                 ).calculate();
-
-                const droidMaxScore: number =
-                    this.map?.maxDroidScore(mapStatistics) ?? 0;
-
-                const osuMaxScore: number =
-                    this.map?.maxOsuScore(mapStatistics.mods) ?? 0;
 
                 const convertedBPM: number = this.convertBPM(mapStatistics);
                 let string = "**BPM**: ";
@@ -694,16 +702,7 @@ export class MapInfo {
                                 : ""
                         } - **Length**: ${this.convertTime(
                             mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${
-                            droidMaxScore > 0
-                                ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
-                                : ""
-                        }${
-                            osuMaxScore > 0
-                                ? (droidMaxScore > 0 ? " - " : "\n") +
-                                  `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
-                                : ""
-                        }`;
+                        )} - **Max Combo**: ${this.maxCombo}x`;
                     } else {
                         let maxBPM: number = this.bpm;
                         let minBPM: number = this.bpm;
@@ -749,16 +748,7 @@ export class MapInfo {
 
                         string += `- **Length**: ${this.convertTime(
                             mapStatistics
-                        )} - **Max Combo**: ${this.maxCombo}x${
-                            droidMaxScore > 0
-                                ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
-                                : ""
-                        }${
-                            osuMaxScore > 0
-                                ? (droidMaxScore > 0 ? " - " : "\n") +
-                                  `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
-                                : ""
-                        }`;
+                        )} - **Max Combo**: ${this.maxCombo}x`;
                     }
                 } else {
                     string += `${this.bpm}${
@@ -767,20 +757,7 @@ export class MapInfo {
                             : ""
                     } - **Length**: ${this.convertTime(
                         mapStatistics
-                    )} - **Max Combo**: ${this.maxCombo}x${
-                        droidMaxScore > 0
-                            ? `${
-                                  droidMaxScore > 0
-                                      ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
-                                      : ""
-                              }${
-                                  osuMaxScore > 0
-                                      ? (droidMaxScore > 0 ? " - " : "\n") +
-                                        `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
-                                      : ""
-                              }`
-                            : ""
-                    }`;
+                    )} - **Max Combo**: ${this.maxCombo}x`;
                 }
                 return string;
             }
