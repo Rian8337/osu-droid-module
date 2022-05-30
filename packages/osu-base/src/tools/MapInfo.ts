@@ -751,7 +751,12 @@ export class MapInfo {
                             mapStatistics
                         )} - **Max Combo**: ${this.maxCombo}x${
                             droidMaxScore > 0
-                                ? `\n**Max score**: ${droidMaxScore.toLocaleString()}`
+                                ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
+                                : ""
+                        }${
+                            osuMaxScore > 0
+                                ? (droidMaxScore > 0 ? " - " : "\n") +
+                                  `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
                                 : ""
                         }`;
                     }
@@ -764,7 +769,16 @@ export class MapInfo {
                         mapStatistics
                     )} - **Max Combo**: ${this.maxCombo}x${
                         droidMaxScore > 0
-                            ? `\n**Max score**: ${droidMaxScore.toLocaleString()}`
+                            ? `${
+                                  droidMaxScore > 0
+                                      ? `\n**Max Droid Score**: ${droidMaxScore.toLocaleString()}`
+                                      : ""
+                              }${
+                                  osuMaxScore > 0
+                                      ? (droidMaxScore > 0 ? " - " : "\n") +
+                                        `**Max Standard Score**: ${osuMaxScore.toLocaleString()}`
+                                      : ""
+                              }`
                             : ""
                     }`;
                 }
