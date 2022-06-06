@@ -20,17 +20,17 @@ export class DroidFlashlight extends DroidSkill {
             (Precision.almostEqualsNumber(current.deltaTime, 1) &&
                 (this.previous[0].object instanceof Slider
                     ? Math.min(
-                        this.previous[0].object.stackedEndPosition.getDistance(
-                            current.object.stackedPosition
-                        ),
-                        this.previous[0].object.lazyEndPosition!.getDistance(
-                            current.object.stackedPosition
-                        )
-                    )
+                          this.previous[0].object.stackedEndPosition.getDistance(
+                              current.object.stackedPosition
+                          ),
+                          this.previous[0].object.lazyEndPosition!.getDistance(
+                              current.object.stackedPosition
+                          )
+                      )
                     : this.previous[0].object.stackedEndPosition.getDistance(
-                        current.object.stackedPosition
-                    )) <=
-                2 * current.object.radius)
+                          current.object.stackedPosition
+                      )) <=
+                    2 * current.object.radius)
         ) {
             return 0;
         }
