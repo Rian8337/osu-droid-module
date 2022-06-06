@@ -106,12 +106,16 @@ export class DifficultyHitObjectCreator {
             // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
 
-            const visibleObjects: HitObject[] = params.objects.filter(
-                (o) =>
-                    o.startTime / params.speedMultiplier > object.startTime &&
-                    o.startTime / params.speedMultiplier <=
-                        object.endTime + params.preempt!
-            );
+            const visibleObjects: HitObject[] = params.objects
+                .filter(
+                    (o) =>
+                        o.startTime / params.speedMultiplier >=
+                            object.startTime &&
+                        o.startTime / params.speedMultiplier <=
+                            object.endTime + params.preempt!
+                )
+                // The current object will be included, so we need to exclude it.
+                .slice(1);
 
             object.noteDensity = 1;
 

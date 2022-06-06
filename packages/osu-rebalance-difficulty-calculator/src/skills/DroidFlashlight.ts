@@ -1,4 +1,4 @@
-import { Spinner } from "@rian8337/osu-base";
+import { Precision, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -14,7 +14,24 @@ export class DroidFlashlight extends DroidSkill {
     protected override readonly starsPerDouble: number = 1.05;
 
     protected strainValueOf(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            (Precision.almostEqualsNumber(current.deltaTime, 1) &&
+                (this.previous[0].object instanceof Slider
+                    ? Math.min(
+                        this.previous[0].object.stackedEndPosition.getDistance(
+                            current.object.stackedPosition
+                        ),
+                        this.previous[0].object.lazyEndPosition!.getDistance(
+                            current.object.stackedPosition
+                        )
+                    )
+                    : this.previous[0].object.stackedEndPosition.getDistance(
+                        current.object.stackedPosition
+                    )) <=
+                2 * current.object.radius)
+        ) {
             return 0;
         }
 
@@ -31,7 +48,11 @@ export class DroidFlashlight extends DroidSkill {
         for (let i = 0; i < this.previous.length; ++i) {
             const currentObject: DifficultyHitObject = this.previous[i];
 
-            if (!(currentObject.object instanceof Spinner)) {
+            if (
+                !(currentObject.object instanceof Spinner) &&
+                // Exclude overlapping objects that can be tapped at once.
+                !Precision.almostEqualsNumber(currentObject.deltaTime, 1)
+            ) {
                 const jumpDistance: number =
                     current.object.stackedPosition.subtract(
                         currentObject.object.endPosition

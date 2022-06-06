@@ -1,4 +1,4 @@
-import { Mod, ModHidden, Slider, Spinner } from "@rian8337/osu-base";
+import { Mod, ModHidden, Precision, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -27,7 +27,24 @@ export class DroidVisual extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            (Precision.almostEqualsNumber(current.deltaTime, 1) &&
+                (this.previous[0].object instanceof Slider
+                    ? Math.min(
+                          this.previous[0].object.stackedEndPosition.getDistance(
+                              current.object.stackedPosition
+                          ),
+                          this.previous[0].object.lazyEndPosition!.getDistance(
+                              current.object.stackedPosition
+                          )
+                      )
+                    : this.previous[0].object.stackedEndPosition.getDistance(
+                          current.object.stackedPosition
+                      )) <=
+                    2 * current.object.radius)
+        ) {
             return 0;
         }
 
@@ -68,7 +85,20 @@ export class DroidVisual extends DroidSkill {
 
                 cumulativeStrainTime += last.strainTime;
 
-                if (!(last.object instanceof Slider)) {
+                if (
+                    !(last.object instanceof Slider) ||
+                    // Exclude overlapping objects that can be tapped at once.
+                    (Precision.almostEqualsNumber(current.deltaTime, 1) &&
+                        Math.min(
+                            last.object.stackedEndPosition.getDistance(
+                                current.object.stackedPosition
+                            ),
+                            last.object.lazyEndPosition!.getDistance(
+                                current.object.stackedPosition
+                            )
+                        ) <=
+                            2 * current.object.radius)
+                ) {
                     continue;
                 }
 
