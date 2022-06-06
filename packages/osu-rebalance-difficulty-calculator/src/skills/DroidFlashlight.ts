@@ -17,8 +17,8 @@ export class DroidFlashlight extends DroidSkill {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (Precision.almostEqualsNumber(current.deltaTime, 1) &&
-                (this.previous[0].object instanceof Slider
+            (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+                (this.previous[0]?.object instanceof Slider
                     ? Math.min(
                           this.previous[0].object.stackedEndPosition.getDistance(
                               current.object.stackedPosition
@@ -27,7 +27,7 @@ export class DroidFlashlight extends DroidSkill {
                               current.object.stackedPosition
                           )
                       )
-                    : this.previous[0].object.stackedEndPosition.getDistance(
+                    : this.previous[0]?.object.stackedEndPosition.getDistance(
                           current.object.stackedPosition
                       )) <=
                     2 * current.object.radius)
@@ -51,7 +51,7 @@ export class DroidFlashlight extends DroidSkill {
             if (
                 !(currentObject.object instanceof Spinner) &&
                 // Exclude overlapping objects that can be tapped at once.
-                !Precision.almostEqualsNumber(currentObject.deltaTime, 1)
+                !Precision.almostEqualsNumber(currentObject.deltaTime, 0, 1)
             ) {
                 const jumpDistance: number =
                     current.object.stackedPosition.subtract(

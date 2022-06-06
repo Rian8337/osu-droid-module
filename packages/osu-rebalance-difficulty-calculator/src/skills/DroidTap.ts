@@ -40,7 +40,7 @@ export class DroidTap extends DroidSkill {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            Precision.almostEqualsNumber(current.deltaTime, 1)
+            Precision.almostEqualsNumber(current.deltaTime, 0, 1)
         ) {
             return 0;
         }

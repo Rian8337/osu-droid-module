@@ -37,7 +37,8 @@ export abstract class Skill {
     }
 
     /**
-     * Processes a hitobject.
+     * Calculates the strain value of a hitobject and stores the value in it.
+     * This value is affected by previously processed objects.
      *
      * @param current The hitobject to process.
      */

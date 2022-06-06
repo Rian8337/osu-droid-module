@@ -37,7 +37,24 @@ export class DroidAim extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+                (this.previous[0]?.object instanceof Slider
+                    ? Math.min(
+                          this.previous[0].object.stackedEndPosition.getDistance(
+                              current.object.stackedPosition
+                          ),
+                          this.previous[0].object.lazyEndPosition!.getDistance(
+                              current.object.stackedPosition
+                          )
+                      )
+                    : this.previous[0]?.object.stackedEndPosition.getDistance(
+                          current.object.stackedPosition
+                      )) <=
+                    2 * current.object.radius)
+        ) {
             return 0;
         }
 
@@ -50,22 +67,7 @@ export class DroidAim extends DroidSkill {
     private aimStrainOf(current: DifficultyHitObject): number {
         if (
             this.previous.length <= 1 ||
-            this.previous[0].object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            (Precision.almostEqualsNumber(current.deltaTime, 1) &&
-                (this.previous[0].object instanceof Slider
-                    ? Math.min(
-                          this.previous[0].object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          this.previous[0].object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : this.previous[0].object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) <=
-                    2 * current.object.radius)
+            this.previous[0].object instanceof Spinner
         ) {
             return 0;
         }

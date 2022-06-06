@@ -43,7 +43,7 @@ export class DroidRhythm extends DroidSkill {
     private calculateRhythmBonus(current: DifficultyHitObject): number {
         if (
             current.object instanceof Spinner ||
-            Precision.almostEqualsNumber(current.deltaTime, 0)
+            Precision.almostEqualsNumber(current.deltaTime, 0, 1)
         ) {
             return 1;
         }
@@ -61,7 +61,7 @@ export class DroidRhythm extends DroidSkill {
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DifficultyHitObject[] = this.previous.filter(
-            (v) => !Precision.almostEqualsNumber(v.deltaTime, 1)
+            (v) => !Precision.almostEqualsNumber(v.deltaTime, 0, 1)
         );
 
         while (

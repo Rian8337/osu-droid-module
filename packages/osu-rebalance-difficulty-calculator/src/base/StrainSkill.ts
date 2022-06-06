@@ -48,11 +48,6 @@ export abstract class StrainSkill extends Skill {
 
     protected currentSectionEnd: number = 0;
 
-    /**
-     * Calculates the strain value of a hitobject and stores the value in it. This value is affected by previously processed objects.
-     *
-     * @param current The hitobject to process.
-     */
     protected override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
         if (this.previous.length === 0) {

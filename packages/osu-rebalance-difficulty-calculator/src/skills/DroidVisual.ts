@@ -30,8 +30,8 @@ export class DroidVisual extends DroidSkill {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (Precision.almostEqualsNumber(current.deltaTime, 1) &&
-                (this.previous[0].object instanceof Slider
+            (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+                (this.previous[0]?.object instanceof Slider
                     ? Math.min(
                           this.previous[0].object.stackedEndPosition.getDistance(
                               current.object.stackedPosition
@@ -40,7 +40,7 @@ export class DroidVisual extends DroidSkill {
                               current.object.stackedPosition
                           )
                       )
-                    : this.previous[0].object.stackedEndPosition.getDistance(
+                    : this.previous[0]?.object.stackedEndPosition.getDistance(
                           current.object.stackedPosition
                       )) <=
                     2 * current.object.radius)
@@ -88,7 +88,7 @@ export class DroidVisual extends DroidSkill {
                 if (
                     !(last.object instanceof Slider) ||
                     // Exclude overlapping objects that can be tapped at once.
-                    (Precision.almostEqualsNumber(current.deltaTime, 1) &&
+                    (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
                         Math.min(
                             last.object.stackedEndPosition.getDistance(
                                 current.object.stackedPosition
