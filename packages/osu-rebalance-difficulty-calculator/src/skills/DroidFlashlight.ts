@@ -1,4 +1,4 @@
-import { Precision, Slider, Spinner } from "@rian8337/osu-base";
+import { Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -17,7 +17,7 @@ export class DroidFlashlight extends DroidSkill {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+            (current.deltaTime < 5 &&
                 (this.previous[0]?.object instanceof Slider
                     ? Math.min(
                           this.previous[0].object.stackedEndPosition.getDistance(
@@ -51,7 +51,7 @@ export class DroidFlashlight extends DroidSkill {
             if (
                 !(currentObject.object instanceof Spinner) &&
                 // Exclude overlapping objects that can be tapped at once.
-                !Precision.almostEqualsNumber(currentObject.deltaTime, 0, 1)
+                currentObject.deltaTime >= 5
             ) {
                 const jumpDistance: number =
                     current.object.stackedPosition.subtract(

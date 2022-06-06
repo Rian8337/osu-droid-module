@@ -1,4 +1,4 @@
-import { Mod, ModHidden, Precision, Slider, Spinner } from "@rian8337/osu-base";
+import { Mod, ModHidden, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -30,7 +30,7 @@ export class DroidVisual extends DroidSkill {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+            (current.deltaTime < 5 &&
                 (this.previous[0]?.object instanceof Slider
                     ? Math.min(
                           this.previous[0].object.stackedEndPosition.getDistance(
@@ -88,7 +88,7 @@ export class DroidVisual extends DroidSkill {
                 if (
                     !(last.object instanceof Slider) ||
                     // Exclude overlapping objects that can be tapped at once.
-                    (Precision.almostEqualsNumber(current.deltaTime, 0, 1) &&
+                    (last.deltaTime < 5 &&
                         Math.min(
                             last.object.stackedEndPosition.getDistance(
                                 current.object.stackedPosition

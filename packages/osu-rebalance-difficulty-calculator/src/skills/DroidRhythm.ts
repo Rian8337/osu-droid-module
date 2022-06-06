@@ -1,10 +1,4 @@
-import {
-    Mod,
-    OsuHitWindow,
-    Precision,
-    Slider,
-    Spinner,
-} from "@rian8337/osu-base";
+import { Mod, OsuHitWindow, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -43,7 +37,8 @@ export class DroidRhythm extends DroidSkill {
     private calculateRhythmBonus(current: DifficultyHitObject): number {
         if (
             current.object instanceof Spinner ||
-            Precision.almostEqualsNumber(current.deltaTime, 0, 1)
+            // Exclude overlapping objects that can be tapped at once.
+            current.deltaTime < 5
         ) {
             return 1;
         }
@@ -61,7 +56,7 @@ export class DroidRhythm extends DroidSkill {
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DifficultyHitObject[] = this.previous.filter(
-            (v) => !Precision.almostEqualsNumber(v.deltaTime, 0, 1)
+            (v) => v.deltaTime >= 5
         );
 
         while (
