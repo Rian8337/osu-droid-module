@@ -1,4 +1,10 @@
-import { Mod, OsuHitWindow, Slider, Spinner } from "@rian8337/osu-base";
+import {
+    Mod,
+    OsuHitWindow,
+    Precision,
+    Slider,
+    Spinner,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -35,7 +41,10 @@ export class DroidRhythm extends DroidSkill {
      * Calculates a rhythm multiplier for the difficulty of the tap associated with historic data of the current object.
      */
     private calculateRhythmBonus(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (
+            current.object instanceof Spinner ||
+            Precision.almostEqualsNumber(current.deltaTime, 0)
+        ) {
             return 1;
         }
 
