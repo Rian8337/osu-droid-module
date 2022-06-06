@@ -23,7 +23,7 @@ export class IndexedHitObject {
     /**
      * If this is a slider, whether the slider was cheesed.
      */
-    sliderCheesed: boolean;
+    sliderCheesed: boolean = false;
 
     /**
      * The underlying difficulty hitobject.
@@ -35,19 +35,16 @@ export class IndexedHitObject {
      * @param acceptedCursorIndex The accepted index of the cursor that hits the hitobject.
      * @param actualCursorIndex The actual index of the cursor that hits the hitobject.
      * @param occurrenceIndex The occurrence index of the cursor that hits the hitobject.
-     * @param sliderCheesed If this is a slider, whether the slider was cheesed.
      */
     constructor(
         object: DifficultyHitObject | RebalanceDifficultyHitObject,
         acceptedCursorIndex: number,
         actualCursorIndex: number,
-        occurrenceIndex: number,
-        sliderCheesed: boolean
+        occurrenceIndex: number
     ) {
         this.object = object;
         this.acceptedCursorIndex = acceptedCursorIndex;
         this.actualCursorIndex = actualCursorIndex;
         this.occurrenceIndex = occurrenceIndex;
-        this.sliderCheesed = sliderCheesed;
     }
 }

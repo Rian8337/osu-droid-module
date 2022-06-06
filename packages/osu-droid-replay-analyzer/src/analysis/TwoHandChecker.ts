@@ -288,7 +288,7 @@ export class TwoHandChecker {
             object.object instanceof Spinner ||
             data.result === hitResult.RESULT_0
         ) {
-            return new IndexedHitObject(object, -1, -1, -1, false);
+            return new IndexedHitObject(object, -1, -1, -1);
         }
 
         const isPrecise: boolean = this.data.convertedMods.some(
@@ -613,8 +613,7 @@ export class TwoHandChecker {
             object,
             acceptedCursorInformation?.acceptedCursorIndex ?? -1,
             acceptedCursorInformation?.actualCursorIndex ?? -1,
-            acceptedCursorInformation?.occurrenceIndex ?? -1,
-            false
+            acceptedCursorInformation?.occurrenceIndex ?? -1
         );
     }
 
