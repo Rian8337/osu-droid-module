@@ -38,7 +38,7 @@ export class BeatmapEventsEncoder extends BeatmapBaseEncoder {
                 new StoryboardEncoder(
                     this.map.events.storyboard,
                     false
-                ).encode()
+                ).encode().result
             );
         } else {
             this.writeLine("//Storyboard Layer 0 (Background)");

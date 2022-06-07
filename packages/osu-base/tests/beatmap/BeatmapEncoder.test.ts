@@ -20,7 +20,7 @@ beforeAll(async () => {
     originalBeatmap = new BeatmapDecoder().decode(data).result;
 
     parsedBeatmap = new BeatmapDecoder().decode(
-        new BeatmapEncoder(originalBeatmap).encode()
+        new BeatmapEncoder(originalBeatmap).encode().result
     ).result;
 });
 

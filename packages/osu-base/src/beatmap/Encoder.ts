@@ -15,10 +15,20 @@ export abstract class Encoder<T, E extends BaseEncoder> {
     protected finalResult: string = "";
 
     /**
+     * The result of the encoding process.
+     */
+    get result(): string {
+        return this.finalResult;
+    }
+
+    /**
      * Available per-section encoders.
      */
     protected abstract encoders: E[];
 
+    /**
+     * @param target The target of the encoding process.
+     */
     constructor(target: T) {
         this.target = target;
     }
@@ -28,12 +38,12 @@ export abstract class Encoder<T, E extends BaseEncoder> {
      *
      * Keep in mind that this will not produce the exact same file as the original decoded file.
      */
-    encode(): string {
+    encode(): this {
         this.reset();
 
         this.encodeInternal();
 
-        return this.finalResult;
+        return this;
     }
 
     /**
