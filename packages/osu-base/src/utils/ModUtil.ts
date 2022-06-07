@@ -72,9 +72,7 @@ export abstract class ModUtil {
      * Mods that change the way the map looks.
      */
     static readonly mapChangingMods: Mod[] = [
-        new ModDoubleTime(),
-        new ModNightCore(),
-        new ModHalfTime(),
+        ...this.speedChangingMods,
         new ModEasy(),
         new ModHardRock(),
         new ModSmallCircle(),
