@@ -12,23 +12,26 @@ abstract class HitWindow {
     }
 
     /**
-     * Gets the threshold for 300 (great) hit result.
+     * Gets the hit window for 300 (great) hit result.
      *
-     * @param isPrecise Whether or not to calculate for Precise mod. This is only available for `DroidHitWindow`.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The hit window in milliseconds.
      */
     abstract hitWindowFor300(isPrecise?: boolean): number;
 
     /**
-     * Gets the threshold for 100 (good) hit result.
+     * Gets the hit window for 100 (good) hit result.
      *
-     * @param isPrecise Whether or not to calculate for Precise mod. This is only available for `DroidHitWindow`.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The hit window in milliseconds.
      */
     abstract hitWindowFor100(isPrecise?: boolean): number;
 
     /**
-     * Gets the threshold for 50 (meh) hit result.
+     * Gets the hit window for 50 (meh) hit result.
      *
-     * @param isPrecise Whether or not to calculate for Precise mod. This is only available for `DroidHitWindow`.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The hit window in milliseconds.
      */
     abstract hitWindowFor50(isPrecise?: boolean): number;
 }
@@ -37,6 +40,51 @@ abstract class HitWindow {
  * Represents the hit window of osu!droid.
  */
 export class DroidHitWindow extends HitWindow {
+    /**
+     * Calculates the overall difficulty value of a great hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow300ToOD(value: number, isPrecise?: boolean): number {
+        if (isPrecise) {
+            return 5 - (value - 55) / 6;
+        } else {
+            return 5 - (value - 75) / 5;
+        }
+    }
+
+    /**
+     * Calculates the overall difficulty value of a good hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow100ToOD(value: number, isPrecise?: boolean): number {
+        if (isPrecise) {
+            return 5 - (value - 120) / 8;
+        } else {
+            return 5 - (value - 150) / 10;
+        }
+    }
+
+    /**
+     * Calculates the overall difficulty value of a meh hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @param isPrecise Whether to calculate for Precise mod.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow50ToOD(value: number, isPrecise?: boolean): number {
+        if (isPrecise) {
+            return 5 - (value - 180) / 10;
+        } else {
+            return 5 - (value - 250) / 10;
+        }
+    }
+
     override hitWindowFor300(isPrecise?: boolean): number {
         if (isPrecise) {
             return 55 + 6 * (5 - this.overallDifficulty);
@@ -66,6 +114,36 @@ export class DroidHitWindow extends HitWindow {
  * Represents the hit window of osu!standard.
  */
 export class OsuHitWindow extends HitWindow {
+    /**
+     * Calculates the overall difficulty value of a great hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow300ToOD(value: number): number {
+        return (80 - value) / 6;
+    }
+
+    /**
+     * Calculates the overall difficulty value of a good hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow100ToOD(value: number): number {
+        return (140 - value) / 8;
+    }
+
+    /**
+     * Calculates the overall difficulty value of a meh hit window.
+     *
+     * @param value The value of the hit window, in milliseconds.
+     * @returns The overall difficulty value.
+     */
+    static hitWindow50ToOD(value: number): number {
+        return (200 - value) / 10;
+    }
+
     override hitWindowFor300(): number {
         return 80 - 6 * this.overallDifficulty;
     }
