@@ -149,7 +149,7 @@ export class MapStats {
         speedMultiplier?: number;
 
         /**
-         * Whether or not force AR is turned on.
+         * Whether force AR is turned on.
          */
         isForceAR?: boolean;
     }): MapStats {
@@ -189,7 +189,7 @@ export class MapStats {
 
         switch (params?.mode ?? modes.osu) {
             case modes.droid:
-                // In droid pre-1.6.8, NC speed multiplier is assumed bugged (1.39)
+                // In droid pre-1.6.8, NC speed multiplier is assumed bugged (1.39).
                 if (
                     this.mods.some((m) => m instanceof ModNightCore) &&
                     this.oldStatistics
@@ -199,28 +199,32 @@ export class MapStats {
 
                 // CS and OD work differently in droid, therefore it
                 // needs to be computed regardless of map-changing mods
-                // and statistics multiplier
+                // and statistics multiplier.
                 if (this.od !== undefined) {
-                    // apply EZ or HR to OD
+                    // Apply EZ or HR to OD.
                     this.od = Math.min(this.od * statisticsMultiplier, 10);
 
-                    // convert original OD to droid OD
+                    // Convert original OD to droid hit window to take
+                    // droid hit window and the PR mod in mind.
                     const droidToMS: number =
                         new DroidHitWindow(this.od).hitWindowFor300(
                             this.mods.some((m) => m instanceof ModPrecise)
                         ) / this.speedMultiplier;
-                    this.od = 5 - (droidToMS - 50) / 6;
+
+                    // Convert droid hit window back to original OD.
+                    this.od = OsuHitWindow.hitWindow300ToOD(droidToMS);
                 }
 
                 // HR and EZ works differently in droid in terms of
-                // CS modification (even CS in itself as well)
+                // CS modification (even CS in itself as well).
                 //
                 // If present mods are found, they need to be removed
                 // from the bitwise enum of mods to prevent double
-                // calculation
+                // calculation.
                 if (this.cs !== undefined) {
-                    // Assume 681 is height
+                    // Assume 681 is height.
                     const assumedHeight: number = 681;
+
                     let scale: number =
                         ((assumedHeight / 480) * (54.42 - this.cs * 4.48) * 2) /
                             128 +
