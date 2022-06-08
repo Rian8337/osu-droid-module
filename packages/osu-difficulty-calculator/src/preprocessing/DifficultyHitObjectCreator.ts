@@ -1,5 +1,6 @@
 import {
     HitObject,
+    MapStats,
     modes,
     Precision,
     Slider,
@@ -69,7 +70,21 @@ export class DifficultyHitObjectCreator {
             const object: DifficultyHitObject = new DifficultyHitObject(
                 params.objects[i]
             );
+
             object.object.scale = scale;
+            object.timePreempt = params.preempt;
+
+            // Preempt time can go below 450ms. Normally, this is achieved via the DT mod or a
+            // custom speed multiplier which uniformly speeds up all animations game wide regardless of AR.
+            //
+            // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods)
+            // feel good by extending the upper linear function above.
+            //
+            // Note that this doesn't exactly match the AR>10 visuals as they're classically known, but it feels good.
+            // This adjustment is necessary for AR>10, otherwise timePreempt can become smaller
+            // leading to hitcircles not fully fading in.
+            object.timeFadeIn =
+                400 * Math.min(1, object.timePreempt / MapStats.arToMS(10));
 
             if (object.object instanceof Slider) {
                 object.velocity =
@@ -106,14 +121,24 @@ export class DifficultyHitObjectCreator {
             // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
 
-            const visibleObjects: HitObject[] = params.objects.filter(
-                (o) =>
-                    o.startTime / params.speedMultiplier > object.startTime &&
-                    o.startTime / params.speedMultiplier <=
-                        object.endTime + params.preempt!
-            );
+            if (
+                object.object instanceof Spinner ||
+                lastObject.object instanceof Spinner
+            ) {
+                difficultyObjects.push(object);
+                continue;
+            }
 
-            object.noteDensity = 1;
+            const visibleObjects: HitObject[] = params.objects
+                .filter(
+                    (o) =>
+                        o.startTime / params.speedMultiplier >=
+                            object.startTime &&
+                        o.startTime / params.speedMultiplier <=
+                            object.endTime + params.preempt!
+                )
+                // The current object will be included, so we need to exclude it.
+                .slice(1);
 
             for (const hitObject of visibleObjects) {
                 // Calculate delta time assuming the current object is a circle.
@@ -125,8 +150,8 @@ export class DifficultyHitObjectCreator {
                 // But if the current object is a slider, then we alter the delta time to account for slider end time.
                 if (object.object instanceof Slider) {
                     if (
-                        object.object.startTime >= hitObject.startTime &&
-                        object.object.endTime <= hitObject.startTime
+                        hitObject.startTime >= object.object.startTime &&
+                        hitObject.startTime <= object.object.endTime
                     ) {
                         // If the object starts when the slider is active, then the slider is technically still visible.
                         // Set delta time to 0.
@@ -168,14 +193,6 @@ export class DifficultyHitObjectCreator {
                                             75)
                                 )));
                 }
-            }
-
-            if (
-                object.object instanceof Spinner ||
-                lastObject.object instanceof Spinner
-            ) {
-                difficultyObjects.push(object);
-                continue;
             }
 
             const lastCursorPosition: Vector2 = this.getEndCursorPosition(

@@ -242,7 +242,7 @@ export abstract class PerformanceCalculator {
         }
         if (this.stars.mods.some((m) => m instanceof ModRelax)) {
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
-            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
+            // than total hits in specific scenarios (which breaks some calculations), so we need to clamp it.
             this.effectiveMissCount = Math.min(
                 this.effectiveMissCount +
                     this.computedAccuracy.n100 +

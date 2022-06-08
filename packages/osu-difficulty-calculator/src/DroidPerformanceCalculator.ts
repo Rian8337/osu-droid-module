@@ -1,5 +1,3 @@
-import { DroidStarRating } from "./DroidStarRating";
-import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import {
     Accuracy,
     MapStats,
@@ -9,6 +7,8 @@ import {
     ModScoreV2,
     ModFlashlight,
 } from "@rian8337/osu-base";
+import { DroidStarRating } from "./DroidStarRating";
+import { PerformanceCalculator } from "./base/PerformanceCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -262,11 +262,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.flashlight =
             Math.pow(Math.pow(this.stars.flashlight, 0.8), 2) * 25;
-
-        // Add an additional bonus for HDFL.
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
-            this.flashlight *= 1.3;
-        }
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;

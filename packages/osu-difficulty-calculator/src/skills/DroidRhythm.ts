@@ -35,8 +35,12 @@ export class DroidRhythm extends DroidSkill {
      * Calculates a rhythm multiplier for the difficulty of the tap associated with historic data of the current object.
      */
     private calculateRhythmBonus(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
-            return 0;
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            current.deltaTime < 5
+        ) {
+            return 1;
         }
 
         let previousIslandSize: number = 0;
@@ -50,9 +54,14 @@ export class DroidRhythm extends DroidSkill {
 
         let rhythmStart: number = 0;
 
+        // Exclude overlapping objects that can be tapped at once.
+        const validPrevious: DifficultyHitObject[] = this.previous.filter(
+            (v) => v.deltaTime >= 5
+        );
+
         while (
-            rhythmStart < this.previous.length - 2 &&
-            current.startTime - this.previous[rhythmStart].startTime <
+            rhythmStart < validPrevious.length - 2 &&
+            current.startTime - validPrevious[rhythmStart].startTime <
                 this.historyTimeMax
         ) {
             ++rhythmStart;
@@ -62,18 +71,18 @@ export class DroidRhythm extends DroidSkill {
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay: number =
                 (this.historyTimeMax -
-                    (current.startTime - this.previous[i - 1].startTime)) /
+                    (current.startTime - validPrevious[i - 1].startTime)) /
                 this.historyTimeMax;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (this.previous.length - i) / this.previous.length
+                (validPrevious.length - i) / validPrevious.length
             );
 
-            const currentDelta: number = this.previous[i - 1].strainTime;
-            const prevDelta: number = this.previous[i].strainTime;
-            const lastDelta: number = this.previous[i + 1].strainTime;
+            const currentDelta: number = validPrevious[i - 1].strainTime;
+            const prevDelta: number = validPrevious[i].strainTime;
+            const lastDelta: number = validPrevious[i + 1].strainTime;
 
             const currentRatio: number =
                 1 +
@@ -112,12 +121,12 @@ export class DroidRhythm extends DroidSkill {
                         ++islandSize;
                     }
                 } else {
-                    if (this.previous[i - 1].object instanceof Slider) {
+                    if (validPrevious[i - 1].object instanceof Slider) {
                         // BPM change is into slider, this is easy acc window.
                         effectiveRatio /= 8;
                     }
 
-                    if (this.previous[i].object instanceof Slider) {
+                    if (validPrevious[i].object instanceof Slider) {
                         // BPM change was from a slider, this is typically easier than circle -> circle.
                         effectiveRatio /= 4;
                     }

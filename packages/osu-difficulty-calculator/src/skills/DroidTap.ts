@@ -2,8 +2,8 @@ import {
     OsuHitWindow,
     Mod,
     Spinner,
-    MathUtils,
     Interpolation,
+    MathUtils,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
@@ -36,7 +36,11 @@ export class DroidTap extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            current.deltaTime < 5
+        ) {
             return 0;
         }
 
