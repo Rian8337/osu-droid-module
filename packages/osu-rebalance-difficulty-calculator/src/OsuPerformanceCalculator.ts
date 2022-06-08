@@ -273,11 +273,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
                 2
             ) * 25;
 
-        // Add an additional bonus for HDFL.
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
-            this.flashlight *= 1.3;
-        }
-
         // Combo scaling
         this.flashlight *= this.comboPenalty;
 

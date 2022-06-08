@@ -1,4 +1,4 @@
-import { Slider, Spinner } from "@rian8337/osu-base";
+import { Mod, ModHidden, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 
@@ -7,11 +7,22 @@ import { DroidSkill } from "./DroidSkill";
  */
 export class DroidFlashlight extends DroidSkill {
     protected override readonly historyLength: number = 10;
-    protected override readonly skillMultiplier: number = 0.15;
+    protected override readonly skillMultiplier: number = 0.1;
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly starsPerDouble: number = 1.05;
+
+    private readonly maxOpacityBonus: number = 0.4;
+    private readonly hiddenBonus: number = 0.2;
+
+    private readonly isHidden: boolean;
+
+    constructor(mods: Mod[]) {
+        super(mods);
+
+        this.isHidden = mods.some((m) => m instanceof ModHidden);
+    }
 
     protected strainValueOf(current: DifficultyHitObject): number {
         if (
@@ -71,12 +82,27 @@ export class DroidFlashlight extends DroidSkill {
                     currentObject.lazyJumpDistance / scalingFactor / 25
                 );
 
+                // Bonus based on how visible the object is.
+                const opacityBonus: number =
+                    1 +
+                    this.maxOpacityBonus *
+                        (1.0 -
+                            current.opacityAt(
+                                currentObject.startTime,
+                                this.isHidden
+                            ));
+
                 result +=
-                    (stackNerf * scalingFactor * jumpDistance) /
+                    (stackNerf * opacityBonus * scalingFactor * jumpDistance) /
                     cumulativeStrainTime;
             }
 
             last = currentObject;
+        }
+
+        // Additional bonus for Hidden due to there being no approach circles.
+        if (this.isHidden) {
+            result *= 1 + this.hiddenBonus;
         }
 
         return Math.pow(smallDistNerf * result, 2);
