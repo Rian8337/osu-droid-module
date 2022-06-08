@@ -128,7 +128,7 @@ export class DifficultyHitObject {
     /**
      * The note density of the hitobject.
      */
-    noteDensity: number = 0;
+    noteDensity: number = 1;
 
     /**
      * The overlapping factor of the hitobject.

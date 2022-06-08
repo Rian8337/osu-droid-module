@@ -121,6 +121,14 @@ export class DifficultyHitObjectCreator {
             // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
 
+            if (
+                object.object instanceof Spinner ||
+                lastObject.object instanceof Spinner
+            ) {
+                difficultyObjects.push(object);
+                continue;
+            }
+
             const visibleObjects: HitObject[] = params.objects
                 .filter(
                     (o) =>
@@ -131,16 +139,6 @@ export class DifficultyHitObjectCreator {
                 )
                 // The current object will be included, so we need to exclude it.
                 .slice(1);
-
-            object.noteDensity = 1;
-
-            if (
-                object.object instanceof Spinner ||
-                lastObject.object instanceof Spinner
-            ) {
-                difficultyObjects.push(object);
-                continue;
-            }
 
             for (const hitObject of visibleObjects) {
                 // Calculate delta time assuming the current object is a circle.
