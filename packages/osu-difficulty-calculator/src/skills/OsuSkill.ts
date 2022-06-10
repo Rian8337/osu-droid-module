@@ -19,9 +19,7 @@ export abstract class OsuSkill extends StrainSkill {
     override difficultyValue(): number {
         const sortedStrains: number[] = this.strainPeaks
             .slice()
-            .sort((a, b) => {
-                return b - a;
-            });
+            .sort((a, b) => b - a);
 
         // We are reducing the highest strains first to account for extreme difficulty spikes.
         for (
@@ -46,9 +44,7 @@ export abstract class OsuSkill extends StrainSkill {
 
         // Difficulty is the weighted sum of the highest strains from every section.
         // We're sorting from highest to lowest strain.
-        sortedStrains.sort((a, b) => {
-            return b - a;
-        });
+        sortedStrains.sort((a, b) => b - a);
 
         let difficulty: number = 0;
         let weight: number = 1;

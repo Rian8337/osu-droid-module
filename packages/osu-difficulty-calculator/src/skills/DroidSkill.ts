@@ -14,9 +14,7 @@ export abstract class DroidSkill extends StrainSkill {
     override difficultyValue(): number {
         const sortedStrains: number[] = this.strainPeaks
             .slice()
-            .sort((a, b) => {
-                return b - a;
-            });
+            .sort((a, b) => b - a);
 
         // We are reducing the highest strains first to account for extreme difficulty spikes.
         for (

@@ -227,9 +227,7 @@ export class Slider extends HitObject {
 
         this.nestedHitObjects.push(this.tail);
 
-        this.nestedHitObjects.sort((a, b) => {
-            return a.startTime - b.startTime;
-        });
+        this.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
     }
 
     override toString(): string {

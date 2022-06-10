@@ -281,9 +281,7 @@ export class DifficultyHitObjectCreator {
             slider.tail.startTime += Slider.legacyLastTickOffset;
             slider.tail.endTime += Slider.legacyLastTickOffset;
 
-            slider.nestedHitObjects.sort((a, b) => {
-                return a.startTime - b.startTime;
-            });
+            slider.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
 
             // Temporary lazy end position until a real result can be derived.
             slider.lazyEndPosition = slider.stackedPosition;

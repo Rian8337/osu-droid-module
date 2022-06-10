@@ -943,9 +943,7 @@ export class ThreeFingerChecker {
             // Sort by highest count; assume the order is 3rd, 4th, 5th, ... finger
             const validPresses: CursorVectorSimilarity[] = similarPresses
                 .filter((v) => v.count >= this.cursorDistancingCountThreshold)
-                .sort((a, b) => {
-                    return b.count - a.count;
-                })
+                .sort((a, b) => b.count - a.count)
                 .slice(2);
 
             // Ignore cursor presses that are only 1 for now since they are very likely to be accidental
