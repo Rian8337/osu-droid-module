@@ -44,18 +44,20 @@ export class DroidTap extends DroidSkill {
             return 0;
         }
 
+        const prev: DifficultyHitObject | null = current.previous(0);
+
         let strainTime: number = current.strainTime;
 
         const greatWindowFull: number = this.hitWindow.hitWindowFor300() * 2;
 
         // Aim to nerf cheesy rhythms (very fast consecutive doubles with large deltatimes between).
         if (
-            this.previous[0] &&
+            prev &&
             strainTime < greatWindowFull &&
-            this.previous[0].strainTime > strainTime
+            prev.strainTime > strainTime
         ) {
             strainTime = Interpolation.lerp(
-                this.previous[0].strainTime,
+                prev.strainTime,
                 strainTime,
                 strainTime / greatWindowFull
             );

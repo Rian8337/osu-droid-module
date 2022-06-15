@@ -6,7 +6,6 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
 export class DroidRhythm extends DroidSkill {
-    protected override readonly historyLength: number = 32;
     protected override readonly skillMultiplier: number = 1;
     protected override readonly reducedSectionCount: number = 5;
     protected override readonly reducedSectionBaseline: number = 0.75;
@@ -54,10 +53,22 @@ export class DroidRhythm extends DroidSkill {
 
         let rhythmStart: number = 0;
 
+        const historicalNoteCount: number = Math.min(current.index, 32);
+
         // Exclude overlapping objects that can be tapped at once.
-        const validPrevious: DifficultyHitObject[] = this.previous.filter(
-            (v) => v.deltaTime >= 5
-        );
+        const validPrevious: DifficultyHitObject[] = [];
+
+        for (let i = 0; i < historicalNoteCount; ++i) {
+            const object: DifficultyHitObject | null = current.previous(i);
+
+            if (!object) {
+                break;
+            }
+
+            if (object.deltaTime >= 5) {
+                validPrevious.push(object);
+            }
+        }
 
         while (
             rhythmStart < validPrevious.length - 2 &&

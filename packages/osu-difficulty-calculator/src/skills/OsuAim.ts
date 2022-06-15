@@ -30,16 +30,17 @@ export class OsuAim extends OsuSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
+        const last: DifficultyHitObject | null = current.previous(0)!;
+
         if (
             current.object instanceof Spinner ||
-            this.previous.length <= 1 ||
-            this.previous[0].object instanceof Spinner
+            current.index <= 1 ||
+            last?.object instanceof Spinner
         ) {
             return 0;
         }
 
-        const last: DifficultyHitObject = this.previous[0];
-        const lastLast: DifficultyHitObject = this.previous[1];
+        const lastLast: DifficultyHitObject = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity: number =
@@ -257,7 +258,11 @@ export class OsuAim extends OsuSkill {
      * @param current The hitobject to save to.
      */
     protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.aimStrainWithSliders = this.currentStrain;
+        if (this.withSliders) {
+            current.aimStrainWithSliders = this.currentStrain;
+        } else {
+            current.aimStrainWithoutSliders = this.currentStrain;
+        }
     }
 
     /**

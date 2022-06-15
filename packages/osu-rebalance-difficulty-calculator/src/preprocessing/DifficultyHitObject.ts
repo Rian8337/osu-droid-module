@@ -10,6 +10,13 @@ export class DifficultyHitObject {
     readonly object: HitObject;
 
     /**
+     * The index of this hitobject in the list of all hitobjects.
+     *
+     * This is one less than the actual index of the hitobject in the beatmap.
+     */
+    index: number = 0;
+
+    /**
      * The preempt time of the hitobject.
      */
     timePreempt: number = 600;
@@ -142,11 +149,43 @@ export class DifficultyHitObject {
      */
     velocity: number = 0;
 
+    private readonly hitObjects: DifficultyHitObject[];
+
     /**
      * @param object The underlying hitobject.
+     * @param hitObjects All difficulty hitobjects in the processed beatmap.
      */
-    constructor(object: HitObject) {
+    constructor(object: HitObject, hitObjects: DifficultyHitObject[]) {
         this.object = object;
+        this.hitObjects = hitObjects;
+    }
+
+    /**
+     * Gets the difficulty hitobject at a specific index with respect to the current
+     * difficulty hitobject's index.
+     *
+     * Will return `null` if the index is out of range.
+     *
+     * @param backwardsIndex The index to move backwards for.
+     * @returns The difficulty hitobject at the index with respect to the current
+     * difficulty hitobject's index, `null` if the index is out of range.
+     */
+    previous(backwardsIndex: number): DifficultyHitObject | null {
+        return this.hitObjects[this.index - backwardsIndex] ?? null;
+    }
+
+    /**
+     * Gets the difficulty hitobject at a specific index with respect to the current
+     * difficulty hitobject's index.
+     *
+     * Will return `null` if the index is out of range.
+     *
+     * @param forwardsIndex The index to move forwards for.
+     * @returns The difficulty hitobject at the index with respect to the current
+     * difficulty hitobject's index, `null` if the index is out of range.
+     */
+    next(forwardsIndex: number): DifficultyHitObject | null {
+        return this.hitObjects[this.index + forwardsIndex + 2] ?? null;
     }
 
     /**

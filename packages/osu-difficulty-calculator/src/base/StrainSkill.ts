@@ -44,29 +44,34 @@ export abstract class StrainSkill extends Skill {
      */
     protected abstract readonly strainDecayBase: number;
 
-    protected readonly sectionLength: number = 400;
+    private readonly sectionLength: number = 400;
 
-    protected currentSectionEnd: number = 0;
+    private currentSectionEnd: number = 0;
+
+    private isFirstObject: boolean = true;
 
     /**
      * Calculates the strain value of a hitobject and stores the value in it. This value is affected by previously processed objects.
      *
      * @param current The hitobject to process.
      */
-    protected override process(current: DifficultyHitObject): void {
+    override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
-        if (this.previous.length === 0) {
+        if (this.isFirstObject) {
             this.currentSectionEnd =
                 Math.ceil(current.startTime / this.sectionLength) *
                 this.sectionLength;
+
+            this.isFirstObject = false;
         }
 
         while (current.startTime > this.currentSectionEnd) {
             this.saveCurrentPeak();
-            this.startNewSectionFrom(this.currentSectionEnd);
+            this.startNewSectionFrom(this.currentSectionEnd, current);
             this.currentSectionEnd += this.sectionLength;
         }
 
+        // Ignore the first hitobject.
         this.currentStrain = this.strainValueAt(current);
 
         this.saveToHitObject(current);
@@ -82,19 +87,6 @@ export abstract class StrainSkill extends Skill {
      */
     saveCurrentPeak(): void {
         this.strainPeaks.push(this.currentSectionPeak);
-    }
-
-    /**
-     * Sets the initial strain level for a new section.
-     *
-     * @param offset The beginning of the new section in milliseconds, adjusted by speed multiplier.
-     */
-    protected startNewSectionFrom(offset: number): void {
-        // The maximum strain of the new section is not zero by default, strain decays as usual regardless of section boundaries.
-        // This means we need to capture the strain level at the beginning of the new section, and use that as the initial peak level.
-        this.currentSectionPeak =
-            this.currentStrain *
-            this.strainDecay(offset - this.previous[0].startTime);
     }
 
     /**
@@ -115,4 +107,21 @@ export abstract class StrainSkill extends Skill {
      * Saves the current strain to a hitobject.
      */
     protected abstract saveToHitObject(current: DifficultyHitObject): void;
+
+    /**
+     * Sets the initial strain level for a new section.
+     *
+     * @param offset The beginning of the new section in milliseconds, adjusted by speed multiplier.
+     * @param current The current hitobject.
+     */
+    private startNewSectionFrom(
+        offset: number,
+        current: DifficultyHitObject
+    ): void {
+        // The maximum strain of the new section is not zero by default, strain decays as usual regardless of section boundaries.
+        // This means we need to capture the strain level at the beginning of the new section, and use that as the initial peak level.
+        this.currentSectionPeak =
+            this.currentStrain *
+            this.strainDecay(offset - current.previous(0)!.startTime);
+    }
 }

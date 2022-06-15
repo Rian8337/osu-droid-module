@@ -68,9 +68,11 @@ export class DifficultyHitObjectCreator {
 
         for (let i = 0; i < params.objects.length; ++i) {
             const object: DifficultyHitObject = new DifficultyHitObject(
-                params.objects[i]
+                params.objects[i],
+                difficultyObjects
             );
 
+            object.index = difficultyObjects.length - 1;
             object.object.scale = scale;
             object.timePreempt = params.preempt;
 

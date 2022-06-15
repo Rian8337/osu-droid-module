@@ -37,22 +37,24 @@ export class DroidAim extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
+        const last: DifficultyHitObject | null = current.previous(0);
+
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
             (current.deltaTime < 5 &&
-                (this.previous[0]?.object instanceof Slider
+                ((last?.object instanceof Slider
                     ? Math.min(
-                          this.previous[0].object.stackedEndPosition.getDistance(
+                          last.object.stackedEndPosition.getDistance(
                               current.object.stackedPosition
                           ),
-                          this.previous[0].object.lazyEndPosition!.getDistance(
+                          last.object.lazyEndPosition!.getDistance(
                               current.object.stackedPosition
                           )
                       )
-                    : this.previous[0]?.object.stackedEndPosition.getDistance(
+                    : last?.object.stackedEndPosition.getDistance(
                           current.object.stackedPosition
-                      )) <=
+                      )) ?? Number.POSITIVE_INFINITY) <=
                     2 * current.object.radius)
         ) {
             return 0;
@@ -66,14 +68,14 @@ export class DroidAim extends DroidSkill {
      */
     private aimStrainOf(current: DifficultyHitObject): number {
         if (
-            this.previous.length <= 1 ||
-            this.previous[0].object instanceof Spinner
+            current.index <= 1 ||
+            current.previous(0)?.object instanceof Spinner
         ) {
             return 0;
         }
 
-        const last: DifficultyHitObject = this.previous[0];
-        const lastLast: DifficultyHitObject = this.previous[1];
+        const last: DifficultyHitObject = current.previous(0)!;
+        const lastLast: DifficultyHitObject = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity: number =
@@ -292,7 +294,7 @@ export class DroidAim extends DroidSkill {
                 Math.pow((this.minSpeedBonus - current.strainTime) / 45, 2);
         }
 
-        const travelDistance: number = this.previous[0]?.travelDistance ?? 0;
+        const travelDistance: number = current.previous(0)?.travelDistance ?? 0;
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
             travelDistance + current.minimumJumpDistance

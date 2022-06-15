@@ -6,7 +6,6 @@ import { OsuSkill } from "./OsuSkill";
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class OsuFlashlight extends OsuSkill {
-    protected override readonly historyLength: number = 10;
     protected override readonly skillMultiplier: number = 0.15;
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 10;
@@ -27,8 +26,8 @@ export class OsuFlashlight extends OsuSkill {
 
         let result: number = 0;
 
-        for (let i = 0; i < this.previous.length; ++i) {
-            const previous: DifficultyHitObject = this.previous[i];
+        for (let i = 0; i < Math.min(current.index, 10); ++i) {
+            const previous: DifficultyHitObject = current.previous(i)!;
 
             if (previous.object instanceof Spinner) {
                 continue;

@@ -6,7 +6,6 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to read every object in the map.
  */
 export class DroidVisual extends DroidSkill {
-    protected override readonly historyLength: number = 4;
     protected override readonly starsPerDouble: number = 1.025;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
@@ -27,22 +26,24 @@ export class DroidVisual extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected strainValueOf(current: DifficultyHitObject): number {
+        const last: DifficultyHitObject | null = current.previous(0);
+
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
             (current.deltaTime < 5 &&
-                (this.previous[0]?.object instanceof Slider
+                ((last?.object instanceof Slider
                     ? Math.min(
-                          this.previous[0].object.stackedEndPosition.getDistance(
+                          last.object.stackedEndPosition.getDistance(
                               current.object.stackedPosition
                           ),
-                          this.previous[0].object.lazyEndPosition!.getDistance(
+                          last.object.lazyEndPosition!.getDistance(
                               current.object.stackedPosition
                           )
                       )
-                    : this.previous[0]?.object.stackedEndPosition.getDistance(
+                    : last?.object.stackedEndPosition.getDistance(
                           current.object.stackedPosition
-                      )) <=
+                      )) ?? Number.POSITIVE_INFINITY) <=
                     2 * current.object.radius)
         ) {
             return 0;
@@ -80,8 +81,8 @@ export class DroidVisual extends DroidSkill {
             let cumulativeStrainTime: number = 0;
 
             // Reward for velocity changes based on last few sliders.
-            for (let i = 0; i < this.previous.length; ++i) {
-                const last: DifficultyHitObject = this.previous[i];
+            for (let i = 0; i < Math.min(current.index, 4); ++i) {
+                const last: DifficultyHitObject = current.previous(i)!;
 
                 cumulativeStrainTime += last.strainTime;
 

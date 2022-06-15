@@ -6,18 +6,6 @@ import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
  */
 export abstract class Skill {
     /**
-     * The hitobjects that were processed previously. They can affect the strain values of the following objects.
-     *
-     * The latest hitobject is at index 0.
-     */
-    protected readonly previous: DifficultyHitObject[] = [];
-
-    /**
-     * Number of previous hitobjects to keep inside the `previous` array.
-     */
-    protected readonly historyLength: number = 2;
-
-    /**
      * The mods that this skill processes.
      */
     protected readonly mods: Mod[];
@@ -26,23 +14,13 @@ export abstract class Skill {
         this.mods = mods;
     }
 
-    processInternal(current: DifficultyHitObject): void {
-        while (this.previous.length > this.historyLength) {
-            this.previous.pop();
-        }
-
-        this.process(current);
-
-        this.previous.unshift(current);
-    }
-
     /**
      * Calculates the strain value of a hitobject and stores the value in it.
      * This value is affected by previously processed objects.
      *
      * @param current The hitobject to process.
      */
-    protected abstract process(current: DifficultyHitObject): void;
+    abstract process(current: DifficultyHitObject): void;
 
     /**
      * Returns the calculated difficulty value representing all hitobjects that have been processed up to this point.

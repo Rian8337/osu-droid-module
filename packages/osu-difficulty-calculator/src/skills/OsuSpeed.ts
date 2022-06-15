@@ -17,7 +17,6 @@ export class OsuSpeed extends OsuSkill {
      */
     private readonly SINGLE_SPACING_THRESHOLD: number = 125;
 
-    protected override readonly historyLength: number = 32;
     protected override readonly skillMultiplier: number = 1375;
     protected override readonly strainDecayBase: number = 0.3;
     protected override readonly reducedSectionCount: number = 5;
@@ -49,6 +48,8 @@ export class OsuSpeed extends OsuSkill {
             return 0;
         }
 
+        const prev: DifficultyHitObject | null = current.previous(0);
+
         let strainTime: number = current.strainTime;
 
         const greatWindowFull: number = this.greatWindow * 2;
@@ -56,12 +57,12 @@ export class OsuSpeed extends OsuSkill {
 
         // Aim to nerf cheesy rhythms (very fast consecutive doubles with large deltatimes between).
         if (
-            this.previous[0] &&
+            prev &&
             strainTime < greatWindowFull &&
-            this.previous[0].strainTime > strainTime
+            prev.strainTime > strainTime
         ) {
             strainTime = Interpolation.lerp(
-                this.previous[0].strainTime,
+                prev.strainTime,
                 strainTime,
                 speedWindowRatio
             );
@@ -81,7 +82,7 @@ export class OsuSpeed extends OsuSkill {
                 0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
         }
 
-        const travelDistance: number = this.previous[0]?.travelDistance ?? 0;
+        const travelDistance: number = prev?.travelDistance ?? 0;
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
             travelDistance + current.lazyJumpDistance
@@ -125,32 +126,38 @@ export class OsuSpeed extends OsuSkill {
 
         let firstDeltaSwitch: boolean = false;
 
+        const historicalNoteCount: number = Math.min(current.index, 32);
+
         let rhythmStart: number = 0;
 
         while (
-            rhythmStart < this.previous.length - 2 &&
-            current.startTime - this.previous[rhythmStart].startTime <
+            rhythmStart < historicalNoteCount - 2 &&
+            current.startTime - current.previous(rhythmStart)!.startTime <
                 this.historyTimeMax
         ) {
             ++rhythmStart;
         }
 
         for (let i = rhythmStart; i > 0; --i) {
+            const currentObject: DifficultyHitObject = current.previous(i - 1)!;
+            const prevObject: DifficultyHitObject = current.previous(i)!;
+            const lastObject: DifficultyHitObject = current.previous(i + 1)!;
+
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay: number =
                 (this.historyTimeMax -
-                    (current.startTime - this.previous[i - 1].startTime)) /
+                    (current.startTime - currentObject.startTime)) /
                 this.historyTimeMax;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (this.previous.length - i) / this.previous.length
+                (historicalNoteCount - i) / historicalNoteCount
             );
 
-            const currentDelta: number = this.previous[i - 1].strainTime;
-            const prevDelta: number = this.previous[i].strainTime;
-            const lastDelta: number = this.previous[i + 1].strainTime;
+            const currentDelta: number = currentObject.strainTime;
+            const prevDelta: number = prevObject.strainTime;
+            const lastDelta: number = lastObject.strainTime;
 
             const currentRatio: number =
                 1 +
@@ -188,12 +195,12 @@ export class OsuSpeed extends OsuSkill {
                         ++islandSize;
                     }
                 } else {
-                    if (this.previous[i - 1].object instanceof Slider) {
+                    if (currentObject.object instanceof Slider) {
                         // BPM change is into slider, this is easy acc window.
                         effectiveRatio /= 8;
                     }
 
-                    if (this.previous[i].object instanceof Slider) {
+                    if (prevObject.object instanceof Slider) {
                         // BPM change was from a slider, this is typically easier than circle -> circle.
                         effectiveRatio /= 4;
                     }

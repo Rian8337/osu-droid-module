@@ -156,7 +156,7 @@ export abstract class StarRating {
     protected calculateSkills(...skills: StrainSkill[]): void {
         this.objects.slice(1).forEach((h, i) => {
             skills.forEach((skill) => {
-                skill.processInternal(h);
+                skill.process(h);
 
                 if (i === this.objects.length - 2) {
                     // Don't forget to save the last strain peak, which would otherwise be ignored.
