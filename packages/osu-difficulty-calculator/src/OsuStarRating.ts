@@ -1,8 +1,8 @@
-import { OsuAim } from "./skills/OsuAim";
-import { OsuSpeed } from "./skills/OsuSpeed";
+import { OsuAim } from "./skills/osu/OsuAim";
+import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { StarRating } from "./base/StarRating";
-import { OsuSkill } from "./skills/OsuSkill";
-import { OsuFlashlight } from "./skills/OsuFlashlight";
+import { OsuSkill } from "./skills/osu/OsuSkill";
+import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
     Beatmap,
     Mod,

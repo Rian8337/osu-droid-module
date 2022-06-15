@@ -1,8 +1,10 @@
-import { DroidAim } from "./skills/DroidAim";
-import { DroidTap } from "./skills/DroidTap";
+import { DroidAim } from "./skills/droid/DroidAim";
+import { DroidTap } from "./skills/droid/DroidTap";
 import { StarRating } from "./base/StarRating";
-import { DroidSkill } from "./skills/DroidSkill";
-import { DroidFlashlight } from "./skills/DroidFlashlight";
+import { DroidSkill } from "./skills/droid/DroidSkill";
+import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
+import { DroidRhythm } from "./skills/droid/DroidRhythm";
+import { DroidVisual } from "./skills/droid/DroidVisual";
 import {
     Beatmap,
     Mod,
@@ -11,8 +13,6 @@ import {
     ModRelax,
     ModFlashlight,
 } from "@rian8337/osu-base";
-import { DroidRhythm } from "./skills/DroidRhythm";
-import { DroidVisual } from "./skills/DroidVisual";
 
 /**
  * Difficulty calculator for osu!droid gamemode.
@@ -149,10 +149,7 @@ export class DroidStarRating extends StarRating {
      * Calculates the visual star rating of the beatmap and stores it in this instance.
      */
     calculateVisual(): void {
-        const visualSkill: DroidVisual = new DroidVisual(
-            this.mods,
-            MapStats.arToMS(this.stats.ar!)
-        );
+        const visualSkill: DroidVisual = new DroidVisual(this.mods);
 
         this.calculateSkills(visualSkill);
 
@@ -252,7 +249,7 @@ export class DroidStarRating extends StarRating {
             new DroidRhythm(this.mods, this.stats.od!),
             new DroidTap(this.mods, this.stats.od!),
             new DroidFlashlight(this.mods),
-            new DroidVisual(this.mods, MapStats.arToMS(this.stats.ar!)),
+            new DroidVisual(this.mods),
         ];
     }
 
