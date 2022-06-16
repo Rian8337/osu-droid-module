@@ -80,29 +80,32 @@ export class Player {
     readonly recentPlays: Score[] = [];
 
     /**
-     * Retrieves a player's info based on uid or username.
+     * Retrieves a player's info based on their uid.
      *
-     * Either uid or username must be specified.
+     * @param uid The uid of the player.
+     * @returns The player, `null` if the player is not found.
      */
-    static async getInformation(params: {
-        uid?: number;
-        username?: string;
-    }): Promise<Player> {
-        const player: Player = new Player();
-        const uid = params.uid;
-        const username = params.username;
+    static async getInformation(uid: number): Promise<Player | null>;
 
-        if (!uid && !username) {
-            throw new Error("Uid must be integer or enter username");
-        }
+    /**
+     * Retrieves a player's info based on their username.
+     *
+     * @param username The username of the player.
+     * @returns The player, `null` if the player is not found.
+     */
+    static async getInformation(username: string): Promise<Player | null>;
+    static async getInformation(
+        uidOrUsername: string | number
+    ): Promise<Player | null> {
+        const player: Player = new Player();
 
         const apiRequestBuilder: DroidAPIRequestBuilder =
-            new DroidAPIRequestBuilder().setEndpoint("getuserinfo.php");
-        if (uid) {
-            apiRequestBuilder.addParameter("uid", uid);
-        } else if (username) {
-            apiRequestBuilder.addParameter("username", username);
-        }
+            new DroidAPIRequestBuilder()
+                .setEndpoint("getuserinfo.php")
+                .addParameter(
+                    typeof uidOrUsername === "number" ? "uid" : "username",
+                    uidOrUsername
+                );
 
         const result: RequestResponse = await apiRequestBuilder.sendRequest();
         if (result.statusCode !== 200) {
@@ -114,7 +117,7 @@ export class Player {
         const headerRes: string[] = resArr[0].split(" ");
 
         if (headerRes[0] === "FAILED") {
-            return player;
+            return null;
         }
 
         player.fillInformation(data);

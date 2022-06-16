@@ -172,28 +172,14 @@ export class Score {
     }
 
     /**
-     * Retrieves play information.
+     * Retrieves score information on a beatmap from a player.
      *
-     * @param params Function parameters.
+     * @param uid The uid of the player.
+     * @param hash The MD5 hash of the beatmap.
+     * @returns The score, `null` if the score is not found.
      */
-    static async getFromHash(params: {
-        /**
-         * The uid of the player.
-         */
-        uid: number;
-
-        /**
-         * The MD5 hash to retrieve.
-         */
-        hash: string;
-    }): Promise<Score> {
+    static async getFromHash(uid: number, hash: string): Promise<Score | null> {
         const score = new Score();
-        const uid: number = (score.uid = params.uid);
-        const hash: string = (score.hash = params.hash);
-
-        if (!uid || !hash) {
-            throw new Error("Uid and hash must be specified");
-        }
 
         const apiRequestBuilder: DroidAPIRequestBuilder =
             new DroidAPIRequestBuilder()
@@ -202,6 +188,7 @@ export class Score {
                 .addParameter("hash", hash);
 
         const result: RequestResponse = await apiRequestBuilder.sendRequest();
+
         if (result.statusCode !== 200) {
             throw new Error("Error retrieving score data");
         }
@@ -211,7 +198,7 @@ export class Score {
         entry.shift();
 
         if (entry.length === 0) {
-            return score;
+            return null;
         }
 
         score.fillInformation(entry[0]);
