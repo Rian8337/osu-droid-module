@@ -222,7 +222,9 @@ export class ThreeFingerChecker {
 
         const strainNotes:
             | DifficultyHitObject[]
+            //@ts-expect-error: No overloads match, but this is fine.
             | RebalanceDifficultyHitObject[] = map.objects.filter(
+            //@ts-expect-error: No overloads match, but this is fine.
             (v) => v.originalTapStrain >= ThreeFingerChecker.strainThreshold
         );
         this.strainNoteCount = strainNotes.length;
@@ -963,7 +965,9 @@ export class ThreeFingerChecker {
                             beatmapSection.firstObjectIndex,
                             beatmapSection.lastObjectIndex
                         )
+                        //@ts-expect-error: No overloads match, but this is fine.
                         .reduce(
+                            //@ts-expect-error: No overloads match, but this is fine.
                             (acc, value) =>
                                 acc +
                                 value.originalTapStrain /
