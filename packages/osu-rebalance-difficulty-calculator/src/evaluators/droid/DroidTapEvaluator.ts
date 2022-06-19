@@ -1,4 +1,4 @@
-import { Spinner, Interpolation, MathUtils } from "@rian8337/osu-base";
+import { Spinner, MathUtils } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
@@ -30,24 +30,29 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             return 0;
         }
 
-        const prev: DifficultyHitObject | null = current.previous(0);
-
         let strainTime: number = current.strainTime;
+        let doubletapness: number = 1;
 
         if (considerCheesability) {
             const greatWindowFull: number = greatWindow * 2;
 
-            // Aim to nerf cheesy rhythms (very fast consecutive doubles with large deltatimes between).
-            if (
-                prev &&
-                strainTime < greatWindowFull &&
-                prev.strainTime > strainTime
-            ) {
-                strainTime = Interpolation.lerp(
-                    prev.strainTime,
-                    strainTime,
-                    strainTime / greatWindowFull
+            // Nerf doubletappable doubles.
+            const next: DifficultyHitObject | null = current.next(0);
+
+            if (next) {
+                const currentDeltaTime: number = Math.max(1, current.deltaTime);
+                const nextDeltaTime: number = Math.max(1, next.deltaTime);
+                const deltaDifference: number = Math.abs(
+                    nextDeltaTime - currentDeltaTime
                 );
+                const speedRatio: number =
+                    currentDeltaTime /
+                    Math.max(currentDeltaTime, deltaDifference);
+                const windowRatio: number = Math.pow(
+                    Math.min(1, currentDeltaTime / greatWindowFull),
+                    2
+                );
+                doubletapness = Math.pow(speedRatio, 1 - windowRatio);
             }
 
             // Cap deltatime to the OD 300 hitwindow.
@@ -66,6 +71,6 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
                 0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
         }
 
-        return speedBonus / strainTime;
+        return (speedBonus * doubletapness) / strainTime;
     }
 }

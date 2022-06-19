@@ -33,7 +33,7 @@ export class OsuSpeed extends OsuSkill {
      * @param current The hitobject to calculate.
      */
     protected override strainValueAt(current: DifficultyHitObject): number {
-        this.currentSpeedStrain *= this.strainDecay(current.deltaTime);
+        this.currentSpeedStrain *= this.strainDecay(current.strainTime);
         this.currentSpeedStrain +=
             OsuSpeedEvaluator.evaluateDifficultyOf(current, this.greatWindow) *
             this.skillMultiplier;

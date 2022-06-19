@@ -128,11 +128,11 @@ test("Test difficulty calculation sample beatmap 1", async () => {
         {
             noModDroidRating: {
                 aim: 1.8308299909593841,
-                tap: 1.5133006978671943,
+                tap: 1.5497945474185437,
                 rhythm: 0.8968106940174971,
                 flashlight: 0.3355925402880838,
                 visual: 1.0903181224402754,
-                total: 3.9124272339974953,
+                total: 3.9302232175689453,
             },
             noModPcRating: {
                 aim: 2.380333686066187,
@@ -142,11 +142,11 @@ test("Test difficulty calculation sample beatmap 1", async () => {
             },
             clockRateDroidRating: {
                 aim: 2.5921923424607254,
-                tap: 2.1998871190827574,
+                tap: 2.3102480749491616,
                 rhythm: 1.1531543860309408,
                 flashlight: 0.6218943593677079,
                 visual: 1.322509945546154,
-                total: 5.132031721075731,
+                total: 5.202339559363068,
             },
             clockRatePcRating: {
                 aim: 3.26222073103768,
@@ -162,11 +162,11 @@ test("Test difficulty calculation sample beatmap 2", async () => {
     await testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noModDroidRating: {
             aim: 0.9270619986405371,
-            tap: 1.0130903153652016,
+            tap: 1.0140356501239922,
             rhythm: 0.6495128587880415,
             flashlight: 0.15087366486668538,
             visual: 0.9917812215811896,
-            total: 3.11194588764068,
+            total: 3.1123070319337782,
         },
         noModPcRating: {
             aim: 1.2853681936311694,
@@ -176,11 +176,11 @@ test("Test difficulty calculation sample beatmap 2", async () => {
         },
         clockRateDroidRating: {
             aim: 1.2443608411982154,
-            tap: 1.4435941001796837,
+            tap: 1.4452976582255084,
             rhythm: 0.8684716374159668,
             flashlight: 0.28195291970596936,
             visual: 1.164948800282345,
-            total: 3.6495658854823554,
+            total: 3.6504063316578614,
         },
         clockRatePcRating: {
             aim: 1.7277106868093492,
@@ -197,31 +197,31 @@ test("Test difficulty calculation sample beatmap 3", async () => {
         {
             noModDroidRating: {
                 aim: 2.3001728663225975,
-                tap: 3.0590572602295913,
+                tap: 3.0546657493916287,
                 rhythm: 1.4239803093005992,
                 flashlight: 0.833758007614186,
                 visual: 1.5028978819794057,
-                total: 5.758693752472909,
+                total: 5.754257869373804,
             },
             noModPcRating: {
                 aim: 2.9844158923979682,
-                speed: 3.020477106695645,
+                speed: 3.0164501737543654,
                 flashlight: 1.9483330438957538,
-                total: 6.236337650265726,
+                total: 6.232100270145301,
             },
             clockRateDroidRating: {
                 aim: 3.3570508127576395,
-                tap: 4.622568937726299,
+                tap: 4.631461160163305,
                 rhythm: 1.6529090173183572,
                 flashlight: 1.23443403994121,
                 visual: 2.1629871795434763,
-                total: 8.331826435143693,
+                total: 8.341778404008194,
             },
             clockRatePcRating: {
                 aim: 4.203173691714608,
-                speed: 4.545702335809381,
+                speed: 4.543264147297868,
                 flashlight: 3.218542779033249,
-                total: 9.101880528832664,
+                total: 9.09912381223099,
             },
         }
     );
@@ -245,11 +245,11 @@ test("Test difficulty calculation sample beatmap 4", async () => {
         },
         clockRateDroidRating: {
             aim: 3.477043133491362,
-            tap: 2.0587703986545245,
+            tap: 2.0592807288878276,
             rhythm: 1.1051858279903457,
             flashlight: 0.8362048959609906,
             visual: 3.8642011203827953,
-            total: 8.00906659880151,
+            total: 8.009160729197136,
         },
         clockRatePcRating: {
             aim: 6.010075838404166,

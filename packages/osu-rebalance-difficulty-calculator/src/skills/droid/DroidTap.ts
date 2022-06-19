@@ -33,7 +33,7 @@ export class DroidTap extends DroidSkill {
      * @param current The hitobject to calculate.
      */
     protected override strainValueAt(current: DifficultyHitObject): number {
-        const decay: number = this.strainDecay(current.deltaTime);
+        const decay: number = this.strainDecay(current.strainTime);
 
         this.currentTapStrain *= decay;
         this.currentTapStrain +=
