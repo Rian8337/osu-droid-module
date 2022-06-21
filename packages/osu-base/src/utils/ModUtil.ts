@@ -102,7 +102,8 @@ export abstract class ModUtil {
     static droidStringToMods(str: string, options?: ModParseOptions): Mod[] {
         return this.processParsingOptions(
             this.allMods.filter(
-                (m) => m.droidString && str.toLowerCase().includes(m.droidString)
+                (m) =>
+                    m.droidString && str.toLowerCase().includes(m.droidString)
             ),
             options
         );
@@ -187,12 +188,15 @@ export abstract class ModUtil {
 
     /**
      * Processes parsing options.
-     * 
+     *
      * @param mods The mods to process.
      * @param options The options to process.
      * @returns The processed mods.
      */
-    private static processParsingOptions(mods: Mod[], options?: ModParseOptions): Mod[] {
+    private static processParsingOptions(
+        mods: Mod[],
+        options?: ModParseOptions
+    ): Mod[] {
         if (options?.checkDuplicate !== false) {
             mods = this.checkDuplicateMods(mods);
         }
