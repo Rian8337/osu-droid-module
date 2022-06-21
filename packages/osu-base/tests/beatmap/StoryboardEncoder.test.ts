@@ -24,16 +24,16 @@ const decoder = new StoryboardDecoder().decode(
     )
 );
 
-const encodedResult = new StoryboardEncoder(decoder.result).encode();
+const encoder = new StoryboardEncoder(decoder.result).encode();
 
 writeFileSync(
     join(process.cwd(), "tests", "files", "storyboards", "testStoryboard.osb"),
-    encodedResult,
+    encoder.result,
     { encoding: "utf8" }
 );
 
 const original = decoder.result;
-const encoded = new StoryboardDecoder().decode(encodedResult).result;
+const encoded = new StoryboardDecoder().decode(encoder.result).result;
 
 const originalBackground = original.getLayer(StoryboardLayerType.background);
 const encodedBackground = encoded.getLayer(StoryboardLayerType.background);

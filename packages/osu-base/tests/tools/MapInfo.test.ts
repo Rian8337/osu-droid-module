@@ -5,6 +5,9 @@ import {
     MapStats,
     ModHidden,
     ModHardRock,
+    MathUtils,
+    modes,
+    Mod,
 } from "../../src";
 
 const apiMock: OsuAPIResponse = {
@@ -47,6 +50,25 @@ const apiMock: OsuAPIResponse = {
     video: "0",
     download_unavailable: "0",
     audio_unavailable: "0",
+};
+
+const getDroidStats = (
+    beatmapInfo: MapInfo,
+    mods: Mod[] = [],
+    speedMultiplier: number = 1
+): MapStats => {
+    const stats = new MapStats({
+        ...beatmapInfo,
+        mods: mods,
+        speedMultiplier: speedMultiplier,
+    }).calculate({ mode: modes.droid });
+
+    stats.cs = MathUtils.round(stats.cs!, 2);
+    stats.ar = MathUtils.round(stats.ar!, 2);
+    stats.od = MathUtils.round(stats.od!, 2);
+    stats.hp = MathUtils.round(stats.hp!, 2);
+
+    return stats;
 };
 
 const convertLastUpdateDate = () => {
@@ -191,20 +213,28 @@ describe("Test statistics displayer", () => {
         );
 
         expect(beatmapInfo.showStatistics(2)).toBe(
-            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${apiMock.count_slider} - **Spinners**: ${apiMock.count_spinner}\n**CS**: ${apiMock.diff_size} - **AR**: ${apiMock.diff_approach} - **OD**: ${apiMock.diff_overall} - **HP**: ${apiMock.diff_drain}`
+            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${apiMock.count_slider} - **Spinners**: ${apiMock.count_spinner}`
         );
+
+        const droidStats = getDroidStats(beatmapInfo);
 
         expect(beatmapInfo.showStatistics(3)).toBe(
-            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+            `**CS**: ${droidStats.cs} - **AR**: ${droidStats.ar} - **OD**: ${droidStats.od} - **HP**: ${droidStats.hp}`
         );
 
-        const lastUpdateDate = convertLastUpdateDate();
-
         expect(beatmapInfo.showStatistics(4)).toBe(
-            `**Last Update**: ${lastUpdateDate.toUTCString()} | **${beatmapInfo.convertStatus()}**`
+            `**CS**: ${apiMock.diff_size} - **AR**: ${apiMock.diff_approach} - **OD**: ${apiMock.diff_overall} - **HP**: ${apiMock.diff_drain}`
         );
 
         expect(beatmapInfo.showStatistics(5)).toBe(
+            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+        );
+
+        expect(beatmapInfo.showStatistics(6)).toBe(
+            `**Last Update**: ${convertLastUpdateDate().toUTCString()} | **${beatmapInfo.convertStatus()}**`
+        );
+
+        expect(beatmapInfo.showStatistics(7)).toBe(
             `❤️ **${parseInt(
                 apiMock.favourite_count
             ).toLocaleString()}** - ▶️ **${parseInt(
@@ -234,30 +264,42 @@ describe("Test statistics displayer", () => {
         );
 
         expect(beatmapInfo.showStatistics(2, stats)).toBe(
-            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${
-                apiMock.count_slider
-            } - **Spinners**: ${apiMock.count_spinner}\n**CS**: ${
-                apiMock.diff_size
-            } (${parseFloat(stats.cs!.toFixed(2))}) - **AR**: ${
-                apiMock.diff_approach
-            } (${parseFloat(stats.ar!.toFixed(2))}) - **OD**: ${
-                apiMock.diff_overall
-            } (${parseFloat(stats.od!.toFixed(2))}) - **HP**: ${
-                apiMock.diff_drain
-            } (${parseFloat(stats.hp!.toFixed(2))})`
+            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${apiMock.count_slider} - **Spinners**: ${apiMock.count_spinner}`
         );
+
+        const droidOriginalStats = getDroidStats(beatmapInfo);
+
+        const droidModifiedStats = getDroidStats(beatmapInfo, stats.mods);
 
         expect(beatmapInfo.showStatistics(3, stats)).toBe(
-            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+            `**CS**: ${droidOriginalStats.cs} (${droidModifiedStats.cs}) - **AR**: ${droidOriginalStats.ar} (${droidModifiedStats.ar}) - **OD**: ${droidOriginalStats.od} (${droidModifiedStats.od}) - **HP**: ${droidOriginalStats.hp} (${droidModifiedStats.hp})`
         );
 
-        const lastUpdateDate = convertLastUpdateDate();
-
         expect(beatmapInfo.showStatistics(4, stats)).toBe(
-            `**Last Update**: ${lastUpdateDate.toUTCString()} | **${beatmapInfo.convertStatus()}**`
+            `**CS**: ${apiMock.diff_size} (${MathUtils.round(
+                stats.cs!,
+                2
+            )}) - **AR**: ${apiMock.diff_approach} (${MathUtils.round(
+                stats.ar!,
+                2
+            )}) - **OD**: ${apiMock.diff_overall} (${MathUtils.round(
+                stats.od!,
+                2
+            )}) - **HP**: ${apiMock.diff_drain} (${MathUtils.round(
+                stats.hp!,
+                2
+            )})`
         );
 
         expect(beatmapInfo.showStatistics(5, stats)).toBe(
+            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+        );
+
+        expect(beatmapInfo.showStatistics(6, stats)).toBe(
+            `**Last Update**: ${convertLastUpdateDate().toUTCString()} | **${beatmapInfo.convertStatus()}**`
+        );
+
+        expect(beatmapInfo.showStatistics(7, stats)).toBe(
             `❤️ **${parseInt(
                 apiMock.favourite_count
             ).toLocaleString()}** - ▶️ **${parseInt(
@@ -285,32 +327,45 @@ describe("Test statistics displayer", () => {
         );
 
         expect(beatmapInfo.showStatistics(2, stats)).toBe(
-            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${
-                apiMock.count_slider
-            } - **Spinners**: ${apiMock.count_spinner}\n**CS**: ${
-                apiMock.diff_size
-            } - **AR**: ${apiMock.diff_approach} (${parseFloat(
-                stats.ar!.toFixed(2)
-            )}) - **OD**: ${apiMock.diff_overall} (${parseFloat(
-                stats.od!.toFixed(2)
-            )}) - **HP**: ${apiMock.diff_drain}`
+            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${apiMock.count_slider} - **Spinners**: ${apiMock.count_spinner}`
+        );
+
+        const droidOriginalStats = getDroidStats(beatmapInfo);
+
+        const droidModifiedStats = getDroidStats(
+            beatmapInfo,
+            stats.mods,
+            stats.speedMultiplier
         );
 
         expect(beatmapInfo.showStatistics(3, stats)).toBe(
-            `**BPM**: ${apiMock.bpm} (${parseFloat(
-                (parseFloat(apiMock.bpm) * stats.speedMultiplier).toFixed(2)
+            `**CS**: ${droidOriginalStats.cs} - **AR**: ${droidOriginalStats.ar} (${droidModifiedStats.ar}) - **OD**: ${droidOriginalStats.od} (${droidModifiedStats.od}) - **HP**: ${droidOriginalStats.hp}`
+        );
+
+        expect(beatmapInfo.showStatistics(4, stats)).toBe(
+            `**CS**: ${apiMock.diff_size} - **AR**: ${
+                apiMock.diff_approach
+            } (${MathUtils.round(stats.ar!, 2)}) - **OD**: ${
+                apiMock.diff_overall
+            } (${MathUtils.round(stats.od!, 2)}) - **HP**: ${
+                apiMock.diff_drain
+            }`
+        );
+
+        expect(beatmapInfo.showStatistics(5, stats)).toBe(
+            `**BPM**: ${apiMock.bpm} (${MathUtils.round(
+                parseFloat(apiMock.bpm) * stats.speedMultiplier,
+                2
             )}) - **Length**: 1:54 (1:35)/2:26 (2:02) - **Max Combo**: ${
                 apiMock.max_combo
             }x`
         );
 
-        const lastUpdateDate = convertLastUpdateDate();
-
-        expect(beatmapInfo.showStatistics(4, stats)).toBe(
-            `**Last Update**: ${lastUpdateDate.toUTCString()} | **${beatmapInfo.convertStatus()}**`
+        expect(beatmapInfo.showStatistics(6, stats)).toBe(
+            `**Last Update**: ${convertLastUpdateDate().toUTCString()} | **${beatmapInfo.convertStatus()}**`
         );
 
-        expect(beatmapInfo.showStatistics(5, stats)).toBe(
+        expect(beatmapInfo.showStatistics(7, stats)).toBe(
             `❤️ **${parseInt(
                 apiMock.favourite_count
             ).toLocaleString()}** - ▶️ **${parseInt(
@@ -319,10 +374,11 @@ describe("Test statistics displayer", () => {
         );
     });
 
-    test("Statistics with force AR", () => {
+    test("Statistics with force AR 8.5", () => {
         const beatmapInfo = new MapInfo();
         const stats = new MapStats({
             ...beatmapInfo,
+            ar: 8.5,
             isForceAR: true,
         }).calculate();
 
@@ -339,28 +395,36 @@ describe("Test statistics displayer", () => {
         );
 
         expect(beatmapInfo.showStatistics(2, stats)).toBe(
-            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${
-                apiMock.count_slider
-            } - **Spinners**: ${apiMock.count_spinner}\n**CS**: ${
-                apiMock.diff_size
-            } - **AR**: ${apiMock.diff_approach} (${parseFloat(
-                stats.ar!.toFixed(2)
-            )}) - **OD**: ${apiMock.diff_overall} - **HP**: ${
-                apiMock.diff_drain
-            }`
+            `**Circles**: ${apiMock.count_normal} - **Sliders**: ${apiMock.count_slider} - **Spinners**: ${apiMock.count_spinner}`
         );
+
+        const droidStats = getDroidStats(beatmapInfo);
 
         expect(beatmapInfo.showStatistics(3, stats)).toBe(
-            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+            `**CS**: ${droidStats.cs} - **AR**: ${
+                droidStats.ar
+            } (${MathUtils.round(stats.ar!, 2)}) - **OD**: ${
+                droidStats.od
+            } - **HP**: ${droidStats.hp}`
         );
 
-        const lastUpdateDate = convertLastUpdateDate();
-
         expect(beatmapInfo.showStatistics(4, stats)).toBe(
-            `**Last Update**: ${lastUpdateDate.toUTCString()} | **${beatmapInfo.convertStatus()}**`
+            `**CS**: ${apiMock.diff_size} - **AR**: ${
+                apiMock.diff_approach
+            } (${MathUtils.round(stats.ar!, 2)}) - **OD**: ${
+                apiMock.diff_overall
+            } - **HP**: ${apiMock.diff_drain}`
         );
 
         expect(beatmapInfo.showStatistics(5, stats)).toBe(
+            `**BPM**: ${apiMock.bpm} - **Length**: 1:54/2:26 - **Max Combo**: ${apiMock.max_combo}x`
+        );
+
+        expect(beatmapInfo.showStatistics(6, stats)).toBe(
+            `**Last Update**: ${convertLastUpdateDate().toUTCString()} | **${beatmapInfo.convertStatus()}**`
+        );
+
+        expect(beatmapInfo.showStatistics(7, stats)).toBe(
             `❤️ **${parseInt(
                 apiMock.favourite_count
             ).toLocaleString()}** - ▶️ **${parseInt(
