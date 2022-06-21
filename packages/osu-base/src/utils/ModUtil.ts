@@ -20,6 +20,21 @@ import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 
 /**
+ * Options for parsing mods.
+ */
+export interface ModParseOptions {
+    /**
+     * Whether to check for duplicate mods. Defaults to `true`.
+     */
+    checkDuplicate?: boolean;
+
+    /**
+     * Whether to check for incompatible mods. Defaults to `true`.
+     */
+    checkIncompatible?: boolean;
+}
+
+/**
  * Utilities for mods.
  */
 export abstract class ModUtil {
@@ -82,13 +97,14 @@ export abstract class ModUtil {
      * Gets a list of mods from a droid mod string, such as "hd".
      *
      * @param str The string.
+     * @param options Options for parsing behavior.
      */
-    static droidStringToMods(str: string): Mod[] {
-        return this.checkDuplicateMods(
+    static droidStringToMods(str: string, options?: ModParseOptions): Mod[] {
+        return this.processParsingOptions(
             this.allMods.filter(
-                (m) =>
-                    m.droidString && str.toLowerCase().includes(m.droidString)
-            )
+                (m) => m.droidString && str.toLowerCase().includes(m.droidString)
+            ),
+            options
         );
     }
 
@@ -96,10 +112,12 @@ export abstract class ModUtil {
      * Gets a list of mods from a PC modbits.
      *
      * @param modbits The modbits.
+     * @param options Options for parsing behavior.
      */
-    static pcModbitsToMods(modbits: number): Mod[] {
-        return this.checkDuplicateMods(
-            this.allMods.filter((m) => m.bitwise & modbits)
+    static pcModbitsToMods(modbits: number, options?: ModParseOptions): Mod[] {
+        return this.processParsingOptions(
+            this.allMods.filter((m) => m.bitwise & modbits),
+            options
         );
     }
 
@@ -107,8 +125,9 @@ export abstract class ModUtil {
      * Gets a list of mods from a PC mod string, such as "HDHR".
      *
      * @param str The string.
+     * @param options Options for parsing behavior.
      */
-    static pcStringToMods(str: string): Mod[] {
+    static pcStringToMods(str: string, options?: ModParseOptions): Mod[] {
         const finalMods: Mod[] = [];
 
         str = str.toLowerCase();
@@ -127,15 +146,27 @@ export abstract class ModUtil {
             str = str.slice(nchars);
         }
 
-        return this.checkDuplicateMods(finalMods);
+        return this.processParsingOptions(finalMods, options);
     }
 
     /**
-     * Checks for mods that are duplicate and incompatible with each other.
+     * Checks for mods that are duplicated.
+     *
+     * @param mods The mods to check for.
+     * @returns Mods that have been filtered.
+     */
+    static checkDuplicateMods(mods: Mod[]): Mod[] {
+        return Array.from(new Set(mods));
+    }
+
+    /**
+     * Checks for mods that are incompatible with each other.
+     *
+     * This will modify the original array.
      *
      * @param mods The mods to check for.
      */
-    private static checkDuplicateMods(mods: Mod[]): Mod[] {
+    static checkIncompatibleMods(mods: Mod[]): void {
         for (const incompatibleMod of this.incompatibleMods) {
             const fulfilledMods: Mod[] = mods.filter((m) =>
                 incompatibleMod.map((v) => v.acronym).includes(m.acronym)
@@ -152,8 +183,24 @@ export abstract class ModUtil {
                 mods.push(fulfilledMods[0]);
             }
         }
+    }
 
-        // Check for duplicate mod entries
-        return Array.from(new Set(mods));
+    /**
+     * Processes parsing options.
+     * 
+     * @param mods The mods to process.
+     * @param options The options to process.
+     * @returns The processed mods.
+     */
+    private static processParsingOptions(mods: Mod[], options?: ModParseOptions): Mod[] {
+        if (options?.checkDuplicate !== false) {
+            mods = this.checkDuplicateMods(mods);
+        }
+
+        if (options?.checkIncompatible !== false) {
+            this.checkIncompatibleMods(mods);
+        }
+
+        return mods;
     }
 }
