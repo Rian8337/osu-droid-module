@@ -128,19 +128,14 @@ There are two primary ways of using the beatmap decoder.
 ```js
 import { MapInfo } from "@rian8337/osu-base";
 
-// MD5 hash is also supported, but when both options are specified, beatmap ID is used
-const beatmapInfo = await MapInfo.getInformation({
-    beatmapID: 901854,
-    hash: "hash123",
-    file: true,
-});
+// MD5 hash is also supported in the first parameter
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-// Parsed beatmap can be accessed via the `map` field
-// Note that the parsed beatmap will be cloned every time this is called. This allows caching of the original instance when needed
+// Decoded beatmap can be accessed via the `map` field
 console.log(beatmapInfo.map);
 ```
 

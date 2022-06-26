@@ -8,10 +8,10 @@ import {
 } from "../utils/APIRequestBuilder";
 import { Precision } from "../utils/Precision";
 import { TimingControlPoint } from "../beatmap/timings/TimingControlPoint";
-import { Utils } from "../utils/Utils";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { modes } from "../constants/modes";
 import { MathUtils } from "../mathutil/MathUtils";
+import { If } from "../utils/If";
 
 export interface OsuAPIResponse {
     readonly approved: string;
@@ -59,7 +59,7 @@ export interface OsuAPIResponse {
 /**
  * Represents a beatmap with general information.
  */
-export class MapInfo {
+export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The title of the song of the beatmap.
      */
@@ -225,51 +225,73 @@ export class MapInfo {
     videoAvailable: boolean = false;
 
     /**
-     * The parsed beatmap from beatmap parser.
+     * The decoded beatmap from beatmap decoder.
      */
-    get map(): Beatmap | undefined {
-        return Utils.deepCopy(this.cachedBeatmap);
+    get map(): If<HasBeatmap, Beatmap> {
+        return <If<HasBeatmap, Beatmap>>this.cachedBeatmap;
     }
 
-    private cachedBeatmap?: Beatmap;
+    private cachedBeatmap: Beatmap | null = null;
 
     /**
      * Retrieve a beatmap's general information.
      *
-     * Either beatmap ID or MD5 hash of the beatmap must be specified. If both are specified, beatmap ID is taken.
+     * @param beatmapId The ID of the beatmap.
+     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
+     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
      */
-    static async getInformation(params: {
-        /**
-         * The ID of the beatmap.
-         */
-        beatmapID?: number;
+    static async getInformation(
+        beatmapId: number,
+        downloadBeatmap?: boolean
+    ): Promise<MapInfo<true> | null>;
 
-        /**
-         * The MD5 hash of the beatmap.
-         */
-        hash?: string;
+    /**
+     * Retrieve a beatmap's general information.
+     *
+     * @param beatmapId The ID of the beatmap.
+     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
+     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
+     */
+    static async getInformation(
+        beatmapId: number,
+        downloadBeatmap: false
+    ): Promise<MapInfo<false> | null>;
 
-        /**
-         * Whether or not to also retrieve the .osu file of the beatmap (required for some utilities). Defaults to `true`.
-         */
-        file?: boolean;
-    }): Promise<MapInfo> {
-        params.file ??= true;
+    /**
+     * Retrieve a beatmap's general information.
+     *
+     * @param hash The MD5 hash of the beatmap.
+     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
+     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
+     */
+    static async getInformation(
+        hash: string,
+        downloadBeatmap?: boolean
+    ): Promise<MapInfo<true> | null>;
 
-        const beatmapID: number | undefined = params.beatmapID;
-        const hash: string | undefined = params.hash;
+    /**
+     * Retrieve a beatmap's general information.
+     *
+     * @param hash The MD5 hash of the beatmap.
+     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
+     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
+     */
+    static async getInformation(
+        hash: string,
+        downloadBeatmap: false
+    ): Promise<MapInfo<false> | null>;
 
-        if (!beatmapID && !hash) {
-            throw new Error("Beatmap ID or MD5 hash must be defined");
-        }
-
+    static async getInformation(
+        beatmapIdOrHash: string | number,
+        downloadBeatmap?: boolean
+    ): Promise<MapInfo | null> {
         const apiRequestBuilder: OsuAPIRequestBuilder =
-            new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
-        if (beatmapID) {
-            apiRequestBuilder.addParameter("b", beatmapID);
-        } else if (hash) {
-            apiRequestBuilder.addParameter("h", hash);
-        }
+            new OsuAPIRequestBuilder()
+                .setEndpoint("get_beatmaps")
+                .addParameter(
+                    typeof beatmapIdOrHash === "string" ? "h" : "b",
+                    beatmapIdOrHash
+                );
 
         const map: MapInfo = new MapInfo();
         const result: RequestResponse = await apiRequestBuilder.sendRequest();
@@ -283,16 +305,16 @@ export class MapInfo {
         )[0];
 
         if (!mapinfo) {
-            return map;
+            return null;
         }
 
         if (parseInt(mapinfo.mode) !== 0) {
-            return map;
+            return null;
         }
 
         map.fillMetadata(mapinfo);
 
-        if (params.file) {
+        if (downloadBeatmap) {
             await map.retrieveBeatmapFile();
         }
 
@@ -363,14 +385,23 @@ export class MapInfo {
     }
 
     /**
+     * Checks whether the beatmap file has been downloaded.
+     */
+    hasDownloadedBeatmap(): this is MapInfo<true> {
+        return this.cachedBeatmap !== null;
+    }
+
+    /**
      * Retrieves the .osu file of the beatmap.
      *
-     * @param forceDownload Whether or not to download the file regardless if it's already available.
+     * After this, you can use the `hasDownloadedBeatmap` method to check if the beatmap has been downloaded.
+     *
+     * @param force Whether to download the file regardless if it's already available.
      */
-    retrieveBeatmapFile(forceDownload?: boolean): Promise<MapInfo> {
+    retrieveBeatmapFile(force?: boolean): Promise<void> {
         return new Promise((resolve) => {
-            if (this.cachedBeatmap && !forceDownload) {
-                return resolve(this);
+            if (this.hasDownloadedBeatmap() && !force) {
+                return resolve();
             }
 
             const url: string = `https://osu.ppy.sh/osu/${this.beatmapID}`;
@@ -381,12 +412,14 @@ export class MapInfo {
                 })
                 .on("complete", (response) => {
                     if (response.statusCode !== 200) {
-                        return resolve(this);
+                        return resolve();
                     }
+
                     this.cachedBeatmap = new BeatmapDecoder().decode(
                         Buffer.concat(dataArray).toString("utf8")
                     ).result;
-                    resolve(this);
+
+                    resolve();
                 });
         });
     }
