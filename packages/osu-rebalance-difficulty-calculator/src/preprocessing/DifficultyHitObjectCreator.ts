@@ -17,7 +17,7 @@ export class DifficultyHitObjectCreator {
     /**
      * The threshold for small circle buff for osu!droid.
      */
-    private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number = 52.5;
+    private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number = 70;
 
     /**
      * The threshold for small circle buff for osu!standard.
@@ -401,11 +401,11 @@ export class DifficultyHitObjectCreator {
                 if (radius < this.DROID_CIRCLESIZE_BUFF_THRESHOLD) {
                     scalingFactor *=
                         1 +
-                        Math.min(
-                            this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius,
-                            20
-                        ) /
-                            40;
+                        Math.pow(
+                            (this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius) /
+                                50,
+                            2
+                        );
                 }
                 break;
             case modes.osu:
