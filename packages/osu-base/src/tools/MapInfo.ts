@@ -314,7 +314,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
 
         map.fillMetadata(mapinfo);
 
-        if (downloadBeatmap) {
+        if (downloadBeatmap !== false) {
             await map.retrieveBeatmapFile();
         }
 
