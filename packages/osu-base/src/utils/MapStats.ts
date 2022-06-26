@@ -243,7 +243,7 @@ export class MapStats {
                         scale -= ((assumedHeight / 480) * (4 * 4.48) * 2) / 128;
                     }
                     const radius: number =
-                        (64 * Math.max(1e3, scale)) /
+                        (64 * Math.max(1e-3, scale)) /
                         ((assumedHeight * 0.85) / 384);
                     this.cs = Math.min(5 + ((1 - radius / 32) * 5) / 0.7, 10);
                 }
