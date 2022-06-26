@@ -80,7 +80,11 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             current.lazyJumpDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
-        if (last.object instanceof Slider && withSliders) {
+        if (
+            last.object instanceof Slider &&
+            last.object.ticks > 0 &&
+            withSliders
+        ) {
             // Calculate the slider velocity from slider head to slider end.
             const travelVelocity: number =
                 last.travelDistance / last.travelTime;
@@ -101,7 +105,11 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         // As above, do the same for the previous hitobject.
         let prevVelocity: number = last.lazyJumpDistance / last.strainTime;
 
-        if (lastLast.object instanceof Slider && withSliders) {
+        if (
+            lastLast.object instanceof Slider &&
+            lastLast.object.ticks > 0 &&
+            withSliders
+        ) {
             const travelVelocity: number =
                 lastLast.travelDistance / lastLast.travelTime;
 
