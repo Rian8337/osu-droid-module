@@ -74,6 +74,8 @@ export abstract class ControlPointManager<T extends ControlPoint> {
 
     /**
      * Removes a control point.
+     * 
+     * This method will remove the earliest control point in the array that is equal to the given control point.
      *
      * @param controlPoint The control point to remove.
      * @returns Whether the control point was removed.
