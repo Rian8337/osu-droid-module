@@ -61,7 +61,7 @@ export abstract class DifficultyCalculator {
 
     /**
      * Constructs a new instance of the calculator.
-     * 
+     *
      * @param beatmap The beatmap to calculate. This beatmap will be deep-cloned to prevent reference changes.
      */
     constructor(beatmap: Beatmap) {
@@ -79,7 +79,7 @@ export abstract class DifficultyCalculator {
      * For subsequent chunks, the initial max strain is calculated
      * by decaying the previous hitobject's strain until the
      * beginning of the new chunk.
-     * 
+     *
      * @param options Options for the difficulty calculation.
      */
     calculate(options?: DifficultyCalculationOptions): this {

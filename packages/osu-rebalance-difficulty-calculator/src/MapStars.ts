@@ -35,7 +35,6 @@ export class MapStars {
             stats,
         });
 
-
         this.osu = new OsuDifficultyCalculator(beatmap).calculate({
             ...options,
             stats,

@@ -52,7 +52,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     }
 
     /**
-     * Calculates the speed star rating of the beatmap and stores it in this instance.
+     * Calculates the tap star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
         const tapSkill: DroidTap = new DroidTap(this.mods, this.stats.od!);
@@ -118,9 +118,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-            Math.pow(tapPerformanceValue, 1.1) +
-            Math.pow(flashlightPerformanceValue, 1.1) +
-            Math.pow(visualPerformanceValue, 1.1),
+                Math.pow(tapPerformanceValue, 1.1) +
+                Math.pow(flashlightPerformanceValue, 1.1) +
+                Math.pow(visualPerformanceValue, 1.1),
             1 / 1.1
         );
 

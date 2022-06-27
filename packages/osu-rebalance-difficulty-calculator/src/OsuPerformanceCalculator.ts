@@ -48,9 +48,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         return (
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                Math.pow(this.speed, 1.1) +
-                Math.pow(this.accuracy, 1.1) +
-                Math.pow(this.flashlight, 1.1),
+                    Math.pow(this.speed, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier
         );
