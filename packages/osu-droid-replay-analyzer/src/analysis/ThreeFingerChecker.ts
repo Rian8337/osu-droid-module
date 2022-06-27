@@ -10,12 +10,12 @@ import {
     Interpolation,
 } from "@rian8337/osu-base";
 import {
-    DroidStarRating,
+    DroidDifficultyCalculator,
     DifficultyHitObject,
 } from "@rian8337/osu-difficulty-calculator";
 import {
+    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
-    DroidStarRating as RebalanceDroidStarRating,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { hitResult, movementType } from "..";
 import { CursorData } from "../data/CursorData";
@@ -92,9 +92,11 @@ interface NerfFactor {
  */
 export class ThreeFingerChecker {
     /**
-     * The beatmap to analyze.
+     * The difficulty calculator that is being analyzed.
      */
-    readonly map: DroidStarRating | RebalanceDroidStarRating;
+    readonly calculator:
+        | DroidDifficultyCalculator
+        | RebalanceDroidDifficultyCalculator;
 
     /**
      * The data of the replay.
@@ -198,19 +200,21 @@ export class ThreeFingerChecker {
     private readonly nerfFactors: NerfFactor[] = [];
 
     /**
-     * @param map The beatmap to analyze.
+     * @param calculator The difficulty calculator to analyze.
      * @param data The data of the replay.
      */
     constructor(
-        map: DroidStarRating | RebalanceDroidStarRating,
+        calculator:
+            | DroidDifficultyCalculator
+            | RebalanceDroidDifficultyCalculator,
         data: ReplayData
     ) {
-        this.map = map;
+        this.calculator = calculator;
         this.data = data;
 
         const stats: MapStats = new MapStats({
-            od: this.map.map.difficulty.od,
-            mods: this.map.mods.filter(
+            od: this.calculator.beatmap.difficulty.od,
+            mods: this.calculator.mods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods
                         .map((v) => v.droidString)
@@ -223,7 +227,7 @@ export class ThreeFingerChecker {
         const strainNotes:
             | DifficultyHitObject[]
             //@ts-expect-error: No overloads match, but this is fine.
-            | RebalanceDifficultyHitObject[] = map.objects.filter(
+            | RebalanceDifficultyHitObject[] = calculator.objects.filter(
             //@ts-expect-error: No overloads match, but this is fine.
             (v) => v.originalTapStrain >= ThreeFingerChecker.strainThreshold
         );
@@ -234,7 +238,7 @@ export class ThreeFingerChecker {
      * Checks whether a beatmap is eligible to be detected for 3-finger.
      */
     static isEligibleToDetect(
-        map: DroidStarRating | RebalanceDroidStarRating
+        map: DroidDifficultyCalculator | RebalanceDroidDifficultyCalculator
     ): boolean {
         return map.objects.some(
             (v) => v.originalTapStrain >= this.strainThreshold
@@ -293,14 +297,14 @@ export class ThreeFingerChecker {
      */
     private getAccurateBreakPoints(): void {
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+            this.calculator.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
 
-        const isPrecise: boolean = this.map.mods.some(
+        const isPrecise: boolean = this.calculator.mods.some(
             (m) => m instanceof ModPrecise
         );
 
-        for (const breakPoint of this.map.map.events.breaks) {
+        for (const breakPoint of this.calculator.beatmap.events.breaks) {
             const beforeIndex: number = MathUtils.clamp(
                 objects.findIndex(
                     (o) => o.object.endTime >= breakPoint.startTime
@@ -365,13 +369,13 @@ export class ThreeFingerChecker {
      */
     private filterCursorInstances(): void {
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+            this.calculator.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
 
         const firstObjectResult: hitResult = objectData[0].result;
         const lastObjectResult: hitResult = objectData.at(-1)!.result;
 
-        const isPrecise: boolean = this.map.mods.some(
+        const isPrecise: boolean = this.calculator.mods.some(
             (m) => m instanceof ModPrecise
         );
 
@@ -471,7 +475,7 @@ export class ThreeFingerChecker {
     private getBeatmapSections(): void {
         const beatmapSections: BeatmapSection[] =
             BeatmapSectionGenerator.generateSections(
-                this.map,
+                this.calculator,
                 this.minSectionObjectCount,
                 this.maxSectionDeltaTime
             );
@@ -508,9 +512,9 @@ export class ThreeFingerChecker {
      */
     private checkDrag(section: BeatmapSection): number {
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+            this.calculator.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
-        const isPrecise: boolean = this.map.mods.some(
+        const isPrecise: boolean = this.calculator.mods.some(
             (m) => m instanceof ModPrecise
         );
 
@@ -724,7 +728,7 @@ export class ThreeFingerChecker {
      */
     private getDetailedBeatmapSections(): void {
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+            this.calculator.objects;
         const newBeatmapSections: ThreeFingerBeatmapSection[] = [];
 
         for (const beatmapSection of this.beatmapSections) {
@@ -792,7 +796,7 @@ export class ThreeFingerChecker {
         }
 
         const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+            this.calculator.objects;
         const totalCursorAmount: number = this.downCursorInstances.reduce(
             (acc, value) => acc + value.occurrences.length,
             0
@@ -823,8 +827,8 @@ export class ThreeFingerChecker {
      * This check will ignore all objects with speed strain below `strainThreshold`.
      */
     private calculateNerfFactors(): void {
-        const objects: DifficultyHitObject[] | RebalanceDifficultyHitObject[] =
-            this.map.objects;
+        const objects: (DifficultyHitObject | RebalanceDifficultyHitObject)[] =
+            this.calculator.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
         const isPrecise: boolean = this.data.convertedMods.some(
             (m) => m instanceof ModPrecise
@@ -965,9 +969,7 @@ export class ThreeFingerChecker {
                             beatmapSection.firstObjectIndex,
                             beatmapSection.lastObjectIndex
                         )
-                        //@ts-expect-error: No overloads match, but this is fine.
                         .reduce(
-                            //@ts-expect-error: No overloads match, but this is fine.
                             (acc, value) =>
                                 acc +
                                 value.originalTapStrain /

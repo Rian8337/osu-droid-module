@@ -11,8 +11,8 @@ import {
     RequestResponse,
     Spinner,
 } from "@rian8337/osu-base";
-import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
-import { DroidStarRating as RebalanceDroidStarRating } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
+import { DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
@@ -69,7 +69,10 @@ export class ReplayAnalyzer {
     /**
      * The beatmap that is being analyzed. `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
      */
-    map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
+    beatmap?:
+        | Beatmap
+        | DroidDifficultyCalculator
+        | RebalanceDroidDifficultyCalculator;
 
     /**
      * The results of the analyzer. `null` when initialized.
@@ -121,10 +124,13 @@ export class ReplayAnalyzer {
          *
          * `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
          */
-        map?: Beatmap | DroidStarRating | RebalanceDroidStarRating;
+        map?:
+            | Beatmap
+            | DroidDifficultyCalculator
+            | RebalanceDroidDifficultyCalculator;
     }) {
         this.scoreID = values.scoreID;
-        this.map = values.map;
+        this.beatmap = values.map;
     }
 
     /**
@@ -409,7 +415,7 @@ export class ReplayAnalyzer {
         }
 
         // Parse max combo, hit results, and accuracy in old replay version
-        if (resultObject.replayVersion < 3 && this.map) {
+        if (resultObject.replayVersion < 3 && this.beatmap) {
             let hit300: number = 0;
             let hit300k: number = 0;
             let hit100: number = 0;
@@ -419,10 +425,10 @@ export class ReplayAnalyzer {
             let grantsGekiOrKatu: boolean = true;
 
             const objects: readonly HitObject[] = (
-                this.map instanceof DroidStarRating ||
-                this.map instanceof RebalanceDroidStarRating
-                    ? this.map.map
-                    : this.map
+                this.beatmap instanceof DroidDifficultyCalculator ||
+                this.beatmap instanceof RebalanceDroidDifficultyCalculator
+                    ? this.beatmap.beatmap
+                    : this.beatmap
             ).hitObjects.objects;
 
             for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
@@ -526,7 +532,7 @@ export class ReplayAnalyzer {
      * `analyze()` must be called before calling this.
      */
     calculateHitError(): HitErrorInformation | null {
-        if (!this.data || !this.map) {
+        if (!this.data || !this.beatmap) {
             return null;
         }
 
@@ -537,10 +543,10 @@ export class ReplayAnalyzer {
         let negativeTotal: number = 0;
 
         const objects: readonly HitObject[] = (
-            this.map instanceof DroidStarRating ||
-            this.map instanceof RebalanceDroidStarRating
-                ? this.map.map
-                : this.map
+            this.beatmap instanceof DroidDifficultyCalculator ||
+            this.beatmap instanceof RebalanceDroidDifficultyCalculator
+                ? this.beatmap.beatmap
+                : this.beatmap
         ).hitObjects.objects;
 
         for (let i = 0; i < hitObjectData.length; ++i) {
@@ -633,8 +639,8 @@ export class ReplayAnalyzer {
     checkFor3Finger(): void {
         if (
             !(
-                this.map instanceof DroidStarRating ||
-                this.map instanceof RebalanceDroidStarRating
+                this.beatmap instanceof DroidDifficultyCalculator ||
+                this.beatmap instanceof RebalanceDroidDifficultyCalculator
             ) ||
             !this.data
         ) {
@@ -642,7 +648,7 @@ export class ReplayAnalyzer {
         }
 
         const threeFingerChecker: ThreeFingerChecker = new ThreeFingerChecker(
-            this.map,
+            this.beatmap,
             this.data
         );
         const result: ThreeFingerInformation = threeFingerChecker.check();
@@ -660,8 +666,8 @@ export class ReplayAnalyzer {
     checkFor2Hand(): void {
         if (
             !(
-                this.map instanceof DroidStarRating ||
-                this.map instanceof RebalanceDroidStarRating
+                this.beatmap instanceof DroidDifficultyCalculator ||
+                this.beatmap instanceof RebalanceDroidDifficultyCalculator
             ) ||
             !this.data
         ) {
@@ -669,7 +675,7 @@ export class ReplayAnalyzer {
         }
 
         const twoHandChecker: TwoHandChecker = new TwoHandChecker(
-            this.map,
+            this.beatmap,
             this.data
         );
         const result: TwoHandInformation = twoHandChecker.check();

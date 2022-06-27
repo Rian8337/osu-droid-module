@@ -13,11 +13,11 @@ import {
     HitObject,
 } from "@rian8337/osu-base";
 import {
-    DroidStarRating,
+    DroidDifficultyCalculator,
     DifficultyHitObject,
 } from "@rian8337/osu-difficulty-calculator";
 import {
-    DroidStarRating as RebalanceDroidStarRating,
+    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { hitResult } from "../constants/hitResult";
@@ -55,9 +55,11 @@ export interface TwoHandInformation {
  */
 export class TwoHandChecker {
     /**
-     * The beatmap that is being analyzed.
+     * The difficulty calculator that is being analyzed.
      */
-    readonly map: DroidStarRating | RebalanceDroidStarRating;
+    readonly calculator:
+        | DroidDifficultyCalculator
+        | RebalanceDroidDifficultyCalculator;
 
     /**
      * The data of the replay.
@@ -83,19 +85,21 @@ export class TwoHandChecker {
     private readonly minCursorIndexCount: number = 5;
 
     /**
-     * @param map The beatmap to analyze.
+     * @param calculator The difficulty calculator to analyze.
      * @param data The data of the replay.
      */
     constructor(
-        map: DroidStarRating | RebalanceDroidStarRating,
+        calculator:
+            | DroidDifficultyCalculator
+            | RebalanceDroidDifficultyCalculator,
         data: ReplayData
     ) {
-        this.map = map;
+        this.calculator = calculator;
         this.data = data;
 
         const stats: MapStats = new MapStats({
-            od: this.map.map.difficulty.od,
-            mods: this.map.mods.filter(
+            od: this.calculator.beatmap.difficulty.od,
+            mods: this.calculator.mods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods
                         .map((v) => v.droidString)
@@ -144,7 +148,7 @@ export class TwoHandChecker {
         const hitWindowOffset: number = this.getHitWindowOffset();
         const indexes: number[] = [];
 
-        for (let i = 0; i < this.map.objects.length; ++i) {
+        for (let i = 0; i < this.calculator.objects.length; ++i) {
             const indexedHitObject: IndexedHitObject = this.getIndexedHitObject(
                 i,
                 hitWindowOffset
@@ -247,7 +251,7 @@ export class TwoHandChecker {
             for (let j = 0; j < c.occurrences.length; ++j) {
                 if (
                     c.occurrences[j].time <
-                    this.map.map.hitObjects.objects[0].startTime -
+                    this.calculator.beatmap.hitObjects.objects[0].startTime -
                         this.hitWindow.hitWindowFor50()
                 ) {
                     continue;
@@ -281,7 +285,7 @@ export class TwoHandChecker {
         hitWindowOffset: number
     ): IndexedHitObject {
         const object: DifficultyHitObject | RebalanceDifficultyHitObject =
-            this.map.objects[index];
+            this.calculator.objects[index];
         const data: ReplayObjectData = this.data.hitObjectData[index];
 
         if (
@@ -538,7 +542,7 @@ export class TwoHandChecker {
             // Dragging detection.
             let dragTimeThreshold: number = 0;
             const prev: DifficultyHitObject | RebalanceDifficultyHitObject =
-                this.map.objects[index - 1];
+                this.calculator.objects[index - 1];
 
             if (prev) {
                 // The previous object might be a slider, so we need to get
@@ -712,7 +716,7 @@ export class TwoHandChecker {
 
         this.indexedHitObjects.forEach((o) => {
             if (!beatmaps[o.acceptedCursorIndex]) {
-                const map: Beatmap = Utils.deepCopy(this.map.map);
+                const map: Beatmap = Utils.deepCopy(this.calculator.beatmap);
 
                 map.hitObjects.clear();
 
@@ -728,7 +732,7 @@ export class TwoHandChecker {
             overlappingFactor: number;
             rhythmStrain: number;
             rhythmMultiplier: number;
-        }[] = this.map.objects.map((v) => {
+        }[] = this.calculator.objects.map((v) => {
             return {
                 noteDensity: v.noteDensity,
                 overlappingFactor: v.overlappingFactor,
@@ -737,34 +741,39 @@ export class TwoHandChecker {
             };
         });
 
-        this.map.objects.length = 0;
+        this.calculator.objects.length = 0;
 
         beatmaps.forEach((beatmap) => {
             if (!beatmap) {
                 return;
             }
 
-            const starRating: DroidStarRating | RebalanceDroidStarRating =
-                Utils.deepCopy(this.map);
-            starRating.map = beatmap;
-            starRating.generateDifficultyHitObjects();
-            starRating.objects[0].deltaTime =
-                starRating.objects[0].startTime -
-                this.indexedHitObjects[0].object.startTime;
-            starRating.objects[0].strainTime = Math.max(
-                25,
-                starRating.objects[0].deltaTime
+            const difficultyCalculator:
+                | DroidDifficultyCalculator
+                | RebalanceDroidDifficultyCalculator = Object.assign(
+                Utils.deepCopy(this.calculator),
+                { beatmap: beatmap }
             );
-            this.map.objects.push(...starRating.objects);
+            difficultyCalculator.generateDifficultyHitObjects();
+            difficultyCalculator.objects[0].deltaTime =
+                difficultyCalculator.objects[0].startTime -
+                this.indexedHitObjects[0].object.startTime;
+            difficultyCalculator.objects[0].strainTime = Math.max(
+                25,
+                difficultyCalculator.objects[0].deltaTime
+            );
+            (<(DifficultyHitObject | RebalanceDifficultyHitObject)[]>(
+                this.calculator.objects
+            )).push(...difficultyCalculator.objects);
         });
 
-        this.map.objects.sort((a, b) => a.startTime - b.startTime);
+        this.calculator.objects.sort((a, b) => a.startTime - b.startTime);
 
         // Reassign preserved values before calculating.
-        for (let i = 0; i < this.map.objects.length; ++i) {
+        for (let i = 0; i < this.calculator.objects.length; ++i) {
             const diffObject:
                 | DifficultyHitObject
-                | RebalanceDifficultyHitObject = this.map.objects[i];
+                | RebalanceDifficultyHitObject = this.calculator.objects[i];
             const indexedHitObject: IndexedHitObject =
                 this.indexedHitObjects[i];
 
@@ -782,10 +791,10 @@ export class TwoHandChecker {
         }
 
         // Do not include rhythm skill.
-        this.map.calculateAim();
-        this.map.calculateTap();
-        this.map.calculateFlashlight();
-        this.map.calculateVisual();
-        this.map.calculateTotal();
+        this.calculator.calculateAim();
+        this.calculator.calculateTap();
+        this.calculator.calculateFlashlight();
+        this.calculator.calculateVisual();
+        this.calculator.calculateTotal();
     }
 }

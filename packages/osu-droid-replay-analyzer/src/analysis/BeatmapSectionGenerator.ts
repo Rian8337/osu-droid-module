@@ -1,10 +1,10 @@
 import {
+    DifficultyCalculator,
     DifficultyHitObject,
-    StarRating,
 } from "@rian8337/osu-difficulty-calculator";
 import {
+    DifficultyCalculator as RebalanceDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
-    StarRating as RebalanceStarRating,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { BeatmapSection } from "./data/BeatmapSection";
 
@@ -15,25 +15,25 @@ export abstract class BeatmapSectionGenerator {
     /**
      * Generates `BeatmapSection`s for the specified beatmap.
      *
-     * @param map The beatmap to generate.
+     * @param calculator The difficulty calculator to generate for.
      * @param minSectionObjectCount The maximum delta time allowed between two beatmap sections.
      * Increasing this number decreases the amount of beatmap sections in general. Note that this value does not account for the speed multiplier of
      * the play, similar to the way replay object data is stored.
      * @param maxSectionDeltaTime The minimum object count required to make a beatmap section. Increasing this number decreases the amount of beatmap sections.
      */
     static generateSections(
-        map: StarRating | RebalanceStarRating,
+        calculator: DifficultyCalculator | RebalanceDifficultyCalculator,
         minSectionObjectCount: number,
         maxSectionDeltaTime: number
     ): BeatmapSection[] {
         const beatmapSections: BeatmapSection[] = [];
         let firstObjectIndex: number = 0;
 
-        for (let i = 0; i < map.objects.length - 1; ++i) {
+        for (let i = 0; i < calculator.objects.length - 1; ++i) {
             const current: DifficultyHitObject | RebalanceDifficultyHitObject =
-                map.objects[i];
+                calculator.objects[i];
             const next: DifficultyHitObject | RebalanceDifficultyHitObject =
-                map.objects[i + 1];
+                calculator.objects[i + 1];
 
             const realDeltaTime: number =
                 next.object.startTime - current.object.endTime;
@@ -55,10 +55,13 @@ export abstract class BeatmapSectionGenerator {
         }
 
         // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-        if (map.objects.length - firstObjectIndex > minSectionObjectCount) {
+        if (
+            calculator.objects.length - firstObjectIndex >
+            minSectionObjectCount
+        ) {
             beatmapSections.push({
                 firstObjectIndex,
-                lastObjectIndex: map.objects.length - 1,
+                lastObjectIndex: calculator.objects.length - 1,
             });
         }
 
