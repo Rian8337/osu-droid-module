@@ -34,7 +34,7 @@ import { OsuStarRating } from "@rian8337/osu-difficulty-calculator";
 import { default as getStrainChart } from "@rian8337/osu-strain-graph-generator";
 
 (async () => {
-    const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+    const beatmapInfo = await MapInfo.getInformation(901854);
 
     if (!beatmapInfo.title) {
         return console.log("Beatmap not found");

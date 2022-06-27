@@ -44,7 +44,7 @@ import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 
 // Obtaining a beatmap file is optional, however it allows the replay analyzer to output more data
 // for old replays (replay version 1 or 2)
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
@@ -78,7 +78,7 @@ readFile("path/to/file.odr", async (err, replayData) => {
 
     // Obtaining a beatmap file is optional, however it allows the replay analyzer to output more data
     // for old replays (replay version 1 or 2)
-    const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+    const beatmapInfo = await MapInfo.getInformation(901854);
 
     if (!beatmapInfo.title) {
         return console.log("Beatmap not found");
@@ -119,7 +119,7 @@ import { MapInfo, MapStats } from "@rian8337/osu-base";
 import { DroidStarRating } from "@rian8337/osu-difficulty-calculator";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");

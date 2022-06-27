@@ -40,7 +40,7 @@ import {
     OsuDifficultyCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
@@ -82,7 +82,7 @@ Parameters can be applied to alter the result of the calculation:
 import { MapInfo, MapStats, ModUtil } from "@rian8337/osu-base";
 import { MapStars } from "@rian8337/osu-rebalance-difficulty-calculator";
 
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
@@ -119,7 +119,7 @@ import {
     OsuPerformanceCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
@@ -161,7 +161,7 @@ import {
     OsuDifficultyCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 
-const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
+const beatmapInfo = await MapInfo.getInformation(901854);
 
 if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
