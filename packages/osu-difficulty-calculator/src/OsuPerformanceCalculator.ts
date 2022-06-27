@@ -1,4 +1,4 @@
-import { OsuStarRating } from "./OsuStarRating";
+import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import {
     Accuracy,
@@ -15,7 +15,7 @@ import {
  * A performance points calculator that calculates performance points for osu!standard gamemode.
  */
 export class OsuPerformanceCalculator extends PerformanceCalculator {
-    override stars: OsuStarRating = new OsuStarRating();
+    override stars: OsuDifficultyCalculator = new OsuDifficultyCalculator();
     protected override finalMultiplier = 1.12;
 
     /**
@@ -42,7 +42,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         /**
          * The star rating instance to calculate.
          */
-        stars: OsuStarRating;
+        stars: OsuDifficultyCalculator;
 
         /**
          * The maximum combo achieved in the score.

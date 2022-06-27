@@ -35,9 +35,9 @@ yarn add @rian8337/osu-base @rian8337/osu-rebalance-difficulty-calculator
 ```js
 import { MapInfo } from "@rian8337/osu-base";
 import {
-    DroidStarRating,
+    DroidDifficultyCalculator,
     MapStars,
-    OsuStarRating,
+    OsuDifficultyCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 
 const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
@@ -47,14 +47,14 @@ if (!beatmapInfo.title) {
 }
 
 // Calculate osu!droid difficulty
-const droidRating = new DroidStarRating().calculate({
+const droidRating = new DroidDifficultyCalculator().calculate({
     map: beatmapInfo.map,
 });
 
 console.log(droidRating);
 
 // Calculate osu!standard difficulty
-const osuRating = new OsuStarRating().calculate({
+const osuRating = new OsuDifficultyCalculator().calculate({
     map: beatmapInfo.map,
 });
 
@@ -96,7 +96,7 @@ const stats = new MapStats({
     speedMultiplier: 1.5,
 });
 
-// Also available for `DroidStarRating` and `OsuStarRating`
+// Also available for `DroidDifficultyCalculator` and `OsuDifficultyCalculator`
 const rating = new MapStars().calculate({
     map: beatmapInfo.map,
     mods: mods,
@@ -158,7 +158,7 @@ Parameters can be passed to alter the result of the calculation:
 import { Accuracy, MapInfo, MapStats } from "@rian8337/osu-base";
 import {
     OsuPerformanceCalculator,
-    OsuStarRating,
+    OsuDifficultyCalculator,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 
 const beatmapInfo = await MapInfo.getInformation({ beatmapID: 901854 });
@@ -167,7 +167,7 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-const rating = new OsuStarRating().calculate({
+const rating = new OsuDifficultyCalculator().calculate({
     map: beatmapInfo.map,
 });
 

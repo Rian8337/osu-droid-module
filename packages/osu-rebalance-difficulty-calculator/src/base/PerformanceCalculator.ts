@@ -8,7 +8,7 @@ import {
     ModRelax,
     MathUtils,
 } from "@rian8337/osu-base";
-import { StarRating } from "./StarRating";
+import { DifficultyCalculator } from "./DifficultyCalculator";
 
 /**
  * The base class of performance calculators.
@@ -27,7 +27,7 @@ export abstract class PerformanceCalculator {
     /**
      * The calculated beatmap.
      */
-    abstract stars: StarRating;
+    abstract stars: DifficultyCalculator;
 
     /**
      * The map statistics after applying modifications.
@@ -63,7 +63,7 @@ export abstract class PerformanceCalculator {
         /**
          * The star rating instance to calculate.
          */
-        stars: StarRating;
+        stars: DifficultyCalculator;
 
         /**
          * The maximum combo achieved in the score.
@@ -104,7 +104,7 @@ export abstract class PerformanceCalculator {
             /**
              * The star rating instance to calculate.
              */
-            stars: StarRating;
+            stars: DifficultyCalculator;
 
             /**
              * The maximum combo achieved in the score.
@@ -167,7 +167,7 @@ export abstract class PerformanceCalculator {
             /**
              * The star rating instance to calculate.
              */
-            stars: StarRating;
+            stars: DifficultyCalculator;
 
             /**
              * The maximum combo achieved in the score.

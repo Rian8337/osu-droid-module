@@ -1,6 +1,6 @@
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
-import { StarRating } from "./base/StarRating";
+import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
@@ -14,9 +14,9 @@ import {
 } from "@rian8337/osu-base";
 
 /**
- * Difficulty calculator for osu!standard gamemode.
+ * A difficulty calculator for osu!standard gamemode.
  */
-export class OsuStarRating extends StarRating {
+export class OsuDifficultyCalculator extends DifficultyCalculator {
     /**
      * The aim star rating of the beatmap.
      */

@@ -1,6 +1,6 @@
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidTap } from "./skills/droid/DroidTap";
-import { StarRating } from "./base/StarRating";
+import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import {
@@ -15,9 +15,9 @@ import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 
 /**
- * Difficulty calculator for osu!droid gamemode.
+ * A difficulty calculator for osu!droid gamemode.
  */
-export class DroidStarRating extends StarRating {
+export class DroidDifficultyCalculator extends DifficultyCalculator {
     /**
      * The aim star rating of the beatmap.
      */

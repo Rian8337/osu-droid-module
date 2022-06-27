@@ -5,9 +5,9 @@ import { StrainSkill } from "./StrainSkill";
 import { DifficultyAttributes } from "./DifficultyAttributes";
 
 /**
- * The base of difficulty calculation.
+ * The base of a difficulty calculator.
  */
-export abstract class StarRating {
+export abstract class DifficultyCalculator {
     /**
      * The calculated beatmap.
      */

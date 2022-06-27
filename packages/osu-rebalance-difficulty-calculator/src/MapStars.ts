@@ -1,6 +1,6 @@
 import { Beatmap, Mod, MapStats } from "@rian8337/osu-base";
-import { DroidStarRating } from "./DroidStarRating";
-import { OsuStarRating } from "./OsuStarRating";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
+import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
 /**
  * A star rating calculator that configures which mode to calculate difficulty for and what mods are applied.
@@ -9,12 +9,13 @@ export class MapStars {
     /**
      * The osu!droid star rating of the beatmap.
      */
-    readonly droidStars: DroidStarRating = new DroidStarRating();
+    readonly droidStars: DroidDifficultyCalculator =
+        new DroidDifficultyCalculator();
 
     /**
      * The osu!standard star rating of the beatmap.
      */
-    readonly pcStars: OsuStarRating = new OsuStarRating();
+    readonly pcStars: OsuDifficultyCalculator = new OsuDifficultyCalculator();
 
     /**
      * Calculates the star rating of a beatmap.

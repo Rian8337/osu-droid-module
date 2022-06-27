@@ -7,14 +7,14 @@ import {
     ModScoreV2,
     ModFlashlight,
 } from "@rian8337/osu-base";
-import { DroidStarRating } from "./DroidStarRating";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
 export class DroidPerformanceCalculator extends PerformanceCalculator {
-    override stars: DroidStarRating = new DroidStarRating();
+    override stars: DroidDifficultyCalculator = new DroidDifficultyCalculator();
     protected override finalMultiplier = 1.24;
 
     /**
@@ -48,7 +48,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         /**
          * The star rating instance to calculate.
          */
-        stars: DroidStarRating;
+        stars: DroidDifficultyCalculator;
 
         /**
          * The maximum combo achieved in the score.
