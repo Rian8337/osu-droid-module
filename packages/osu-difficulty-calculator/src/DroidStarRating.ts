@@ -111,9 +111,9 @@ export class DroidStarRating extends StarRating {
 
         if (!this.mods.some((m) => m instanceof ModRelax)) {
             this.postCalculateTap(tapSkill);
-        } else {
-            this.calculateSpeedAttributes();
         }
+
+        this.calculateSpeedAttributes();
     }
 
     /**
@@ -203,9 +203,9 @@ export class DroidStarRating extends StarRating {
 
         if (!isRelax) {
             this.postCalculateTap(tapSkill);
-        } else {
-            this.calculateSpeedAttributes();
         }
+
+        this.calculateSpeedAttributes();
 
         if (!isRelax) {
             this.postCalculateRhythm(rhythmSkill);
@@ -284,8 +284,6 @@ export class DroidStarRating extends StarRating {
         this.strainPeaks.speed = tapSkill.strainPeaks;
 
         this.tap = this.starValue(tapSkill.difficultyValue());
-
-        this.calculateSpeedAttributes();
     }
 
     /**
