@@ -3,65 +3,62 @@ import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
 /**
- * A star rating calculator that configures which mode to calculate difficulty for and what mods are applied.
+ * A difficulty calculator that calculates for both osu!droid and osu!standard gamemode.
  */
 export class MapStars {
     /**
-     * The osu!droid star rating of the beatmap.
+     * The osu!droid difficulty calculator of the beatmap.
      */
-    readonly droidStars: DroidDifficultyCalculator =
-        new DroidDifficultyCalculator();
+    readonly droid: DroidDifficultyCalculator = new DroidDifficultyCalculator();
 
     /**
-     * The osu!standard star rating of the beatmap.
+     * The osu!standard difficulty calculator of the beatmap.
      */
-    readonly pcStars: OsuDifficultyCalculator = new OsuDifficultyCalculator();
+    readonly osu: OsuDifficultyCalculator = new OsuDifficultyCalculator();
 
     /**
-     * Calculates the star rating of a beatmap.
+     * Initializes the instance and calculates the given beatmap's osu!droid and osu!standard difficulty.
+     *
+     * @param beatmap The beatmap to calculate.
+     * @param options Options for the difficulty calculation.
      */
-    calculate(params: {
-        /**
-         * The beatmap to calculate.
-         */
-        map: Beatmap;
+    constructor(
+        beatmap: Beatmap,
+        options?: {
+            /**
+             * The modifications to apply.
+             */
+            mods?: Mod[];
 
-        /**
-         * Applied modifications.
-         */
-        mods?: Mod[];
-
-        /**
-         * Custom map statistics to apply speed multiplier and force AR values as well as old statistics.
-         */
-        stats?: MapStats;
-    }): MapStars {
-        const mod: Mod[] = params.mods ?? [];
-
+            /**
+             * Custom map statistics to apply speed multiplier and force AR values as well as old statistics.
+             */
+            stats?: MapStats;
+        }
+    ) {
         const stats: MapStats = new MapStats({
-            speedMultiplier: params.stats?.speedMultiplier ?? 1,
-            isForceAR: params.stats?.isForceAR ?? false,
-            oldStatistics: params.stats?.oldStatistics ?? false,
+            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
+            isForceAR: options?.stats?.isForceAR ?? false,
+            oldStatistics: options?.stats?.oldStatistics ?? false,
         });
 
-        this.droidStars.calculate({
-            map: params.map,
-            mods: mod,
-            stats,
-        });
-        this.pcStars.calculate({
-            map: params.map,
-            mods: mod,
+        this.droid.calculate({
+            map: beatmap,
+            mods: options?.mods,
             stats,
         });
 
-        return this;
+        this.osu.calculate({
+            map: beatmap,
+            mods: options?.mods,
+            stats,
+        });
     }
 
     /**
      * Returns a string representative of the class.
      */
     toString() {
-        return `${this.droidStars.toString()}\n${this.pcStars.toString()}`;
+        return `${this.droid.toString()}\n${this.osu.toString()}`;
     }
 }
