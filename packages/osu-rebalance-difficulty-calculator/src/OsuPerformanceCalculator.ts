@@ -44,16 +44,15 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.calculateFlashlightValue();
     }
 
-    protected override calculateTotalValue(): number {
-        return (
+    protected override calculateTotalValue(): void {
+        this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.speed, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1),
                 1 / 1.1
-            ) * this.finalMultiplier
-        );
+            ) * this.finalMultiplier;
     }
 
     /**
@@ -84,7 +83,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.aim *= lengthBonus;
 
         if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
+            // Penalize misses by assessing # of misses relative to the total # of objects.
+            // Default a 3% reduction for any # of misses.
             this.aim *=
                 0.97 *
                 Math.pow(
@@ -146,7 +146,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.speed *= lengthBonus;
 
         if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
+            // Penalize misses by assessing # of misses relative to the total # of objects.
+            // Default a 3% reduction for any # of misses.
             this.speed *=
                 0.97 *
                 Math.pow(

@@ -9,7 +9,6 @@ import {
     ModScoreV2,
     ModFlashlight,
 } from "@rian8337/osu-base";
-import { OsuPerformanceCalculationOptions } from "./structures/OsuPerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -36,19 +35,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     flashlight: number = 0;
 
     protected override finalMultiplier = 1.12;
-
-    /**
-     * Constructs this instance and calculates the performance value of a difficulty calculator.
-     *
-     * @param difficultyCalculator The difficulty calculator to calculate.
-     * @param options Options for the performance calculation.
-     */
-    constructor(
-        difficultyCalculator: OsuDifficultyCalculator,
-        options?: OsuPerformanceCalculationOptions
-    ) {
-        super(difficultyCalculator, modes.osu, options);
-    }
+    protected override readonly mode: modes = modes.osu;
 
     protected override calculateValues(): void {
         this.calculateAimValue();
@@ -57,16 +44,15 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.calculateFlashlightValue();
     }
 
-    protected override calculateTotalValue(): number {
-        return (
+    protected override calculateTotalValue(): void {
+        this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.speed, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1),
                 1 / 1.1
-            ) * this.finalMultiplier
-        );
+            ) * this.finalMultiplier;
     }
 
     /**

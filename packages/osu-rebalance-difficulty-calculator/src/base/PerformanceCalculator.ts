@@ -18,7 +18,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     /**
      * The overall performance value.
      */
-    total: number;
+    total: number = 0;
 
     /**
      * The calculated accuracy.
@@ -63,22 +63,26 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     protected sliderNerfFactor: number = 1;
 
     /**
-     * Constructs this instance and calculates the performance value of a difficulty calculator.
-     *
      * @param difficultyCalculator The difficulty calculator to calculate.
-     * @param options Options for the performance calculation.
      */
-    constructor(
-        difficultyCalculator: T,
-        options?: PerformanceCalculationOptions
-    ) {
+    constructor(difficultyCalculator: T) {
         this.difficultyCalculator = difficultyCalculator;
+    }
 
+    /**
+     * Calculates the performance points of the beatmap.
+     *
+     * @param options Options for performance calculation.
+     * @returns The current instance.
+     */
+    calculate(options?: PerformanceCalculationOptions): this {
         this.handleOptions(options);
 
-        this.calculateValues(options);
+        this.calculateValues();
 
-        this.total = this.calculateTotalValue();
+        this.calculateTotalValue();
+
+        return this;
     }
 
     /**
@@ -87,16 +91,15 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     abstract toString(): string;
 
     /**
-     * Calculates values that will be used for calculating the total performance value of the beatmap.
-     * 
-     * @param options Options for the performance calculation.
+     * Calculates all values that will be used for calculating the total
+     * performance value of the beatmap and stores them in this instance.
      */
-    protected abstract calculateValues(options?: PerformanceCalculationOptions): void;
+    protected abstract calculateValues(): void;
 
     /**
-     * Calculates the total performance value of the beatmap.
+     * Calculates the total performance value of the beatmap and stores it in this instance.
      */
-    protected abstract calculateTotalValue(): number;
+    protected abstract calculateTotalValue(): void;
 
     /**
      * Calculates the base performance value of a star rating.
@@ -108,7 +111,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     /**
      * Processes given options for usage in performance calculation.
      */
-    private handleOptions(options?: PerformanceCalculationOptions): void {
+    protected handleOptions(options?: PerformanceCalculationOptions): void {
         const maxCombo: number = this.difficultyCalculator.beatmap.maxCombo;
         const miss: number = this.computedAccuracy.nmiss;
         const combo: number = options?.combo ?? maxCombo - miss;
@@ -150,7 +153,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 1 -
                 Math.pow(
                     this.difficultyCalculator.beatmap.hitObjects.spinners /
-                    this.difficultyCalculator.objects.length,
+                        this.difficultyCalculator.objects.length,
                     0.85
                 );
         }
@@ -159,8 +162,8 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
             this.effectiveMissCount = Math.min(
                 this.effectiveMissCount +
-                this.computedAccuracy.n100 +
-                this.computedAccuracy.n50,
+                    this.computedAccuracy.n100 +
+                    this.computedAccuracy.n50,
                 this.difficultyCalculator.objects.length
             );
 
@@ -180,8 +183,8 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             const estimateSliderEndsDropped: number = MathUtils.clamp(
                 Math.min(
                     this.computedAccuracy.n300 +
-                    this.computedAccuracy.n50 +
-                    this.computedAccuracy.nmiss,
+                        this.computedAccuracy.n50 +
+                        this.computedAccuracy.nmiss,
                     maxCombo - combo
                 ),
                 0,
@@ -190,12 +193,12 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
 
             this.sliderNerfFactor =
                 (1 - this.difficultyCalculator.attributes.sliderFactor) *
-                Math.pow(
-                    1 -
-                    estimateSliderEndsDropped /
-                    estimateDifficultSliders,
-                    3
-                ) +
+                    Math.pow(
+                        1 -
+                            estimateSliderEndsDropped /
+                                estimateDifficultSliders,
+                        3
+                    ) +
                 this.difficultyCalculator.attributes.sliderFactor;
         }
 
