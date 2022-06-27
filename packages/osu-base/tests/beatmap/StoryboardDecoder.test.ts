@@ -1,5 +1,5 @@
 import { readFileSync } from "fs";
-import { join, normalize } from "path";
+import { join } from "path";
 import {
     Anchor,
     AnimationLoopType,
@@ -114,7 +114,7 @@ describe("Test decode storyboard events", () => {
         expect(sprite.hasCommands).toBe(true);
         expect(sprite.initialPosition).toEqual(new Vector2(320, 240));
         expect(sprite.origin).toBe(Anchor.center);
-        expect(sprite.path).toBe(normalize("SB/lyric/ja-21.png"));
+        expect(sprite.path).toBe("SB\\lyric\\ja-21.png");
     });
 
     test("Test animation", () => {
@@ -130,7 +130,7 @@ describe("Test decode storyboard events", () => {
         expect(animation.initialPosition).toEqual(new Vector2(320, 240));
         expect(animation.loopType).toBe(AnimationLoopType.loopForever);
         expect(animation.origin).toBe(Anchor.center);
-        expect(animation.path).toBe(normalize("SB/red jitter/red_0000.jpg"));
+        expect(animation.path).toBe("SB\\red jitter\\red_0000.jpg");
         expect(animation.startTime).toBe(78993);
     });
 });
