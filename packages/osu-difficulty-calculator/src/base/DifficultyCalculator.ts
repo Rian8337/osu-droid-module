@@ -2,7 +2,9 @@ import { Beatmap, Mod, MapStats, modes, Utils } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
 import { StrainSkill } from "./StrainSkill";
-import { DifficultyAttributes } from "./DifficultyAttributes";
+import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
+import { DifficultyAttributes } from "../structures/DifficultyAttributes";
+import { StrainPeaks } from "../structures/StrainPeaks";
 
 /**
  * The base of difficulty calculators.
@@ -11,7 +13,7 @@ export abstract class DifficultyCalculator {
     /**
      * The calculated beatmap.
      */
-    map: Beatmap = new Beatmap();
+    readonly beatmap: Beatmap;
 
     /**
      * The difficulty objects of the beatmap.
@@ -36,24 +38,7 @@ export abstract class DifficultyCalculator {
     /**
      * The strain peaks of various calculated difficulties.
      */
-    readonly strainPeaks: {
-        /**
-         * The strain peaks of aim difficulty if sliders are considered.
-         */
-        aimWithSliders: number[];
-        /**
-         * The strain peaks of aim difficulty if sliders are not considered.
-         */
-        aimWithoutSliders: number[];
-        /**
-         * The strain peaks of speed difficulty.
-         */
-        speed: number[];
-        /**
-         * The strain peaks of flashlight difficulty.
-         */
-        flashlight: number[];
-    } = {
+    readonly strainPeaks: StrainPeaks = {
         aimWithSliders: [],
         aimWithoutSliders: [],
         speed: [],
@@ -70,6 +55,16 @@ export abstract class DifficultyCalculator {
 
     protected readonly sectionLength: number = 400;
     protected abstract readonly difficultyMultiplier: number;
+    protected abstract readonly mode: modes;
+
+    /**
+     * Constructs a new instance of the calculator.
+     * 
+     * @param beatmap The beatmap to calculate. This beatmap will be deep-cloned to prevent reference changes.
+     */
+    constructor(beatmap: Beatmap) {
+        this.beatmap = Utils.deepCopy(beatmap);
+    }
 
     /**
      * Calculates the star rating of the specified beatmap.
@@ -82,47 +77,24 @@ export abstract class DifficultyCalculator {
      * For subsequent chunks, the initial max strain is calculated
      * by decaying the previous hitobject's strain until the
      * beginning of the new chunk.
-     *
-     * The first object doesn't generate a strain
-     * so we begin calculating from the second object.
-     *
-     * Also don't forget to manually add the peak strain for the last
-     * section which would otherwise be ignored.
+     * 
+     * @param options Options for the difficulty calculation.
      */
-    calculate(
-        params: {
-            /**
-             * The beatmap to calculate.
-             */
-            map: Beatmap;
-
-            /**
-             * Applied modifications in osu!standard format.
-             */
-            mods?: Mod[];
-
-            /**
-             * Custom map statistics to apply custom speed multiplier as well as old statistics.
-             */
-            stats?: MapStats;
-        },
-        mode: modes
-    ): this {
-        const map: Beatmap = (this.map = Utils.deepCopy(params.map));
-
-        const mod: Mod[] = (this.mods = params.mods ?? this.mods);
+    calculate(options?: DifficultyCalculationOptions): this {
+        this.mods = options?.mods ?? [];
 
         this.stats = new MapStats({
-            cs: map.difficulty.cs,
-            ar: map.difficulty.ar,
-            od: map.difficulty.od,
-            hp: map.difficulty.hp,
-            mods: mod,
-            speedMultiplier: params.stats?.speedMultiplier ?? 1,
-            oldStatistics: params.stats?.oldStatistics ?? false,
-        }).calculate({ mode: mode });
+            cs: this.beatmap.difficulty.cs,
+            ar: this.beatmap.difficulty.ar,
+            od: this.beatmap.difficulty.od,
+            hp: this.beatmap.difficulty.hp,
+            mods: options?.mods,
+            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
+            oldStatistics: options?.stats?.oldStatistics ?? false,
+        }).calculate({ mode: this.mode });
 
-        this.generateDifficultyHitObjects(mode);
+        this.generateDifficultyHitObjects();
+
         this.calculateAll();
 
         return this;
@@ -130,17 +102,15 @@ export abstract class DifficultyCalculator {
 
     /**
      * Generates difficulty hitobjects for this calculator.
-     *
-     * @param mode The gamemode to generate difficulty hitobjects for.
      */
-    protected generateDifficultyHitObjects(mode: modes): void {
+    generateDifficultyHitObjects(): void {
         this.objects.length = 0;
         this.objects.push(
             ...new DifficultyHitObjectCreator().generateDifficultyObjects({
-                objects: this.map.hitObjects.objects,
-                circleSize: <number>this.stats.cs,
+                objects: this.beatmap.hitObjects.objects,
+                circleSize: this.stats.cs!,
                 speedMultiplier: this.stats.speedMultiplier,
-                mode: mode,
+                mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),
             })
         );
@@ -152,6 +122,7 @@ export abstract class DifficultyCalculator {
      * @param skills The skills to calculate.
      */
     protected calculateSkills(...skills: StrainSkill[]): void {
+        // The first object doesn't generate a strain, so we begin calculating from the second object.
         this.objects.slice(1).forEach((h, i) => {
             skills.forEach((skill) => {
                 skill.process(h);

@@ -3,14 +3,7 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import {
-    Beatmap,
-    Mod,
-    MapStats,
-    modes,
-    ModRelax,
-    ModFlashlight,
-} from "@rian8337/osu-base";
+import { modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 
@@ -44,50 +37,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     visual: number = 0;
 
     protected override readonly difficultyMultiplier: number = 0.18;
-
-    /**
-     * Calculates the star rating of the specified beatmap.
-     *
-     * The beatmap is analyzed in chunks of `sectionLength` duration.
-     * For each chunk the highest hitobject strains are added to
-     * a list which is then collapsed into a weighted sum, much
-     * like scores are weighted on a user's profile.
-     *
-     * For subsequent chunks, the initial max strain is calculated
-     * by decaying the previous hitobject's strain until the
-     * beginning of the new chunk.
-     *
-     * The first object doesn't generate a strain
-     * so we begin calculating from the second object.
-     *
-     * Also don't forget to manually add the peak strain for the last
-     * section which would otherwise be ignored.
-     */
-    override calculate(params: {
-        /**
-         * The beatmap to calculate.
-         */
-        map: Beatmap;
-
-        /**
-         * Applied modifications.
-         */
-        mods?: Mod[];
-
-        /**
-         * Custom map statistics to apply custom tap multiplier as well as old statistics.
-         */
-        stats?: MapStats;
-    }): this {
-        return super.calculate(params, modes.droid);
-    }
-
-    /**
-     * Generates difficulty hitobjects for this calculator.
-     */
-    override generateDifficultyHitObjects(): void {
-        super.generateDifficultyHitObjects(modes.droid);
-    }
+    protected override readonly mode: modes = modes.droid;
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
@@ -168,9 +118,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(tapPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1) +
-                Math.pow(visualPerformanceValue, 1.1),
+            Math.pow(tapPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1) +
+            Math.pow(visualPerformanceValue, 1.1),
             1 / 1.1
         );
 

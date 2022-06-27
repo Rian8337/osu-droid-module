@@ -2,7 +2,6 @@ import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import {
     Accuracy,
-    MapStats,
     modes,
     ModTouchDevice,
     ModHidden,
@@ -10,14 +9,12 @@ import {
     ModScoreV2,
     ModFlashlight,
 } from "@rian8337/osu-base";
+import { OsuPerformanceCalculationOptions } from "./structures/OsuPerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
  */
-export class OsuPerformanceCalculator extends PerformanceCalculator {
-    override stars: OsuDifficultyCalculator = new OsuDifficultyCalculator();
-    protected override finalMultiplier = 1.12;
-
+export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficultyCalculator> {
     /**
      * The aim performance value.
      */
@@ -38,33 +35,19 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
      */
     flashlight: number = 0;
 
-    override calculate(params: {
-        /**
-         * The star rating instance to calculate.
-         */
-        stars: OsuDifficultyCalculator;
+    protected override finalMultiplier = 1.12;
 
-        /**
-         * The maximum combo achieved in the score.
-         */
-        combo?: number;
-
-        /**
-         * The accuracy achieved in the score.
-         */
-        accPercent?: Accuracy | number;
-
-        /**
-         * The amount of misses achieved in the score.
-         */
-        miss?: number;
-
-        /**
-         * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
-         */
-        stats?: MapStats;
-    }): this {
-        return this.calculateInternal(params, modes.osu);
+    /**
+     * Constructs this instance and calculates the performance value of a difficulty calculator.
+     *
+     * @param difficultyCalculator The difficulty calculator to calculate.
+     * @param options Options for the performance calculation.
+     */
+    constructor(
+        difficultyCalculator: OsuDifficultyCalculator,
+        options?: OsuPerformanceCalculationOptions
+    ) {
+        super(difficultyCalculator, modes.osu, options);
     }
 
     protected override calculateValues(): void {
@@ -91,13 +74,15 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAimValue(): void {
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.mapStatistics.ar!;
 
         this.aim = this.baseValue(
             Math.pow(
-                this.stars.aim,
-                this.stars.mods.some((m) => m instanceof ModTouchDevice)
+                this.difficultyCalculator.aim,
+                this.difficultyCalculator.mods.some(
+                    (m) => m instanceof ModTouchDevice
+                )
                     ? 0.8
                     : 1
             )
@@ -136,7 +121,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         this.aim *= 1 + arFactor * lengthBonus;
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+        ) {
             this.aim *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -157,11 +144,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateSpeedValue(): void {
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.mapStatistics.ar!;
         const n50: number = this.computedAccuracy.n50;
 
-        this.speed = this.baseValue(this.stars.speed);
+        this.speed = this.baseValue(this.difficultyCalculator.speed);
 
         // Longer maps are worth more
         let lengthBonus = 0.95 + 0.4 * Math.min(1, objectCount / 2000);
@@ -190,7 +177,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
             this.speed *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
         }
 
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+        ) {
             this.speed *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -210,17 +199,17 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): void {
-        if (this.stars.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
             return;
         }
 
         // Global variables
-        const nobjects: number = this.stars.objects.length;
-        const ncircles: number = this.stars.mods.some(
+        const nobjects: number = this.difficultyCalculator.objects.length;
+        const ncircles: number = this.difficultyCalculator.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? nobjects - this.stars.map.hitObjects.spinners
-            : this.stars.map.hitObjects.circles;
+            ? nobjects - this.difficultyCalculator.beatmap.hitObjects.spinners
+            : this.difficultyCalculator.beatmap.hitObjects.circles;
 
         if (ncircles === 0) {
             return;
@@ -230,7 +219,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
             ...this.computedAccuracy,
             n300:
                 this.computedAccuracy.n300 -
-                (this.stars.objects.length - ncircles),
+                (this.difficultyCalculator.objects.length - ncircles),
         });
 
         // Lots of arbitrary values from testing.
@@ -243,10 +232,16 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+        ) {
             this.accuracy *= 1.08;
         }
-        if (this.stars.mods.some((m) => m instanceof ModFlashlight)) {
+        if (
+            this.difficultyCalculator.mods.some(
+                (m) => m instanceof ModFlashlight
+            )
+        ) {
             this.accuracy *= 1.02;
         }
     }
@@ -255,18 +250,24 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
      * Calculates the flashlight performance value of the beatmap.
      */
     private calculateFlashlightValue(): void {
-        if (!this.stars.mods.some((m) => m instanceof ModFlashlight)) {
+        if (
+            !this.difficultyCalculator.mods.some(
+                (m) => m instanceof ModFlashlight
+            )
+        ) {
             return;
         }
 
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.flashlight =
             Math.pow(
                 Math.pow(
-                    this.stars.flashlight,
-                    this.stars.mods.some((m) => m instanceof ModTouchDevice)
+                    this.difficultyCalculator.flashlight,
+                    this.difficultyCalculator.mods.some(
+                        (m) => m instanceof ModTouchDevice
+                    )
                         ? 0.8
                         : 1
                 ),
@@ -274,7 +275,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
             ) * 25;
 
         // Add an additional bonus for HDFL.
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+        ) {
             this.flashlight *= 1.3;
         }
 

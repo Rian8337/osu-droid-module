@@ -1,6 +1,5 @@
 import {
     Accuracy,
-    MapStats,
     modes,
     ModHidden,
     ModRelax,
@@ -9,14 +8,12 @@ import {
 } from "@rian8337/osu-base";
 import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
-export class DroidPerformanceCalculator extends PerformanceCalculator {
-    override stars: DroidDifficultyCalculator = new DroidDifficultyCalculator();
-    protected override finalMultiplier = 1.24;
-
+export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDifficultyCalculator> {
     /**
      * The aim performance value.
      */
@@ -42,45 +39,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     visual: number = 0;
 
-    private tapPenalty: number = 1;
+    protected override finalMultiplier = 1.24;
+    protected override readonly mode: modes = modes.droid;
 
-    override calculate(params: {
-        /**
-         * The star rating instance to calculate.
-         */
-        stars: DroidDifficultyCalculator;
-
-        /**
-         * The maximum combo achieved in the score.
-         */
-        combo?: number;
-
-        /**
-         * The accuracy achieved in the score.
-         */
-        accPercent?: Accuracy | number;
-
-        /**
-         * The amount of misses achieved in the score.
-         */
-        miss?: number;
-
-        /**
-         * The tap penalty to apply for penalized scores.
-         */
-        tapPenalty?: number;
-
-        /**
-         * Custom map statistics to apply custom tap multiplier and force AR values as well as old statistics.
-         */
-        stats?: MapStats;
-    }): this {
-        this.tapPenalty = params.tapPenalty ?? 1;
-
-        return this.calculateInternal(params, modes.droid);
-    }
-
-    protected override calculateValues(): void {
+    protected override calculateValues(options?: PerformanceCalculationOptions): void {
         this.calculateAimValue();
         this.calculateTapValue();
         this.calculateAccuracyValue();
@@ -88,17 +50,17 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.calculateVisualValue();
 
         // Apply tap penalty for penalized plays.
-        this.tap /= this.tapPenalty;
+        this.tap /= (options?.tapPenalty ?? 1);
     }
 
     protected override calculateTotalValue(): number {
         return (
             Math.pow(
                 Math.pow(this.aim, 1.1) +
-                    Math.pow(this.tap, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.visual, 1.1),
+                Math.pow(this.tap, 1.1) +
+                Math.pow(this.accuracy, 1.1) +
+                Math.pow(this.flashlight, 1.1) +
+                Math.pow(this.visual, 1.1),
                 1 / 1.1
             ) * this.finalMultiplier
         );
@@ -109,9 +71,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAimValue(): void {
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
 
-        this.aim = this.baseValue(Math.pow(this.stars.aim, 0.8));
+        this.aim = this.baseValue(Math.pow(this.difficultyCalculator.aim, 0.8));
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
@@ -143,9 +105,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateTapValue(): void {
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
 
-        this.tap = this.baseValue(this.stars.tap);
+        this.tap = this.baseValue(this.difficultyCalculator.tap);
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
@@ -166,7 +128,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const countMeh: number = this.computedAccuracy.n50;
 
         const relevantTotalDiff: number =
-            objectCount - this.stars.attributes.speedNoteCount;
+            objectCount - this.difficultyCalculator.attributes.speedNoteCount;
 
         const relevantAccuracy: Accuracy = new Accuracy({
             n300: Math.max(0, countGreat - relevantTotalDiff),
@@ -189,9 +151,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.pow(
                 (this.computedAccuracy.value(objectCount) +
                     relevantAccuracy.value(
-                        this.stars.attributes.speedNoteCount
+                        this.difficultyCalculator.attributes.speedNoteCount
                     )) /
-                    2,
+                2,
                 (14 - Math.max(od, 2.5)) / 2
             );
 
@@ -206,17 +168,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): void {
-        if (this.stars.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
             return;
         }
 
         // Global variables
-        const objectCount: number = this.stars.objects.length;
-        const ncircles: number = this.stars.mods.some(
+        const objectCount: number = this.difficultyCalculator.objects.length;
+        const ncircles: number = this.difficultyCalculator.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? objectCount - this.stars.map.hitObjects.spinners
-            : this.stars.map.hitObjects.circles;
+            ? objectCount -
+            this.difficultyCalculator.beatmap.hitObjects.spinners
+            : this.difficultyCalculator.beatmap.hitObjects.circles;
 
         if (ncircles === 0) {
             return;
@@ -238,13 +201,20 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
         // Scale the accuracy value with rhythm complexity.
-        this.accuracy *= 1.5 / (1 + Math.exp(-(this.stars.rhythm - 1) / 2));
+        this.accuracy *=
+            1.5 / (1 + Math.exp(-(this.difficultyCalculator.rhythm - 1) / 2));
 
-        if (this.stars.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+        ) {
             this.accuracy *= 1.08;
         }
 
-        if (this.stars.mods.some((m) => m instanceof ModFlashlight)) {
+        if (
+            this.difficultyCalculator.mods.some(
+                (m) => m instanceof ModFlashlight
+            )
+        ) {
             this.accuracy *= 1.02;
         }
     }
@@ -253,15 +223,20 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      * Calculates the flashlight performance value of the beatmap.
      */
     private calculateFlashlightValue(): void {
-        if (!this.stars.mods.some((m) => m instanceof ModFlashlight)) {
+        if (
+            !this.difficultyCalculator.mods.some(
+                (m) => m instanceof ModFlashlight
+            )
+        ) {
             return;
         }
 
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.flashlight =
-            Math.pow(Math.pow(this.stars.flashlight, 0.8), 2) * 25;
+            Math.pow(Math.pow(this.difficultyCalculator.flashlight, 0.8), 2) *
+            25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
@@ -298,9 +273,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateVisualValue(): void {
         // Global variables
-        const objectCount: number = this.stars.objects.length;
+        const objectCount: number = this.difficultyCalculator.objects.length;
 
-        this.visual = Math.pow(Math.pow(this.stars.visual, 0.8), 2) * 25;
+        this.visual =
+            Math.pow(Math.pow(this.difficultyCalculator.visual, 0.8), 2) * 25;
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
@@ -319,8 +295,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.visual *= Math.min(
             1,
             1.650668 +
-                (0.4845796 - 1.650668) /
-                    (1 + Math.pow(objectCount / 817.9306, 1.147469))
+            (0.4845796 - 1.650668) /
+            (1 + Math.pow(objectCount / 817.9306, 1.147469))
         );
 
         // Scale the visual value with accuracy harshly.

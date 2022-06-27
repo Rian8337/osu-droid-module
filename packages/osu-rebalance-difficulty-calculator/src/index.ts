@@ -1,4 +1,6 @@
 export * from "./evaluators/base/AimEvaluator";
+export * from "./structures/CalculationOptions";
+export * from "./structures/DifficultyCalculationOptions";
 export * from "./base/DifficultyCalculator";
 export * from "./preprocessing/DifficultyHitObject";
 export * from "./preprocessing/DifficultyHitObjectCreator";
@@ -25,6 +27,8 @@ export * from "./OsuPerformanceCalculator";
 export * from "./evaluators/osu/OsuRhythmEvaluator";
 export * from "./skills/osu/OsuSpeed";
 export * from "./evaluators/osu/OsuSpeedEvaluator";
+export * from "./structures/PerformanceCalculationOptions";
 export * from "./base/PerformanceCalculator";
 export * from "./evaluators/base/RhythmEvaluator";
 export * from "./evaluators/base/SpeedEvaluator";
+export * from "./structures/StrainPeaks";

@@ -1,4 +1,5 @@
-import { Beatmap, Mod, MapStats } from "@rian8337/osu-base";
+import { Beatmap, MapStats } from "@rian8337/osu-base";
+import { DifficultyCalculationOptions } from "./structures/DifficultyCalculationOptions";
 import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
@@ -9,48 +10,33 @@ export class MapStars {
     /**
      * The osu!droid difficulty calculator of the beatmap.
      */
-    readonly droid: DroidDifficultyCalculator = new DroidDifficultyCalculator();
+    readonly droid: DroidDifficultyCalculator;
 
     /**
      * The osu!standard difficulty calculator of the beatmap.
      */
-    readonly osu: OsuDifficultyCalculator = new OsuDifficultyCalculator();
+    readonly osu: OsuDifficultyCalculator;
 
     /**
-     * Initializes the instance and calculates the given beatmap's osu!droid and osu!standard difficulty.
+     * Constructs this instance and calculates the given beatmap's osu!droid and osu!standard difficulty.
      *
      * @param beatmap The beatmap to calculate.
      * @param options Options for the difficulty calculation.
      */
-    constructor(
-        beatmap: Beatmap,
-        options?: {
-            /**
-             * The modifications to apply.
-             */
-            mods?: Mod[];
-
-            /**
-             * Custom map statistics to apply speed multiplier and force AR values as well as old statistics.
-             */
-            stats?: MapStats;
-        }
-    ) {
+    constructor(beatmap: Beatmap, options?: DifficultyCalculationOptions) {
         const stats: MapStats = new MapStats({
             speedMultiplier: options?.stats?.speedMultiplier ?? 1,
             isForceAR: options?.stats?.isForceAR ?? false,
             oldStatistics: options?.stats?.oldStatistics ?? false,
         });
 
-        this.droid.calculate({
-            map: beatmap,
-            mods: options?.mods,
+        this.droid = new DroidDifficultyCalculator(beatmap).calculate({
+            ...options,
             stats,
         });
 
-        this.osu.calculate({
-            map: beatmap,
-            mods: options?.mods,
+        this.osu = new OsuDifficultyCalculator(beatmap).calculate({
+            ...options,
             stats,
         });
     }

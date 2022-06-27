@@ -47,28 +47,22 @@ if (!beatmapInfo.title) {
 }
 
 // Calculate osu!droid difficulty
-const droidRating = new DroidDifficultyCalculator().calculate({
-    map: beatmapInfo.map,
-});
+const droidRating = new DroidDifficultyCalculator(beatmapInfo.map);
 
 console.log(droidRating);
 
 // Calculate osu!standard difficulty
-const osuRating = new OsuDifficultyCalculator().calculate({
-    map: beatmapInfo.map,
-});
+const osuRating = new OsuDifficultyCalculator(beatmapInfo.map);
 
 console.log(osuRating);
 
 // Calculate both osu!droid and osu!standard difficulty
-const rating = new MapStars().calculate({
-    map: beatmapInfo.map,
-});
+const rating = new MapStars(beatmapInfo.map);
 
 // osu!droid difficulty
-console.log(rating.droidStars);
+console.log(rating.droid);
 // osu!standard difficulty
-console.log(rating.pcStars);
+console.log(rating.osu);
 ```
 
 ### Specifying difficulty calculation parameters
@@ -97,16 +91,15 @@ const stats = new MapStats({
 });
 
 // Also available for `DroidDifficultyCalculator` and `OsuDifficultyCalculator`
-const rating = new MapStars().calculate({
-    map: beatmapInfo.map,
+const rating = new MapStars(beatmapInfo.map, {
     mods: mods,
     stats: stats,
 });
 
 // osu!droid difficulty
-console.log(rating.droidStars);
+console.log(rating.droid);
 // osu!standard difficulty
-console.log(rating.pcStars);
+console.log(rating.osu);
 ```
 
 ## Performance calculator
@@ -125,21 +118,15 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-const rating = new MapStars().calculate({
-    map: beatmapInfo.map,
-});
+const rating = new MapStars(beatmapInfo.map);
 
 // osu!droid performance
-const droidPerformance = new DroidPerformanceCalculator().calculate({
-    stars: rating.droidStars,
-});
+const droidPerformance = new DroidPerformanceCalculator(rating.droid);
 
 console.log(droidPerformance);
 
 // osu!standard performance
-const osuPerformance = new OsuPerformanceCalculator().calculate({
-    stars: rating.pcStars,
-});
+const osuPerformance = new OsuPerformanceCalculator(rating.osu);
 
 console.log(osuPerformance);
 ```
@@ -167,9 +154,7 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-const rating = new OsuDifficultyCalculator().calculate({
-    map: beatmapInfo.map,
-});
+const rating = new OsuDifficultyCalculator(beatmapInfo.map);
 
 const accuracy = new Accuracy({
     // Specify your misses here
@@ -196,11 +181,11 @@ const stats = new MapStats({
     speedMultiplier: 1.25,
 });
 
-const performance = new OsuPerformanceCalculator().calculate({
-    stars: rating,
+const performance = new OsuPerformanceCalculator(rating, {
     combo: 1250,
     accPercent: accuracy,
-    // The tap penalty can be properly obtained by checking a replay for three finger usage
+    // The tap penalty will only be used by `DroidPerformanceCalculator` and
+    // can be properly obtained by checking a replay for three finger usage
     // However, a custom value can also be provided
     tapPenalty: 1.5,
     stats: stats,

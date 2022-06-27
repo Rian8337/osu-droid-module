@@ -1,7 +1,4 @@
 import {
-    Beatmap,
-    Mod,
-    MapStats,
     modes,
     ModRelax,
     OsuHitWindow,
@@ -33,32 +30,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     flashlight: number = 0;
 
     protected override readonly difficultyMultiplier: number = 0.0675;
-
-    override calculate(params: {
-        /**
-         * The beatmap to calculate.
-         */
-        map: Beatmap;
-
-        /**
-         * Applied modifications.
-         */
-        mods?: Mod[];
-
-        /**
-         * Custom map statistics to apply custom speed multiplier as well as old statistics.
-         */
-        stats?: MapStats;
-    }): this {
-        return super.calculate(params, modes.osu);
-    }
-
-    /**
-     * Generates difficulty hitobjects for this calculator.
-     */
-    override generateDifficultyHitObjects(): void {
-        super.generateDifficultyHitObjects(modes.osu);
-    }
+    protected override readonly mode: modes = modes.osu;
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
@@ -116,8 +88,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+            Math.pow(speedPerformanceValue, 1.1) +
+            Math.pow(flashlightPerformanceValue, 1.1),
             1 / 1.1
         );
 

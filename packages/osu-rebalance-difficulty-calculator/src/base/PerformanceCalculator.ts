@@ -8,16 +8,17 @@ import {
     ModRelax,
     MathUtils,
 } from "@rian8337/osu-base";
+import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { DifficultyCalculator } from "./DifficultyCalculator";
 
 /**
  * The base class of performance calculators.
  */
-export abstract class PerformanceCalculator {
+export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     /**
      * The overall performance value.
      */
-    total: number = 0;
+    total: number;
 
     /**
      * The calculated accuracy.
@@ -25,9 +26,9 @@ export abstract class PerformanceCalculator {
     computedAccuracy: Accuracy = new Accuracy({});
 
     /**
-     * The calculated beatmap.
+     * The difficulty calculator that is being calculated.
      */
-    abstract stars: DifficultyCalculator;
+    readonly difficultyCalculator: T;
 
     /**
      * The map statistics after applying modifications.
@@ -47,6 +48,11 @@ export abstract class PerformanceCalculator {
     protected abstract finalMultiplier: number;
 
     /**
+     * The gamemode to calculate for.
+     */
+    protected abstract readonly mode: modes;
+
+    /**
      * The amount of misses that are filtered out from sliderbreaks.
      */
     protected effectiveMissCount: number = 0;
@@ -57,39 +63,23 @@ export abstract class PerformanceCalculator {
     protected sliderNerfFactor: number = 1;
 
     /**
-     * Calculates the performance points of a beatmap.
+     * Constructs this instance and calculates the performance value of a difficulty calculator.
+     *
+     * @param difficultyCalculator The difficulty calculator to calculate.
+     * @param options Options for the performance calculation.
      */
-    abstract calculate(params: {
-        /**
-         * The star rating instance to calculate.
-         */
-        stars: DifficultyCalculator;
+    constructor(
+        difficultyCalculator: T,
+        options?: PerformanceCalculationOptions
+    ) {
+        this.difficultyCalculator = difficultyCalculator;
 
-        /**
-         * The maximum combo achieved in the score.
-         */
-        combo?: number;
+        this.handleOptions(options);
 
-        /**
-         * The accuracy achieved in the score.
-         */
-        accPercent?: Accuracy | number;
+        this.calculateValues(options);
 
-        /**
-         * The amount of misses achieved in the score.
-         */
-        miss?: number;
-
-        /**
-         * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
-         */
-        tapPenalty?: number;
-
-        /**
-         * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
-         */
-        stats?: MapStats;
-    }): this;
+        this.total = this.calculateTotalValue();
+    }
 
     /**
      * Returns a string representative of the class.
@@ -97,55 +87,11 @@ export abstract class PerformanceCalculator {
     abstract toString(): string;
 
     /**
-     * Internal calculation method, used to process calculation from implementations.
-     */
-    protected calculateInternal(
-        params: {
-            /**
-             * The star rating instance to calculate.
-             */
-            stars: DifficultyCalculator;
-
-            /**
-             * The maximum combo achieved in the score.
-             */
-            combo?: number;
-
-            /**
-             * The accuracy achieved in the score.
-             */
-            accPercent?: Accuracy | number;
-
-            /**
-             * The amount of misses achieved in the score.
-             */
-            miss?: number;
-
-            /**
-             * The tap penalty to apply for penalized scores. Only applies to droid gamemode.
-             */
-            tapPenalty?: number;
-
-            /**
-             * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
-             */
-            stats?: MapStats;
-        },
-        mode: modes
-    ): this {
-        this.handleParams(params, mode);
-
-        this.calculateValues();
-
-        this.total = this.calculateTotalValue();
-
-        return this;
-    }
-
-    /**
      * Calculates values that will be used for calculating the total performance value of the beatmap.
+     * 
+     * @param options Options for the performance calculation.
      */
-    protected abstract calculateValues(): void;
+    protected abstract calculateValues(options?: PerformanceCalculationOptions): void;
 
     /**
      * Calculates the total performance value of the beatmap.
@@ -160,62 +106,27 @@ export abstract class PerformanceCalculator {
     }
 
     /**
-     * Processes given parameters for usage in performance calculation.
+     * Processes given options for usage in performance calculation.
      */
-    private handleParams(
-        params: {
-            /**
-             * The star rating instance to calculate.
-             */
-            stars: DifficultyCalculator;
-
-            /**
-             * The maximum combo achieved in the score.
-             */
-            combo?: number;
-
-            /**
-             * The accuracy achieved in the score.
-             */
-            accPercent?: Accuracy | number;
-
-            /**
-             * The amount of misses achieved in the score.
-             */
-            miss?: number;
-
-            /**
-             * The tap penalty to apply for penalized scores.
-             */
-            tapPenalty?: number;
-
-            /**
-             * Custom map statistics to apply custom speed multiplier and force AR values as well as old statistics.
-             */
-            stats?: MapStats;
-        },
-        mode: modes
-    ): void {
-        this.stars = params.stars;
-
-        const maxCombo: number = this.stars.map.maxCombo;
+    private handleOptions(options?: PerformanceCalculationOptions): void {
+        const maxCombo: number = this.difficultyCalculator.beatmap.maxCombo;
         const miss: number = this.computedAccuracy.nmiss;
-        const combo: number = params.combo ?? maxCombo - miss;
-        const mod: Mod[] = this.stars.mods;
-        const baseAR: number = this.stars.map.difficulty.ar!;
-        const baseOD: number = this.stars.map.difficulty.od;
+        const combo: number = options?.combo ?? maxCombo - miss;
+        const mod: Mod[] = this.difficultyCalculator.mods;
+        const baseAR: number = this.difficultyCalculator.beatmap.difficulty.ar!;
+        const baseOD: number = this.difficultyCalculator.beatmap.difficulty.od;
 
         // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
         this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
 
-        if (params.accPercent instanceof Accuracy) {
+        if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
-            this.computedAccuracy = new Accuracy(params.accPercent);
+            this.computedAccuracy = new Accuracy(options?.accPercent);
         } else {
             this.computedAccuracy = new Accuracy({
-                percent: params.accPercent,
-                nobjects: this.stars.objects.length,
-                nmiss: params.miss || 0,
+                percent: options?.accPercent,
+                nobjects: this.difficultyCalculator.objects.length,
+                nmiss: options?.miss || 0,
             });
         }
 
@@ -224,29 +135,33 @@ export abstract class PerformanceCalculator {
             maxCombo
         );
 
-        if (this.stars.mods.some((m) => m instanceof ModNoFail)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModNoFail)
+        ) {
             this.finalMultiplier *= Math.max(
                 0.9,
                 1 - 0.02 * this.effectiveMissCount
             );
         }
-        if (this.stars.mods.some((m) => m instanceof ModSpunOut)) {
+        if (
+            this.difficultyCalculator.mods.some((m) => m instanceof ModSpunOut)
+        ) {
             this.finalMultiplier *=
                 1 -
                 Math.pow(
-                    this.stars.map.hitObjects.spinners /
-                        this.stars.objects.length,
+                    this.difficultyCalculator.beatmap.hitObjects.spinners /
+                    this.difficultyCalculator.objects.length,
                     0.85
                 );
         }
-        if (this.stars.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
             // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
             this.effectiveMissCount = Math.min(
                 this.effectiveMissCount +
-                    this.computedAccuracy.n100 +
-                    this.computedAccuracy.n50,
-                this.stars.objects.length
+                this.computedAccuracy.n100 +
+                this.computedAccuracy.n50,
+                this.difficultyCalculator.objects.length
             );
 
             this.finalMultiplier *= 0.6;
@@ -258,15 +173,15 @@ export abstract class PerformanceCalculator {
             mods: mod,
         });
 
-        if (this.stars.map.hitObjects.sliders > 0) {
+        if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
             // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
             const estimateDifficultSliders: number =
-                this.stars.map.hitObjects.sliders * 0.15;
+                this.difficultyCalculator.beatmap.hitObjects.sliders * 0.15;
             const estimateSliderEndsDropped: number = MathUtils.clamp(
                 Math.min(
                     this.computedAccuracy.n300 +
-                        this.computedAccuracy.n50 +
-                        this.computedAccuracy.nmiss,
+                    this.computedAccuracy.n50 +
+                    this.computedAccuracy.nmiss,
                     maxCombo - combo
                 ),
                 0,
@@ -274,28 +189,29 @@ export abstract class PerformanceCalculator {
             );
 
             this.sliderNerfFactor =
-                (1 - this.stars.attributes.sliderFactor) *
-                    Math.pow(
-                        1 -
-                            estimateSliderEndsDropped /
-                                estimateDifficultSliders,
-                        3
-                    ) +
-                this.stars.attributes.sliderFactor;
+                (1 - this.difficultyCalculator.attributes.sliderFactor) *
+                Math.pow(
+                    1 -
+                    estimateSliderEndsDropped /
+                    estimateDifficultSliders,
+                    3
+                ) +
+                this.difficultyCalculator.attributes.sliderFactor;
         }
 
-        if (params.stats) {
-            this.mapStatistics.ar = params.stats.ar ?? this.mapStatistics.ar;
+        if (options?.stats) {
+            this.mapStatistics.ar = options?.stats.ar ?? this.mapStatistics.ar;
             this.mapStatistics.isForceAR =
-                params.stats.isForceAR ?? this.mapStatistics.isForceAR;
+                options?.stats.isForceAR ?? this.mapStatistics.isForceAR;
             this.mapStatistics.speedMultiplier =
-                params.stats.speedMultiplier ??
+                options?.stats.speedMultiplier ??
                 this.mapStatistics.speedMultiplier;
             this.mapStatistics.oldStatistics =
-                params.stats.oldStatistics ?? this.mapStatistics.oldStatistics;
+                options?.stats.oldStatistics ??
+                this.mapStatistics.oldStatistics;
         }
 
-        this.mapStatistics.calculate({ mode: mode });
+        this.mapStatistics.calculate({ mode: this.mode });
     }
 
     /**
@@ -307,16 +223,17 @@ export abstract class PerformanceCalculator {
     ): number {
         let comboBasedMissCount: number = 0;
 
-        if (this.stars.map.hitObjects.sliders > 0) {
+        if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
             const fullComboThreshold: number =
-                maxCombo - 0.1 * this.stars.map.hitObjects.sliders;
+                maxCombo -
+                0.1 * this.difficultyCalculator.beatmap.hitObjects.sliders;
 
             if (combo < fullComboThreshold) {
                 // We're clamping miss count because since it's derived from combo, it can
                 // be higher than the amount of objects and that breaks some calculations.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.stars.objects.length
+                    this.difficultyCalculator.objects.length
                 );
             }
         }
