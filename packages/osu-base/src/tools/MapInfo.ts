@@ -227,7 +227,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The decoded beatmap from beatmap decoder.
      */
-    get map(): If<HasBeatmap, Beatmap> {
+    get beatmap(): If<HasBeatmap, Beatmap> {
         return <If<HasBeatmap, Beatmap>>this.cachedBeatmap;
     }
 
@@ -643,7 +643,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                 );
 
                 const maxScore: number =
-                    this.map?.maxDroidScore(new MapStats(mapParams)) ?? 0;
+                    this.beatmap?.maxDroidScore(new MapStats(mapParams)) ?? 0;
 
                 return `**CS**: ${droidOriginalStats.cs}${
                     Precision.almostEqualsNumber(
@@ -690,7 +690,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                 mapStatistics.hp = MathUtils.round(mapStatistics.hp!, 2);
 
                 const maxScore: number =
-                    this.map?.maxOsuScore(mapStatistics.mods) ?? 0;
+                    this.beatmap?.maxOsuScore(mapStatistics.mods) ?? 0;
 
                 return `**CS**: ${this.cs}${
                     Precision.almostEqualsNumber(this.cs, mapStatistics.cs!)
@@ -721,9 +721,9 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
 
                 const convertedBPM: number = this.convertBPM(mapStatistics);
                 let string = "**BPM**: ";
-                if (this.map) {
+                if (this.beatmap) {
                     const uninheritedTimingPoints: readonly TimingControlPoint[] =
-                        this.map.controlPoints.timing.points;
+                        this.beatmap.controlPoints.timing.points;
 
                     if (uninheritedTimingPoints.length === 1) {
                         string += `${this.bpm}${
