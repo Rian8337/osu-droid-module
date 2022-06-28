@@ -66,9 +66,6 @@ export class DifficultyHitObjectCreator {
 
         const difficultyObjects: DifficultyHitObject[] = [];
 
-        const preemptWithoutSpeedMultiplier: number =
-            params.preempt / params.speedMultiplier;
-
         for (let i = 0; i < params.objects.length; ++i) {
             const object: DifficultyHitObject = new DifficultyHitObject(
                 params.objects[i],
@@ -140,7 +137,7 @@ export class DifficultyHitObjectCreator {
                         o.startTime / params.speedMultiplier >=
                             object.startTime &&
                         o.startTime / params.speedMultiplier <=
-                            object.endTime + preemptWithoutSpeedMultiplier
+                            object.endTime + object.timePreempt
                 )
                 // The current object will be included, so we need to exclude it.
                 .slice(1);
@@ -173,8 +170,7 @@ export class DifficultyHitObjectCreator {
                     }
                 }
 
-                object.noteDensity +=
-                    1 - deltaTime / preemptWithoutSpeedMultiplier;
+                object.noteDensity += 1 - deltaTime / object.timePreempt;
 
                 if (!(hitObject instanceof Spinner)) {
                     object.overlappingFactor +=
