@@ -131,44 +131,31 @@ export class DifficultyHitObjectCreator {
                 continue;
             }
 
-            const visibleObjects: HitObject[] = params.objects
-                .filter(
-                    (o) =>
-                        o.startTime / params.speedMultiplier >=
-                            object.startTime &&
-                        o.startTime / params.speedMultiplier <=
-                            object.endTime + object.timePreempt
-                )
-                // The current object will be included, so we need to exclude it.
-                .slice(1);
+            const visibleObjects: HitObject[] = [];
+
+            for (let j = i + 1; j < params.objects.length; ++j) {
+                const o: HitObject = params.objects[j];
+
+                if (o instanceof Spinner) {
+                    continue;
+                }
+
+                if (
+                    o.startTime / params.speedMultiplier >
+                    object.endTime + object.timePreempt
+                ) {
+                    break;
+                }
+
+                visibleObjects.push(o);
+            }
 
             for (const hitObject of visibleObjects) {
-                // Calculate delta time assuming the current object is a circle.
-                let deltaTime: number = Math.abs(
+                const deltaTime: number = Math.max(
+                    0,
                     hitObject.startTime / params.speedMultiplier -
-                        object.startTime
+                        object.endTime
                 );
-
-                // But if the current object is a slider, then we alter the delta time to account for slider end time.
-                if (object.object instanceof Slider) {
-                    if (
-                        hitObject.startTime >= object.object.startTime &&
-                        hitObject.startTime <= object.object.endTime
-                    ) {
-                        // If the object starts when the slider is active, then the slider is technically still visible.
-                        // Set delta time to 0.
-                        deltaTime = 0;
-                    } else {
-                        // Otherwise, we take the delta time from the slider head or tail, whichever is smaller as it's the closest time.
-                        deltaTime = Math.min(
-                            deltaTime,
-                            Math.abs(
-                                hitObject.startTime / params.speedMultiplier -
-                                    object.endTime
-                            )
-                        );
-                    }
-                }
 
                 object.noteDensity += 1 - deltaTime / object.timePreempt;
 

@@ -120,7 +120,7 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 rhythm: 0.8968106940174971,
                 flashlight: 0.3355925402880838,
                 visual: 1.0903181224402754,
-                total: 3.91149939367833,
+                total: 3.9114283389689684,
             },
             noModPcRating: {
                 aim: 2.380333686066187,
