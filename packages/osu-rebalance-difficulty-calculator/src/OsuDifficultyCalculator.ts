@@ -48,10 +48,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateSpeed(): void {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            return;
-        }
-
         const speedSkill: OsuSpeed = new OsuSpeed(
             this.mods,
             new OsuHitWindow(this.stats.od!).hitWindowFor300()
@@ -59,7 +55,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.calculateSkills(speedSkill);
 
-        this.postCalculateSpeed(speedSkill);
+        if (!this.mods.some((m) => m instanceof ModRelax)) {
+            this.postCalculateSpeed(speedSkill);
+        }
+
+        this.calculateSpeedAttributes();
     }
 
     /**
@@ -109,30 +109,20 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
-        if (isRelax) {
-            // Remove speed skill to prevent overhead
-            skills.splice(2, 1);
-        }
-
         this.calculateSkills(...skills);
 
         const aimSkill: OsuAim = <OsuAim>skills[0];
         const aimSkillWithoutSliders: OsuAim = <OsuAim>skills[1];
-        let speedSkill: OsuSpeed | undefined;
-        let flashlightSkill: OsuFlashlight;
-
-        if (isRelax) {
-            flashlightSkill = <OsuFlashlight>skills[2];
-        } else {
-            speedSkill = <OsuSpeed>skills[2];
-            flashlightSkill = <OsuFlashlight>skills[3];
-        }
+        const speedSkill: OsuSpeed = <OsuSpeed>skills[2];
+        const flashlightSkill = <OsuFlashlight>skills[3];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (speedSkill) {
+        if (!isRelax) {
             this.postCalculateSpeed(speedSkill);
         }
+
+        this.calculateSpeedAttributes();
 
         this.postCalculateFlashlight(flashlightSkill);
 
@@ -201,6 +191,23 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.speed = speedSkill.strainPeaks;
 
         this.speed = this.starValue(speedSkill.difficultyValue());
+    }
+
+    /**
+     * Calculates speed-related attributes.
+     */
+    private calculateSpeedAttributes(): void {
+        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
+
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.speedNoteCount = objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+        }
     }
 
     /**

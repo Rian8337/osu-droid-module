@@ -171,12 +171,35 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             this.speed *= 1 + 0.04 * (12 - calculatedAR);
         }
 
+        // Calculate accuracy assuming the worst case scenario.
+        const countGreat: number = this.computedAccuracy.n300;
+        const countOk: number = this.computedAccuracy.n100;
+        const countMeh: number = this.computedAccuracy.n50;
+
+        const relevantTotalDiff: number =
+            objectCount - this.difficultyCalculator.attributes.speedNoteCount;
+
+        const relevantAccuracy: Accuracy = new Accuracy({
+            n300: Math.max(0, countGreat - relevantTotalDiff),
+            n100: Math.max(
+                0,
+                countOk - Math.max(0, relevantTotalDiff - countGreat)
+            ),
+            n50: Math.max(
+                0,
+                countMeh - Math.max(0, relevantTotalDiff - countGreat - countOk)
+            ),
+            nmiss: this.effectiveMissCount,
+        });
+
         // Scale the speed value with accuracy and OD.
         this.speed *=
             (0.95 + Math.pow(this.mapStatistics.od!, 2) / 750) *
             Math.pow(
-                this.computedAccuracy.value(objectCount),
-                (14.5 - Math.max(<number>this.mapStatistics.od, 8)) / 2
+                (this.computedAccuracy.value(objectCount) +
+                    relevantAccuracy.value()) /
+                    2,
+                (14.5 - Math.max(this.mapStatistics.od!, 8)) / 2
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
