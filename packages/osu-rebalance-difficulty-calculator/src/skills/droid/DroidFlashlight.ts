@@ -9,8 +9,8 @@ import { DroidSkill } from "./DroidSkill";
 export class DroidFlashlight extends DroidSkill {
     protected override readonly skillMultiplier: number = 0.1;
     protected override readonly strainDecayBase: number = 0.15;
-    protected override readonly reducedSectionCount: number = 10;
-    protected override readonly reducedSectionBaseline: number = 0.75;
+    protected override readonly reducedSectionCount: number = 0;
+    protected override readonly reducedSectionBaseline: number = 1;
     protected override readonly starsPerDouble: number = 1.05;
 
     private readonly isHidden: boolean;
