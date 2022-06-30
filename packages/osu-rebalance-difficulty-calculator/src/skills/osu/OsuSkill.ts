@@ -8,7 +8,7 @@ import { StrainSkill } from "../../base/StrainSkill";
 export abstract class OsuSkill extends StrainSkill {
     /**
      * The default multiplier applied to the final difficulty value after all other calculations.
-     * 
+     *
      * May be overridden via {@link difficultyMultiplier}.
      */
     static readonly defaultDifficultyMultiplier: number = 1.06;
@@ -16,7 +16,8 @@ export abstract class OsuSkill extends StrainSkill {
     /**
      * The final multiplier to be applied to the final difficulty value after all other calculations.
      */
-    protected readonly difficultyMultiplier: number = OsuSkill.defaultDifficultyMultiplier;
+    protected readonly difficultyMultiplier: number =
+        OsuSkill.defaultDifficultyMultiplier;
 
     /**
      * The weight by which each strain value decays.
