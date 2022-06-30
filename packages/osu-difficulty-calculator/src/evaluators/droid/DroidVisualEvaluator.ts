@@ -2,7 +2,7 @@ import { Spinner, Slider } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
- * An evaluator for calculating osu!droid Rhythm skill.
+ * An evaluator for calculating osu!droid Visual skill.
  */
 export abstract class DroidVisualEvaluator {
     /**
