@@ -60,9 +60,9 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                 const opacityBonus: number =
                     1 +
                     this.maxOpacityBonus *
-                        (1.0 -
+                        (1 -
                             current.opacityAt(
-                                currentObject.startTime,
+                                currentObject.object.startTime,
                                 isHiddenMod
                             ));
 
