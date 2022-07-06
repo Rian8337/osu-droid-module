@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-base",
-  "version": "2.0.1",
+  "version": "2.1.0-beta.0",
   "description": "Base module for all osu! related modules.",
   "keywords": [
     "osu",
