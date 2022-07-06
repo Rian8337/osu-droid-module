@@ -23,7 +23,15 @@ type DroidAPIEndpoint =
     | "user_list.php"
     | "usergeneral.php"
     | "top.php"
-    | "time.php";
+    | "time.php"
+    | "account_ban_get.php"
+    | "account_ban_set.php"
+    | "account_restricted_get.php"
+    | "account_restricted_set.php"
+    | "single_score_wipe.php"
+    | "user_wipe.php"
+    | "user_rename.php";
+
 type OsuAPIEndpoint =
     | "get_beatmaps"
     | "get_user"
@@ -33,7 +41,9 @@ type OsuAPIEndpoint =
     | "get_match"
     | "get_replay";
 
-abstract class APIRequestBuilder {
+abstract class APIRequestBuilder<
+    APIParams extends DroidAPIEndpoint | OsuAPIEndpoint
+> {
     /**
      * The main point of API host.
      */
@@ -71,7 +81,11 @@ abstract class APIRequestBuilder {
      *
      * @param endpoint The endpoint to set.
      */
-    abstract setEndpoint(endpoint: DroidAPIEndpoint | OsuAPIEndpoint): this;
+    setEndpoint(endpoint: APIParams): this {
+        this.endpoint = endpoint;
+
+        return this;
+    }
 
     /**
      * Sets if this builder includes the API key in the request URL.
@@ -94,9 +108,11 @@ abstract class APIRequestBuilder {
             this.endpoint === "upload"
         ) {
             url += "/";
+
             for (const [, value] of this.params.entries()) {
                 url += value;
             }
+
             return url;
         }
 
@@ -108,12 +124,14 @@ abstract class APIRequestBuilder {
                     "An API key is not specified as environment variable"
                 );
             }
+
             url += this.APIkeyParam;
         }
 
         for (const [param, value] of this.params.entries()) {
             url += `${param}=${encodeURIComponent(value)}&`;
         }
+
         return url;
     }
 
@@ -182,29 +200,31 @@ abstract class APIRequestBuilder {
 /**
  * API request builder for osu!droid.
  */
-export class DroidAPIRequestBuilder extends APIRequestBuilder {
+export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> {
     protected override readonly host: string = "https://osudroid.moe/api/";
-    protected override readonly APIkey: string = process.env
-        .DROID_API_KEY as string;
+    protected override readonly APIkey: string = process.env.DROID_API_KEY!;
     protected override readonly APIkeyParam: string = `apiKey=${this.APIkey}&`;
 
     override setEndpoint(endpoint: DroidAPIEndpoint): this {
-        this.endpoint = endpoint;
-        return this;
+        // Compatibility with old API. Can be removed in v3.0.
+        switch (endpoint) {
+            case "banscore.php":
+                endpoint = "single_score_wipe.php";
+                break;
+            case "rename.php":
+                endpoint = "user_rename.php";
+                break;
+        }
+
+        return super.setEndpoint(endpoint);
     }
 }
 
 /**
  * API request builder for osu!standard.
  */
-export class OsuAPIRequestBuilder extends APIRequestBuilder {
+export class OsuAPIRequestBuilder extends APIRequestBuilder<OsuAPIEndpoint> {
     protected override readonly host: string = "https://osu.ppy.sh/api/";
-    protected override readonly APIkey: string = process.env
-        .OSU_API_KEY as string;
+    protected override readonly APIkey: string = process.env.OSU_API_KEY!;
     protected override readonly APIkeyParam: string = `k=${this.APIkey}&`;
-
-    override setEndpoint(endpoint: OsuAPIEndpoint): this {
-        this.endpoint = endpoint;
-        return this;
-    }
 }
