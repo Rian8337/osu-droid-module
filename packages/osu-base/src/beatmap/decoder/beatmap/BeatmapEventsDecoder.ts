@@ -25,6 +25,8 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
             case "Break":
                 this.parseBreak(s);
                 break;
+            default:
+                this.storyboardLines.push(line);
         }
     }
 
