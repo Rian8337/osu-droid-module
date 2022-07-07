@@ -63,7 +63,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     }
 
     private encodeLayer(layerType: StoryboardLayerType): void {
-        const layer: StoryboardLayer | undefined = this.storyboard.getLayer(
+        const layer: StoryboardLayer | null = this.storyboard.getLayer(
             layerType,
             false
         );

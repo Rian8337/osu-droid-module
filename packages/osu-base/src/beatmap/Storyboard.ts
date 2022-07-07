@@ -76,14 +76,23 @@ export class Storyboard {
         type: StoryboardLayerType,
         createIfNotAvailable?: boolean
     ): StoryboardLayer;
+
+    /**
+     * Gets a layer of the storyboard.
+     *
+     * @param type The layer type.
+     * @param createIfNotAvailable Whether to create the storyboard layer if it's not available. Defaults to `true`.
+     * @returns The storyboard layer.
+     */
     getLayer(
         type: StoryboardLayerType,
         createIfNotAvailable: false
-    ): StoryboardLayer | undefined;
+    ): StoryboardLayer | null;
+
     getLayer(
         type: StoryboardLayerType,
         createIfNotAvailable: boolean = true
-    ): StoryboardLayer | undefined {
+    ): StoryboardLayer | null {
         let layer: StoryboardLayer | undefined = this.layers[type];
 
         if (!layer && createIfNotAvailable) {
@@ -92,6 +101,6 @@ export class Storyboard {
             this.layers[type] = layer;
         }
 
-        return layer;
+        return layer ?? null;
     }
 }
