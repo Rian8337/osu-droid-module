@@ -61,6 +61,16 @@ describe("Test AR conversion without speed multiplier", () => {
             expect(stats.ar).toBeCloseTo(7.5);
         });
 
+        test("AR 8 with EZ + REZ", () => {
+            const stats = createStats({
+                ar: 8,
+                mode: modes.droid,
+                mods: [new ModEasy(), new ModReallyEasy()],
+            });
+
+            expect(stats.ar).toBe(7);
+        });
+
         test("AR 7 with HR + REZ", () => {
             const stats = createStats({
                 ar: 7,

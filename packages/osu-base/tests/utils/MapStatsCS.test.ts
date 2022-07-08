@@ -5,6 +5,7 @@ import {
     modes,
     ModHardRock,
     ModReallyEasy,
+    ModSmallCircle,
 } from "../../src";
 
 describe("Test CS conversion", () => {
@@ -47,6 +48,12 @@ describe("Test CS conversion", () => {
             ]);
 
             expect(stats.cs).toBeCloseTo(-1.92);
+        });
+
+        test("CS 4 with SC", () => {
+            const stats = createStats(4, modes.droid, [new ModSmallCircle()]);
+
+            expect(stats.cs).toBeCloseTo(2.79);
         });
     });
 
