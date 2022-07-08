@@ -154,7 +154,7 @@ export abstract class PathApproximator {
                 (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y)
             )
         ) {
-            return [];
+            return this.approximateBezier(controlPoints);
         }
 
         // See: https://en.wikipedia.org/wiki/Circumscribed_circle#Cartesian_coordinates_2
