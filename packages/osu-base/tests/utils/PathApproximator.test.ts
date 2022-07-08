@@ -44,23 +44,51 @@ test("Test catmull approximation", () => {
     testControlPointsValidity(approximatedControlPoints);
 });
 
-test("Test perfect curve approximation", () => {
-    testControlPointsValidity(
-        PathApproximator.approximateCircularArc([
-            new Vector2(0, 0),
-            new Vector2(-25, 25),
-            new Vector2(58, 39),
-        ])
-    );
+describe("Test perfect curve approximation", () => {
+    test("Side-length of triangle is almost zero", () => {
+        testControlPointsValidity(
+            PathApproximator.approximateCircularArc([
+                new Vector2(0, 0),
+                new Vector2(1e-5, 0),
+                new Vector2(0, 1e-5),
+            ])
+        );
+    });
+
+    test("Radius is smaller than tolerance", () => {
+        testControlPointsValidity(
+            PathApproximator.approximateCircularArc([
+                new Vector2(0, 0),
+                new Vector2(0.05, 0),
+                new Vector2(0, 0.05),
+            ])
+        );
+    });
+
+    test("Regular arc", () => {
+        testControlPointsValidity(
+            PathApproximator.approximateCircularArc([
+                new Vector2(0, 0),
+                new Vector2(-25, 25),
+                new Vector2(58, 39),
+            ])
+        );
+    });
 });
 
-test("Test bezier curve approximation", () => {
-    testControlPointsValidity(
-        PathApproximator.approximateBezier([
-            new Vector2(0, 0),
-            new Vector2(-125, 44),
-            new Vector2(-88, -88),
-            new Vector2(-234, -6),
-        ])
-    );
+describe("Test bezier curve approximation", () => {
+    test("Empty control points", () => {
+        expect(PathApproximator.approximateBezier([]).length).toBe(0);
+    });
+
+    test("With control points", () => {
+        testControlPointsValidity(
+            PathApproximator.approximateBezier([
+                new Vector2(0, 0),
+                new Vector2(-125, 44),
+                new Vector2(-88, -88),
+                new Vector2(-234, -6),
+            ])
+        );
+    });
 });
