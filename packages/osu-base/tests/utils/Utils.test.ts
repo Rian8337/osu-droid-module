@@ -46,3 +46,7 @@ test("Test array initializer", () => {
     expect(arr.length).toBe(5);
     expect(arr.every((m) => m === 5)).toBe(true);
 });
+
+test("Test sleeping function", () => {
+    expect(async () => await Utils.sleep(1)).not.toThrow();
+});
