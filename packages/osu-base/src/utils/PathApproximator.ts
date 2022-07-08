@@ -103,10 +103,7 @@ export abstract class PathApproximator {
         for (let i = 0; i < controlPoints.length - 1; ++i) {
             const v1: Vector2 = i > 0 ? controlPoints[i - 1] : controlPoints[i];
             const v2: Vector2 = controlPoints[i];
-            const v3: Vector2 =
-                i < controlPoints.length - 1
-                    ? controlPoints[i + 1]
-                    : v2.add(v2).subtract(v1);
+            const v3: Vector2 = controlPoints[i + 1];
             const v4: Vector2 =
                 i < controlPoints.length - 2
                     ? controlPoints[i + 2]
