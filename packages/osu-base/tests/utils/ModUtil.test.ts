@@ -41,6 +41,39 @@ describe("Test droid string to mods conversion", () => {
     });
 });
 
+describe("Test PC modbits to mods conversion", () => {
+    test("NM", () => {
+        const mods = ModUtil.pcModbitsToMods(0);
+
+        expect(mods.length).toBe(0);
+    });
+
+    test("HDHR", () => {
+        const mods = ModUtil.pcModbitsToMods(24);
+
+        expect(mods.length).toBe(2);
+        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
+        expect(mods.some((m) => m instanceof ModHardRock)).toBe(true);
+    });
+
+    test("HDDT", () => {
+        const mods = ModUtil.pcModbitsToMods(72);
+
+        expect(mods.length).toBe(2);
+        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
+        expect(mods.some((m) => m instanceof ModDoubleTime)).toBe(true);
+    });
+
+    test("NFHDHT", () => {
+        const mods = ModUtil.pcModbitsToMods(265);
+
+        expect(mods.length).toBe(3);
+        expect(mods.some((m) => m instanceof ModNoFail)).toBe(true);
+        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
+        expect(mods.some((m) => m instanceof ModHalfTime)).toBe(true);
+    });
+});
+
 describe("Test PC string to mods conversion", () => {
     test("NM", () => {
         const mods = ModUtil.pcStringToMods("");
@@ -71,5 +104,12 @@ describe("Test PC string to mods conversion", () => {
         expect(mods.some((m) => m instanceof ModNoFail)).toBe(true);
         expect(mods.some((m) => m instanceof ModHalfTime)).toBe(true);
         expect(mods.some((m) => m instanceof ModPrecise)).toBe(true);
+    });
+
+    test("HREZ (incompatible mods)", () => {
+        const mods = ModUtil.pcStringToMods("HREZ");
+
+        expect(mods.length).toBe(1);
+        expect(mods[0]).toBeInstanceOf(ModHardRock);
     });
 });
