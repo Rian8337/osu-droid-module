@@ -31,7 +31,5 @@ test("Test string concatenation", () => {
         omitFirstBarLine: false,
     });
 
-    expect(timingPoint.toString()).toBe(
-        "{ time: 1000, kiai: false }"
-    );
+    expect(timingPoint.toString()).toBe("{ time: 1000, kiai: false }");
 });

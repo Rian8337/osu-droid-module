@@ -1,4 +1,11 @@
-import { Anchor, Easing, Storyboard, StoryboardLayerType, StoryboardSprite, Vector2 } from "../../src";
+import {
+    Anchor,
+    Easing,
+    Storyboard,
+    StoryboardLayerType,
+    StoryboardSprite,
+    Vector2,
+} from "../../src";
 
 describe("Test event time getters", () => {
     test("Without elements", () => {
@@ -17,13 +24,7 @@ describe("Test event time getters", () => {
             new Vector2(0, 0)
         );
 
-        sprite1.timelineGroup.x.add(
-            Easing.in,
-            1000,
-            2000,
-            0,
-            1
-        );
+        sprite1.timelineGroup.x.add(Easing.in, 1000, 2000, 0, 1);
 
         const sprite2 = new StoryboardSprite(
             "test.png",
@@ -31,17 +32,11 @@ describe("Test event time getters", () => {
             new Vector2(0, 0)
         );
 
-        sprite1.timelineGroup.x.add(
-            Easing.in,
-            1500,
-            2500,
-            0,
-            1
-        );
+        sprite1.timelineGroup.x.add(Easing.in, 1500, 2500, 0, 1);
 
-        storyboard.getLayer(StoryboardLayerType.background).elements.push(
-            sprite1, sprite2
-        );
+        storyboard
+            .getLayer(StoryboardLayerType.background)
+            .elements.push(sprite1, sprite2);
 
         expect(storyboard.earliestEventTime).toBe(1000);
         expect(storyboard.latestEventTime).toBe(2500);
@@ -54,7 +49,9 @@ describe("Test layer retrieval", () => {
 
         delete storyboard.layers.Background;
 
-        expect(storyboard.getLayer(StoryboardLayerType.background, false)).toBeNull();
+        expect(
+            storyboard.getLayer(StoryboardLayerType.background, false)
+        ).toBeNull();
     });
 
     test("With layer creation", () => {
@@ -62,6 +59,8 @@ describe("Test layer retrieval", () => {
 
         delete storyboard.layers.Background;
 
-        expect(storyboard.getLayer(StoryboardLayerType.background)).not.toBeNull();
+        expect(
+            storyboard.getLayer(StoryboardLayerType.background)
+        ).not.toBeNull();
     });
 });

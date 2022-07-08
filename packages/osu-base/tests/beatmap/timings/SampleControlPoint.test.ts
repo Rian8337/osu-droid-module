@@ -1,4 +1,4 @@
-import { SampleBank, SampleControlPoint } from "../../../src"
+import { SampleBank, SampleControlPoint } from "../../../src";
 
 test("Test timing point redundancy", () => {
     const timingPoint = new SampleControlPoint({

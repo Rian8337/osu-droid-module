@@ -1,4 +1,7 @@
-import { DifficultyControlPoint, DifficultyControlPointManager } from "../../../src";
+import {
+    DifficultyControlPoint,
+    DifficultyControlPointManager,
+} from "../../../src";
 
 describe("Test adding control points", () => {
     describe("Without existing control points", () => {
