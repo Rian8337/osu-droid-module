@@ -154,7 +154,7 @@ export class BeatmapHitObjects {
     private findInsertionIndex(startTime: number): number {
         for (let i = 0; i < this.objects.length; ++i) {
             if (this.objects[i].startTime > startTime) {
-                return i - 1;
+                return i;
             }
         }
 
