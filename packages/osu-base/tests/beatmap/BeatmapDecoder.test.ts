@@ -1,4 +1,5 @@
 import {
+    Anchor,
     Beatmap,
     BeatmapCountdown,
     BeatmapDecoder,
@@ -9,6 +10,8 @@ import {
     RGBColor,
     SampleBank,
     Slider,
+    StoryboardLayerType,
+    StoryboardSprite,
     Vector2,
 } from "../../src";
 import { readFile } from "fs/promises";
@@ -52,8 +55,8 @@ beforeAll(async () => {
         { encoding: "utf-8" }
     );
 
-    v3Beatmap = new BeatmapDecoder().decode(v3Data).result;
-    v14Beatmap = new BeatmapDecoder().decode(v14Data).result;
+    v3Beatmap = new BeatmapDecoder().decode(v3Data, [], false).result;
+    v14Beatmap = new BeatmapDecoder().decode(v14Data, [], false).result;
     beatmapWithStoryboard = new BeatmapDecoder().decode(
         beatmapWithStoryboardData
     ).result;
@@ -153,6 +156,7 @@ describe("Test events section", () => {
         expect(events.background?.offset).toEqual(new Vector2(0, 0));
         expect(events.breaks.length).toBe(3);
         expect(events.video).toBeUndefined();
+        expect(events.storyboardReplacesBackground).toBe(false);
     });
 
     test("v14 file format", () => {
@@ -163,6 +167,7 @@ describe("Test events section", () => {
         expect(events.breaks.length).toBe(0);
         expect(events.video?.filename).toBe("Yoasobi.mp4");
         expect(events.video?.offset).toEqual(new Vector2(0, 0));
+        expect(events.storyboardReplacesBackground).toBe(false);
     });
 });
 
@@ -365,4 +370,22 @@ describe("Test metadata section", () => {
 
 test("Test storyboard decoding", () => {
     expect(beatmapWithStoryboard.events.storyboard).toBeDefined();
+    expect(beatmapWithStoryboard.events.storyboardReplacesBackground).toBe(
+        false
+    );
+
+    // Add an arbitrary background for testing.
+    beatmapWithStoryboard.events
+        .storyboard!.getLayer(StoryboardLayerType.background)
+        .elements.push(
+            new StoryboardSprite(
+                beatmapWithStoryboard.events.background!.filename,
+                Anchor.bottomCenter,
+                new Vector2(0, 0)
+            )
+        );
+
+    expect(beatmapWithStoryboard.events.storyboardReplacesBackground).toBe(
+        true
+    );
 });
