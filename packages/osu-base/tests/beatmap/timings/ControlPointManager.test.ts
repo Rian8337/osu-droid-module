@@ -210,3 +210,39 @@ describe("Test removing control points", () => {
         });
     });
 });
+
+test("Test control point getter", () => {
+    const manager = new DifficultyControlPointManager();
+
+    manager.add(
+        new DifficultyControlPoint({
+            time: 1000,
+            speedMultiplier: 0.9,
+        })
+    );
+
+    let timingPoint = manager.controlPointAt(0);
+
+    expect(timingPoint.time).toBe(0);
+
+    timingPoint = manager.controlPointAt(3000);
+
+    expect(timingPoint.time).toBe(1000);
+
+    timingPoint = manager.controlPointAt(7000);
+
+    expect(timingPoint.time).toBe(1000);
+
+    expect(
+        manager.add(
+            new DifficultyControlPoint({
+                time: 5000,
+                speedMultiplier: 0.5,
+            })
+        )
+    ).toBe(true);
+
+    timingPoint = manager.controlPointAt(7000);
+
+    expect(timingPoint.time).toBe(5000);
+});
