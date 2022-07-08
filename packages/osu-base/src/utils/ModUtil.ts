@@ -163,11 +163,10 @@ export abstract class ModUtil {
     /**
      * Checks for mods that are incompatible with each other.
      *
-     * This will modify the original array.
-     *
      * @param mods The mods to check for.
+     * @returns Mods that have been filtered.
      */
-    static checkIncompatibleMods(mods: Mod[]): void {
+    static checkIncompatibleMods(mods: Mod[]): Mod[] {
         for (const incompatibleMod of this.incompatibleMods) {
             const fulfilledMods: Mod[] = mods.filter((m) =>
                 incompatibleMod.map((v) => v.acronym).includes(m.acronym)
@@ -184,6 +183,8 @@ export abstract class ModUtil {
                 mods.push(fulfilledMods[0]);
             }
         }
+
+        return mods;
     }
 
     /**
@@ -202,7 +203,7 @@ export abstract class ModUtil {
         }
 
         if (options?.checkIncompatible !== false) {
-            this.checkIncompatibleMods(mods);
+            mods = this.checkIncompatibleMods(mods);
         }
 
         return mods;
