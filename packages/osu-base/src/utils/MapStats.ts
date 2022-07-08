@@ -314,8 +314,6 @@ export class MapStats {
                     );
                 }
                 break;
-            default:
-                throw new TypeError("Mode not supported");
         }
         return this;
     }
