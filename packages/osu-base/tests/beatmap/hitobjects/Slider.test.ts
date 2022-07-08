@@ -409,3 +409,17 @@ test("Test new combo", () => {
 
     expect(slider.isNewCombo).toBe(true);
 });
+
+test("Test type string", () => {
+    const slider = new Slider(createGlobalSliderValues());
+
+    expect(slider.typeStr()).toBe("slider");
+});
+
+test("Test string concatenation", () => {
+    const slider = new Slider(createGlobalSliderValues());
+
+    expect(slider.toString()).toBe(
+        "Position: [100, 192], distance: 200, repetitions: 1, slider ticks: 1"
+    );
+});

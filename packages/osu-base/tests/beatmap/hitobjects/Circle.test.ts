@@ -132,3 +132,15 @@ test("Test circle radius", () => {
 
     expect(circle.radius).toBeCloseTo(baseRadius * 2);
 });
+
+test("Test type string", () => {
+    const circle = createCircle();
+
+    expect(circle.typeStr()).toBe("circle");
+});
+
+test("Test string concatenation", () => {
+    const circle = createCircle();
+
+    expect(circle.toString()).toBe("Position: [256, 192]");
+});

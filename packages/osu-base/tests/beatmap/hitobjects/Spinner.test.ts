@@ -101,3 +101,15 @@ test("Test new combo", () => {
 
     expect(spinner.isNewCombo).toBe(false);
 });
+
+test("Test type string", () => {
+    const spinner = createSpinner();
+
+    expect(spinner.typeStr()).toBe("spinner");
+});
+
+test("Test string concatenation", () => {
+    const spinner = createSpinner();
+
+    expect(spinner.toString()).toBe("Position: [256, 192], duration: 100");
+});
