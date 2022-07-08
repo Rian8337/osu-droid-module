@@ -114,21 +114,12 @@ export class SliderPath {
         switch (this.pathType) {
             case PathType.Linear:
                 return PathApproximator.approximateLinear(subControlPoints);
-            case PathType.PerfectCurve: {
+            case PathType.PerfectCurve:
                 if (subControlPoints.length !== 3) {
                     break;
                 }
 
-                const subPath: Vector2[] =
-                    PathApproximator.approximateCircularArc(subControlPoints);
-
-                // If for some reason a circular arc could not be fit to the 3 given points, fall back to a numerically stable bezier approximation.
-                if (subPath.length === 0) {
-                    break;
-                }
-
-                return subPath;
-            }
+                return PathApproximator.approximateCircularArc(subControlPoints);
             case PathType.Catmull:
                 return PathApproximator.approximateCatmull(subControlPoints);
         }
@@ -256,7 +247,7 @@ export class SliderPath {
         const index: number = this.cumulativeLength.indexOf(d);
 
         if (index < 0) {
-            for (let i: number = 0; i < this.cumulativeLength.length; ++i) {
+            for (let i = 0; i < this.cumulativeLength.length; ++i) {
                 if (this.cumulativeLength[i] > d) {
                     return i;
                 }
