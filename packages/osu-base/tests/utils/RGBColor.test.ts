@@ -1,4 +1,4 @@
-import { RGBColor } from "../../src"
+import { RGBColor } from "../../src";
 
 test("Test string concatenation", () => {
     const color = new RGBColor(0, 0, 0);

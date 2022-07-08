@@ -119,7 +119,9 @@ export class SliderPath {
                     break;
                 }
 
-                return PathApproximator.approximateCircularArc(subControlPoints);
+                return PathApproximator.approximateCircularArc(
+                    subControlPoints
+                );
             case PathType.Catmull:
                 return PathApproximator.approximateCatmull(subControlPoints);
         }
