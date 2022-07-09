@@ -108,6 +108,31 @@ const testDiffCalc = async (
         values.clockRatePcRating.total,
         4
     );
+
+    const { noModDroidRating: droidStrRating, noModPcRating: osuStrRating } =
+        values;
+
+    const droidStr = `${droidStrRating.total.toFixed(
+        2
+    )} stars (${droidStrRating.aim.toFixed(
+        2
+    )} aim, ${droidStrRating.tap.toFixed(
+        2
+    )} tap, ${droidStrRating.rhythm.toFixed(
+        2
+    )} rhythm, ${droidStrRating.flashlight.toFixed(
+        2
+    )} flashlight, ${droidStrRating.visual.toFixed(2)} visual)`;
+
+    const osuStr = `${osuStrRating.total.toFixed(
+        2
+    )} stars (${osuStrRating.aim.toFixed(2)} aim, ${osuStrRating.speed.toFixed(
+        2
+    )} speed, ${osuStrRating.flashlight.toFixed(2)} flashlight)`;
+
+    expect(rating.droid.toString()).toBe(droidStr);
+    expect(rating.osu.toString()).toBe(osuStr);
+    expect(rating.toString()).toBe(`${droidStr}\n${osuStr}`);
 };
 
 test("Test difficulty calculation sample beatmap 1", async () => {
