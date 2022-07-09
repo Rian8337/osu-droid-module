@@ -211,15 +211,10 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         }
 
         if (options?.stats) {
-            this.mapStatistics.ar = options?.stats.ar ?? this.mapStatistics.ar;
-            this.mapStatistics.isForceAR =
-                options?.stats.isForceAR ?? this.mapStatistics.isForceAR;
-            this.mapStatistics.speedMultiplier =
-                options?.stats.speedMultiplier ??
-                this.mapStatistics.speedMultiplier;
-            this.mapStatistics.oldStatistics =
-                options?.stats.oldStatistics ??
-                this.mapStatistics.oldStatistics;
+            this.mapStatistics.ar = options.stats.ar ?? this.mapStatistics.ar;
+            this.mapStatistics.isForceAR = options.stats.isForceAR;
+            this.mapStatistics.speedMultiplier = options.stats.speedMultiplier;
+            this.mapStatistics.oldStatistics = options.stats.oldStatistics;
         }
 
         this.mapStatistics.calculate({ mode: this.mode });
