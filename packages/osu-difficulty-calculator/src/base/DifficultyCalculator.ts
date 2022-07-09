@@ -90,8 +90,8 @@ export abstract class DifficultyCalculator {
             od: this.beatmap.difficulty.od,
             hp: this.beatmap.difficulty.hp,
             mods: options?.mods,
-            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
-            oldStatistics: options?.stats?.oldStatistics ?? false,
+            speedMultiplier: options?.stats?.speedMultiplier,
+            oldStatistics: options?.stats?.oldStatistics,
         }).calculate({ mode: this.mode });
 
         this.generateDifficultyHitObjects();
