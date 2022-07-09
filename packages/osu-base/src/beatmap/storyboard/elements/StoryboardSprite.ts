@@ -58,10 +58,6 @@ export class StoryboardSprite extends StoryboardElement {
             }
         }
 
-        if (earliestStartTime !== Number.POSITIVE_INFINITY) {
-            return earliestStartTime;
-        }
-
         return earliestStartTime !== Number.POSITIVE_INFINITY
             ? earliestStartTime
             : Math.min(
