@@ -1,10 +1,9 @@
-import { Accuracy } from "@rian8337/osu-base";
-import { CalculationOptions } from "./CalculationOptions";
+import { Accuracy, MapStats } from "@rian8337/osu-base";
 
 /**
  * Represents options for performance calculation.
  */
-export interface PerformanceCalculationOptions extends CalculationOptions {
+export interface PerformanceCalculationOptions {
     /**
      * The maximum combo achieved in the score.
      */
@@ -24,4 +23,12 @@ export interface PerformanceCalculationOptions extends CalculationOptions {
      * The tap penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
      */
     tapPenalty?: number;
+
+    /**
+     * Custom map statistics to apply custom speed multiplier as well as old statistics.
+     *
+     * @deprecated Using this property will very likely give a wrong result and will be removed in 3.0.
+     * Pass this property when calculating difficulty instead.
+     */
+    stats?: MapStats;
 }
