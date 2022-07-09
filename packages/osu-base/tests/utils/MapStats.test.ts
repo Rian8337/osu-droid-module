@@ -65,7 +65,5 @@ test("Test string concatenation", () => {
         hp: 6,
     });
 
-    expect(stats.toString()).toBe(
-        "CS: 4.00, AR: 9.00, OD: 8.00, HP: 6.00"
-    );
+    expect(stats.toString()).toBe("CS: 4.00, AR: 9.00, OD: 8.00, HP: 6.00");
 });
