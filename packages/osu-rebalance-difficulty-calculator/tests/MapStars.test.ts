@@ -1,4 +1,4 @@
-import { BeatmapDecoder, ModDoubleTime } from "@rian8337/osu-base";
+import { BeatmapDecoder, ModDoubleTime, ModRelax } from "@rian8337/osu-base";
 import { MapStars } from "../src/MapStars";
 import { readFile } from "fs/promises";
 import { join } from "path";
@@ -45,6 +45,7 @@ const testDiffCalc = async (
 
     const rating = new MapStars(decoder.result);
 
+    // NM droid star rating
     expect(rating.droid.aim).toBeCloseTo(values.noModDroidRating.aim, 3);
     expect(rating.droid.tap).toBeCloseTo(values.noModDroidRating.tap, 3);
     expect(rating.droid.rhythm).toBeCloseTo(values.noModDroidRating.rhythm, 3);
@@ -52,9 +53,14 @@ const testDiffCalc = async (
         values.noModDroidRating.flashlight,
         3
     );
+    expect(rating.droid.flashlight).toBeCloseTo(
+        values.noModDroidRating.flashlight,
+        3
+    );
     expect(rating.droid.visual).toBeCloseTo(values.noModDroidRating.visual, 3);
     expect(rating.droid.total).toBeCloseTo(values.noModDroidRating.total, 4);
 
+    // NM PC star rating
     expect(rating.osu.aim).toBeCloseTo(values.noModPcRating.aim, 3);
     expect(rating.osu.speed).toBeCloseTo(values.noModPcRating.speed, 3);
     expect(rating.osu.flashlight).toBeCloseTo(
@@ -67,47 +73,137 @@ const testDiffCalc = async (
         mods: [new ModDoubleTime()],
     });
 
+    // DT droid star rating
     expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
         values.clockRateDroidRating.aim,
         3
     );
+    clockRateAdjustedRating.droid.calculateAim();
+    expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
+        values.clockRateDroidRating.aim,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
         values.clockRateDroidRating.tap,
         3
     );
+    clockRateAdjustedRating.droid.calculateTap();
+    expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
+        values.clockRateDroidRating.tap,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
         values.clockRateDroidRating.rhythm,
         3
     );
+    clockRateAdjustedRating.droid.calculateRhythm();
+    expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
+        values.clockRateDroidRating.rhythm,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
         values.clockRateDroidRating.flashlight,
         3
     );
+    clockRateAdjustedRating.droid.calculateFlashlight();
+    expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
+        values.clockRateDroidRating.flashlight,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
         values.clockRateDroidRating.visual,
         3
     );
+    clockRateAdjustedRating.droid.calculateVisual();
+    expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
+        values.clockRateDroidRating.visual,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.total).toBeCloseTo(
         values.clockRateDroidRating.total,
         4
     );
 
+    // DT PC star rating
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
         values.clockRatePcRating.aim,
         3
     );
+    clockRateAdjustedRating.osu.calculateAim();
+    expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
+        values.clockRatePcRating.aim,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
         values.clockRatePcRating.speed,
         3
     );
+    clockRateAdjustedRating.osu.calculateSpeed();
+    expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
+        values.clockRatePcRating.speed,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
         values.clockRatePcRating.flashlight,
         3
     );
+    clockRateAdjustedRating.osu.calculateFlashlight();
+    expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
+        values.clockRatePcRating.flashlight,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.total).toBeCloseTo(
         values.clockRatePcRating.total,
         4
     );
+
+    // String concatenation test
+
+    const { noModDroidRating: droidStrRating, noModPcRating: osuStrRating } =
+        values;
+
+    const droidStr = `${droidStrRating.total.toFixed(
+        2
+    )} stars (${droidStrRating.aim.toFixed(
+        2
+    )} aim, ${droidStrRating.tap.toFixed(
+        2
+    )} tap, ${droidStrRating.rhythm.toFixed(
+        2
+    )} rhythm, ${droidStrRating.flashlight.toFixed(
+        2
+    )} flashlight, ${droidStrRating.visual.toFixed(2)} visual)`;
+
+    const osuStr = `${osuStrRating.total.toFixed(
+        2
+    )} stars (${osuStrRating.aim.toFixed(2)} aim, ${osuStrRating.speed.toFixed(
+        2
+    )} speed, ${osuStrRating.flashlight.toFixed(2)} flashlight)`;
+
+    expect(rating.droid.toString()).toBe(droidStr);
+    expect(rating.osu.toString()).toBe(osuStr);
+    expect(rating.toString()).toBe(`${droidStr}\n${osuStr}`);
+
+    // Relax speed/tap diffcalc test
+    const relaxRating = new MapStars(decoder.result, {
+        mods: [new ModRelax()],
+    });
+
+    expect(relaxRating.droid.rhythm).toBe(0);
+    relaxRating.droid.calculateRhythm();
+    expect(relaxRating.droid.rhythm).toBe(0);
+
+    expect(relaxRating.osu.speed).toBe(0);
+    relaxRating.osu.calculateSpeed();
+    expect(relaxRating.osu.speed).toBe(0);
 };
 
 test("Test difficulty calculation sample beatmap 1", async () => {
@@ -244,6 +340,75 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             speed: 2.6048378570583806,
             flashlight: 2.686768315519511,
             total: 10.320525934692583,
+        },
+    });
+});
+
+test("Test difficulty calculation sample beatmap 5", async () => {
+    await testDiffCalc(
+        "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
+        {
+            noModDroidRating: {
+                aim: 59.272543431805964,
+                tap: 5.143249153098792,
+                rhythm: 0.6681138931617763,
+                flashlight: 46.6192660407966,
+                visual: 4.5491569495271165,
+                total: 92.43053400269417,
+            },
+            noModPcRating: {
+                aim: 15.940869952847681,
+                speed: 11.00140070367911,
+                flashlight: 361.9636098400294,
+                total: 29.021079915494028,
+            },
+            clockRateDroidRating: {
+                aim: 74.6462424715183,
+                tap: 7.632874530309652,
+                rhythm: 0.718279203893433,
+                flashlight: 55.3465989238508,
+                visual: 8.08453928890892,
+                total: 116.41405884225493,
+            },
+            clockRatePcRating: {
+                aim: 53.928961866992545,
+                speed: 13.206819579506805,
+                flashlight: 67.11112620179784,
+                total: 91.0721226762261,
+            },
+        }
+    );
+});
+
+test("Test difficulty calculation sample beatmap 6", async () => {
+    await testDiffCalc("negativeOD", {
+        noModDroidRating: {
+            aim: 0.00005558648801559708,
+            tap: 0.18279086410430911,
+            rhythm: 0,
+            flashlight: 0,
+            visual: 0.220454076850486,
+            total: 1.1475036504050196,
+        },
+        noModPcRating: {
+            aim: 0,
+            speed: 0.06990556852804106,
+            flashlight: 0,
+            total: 0.14292854302435648,
+        },
+        clockRateDroidRating: {
+            aim: 0.00006807926611577256,
+            tap: 0.22387217334898948,
+            rhythm: 0,
+            flashlight: 0,
+            visual: 0.220454076850486,
+            total: 1.1495492443064115,
+        },
+        clockRatePcRating: {
+            aim: 0,
+            speed: 0.08561648653643154,
+            flashlight: 0,
+            total: 0.16633740804663621,
         },
     });
 });
