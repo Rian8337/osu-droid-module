@@ -39,7 +39,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     visual: number = 0;
 
-    protected override finalMultiplier = 1.24;
+    protected override finalMultiplier = 1.23;
     protected override readonly mode: modes = modes.droid;
 
     private tapPenalty: number = 1;
