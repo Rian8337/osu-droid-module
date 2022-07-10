@@ -1,4 +1,4 @@
-import { BeatmapDecoder, ModDoubleTime } from "@rian8337/osu-base";
+import { BeatmapDecoder, ModDoubleTime, ModRelax } from "@rian8337/osu-base";
 import { MapStars } from "../src/MapStars";
 import { readFile } from "fs/promises";
 import { join } from "path";
@@ -45,6 +45,7 @@ const testDiffCalc = async (
 
     const rating = new MapStars(decoder.result);
 
+    // NM droid star rating
     expect(rating.droid.aim).toBeCloseTo(values.noModDroidRating.aim, 3);
     expect(rating.droid.tap).toBeCloseTo(values.noModDroidRating.tap, 3);
     expect(rating.droid.rhythm).toBeCloseTo(values.noModDroidRating.rhythm, 3);
@@ -52,9 +53,14 @@ const testDiffCalc = async (
         values.noModDroidRating.flashlight,
         3
     );
+    expect(rating.droid.flashlight).toBeCloseTo(
+        values.noModDroidRating.flashlight,
+        3
+    );
     expect(rating.droid.visual).toBeCloseTo(values.noModDroidRating.visual, 3);
     expect(rating.droid.total).toBeCloseTo(values.noModDroidRating.total, 4);
 
+    // NM PC star rating
     expect(rating.osu.aim).toBeCloseTo(values.noModPcRating.aim, 3);
     expect(rating.osu.speed).toBeCloseTo(values.noModPcRating.speed, 3);
     expect(rating.osu.flashlight).toBeCloseTo(
@@ -67,43 +73,93 @@ const testDiffCalc = async (
         mods: [new ModDoubleTime()],
     });
 
+    // DT droid star rating
     expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
         values.clockRateDroidRating.aim,
         3
     );
+    clockRateAdjustedRating.droid.calculateAim();
+    expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
+        values.clockRateDroidRating.aim,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
         values.clockRateDroidRating.tap,
         3
     );
+    clockRateAdjustedRating.droid.calculateTap();
+    expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
+        values.clockRateDroidRating.tap,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
         values.clockRateDroidRating.rhythm,
         3
     );
+    clockRateAdjustedRating.droid.calculateRhythm();
+    expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
+        values.clockRateDroidRating.rhythm,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
         values.clockRateDroidRating.flashlight,
         3
     );
+    clockRateAdjustedRating.droid.calculateFlashlight();
+    expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
+        values.clockRateDroidRating.flashlight,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
         values.clockRateDroidRating.visual,
         3
     );
+    clockRateAdjustedRating.droid.calculateVisual();
+    expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
+        values.clockRateDroidRating.visual,
+        3
+    );
+
     expect(clockRateAdjustedRating.droid.total).toBeCloseTo(
         values.clockRateDroidRating.total,
         4
     );
 
+    // DT PC star rating
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
         values.clockRatePcRating.aim,
         3
     );
+    clockRateAdjustedRating.osu.calculateAim();
+    expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
+        values.clockRatePcRating.aim,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
         values.clockRatePcRating.speed,
         3
     );
+    clockRateAdjustedRating.osu.calculateSpeed();
+    expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
+        values.clockRatePcRating.speed,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
         values.clockRatePcRating.flashlight,
         3
     );
+    clockRateAdjustedRating.osu.calculateFlashlight();
+    expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
+        values.clockRatePcRating.flashlight,
+        3
+    );
+
     expect(clockRateAdjustedRating.osu.total).toBeCloseTo(
         values.clockRatePcRating.total,
         4
@@ -133,6 +189,19 @@ const testDiffCalc = async (
     expect(rating.droid.toString()).toBe(droidStr);
     expect(rating.osu.toString()).toBe(osuStr);
     expect(rating.toString()).toBe(`${droidStr}\n${osuStr}`);
+
+    // Relax speed/tap diffcalc test
+    const relaxRating = new MapStars(decoder.result, {
+        mods: [new ModRelax()],
+    });
+
+    expect(relaxRating.droid.rhythm).toBe(0);
+    relaxRating.droid.calculateRhythm();
+    expect(relaxRating.droid.rhythm).toBe(0);
+
+    expect(relaxRating.osu.speed).toBe(0);
+    relaxRating.osu.calculateSpeed();
+    expect(relaxRating.osu.speed).toBe(0);
 };
 
 test("Test difficulty calculation sample beatmap 1", async () => {
