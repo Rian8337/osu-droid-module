@@ -271,6 +271,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.flashlight *= 0.75;
+        }
     }
 
     /**
