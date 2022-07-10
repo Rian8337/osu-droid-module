@@ -1,0 +1,27 @@
+osu file format v13
+
+[General]
+AudioFilename: World of Sleepers.mp3
+AudioLeadIn: 0
+PreviewTime: -1
+Countdown: 0
+SampleSet: Normal
+StackLeniency: 1
+Mode: 0
+LetterboxInBreaks: 1
+WidescreenStoryboard: 0
+
+[Difficulty]
+HPDrainRate:0
+CircleSize:2
+OverallDifficulty:-1
+ApproachRate:0
+SliderMultiplier:1.4
+SliderTickRate:1
+
+[TimingPoints]
+0,1153.84615384615,4,1,0,100,1,0
+
+[HitObjects]
+256,192,3000,5,2,0:0:0:0:
+256,192,4000,1,2,0:0:0:0:

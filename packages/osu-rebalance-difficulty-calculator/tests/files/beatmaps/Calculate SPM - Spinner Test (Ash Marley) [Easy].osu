@@ -1,0 +1,57 @@
+osu file format v13
+
+[General]
+AudioFilename: World of Sleepers.mp3
+AudioLeadIn: 0
+PreviewTime: -1
+Countdown: 0
+SampleSet: Normal
+StackLeniency: 1
+Mode: 0
+LetterboxInBreaks: 1
+WidescreenStoryboard: 0
+
+[Editor]
+DistanceSpacing: 1
+BeatDivisor: 1
+GridSize: 16
+TimelineZoom: 8
+
+[Metadata]
+Title:Spinner Test
+TitleUnicode:Spinner Test
+Artist:Calculate SPM
+ArtistUnicode:Calculate SPM
+Creator:Ash Marley
+Version:Easy
+Source:
+Tags:Calculate SPM Spinner Test Practice
+BeatmapID:502237
+BeatmapSetID:213663
+
+[Difficulty]
+HPDrainRate:0
+CircleSize:2
+OverallDifficulty:0
+ApproachRate:0
+SliderMultiplier:1.4
+SliderTickRate:1
+
+[Events]
+//Background and Video events
+0,0,"spin background.png",0,0
+//Break Periods
+//Storyboard Layer 0 (Background)
+//Storyboard Layer 1 (Fail)
+//Storyboard Layer 2 (Pass)
+//Storyboard Layer 3 (Foreground)
+//Storyboard Sound Samples
+//Background Colour Transformations
+3,100,163,162,255
+
+[TimingPoints]
+0,1153.84615384615,4,1,0,100,1,0
+
+
+[HitObjects]
+256,192,3000,12,0,13001,0:0:0:0:
