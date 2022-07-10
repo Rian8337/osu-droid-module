@@ -6,6 +6,9 @@ import { AimEvaluator } from "../base/AimEvaluator";
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator extends AimEvaluator {
+    protected static override readonly acuteAngleMultiplier: number = 1.95;
+    protected static override readonly sliderMultiplier: number = 1.35;
+
     /**
      * Spacing threshold for a single hitobject spacing.
      */
