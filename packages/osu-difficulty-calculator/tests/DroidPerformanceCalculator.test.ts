@@ -93,6 +93,21 @@ describe("Test performance calculation with NoMod", () => {
         expect(performance.total).toBeCloseTo(66.45809909307407, 5);
     });
 
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.aim).toBeCloseTo(15.233139263034506, 5);
+        expect(performance.tap).toBeCloseTo(10.336664839481067, 5);
+        expect(performance.accuracy).toBeCloseTo(9.147691487325519, 5);
+        expect(performance.flashlight).toBe(0);
+        expect(performance.visual).toBeCloseTo(24.798134570422068, 5);
+        expect(performance.total).toBeCloseTo(65.58885174594823, 5);
+    });
+
     test("1.5 tap penalty", () => {
         const performance = calculatePerformance(difficulty, {
             tapPenalty: 1.5,
@@ -136,6 +151,18 @@ describe("Test performance calculation with Hidden", () => {
         expect(performance.visual).toBeCloseTo(33.50695885261091, 5);
         expect(performance.total).toBeCloseTo(77.07335849407274, 5);
     });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.accuracy).toBeCloseTo(9.87950680631156, 5);
+        expect(performance.visual).toBeCloseTo(33.20321510686407, 5);
+        expect(performance.total).toBeCloseTo(76.08429092636737, 5);
+    });
 });
 
 describe("Test performance calculation with Flashlight", () => {
@@ -168,6 +195,17 @@ describe("Test performance calculation with Flashlight", () => {
         expect(performance.flashlight).toBeCloseTo(4.268000748105856, 5);
         expect(performance.total).toBeCloseTo(70.38157174092453, 5);
     });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.flashlight).toBeCloseTo(4.265585354360464, 5);
+        expect(performance.total).toBeCloseTo(69.5061156057147, 5);
+    });
 });
 
 describe("Test performance calculation with Hidden, Flashlight", () => {
@@ -199,6 +237,17 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
 
         expect(performance.flashlight).toBeCloseTo(5.872635224885349, 5);
         expect(performance.total).toBeCloseTo(82.49704578015316, 5);
+    });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.flashlight).toBeCloseTo(5.869311718815804, 5);
+        expect(performance.total).toBeCloseTo(81.50195695569612, 5);
     });
 });
 
@@ -243,6 +292,21 @@ describe("Test performance calculation with DoubleTime", () => {
         expect(performance.flashlight).toBe(0);
         expect(performance.visual).toBeCloseTo(34.546951204908034, 5);
         expect(performance.total).toBeCloseTo(152.10258850381857, 5);
+    });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.aim).toBeCloseTo(36.456126535048625, 5);
+        expect(performance.tap).toBeCloseTo(36.46954784625871, 5);
+        expect(performance.accuracy).toBeCloseTo(29.927011909318374, 5);
+        expect(performance.flashlight).toBe(0);
+        expect(performance.visual).toBeCloseTo(34.233779830290906, 5);
+        expect(performance.total).toBeCloseTo(149.9056001217972, 5);
     });
 
     test("1.5 tap penalty", () => {
@@ -297,6 +361,21 @@ describe("Test performance calculation with Relax", () => {
         expect(performance.visual).toBeCloseTo(16.970078825420845, 5);
         expect(performance.total).toBeCloseTo(19.135733656161882, 5);
     });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.aim).toBeCloseTo(9.589750153723635, 5);
+        expect(performance.tap).toBeCloseTo(0.000005898479160816878, 5);
+        expect(performance.accuracy).toBe(0);
+        expect(performance.flashlight).toBe(0);
+        expect(performance.visual).toBeCloseTo(15.6112217385054, 5);
+        expect(performance.total).toBeCloseTo(17.655171552787674, 5);
+    });
 });
 
 describe("Test performance calculation with NoFail", () => {
@@ -325,6 +404,16 @@ describe("Test performance calculation with NoFail", () => {
         });
 
         expect(performance.total).toBeCloseTo(66.45809909307407, 5);
+    });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.total).toBeCloseTo(65.58885174594823, 5);
     });
 
     test("1.5 tap penalty", () => {
@@ -365,6 +454,17 @@ describe("Test performance calculation with ScoreV2", () => {
 
         expect(performance.accuracy).toBeCloseTo(16.947414434062768, 5);
         expect(performance.total).toBeCloseTo(74.39215280236935, 5);
+    });
+
+    test("10x100", () => {
+        const performance = calculatePerformance(difficulty, {
+            accPercent: new Accuracy({
+                n100: 10,
+            }),
+        });
+
+        expect(performance.accuracy).toBeCloseTo(16.717102040250882, 5);
+        expect(performance.total).toBeCloseTo(73.6828024263671, 5);
     });
 });
 
