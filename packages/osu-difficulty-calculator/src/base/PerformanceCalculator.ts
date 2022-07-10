@@ -127,6 +127,14 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
             this.computedAccuracy = new Accuracy(options.accPercent);
+
+            if (this.computedAccuracy.n300 <= 0) {
+                this.computedAccuracy.n300 =
+                    this.difficultyCalculator.objects.length -
+                    this.computedAccuracy.n100 -
+                    this.computedAccuracy.n50 -
+                    this.computedAccuracy.nmiss;
+            }
         } else {
             this.computedAccuracy = new Accuracy({
                 percent: options?.accPercent,
