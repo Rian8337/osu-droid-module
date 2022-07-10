@@ -165,12 +165,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
                 (14 - Math.max(od, 2.5)) / 2
             );
 
-        // Scale the tap value with # of 50s to punish doubletapping.
-        this.tap *= Math.pow(
-            0.98,
-            Math.max(0, this.computedAccuracy.n50 - objectCount / 500)
-        );
-
         // Scale the tap value with three-fingered penalty.
         this.tap /= this.tapPenalty;
     }
