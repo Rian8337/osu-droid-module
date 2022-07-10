@@ -341,3 +341,72 @@ test("Test difficulty calculation sample beatmap 4", async () => {
         },
     });
 });
+
+test("Test difficulty calculation sample beatmap 5", async () => {
+    await testDiffCalc(
+        "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
+        {
+            noModDroidRating: {
+                aim: 46.289112198818614,
+                tap: 6.236817767063078,
+                rhythm: 0.6681138931617763,
+                flashlight: 46.2356515466779,
+                visual: 4.30645822124244,
+                total: 72.2165972650558,
+            },
+            noModPcRating: {
+                aim: 15.940869952847681,
+                speed: 16.131871997475272,
+                flashlight: 339.78301068936156,
+                total: 33.30886765891325,
+            },
+            clockRateDroidRating: {
+                aim: 58.360944205344595,
+                tap: 9.805382900284728,
+                rhythm: 0.718279203893433,
+                flashlight: 74.73373664645659,
+                visual: 8.08453928890892,
+                total: 91.09809724014286,
+            },
+            clockRatePcRating: {
+                aim: 53.928961866992545,
+                speed: 22.68424635846641,
+                flashlight: 73.00292834987977,
+                total: 92.35102293693615,
+            },
+        }
+    );
+});
+
+test("Test difficulty calculation sample beatmap 6", async () => {
+    await testDiffCalc("negativeOD", {
+        noModDroidRating: {
+            aim: 0.00005558648801559708,
+            tap: 0.18279086410430911,
+            rhythm: 0,
+            flashlight: 0,
+            visual: 0.220454076850486,
+            total: 1.1475036504050196,
+        },
+        noModPcRating: {
+            aim: 0,
+            speed: 0.06990556852804106,
+            flashlight: 0,
+            total: 0.14292854302435648,
+        },
+        clockRateDroidRating: {
+            aim: 0.00006807926611577256,
+            tap: 0.22387217334898948,
+            rhythm: 0,
+            flashlight: 0,
+            visual: 0.220454076850486,
+            total: 1.1495492443064115,
+        },
+        clockRatePcRating: {
+            aim: 0,
+            speed: 0.08561648653643154,
+            flashlight: 0,
+            total: 0.16633740804663621,
+        },
+    });
+});
