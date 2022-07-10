@@ -59,7 +59,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         this.calculateSkills(tapSkill);
 
-        if (!this.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.tap = 0;
+        } else {
             this.postCalculateTap(tapSkill);
         }
 
@@ -71,6 +73,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      */
     calculateRhythm(): void {
         if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.rhythm = 0;
+
             return;
         }
 
@@ -99,6 +103,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * Calculates the visual star rating of the beatmap and stores it in this instance.
      */
     calculateVisual(): void {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.visual = 0;
+
+            return;
+        }
+
         const visualSkill: DroidVisual = new DroidVisual(this.mods);
 
         this.calculateSkills(visualSkill);
@@ -140,6 +150,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
+        if (isRelax) {
+            // Remove visual skill to reduce overhead.
+            skills.pop();
+        }
+
         this.calculateSkills(...skills);
 
         const aimSkill: DroidAim = <DroidAim>skills[0];
@@ -147,7 +162,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         const rhythmSkill: DroidRhythm = <DroidRhythm>skills[2];
         const tapSkill: DroidTap = <DroidTap>skills[3];
         const flashlightSkill: DroidFlashlight = <DroidFlashlight>skills[4];
-        const visualSkill: DroidVisual = <DroidVisual>skills[5];
+        const visualSkill: DroidVisual | null =
+            <DroidVisual | null>skills[5] ?? null;
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
@@ -163,7 +179,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         this.postCalculateFlashlight(flashlightSkill);
 
-        this.postCalculateVisual(visualSkill);
+        if (visualSkill) {
+            this.postCalculateVisual(visualSkill);
+        }
 
         this.calculateTotal();
     }
@@ -259,7 +277,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * @param rhythmSkill The rhythm skill.
      */
     private postCalculateRhythm(rhythmSkill: DroidRhythm): void {
-        this.rhythm = this.starValue(rhythmSkill.difficultyValue());
+        this.rhythm = this.mods.some((m) => m instanceof ModRelax)
+            ? 0
+            : this.starValue(rhythmSkill.difficultyValue());
     }
 
     /**
@@ -283,6 +303,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * @param visualSkill The visual skill.
      */
     private postCalculateVisual(visualSkill: DroidVisual): void {
-        this.visual = this.starValue(visualSkill.difficultyValue());
+        this.visual = this.mods.some((m) => m instanceof ModRelax)
+            ? 0
+            : this.starValue(visualSkill.difficultyValue());
     }
 }
