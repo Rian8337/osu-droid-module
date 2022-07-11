@@ -59,6 +59,17 @@ export abstract class DroidVisualEvaluator {
                 (1 + current.overlappingFactor / 1.25);
         }
 
+        for (let i = 0; i < Math.min(current.index, 4); ++i) {
+            // Bonus based on how visible the object is.
+            strain +=
+                (1 -
+                    current.opacityAt(
+                        current.previous(i)!.object.startTime,
+                        isHiddenMod
+                    )) /
+                4;
+        }
+
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
             strain += Math.pow(400 - current.timePreempt, 1.3) / 135;
