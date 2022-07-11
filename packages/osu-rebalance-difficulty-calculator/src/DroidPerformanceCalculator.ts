@@ -281,7 +281,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.visual =
-            Math.pow(Math.pow(this.difficultyCalculator.visual, 0.8), 2) * 25;
+            Math.pow(Math.pow(this.difficultyCalculator.visual, 0.8), 2) * 15;
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
