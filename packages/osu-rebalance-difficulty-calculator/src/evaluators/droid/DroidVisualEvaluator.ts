@@ -53,7 +53,7 @@ export abstract class DroidVisualEvaluator {
             (1 + current.overlappingFactor);
 
         // Bonus based on how visible the object is.
-        for (let i = 0; i < Math.min(current.index, 4); ++i) {
+        for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const previous: DifficultyHitObject = current.previous(i)!;
 
             if (previous.object instanceof Spinner) {
