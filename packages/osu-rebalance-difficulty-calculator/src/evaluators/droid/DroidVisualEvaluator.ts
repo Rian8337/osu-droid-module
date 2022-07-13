@@ -73,10 +73,6 @@ export abstract class DroidVisualEvaluator {
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
             strain += Math.pow(400 - current.timePreempt, 1.3) / 135;
-        } else if (current.timePreempt < 525) {
-            // Give bonus for AR between 9.5 and 10 to not make higher non-DT value less than NM.
-            strain +=
-                Math.pow(525 - Math.max(current.timePreempt, 450), 1.1) / 500;
         }
 
         if (current.object instanceof Slider) {
