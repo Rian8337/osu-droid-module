@@ -1,7 +1,6 @@
 import {
     Accuracy,
     modes,
-    ModHidden,
     ModRelax,
     ModScoreV2,
     ModFlashlight,
@@ -208,12 +207,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
             1.5 / (1 + Math.exp(-(this.difficultyCalculator.rhythm - 1) / 2));
-
-        if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
-        ) {
-            this.accuracy *= 1.08;
-        }
 
         if (
             this.difficultyCalculator.mods.some(
