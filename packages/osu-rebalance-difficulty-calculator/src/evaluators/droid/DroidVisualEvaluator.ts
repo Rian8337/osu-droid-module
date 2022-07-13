@@ -52,13 +52,6 @@ export abstract class DroidVisualEvaluator {
             10 /
             (1 + current.overlappingFactor);
 
-        if (isHiddenMod) {
-            strain +=
-                Math.min(25, Math.pow(current.noteDensity, 1.25)) /
-                10 /
-                (1 + current.overlappingFactor / 1.25);
-        }
-
         for (let i = 0; i < Math.min(current.index, 4); ++i) {
             // Bonus based on how visible the object is.
             strain +=
