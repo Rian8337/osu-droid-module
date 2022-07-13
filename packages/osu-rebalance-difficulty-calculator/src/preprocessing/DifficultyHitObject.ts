@@ -215,7 +215,7 @@ export class DifficultyHitObject {
         if (isHidden) {
             const fadeOutStartTime: number = fadeInStartTime + fadeInDuration;
             const fadeOutDuration: number =
-                this.timePreempt * ModHidden.fadeOutDurationMultiplier;
+                this.baseTimePreempt * ModHidden.fadeOutDurationMultiplier;
 
             return Math.min(
                 MathUtils.clamp(
