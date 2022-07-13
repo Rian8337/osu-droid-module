@@ -52,14 +52,25 @@ export abstract class DroidVisualEvaluator {
             10 /
             (1 + current.overlappingFactor);
 
+        // Bonus based on how visible the object is.
         for (let i = 0; i < Math.min(current.index, 4); ++i) {
-            // Bonus based on how visible the object is.
+            const previous: DifficultyHitObject = current.previous(i)!;
+
+            if (previous.object instanceof Spinner) {
+                continue;
+            }
+
+            // Do not consider objects that don't fall under time preempt.
+            if (
+                current.object.startTime - previous.object.endTime <
+                current.baseTimePreempt
+            ) {
+                break;
+            }
+
             strain +=
                 (1 -
-                    current.opacityAt(
-                        current.previous(i)!.object.startTime,
-                        isHiddenMod
-                    )) /
+                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
                 4;
         }
 
