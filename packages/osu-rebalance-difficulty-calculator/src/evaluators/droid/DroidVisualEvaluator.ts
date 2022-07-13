@@ -56,7 +56,24 @@ export abstract class DroidVisualEvaluator {
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const previous: DifficultyHitObject = current.previous(i)!;
 
-            if (previous.object instanceof Spinner) {
+            if (
+                previous.object instanceof Spinner ||
+                // Exclude overlapping objects that can be tapped at once.
+                (previous.deltaTime < 5 &&
+                    ((previous?.object instanceof Slider
+                        ? Math.min(
+                              previous.object.stackedEndPosition.getDistance(
+                                  current.object.stackedPosition
+                              ),
+                              previous.object.lazyEndPosition!.getDistance(
+                                  current.object.stackedPosition
+                              )
+                          )
+                        : previous?.object.stackedEndPosition.getDistance(
+                              current.object.stackedPosition
+                          )) ?? Number.POSITIVE_INFINITY) <=
+                        2 * current.object.radius)
+            ) {
                 continue;
             }
 
