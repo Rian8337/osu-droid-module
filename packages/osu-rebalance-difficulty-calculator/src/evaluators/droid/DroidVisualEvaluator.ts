@@ -62,7 +62,7 @@ export abstract class DroidVisualEvaluator {
 
             // Do not consider objects that don't fall under time preempt.
             if (
-                current.object.startTime - previous.object.endTime <
+                current.object.startTime - previous.object.endTime >
                 current.baseTimePreempt
             ) {
                 break;
