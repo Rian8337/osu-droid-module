@@ -62,8 +62,8 @@ describe("Test performance calculation with NoMod", () => {
         expect(performance.tap).toBeCloseTo(13.123766516437668, 5);
         expect(performance.accuracy).toBeCloseTo(13.797682282371657, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(13.701269445658312, 5);
-        expect(performance.total).toBeCloseTo(63.373971653682204, 5);
+        expect(performance.visual).toBeCloseTo(20.793222692661875, 5);
+        expect(performance.total).toBeCloseTo(71.21094627488102, 5);
     });
 
     test("1 miss", () => {
@@ -73,8 +73,8 @@ describe("Test performance calculation with NoMod", () => {
         expect(performance.tap).toBeCloseTo(12.384537370818084, 5);
         expect(performance.accuracy).toBeCloseTo(12.984300892290696, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(13.01855762445858, 5);
-        expect(performance.total).toBeCloseTo(60.205064707536174, 5);
+        expect(performance.visual).toBeCloseTo(19.757130453952044, 5);
+        expect(performance.total).toBeCloseTo(67.651664229632, 5);
     });
 
     test("99% approximated", () => {
@@ -89,8 +89,8 @@ describe("Test performance calculation with NoMod", () => {
         expect(performance.tap).toBeCloseTo(11.598880166543692, 5);
         expect(performance.accuracy).toBeCloseTo(9.537588955661478, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(12.62897435922127, 5);
-        expect(performance.total).toBeCloseTo(55.775172353009786, 5);
+        expect(performance.visual).toBeCloseTo(19.165893881053265, 5);
+        expect(performance.total).toBeCloseTo(63.03012710363405, 5);
     });
 
     test("10x100", () => {
@@ -104,8 +104,8 @@ describe("Test performance calculation with NoMod", () => {
         expect(performance.tap).toBeCloseTo(11.438744909113167, 5);
         expect(performance.accuracy).toBeCloseTo(9.147691487325519, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(12.514491514219308, 5);
-        expect(performance.total).toBeCloseTo(55.04133264640693, 5);
+        expect(performance.visual).toBeCloseTo(18.992153243365888, 5);
+        expect(performance.total).toBeCloseTo(62.23330034498186, 5);
     });
 
     test("1.5 tap penalty", () => {
@@ -114,7 +114,7 @@ describe("Test performance calculation with NoMod", () => {
         });
 
         expect(performance.tap).toBeCloseTo(8.749177677625111, 5);
-        expect(performance.total).toBeCloseTo(58.70982770353678, 5);
+        expect(performance.total).toBeCloseTo(66.6030127916784, 5);
     });
 });
 
@@ -126,15 +126,15 @@ describe("Test performance calculation with Hidden", () => {
     test("SS", () => {
         const performance = calculatePerformance(difficulty);
 
-        expect(performance.visual).toBeCloseTo(14.441001504690854, 5);
-        expect(performance.total).toBeCloseTo(64.1797223001556, 5);
+        expect(performance.visual).toBeCloseTo(23.886418361193538, 5);
+        expect(performance.total).toBeCloseTo(74.69230008870844, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
-        expect(performance.visual).toBeCloseTo(13.721430046271013, 5);
-        expect(performance.total).toBeCloseTo(60.970680117011625, 5);
+        expect(performance.visual).toBeCloseTo(22.69619724730422, 5);
+        expect(performance.total).toBeCloseTo(70.95960006260532, 5);
     });
 
     test("99% approximated", () => {
@@ -145,8 +145,8 @@ describe("Test performance calculation with Hidden", () => {
             }),
         });
 
-        expect(performance.visual).toBeCloseTo(13.310813165710568, 5);
-        expect(performance.total).toBeCloseTo(56.521279830498244, 5);
+        expect(performance.visual).toBeCloseTo(22.017008439516264, 5);
+        expect(performance.total).toBeCloseTo(66.25170951687117, 5);
     });
 
     test("10x100", () => {
@@ -156,8 +156,8 @@ describe("Test performance calculation with Hidden", () => {
             }),
         });
 
-        expect(performance.visual).toBeCloseTo(13.190149387548136, 5);
-        expect(performance.total).toBeCloseTo(55.78098035642415, 5);
+        expect(performance.visual).toBeCloseTo(21.81742217915241, 5);
+        expect(performance.total).toBeCloseTo(65.4268020253713, 5);
     });
 });
 
@@ -170,14 +170,14 @@ describe("Test performance calculation with Flashlight", () => {
         const performance = calculatePerformance(difficulty);
 
         expect(performance.flashlight).toBeCloseTo(5.049665728539405, 5);
-        expect(performance.total).toBeCloseTo(68.17284104796431, 5);
+        expect(performance.total).toBeCloseTo(75.95624944616111, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
         expect(performance.flashlight).toBeCloseTo(4.859275717033319, 5);
-        expect(performance.total).toBeCloseTo(64.82173514012031, 5);
+        expect(performance.total).toBeCloseTo(72.2168163622968, 5);
     });
 
     test("99% approximated", () => {
@@ -189,7 +189,7 @@ describe("Test performance calculation with Flashlight", () => {
         });
 
         expect(performance.flashlight).toBeCloseTo(5.024076206266401, 5);
-        expect(performance.total).toBeCloseTo(60.50705958365787, 5);
+        expect(performance.total).toBeCloseTo(67.70686917229442, 5);
     });
 
     test("10x100", () => {
@@ -200,7 +200,7 @@ describe("Test performance calculation with Flashlight", () => {
         });
 
         expect(performance.flashlight).toBeCloseTo(5.0212329260138455, 5);
-        expect(performance.total).toBeCloseTo(59.7673649772, 5);
+        expect(performance.total).toBeCloseTo(66.90404861782264, 5);
     });
 });
 
@@ -213,14 +213,14 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
         const performance = calculatePerformance(difficulty);
 
         expect(performance.flashlight).toBeCloseTo(6.916328185934696, 5);
-        expect(performance.total).toBeCloseTo(70.82168597354152, 5);
+        expect(performance.total).toBeCloseTo(81.23915419235584, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
         expect(performance.flashlight).toBeCloseTo(6.655558488753008, 5);
-        expect(performance.total).toBeCloseTo(67.36305888072454, 5);
+        expect(performance.total).toBeCloseTo(77.26048405043724, 5);
     });
 
     test("99% approximated", () => {
@@ -232,7 +232,7 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
         });
 
         expect(performance.flashlight).toBeCloseTo(6.881279225533, 5);
-        expect(performance.total).toBeCloseTo(63.1074158605238, 5);
+        expect(performance.total).toBeCloseTo(72.73969515159513, 5);
     });
 
     test("10x100", () => {
@@ -243,7 +243,7 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
         });
 
         expect(performance.flashlight).toBeCloseTo(6.877384896599478, 5);
-        expect(performance.total).toBeCloseTo(62.362331287623476, 5);
+        expect(performance.total).toBeCloseTo(71.90973669165729, 5);
     });
 });
 
@@ -259,8 +259,8 @@ describe("Test performance calculation with DoubleTime", () => {
         expect(performance.tap).toBeCloseTo(47.115302420891425, 5);
         expect(performance.accuracy).toBeCloseTo(45.13962922313779, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(18.14545128819464, 5);
-        expect(performance.total).toBeCloseTo(167.52144126344444, 5);
+        expect(performance.visual).toBeCloseTo(27.933227546657466, 5);
+        expect(performance.total).toBeCloseTo(177.65359574177114, 5);
     });
 
     test("1 miss", () => {
@@ -270,8 +270,8 @@ describe("Test performance calculation with DoubleTime", () => {
         expect(performance.tap).toBeCloseTo(44.72170577977179, 5);
         expect(performance.accuracy).toBeCloseTo(42.4786218442272, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(17.24129316295027, 5);
-        expect(performance.total).toBeCloseTo(159.19034195392487, 5);
+        expect(performance.visual).toBeCloseTo(26.54136055754369, 5);
+        expect(performance.total).toBeCloseTo(168.8175328003646, 5);
     });
 
     test("99% approximated", () => {
@@ -286,8 +286,8 @@ describe("Test performance calculation with DoubleTime", () => {
         expect(performance.tap).toBeCloseTo(43.138325244062834, 5);
         expect(performance.accuracy).toBeCloseTo(31.202575934894714, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(16.725343586883838, 5);
-        expect(performance.total).toBeCloseTo(145.82904756002702, 5);
+        expect(performance.visual).toBeCloseTo(25.747104372786154, 5);
+        expect(performance.total).toBeCloseTo(155.22002375211858, 5);
     });
 
     test("10x100", () => {
@@ -301,8 +301,8 @@ describe("Test performance calculation with DoubleTime", () => {
         expect(performance.tap).toBeCloseTo(42.71205316385528, 5);
         expect(performance.accuracy).toBeCloseTo(29.927011909318374, 5);
         expect(performance.flashlight).toBe(0);
-        expect(performance.visual).toBeCloseTo(16.573726768051383, 5);
-        expect(performance.total).toBeCloseTo(143.7598653165196, 5);
+        expect(performance.visual).toBeCloseTo(25.513704440589223, 5);
+        expect(performance.total).toBeCloseTo(153.07037302914483, 5);
     });
 
     test("1.5 tap penalty", () => {
@@ -311,7 +311,7 @@ describe("Test performance calculation with DoubleTime", () => {
         });
 
         expect(performance.tap).toBeCloseTo(31.410201613927615, 5);
-        expect(performance.total).toBeCloseTo(150.2291418135146, 5);
+        expect(performance.total).toBeCloseTo(160.46851580292812, 5);
     });
 });
 
@@ -382,13 +382,13 @@ describe("Test performance calculation with NoFail", () => {
     test("SS", () => {
         const performance = calculatePerformance(difficulty);
 
-        expect(performance.total).toBeCloseTo(63.373971653682204, 5);
+        expect(performance.total).toBeCloseTo(71.21094627488102, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
-        expect(performance.total).toBeCloseTo(59.000963413385456, 5);
+        expect(performance.total).toBeCloseTo(66.29863094503938, 5);
     });
 
     test("99% approximated", () => {
@@ -399,7 +399,7 @@ describe("Test performance calculation with NoFail", () => {
             }),
         });
 
-        expect(performance.total).toBeCloseTo(55.775172353009786, 5);
+        expect(performance.total).toBeCloseTo(63.03012710363405, 5);
     });
 
     test("10x100", () => {
@@ -409,7 +409,7 @@ describe("Test performance calculation with NoFail", () => {
             }),
         });
 
-        expect(performance.total).toBeCloseTo(55.04133264640693, 5);
+        expect(performance.total).toBeCloseTo(62.23330034498186, 5);
     });
 
     test("1.5 tap penalty", () => {
@@ -417,7 +417,7 @@ describe("Test performance calculation with NoFail", () => {
             tapPenalty: 1.5,
         });
 
-        expect(performance.total).toBeCloseTo(58.70982770353678, 5);
+        expect(performance.total).toBeCloseTo(66.6030127916784, 5);
     });
 });
 
@@ -430,14 +430,14 @@ describe("Test performance calculation with ScoreV2", () => {
         const performance = calculatePerformance(difficulty);
 
         expect(performance.accuracy).toBeCloseTo(19.155029601507906, 5);
-        expect(performance.total).toBeCloseTo(69.27694966116368, 5);
+        expect(performance.total).toBeCloseTo(77.04858382618974, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
         expect(performance.accuracy).toBeCloseTo(18.769694179956314, 5);
-        expect(performance.total).toBeCloseTo(66.58426887408577, 5);
+        expect(performance.total).toBeCloseTo(73.96067254002175, 5);
     });
 
     test("99% approximated", () => {
@@ -449,7 +449,7 @@ describe("Test performance calculation with ScoreV2", () => {
         });
 
         expect(performance.accuracy).toBeCloseTo(16.947414434062768, 5);
-        expect(performance.total).toBeCloseTo(63.840113347718905, 5);
+        expect(performance.total).toBeCloseTo(71.00367949175737, 5);
     });
 
     test("10x100", () => {
@@ -460,7 +460,7 @@ describe("Test performance calculation with ScoreV2", () => {
         });
 
         expect(performance.accuracy).toBeCloseTo(16.717102040250882, 5);
-        expect(performance.total).toBeCloseTo(63.26857399993342, 5);
+        expect(performance.total).toBeCloseTo(70.36712581874322, 5);
     });
 });
 
@@ -562,6 +562,6 @@ test("Test string concatenation", () => {
     const performance = calculatePerformance(calculateDifficulty(mainBeatmap));
 
     expect(performance.toString()).toBe(
-        "63.37 pp (17.31 aim, 13.12 tap, 13.80 acc, 0.00 flashlight, 13.70 visual)"
+        "71.21 pp (17.31 aim, 13.12 tap, 13.80 acc, 0.00 flashlight, 20.79 visual)"
     );
 });
