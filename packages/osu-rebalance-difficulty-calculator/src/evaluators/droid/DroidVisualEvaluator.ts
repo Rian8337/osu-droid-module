@@ -80,7 +80,7 @@ export abstract class DroidVisualEvaluator {
             // Reward sliders based on velocity.
             strain +=
                 // Avoid overbuffing extremely fast sliders.
-                Math.min(5, current.velocity * 1.25) *
+                Math.min(6, current.velocity * 1.5) *
                 // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                 Math.min(1, current.travelDistance / scalingFactor / 125);
 
@@ -103,8 +103,8 @@ export abstract class DroidVisualEvaluator {
                 strain +=
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
-                        8,
-                        2 * Math.abs(current.velocity - last.velocity)
+                        10,
+                        2.5 * Math.abs(current.velocity - last.velocity)
                     ) *
                     // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                     Math.min(1, last.travelDistance / scalingFactor / 100) *
