@@ -20,7 +20,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            current.deltaTime < 5
+            current.isOverlapping(false)
         ) {
             return 1;
         }
@@ -48,7 +48,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 break;
             }
 
-            if (object.deltaTime >= 5) {
+            if (!object.isOverlapping(false)) {
                 validPrevious.push(object);
             }
         }

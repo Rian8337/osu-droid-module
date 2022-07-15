@@ -1,4 +1,10 @@
-import { HitObject, MathUtils, ModHidden } from "@rian8337/osu-base";
+import {
+    HitObject,
+    MathUtils,
+    ModHidden,
+    Slider,
+    Spinner,
+} from "@rian8337/osu-base";
 
 /**
  * Represents an osu!standard hit object with difficulty calculation values.
@@ -233,5 +239,50 @@ export class DifficultyHitObject {
         }
 
         return MathUtils.clamp((time - fadeInStartTime) / fadeInDuration, 0, 1);
+    }
+
+    /**
+     * Determines whether this hitobject is considered overlapping with the hitobject before it.
+     *
+     * Keep in mind that "overlapping" in this case is overlapping to the point where both hitobjects
+     * can be hit with just a single tap in osu!droid.
+     *
+     * @param considerDistance Whether to consider the distance between both hitobjects.
+     * @returns Whether the hitobject is considered overlapping.
+     */
+    isOverlapping(considerDistance: boolean): boolean {
+        if (this.object instanceof Spinner) {
+            return false;
+        }
+
+        const previous: DifficultyHitObject | null = this.previous(0);
+
+        if (!previous || previous.object instanceof Spinner) {
+            return false;
+        }
+
+        if (this.deltaTime >= 5) {
+            return false;
+        }
+
+        if (considerDistance) {
+            return (
+                (previous.object instanceof Slider
+                    ? Math.min(
+                          previous.object.stackedEndPosition.getDistance(
+                              this.object.stackedPosition
+                          ),
+                          previous.object.lazyEndPosition?.getDistance(
+                              this.object.stackedPosition
+                          ) ?? Number.POSITIVE_INFINITY
+                      )
+                    : previous.object.stackedEndPosition.getDistance(
+                          this.object.stackedPosition
+                      )) <=
+                2 * this.object.radius
+            );
+        }
+
+        return true;
     }
 }

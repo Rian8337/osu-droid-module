@@ -1,4 +1,4 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
@@ -20,25 +20,10 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         current: DifficultyHitObject,
         isHiddenMod: boolean
     ): number {
-        const actualLast: DifficultyHitObject | null = current.previous(0);
-
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (current.deltaTime < 5 &&
-                ((actualLast?.object instanceof Slider
-                    ? Math.min(
-                          actualLast.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          actualLast.object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : actualLast?.object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) ?? Number.POSITIVE_INFINITY) <=
-                    2 * current.object.radius)
+            current.isOverlapping(true)
         ) {
             return 0;
         }
@@ -59,7 +44,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
             if (
                 !(currentObject.object instanceof Spinner) &&
                 // Exclude overlapping objects that can be tapped at once.
-                currentObject.deltaTime >= 5
+                !currentObject.isOverlapping(false)
             ) {
                 const jumpDistance: number =
                     current.object.stackedPosition.subtract(

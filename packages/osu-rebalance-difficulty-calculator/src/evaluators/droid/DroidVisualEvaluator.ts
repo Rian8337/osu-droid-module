@@ -22,25 +22,10 @@ export abstract class DroidVisualEvaluator {
         current: DifficultyHitObject,
         isHiddenMod: boolean
     ): number {
-        const last: DifficultyHitObject | null = current.previous(0);
-
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (current.deltaTime < 5 &&
-                ((last?.object instanceof Slider
-                    ? Math.min(
-                          last.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          last.object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : last?.object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) ?? Number.POSITIVE_INFINITY) <=
-                    2 * current.object.radius)
+            current.isOverlapping(true)
         ) {
             return 0;
         }
@@ -59,20 +44,7 @@ export abstract class DroidVisualEvaluator {
             if (
                 previous.object instanceof Spinner ||
                 // Exclude overlapping objects that can be tapped at once.
-                (previous.deltaTime < 5 &&
-                    ((previous?.object instanceof Slider
-                        ? Math.min(
-                              previous.object.stackedEndPosition.getDistance(
-                                  current.object.stackedPosition
-                              ),
-                              previous.object.lazyEndPosition!.getDistance(
-                                  current.object.stackedPosition
-                              )
-                          )
-                        : previous?.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          )) ?? Number.POSITIVE_INFINITY) <=
-                        2 * current.object.radius)
+                previous.isOverlapping(true)
             ) {
                 continue;
             }
@@ -117,16 +89,7 @@ export abstract class DroidVisualEvaluator {
                 if (
                     !(last.object instanceof Slider) ||
                     // Exclude overlapping objects that can be tapped at once.
-                    (last.deltaTime < 5 &&
-                        Math.min(
-                            last.object.stackedEndPosition.getDistance(
-                                current.object.stackedPosition
-                            ),
-                            last.object.lazyEndPosition!.getDistance(
-                                current.object.stackedPosition
-                            )
-                        ) <=
-                            2 * current.object.radius)
+                    last.isOverlapping(true)
                 ) {
                     continue;
                 }

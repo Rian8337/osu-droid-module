@@ -25,7 +25,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            current.deltaTime < 5
+            current.isOverlapping(false)
         ) {
             return 0;
         }

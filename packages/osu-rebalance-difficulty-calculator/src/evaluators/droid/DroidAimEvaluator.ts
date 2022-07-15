@@ -32,25 +32,10 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         current: DifficultyHitObject,
         withSliders: boolean
     ): number {
-        const last: DifficultyHitObject | null = current.previous(0);
-
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (current.deltaTime < 5 &&
-                ((last?.object instanceof Slider
-                    ? Math.min(
-                          last.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          last.object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : last?.object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) ?? Number.POSITIVE_INFINITY) <=
-                    2 * current.object.radius)
+            current.isOverlapping(true)
         ) {
             return 0;
         }
@@ -140,7 +125,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             1.25 * Math.min(current.strainTime, last.strainTime)
         ) {
             // If rhythms are the same.
-
             if (
                 current.angle !== null &&
                 last.angle !== null &&
