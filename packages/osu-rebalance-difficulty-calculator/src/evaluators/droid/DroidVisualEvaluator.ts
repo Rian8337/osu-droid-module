@@ -32,10 +32,16 @@ export abstract class DroidVisualEvaluator {
 
         // Start with base density and give global bonus for Hidden.
         // Add density caps for sanity.
-        let strain: number =
-            Math.min(20, Math.pow(current.noteDensity, 2)) /
-            10 /
-            (1 + current.overlappingFactor);
+        let strain: number;
+
+        if (isHiddenMod) {
+            strain = Math.min(25, Math.pow(current.noteDensity, 2.25));
+        } else {
+            strain = Math.min(20, Math.pow(current.noteDensity, 2));
+        }
+
+        // Scale the value with overlapping factor.
+        strain /= 10 * (1 + current.overlappingFactor);
 
         // Bonus based on how visible the object is.
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
