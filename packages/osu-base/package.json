@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-base",
-  "version": "2.1.0-beta.1",
+  "version": "2.1.0",
   "description": "Base module for all osu! related modules.",
   "keywords": [
     "osu",
@@ -40,5 +40,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }

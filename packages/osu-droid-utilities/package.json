@@ -30,7 +30,7 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^2.1.0-beta.1",
+    "@rian8337/osu-base": "^2.1.0",
     "@rian8337/osu-droid-replay-analyzer": "^2.1.0",
     "crypto-js": "^4.1.1"
   },
@@ -39,5 +39,6 @@
   },
   "devDependencies": {
     "@types/crypto-js": "^4.1.0"
-  }
+  },
+  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }

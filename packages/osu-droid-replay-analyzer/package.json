@@ -31,8 +31,8 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^2.1.0-beta.1",
-    "@rian8337/osu-difficulty-calculator": "^2.1.0-beta.1",
+    "@rian8337/osu-base": "^2.1.0",
+    "@rian8337/osu-difficulty-calculator": "^2.1.0",
     "@rian8337/osu-rebalance-difficulty-calculator": "^2.1.0",
     "java-deserialization": "^0.1.0",
     "unzipper": "^0.10.11"
@@ -44,5 +44,6 @@
   },
   "publishConfig": {
     "access": "public"
-  }
+  },
+  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }
