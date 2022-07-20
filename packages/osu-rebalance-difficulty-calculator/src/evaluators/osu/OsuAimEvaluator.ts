@@ -183,28 +183,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                 Math.abs(prevVelocity - currentVelocity)
             );
 
-            // Reward for % distance slowed down compared to previous, paying attention to not award overlap.
-            const nonOverlapVelocityBuff: number =
-                Math.abs(prevVelocity - currentVelocity) *
-                // Do not award overlap.
-                Math.pow(
-                    Math.sin(
-                        (Math.PI / 2) *
-                            Math.min(
-                                1,
-                                Math.min(
-                                    current.lazyJumpDistance,
-                                    last.lazyJumpDistance
-                                ) / 100
-                            )
-                    ),
-                    2
-                );
-
-            // Choose the largest bonus, multiplied by ratio.
-            velocityChangeBonus =
-                Math.max(overlapVelocityBuff, nonOverlapVelocityBuff) *
-                distanceRatio;
+            velocityChangeBonus = overlapVelocityBuff * distanceRatio;
 
             // Penalize for rhythm changes.
             velocityChangeBonus *= Math.pow(
