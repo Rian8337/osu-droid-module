@@ -219,10 +219,10 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 total: 3.89147963215976,
             },
             noModPcRating: {
-                aim: 2.380333686066187,
+                aim: 2.3716990046546034,
                 speed: 1.8525518815424369,
                 flashlight: 1.5783535775012258,
-                total: 4.474849930732708,
+                total: 4.463523110040912,
             },
             clockRateDroidRating: {
                 aim: 2.731532763181477,
@@ -233,10 +233,10 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 total: 5.234704790697027,
             },
             clockRatePcRating: {
-                aim: 3.26222073103768,
+                aim: 3.2469610415062955,
                 speed: 2.643760548303716,
                 flashlight: 2.3298364064749078,
-                total: 6.211011760709198,
+                total: 6.191620631534332,
             },
         }
     );
@@ -253,10 +253,10 @@ test("Test difficulty calculation sample beatmap 2", async () => {
             total: 2.83954895058344,
         },
         noModPcRating: {
-            aim: 1.2853681936311694,
+            aim: 1.284840979702141,
             speed: 1.1740787855226908,
             flashlight: 0.4965982644504382,
-            total: 2.5604050687408564,
+            total: 2.5597998319050292,
         },
         clockRateDroidRating: {
             aim: 1.298282567274465,
@@ -270,7 +270,7 @@ test("Test difficulty calculation sample beatmap 2", async () => {
             aim: 1.7277106868093492,
             speed: 1.6780678841141259,
             flashlight: 0.7254798019954478,
-            total: 3.537789240286687,
+            total: 3.537262040021001,
         },
     });
 });
@@ -288,10 +288,10 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 total: 5.772558837349609,
             },
             noModPcRating: {
-                aim: 2.9844158923979682,
+                aim: 2.98258615449328,
                 speed: 3.0164501737543654,
                 flashlight: 1.9758596785346605,
-                total: 6.232100270145301,
+                total: 6.2302246222370306,
             },
             clockRateDroidRating: {
                 aim: 3.4842380569097315,
@@ -302,10 +302,10 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 total: 8.363572912557085,
             },
             clockRatePcRating: {
-                aim: 4.203173691714608,
+                aim: 4.198998982268347,
                 speed: 4.543264147297868,
                 flashlight: 2.899673665183888,
-                total: 9.09912381223099,
+                total: 9.095189679089314,
             },
         }
     );
@@ -322,10 +322,10 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             total: 5.353073984410552,
         },
         noModPcRating: {
-            aim: 4.537924998518297,
+            aim: 4.510382411917584,
             speed: 1.8160213796912776,
             flashlight: 1.8216253866170895,
-            total: 7.76412829688975,
+            total: 7.719200674326206,
         },
         clockRateDroidRating: {
             aim: 3.4038924632396355,
@@ -336,10 +336,10 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             total: 7.2701247444540265,
         },
         clockRatePcRating: {
-            aim: 6.010075838404166,
+            aim: 5.971782569252852,
             speed: 2.6048378570583806,
             flashlight: 2.686768315519511,
-            total: 10.320525934692583,
+            total: 10.258688120483464,
         },
     });
 });
@@ -371,10 +371,10 @@ test("Test difficulty calculation sample beatmap 5", async () => {
                 total: 116.43732653093461,
             },
             clockRatePcRating: {
-                aim: 53.928961866992545,
+                aim: 53.023825474501606,
                 speed: 13.206819579506805,
                 flashlight: 67.11112620179784,
-                total: 91.0721226762261,
+                total: 89.55864481572083,
             },
         }
     );
