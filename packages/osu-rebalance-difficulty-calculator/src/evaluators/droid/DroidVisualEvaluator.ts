@@ -40,9 +40,6 @@ export abstract class DroidVisualEvaluator {
             strain = Math.min(20, Math.pow(current.noteDensity, 2));
         }
 
-        // Scale the value with overlapping factor.
-        strain /= 10 * (1 + current.overlappingFactor);
-
         // Bonus based on how visible the object is.
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const previous: DifficultyHitObject = current.previous(i)!;
@@ -68,6 +65,9 @@ export abstract class DroidVisualEvaluator {
                     current.opacityAt(previous.object.startTime, isHiddenMod)) /
                 4;
         }
+
+        // Scale the value with overlapping factor.
+        strain /= 10 * (1 + current.overlappingFactor);
 
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
