@@ -121,7 +121,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         const baseAR: number = this.difficultyCalculator.beatmap.difficulty.ar!;
         const baseOD: number = this.difficultyCalculator.beatmap.difficulty.od;
 
-        // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
         this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
 
         if (options?.accPercent instanceof Accuracy) {
