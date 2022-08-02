@@ -22,46 +22,56 @@ export abstract class DroidVisualEvaluator {
         current: DifficultyHitObject,
         isHiddenMod: boolean
     ): number {
-        const last: DifficultyHitObject | null = current.previous(0);
-
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (current.deltaTime < 5 &&
-                ((last?.object instanceof Slider
-                    ? Math.min(
-                          last.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          last.object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : last?.object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) ?? Number.POSITIVE_INFINITY) <=
-                    2 * current.object.radius)
+            current.isOverlapping(true)
         ) {
             return 0;
         }
 
         // Start with base density and give global bonus for Hidden.
         // Add density caps for sanity.
-        let strain: number =
-            Math.min(20, Math.pow(current.noteDensity, 2)) /
-            10 /
-            (1 + current.overlappingFactor);
+        let strain: number;
 
         if (isHiddenMod) {
-            strain +=
-                Math.min(25, Math.pow(current.noteDensity, 1.25)) /
-                10 /
-                (1 + current.overlappingFactor / 1.25);
+            strain = Math.min(25, Math.pow(current.noteDensity, 2.25));
+        } else {
+            strain = Math.min(20, Math.pow(current.noteDensity, 2));
         }
 
-        // Give bonus for AR higher than 10.33.
+        // Bonus based on how visible the object is.
+        for (let i = 0; i < Math.min(current.index, 10); ++i) {
+            const previous: DifficultyHitObject = current.previous(i)!;
+
+            if (
+                previous.object instanceof Spinner ||
+                // Exclude overlapping objects that can be tapped at once.
+                previous.isOverlapping(true)
+            ) {
+                continue;
+            }
+
+            // Do not consider objects that don't fall under time preempt.
+            if (
+                current.object.startTime - previous.object.endTime >
+                current.baseTimePreempt
+            ) {
+                break;
+            }
+
+            strain +=
+                (1 -
+                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
+                4;
+        }
+
+        // Scale the value with overlapping factor.
+        strain /= 10 * (1 + current.overlappingFactor);
+
         if (current.timePreempt < 400) {
-            strain += Math.pow(400 - current.timePreempt, 1.3) / 135;
+            // Give bonus for AR higher than 10.33.
+            strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
         }
 
         if (current.object instanceof Slider) {
@@ -70,7 +80,7 @@ export abstract class DroidVisualEvaluator {
             // Reward sliders based on velocity.
             strain +=
                 // Avoid overbuffing extremely fast sliders.
-                Math.min(5, current.velocity * 1.25) *
+                Math.min(6, current.velocity * 1.5) *
                 // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                 Math.min(1, current.travelDistance / scalingFactor / 125);
 
@@ -85,16 +95,7 @@ export abstract class DroidVisualEvaluator {
                 if (
                     !(last.object instanceof Slider) ||
                     // Exclude overlapping objects that can be tapped at once.
-                    (last.deltaTime < 5 &&
-                        Math.min(
-                            last.object.stackedEndPosition.getDistance(
-                                current.object.stackedPosition
-                            ),
-                            last.object.lazyEndPosition!.getDistance(
-                                current.object.stackedPosition
-                            )
-                        ) <=
-                            2 * current.object.radius)
+                    last.isOverlapping(true)
                 ) {
                     continue;
                 }
@@ -102,8 +103,8 @@ export abstract class DroidVisualEvaluator {
                 strain +=
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
-                        8,
-                        2 * Math.abs(current.velocity - last.velocity)
+                        10,
+                        2.5 * Math.abs(current.velocity - last.velocity)
                     ) *
                     // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                     Math.min(1, last.travelDistance / scalingFactor / 100) *

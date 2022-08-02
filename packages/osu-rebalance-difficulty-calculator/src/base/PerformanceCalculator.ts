@@ -110,6 +110,8 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
 
     /**
      * Processes given options for usage in performance calculation.
+     *
+     * @param options Options for performance calculation.
      */
     protected handleOptions(options?: PerformanceCalculationOptions): void {
         const maxCombo: number = this.difficultyCalculator.beatmap.maxCombo;
@@ -124,7 +126,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
 
         if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
-            this.computedAccuracy = new Accuracy(options?.accPercent);
+            this.computedAccuracy = new Accuracy(options.accPercent);
 
             if (this.computedAccuracy.n300 <= 0) {
                 this.computedAccuracy.n300 =
@@ -154,6 +156,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 1 - 0.02 * this.effectiveMissCount
             );
         }
+
         if (
             this.difficultyCalculator.mods.some((m) => m instanceof ModSpunOut)
         ) {
@@ -165,6 +168,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                     0.85
                 );
         }
+
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
             let n100Multiplier: number = 1;
             let n50Multiplier: number = 1;

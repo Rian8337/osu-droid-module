@@ -13,9 +13,6 @@ export class DroidTap extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.3;
     protected override readonly starsPerDouble: number = 1.1;
 
-    // ~200 1/4 BPM streams
-    private readonly minSpeedBonus: number = 75;
-
     private currentTapStrain: number = 0;
     private currentOriginalTapStrain: number = 0;
 

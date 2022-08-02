@@ -6,6 +6,9 @@ import { AimEvaluator } from "../base/AimEvaluator";
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator extends AimEvaluator {
+    protected static override readonly acuteAngleMultiplier: number = 1.95;
+    protected static override readonly sliderMultiplier: number = 1.35;
+
     /**
      * Spacing threshold for a single hitobject spacing.
      */
@@ -29,25 +32,10 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         current: DifficultyHitObject,
         withSliders: boolean
     ): number {
-        const last: DifficultyHitObject | null = current.previous(0);
-
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            (current.deltaTime < 5 &&
-                ((last?.object instanceof Slider
-                    ? Math.min(
-                          last.object.stackedEndPosition.getDistance(
-                              current.object.stackedPosition
-                          ),
-                          last.object.lazyEndPosition!.getDistance(
-                              current.object.stackedPosition
-                          )
-                      )
-                    : last?.object.stackedEndPosition.getDistance(
-                          current.object.stackedPosition
-                      )) ?? Number.POSITIVE_INFINITY) <=
-                    2 * current.object.radius)
+            current.isOverlapping(true)
         ) {
             return 0;
         }
@@ -91,7 +79,9 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
 
             // Calculate the movement velocity from slider end to current object.
             const movementVelocity: number =
-                current.minimumJumpDistance / current.minimumJumpTime;
+                current.minimumJumpTime !== 0
+                    ? current.minimumJumpDistance / current.minimumJumpTime
+                    : 0;
 
             // Take the larger total combined velocity.
             currentVelocity = Math.max(
@@ -112,7 +102,9 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 lastLast.travelDistance / lastLast.travelTime;
 
             const movementVelocity: number =
-                last.minimumJumpDistance / last.minimumJumpTime;
+                last.minimumJumpTime !== 0
+                    ? last.minimumJumpDistance / last.minimumJumpTime
+                    : 0;
 
             prevVelocity = Math.max(
                 prevVelocity,
@@ -133,7 +125,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             1.25 * Math.min(current.strainTime, last.strainTime)
         ) {
             // If rhythms are the same.
-
             if (
                 current.angle !== null &&
                 last.angle !== null &&
@@ -233,28 +224,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 Math.abs(prevVelocity - currentVelocity)
             );
 
-            // Reward for % distance slowed down compared to previous, paying attention to not award overlap.
-            const nonOverlapVelocityBuff: number =
-                Math.abs(prevVelocity - currentVelocity) *
-                // Do not award overlap.
-                Math.pow(
-                    Math.sin(
-                        (Math.PI / 2) *
-                            Math.min(
-                                1,
-                                Math.min(
-                                    current.lazyJumpDistance,
-                                    last.lazyJumpDistance
-                                ) / 100
-                            )
-                    ),
-                    2
-                );
-
-            // Choose the largest bonus, multiplied by ratio.
-            velocityChangeBonus =
-                Math.max(overlapVelocityBuff, nonOverlapVelocityBuff) *
-                distanceRatio;
+            velocityChangeBonus = overlapVelocityBuff * distanceRatio;
 
             // Penalize for rhythm changes.
             velocityChangeBonus *= Math.pow(

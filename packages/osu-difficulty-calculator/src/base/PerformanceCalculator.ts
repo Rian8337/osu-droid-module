@@ -139,7 +139,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             this.computedAccuracy = new Accuracy({
                 percent: options?.accPercent,
                 nobjects: this.difficultyCalculator.objects.length,
-                nmiss: options?.miss ?? 0,
+                nmiss: options?.miss || 0,
             });
         }
 
@@ -170,16 +170,47 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         }
 
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+            let n100Multiplier: number = 1;
+            let n50Multiplier: number = 1;
+
+            if (this.mode === modes.droid) {
+                // Graph: https://www.desmos.com/calculator/bc9eybdthb
+                // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
+                n100Multiplier = Math.max(
+                    0,
+                    this.difficultyCalculator.stats.od! > 0
+                        ? 1 -
+                              Math.pow(
+                                  this.difficultyCalculator.stats.od! / 13.33,
+                                  1.8
+                              )
+                        : 1
+                );
+
+                n50Multiplier = Math.max(
+                    0,
+                    this.difficultyCalculator.stats.od! > 0.0
+                        ? 1 -
+                              Math.pow(
+                                  this.difficultyCalculator.stats.od! / 13.33,
+                                  5
+                              )
+                        : 1
+                );
+            }
+
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
-            // than total hits in specific scenarios (which breaks some calculations), so we need to clamp it.
+            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
             this.effectiveMissCount = Math.min(
                 this.effectiveMissCount +
-                    this.computedAccuracy.n100 +
-                    this.computedAccuracy.n50,
+                    this.computedAccuracy.n100 * n100Multiplier +
+                    this.computedAccuracy.n50 * n50Multiplier,
                 this.difficultyCalculator.objects.length
             );
 
-            this.finalMultiplier *= 0.6;
+            if (this.mode === modes.osu) {
+                this.finalMultiplier *= 0.6;
+            }
         }
 
         this.mapStatistics = new MapStats({
@@ -188,21 +219,21 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             mods: mod,
         });
 
-        // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-        const estimateDifficultSliders: number =
-            this.difficultyCalculator.beatmap.hitObjects.sliders * 0.15;
-        const estimateSliderEndsDropped: number = MathUtils.clamp(
-            Math.min(
-                this.computedAccuracy.n300 +
-                    this.computedAccuracy.n50 +
-                    this.computedAccuracy.nmiss,
-                maxCombo - combo
-            ),
-            0,
-            estimateDifficultSliders
-        );
-
         if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
+            // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
+            const estimateDifficultSliders: number =
+                this.difficultyCalculator.beatmap.hitObjects.sliders * 0.15;
+            const estimateSliderEndsDropped: number = MathUtils.clamp(
+                Math.min(
+                    this.computedAccuracy.n300 +
+                        this.computedAccuracy.n50 +
+                        this.computedAccuracy.nmiss,
+                    maxCombo - combo
+                ),
+                0,
+                estimateDifficultSliders
+            );
+
             this.sliderNerfFactor =
                 (1 - this.difficultyCalculator.attributes.sliderFactor) *
                     Math.pow(

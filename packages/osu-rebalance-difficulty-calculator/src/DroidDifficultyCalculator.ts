@@ -244,7 +244,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                 this.aim;
         }
 
-        if (this.mods.some(m => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
             this.aim *= 0.9;
         }
     }

@@ -1,6 +1,5 @@
 import {
     HitObject,
-    MapStats,
     modes,
     Precision,
     Slider,
@@ -17,7 +16,7 @@ export class DifficultyHitObjectCreator {
     /**
      * The threshold for small circle buff for osu!droid.
      */
-    private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number = 52.5;
+    private readonly DROID_CIRCLESIZE_BUFF_THRESHOLD: number = 70;
 
     /**
      * The threshold for small circle buff for osu!standard.
@@ -75,18 +74,7 @@ export class DifficultyHitObjectCreator {
             object.index = difficultyObjects.length - 1;
             object.object.scale = scale;
             object.timePreempt = params.preempt;
-
-            // Preempt time can go below 450ms. Normally, this is achieved via the DT mod or a
-            // custom speed multiplier which uniformly speeds up all animations game wide regardless of AR.
-            //
-            // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods)
-            // feel good by extending the upper linear function above.
-            //
-            // Note that this doesn't exactly match the AR>10 visuals as they're classically known, but it feels good.
-            // This adjustment is necessary for AR>10, otherwise timePreempt can become smaller
-            // leading to hitcircles not fully fading in.
-            object.timeFadeIn =
-                400 * Math.min(1, object.timePreempt / MapStats.arToMS(10));
+            object.baseTimePreempt = params.preempt * params.speedMultiplier;
 
             if (object.object instanceof Slider) {
                 object.velocity =
@@ -157,7 +145,7 @@ export class DifficultyHitObjectCreator {
                         object.endTime
                 );
 
-                object.noteDensity += 1 - deltaTime / params.preempt;
+                object.noteDensity += 1 - deltaTime / object.timePreempt;
 
                 if (!(hitObject instanceof Spinner)) {
                     object.overlappingFactor +=
@@ -388,11 +376,11 @@ export class DifficultyHitObjectCreator {
                 if (radius < this.DROID_CIRCLESIZE_BUFF_THRESHOLD) {
                     scalingFactor *=
                         1 +
-                        Math.min(
-                            this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius,
-                            20
-                        ) /
-                            40;
+                        Math.pow(
+                            (this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius) /
+                                50,
+                            2
+                        );
                 }
                 break;
             case modes.osu:

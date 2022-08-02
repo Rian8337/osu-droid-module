@@ -1,7 +1,6 @@
 import {
     Accuracy,
     modes,
-    ModHidden,
     ModRelax,
     ModScoreV2,
     ModFlashlight,
@@ -167,7 +166,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
 
         // Scale the tap value with # of 50s to punish doubletapping.
         this.tap *= Math.pow(
-            0.98,
+            0.99,
             Math.max(0, this.computedAccuracy.n50 - objectCount / 500)
         );
 
@@ -214,12 +213,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
             1.5 / (1 + Math.exp(-(this.difficultyCalculator.rhythm - 1) / 2));
-
-        if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
-        ) {
-            this.accuracy *= 1.08;
-        }
 
         if (
             this.difficultyCalculator.mods.some(
@@ -286,8 +279,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Global variables
         const objectCount: number = this.difficultyCalculator.objects.length;
 
-        this.visual =
-            Math.pow(Math.pow(this.difficultyCalculator.visual, 0.8), 2) * 25;
+        this.visual = Math.pow(this.difficultyCalculator.visual, 1.6) * 22.5;
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
