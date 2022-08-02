@@ -170,6 +170,8 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             let n50Multiplier: number = 1;
 
             if (this.mode === modes.droid) {
+                // Graph: https://www.desmos.com/calculator/bc9eybdthb
+                // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
                 n100Multiplier = Math.max(
                     0,
                     this.difficultyCalculator.stats.od! > 0
@@ -202,7 +204,9 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 this.difficultyCalculator.objects.length
             );
 
-            this.finalMultiplier *= this.mode === modes.droid ? 0.7 : 0.6;
+            if (this.mode === modes.osu) {
+                this.finalMultiplier *= 0.6;
+            }
         }
 
         this.mapStatistics = new MapStats({
