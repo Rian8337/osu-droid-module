@@ -167,8 +167,7 @@ const testDiffCalc = async (
 
     // String concatenation test
 
-    const { droid: droidStrRating, osu: osuStrRating } =
-        rating;
+    const { droid: droidStrRating, osu: osuStrRating } = rating;
 
     const droidStr = `${droidStrRating.total.toFixed(
         2
