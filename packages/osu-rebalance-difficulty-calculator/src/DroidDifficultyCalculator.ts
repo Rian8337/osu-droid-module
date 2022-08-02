@@ -167,7 +167,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (!isRelax) {
+        if (isRelax) {
+            this.tap = 0;
+        } else {
             this.postCalculateTap(tapSkill);
         }
 
@@ -241,6 +243,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
+
+        if (this.mods.some(m => m instanceof ModRelax)) {
+            this.aim *= 0.9;
+        }
     }
 
     /**
@@ -293,7 +299,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.flashlight *= 0.75;
+            this.flashlight *= 0.7;
         }
     }
 
