@@ -147,29 +147,24 @@ export class DifficultyHitObjectCreator {
 
                 object.noteDensity += 1 - deltaTime / object.timePreempt;
 
-                if (!(hitObject instanceof Spinner)) {
-                    object.overlappingFactor +=
-                        // Penalize objects that are too close to the object in both distance
-                        // and delta time to prevent stream maps from being overweighted.
-                        Math.max(
-                            0,
-                            1 -
-                                object.object.stackedPosition.getDistance(
-                                    hitObject.stackedEndPosition
-                                ) /
-                                    (3 * object.object.radius)
-                        ) *
-                        (7.5 /
-                            (1 +
-                                Math.exp(
-                                    0.15 *
-                                        (Math.max(
-                                            deltaTime,
-                                            this.minDeltaTime
-                                        ) -
-                                            75)
-                                )));
-                }
+                object.overlappingFactor +=
+                    // Penalize objects that are too close to the object in both distance
+                    // and delta time to prevent stream maps from being overweighted.
+                    Math.max(
+                        0,
+                        1 -
+                            object.object.stackedPosition.getDistance(
+                                hitObject.stackedEndPosition
+                            ) /
+                                (3 * object.object.radius)
+                    ) *
+                    (7.5 /
+                        (1 +
+                            Math.exp(
+                                0.15 *
+                                    (Math.max(deltaTime, this.minDeltaTime) -
+                                        75)
+                            )));
             }
 
             const lastCursorPosition: Vector2 = this.getEndCursorPosition(
