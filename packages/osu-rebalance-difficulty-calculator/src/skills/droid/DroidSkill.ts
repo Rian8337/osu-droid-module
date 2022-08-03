@@ -12,35 +12,37 @@ export abstract class DroidSkill extends StrainSkill {
     protected abstract readonly starsPerDouble: number;
 
     override difficultyValue(): number {
-        const sortedStrains: number[] = this.strainPeaks
-            .slice()
-            .sort((a, b) => b - a);
+        const strains: number[] = this.strainPeaks.slice();
 
-        // We are reducing the highest strains first to account for extreme difficulty spikes.
-        for (
-            let i = 0;
-            i < Math.min(sortedStrains.length, this.reducedSectionCount);
-            ++i
-        ) {
-            const scale: number = Math.log10(
-                Interpolation.lerp(
+        if (this.reducedSectionCount > 0) {
+            strains.sort((a, b) => b - a);
+
+            // We are reducing the highest strains first to account for extreme difficulty spikes.
+            for (
+                let i = 0;
+                i < Math.min(strains.length, this.reducedSectionCount);
+                ++i
+            ) {
+                const scale: number = Math.log10(
+                    Interpolation.lerp(
+                        1,
+                        10,
+                        MathUtils.clamp(i / this.reducedSectionCount, 0, 1)
+                    )
+                );
+
+                strains[i] *= Interpolation.lerp(
+                    this.reducedSectionBaseline,
                     1,
-                    10,
-                    MathUtils.clamp(i / this.reducedSectionCount, 0, 1)
-                )
-            );
-
-            sortedStrains[i] *= Interpolation.lerp(
-                this.reducedSectionBaseline,
-                1,
-                scale
-            );
+                    scale
+                );
+            }
         }
 
         // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
         // This also applies to two sets of notes with equal difficulty.
         return Math.pow(
-            sortedStrains.reduce((a, v) => {
+            strains.reduce((a, v) => {
                 if (v <= 0) {
                     return a;
                 }
