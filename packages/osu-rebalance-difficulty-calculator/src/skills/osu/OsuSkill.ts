@@ -25,39 +25,41 @@ export abstract class OsuSkill extends StrainSkill {
     protected abstract readonly decayWeight: number;
 
     override difficultyValue(): number {
-        const sortedStrains: number[] = this.strainPeaks
+        const strains: number[] = this.strainPeaks
             .slice()
             .sort((a, b) => b - a);
 
-        // We are reducing the highest strains first to account for extreme difficulty spikes.
-        for (
-            let i = 0;
-            i < Math.min(sortedStrains.length, this.reducedSectionCount);
-            ++i
-        ) {
-            const scale: number = Math.log10(
-                Interpolation.lerp(
-                    1,
-                    10,
-                    MathUtils.clamp(i / this.reducedSectionCount, 0, 1)
-                )
-            );
+        if (this.reducedSectionCount > 0) {
+            // We are reducing the highest strains first to account for extreme difficulty spikes.
+            for (
+                let i = 0;
+                i < Math.min(strains.length, this.reducedSectionCount);
+                ++i
+            ) {
+                const scale: number = Math.log10(
+                    Interpolation.lerp(
+                        1,
+                        10,
+                        MathUtils.clamp(i / this.reducedSectionCount, 0, 1)
+                    )
+                );
 
-            sortedStrains[i] *= Interpolation.lerp(
-                this.reducedSectionBaseline,
-                1,
-                scale
-            );
+                strains[i] *= Interpolation.lerp(
+                    this.reducedSectionBaseline,
+                    1,
+                    scale
+                );
+            }
+
+            strains.sort((a, b) => b - a);
         }
 
         // Difficulty is the weighted sum of the highest strains from every section.
         // We're sorting from highest to lowest strain.
-        sortedStrains.sort((a, b) => b - a);
-
         let difficulty: number = 0;
         let weight: number = 1;
 
-        for (const strain of sortedStrains) {
+        for (const strain of strains) {
             const addition: number = strain * weight;
 
             if (difficulty + addition === difficulty) {
