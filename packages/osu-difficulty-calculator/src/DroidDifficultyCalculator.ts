@@ -124,7 +124,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         )
             ? Math.pow(this.flashlight, 2) * 25
             : 0;
-        const visualPerformanceValue: number = Math.pow(this.visual, 2) * 25;
+        const visualPerformanceValue: number = Math.pow(this.visual, 2) * 22.5;
 
         const basePerformanceValue: number = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
