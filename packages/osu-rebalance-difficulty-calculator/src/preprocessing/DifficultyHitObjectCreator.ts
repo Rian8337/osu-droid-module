@@ -111,10 +111,7 @@ export class DifficultyHitObjectCreator {
             // Cap to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             object.strainTime = Math.max(this.minDeltaTime, object.deltaTime);
 
-            if (
-                object.object instanceof Spinner ||
-                lastObject.object instanceof Spinner
-            ) {
+            if (object.object instanceof Spinner) {
                 difficultyObjects.push(object);
                 continue;
             }
@@ -165,6 +162,11 @@ export class DifficultyHitObjectCreator {
                                     (Math.max(deltaTime, this.minDeltaTime) -
                                         75)
                             )));
+            }
+
+            if (lastObject.object instanceof Spinner) {
+                difficultyObjects.push(object);
+                continue;
             }
 
             const lastCursorPosition: Vector2 = this.getEndCursorPosition(
