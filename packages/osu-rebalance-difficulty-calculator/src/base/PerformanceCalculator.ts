@@ -269,11 +269,12 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 0.1 * this.difficultyCalculator.beatmap.hitObjects.sliders;
 
             if (combo < fullComboThreshold) {
-                // We're clamping miss count because since it's derived from combo, it can
-                // be higher than the amount of objects and that breaks some calculations.
+                // Clamp miss count to maximum amount of possible breaks.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.difficultyCalculator.objects.length
+                    this.computedAccuracy.n300 +
+                        this.computedAccuracy.n100 +
+                        this.computedAccuracy.nmiss
                 );
             }
         }
