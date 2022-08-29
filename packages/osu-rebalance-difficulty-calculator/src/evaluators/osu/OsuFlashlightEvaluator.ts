@@ -74,6 +74,8 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             last = currentObject;
         }
 
+        result = Math.pow(smallDistNerf * result, 2);
+
         // Additional bonus for Hidden due to there being no approach circles.
         if (isHiddenMod) {
             result *= 1 + this.hiddenBonus;
@@ -95,16 +97,16 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                 0.5
             );
 
-            // Longer sliders require more memorisation.
+            // Longer sliders require more memorization.
             sliderBonus *= pixelTravelDistance;
 
-            // Nerf sliders with repeats, as less memorisation is required.
+            // Nerf sliders with repeats, as less memorization is required.
             if (current.object.repeats > 0)
                 sliderBonus /= current.object.repeats + 1;
         }
 
         result += sliderBonus * this.sliderMultiplier;
 
-        return Math.pow(smallDistNerf * result, 2);
+        return result;
     }
 }
