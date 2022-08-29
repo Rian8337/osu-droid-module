@@ -1,4 +1,4 @@
-import { Spinner } from "@rian8337/osu-base";
+import { Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
@@ -9,8 +9,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
     /**
      * Evaluates the difficulty of memorizing and hitting the current object, based on:
      *
-     * - distance between the previous and the current object,
+     * - distance between a number of previous objects and the current object,
      * - the visual opacity of the current object,
+     * - length and speed of the current object (for sliders),
      * - and whether Hidden mod is enabled.
      *
      * @param current The current object.
@@ -86,6 +87,32 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         if (isHiddenMod) {
             result *= 1 + this.hiddenBonus;
         }
+
+        let sliderBonus: number = 0;
+
+        if (current.object instanceof Slider) {
+            // Invert the scaling factor to determine the true travel distance independent of circle size.
+            const pixelTravelDistance: number =
+                current.object.lazyTravelDistance / scalingFactor;
+
+            // Reward sliders based on velocity.
+            sliderBonus = Math.pow(
+                Math.max(
+                    0,
+                    pixelTravelDistance / current.travelTime - this.minVelocity
+                ),
+                0.5
+            );
+
+            // Longer sliders require more memorisation.
+            sliderBonus *= pixelTravelDistance;
+
+            // Nerf sliders with repeats, as less memorisation is required.
+            if (current.object.repeats > 0)
+                sliderBonus /= current.object.repeats + 1;
+        }
+
+        result += sliderBonus * this.sliderMultiplier;
 
         return Math.pow(smallDistNerf * result, 2);
     }
