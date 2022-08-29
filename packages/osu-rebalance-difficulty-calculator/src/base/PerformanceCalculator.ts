@@ -169,34 +169,29 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         }
 
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
-            let n100Multiplier: number = 1;
-            let n50Multiplier: number = 1;
+            // Graph: https://www.desmos.com/calculator/bc9eybdthb
+            // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
+            const n100Multiplier: number = Math.max(
+                0,
+                this.difficultyCalculator.stats.od! > 0
+                    ? 1 -
+                          Math.pow(
+                              this.difficultyCalculator.stats.od! / 13.33,
+                              1.8
+                          )
+                    : 1
+            );
 
-            if (this.mode === modes.droid) {
-                // Graph: https://www.desmos.com/calculator/bc9eybdthb
-                // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
-                n100Multiplier = Math.max(
-                    0,
-                    this.difficultyCalculator.stats.od! > 0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyCalculator.stats.od! / 13.33,
-                                  1.8
-                              )
-                        : 1
-                );
-
-                n50Multiplier = Math.max(
-                    0,
-                    this.difficultyCalculator.stats.od! > 0.0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyCalculator.stats.od! / 13.33,
-                                  5
-                              )
-                        : 1
-                );
-            }
+            const n50Multiplier: number = Math.max(
+                0,
+                this.difficultyCalculator.stats.od! > 0.0
+                    ? 1 -
+                          Math.pow(
+                              this.difficultyCalculator.stats.od! / 13.33,
+                              5
+                          )
+                    : 1
+            );
 
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
             // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
@@ -206,10 +201,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                     this.computedAccuracy.n50 * n50Multiplier,
                 this.difficultyCalculator.objects.length
             );
-
-            if (this.mode === modes.osu) {
-                this.finalMultiplier *= 0.6;
-            }
         }
 
         this.mapStatistics = new MapStats({

@@ -55,7 +55,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.calculateSkills(speedSkill);
 
-        if (!this.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.speed = 0;
+        } else {
             this.postCalculateSpeed(speedSkill);
         }
 
@@ -70,9 +72,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.calculateSkills(flashlightSkill);
 
-        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
-
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.postCalculateFlashlight(flashlightSkill);
     }
 
     override calculateTotal(): void {
@@ -95,7 +95,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         if (basePerformanceValue > 1e-5) {
             this.total =
-                Math.cbrt(1.12) *
+                Math.cbrt(1.14) *
                 0.027 *
                 (Math.cbrt(
                     (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
@@ -180,6 +180,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
+
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.aim *= 0.9;
+        }
     }
 
     /**
@@ -219,5 +223,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.flashlight *= 0.7;
+        }
     }
 }

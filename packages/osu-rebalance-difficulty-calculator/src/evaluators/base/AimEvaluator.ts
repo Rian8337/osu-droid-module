@@ -5,8 +5,8 @@
  */
 export abstract class AimEvaluator {
     protected static readonly wideAngleMultiplier: number = 1.5;
-    protected static readonly acuteAngleMultiplier: number = 2;
-    protected static readonly sliderMultiplier: number = 1.5;
+    protected static readonly acuteAngleMultiplier: number = 1.95;
+    protected static readonly sliderMultiplier: number = 1.35;
     protected static readonly velocityChangeMultiplier: number = 0.75;
 
     /**

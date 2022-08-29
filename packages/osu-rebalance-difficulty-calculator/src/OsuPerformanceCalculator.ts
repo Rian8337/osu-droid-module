@@ -96,16 +96,20 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Combo scaling
         this.aim *= this.comboPenalty;
 
-        // AR scaling
-        let arFactor: number = 0;
-        if (calculatedAR > 10.33) {
-            arFactor += 0.3 * (calculatedAR - 10.33);
-        } else if (calculatedAR < 8) {
-            arFactor += 0.1 * (8 - calculatedAR);
-        }
+        if (
+            !this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)
+        ) {
+            // AR scaling
+            let arFactor: number = 0;
+            if (calculatedAR > 10.33) {
+                arFactor += 0.3 * (calculatedAR - 10.33);
+            } else if (calculatedAR < 8) {
+                arFactor += 0.1 * (8 - calculatedAR);
+            }
 
-        // Buff for longer maps with high AR.
-        this.aim *= 1 + arFactor * lengthBonus;
+            // Buff for longer maps with high AR.
+            this.aim *= 1 + arFactor * lengthBonus;
+        }
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
         if (
@@ -121,8 +125,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.aim *= this.computedAccuracy.value(objectCount);
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number =
-            Math.pow(<number>this.mapStatistics.od, 2) / 2500;
+        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
         this.aim *= 0.98 + odScaling;
     }
 
@@ -130,6 +133,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the speed performance value of the beatmap.
      */
     private calculateSpeedValue(): void {
+        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+            this.speed = 0;
+
+            return;
+        }
+
         // Global variables
         const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.mapStatistics.ar!;
@@ -203,7 +212,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
-        this.speed *= Math.pow(0.98, Math.max(0, n50 - objectCount / 500));
+        this.speed *= Math.pow(0.99, Math.max(0, n50 - objectCount / 500));
     }
 
     /**
