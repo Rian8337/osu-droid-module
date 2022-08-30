@@ -318,8 +318,9 @@ export class ReplayAnalyzer {
         }
 
         const replayDataBufferArray: Buffer[] = [];
-        for (bufferIndex; bufferIndex < rawObject.length; ++bufferIndex) {
-            replayDataBufferArray.push(rawObject[bufferIndex]);
+
+        while (bufferIndex < rawObject.length) {
+            replayDataBufferArray.push(rawObject[bufferIndex++]);
         }
 
         // Merge all cursor movement and hit object data section into one for better control when parsing
