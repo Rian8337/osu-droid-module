@@ -135,6 +135,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         );
 
         if (basePerformanceValue > 1e-5) {
+            // Document for formula derivation:
+            // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
             this.total =
                 Math.cbrt(1.12) *
                 0.025 *
