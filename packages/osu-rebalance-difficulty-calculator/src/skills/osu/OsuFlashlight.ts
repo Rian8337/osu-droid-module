@@ -7,7 +7,7 @@ import { OsuSkill } from "./OsuSkill";
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class OsuFlashlight extends OsuSkill {
-    protected override readonly skillMultiplier: number = 0.05;
+    protected override readonly skillMultiplier: number = 0.052;
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 0;
     protected override readonly reducedSectionBaseline: number = 1;

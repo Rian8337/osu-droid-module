@@ -11,6 +11,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
      *
      * - distance between a number of previous objects and the current object,
      * - the visual opacity of the current object,
+     * - the angle made by the current object,
      * - length and speed of the current object (for sliders),
      * - and whether Hidden mod is enabled.
      *
@@ -30,14 +31,11 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         }
 
         const scalingFactor: number = 52 / current.object.radius;
-
         let smallDistNerf: number = 1;
-
         let cumulativeStrainTime: number = 0;
-
         let result: number = 0;
-
         let last: DifficultyHitObject = current;
+        let angleRepeatCount: number = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const currentObject: DifficultyHitObject = current.previous(i)!;
@@ -78,6 +76,13 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 result +=
                     (stackNerf * opacityBonus * scalingFactor * jumpDistance) /
                     cumulativeStrainTime;
+
+                if (currentObject.angle !== null && current.angle !== null) {
+                    // Objects further back in time should count less for the nerf.
+                    if (Math.abs(currentObject.angle - current.angle) < 0.02) {
+                        angleRepeatCount += Math.max(0, 1 - 0.1 * i);
+                    }
+                }
             }
 
             last = currentObject;
@@ -89,6 +94,11 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         if (isHiddenMod) {
             result *= 1 + this.hiddenBonus;
         }
+
+        // Nerf patterns with repeated angles.
+        result *=
+            this.minAngleMultiplier +
+            (1 - this.minAngleMultiplier) / (angleRepeatCount + 1);
 
         let sliderBonus: number = 0;
 
