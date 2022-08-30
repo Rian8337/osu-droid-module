@@ -239,8 +239,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.flashlight =
-            Math.pow(Math.pow(this.difficultyCalculator.flashlight, 0.8), 2) *
-            25;
+            Math.pow(this.difficultyCalculator.flashlight, 1.6) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
