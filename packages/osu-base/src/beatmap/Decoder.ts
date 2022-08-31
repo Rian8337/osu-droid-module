@@ -58,6 +58,10 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
 
             ++this.line;
 
+            if (this.shouldSkipLine(line)) {
+                continue;
+            }
+
             if (this.section !== BeatmapSection.metadata) {
                 // Comments should not be stripped from metadata lines, as the song metadata may contain "//" as valid data.
                 const index = line.indexOf("//");
@@ -109,6 +113,16 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
         }
 
         return this;
+    }
+
+    /**
+     * Determines whether a line should be skipped.
+     * 
+     * @param line The line to determine.
+     * @returns Whether the line should be skipped.
+     */
+    protected shouldSkipLine(line: string): boolean {
+        return !line || line.trimStart().startsWith("//");
     }
 
     /**
