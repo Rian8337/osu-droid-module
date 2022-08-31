@@ -81,19 +81,27 @@ export abstract class SectionDecoder<T> {
      * @param str The string to parse.
      * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
      * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
+     * @param allowNaN Whether to allow NaN.
      * @returns The parsed integer.
      */
     protected tryParseInt(
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
-        max: number = ParserConstants.MAX_PARSE_VALUE
+        max: number = ParserConstants.MAX_PARSE_VALUE,
+        allowNaN: boolean = false
     ): number {
         const num: number = parseInt(str);
 
-        if (!this.isNumberValid(num, min, max)) {
-            throw new RangeError(
-                `Couldn't parse ${str} into an int: value is either invalid, too low, or too high`
-            );
+        if (num < min) {
+            throw new RangeError("Value is too low");
+        }
+
+        if (num > max) {
+            throw new RangeError("Value is too high");
+        }
+
+        if (!allowNaN && Number.isNaN(num)) {
+            throw new RangeError("Not a number");
         }
 
         return num;
@@ -102,24 +110,32 @@ export abstract class SectionDecoder<T> {
     /**
      * Attempts to parse a string into a float.
      *
-     * Throws an exception when the resulting value is invalid (such as NaN), too low, or too high.
+     * Throws an exception when the resulting value is too low or too high.
      *
      * @param str The string to parse.
      * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
      * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
+     * @param allowNaN Whether to allow NaN.
      * @returns The parsed float.
      */
     protected tryParseFloat(
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
-        max: number = ParserConstants.MAX_PARSE_VALUE
+        max: number = ParserConstants.MAX_PARSE_VALUE,
+        allowNaN: boolean = false
     ): number {
         const num: number = parseFloat(str);
 
-        if (!this.isNumberValid(num, min, max)) {
-            throw new RangeError(
-                `Couldn't parse ${str} into a float: value is either invalid, too low, or too high`
-            );
+        if (num < min) {
+            throw new RangeError("Value is too low");
+        }
+
+        if (num > max) {
+            throw new RangeError("Value is too high");
+        }
+
+        if (!allowNaN && Number.isNaN(num)) {
+            throw new RangeError("Not a number");
         }
 
         return num;

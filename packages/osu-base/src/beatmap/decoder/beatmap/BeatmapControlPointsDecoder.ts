@@ -22,7 +22,14 @@ export class BeatmapControlPointsDecoder extends SectionDecoder<Beatmap> {
             this.tryParseFloat(this.setPosition(s[0]))
         );
 
-        const msPerBeat: number = this.tryParseFloat(this.setPosition(s[1]));
+        // msPerBeat is allowed to be NaN to handle an edge case in which some
+        // beatmaps use NaN slider velocity to disable slider tick generation.
+        const msPerBeat: number = this.tryParseFloat(
+            this.setPosition(s[1]),
+            undefined,
+            undefined,
+            true
+        );
 
         let timeSignature: number = 4;
         if (s.length >= 3) {
@@ -63,7 +70,18 @@ export class BeatmapControlPointsDecoder extends SectionDecoder<Beatmap> {
             );
         }
 
-        if (msPerBeat >= 0) {
+        let timingChange: boolean = true;
+        if (s.length >= 7) {
+            timingChange = s[6] === "1";
+        }
+
+        if (timingChange) {
+            if (Number.isNaN(msPerBeat)) {
+                throw new Error(
+                    "Beat length cannot be NaN in a timing control point"
+                );
+            }
+
             this.target.controlPoints.timing.add(
                 new TimingControlPoint({
                     time: time,
@@ -76,7 +94,9 @@ export class BeatmapControlPointsDecoder extends SectionDecoder<Beatmap> {
         this.target.controlPoints.difficulty.add(
             new DifficultyControlPoint({
                 time: time,
+                // If msPerBeat is NaN, speedMultiplier should still be 1 because all comparisons against NaN are false.
                 speedMultiplier: msPerBeat < 0 ? 100 / -msPerBeat : 1,
+                generateTicks: !Number.isNaN(msPerBeat),
             })
         );
 

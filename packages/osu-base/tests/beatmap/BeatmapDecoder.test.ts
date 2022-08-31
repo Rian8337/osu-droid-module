@@ -20,6 +20,7 @@ import { join } from "path";
 let v3Beatmap = new Beatmap();
 let v14Beatmap = new Beatmap();
 let beatmapWithStoryboard = new Beatmap();
+let nanBeatmap = new Beatmap();
 
 beforeAll(async () => {
     const v3Data = await readFile(
@@ -55,11 +56,23 @@ beforeAll(async () => {
         { encoding: "utf-8" }
     );
 
+    const nanBeatmapData = await readFile(
+        join(
+            process.cwd(),
+            "tests",
+            "files",
+            "beatmaps",
+            "nan-control-points.osu"
+        ),
+        { encoding: "utf-8" }
+    );
+
     v3Beatmap = new BeatmapDecoder().decode(v3Data, [], false).result;
     v14Beatmap = new BeatmapDecoder().decode(v14Data, [], false).result;
     beatmapWithStoryboard = new BeatmapDecoder().decode(
         beatmapWithStoryboardData
     ).result;
+    nanBeatmap = new BeatmapDecoder().decode(nanBeatmapData).result;
 });
 
 describe("Test colors section", () => {
@@ -388,4 +401,27 @@ test("Test storyboard decoding", () => {
     expect(beatmapWithStoryboard.events.storyboardReplacesBackground).toBe(
         true
     );
+});
+
+test("Test NaN control points", () => {
+    expect(nanBeatmap.controlPoints.timing.points.length).toBe(1);
+    expect(nanBeatmap.controlPoints.difficulty.points.length).toBe(2);
+
+    expect(nanBeatmap.controlPoints.timing.controlPointAt(1000).msPerBeat).toBe(
+        500
+    );
+
+    expect(
+        nanBeatmap.controlPoints.difficulty.controlPointAt(2000).speedMultiplier
+    ).toBe(1);
+    expect(
+        nanBeatmap.controlPoints.difficulty.controlPointAt(3000).speedMultiplier
+    ).toBe(1);
+
+    expect(
+        nanBeatmap.controlPoints.difficulty.controlPointAt(2000).generateTicks
+    ).toBe(false);
+    expect(
+        nanBeatmap.controlPoints.difficulty.controlPointAt(3000).generateTicks
+    ).toBe(true);
 });

@@ -102,9 +102,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 this.tryParseFloat(this.setPosition(s[7]))
             );
 
-            const speedMultiplierTimingPoint: DifficultyControlPoint =
+            const difficultyControlPoint: DifficultyControlPoint =
                 this.target.controlPoints.difficulty.controlPointAt(time);
-            const msPerBeatTimingPoint: TimingControlPoint =
+            const timingControlPoint: TimingControlPoint =
                 this.target.controlPoints.timing.controlPointAt(time);
 
             const points: Vector2[] = [new Vector2(0, 0)];
@@ -210,6 +210,30 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             this.forceNewCombo = false;
             this.extraComboOffset = 0;
 
+            let tickDistanceMultiplier: number = Number.POSITIVE_INFINITY;
+
+            if (difficultyControlPoint.generateTicks) {
+                if (
+                    this.isNumberValid(
+                        timingControlPoint.msPerBeat,
+                        ParserConstants.MIN_MSPERBEAT_VALUE,
+                        ParserConstants.MAX_MSPERBEAT_VALUE
+                    )
+                ) {
+                    // Prior to v8, speed multipliers don't adjust for how many ticks are generated over the same distance.
+                    // This results in more (or less) ticks being generated in <v8 maps for the same time duration.
+                    //
+                    // This additional check is used in case BPM goes very low or very high.
+                    // When lazer is final, this should be revisited.
+                    tickDistanceMultiplier =
+                        this.target.formatVersion < 8
+                            ? 1 / difficultyControlPoint.speedMultiplier
+                            : 1;
+                } else {
+                    tickDistanceMultiplier = 0;
+                }
+            }
+
             object = new Slider({
                 position: position,
                 startTime: time,
@@ -220,27 +244,14 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 repetitions: repetitions,
                 path: path,
                 speedMultiplier: MathUtils.clamp(
-                    speedMultiplierTimingPoint.speedMultiplier,
+                    difficultyControlPoint.speedMultiplier,
                     ParserConstants.MIN_SPEEDMULTIPLIER_VALUE,
                     ParserConstants.MAX_SPEEDMULTIPLIER_VALUE
                 ),
-                msPerBeat: msPerBeatTimingPoint.msPerBeat,
+                msPerBeat: timingControlPoint.msPerBeat,
                 mapSliderVelocity: this.target.difficulty.sliderMultiplier,
                 mapTickRate: this.target.difficulty.sliderTickRate,
-                // Prior to v8, speed multipliers don't adjust for how many ticks are generated over the same distance.
-                // This results in more (or less) ticks being generated in <v8 maps for the same time duration.
-                //
-                // This additional check is used in case BPM goes very low or very high.
-                // When lazer is final, this should be revisited.
-                tickDistanceMultiplier: this.isNumberValid(
-                    msPerBeatTimingPoint.msPerBeat,
-                    ParserConstants.MIN_MSPERBEAT_VALUE,
-                    ParserConstants.MAX_MSPERBEAT_VALUE
-                )
-                    ? this.target.formatVersion < 8
-                        ? 1 / speedMultiplierTimingPoint.speedMultiplier
-                        : 1
-                    : 0,
+                tickDistanceMultiplier: tickDistanceMultiplier,
             });
         } else if (type & objectTypes.spinner) {
             // Spinners don't create the new combo themselves, but force the next non-spinner hitobject to create a new combo.
