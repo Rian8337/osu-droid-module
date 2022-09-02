@@ -4,7 +4,6 @@ import { Mod } from "./Mod";
  * Represents the Autopilot mod.
  */
 export class ModAutopilot extends Mod {
-    override readonly scoreMultiplier: number = 0;
     override readonly acronym: string = "AP";
     override readonly name: string = "Autopilot";
     override readonly droidRanked: boolean = false;

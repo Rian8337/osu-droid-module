@@ -4,14 +4,6 @@
  */
 export abstract class Mod {
     /**
-     * The score multiplier of this mod.
-     *
-     * @deprecated Score multipliers in droid and PC differ. Use `droidScoreMultiplier`
-     * for droid score multiplier and `pcScoreMultiplier` for PC multiplier instead.
-     */
-    abstract readonly scoreMultiplier: number;
-
-    /**
      * The acronym of the mod.
      */
     abstract readonly acronym: string;
