@@ -1,6 +1,5 @@
 import { Slider } from "./hitobjects/Slider";
 import { MapStats } from "../utils/MapStats";
-import { SliderTick } from "./hitobjects/sliderObjects/SliderTick";
 import { Mod } from "../mods/Mod";
 import { BeatmapGeneral } from "./sections/BeatmapGeneral";
 import { BeatmapEditor } from "./sections/BeatmapEditor";
@@ -130,30 +129,60 @@ export class Beatmap {
      * @param stats The statistics used for calculation.
      */
     maxDroidScore(stats: MapStats): number {
-        let scoreMultiplier: number = 1;
+        let scoreMultiplier: number = stats.mods.reduce(
+            (a, v) => a * v.droidScoreMultiplier,
+            1
+        );
 
-        if (stats.mods.every((m) => m.droidRanked)) {
-            let scoreSpeedMultiplier: number = 1;
-            const speedMultiplier: number = stats.speedMultiplier;
-            if (speedMultiplier > 1) {
-                scoreSpeedMultiplier += (speedMultiplier - 1) * 0.24;
-            } else if (speedMultiplier < 1) {
-                scoreSpeedMultiplier = Math.pow(0.3, (1 - speedMultiplier) * 4);
-            }
-            scoreMultiplier =
-                stats.mods.reduce((a, v) => a * v.scoreMultiplier, 1) *
-                scoreSpeedMultiplier;
+        const { speedMultiplier } = stats;
+
+        if (speedMultiplier >= 1) {
+            scoreMultiplier *= 1 + (speedMultiplier - 1) * 0.24;
         } else {
-            scoreMultiplier = 0;
+            scoreMultiplier *= Math.pow(0.3, (1 - speedMultiplier) * 4);
         }
 
-        return this.maxScore(
+        const difficultyMultiplier: number =
             1 +
-                this.difficulty.od / 10 +
-                this.difficulty.hp / 10 +
-                (this.difficulty.cs - 3) / 4,
-            scoreMultiplier
-        );
+            this.difficulty.od / 10 +
+            this.difficulty.hp / 10 +
+            (this.difficulty.cs - 3) / 4;
+
+        let combo: number = 0;
+        let score: number = 0;
+
+        for (const object of this.hitObjects.objects) {
+            if (!(object instanceof Slider)) {
+                score += Math.floor(
+                    300 + (300 * combo * difficultyMultiplier) / 25
+                );
+                ++combo;
+                continue;
+            }
+
+            const ticksPerSpan: number = object.ticks;
+            const totalTicks: number = ticksPerSpan * (object.repeats + 1);
+
+            // Apply slider head.
+            score += 30;
+            ++combo;
+
+            // Apply slider repeats.
+            score += 30 * object.repeats;
+            combo += object.repeats;
+
+            // Apply slider ticks.
+            score += 10 * totalTicks;
+            combo += totalTicks;
+
+            // Apply slider end.
+            score += Math.floor(
+                300 + (300 * combo * difficultyMultiplier) / 25
+            );
+            ++combo;
+        }
+
+        return Math.floor(score * scoreMultiplier);
     }
 
     /**
@@ -166,6 +195,10 @@ export class Beatmap {
             this.difficulty.cs + this.difficulty.hp + this.difficulty.od;
 
         let difficultyMultiplier: number = 2;
+        const scoreMultiplier: number = mods.reduce(
+            (a, v) => a * v.pcScoreMultiplier,
+            1
+        );
 
         switch (true) {
             case accumulatedDiffPoints <= 5:
@@ -185,22 +218,6 @@ export class Beatmap {
                 break;
         }
 
-        return this.maxScore(
-            difficultyMultiplier,
-            mods.reduce((a, v) => a * v.scoreMultiplier, 1)
-        );
-    }
-
-    /**
-     * Calculates the maximum score with a given difficulty and score multiplier.
-     *
-     * @param difficultyMultiplier The difficulty multiplier.
-     * @param scoreMultiplier The score multiplier.
-     */
-    private maxScore(
-        difficultyMultiplier: number,
-        scoreMultiplier: number
-    ): number {
         let combo: number = 0;
         let score: number = 0;
 
@@ -215,15 +232,22 @@ export class Beatmap {
                 continue;
             }
 
-            const tickCount: number = object.nestedHitObjects.filter(
-                (v) => v instanceof SliderTick
-            ).length;
+            const ticksPerSpan: number = object.ticks;
+            const totalTicks: number = ticksPerSpan * (object.repeats + 1);
 
-            // Apply sliderhead, slider repeats, and slider ticks
-            score += 30 * (object.repeats + 1) + 10 * tickCount;
-            combo += tickCount + (object.repeats + 1);
+            // Apply slider head.
+            score += 30;
+            ++combo;
 
-            // Apply sliderend
+            // Apply slider repeats.
+            score += 30 * object.repeats;
+            combo += object.repeats;
+
+            // Apply slider ticks.
+            score += 10 * totalTicks;
+            combo += totalTicks;
+
+            // Apply slider end.
             score += Math.floor(
                 300 +
                     (300 * combo * difficultyMultiplier * scoreMultiplier) / 25

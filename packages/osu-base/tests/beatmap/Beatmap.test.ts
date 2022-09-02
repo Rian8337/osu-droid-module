@@ -281,7 +281,7 @@ describe("Test osu!droid max score calculation", () => {
             mods: [new ModHidden()],
         });
 
-        expect(beatmap.maxDroidScore(stats)).toBe(735);
+        expect(beatmap.maxDroidScore(stats)).toBe(773);
     });
 
     test("With speed multiplier > 1", () => {
@@ -289,7 +289,7 @@ describe("Test osu!droid max score calculation", () => {
             speedMultiplier: 1.25,
         });
 
-        expect(beatmap.maxDroidScore(stats)).toBe(735);
+        expect(beatmap.maxDroidScore(stats)).toBe(773);
     });
 
     test("With speed multiplier < 1", () => {
@@ -297,7 +297,7 @@ describe("Test osu!droid max score calculation", () => {
             speedMultiplier: 0.75,
         });
 
-        expect(beatmap.maxDroidScore(stats)).toBe(667);
+        expect(beatmap.maxDroidScore(stats)).toBe(219);
     });
 
     test("With unranked mods", () => {
@@ -305,7 +305,7 @@ describe("Test osu!droid max score calculation", () => {
             mods: [new ModRelax()],
         });
 
-        expect(beatmap.maxDroidScore(stats)).toBe(640);
+        expect(beatmap.maxDroidScore(stats)).toBe(0);
     });
 });
 
