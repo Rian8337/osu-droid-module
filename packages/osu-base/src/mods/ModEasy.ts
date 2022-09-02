@@ -1,16 +1,21 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the Easy mod.
  */
-export class ModEasy extends Mod {
+export class ModEasy
+    extends Mod
+    implements IModApplicableToDroid, IModApplicableToOsu
+{
     override readonly acronym: string = "EZ";
     override readonly name: string = "Easy";
-    override readonly droidRanked: boolean = true;
-    override readonly pcRanked: boolean = true;
-    override readonly droidScoreMultiplier: number = 0.5;
-    override readonly pcScoreMultiplier: number = 0.5;
-    override readonly bitwise: number = 1 << 1;
-    override readonly droidString: string = "e";
-    override readonly droidOnly: boolean = false;
+
+    readonly droidRanked: boolean = true;
+    readonly pcRanked: boolean = true;
+    readonly droidScoreMultiplier: number = 0.5;
+    readonly pcScoreMultiplier: number = 0.5;
+    readonly bitwise: number = 1 << 1;
+    readonly droidString: string = "e";
 }

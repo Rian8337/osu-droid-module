@@ -1,16 +1,21 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the Relax mod.
  */
-export class ModRelax extends Mod {
+export class ModRelax
+    extends Mod
+    implements IModApplicableToDroid, IModApplicableToOsu
+{
     override readonly acronym: string = "RX";
     override readonly name: string = "Relax";
-    override readonly droidRanked: boolean = false;
-    override readonly pcRanked: boolean = false;
-    override readonly droidScoreMultiplier: number = 0.001;
-    override readonly pcScoreMultiplier: number = 0;
-    override readonly bitwise: number = 1 << 7;
-    override readonly droidString: string = "x";
-    override readonly droidOnly: boolean = false;
+
+    readonly droidRanked: boolean = false;
+    readonly pcRanked: boolean = false;
+    readonly droidScoreMultiplier: number = 0.001;
+    readonly pcScoreMultiplier: number = 0;
+    readonly bitwise: number = 1 << 7;
+    readonly droidString: string = "x";
 }

@@ -42,6 +42,8 @@ export * from "./beatmap/hitobjects/HitObject";
 export * from "./beatmap/hitobjects/HitSampleInfo";
 export * from "./constants/HitSoundType";
 export * from "./utils/If";
+export * from "./mods/IModApplicableToDroid";
+export * from "./mods/IModApplicableToOsu";
 export * from "./mathutil/Interpolation";
 export * from "./tools/MapInfo";
 export * from "./utils/MapStats";

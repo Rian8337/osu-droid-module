@@ -1,16 +1,21 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the SuddenDeath mod.
  */
-export class ModSuddenDeath extends Mod {
+export class ModSuddenDeath
+    extends Mod
+    implements IModApplicableToDroid, IModApplicableToOsu
+{
     override readonly acronym: string = "SD";
     override readonly name: string = "Sudden Death";
-    override readonly droidRanked: boolean = false;
-    override readonly pcRanked: boolean = true;
-    override readonly droidScoreMultiplier: number = 1;
-    override readonly pcScoreMultiplier: number = 1;
-    override readonly bitwise: number = 1 << 5;
-    override readonly droidString: string = "u";
-    override readonly droidOnly: boolean = false;
+
+    readonly droidRanked: boolean = false;
+    readonly pcRanked: boolean = true;
+    readonly droidScoreMultiplier: number = 1;
+    readonly pcScoreMultiplier: number = 1;
+    readonly bitwise: number = 1 << 5;
+    readonly droidString: string = "u";
 }

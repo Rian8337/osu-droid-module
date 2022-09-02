@@ -1,16 +1,21 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the DoubleTime mod.
  */
-export class ModDoubleTime extends Mod {
+export class ModDoubleTime
+    extends Mod
+    implements IModApplicableToDroid, IModApplicableToOsu
+{
     override readonly acronym: string = "DT";
     override readonly name: string = "DoubleTime";
-    override readonly droidRanked: boolean = true;
-    override readonly pcRanked: boolean = true;
-    override readonly droidScoreMultiplier: number = 1.12;
-    override readonly pcScoreMultiplier: number = 1.12;
-    override readonly bitwise: number = 1 << 6;
-    override readonly droidString: string = "d";
-    override readonly droidOnly: boolean = false;
+
+    readonly droidRanked: boolean = true;
+    readonly pcRanked: boolean = true;
+    readonly droidScoreMultiplier: number = 1.12;
+    readonly pcScoreMultiplier: number = 1.12;
+    readonly bitwise: number = 1 << 6;
+    readonly droidString: string = "d";
 }

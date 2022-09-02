@@ -1,16 +1,14 @@
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the TouchDevice mod.
  */
-export class ModTouchDevice extends Mod {
+export class ModTouchDevice extends Mod implements IModApplicableToOsu {
     override readonly acronym: string = "TD";
     override readonly name: string = "TouchDevice";
-    override readonly droidRanked: boolean = true;
-    override readonly pcRanked: boolean = true;
-    override readonly droidScoreMultiplier: number = 1;
-    override readonly pcScoreMultiplier: number = 1;
-    override readonly bitwise: number = 1 << 2;
-    override readonly droidString: string = "";
-    override readonly droidOnly: boolean = false;
+
+    readonly pcRanked: boolean = true;
+    readonly pcScoreMultiplier: number = 1;
+    readonly bitwise: number = 1 << 2;
 }

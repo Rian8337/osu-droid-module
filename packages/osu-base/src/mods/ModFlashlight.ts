@@ -1,16 +1,21 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
  * Represents the Flashlight mod.
  */
-export class ModFlashlight extends Mod {
+export class ModFlashlight
+    extends Mod
+    implements IModApplicableToDroid, IModApplicableToOsu
+{
     override readonly acronym: string = "FL";
     override readonly name: string = "Flashlight";
-    override readonly droidRanked: boolean = false;
-    override readonly pcRanked: boolean = true;
-    override readonly droidScoreMultiplier: number = 1.12;
-    override readonly pcScoreMultiplier: number = 1.12;
-    override readonly bitwise: number = 1 << 10;
-    override readonly droidString: string = "i";
-    override readonly droidOnly: boolean = false;
+
+    readonly droidRanked: boolean = false;
+    readonly pcRanked: boolean = true;
+    readonly droidScoreMultiplier: number = 1.12;
+    readonly pcScoreMultiplier: number = 1.12;
+    readonly bitwise: number = 1 << 10;
+    readonly droidString: string = "i";
 }

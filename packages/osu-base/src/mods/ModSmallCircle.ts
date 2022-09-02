@@ -1,16 +1,14 @@
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
 
 /**
  * Represents the SmallCircle mod.
  */
-export class ModSmallCircle extends Mod {
+export class ModSmallCircle extends Mod implements IModApplicableToDroid {
     override readonly acronym: string = "SC";
     override readonly name: string = "SmallCircle";
-    override readonly droidRanked: boolean = false;
-    override readonly pcRanked: boolean = false;
-    override readonly droidScoreMultiplier: number = 1.06;
-    override readonly pcScoreMultiplier: number = 1;
-    override readonly bitwise: number = Number.NaN;
-    override readonly droidString: string = "m";
-    override readonly droidOnly: boolean = true;
+
+    readonly droidRanked: boolean = false;
+    readonly droidScoreMultiplier: number = 1.06;
+    readonly droidString: string = "m";
 }

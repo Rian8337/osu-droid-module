@@ -1,4 +1,8 @@
 // TODO: separate droid/PC mod implementations
+
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToOsu } from "./IModApplicableToOsu";
+
 /**
  * Represents a mod.
  */
@@ -14,41 +18,16 @@ export abstract class Mod {
     abstract readonly name: string;
 
     /**
-     * Whether the mod is ranked in osu!droid.
+     * Whether this mod can be applied to osu!droid.
      */
-    abstract readonly droidRanked: boolean;
+    isApplicableToDroid(): this is this & IModApplicableToDroid {
+        return "droidRanked" in this;
+    }
 
     /**
-     * Whether the mod is ranked in osu!standard.
+     * Whether this mod can be applied to osu!standard.
      */
-    abstract readonly pcRanked: boolean;
-
-    /**
-     * The droid score multiplier of this mod.
-     */
-    abstract readonly droidScoreMultiplier: number;
-
-    /**
-     * The PC score multiplier of this mod.
-     */
-    abstract readonly pcScoreMultiplier: number;
-
-    /**
-     * The bitwise enum of the mod.
-     *
-     * This is NaN if the bitwise doesn't exist.
-     *
-     * In 3.0, this will be nullable.
-     */
-    abstract readonly bitwise: number;
-
-    /**
-     * The droid enum of the mod.
-     */
-    abstract readonly droidString: string;
-
-    /**
-     * Whether this mod only exists for osu!droid gamemode.
-     */
-    abstract readonly droidOnly: boolean;
+    isApplicableToOsu(): this is this & IModApplicableToOsu {
+        return "pcRanked" in this;
+    }
 }
