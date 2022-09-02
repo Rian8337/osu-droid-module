@@ -17,7 +17,8 @@ import {
     DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { hitResult, movementType } from "..";
+import { hitResult } from "../constants/hitResult";
+import { movementType } from "../constants/movementType";
 import { CursorData } from "../data/CursorData";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
