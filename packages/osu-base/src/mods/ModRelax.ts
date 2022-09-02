@@ -9,6 +9,8 @@ export class ModRelax extends Mod {
     override readonly name: string = "Relax";
     override readonly droidRanked: boolean = false;
     override readonly pcRanked: boolean = false;
+    override readonly droidScoreMultiplier: number = 0.001;
+    override readonly pcScoreMultiplier: number = 0;
     override readonly bitwise: number = 1 << 7;
     override readonly droidString: string = "x";
     override readonly droidOnly: boolean = false;

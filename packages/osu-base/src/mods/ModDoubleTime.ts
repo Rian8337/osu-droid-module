@@ -9,6 +9,8 @@ export class ModDoubleTime extends Mod {
     override readonly name: string = "DoubleTime";
     override readonly droidRanked: boolean = true;
     override readonly pcRanked: boolean = true;
+    override readonly droidScoreMultiplier: number = 1.12;
+    override readonly pcScoreMultiplier: number = 1.12;
     override readonly bitwise: number = 1 << 6;
     override readonly droidString: string = "d";
     override readonly droidOnly: boolean = false;

@@ -117,7 +117,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
 
     /**
      * Determines whether a line should be skipped.
-     * 
+     *
      * @param line The line to determine.
      * @returns Whether the line should be skipped.
      */

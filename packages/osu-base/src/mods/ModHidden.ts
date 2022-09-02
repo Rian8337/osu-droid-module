@@ -13,6 +13,8 @@ export class ModHidden extends Mod {
     override readonly bitwise: number = 1 << 3;
     override readonly droidRanked: boolean = true;
     override readonly pcRanked: boolean = true;
+    override readonly droidScoreMultiplier: number = 1.06;
+    override readonly pcScoreMultiplier: number = 1.06;
     override readonly droidString: string = "h";
     override readonly droidOnly: boolean = false;
 }

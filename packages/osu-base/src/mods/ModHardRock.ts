@@ -10,6 +10,8 @@ export class ModHardRock extends Mod {
     override readonly bitwise: number = 1 << 4;
     override readonly droidRanked: boolean = true;
     override readonly pcRanked: boolean = true;
+    override readonly droidScoreMultiplier: number = 1.06;
+    override readonly pcScoreMultiplier: number = 1.06;
     override readonly droidString: string = "r";
     override readonly droidOnly: boolean = false;
 }

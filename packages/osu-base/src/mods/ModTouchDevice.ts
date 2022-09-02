@@ -9,6 +9,8 @@ export class ModTouchDevice extends Mod {
     override readonly name: string = "TouchDevice";
     override readonly droidRanked: boolean = true;
     override readonly pcRanked: boolean = true;
+    override readonly droidScoreMultiplier: number = 1;
+    override readonly pcScoreMultiplier: number = 1;
     override readonly bitwise: number = 1 << 2;
     override readonly droidString: string = "";
     override readonly droidOnly: boolean = false;
