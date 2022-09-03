@@ -217,9 +217,9 @@ export class ThreeFingerChecker {
             od: this.calculator.beatmap.difficulty.od,
             mods: this.calculator.mods.filter(
                 (m) =>
+                    m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods
-                        .map((v) => v.droidString)
-                        .includes(m.droidString)
+                        .some(v => v.acronym === m.acronym)
             ),
         }).calculate();
 

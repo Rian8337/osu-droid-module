@@ -129,10 +129,13 @@ export class Beatmap {
      * @param stats The statistics used for calculation.
      */
     maxDroidScore(stats: MapStats): number {
-        let scoreMultiplier: number = stats.mods.reduce(
-            (a, v) => a * v.droidScoreMultiplier,
-            1
-        );
+        let scoreMultiplier: number = 1;
+
+        for (const mod of stats.mods) {
+            if (mod.isApplicableToDroid()) {
+                scoreMultiplier *= mod.droidScoreMultiplier;
+            }
+        }
 
         const { speedMultiplier } = stats;
 
@@ -195,10 +198,13 @@ export class Beatmap {
             this.difficulty.cs + this.difficulty.hp + this.difficulty.od;
 
         let difficultyMultiplier: number = 2;
-        const scoreMultiplier: number = mods.reduce(
-            (a, v) => a * v.pcScoreMultiplier,
-            1
-        );
+        let scoreMultiplier: number = 1;
+
+        for (const mod of mods) {
+            if (mod.isApplicableToOsu()) {
+                scoreMultiplier *= mod.pcScoreMultiplier;
+            }
+        }
 
         switch (true) {
             case accumulatedDiffPoints <= 5:

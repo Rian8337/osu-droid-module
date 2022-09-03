@@ -103,7 +103,8 @@ export abstract class ModUtil {
         return this.processParsingOptions(
             this.allMods.filter(
                 (m) =>
-                    m.droidString && str.toLowerCase().includes(m.droidString)
+                    m.isApplicableToDroid() &&
+                    str.toLowerCase().includes(m.droidString)
             ),
             options
         );
@@ -117,7 +118,9 @@ export abstract class ModUtil {
      */
     static pcModbitsToMods(modbits: number, options?: ModParseOptions): Mod[] {
         return this.processParsingOptions(
-            this.allMods.filter((m) => m.bitwise & modbits),
+            this.allMods.filter(
+                (m) => m.isApplicableToOsu() && m.bitwise & modbits
+            ),
             options
         );
     }
