@@ -13,6 +13,7 @@ describe("Test adding control points", () => {
                     new DifficultyControlPoint({
                         time: 1000,
                         speedMultiplier: 1,
+                        generateTicks: true,
                     })
                 )
             ).toBe(false);
@@ -28,6 +29,7 @@ describe("Test adding control points", () => {
                     new DifficultyControlPoint({
                         time: 1000,
                         speedMultiplier: 0.5,
+                        generateTicks: true,
                     })
                 )
             ).toBe(true);
@@ -45,6 +47,7 @@ describe("Test adding control points", () => {
                     new DifficultyControlPoint({
                         time: 0,
                         speedMultiplier: 0.5,
+                        generateTicks: true,
                     })
                 )
             ).toBe(true);
@@ -63,6 +66,7 @@ describe("Test adding control points", () => {
                 new DifficultyControlPoint({
                     time: 1000,
                     speedMultiplier: 0.5,
+                    generateTicks: true,
                 })
             );
 
@@ -71,6 +75,7 @@ describe("Test adding control points", () => {
                     new DifficultyControlPoint({
                         time: 1500,
                         speedMultiplier: 0.5,
+                        generateTicks: true,
                     })
                 )
             ).toBe(false);
@@ -85,6 +90,7 @@ describe("Test adding control points", () => {
                 new DifficultyControlPoint({
                     time: 1000,
                     speedMultiplier: 0.5,
+                    generateTicks: true,
                 })
             );
 
@@ -93,6 +99,7 @@ describe("Test adding control points", () => {
                     new DifficultyControlPoint({
                         time: 500,
                         speedMultiplier: 0.5,
+                        generateTicks: true,
                     })
                 )
             ).toBe(true);
@@ -124,6 +131,7 @@ describe("Test removing control points", () => {
                     new DifficultyControlPoint({
                         time: 1000,
                         speedMultiplier: 1,
+                        generateTicks: true,
                     })
                 )
             ).toBe(false);
@@ -138,6 +146,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1000,
                     speedMultiplier: 0.5,
+                    generateTicks: true,
                 })
             );
 
@@ -145,6 +154,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1500,
                     speedMultiplier: 0.75,
+                    generateTicks: true,
                 })
             );
 
@@ -162,6 +172,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1000,
                     speedMultiplier: 0.5,
+                    generateTicks: true,
                 })
             );
 
@@ -169,6 +180,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1500,
                     speedMultiplier: 0.75,
+                    generateTicks: true,
                 })
             );
 
@@ -177,6 +189,7 @@ describe("Test removing control points", () => {
                     new DifficultyControlPoint({
                         time: 1500,
                         speedMultiplier: 0.75,
+                        generateTicks: true,
                     })
                 )
             ).toBe(true);
@@ -189,6 +202,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1000,
                     speedMultiplier: 0.5,
+                    generateTicks: true,
                 })
             );
 
@@ -196,6 +210,7 @@ describe("Test removing control points", () => {
                 new DifficultyControlPoint({
                     time: 1500,
                     speedMultiplier: 0.75,
+                    generateTicks: true,
                 })
             );
 
@@ -204,6 +219,7 @@ describe("Test removing control points", () => {
                     new DifficultyControlPoint({
                         time: 500,
                         speedMultiplier: 0.75,
+                        generateTicks: true,
                     })
                 )
             ).toBe(false);
@@ -218,6 +234,7 @@ test("Test control point getter", () => {
         new DifficultyControlPoint({
             time: 1000,
             speedMultiplier: 0.9,
+            generateTicks: true,
         })
     );
 
@@ -238,6 +255,7 @@ test("Test control point getter", () => {
             new DifficultyControlPoint({
                 time: 5000,
                 speedMultiplier: 0.5,
+                generateTicks: true,
             })
         )
     ).toBe(true);
