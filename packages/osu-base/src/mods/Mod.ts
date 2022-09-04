@@ -1,5 +1,3 @@
-// TODO: separate droid/PC mod implementations
-
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 
