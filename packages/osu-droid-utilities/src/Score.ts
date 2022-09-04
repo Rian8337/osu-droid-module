@@ -4,6 +4,7 @@ import {
     ModUtil,
     DroidAPIRequestBuilder,
     RequestResponse,
+    IModApplicableToDroid,
 } from "@rian8337/osu-base";
 import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 
@@ -116,7 +117,7 @@ export class Score {
     /**
      * Enabled modifications in the score.
      */
-    mods: Mod[];
+    mods: (Mod & IModApplicableToDroid)[];
 
     /**
      * MD5 hash of the play.
