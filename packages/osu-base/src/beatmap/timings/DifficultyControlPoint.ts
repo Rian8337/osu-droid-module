@@ -16,15 +16,14 @@ export class DifficultyControlPoint extends ControlPoint {
      */
     readonly generateTicks: boolean;
 
-    // Generate ticks can be made required in 3.0.
     constructor(values: {
         time: number;
         speedMultiplier: number;
-        generateTicks?: boolean;
+        generateTicks: boolean;
     }) {
         super(values);
         this.speedMultiplier = values.speedMultiplier;
-        this.generateTicks = values.generateTicks ?? true;
+        this.generateTicks = values.generateTicks;
     }
 
     override isRedundant(existing: DifficultyControlPoint): boolean {
