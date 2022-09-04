@@ -1,5 +1,5 @@
 /**
- * Based on `Vector2` class in C#.
+ * Represents a two-dimensional vector.
  */
 export class Vector2 {
     /**
