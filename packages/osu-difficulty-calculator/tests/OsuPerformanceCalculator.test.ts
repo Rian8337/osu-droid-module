@@ -2,7 +2,6 @@ import {
     Accuracy,
     Beatmap,
     BeatmapDecoder,
-    MapStats,
     ModDoubleTime,
     ModFlashlight,
     ModHidden,
@@ -520,44 +519,6 @@ describe("Test performance calculation with ScoreV2", () => {
 
         expect(performance.accuracy).toBeCloseTo(52.90436529080426, 5);
         expect(performance.total).toBeCloseTo(137.26167783616964, 5);
-    });
-});
-
-describe("Test performance calculation with custom statistics", () => {
-    // These tests can be removed in 3.0.
-    test("Empty custom statistics", () => {
-        const performance = calculatePerformance(
-            calculateDifficulty(mainBeatmap),
-            {
-                stats: new MapStats({
-                    ar: 9,
-                    isForceAR: true,
-                    speedMultiplier: 1.25,
-                    oldStatistics: false,
-                }),
-            }
-        );
-
-        expect(performance.aim).not.toBeNaN();
-        expect(performance.speed).not.toBeNaN();
-        expect(performance.accuracy).not.toBeNaN();
-        expect(performance.flashlight).not.toBeNaN();
-        expect(performance.total).not.toBeNaN();
-    });
-
-    test("Not empty custom statistics", () => {
-        const performance = calculatePerformance(
-            calculateDifficulty(mainBeatmap),
-            {
-                stats: new MapStats(),
-            }
-        );
-
-        expect(performance.aim).not.toBeNaN();
-        expect(performance.speed).not.toBeNaN();
-        expect(performance.accuracy).not.toBeNaN();
-        expect(performance.flashlight).not.toBeNaN();
-        expect(performance.total).not.toBeNaN();
     });
 });
 

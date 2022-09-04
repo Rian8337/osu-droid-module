@@ -101,9 +101,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         this.aim *= this.computedAccuracy.value(objectCount);
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
-        this.aim *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+        const od: number = this.difficultyCalculator.stats.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
+        this.aim *= 0.98 + (od >= 0 ? odScaling : -odScaling);
     }
 
     /**
@@ -151,7 +151,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         });
 
         // Scale the tap value with accuracy and OD.
-        const od: number = this.mapStatistics.od!;
+        const od: number = this.difficultyCalculator.stats.od!;
         const odScaling: number = Math.pow(od, 2) / 750;
         this.tap *=
             (0.95 + (od > 0 ? odScaling : -odScaling)) *
@@ -203,7 +203,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         this.accuracy =
-            Math.pow(1.4, this.mapStatistics.od!) *
+            Math.pow(1.4, this.difficultyCalculator.stats.od!) *
             Math.pow(realAccuracy.value(ncircles), 12) *
             10;
 
@@ -266,9 +266,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         this.flashlight *= 0.5 + this.computedAccuracy.value(objectCount) / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
-        this.flashlight *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+        const od: number = this.difficultyCalculator.stats.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
+        this.flashlight *= 0.98 + (od >= 0 ? odScaling : -odScaling);
     }
 
     /**
@@ -305,9 +305,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         this.visual *= Math.pow(this.computedAccuracy.value(), 8);
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
-        this.visual *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+        const od: number = this.difficultyCalculator.stats.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
+        this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
     }
 
     override toString(): string {

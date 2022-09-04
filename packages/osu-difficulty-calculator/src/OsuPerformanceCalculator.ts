@@ -61,7 +61,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     private calculateAimValue(): void {
         // Global variables
         const objectCount: number = this.difficultyCalculator.objects.length;
-        const calculatedAR: number = this.mapStatistics.ar!;
+        const calculatedAR: number = this.difficultyCalculator.stats.ar!;
 
         this.aim = this.baseValue(
             Math.pow(
@@ -121,7 +121,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
-            Math.pow(<number>this.mapStatistics.od, 2) / 2500;
+            Math.pow(this.difficultyCalculator.stats.od!, 2) / 2500;
         this.aim *= 0.98 + odScaling;
     }
 
@@ -131,7 +131,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     private calculateSpeedValue(): void {
         // Global variables
         const objectCount: number = this.difficultyCalculator.objects.length;
-        const calculatedAR: number = this.mapStatistics.ar!;
+        const calculatedAR: number = this.difficultyCalculator.stats.ar!;
         const n50: number = this.computedAccuracy.n50;
 
         this.speed = this.baseValue(this.difficultyCalculator.speed);
@@ -170,11 +170,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         }
 
         // Scale the speed value with accuracy and OD.
+        const od: number = this.difficultyCalculator.stats.od!;
         this.speed *=
-            (0.95 + Math.pow(this.mapStatistics.od!, 2) / 750) *
+            (0.95 + Math.pow(od, 2) / 750) *
             Math.pow(
                 this.computedAccuracy.value(objectCount),
-                (14.5 - Math.max(<number>this.mapStatistics.od, 8)) / 2
+                (14.5 - Math.max(od, 8)) / 2
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
@@ -211,7 +212,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         this.accuracy =
-            Math.pow(1.52163, this.mapStatistics.od!) *
+            Math.pow(1.52163, this.difficultyCalculator.stats.od!) *
             Math.pow(realAccuracy.value(ncircles), 24) *
             2.83;
 
@@ -293,7 +294,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
-            Math.pow(<number>this.mapStatistics.od, 2) / 2500;
+            Math.pow(this.difficultyCalculator.stats.od!, 2) / 2500;
         this.flashlight *= 0.98 + odScaling;
     }
 

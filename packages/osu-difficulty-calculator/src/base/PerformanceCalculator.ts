@@ -1,8 +1,6 @@
 import {
     Accuracy,
-    MapStats,
     modes,
-    Mod,
     ModNoFail,
     ModSpunOut,
     ModRelax,
@@ -29,11 +27,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
      * The difficulty calculator that is being calculated.
      */
     readonly difficultyCalculator: T;
-
-    /**
-     * The map statistics after applying modifications.
-     */
-    protected mapStatistics: MapStats = new MapStats();
 
     /**
      * Penalty for combo breaks.
@@ -117,9 +110,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         const maxCombo: number = this.difficultyCalculator.beatmap.maxCombo;
         const miss: number = this.computedAccuracy.nmiss;
         const combo: number = options?.combo ?? maxCombo - miss;
-        const mod: Mod[] = this.difficultyCalculator.mods;
-        const baseAR: number = this.difficultyCalculator.beatmap.difficulty.ar!;
-        const baseOD: number = this.difficultyCalculator.beatmap.difficulty.od;
 
         this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
 
@@ -212,12 +202,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             }
         }
 
-        this.mapStatistics = new MapStats({
-            ar: baseAR,
-            od: baseOD,
-            mods: mod,
-        });
-
         if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
             // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
             const estimateDifficultSliders: number =
@@ -243,15 +227,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                     ) +
                 this.difficultyCalculator.attributes.sliderFactor;
         }
-
-        if (options?.stats) {
-            this.mapStatistics.ar = options.stats.ar ?? this.mapStatistics.ar;
-            this.mapStatistics.isForceAR = options.stats.isForceAR;
-            this.mapStatistics.speedMultiplier = options.stats.speedMultiplier;
-            this.mapStatistics.oldStatistics = options.stats.oldStatistics;
-        }
-
-        this.mapStatistics.calculate({ mode: this.mode });
     }
 
     /**
