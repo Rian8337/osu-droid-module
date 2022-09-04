@@ -177,15 +177,14 @@ export abstract class ModUtil {
     static checkIncompatibleMods(mods: Mod[]): Mod[] {
         for (const incompatibleMod of this.incompatibleMods) {
             const fulfilledMods: Mod[] = mods.filter((m) =>
-                incompatibleMod.map((v) => v.acronym).includes(m.acronym)
+                incompatibleMod.some((v) => m.acronym === v.acronym)
             );
 
             if (fulfilledMods.length > 1) {
                 mods = mods.filter(
                     (m) =>
-                        !incompatibleMod
-                            .map((v) => v.acronym)
-                            .includes(m.acronym)
+                        incompatibleMod
+                            .every((v) => m.acronym !== v.acronym)
                 );
                 // Keep the first selected mod
                 mods.push(fulfilledMods[0]);
