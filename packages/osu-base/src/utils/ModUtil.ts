@@ -1,4 +1,5 @@
 import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
+import { IModApplicableToOsu } from "../mods/IModApplicableToOsu";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
@@ -120,10 +121,10 @@ export abstract class ModUtil {
      * @param modbits The modbits.
      * @param options Options for parsing behavior.
      */
-    static pcModbitsToMods(modbits: number, options?: ModParseOptions): Mod[] {
-        return this.processParsingOptions(
+    static pcModbitsToMods(modbits: number, options?: ModParseOptions): (Mod & IModApplicableToOsu)[] {
+        return <(Mod & IModApplicableToOsu)[]>this.processParsingOptions(
             this.allMods.filter(
-                (m) => m.isApplicableToOsu() && m.bitwise & modbits
+                (m) => m.isApplicableToOsu() && (m.bitwise & modbits)
             ),
             options
         );
