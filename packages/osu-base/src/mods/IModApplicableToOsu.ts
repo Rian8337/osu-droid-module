@@ -1,5 +1,5 @@
 /**
- * An interface denoting that a mod can be applied to osu!droid.
+ * An interface denoting that a mod can be applied to osu!standard.
  */
 export interface IModApplicableToOsu {
     /**
@@ -14,10 +14,6 @@ export interface IModApplicableToOsu {
 
     /**
      * The bitwise enum of the mod.
-     *
-     * This is NaN if the bitwise doesn't exist.
-     *
-     * In 3.0, this will be nullable.
      */
     readonly bitwise: number;
 }
