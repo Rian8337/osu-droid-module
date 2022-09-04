@@ -468,7 +468,7 @@ test("Test negative OD performance calculation", () => {
         mods: [new ModFlashlight()],
     });
 
-    difficulty.beatmap.difficulty.od = 1;
+    difficulty.stats.od = 1;
 
     let performance = calculatePerformance(difficulty);
 
@@ -479,7 +479,7 @@ test("Test negative OD performance calculation", () => {
     } = performance;
 
     // Intentionally set OD to negative.
-    difficulty.beatmap.difficulty.od = -1;
+    difficulty.stats.od = -1;
 
     performance = calculatePerformance(difficulty);
 
