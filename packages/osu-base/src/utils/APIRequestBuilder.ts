@@ -152,7 +152,12 @@ abstract class APIRequestBuilder<
                 .on("complete", async (response) => {
                     ++this.fetchAttempts;
 
-                    if (response.statusCode !== 200 && this.fetchAttempts < 5) {
+                    const { statusCode } = response;
+
+                    if (
+                        (statusCode === 500 || statusCode === 503) &&
+                        this.fetchAttempts < 5
+                    ) {
                         console.error(
                             `Request to ${url} failed; ${this.fetchAttempts} attempts so far; retrying`
                         );

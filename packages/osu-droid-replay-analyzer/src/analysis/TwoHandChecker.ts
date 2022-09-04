@@ -102,8 +102,9 @@ export class TwoHandChecker {
             mods: this.calculator.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
-                    !ModUtil.speedChangingMods
-                        .some(v => v.acronym === m.acronym)
+                    !ModUtil.speedChangingMods.some(
+                        (v) => v.acronym === m.acronym
+                    )
             ),
         }).calculate();
 
