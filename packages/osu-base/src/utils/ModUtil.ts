@@ -1,3 +1,4 @@
+import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
@@ -99,8 +100,11 @@ export abstract class ModUtil {
      * @param str The string.
      * @param options Options for parsing behavior.
      */
-    static droidStringToMods(str: string, options?: ModParseOptions): Mod[] {
-        return this.processParsingOptions(
+    static droidStringToMods(
+        str: string,
+        options?: ModParseOptions
+    ): (Mod & IModApplicableToDroid)[] {
+        return <(Mod & IModApplicableToDroid)[]>this.processParsingOptions(
             this.allMods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
