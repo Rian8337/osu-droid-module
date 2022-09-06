@@ -121,10 +121,13 @@ export abstract class ModUtil {
      * @param modbits The modbits.
      * @param options Options for parsing behavior.
      */
-    static pcModbitsToMods(modbits: number, options?: ModParseOptions): (Mod & IModApplicableToOsu)[] {
+    static pcModbitsToMods(
+        modbits: number,
+        options?: ModParseOptions
+    ): (Mod & IModApplicableToOsu)[] {
         return <(Mod & IModApplicableToOsu)[]>this.processParsingOptions(
             this.allMods.filter(
-                (m) => m.isApplicableToOsu() && (m.bitwise & modbits)
+                (m) => m.isApplicableToOsu() && m.bitwise & modbits
             ),
             options
         );
@@ -181,10 +184,8 @@ export abstract class ModUtil {
             );
 
             if (fulfilledMods.length > 1) {
-                mods = mods.filter(
-                    (m) =>
-                        incompatibleMod
-                            .every((v) => m.acronym !== v.acronym)
+                mods = mods.filter((m) =>
+                    incompatibleMod.every((v) => m.acronym !== v.acronym)
                 );
                 // Keep the first selected mod
                 mods.push(fulfilledMods[0]);
