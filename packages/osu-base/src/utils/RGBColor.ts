@@ -35,7 +35,7 @@ export class RGBColor {
      * Returns a string representation of the color.
      */
     toString(): string {
-        return `${this.r},${this.g},${this.b}`;
+        return `${this.r},${this.g},${this.b},${this.a}`;
     }
 
     /**
@@ -44,6 +44,11 @@ export class RGBColor {
      * @param other The other color.
      */
     equals(other: RGBColor): boolean {
-        return this.r === other.r && this.g === other.g && this.b === other.b;
+        return (
+            this.r === other.r &&
+            this.g === other.g &&
+            this.b === other.b &&
+            this.a === this.a
+        );
     }
 }
