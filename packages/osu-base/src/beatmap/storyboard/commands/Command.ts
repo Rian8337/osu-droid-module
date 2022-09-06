@@ -69,7 +69,7 @@ export class Command<T> {
     /**
      * Whether this command is a parameter command.
      */
-    isParameter(): this is Command<T> & {
+    isParameter(): this is this & {
         readonly parameterType: StoryboardParameterCommandType;
     } {
         return this.parameterType !== undefined;
