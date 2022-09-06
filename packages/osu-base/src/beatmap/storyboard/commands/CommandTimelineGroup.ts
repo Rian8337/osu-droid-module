@@ -175,7 +175,7 @@ export class CommandTimelineGroup {
     /**
      * Gets the commands from a command timeline.
      *
-     * @param timelineSelector A function that returns a command timeline.
+     * @param timelineSelector A function to select the command timeline to retrieve commands from.
      * @param offset The offset to apply to all commands.
      */
     getCommands<T>(
