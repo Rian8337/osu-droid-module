@@ -14,11 +14,9 @@ export interface RequestResponse {
 }
 
 type DroidAPIEndpoint =
-    | "banscore.php"
     | "getuserinfo.php"
     | "scoresearch.php"
     | "scoresearchv2.php"
-    | "rename.php"
     | "upload"
     | "user_list.php"
     | "usergeneral.php"
@@ -207,20 +205,6 @@ export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> 
     protected override readonly host: string = "https://osudroid.moe/api/";
     protected override readonly APIkey: string = process.env.DROID_API_KEY!;
     protected override readonly APIkeyParam: string = `apiKey=${this.APIkey}&`;
-
-    override setEndpoint(endpoint: DroidAPIEndpoint): this {
-        // Compatibility with old API. Can be removed in v3.0.
-        switch (endpoint) {
-            case "banscore.php":
-                endpoint = "single_score_wipe.php";
-                break;
-            case "rename.php":
-                endpoint = "user_rename.php";
-                break;
-        }
-
-        return super.setEndpoint(endpoint);
-    }
 }
 
 /**
