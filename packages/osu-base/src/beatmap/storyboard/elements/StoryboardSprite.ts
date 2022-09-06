@@ -1,5 +1,6 @@
 import { Anchor } from "../../../constants/Anchor";
 import { Vector2 } from "../../../mathutil/Vector2";
+import { Command } from "../commands/Command";
 import { CommandLoop } from "../commands/CommandLoop";
 import { CommandTimelineGroup } from "../commands/CommandTimelineGroup";
 import { CommandTrigger } from "../commands/CommandTrigger";
@@ -35,28 +36,54 @@ export class StoryboardSprite extends StoryboardElement {
     readonly timelineGroup: CommandTimelineGroup = new CommandTimelineGroup();
 
     override get startTime(): number {
-        // Check for presence affecting commands as an initial pass.
-        let earliestStartTime: number =
-            this.timelineGroup.earliestDisplayedTime ??
-            Number.POSITIVE_INFINITY;
+        // To get the initial start time, we need to check whether the first alpha command to exist (across all loops) has a start value of zero.
+        // A start value of zero governs, above all else, the first valid display time of a sprite.
+        //
+        // You can imagine that the first command of each type decides that type's start value, so if the initial alpha is zero,
+        // anything before that point can be ignored (the sprite is not visible after all).
+        const alphaCommands: {
+            readonly startTime: number;
+            readonly isZeroStartValue: boolean;
+        }[] = [];
+
+        let command: Command<number> = this.timelineGroup.alpha.commands[0];
+        if (command) {
+            alphaCommands.push({
+                startTime: command.startTime,
+                isZeroStartValue: command.startTime === 0,
+            });
+        }
 
         for (const l of this.loops) {
-            const { earliestDisplayedTime: loopEarliestDisplayTime } = l;
-
-            if (loopEarliestDisplayTime !== null) {
-                earliestStartTime = Math.min(
-                    earliestStartTime,
-                    l.loopStartTime + loopEarliestDisplayTime
-                );
+            command = l.alpha.commands[0];
+            if (command) {
+                alphaCommands.push({
+                    startTime: command.startTime + l.loopStartTime,
+                    isZeroStartValue: command.startTime === 0,
+                });
             }
         }
 
-        return earliestStartTime !== Number.POSITIVE_INFINITY
-            ? earliestStartTime
-            : Math.min(
-                  this.timelineGroup.startTime,
-                  ...this.loops.map((l) => l.startTime)
-              );
+        if (alphaCommands.length > 0) {
+            const firstAlpha = alphaCommands.sort(
+                (a, b) => a.startTime - b.startTime
+            )[0];
+
+            if (firstAlpha.isZeroStartValue) {
+                return firstAlpha.startTime;
+            }
+        }
+
+        // If we got to this point, either no alpha commands were present, or the earliest had a non-zero start value.
+        // The sprite's start time will be determined by the earliest command, regardless of type.
+
+        let earliestStartTime: number = this.timelineGroup.startTime;
+
+        for (const l of this.loops) {
+            earliestStartTime = Math.min(earliestStartTime, l.startTime);
+        }
+
+        return earliestStartTime;
     }
 
     override get endTime(): number {

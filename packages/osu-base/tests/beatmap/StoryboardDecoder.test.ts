@@ -213,3 +213,17 @@ test("Test decode loop count", () => {
     );
     expect(manyTimes.endTime).toBe(9000 + 40 * loopDuration);
 });
+
+test("Test earliest start time with loop alphas", () => {
+    const storyboard = getStoryboard(
+        join("storyboards", "loop-containing-earlier-non-zero-fade.osb")
+    );
+
+    const background = storyboard.getLayer(StoryboardLayerType.background);
+    expect(background.elements.length).toBe(2);
+
+    expect(background.elements[0].startTime).toBe(1000);
+    expect(background.elements[1].startTime).toBe(1000);
+
+    expect(storyboard.earliestEventTime).toBe(1000);
+});

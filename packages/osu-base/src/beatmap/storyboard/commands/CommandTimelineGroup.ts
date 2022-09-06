@@ -110,24 +110,10 @@ export class CommandTimelineGroup {
     ];
 
     /**
-     * The earliest visible time. Will be `null` unless this group's first alpha command has a start value of zero.
-     */
-    get earliestDisplayedTime(): number | null {
-        const first: Command<number> | undefined = this.alpha.commands.at(0);
-
-        return first?.startValue === 0 ? first.startTime : null;
-    }
-
-    /**
      * The start time of commands.
      */
     get commandsStartTime(): number {
-        // If the first alpha command starts at zero it should be given priority over anything else.
-        // This is due to it creating a state where the target is not present before that time, causing any other events to not be visible.
-        return (
-            this.earliestDisplayedTime ??
-            Math.min(...this.timelines.map((t) => t.startTime))
-        );
+        return Math.min(...this.timelines.map((t) => t.startTime));
     }
 
     /**
