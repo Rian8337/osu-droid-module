@@ -80,20 +80,11 @@ export class Player {
     readonly recentPlays: Score[] = [];
 
     /**
-     * Retrieves a player's info based on their uid.
-     *
-     * @param uid The uid of the player.
-     * @returns The player, `null` if the player is not found.
-     */
-    static async getInformation(uid: number): Promise<Player | null>;
-
-    /**
      * Retrieves a player's info based on their username.
      *
-     * @param username The username of the player.
+     * @param uidOrUsername The uid or username of the player.
      * @returns The player, `null` if the player is not found.
      */
-    static async getInformation(username: string): Promise<Player | null>;
     static async getInformation(
         uidOrUsername: string | number
     ): Promise<Player | null> {
