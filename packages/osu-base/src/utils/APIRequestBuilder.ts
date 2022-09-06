@@ -195,9 +195,7 @@ abstract class APIRequestBuilder<
      * @param param The parameter to remove.
      */
     removeParameter(param: string): this {
-        if (this.params.get(param)) {
-            this.params.delete(param);
-        }
+        this.params.delete(param);
         return this;
     }
 }
