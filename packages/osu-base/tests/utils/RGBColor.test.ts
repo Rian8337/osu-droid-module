@@ -1,9 +1,17 @@
 import { RGBColor } from "../../src";
 
-test("Test string concatenation", () => {
-    const color = new RGBColor(0, 0, 0);
+describe("Test string concatenation", () => {
+    test("Alpha equal to 1", () => {
+        const color = new RGBColor(0, 0, 0);
 
-    expect(color.toString()).toBe("0,0,0");
+        expect(color.toString()).toBe("0,0,0");
+    });
+
+    test("Alpha not equal to 1", () => {
+        const color = new RGBColor(0, 0, 0, 0.6);
+
+        expect(color.toString()).toBe("0,0,0,0.6");
+    });
 });
 
 test("Test color equality", () => {

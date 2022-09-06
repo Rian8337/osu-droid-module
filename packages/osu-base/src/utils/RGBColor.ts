@@ -35,7 +35,11 @@ export class RGBColor {
      * Returns a string representation of the color.
      */
     toString(): string {
-        return `${this.r},${this.g},${this.b},${this.a}`;
+        if (this.a === 1) {
+            return `${this.r},${this.g},${this.b}`;
+        } else {
+            return `${this.r},${this.g},${this.b},${this.a}`;
+        }
     }
 
     /**
