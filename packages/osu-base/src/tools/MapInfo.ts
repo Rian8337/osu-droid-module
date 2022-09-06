@@ -236,48 +236,24 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * Retrieve a beatmap's general information.
      *
-     * @param beatmapId The ID of the beatmap.
+     * @param beatmapIdOrHash The beatmap ID or MD5 hash of the beatmap.
      * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
      * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
      */
     static async getInformation(
-        beatmapId: number,
+        beatmapIdOrHash: string | number,
         downloadBeatmap?: boolean
     ): Promise<MapInfo<true> | null>;
 
     /**
      * Retrieve a beatmap's general information.
      *
-     * @param beatmapId The ID of the beatmap.
+     * @param beatmapIdOrHash The beatmap ID or MD5 hash of the beatmap.
      * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
      * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
      */
     static async getInformation(
-        beatmapId: number,
-        downloadBeatmap: false
-    ): Promise<MapInfo<false> | null>;
-
-    /**
-     * Retrieve a beatmap's general information.
-     *
-     * @param hash The MD5 hash of the beatmap.
-     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
-     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
-     */
-    static async getInformation(
-        hash: string,
-        downloadBeatmap?: boolean
-    ): Promise<MapInfo<true> | null>;
-
-    /**
-     * Retrieve a beatmap's general information.
-     *
-     * @param hash The MD5 hash of the beatmap.
-     * @param downloadBeatmap Whether to also retrieve the .osu file of the beatmap. Defaults to `true`.
-     * @returns The beatmap, `null` if the beatmap is not found or the beatmap is not an osu!standard beatmap.
-     */
-    static async getInformation(
-        hash: string,
+        beatmapIdOrHash: string | number,
         downloadBeatmap: false
     ): Promise<MapInfo<false> | null>;
 
