@@ -84,21 +84,6 @@ test("Test removing parameter", () => {
     );
 });
 
-test("Test osu!droid API request builder fallback", () => {
-    const builder = new DroidAPIRequestBuilder().setEndpoint("banscore.php");
-
-    expect(builder.buildURL()).toBe(
-        droidHostname +
-            `single_score_wipe.php?apiKey=${process.env.DROID_API_KEY}&`
-    );
-
-    builder.setEndpoint("rename.php");
-
-    expect(builder.buildURL()).toBe(
-        droidHostname + `user_rename.php?apiKey=${process.env.DROID_API_KEY}&`
-    );
-});
-
 test("Test osu! API URL builder", () => {
     let builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
 
