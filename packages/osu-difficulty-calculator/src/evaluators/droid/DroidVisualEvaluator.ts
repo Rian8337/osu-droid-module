@@ -11,6 +11,7 @@ export abstract class DroidVisualEvaluator {
      * - note density of the current object,
      * - overlapping factor of the current object,
      * - the preempt time of the current object,
+     * - the visual opacity of the current object,
      * - the velocity of the current object if it's a slider,
      * - past objects' velocity if they are sliders,
      * - and whether the Hidden mod is enabled.
