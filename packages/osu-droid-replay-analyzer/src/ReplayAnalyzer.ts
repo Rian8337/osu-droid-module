@@ -4,7 +4,6 @@ import {
     DroidAPIRequestBuilder,
     HitObject,
     MathUtils,
-    Mod,
     ModFlashlight,
     ModHidden,
     ModUtil,
@@ -242,8 +241,8 @@ export class ReplayAnalyzer {
             resultObject.isFullCombo = !!rawObject[4][44];
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = rawObject[6].elements;
-            resultObject.convertedMods = this.convertMods(
-                rawObject[6].elements
+            resultObject.convertedMods = ModUtil.droidStringToMods(
+                this.convertDroidMods(rawObject[6].elements)
             );
 
             // Determine rank
@@ -621,13 +620,6 @@ export class ReplayAnalyzer {
         }
 
         return modString;
-    }
-
-    /**
-     * Converts replay mods to regular mod string.
-     */
-    private convertMods(replayMods: string[]): Mod[] {
-        return ModUtil.droidStringToMods(this.convertDroidMods(replayMods));
     }
 
     /**

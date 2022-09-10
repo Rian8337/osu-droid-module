@@ -1,4 +1,4 @@
-import { Accuracy, Mod } from "@rian8337/osu-base";
+import { Accuracy, IModApplicableToDroid, Mod } from "@rian8337/osu-base";
 import { CursorData } from "./CursorData";
 import { ReplayObjectData } from "./ReplayObjectData";
 
@@ -109,7 +109,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    convertedMods?: Mod[];
+    convertedMods?: (Mod & IModApplicableToDroid)[];
 
     /**
      * The speed modification of the replay.
@@ -158,7 +158,7 @@ export class ReplayData implements ReplayInformation {
     readonly playerName: string;
     readonly rawMods: string;
     readonly rank: string;
-    readonly convertedMods: Mod[];
+    readonly convertedMods: (Mod & IModApplicableToDroid)[];
     readonly cursorMovement: CursorData[];
     readonly hitObjectData: ReplayObjectData[];
     readonly speedModification: number;
