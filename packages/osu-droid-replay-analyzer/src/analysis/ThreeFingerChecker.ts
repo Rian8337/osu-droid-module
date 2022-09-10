@@ -220,7 +220,8 @@ export class ThreeFingerChecker {
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
                         (v) => v.acronym === m.acronym
-                    )
+                    ) &&
+                    !(m instanceof ModPrecise)
             ),
         }).calculate();
 
