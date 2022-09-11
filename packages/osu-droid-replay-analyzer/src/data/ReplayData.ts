@@ -38,7 +38,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      *
-     * If `map` is defined in analyzer (either in `Beatmap` or `StarRating` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
+     * If `beatmap` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
     hit300k?: number;
 
@@ -47,7 +47,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      *
-     * If `map` is defined in analyzer (either in `Beatmap` or `StarRating` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
+     * If `beatmap` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
     hit100k?: number;
 
