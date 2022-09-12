@@ -74,9 +74,15 @@ export class StoryboardSprite extends StoryboardElement {
             }
         }
 
+        return this.earliestTransformTime;
+    }
+
+    /**
+     * The time at which the first transformation occurs.
+     */
+    get earliestTransformTime(): number {
         // If we got to this point, either no alpha commands were present, or the earliest had a non-zero start value.
         // The sprite's start time will be determined by the earliest command, regardless of type.
-
         let earliestStartTime: number = this.timelineGroup.startTime;
 
         for (const l of this.loops) {

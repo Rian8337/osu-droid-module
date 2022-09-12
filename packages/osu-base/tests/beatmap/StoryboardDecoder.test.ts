@@ -227,3 +227,15 @@ test("Test earliest start time with loop alphas", () => {
 
     expect(storyboard.earliestEventTime).toBe(1000);
 });
+
+test("Test correct animation start time", () => {
+    const storyboard = getStoryboard(
+        join("storyboards", "animation-starts-before-alpha.osb")
+    );
+
+    const background = storyboard.getLayer(StoryboardLayerType.background);
+    expect(background.elements.length).toBe(1);
+
+    expect(background.elements[0].startTime).toBe(2000);
+    expect((<StoryboardAnimation>background.elements[0]).earliestTransformTime).toBe(1000);
+});
