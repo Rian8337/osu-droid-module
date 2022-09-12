@@ -110,7 +110,6 @@ export abstract class DifficultyCalculator {
         this.objects.push(
             ...new DifficultyHitObjectCreator().generateDifficultyObjects({
                 objects: this.beatmap.hitObjects.objects,
-                circleSize: this.stats.cs!,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),

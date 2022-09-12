@@ -1,6 +1,7 @@
 import {
     HitObject,
     MathUtils,
+    modes,
     ModHidden,
     Slider,
     Spinner,
@@ -269,17 +270,21 @@ export class DifficultyHitObject {
             return (
                 (previous.object instanceof Slider
                     ? Math.min(
-                          previous.object.stackedEndPosition.getDistance(
-                              this.object.stackedPosition
-                          ),
+                          previous.object
+                              .getStackedEndPosition(modes.droid)
+                              .getDistance(
+                                  this.object.getStackedPosition(modes.droid)
+                              ),
                           previous.object.lazyEndPosition?.getDistance(
-                              this.object.stackedPosition
+                              this.object.getStackedPosition(modes.droid)
                           ) ?? Number.POSITIVE_INFINITY
                       )
-                    : previous.object.stackedEndPosition.getDistance(
-                          this.object.stackedPosition
-                      )) <=
-                2 * this.object.radius
+                    : previous.object
+                          .getStackedEndPosition(modes.droid)
+                          .getDistance(
+                              this.object.getStackedPosition(modes.droid)
+                          )) <=
+                2 * this.object.getRadius(modes.droid)
             );
         }
 

@@ -44,7 +44,6 @@ export class DifficultyHitObjectCreator {
      */
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
-        circleSize: number;
         speedMultiplier: number;
         mode: modes;
         preempt?: number;
@@ -53,14 +52,8 @@ export class DifficultyHitObjectCreator {
 
         this.mode = params.mode;
 
-        const circleSize: number = params.circleSize;
-
-        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
-
-        params.objects[0].scale = scale;
-
         const scalingFactor: number = this.getScalingFactor(
-            params.objects[0].radius
+            params.objects[0].getRadius(this.mode)
         );
 
         const difficultyObjects: DifficultyHitObject[] = [];
@@ -72,17 +65,12 @@ export class DifficultyHitObjectCreator {
             );
 
             object.index = difficultyObjects.length - 1;
-            object.object.scale = scale;
             object.timePreempt = params.preempt;
             object.baseTimePreempt = params.preempt * params.speedMultiplier;
 
             if (object.object instanceof Slider) {
                 object.velocity =
                     object.object.velocity * params.speedMultiplier;
-
-                object.object.nestedHitObjects.forEach((h) => {
-                    h.scale = scale;
-                });
 
                 this.calculateSliderCursorPosition(object.object);
 
@@ -163,10 +151,12 @@ export class DifficultyHitObjectCreator {
                     Math.max(
                         0,
                         1 -
-                            object.object.stackedPosition.getDistance(
-                                hitObject.stackedEndPosition
-                            ) /
-                                (3 * object.object.radius)
+                            object.object
+                                .getStackedPosition(this.mode)
+                                .getDistance(
+                                    hitObject.getStackedEndPosition(this.mode)
+                                ) /
+                                (3 * object.object.getRadius(this.mode))
                     ) *
                     (7.5 /
                         (1 +
@@ -186,7 +176,8 @@ export class DifficultyHitObjectCreator {
                 lastObject.object
             );
 
-            object.lazyJumpDistance = object.object.stackedPosition
+            object.lazyJumpDistance = object.object
+                .getStackedPosition(this.mode)
                 .scale(scalingFactor)
                 .subtract(lastCursorPosition.scale(scalingFactor)).length;
             object.minimumJumpTime = object.strainTime;
@@ -218,9 +209,10 @@ export class DifficultyHitObjectCreator {
                 //
                 // Thus, the player is assumed to jump the minimum of these two distances in all cases.
                 const tailJumpDistance: number =
-                    lastObject.object.tail.stackedPosition.subtract(
-                        object.object.stackedPosition
-                    ).length * scalingFactor;
+                    lastObject.object.tail
+                        .getStackedPosition(this.mode)
+                        .subtract(object.object.getStackedPosition(this.mode))
+                        .length * scalingFactor;
 
                 object.minimumJumpDistance = Math.max(
                     0,
@@ -238,10 +230,11 @@ export class DifficultyHitObjectCreator {
                     this.getEndCursorPosition(lastLastObject.object);
 
                 const v1: Vector2 = lastLastCursorPosition.subtract(
-                    lastObject.object.stackedPosition
+                    lastObject.object.getStackedPosition(this.mode)
                 );
-                const v2: Vector2 =
-                    object.object.stackedPosition.subtract(lastCursorPosition);
+                const v2: Vector2 = object.object
+                    .getStackedPosition(this.mode)
+                    .subtract(lastCursorPosition);
                 const dot: number = v1.dot(v2);
                 const det: number = v1.x * v2.y - v1.y * v2.x;
 
@@ -271,7 +264,7 @@ export class DifficultyHitObjectCreator {
             slider.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
 
             // Temporary lazy end position until a real result can be derived.
-            slider.lazyEndPosition = slider.stackedPosition;
+            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
 
             // Stop here if the slider has too short duration due to float number limitation.
             // Incredibly close start and end time fluctuates travel distance and lazy
@@ -298,20 +291,22 @@ export class DifficultyHitObjectCreator {
         }
 
         // Temporary lazy end position until a real result can be derived.
-        slider.lazyEndPosition = slider.stackedPosition.add(
-            slider.path.positionAt(endTimeMin)
-        );
+        slider.lazyEndPosition = slider
+            .getStackedPosition(this.mode)
+            .add(slider.path.positionAt(endTimeMin));
 
-        let currentCursorPosition: Vector2 = slider.stackedPosition;
-        const scalingFactor: number = this.normalizedRadius / slider.radius;
+        let currentCursorPosition: Vector2 = slider.getStackedPosition(
+            this.mode
+        );
+        const scalingFactor: number =
+            this.normalizedRadius / slider.getRadius(this.mode);
 
         for (let i = 1; i < slider.nestedHitObjects.length; ++i) {
             const currentMovementObject: HitObject = slider.nestedHitObjects[i];
 
-            let currentMovement: Vector2 =
-                currentMovementObject.stackedPosition.subtract(
-                    currentCursorPosition
-                );
+            let currentMovement: Vector2 = currentMovementObject
+                .getStackedPosition(this.mode)
+                .subtract(currentCursorPosition);
             let currentMovementLength: number =
                 scalingFactor * currentMovement.length;
 
@@ -399,7 +394,7 @@ export class DifficultyHitObjectCreator {
      * Returns the end cursor position of a hitobject.
      */
     private getEndCursorPosition(object: HitObject): Vector2 {
-        let pos: Vector2 = object.stackedPosition;
+        let pos: Vector2 = object.getStackedPosition(this.mode);
 
         if (object instanceof Slider) {
             this.calculateSliderCursorPosition(object);

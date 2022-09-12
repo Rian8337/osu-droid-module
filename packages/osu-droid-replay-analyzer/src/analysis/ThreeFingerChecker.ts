@@ -8,6 +8,7 @@ import {
     Circle,
     Spinner,
     Interpolation,
+    modes,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -700,9 +701,10 @@ export class ThreeFingerChecker {
                         );
 
                         if (
-                            o.object.stackedPosition.getDistance(
-                                cursorPosition
-                            ) <= o.object.radius
+                            o.object
+                                .getStackedPosition(modes.droid)
+                                .getDistance(cursorPosition) <=
+                            o.object.getRadius(modes.droid)
                         ) {
                             isInObject = true;
                             break;
@@ -710,8 +712,10 @@ export class ThreeFingerChecker {
                     }
                 } else {
                     isInObject =
-                        o.object.stackedPosition.getDistance(cursorPosition) <=
-                        o.object.radius;
+                        o.object
+                            .getStackedPosition(modes.droid)
+                            .getDistance(cursorPosition) <=
+                        o.object.getRadius(modes.droid);
                 }
                 if (!isInObject) {
                     cursorIndexes[j] = -1;

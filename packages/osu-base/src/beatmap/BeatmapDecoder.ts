@@ -14,6 +14,7 @@ import { BeatmapSection } from "../constants/BeatmapSection";
 import { Decoder } from "./Decoder";
 import { SectionDecoder } from "./decoder/SectionDecoder";
 import { StoryboardDecoder } from "./StoryboardDecoder";
+import { modes } from "../constants/modes";
 
 /**
  * A beatmap decoder.
@@ -63,18 +64,26 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             hitObjectsDecoder.applyStackingOld();
         }
 
-        const circleSize: number = new MapStats({
+        const droidCircleSize: number = new MapStats({
             cs: this.finalResult.difficulty.cs,
             mods,
-        }).calculate().cs!;
-        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
+        }).calculate({ mode: modes.droid }).cs!;
+        const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
+
+        const osuCircleSize: number = new MapStats({
+            cs: this.finalResult.difficulty.cs,
+            mods,
+        }).calculate({ mode: modes.osu }).cs!;
+        const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
 
         this.finalResult.hitObjects.objects.forEach((h) => {
-            h.scale = scale;
+            h.droidScale = droidScale;
+            h.osuScale = osuScale;
 
             if (h instanceof Slider) {
                 h.nestedHitObjects.forEach((n) => {
-                    n.scale = scale;
+                    n.droidScale = droidScale;
+                    n.osuScale = osuScale;
                 });
             }
         });
