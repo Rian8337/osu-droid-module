@@ -37,6 +37,7 @@ const createDifficultyHitObjects = () => {
     return new DifficultyHitObjectCreator().generateDifficultyObjects({
         objects: objects,
         circleSize: 5.5,
+        mods: [],
         speedMultiplier: 1,
         mode: modes.osu,
     });

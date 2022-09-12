@@ -352,8 +352,8 @@ test("Test difficulty calculation sample beatmap 5", async () => {
                 tap: 5.143249153098792,
                 rhythm: 0.6681138931617763,
                 flashlight: 52.009818086037086,
-                visual: 3.061511553096768,
-                total: 42.14553693481182,
+                visual: 2.0271462086437175,
+                total: 42.1388543539706,
             },
             noModPcRating: {
                 aim: 16.043384642499753,
@@ -366,8 +366,8 @@ test("Test difficulty calculation sample beatmap 5", async () => {
                 tap: 7.632874530309652,
                 rhythm: 0.718279203893433,
                 flashlight: 61.726507538195705,
-                visual: 6.2991186135141755,
-                total: 50.769163226048676,
+                visual: 5.268685372970707,
+                total: 50.76106481575044,
             },
             clockRatePcRating: {
                 aim: 53.358097235057585,

@@ -1,5 +1,7 @@
 import {
     HitObject,
+    MapStats,
+    Mod,
     modes,
     Precision,
     Slider,
@@ -44,6 +46,8 @@ export class DifficultyHitObjectCreator {
      */
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
+        circleSize: number;
+        mods: Mod[];
         speedMultiplier: number;
         mode: modes;
         preempt?: number;
@@ -51,6 +55,21 @@ export class DifficultyHitObjectCreator {
         params.preempt ??= 600;
 
         this.mode = params.mode;
+
+        const droidCircleSize: number = new MapStats({
+            cs: params.circleSize,
+            mods: params.mods,
+        }).calculate({ mode: modes.droid }).cs!;
+        const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
+
+        const osuCircleSize: number = new MapStats({
+            cs: params.circleSize,
+            mods: params.mods,
+        }).calculate({ mode: modes.osu }).cs!;
+        const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
+
+        params.objects[0].droidScale = droidScale;
+        params.objects[0].osuScale = osuScale;
 
         const scalingFactor: number = this.getScalingFactor(
             params.objects[0].getRadius(this.mode)
@@ -65,12 +84,19 @@ export class DifficultyHitObjectCreator {
             );
 
             object.index = difficultyObjects.length - 1;
+            object.object.droidScale = droidScale;
+            object.object.osuScale = osuScale;
             object.timePreempt = params.preempt;
             object.baseTimePreempt = params.preempt * params.speedMultiplier;
 
             if (object.object instanceof Slider) {
                 object.velocity =
                     object.object.velocity * params.speedMultiplier;
+
+                object.object.nestedHitObjects.forEach((o) => {
+                    o.droidScale = droidScale;
+                    o.osuScale = osuScale;
+                });
 
                 this.calculateSliderCursorPosition(object.object);
 
