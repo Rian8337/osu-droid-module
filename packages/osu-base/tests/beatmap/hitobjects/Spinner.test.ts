@@ -1,4 +1,4 @@
-import { objectTypes, Spinner, Vector2 } from "../../../src";
+import { modes, objectTypes, Spinner, Vector2 } from "../../../src";
 
 const createSpinner = (duration: number = 100) => {
     return new Spinner({
@@ -23,48 +23,92 @@ describe("Test spinner position", () => {
         expect(spinner.endPosition).toEqual(playfieldCenter);
     });
 
-    test("Spinner stacked position without height", () => {
-        const spinner = createSpinner();
+    describe("Spinner stacked position", () => {
+        test("Without height", () => {
+            const spinner = createSpinner();
 
-        expect(spinner.stackedPosition).toEqual(playfieldCenter);
+            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+        });
+
+        test("With height", () => {
+            const spinner = createSpinner();
+
+            spinner.stackHeight = 1;
+
+            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+
+            spinner.stackHeight = 2;
+
+            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+
+            spinner.stackHeight = 4;
+
+            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+        });
     });
 
-    test("Spinner stacked end position without height", () => {
-        const spinner = createSpinner();
+    describe("Spinner stacked end position", () => {
+        test("Without height", () => {
+            const spinner = createSpinner();
 
-        expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
-    });
+            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+        });
 
-    test("Spinner stacked position with height", () => {
-        const spinner = createSpinner();
+        test("With height", () => {
+            const spinner = createSpinner();
 
-        spinner.stackHeight = 1;
+            spinner.stackHeight = 1;
 
-        expect(spinner.stackedPosition).toEqual(playfieldCenter);
+            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
 
-        spinner.stackHeight = 2;
+            spinner.stackHeight = 2;
 
-        expect(spinner.stackedPosition).toEqual(playfieldCenter);
+            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
 
-        spinner.stackHeight = 4;
+            spinner.stackHeight = 4;
 
-        expect(spinner.stackedPosition).toEqual(playfieldCenter);
-    });
-
-    test("Spinner stacked end position with height", () => {
-        const spinner = createSpinner();
-
-        spinner.stackHeight = 1;
-
-        expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
-
-        spinner.stackHeight = 2;
-
-        expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
-
-        spinner.stackHeight = 4;
-
-        expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
+            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+                playfieldCenter
+            );
+            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+                playfieldCenter
+            );
+        });
     });
 });
 
