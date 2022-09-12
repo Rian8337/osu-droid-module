@@ -50,7 +50,7 @@ export class StoryboardSprite extends StoryboardElement {
         if (command) {
             alphaCommands.push({
                 startTime: command.startTime,
-                isZeroStartValue: command.startTime === 0,
+                isZeroStartValue: command.startValue === 0,
             });
         }
 
@@ -59,7 +59,7 @@ export class StoryboardSprite extends StoryboardElement {
             if (command) {
                 alphaCommands.push({
                     startTime: command.startTime + l.loopStartTime,
-                    isZeroStartValue: command.startTime === 0,
+                    isZeroStartValue: command.startValue === 0,
                 });
             }
         }

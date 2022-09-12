@@ -80,7 +80,7 @@ describe("Test start time", () => {
 
             sprite.timelineGroup.alpha.add(Easing.in, 750, 1000, 0, 1);
 
-            expect(sprite.startTime).toBe(500);
+            expect(sprite.startTime).toBe(750);
         });
     });
 
@@ -110,7 +110,7 @@ describe("Test start time", () => {
 
             loop.alpha.add(Easing.in, 750, 1000, 0, 1);
 
-            expect(sprite.startTime).toBe(1500);
+            expect(sprite.startTime).toBe(1750);
         });
     });
 });

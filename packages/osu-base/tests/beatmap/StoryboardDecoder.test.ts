@@ -237,5 +237,7 @@ test("Test correct animation start time", () => {
     expect(background.elements.length).toBe(1);
 
     expect(background.elements[0].startTime).toBe(2000);
-    expect((<StoryboardAnimation>background.elements[0]).earliestTransformTime).toBe(1000);
+    expect(
+        (<StoryboardAnimation>background.elements[0]).earliestTransformTime
+    ).toBe(1000);
 });
