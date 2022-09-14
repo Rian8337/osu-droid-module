@@ -25,6 +25,7 @@ import { hitResult } from "../constants/hitResult";
 import { movementType } from "../constants/movementType";
 import { CursorData } from "../data/CursorData";
 import { CursorOccurrence } from "../data/CursorOccurrence";
+import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { IndexedHitObject } from "./objects/IndexedHitObject";
@@ -86,6 +87,14 @@ export class TwoHandChecker {
     private readonly minCursorIndexCount: number = 5;
 
     /**
+     * A cursor occurrence nested array containing all cursor occurrences.
+     *
+     * Each index represents the cursor index.
+     */
+    // TODO: replace with group at some point
+    private readonly allCursorOccurrences: CursorOccurrence[][] = [];
+
+    /**
      * @param calculator The difficulty calculator to analyze.
      * @param data The data of the replay.
      */
@@ -97,6 +106,9 @@ export class TwoHandChecker {
     ) {
         this.calculator = calculator;
         this.data = data;
+        this.allCursorOccurrences = data.cursorMovement.map(
+            (v) => v.allOccurrences
+        );
 
         const stats: MapStats = new MapStats({
             od: this.calculator.beatmap.difficulty.od,
@@ -118,8 +130,9 @@ export class TwoHandChecker {
      */
     check(): TwoHandInformation {
         if (
-            this.data.cursorMovement.filter((v) => v.occurrences.length > 0)
-                .length <= 1
+            this.data.cursorMovement.filter(
+                (v) => v.occurrenceGroups.length > 0
+            ).length <= 1
         ) {
             return { is2Hand: false, cursorIndexes: [] };
         }
@@ -251,21 +264,21 @@ export class TwoHandChecker {
         for (let i = 0; i < this.data.cursorMovement.length; ++i) {
             const c: CursorData = this.data.cursorMovement[i];
 
-            for (let j = 0; j < c.occurrences.length; ++j) {
+            for (let j = 0; j < c.occurrenceGroups.length; ++j) {
+                const group: CursorOccurrenceGroup = c.occurrenceGroups[j];
+                const previousGroup: CursorOccurrenceGroup =
+                    c.occurrenceGroups[j - 1];
+
                 if (
-                    c.occurrences[j].time <
+                    group.startTime <
                     this.calculator.beatmap.hitObjects.objects[0].startTime -
                         this.hitWindow.hitWindowFor50()
                 ) {
                     continue;
                 }
 
-                if (c.occurrences[j].id !== movementType.MOVE) {
-                    continue;
-                }
-
                 const deltaTime: number =
-                    c.occurrences[j]?.time - c.occurrences[j - 1]?.time || 0;
+                    group.startTime - previousGroup.endTime;
 
                 if (deltaTime > 0) {
                     deltaTimes.push(deltaTime);
@@ -323,20 +336,20 @@ export class TwoHandChecker {
             startTime + hitWindowLength + hitWindowOffset;
         const cursorInformations: CursorInformation[] = [];
 
-        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            const c: CursorData = this.data.cursorMovement[i];
+        for (let i = 0; i < this.allCursorOccurrences.length; ++i) {
+            const c: CursorOccurrence[] = this.allCursorOccurrences[i];
 
-            if (c.occurrences.length === 0) {
+            if (c.length === 0) {
                 continue;
             }
 
             let hitTimeBeforeIndex: number =
                 MathUtils.clamp(
-                    c.occurrences.findIndex((v) => v.time >= minimumHitTime),
+                    c.findIndex((v) => v.time >= minimumHitTime),
                     1,
-                    c.occurrences.length - 1
+                    c.length - 1
                 ) - 1;
-            let hitTimeAfterIndex: number = c.occurrences.findIndex(
+            let hitTimeAfterIndex: number = c.findIndex(
                 // There is a special case for sliders where the time leniency in droid is a lot bigger compared to PC.
                 // To prevent slider end time from ending earlier than hit window leniency, we use the maximum value between both.
                 (v) => v.time >= Math.max(object.object.endTime, maximumHitTime)
@@ -345,7 +358,7 @@ export class TwoHandChecker {
             if (hitTimeAfterIndex === -1) {
                 // Maximum hit time or object end time may be out of bounds for every presses.
                 // We set the index to the latest cursor occurrence if that happens.
-                hitTimeAfterIndex = c.occurrences.length;
+                hitTimeAfterIndex = c.length;
             }
 
             --hitTimeAfterIndex;
@@ -353,8 +366,8 @@ export class TwoHandChecker {
             // Sometimes a `movementType.UP` instance occurs at the same time as a `movementType.MOVE`
             // or a cursor is recorded twice in one time, therefore this check is required.
             while (
-                c.occurrences[hitTimeBeforeIndex]?.time ===
-                    c.occurrences[hitTimeBeforeIndex - 1]?.time &&
+                c[hitTimeBeforeIndex]?.time ===
+                    c[hitTimeBeforeIndex - 1]?.time &&
                 hitTimeBeforeIndex > 0
             ) {
                 --hitTimeBeforeIndex;
@@ -367,8 +380,8 @@ export class TwoHandChecker {
             let j: number = hitTimeBeforeIndex;
 
             for (j; j <= hitTimeAfterIndex; ++j) {
-                const occurrence: CursorOccurrence = c.occurrences[j];
-                const nextOccurrence: CursorOccurrence = c.occurrences[j + 1];
+                const occurrence: CursorOccurrence = c[j];
+                const nextOccurrence: CursorOccurrence = c[j + 1];
 
                 const cursorPosition: Vector2 = occurrence.position;
 
@@ -451,10 +464,7 @@ export class TwoHandChecker {
             let isDragged: boolean = false;
 
             // Get the latest down or movement cursor occurrence.
-            while (
-                c.occurrences[j]?.id === movementType.UP &&
-                j > hitTimeBeforeIndex
-            ) {
+            while (c[j]?.id === movementType.UP && j > hitTimeBeforeIndex) {
                 --j;
             }
 
@@ -462,7 +472,7 @@ export class TwoHandChecker {
                 // For circles, we only need to consider the actual press on the circle.
                 // Therefore, we need to get the latest down cursor occurrence instead.
                 while (
-                    c.occurrences[j]?.id !== movementType.DOWN &&
+                    c[j]?.id !== movementType.DOWN &&
                     j > hitTimeBeforeIndex
                 ) {
                     --j;
@@ -471,7 +481,7 @@ export class TwoHandChecker {
 
             // Theoretically there can only be 1 up occurrence, but this is a
             // consideration if the user manually adds cursor occurrences.
-            if (c.occurrences[j]?.id === movementType.UP) {
+            if (c[j]?.id === movementType.UP) {
                 ++j;
             }
 
@@ -481,17 +491,17 @@ export class TwoHandChecker {
             // let nextSignificantOccurrenceIndex: number = j + 1;
 
             // while (
-            //     c.occurrences[j] &&
-            //     c.occurrences[nextSignificantOccurrenceIndex] &&
-            //     c.occurrences[j].position.equals(
-            //         c.occurrences[nextSignificantOccurrenceIndex].position
+            //     c[j] &&
+            //     c[nextSignificantOccurrenceIndex] &&
+            //     c[j].position.equals(
+            //         c[nextSignificantOccurrenceIndex].position
             //     )
             // ) {
             //     ++nextSignificantOccurrenceIndex;
             // }
 
             // const nextSignificantOccurrence: CursorOccurrence =
-            //     c.occurrences[nextSignificantOccurrenceIndex];
+            //     c[nextSignificantOccurrenceIndex];
 
             // const next: DifficultyHitObject | RebalanceDifficultyHitObject =
             //     this.map.objects[index + 1];
@@ -573,8 +583,7 @@ export class TwoHandChecker {
             let occurrenceStartIndex: number = hitTimeAfterIndex;
 
             while (
-                c.occurrences[occurrenceStartIndex]?.time >=
-                    dragTimeThreshold &&
+                c[occurrenceStartIndex]?.time >= dragTimeThreshold &&
                 occurrenceStartIndex > 0
             ) {
                 --occurrenceStartIndex;
@@ -584,7 +593,7 @@ export class TwoHandChecker {
             // the previous object was hit or ended, but we want the index after it.
             ++occurrenceStartIndex;
 
-            const dragOccurrences: CursorOccurrence[] = c.occurrences.slice(
+            const dragOccurrences: CursorOccurrence[] = c.slice(
                 occurrenceStartIndex,
                 hitTimeAfterIndex
             );
@@ -655,8 +664,8 @@ export class TwoHandChecker {
             0,
             indexedHitObject.occurrenceIndex
         );
-        const c: CursorData =
-            this.data.cursorMovement[indexedHitObject.actualCursorIndex];
+        const c: CursorOccurrence[] =
+            this.allCursorOccurrences[indexedHitObject.actualCursorIndex];
 
         const acceptableRadius: number =
             indexedHitObject.object.object.getRadius(modes.droid) * 2.4;
@@ -679,23 +688,17 @@ export class TwoHandChecker {
 
             let cursorHitTick: boolean = false;
 
-            for (j; j < c.occurrences.length; ++j) {
-                if (
-                    c.occurrences[j].time <
-                    object.startTime - hitWindowOffset
-                ) {
+            for (j; j < c.length; ++j) {
+                if (c[j].time < object.startTime - hitWindowOffset) {
                     continue;
                 }
 
-                if (
-                    c.occurrences[j].time >
-                    object.startTime + hitWindowOffset
-                ) {
+                if (c[j].time > object.startTime + hitWindowOffset) {
                     break;
                 }
 
                 if (
-                    c.occurrences[j].position.getDistance(
+                    c[j].position.getDistance(
                         object.getStackedPosition(modes.droid)
                     ) <= acceptableRadius
                 ) {
