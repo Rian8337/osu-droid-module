@@ -73,6 +73,7 @@ export * from "./constants/modes";
 export * from "./constants/objectTypes";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
+export * from "./utils/Playfield";
 export * from "./mathutil/Polynomial";
 export * from "./utils/Precision";
 export * from "./utils/RGBColor";

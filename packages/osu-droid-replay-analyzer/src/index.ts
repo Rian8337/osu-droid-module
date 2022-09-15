@@ -1,5 +1,6 @@
 export * from "./data/CursorData";
 export * from "./data/CursorOccurrence";
+export * from "./data/CursorOccurrenceGroup";
 export * from "./data/ExportedReplayJSON";
 export * from "./constants/hitResult";
 export * from "./constants/movementType";
