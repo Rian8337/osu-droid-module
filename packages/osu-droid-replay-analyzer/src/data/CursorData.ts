@@ -112,21 +112,24 @@ export class CursorData {
                     moveOccurrences.push(occurrence);
                     break;
                 case movementType.UP:
-                    this.occurrenceGroups.push(
-                        new CursorOccurrenceGroup(
-                            // Guaranteed to be non-null.
-                            downOccurrence!,
-                            moveOccurrences,
-                            occurrence
-                        )
-                    );
-                    downOccurrence = null;
+                    if (downOccurrence) {
+                        this.occurrenceGroups.push(
+                            new CursorOccurrenceGroup(
+                                downOccurrence,
+                                moveOccurrences,
+                                occurrence
+                            )
+                        );
+
+                        downOccurrence = null;
+                    }
+
                     moveOccurrences = [];
             }
         }
 
         // Add the final cursor occurrence group as the loop may not catch it for special cases.
-        if (downOccurrence !== null && moveOccurrences.length > 0) {
+        if (downOccurrence && moveOccurrences.length > 0) {
             this.occurrenceGroups.push(
                 new CursorOccurrenceGroup(downOccurrence, moveOccurrences)
             );
