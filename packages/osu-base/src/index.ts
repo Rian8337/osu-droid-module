@@ -21,6 +21,7 @@ export * from "./beatmap/storyboard/BlendingParameters";
 export * from "./beatmap/storyboard/enums/BlendingEquation";
 export * from "./beatmap/storyboard/enums/BlendingType";
 export * from "./beatmap/timings/BreakPoint";
+export * from "./mathutil/Brent";
 export * from "./beatmap/hitobjects/Circle";
 export * from "./beatmap/storyboard/commands/Command";
 export * from "./beatmap/storyboard/commands/CommandLoop";
@@ -105,6 +106,7 @@ export * from "./beatmap/timings/TimingControlPoint";
 export * from "./beatmap/timings/TimingControlPointManager";
 export * from "./utils/Utils";
 export * from "./mathutil/Vector2";
+export * from "./mathutil/ZeroCrossingBracketing";
 
 import { config } from "dotenv";
 config();
