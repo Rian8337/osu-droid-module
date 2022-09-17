@@ -440,6 +440,34 @@ export abstract class ErrorFunction {
     }
 
     /**
+     * Calculates the complementary error function.
+     *
+     * @param x The value to evaluate.
+     * @returns The complementary error function evaluated at given value, or:
+     * - 0 if `x === Number.POSITIVE_INFINITY`;
+     * - 2 if `x === Number.NEGATIVE_INFINITY`.
+     */
+    static erfc(x: number): number {
+        if (x === 0) {
+            return 1;
+        }
+
+        if (x === Number.POSITIVE_INFINITY) {
+            return 0;
+        }
+
+        if (x === Number.NEGATIVE_INFINITY) {
+            return 2;
+        }
+
+        if (Number.isNaN(x)) {
+            return Number.NaN;
+        }
+
+        return this.erfImp(x, true);
+    }
+
+    /**
      * Calculates the inverse error function evaluated at z.
      *
      * @param z The value to evaluate.
