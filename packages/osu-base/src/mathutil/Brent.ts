@@ -133,7 +133,7 @@ export abstract class Brent {
                 return root;
             }
 
-            if (xMid == xMidOld) {
+            if (xMid === xMidOld) {
                 // accuracy not sufficient, but cannot be improved further
                 return null;
             }
