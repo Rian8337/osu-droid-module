@@ -78,6 +78,7 @@ export * from "./utils/Playfield";
 export * from "./mathutil/Polynomial";
 export * from "./utils/Precision";
 export * from "./utils/RGBColor";
+export * from "./mathutil/RootBounds";
 export * from "./constants/rankedStatus";
 export * from "./constants/SampleBank";
 export * from "./beatmap/hitobjects/SampleBankInfo";
