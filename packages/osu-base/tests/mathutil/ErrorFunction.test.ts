@@ -40,14 +40,26 @@ test("Test complementary error function", () => {
     expect(ErrorFunction.erfc(2.5)).toBeCloseTo(0.0004069520174449589, 10);
     expect(ErrorFunction.erfc(3)).toBeCloseTo(0.000022090496998585441, 10);
     expect(ErrorFunction.erfc(4)).toBeCloseTo(0.00000001541725790028002, 10);
-    expect(ErrorFunction.erfc(5)).toBeCloseTo(0.000000000001537459794428035, 10);
+    expect(ErrorFunction.erfc(5)).toBeCloseTo(
+        0.000000000001537459794428035,
+        10
+    );
     expect(ErrorFunction.erfc(6)).toBeCloseTo(2.1519736712498913e-17, 10);
     expect(ErrorFunction.erfc(10)).toBeCloseTo(2.088487583762545e-45, 10);
     expect(ErrorFunction.erfc(15)).toBeCloseTo(7.212994172451207e-100, 10);
     expect(ErrorFunction.erfc(20)).toBeCloseTo(5.395865611607901e-176, 10);
-    expect(ErrorFunction.erfc(30)).toBeCloseTo(2.5646562037561116000333972775014471465488897227786155e-393, 10);
-    expect(ErrorFunction.erfc(50)).toBeCloseTo(2.0709207788416560484484478751657887929322509209953988e-1088, 10);
-    expect(ErrorFunction.erfc(80)).toBeCloseTo(2.3100265595063985852034904366341042118385080919280966e-2782, 10);
+    expect(ErrorFunction.erfc(30)).toBeCloseTo(
+        2.5646562037561116000333972775014471465488897227786155e-393,
+        10
+    );
+    expect(ErrorFunction.erfc(50)).toBeCloseTo(
+        2.0709207788416560484484478751657887929322509209953988e-1088,
+        10
+    );
+    expect(ErrorFunction.erfc(80)).toBeCloseTo(
+        2.3100265595063985852034904366341042118385080919280966e-2782,
+        10
+    );
     expect(ErrorFunction.erfc(Number.POSITIVE_INFINITY)).toBe(0);
     expect(ErrorFunction.erfc(Number.NEGATIVE_INFINITY)).toBe(2);
 });
