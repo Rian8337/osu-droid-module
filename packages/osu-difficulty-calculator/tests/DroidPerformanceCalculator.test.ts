@@ -517,6 +517,20 @@ test("Test effective miss count approximation", () => {
     expect(performance.total).not.toBeNaN();
 });
 
+test("Test apply tap penalty", () => {
+    const performance = calculatePerformance(calculateDifficulty(mainBeatmap));
+
+    expect(performance.tap).toBeCloseTo(13.123766516437668, 5);
+    expect(performance.total).toBeCloseTo(65.00206062364354, 5);
+
+    expect(() => performance.applyTapPenalty(-1)).toThrow();
+
+    performance.applyTapPenalty(1.5);
+
+    expect(performance.tap).toBeCloseTo(8.749177677625111, 5);
+    expect(performance.total).toBeCloseTo(60.3502290205607, 5);
+});
+
 test("Test string concatenation", () => {
     const performance = calculatePerformance(calculateDifficulty(mainBeatmap));
 

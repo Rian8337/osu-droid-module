@@ -38,10 +38,41 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     visual: number = 0;
 
+    /**
+     * The penalty used to penalize the tap performance value.
+     *
+     * Can be properly obtained by analyzing the replay associated with the score.
+     */
+    get tapPenalty(): number {
+        return this.tapPenalty;
+    }
+
+    private _tapPenalty: number = 1;
+
     protected override finalMultiplier = 1.24;
     protected override readonly mode: modes = modes.droid;
 
-    private tapPenalty: number = 1;
+    /**
+     * Applies a tap penalty value to this calculator.
+     *
+     * The total performance value will be recalculated afterwards.
+     *
+     * @param value The tap penalty value. Must be greather than 0.
+     */
+    applyTapPenalty(value: number): void {
+        if (value <= 0) {
+            throw new RangeError("New tap penalty must be greater than zero.");
+        }
+
+        if (value === this._tapPenalty) {
+            return;
+        }
+
+        this.tap *= this._tapPenalty / value;
+        this._tapPenalty = value;
+
+        this.calculateTotalValue();
+    }
 
     protected override calculateValues(): void {
         this.calculateAimValue();
@@ -66,7 +97,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
     protected override handleOptions(
         options?: PerformanceCalculationOptions
     ): void {
-        this.tapPenalty = options?.tapPenalty ?? 1;
+        this._tapPenalty = options?.tapPenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -171,7 +202,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         );
 
         // Scale the tap value with three-fingered penalty.
-        this.tap /= this.tapPenalty;
+        this.tap /= this._tapPenalty;
     }
 
     /**
