@@ -44,7 +44,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      * Can be properly obtained by analyzing the replay associated with the score.
      */
     get tapPenalty(): number {
-        return this.tapPenalty;
+        return this._tapPenalty;
     }
 
     protected override finalMultiplier = 1.24;
