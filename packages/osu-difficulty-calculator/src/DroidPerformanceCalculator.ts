@@ -57,7 +57,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      *
      * The total performance value will be recalculated afterwards.
      *
-     * @param value The tap penalty value. Must be greather than 0.
+     * @param value The tap penalty value. Must be greater than 0.
      */
     applyTapPenalty(value: number): void {
         if (value <= 0) {
