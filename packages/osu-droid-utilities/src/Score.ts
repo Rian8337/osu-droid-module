@@ -130,6 +130,13 @@ export class Score {
     speedMultiplier: number = 1;
 
     /**
+     * Whether to use old statistics for this score when calculating with `MapStats`.
+     * 
+     * Otherwise, this denotes whether the score was set in version 1.6.7 or lower.
+     */
+    oldStatistics: boolean;
+
+    /**
      * The forced AR of the play.
      */
     forcedAR?: number;
@@ -170,6 +177,9 @@ export class Score {
         }
 
         this.mods = ModUtil.droidStringToMods(actualMods);
+        // The pipe was added in 1.6.8 first pre-release (https://github.com/osudroid/osu-droid/commit/c08c406f4b2e535ed1ec43607a72fd8f70f8e316),
+        // so we can use that information to infer whether the score was set on version 1.6.7 or lower.
+        this.oldStatistics = !(values?.mods ?? "").includes("|");
     }
 
     /**
@@ -241,6 +251,7 @@ export class Score {
         }
 
         this.mods = ModUtil.droidStringToMods(actualMods);
+        this.oldStatistics = !play[6].includes("|");
 
         this.accuracy = new Accuracy({
             n300: parseInt(play[8]),

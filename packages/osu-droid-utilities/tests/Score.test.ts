@@ -20,6 +20,7 @@ test("Test fill information", () => {
     expect(score.hash).toBe("70b1226af3d8b76d859982b505c4ce11");
     expect(score.mods.length).toBe(1);
     expect(score.mods[0]).toBeInstanceOf(ModHidden);
+    expect(score.oldStatistics).toBe(false);
     expect(score.rank).toBe("S");
     expect(score.replay).toBeUndefined();
     expect(score.score).toBe(67030952);
