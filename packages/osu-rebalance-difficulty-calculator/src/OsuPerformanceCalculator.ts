@@ -1,6 +1,5 @@
 import {
     Accuracy,
-    ModTouchDevice,
     ModHidden,
     ModRelax,
     ModScoreV2,
@@ -63,16 +62,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.difficultyCalculator.stats.ar!;
 
-        this.aim = this.baseValue(
-            Math.pow(
-                this.difficultyCalculator.aim,
-                this.difficultyCalculator.mods.some(
-                    (m) => m instanceof ModTouchDevice
-                )
-                    ? 0.8
-                    : 1
-            )
-        );
+        this.aim = this.baseValue(this.difficultyCalculator.aim);
 
         // Longer maps are worth more
         let lengthBonus = 0.95 + 0.4 * Math.min(1, objectCount / 2000);
@@ -283,17 +273,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.flashlight =
-            Math.pow(
-                Math.pow(
-                    this.difficultyCalculator.flashlight,
-                    this.difficultyCalculator.mods.some(
-                        (m) => m instanceof ModTouchDevice
-                    )
-                        ? 0.8
-                        : 1
-                ),
-                2
-            ) * 25;
+            Math.pow(this.difficultyCalculator.flashlight, 2) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;

@@ -131,7 +131,7 @@ export class Score {
 
     /**
      * Whether to use old statistics for this score when calculating with `MapStats`.
-     * 
+     *
      * Otherwise, this denotes whether the score was set in version 1.6.7 or lower.
      */
     oldStatistics: boolean;

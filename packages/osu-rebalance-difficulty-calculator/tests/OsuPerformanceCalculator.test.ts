@@ -208,17 +208,17 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
     test("SS", () => {
         const performance = calculatePerformance(difficulty);
 
-        expect(performance.aim).toBeCloseTo(32.360789778121806, 5);
-        expect(performance.flashlight).toBeCloseTo(51.45039251291363, 5);
-        expect(performance.total).toBeCloseTo(159.60091282933348, 5);
+        expect(performance.aim).toBeCloseTo(27.78590414176394, 5);
+        expect(performance.flashlight).toBeCloseTo(39.384426066680774, 5);
+        expect(performance.total).toBeCloseTo(143.0767990283931, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
-        expect(performance.aim).toBeCloseTo(31.114351648538225, 5);
-        expect(performance.flashlight).toBeCloseTo(49.510533253089, 5);
-        expect(performance.total).toBeCloseTo(149.31852876616767, 5);
+        expect(performance.aim).toBeCloseTo(26.71567654148876, 5);
+        expect(performance.flashlight).toBeCloseTo(37.899495828701475, 5);
+        expect(performance.total).toBeCloseTo(133.37376149323555, 5);
     });
 
     test("99% approximated", () => {
@@ -229,9 +229,9 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
             }),
         });
 
-        expect(performance.aim).toBeCloseTo(32.032808800640844, 5);
-        expect(performance.flashlight).toBeCloseTo(51.189664172476576, 5);
-        expect(performance.total).toBeCloseTo(130.76844622665507, 5);
+        expect(performance.aim).toBeCloseTo(27.50429024843525, 5);
+        expect(performance.flashlight).toBeCloseTo(39.184842826478004, 5);
+        expect(performance.total).toBeCloseTo(114.00845689891908, 5);
     });
 
     test("10x100", () => {
@@ -241,9 +241,9 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
             }),
         });
 
-        expect(performance.aim).toBeCloseTo(31.996366469809622, 5);
-        expect(performance.flashlight).toBeCloseTo(51.160694356872455, 5);
-        expect(performance.total).toBeCloseTo(128.63101184750408, 5);
+        expect(performance.aim).toBeCloseTo(27.47299981584317, 5);
+        expect(performance.flashlight).toBeCloseTo(39.162666910899915, 5);
+        expect(performance.total).toBeCloseTo(111.85456487387027, 5);
     });
 });
 
