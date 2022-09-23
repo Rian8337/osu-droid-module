@@ -9,12 +9,11 @@ import {
     Vector2,
 } from "../../../src";
 
-const createCircle = (startTime: number = 1000) => {
-    return new Circle({
+const createCircle = (startTime: number = 1000) =>
+    new Circle({
         startTime: startTime,
         position: new Vector2(0, 0),
     });
-};
 
 const createSlider = (startTime: number = 1000) => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
@@ -41,13 +40,12 @@ const createSlider = (startTime: number = 1000) => {
     });
 };
 
-const createSpinner = (startTime: number = 1000) => {
-    return new Spinner({
+const createSpinner = (startTime: number = 1000) =>
+    new Spinner({
         startTime: startTime,
         type: objectTypes.spinner,
         endTime: startTime + 100,
     });
-};
 
 describe("Test adding hitobjects", () => {
     test("Without existing hitobjects", () => {
