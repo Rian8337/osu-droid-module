@@ -4,7 +4,7 @@ import { EffectControlPointManager } from "../timings/EffectControlPointManager"
 import { SampleControlPointManager } from "../timings/SampleControlPointManager";
 
 /**
- * Contains information about timing and control points of a beatmap.
+ * Contains information about timing (control) points of a beatmap.
  */
 export class BeatmapControlPoints {
     /**
