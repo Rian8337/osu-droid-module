@@ -77,7 +77,7 @@ export class BeatmapHitObjects {
      *
      * @param objects The hitobjects to add.
      */
-    add(...objects: HitObject[]): void {
+    add(...objects: (Circle | Slider | Spinner)[]): void {
         for (const object of objects) {
             // Objects may be out of order *only* if a user has manually edited an .osu file.
             // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
@@ -100,7 +100,7 @@ export class BeatmapHitObjects {
                         ++this._sliderRepeatPoints;
                     }
                 }
-            } else if (object instanceof Spinner) {
+            } else {
                 ++this._spinners;
             }
         }
@@ -112,7 +112,7 @@ export class BeatmapHitObjects {
      * @param index The index of the hitobject to remove.
      * @returns The hitobject that was removed.
      */
-    removeAt(index: number): HitObject {
+    removeAt(index: number): Circle | Slider | Spinner {
         const object: HitObject = this._objects.splice(index, 1)[0];
 
         if (object instanceof Circle) {
@@ -152,12 +152,32 @@ export class BeatmapHitObjects {
      * @param startTime The start time of the hitobject.
      */
     private findInsertionIndex(startTime: number): number {
-        for (let i = 0; i < this.objects.length; ++i) {
-            if (this.objects[i].startTime > startTime) {
-                return i;
+        if (
+            this._objects.length === 0 ||
+            startTime < this._objects[0].startTime
+        ) {
+            return 0;
+        }
+
+        if (startTime >= this._objects.at(-1)!.startTime) {
+            return this._objects.length;
+        }
+
+        let l: number = 0;
+        let r: number = this._objects.length - 2;
+
+        while (l <= r) {
+            const pivot: number = l + ((r - l) >> 1);
+
+            if (this._objects[pivot].startTime < startTime) {
+                l = pivot + 1;
+            } else if (this._objects[pivot].startTime > startTime) {
+                r = pivot - 1;
+            } else {
+                return pivot;
             }
         }
 
-        return this.objects.length;
+        return l;
     }
 }

@@ -57,17 +57,11 @@ export abstract class ControlPointManager<T extends ControlPoint> {
             existing = this.controlPointAt(controlPoint.time);
         }
 
-        // Get the index at which to add the control point.
-        for (let i = 0; i < this._points.length; ++i) {
-            if (this._points[i].time >= controlPoint.time) {
-                this._points.splice(i - 1, 0, controlPoint);
-
-                return true;
-            }
-        }
-
-        // Append the control point if it hasn't been added yet.
-        this._points.push(controlPoint);
+        this._points.splice(
+            this.findInsertionIndex(controlPoint.time),
+            0,
+            controlPoint
+        );
 
         return true;
     }
@@ -156,7 +150,39 @@ export abstract class ControlPointManager<T extends ControlPoint> {
             }
         }
 
-        // l will be the first control point with time > this.controlPoints[l].time, but we want the one before it
+        // l will be the first control point with time > this._points[l].time, but we want the one before it
         return this._points[l - 1];
+    }
+
+    /**
+     * Finds the insertion index of a control point in a given time.
+     *
+     * @param time The start time of the control point.
+     */
+    private findInsertionIndex(time: number): number {
+        if (this._points.length === 0 || time < this._points[0].time) {
+            return 0;
+        }
+
+        if (time >= this._points.at(-1)!.time) {
+            return this._points.length;
+        }
+
+        let l: number = 0;
+        let r: number = this._points.length - 2;
+
+        while (l <= r) {
+            const pivot: number = l + ((r - l) >> 1);
+
+            if (this._points[pivot].time < time) {
+                l = pivot + 1;
+            } else if (this._points[pivot].time > time) {
+                r = pivot - 1;
+            } else {
+                return pivot;
+            }
+        }
+
+        return l;
     }
 }
