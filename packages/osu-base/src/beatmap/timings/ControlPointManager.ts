@@ -105,6 +105,13 @@ export abstract class ControlPointManager<T extends ControlPoint> {
     }
 
     /**
+     * Clears all control points of this type.
+     */
+    clear(): void {
+        this._points.length = 0;
+    }
+
+    /**
      * Binary searches one of the control point lists to find the active control point at the given time.
      *
      * Includes logic for returning the default control point when no matching point is found.

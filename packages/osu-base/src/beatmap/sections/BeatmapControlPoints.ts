@@ -30,4 +30,14 @@ export class BeatmapControlPoints {
      */
     readonly sample: SampleControlPointManager =
         new SampleControlPointManager();
+
+    /**
+     * Clears all control points in the beatmap.
+     */
+    clear(): void {
+        this.timing.clear();
+        this.difficulty.clear();
+        this.effect.clear();
+        this.sample.clear();
+    }
 }
