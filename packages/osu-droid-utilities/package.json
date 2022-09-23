@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-droid-utilities",
-  "version": "3.0.0-beta.9",
+  "version": "3.0.0-beta.10",
   "description": "A module containing utilities for osu!droid.",
   "keywords": [
     "osu",
@@ -30,8 +30,8 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^3.0.0-beta.7",
-    "@rian8337/osu-droid-replay-analyzer": "^3.0.0-beta.9",
+    "@rian8337/osu-base": "^3.0.0-beta.10",
+    "@rian8337/osu-droid-replay-analyzer": "^3.0.0-beta.10",
     "crypto-js": "^4.1.1"
   },
   "publishConfig": {
