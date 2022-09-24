@@ -3,17 +3,19 @@
  *
  * The cursor movement is represented as a player's action on the screen.
  */
-export enum movementType {
+export enum MovementType {
     /**
      * The player places their finger on the screen.
      */
-    DOWN,
+    down,
+
     /**
      * The player drags their finger on the screen.
      */
-    MOVE,
+    move,
+
     /**
      * The player releases their finger from the screen.
      */
-    UP,
+    up,
 }

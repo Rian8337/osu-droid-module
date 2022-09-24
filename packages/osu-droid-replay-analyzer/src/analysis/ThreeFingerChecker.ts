@@ -18,8 +18,8 @@ import {
     DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { hitResult } from "../constants/hitResult";
-import { movementType } from "../constants/movementType";
+import { HitResult } from "../constants/HitResult";
+import { MovementType } from "../constants/MovementType";
 import { CursorData } from "../data/CursorData";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
@@ -329,11 +329,11 @@ export class ThreeFingerChecker {
             let beforeIndexHitWindowLength: number =
                 this.hitWindow.hitWindowFor50(isPrecise);
             switch (objectData[beforeIndex].result) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     beforeIndexHitWindowLength =
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     beforeIndexHitWindowLength =
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -351,11 +351,11 @@ export class ThreeFingerChecker {
             let afterIndexHitWindowLength: number =
                 this.hitWindow.hitWindowFor50(isPrecise);
             switch (objectData[afterIndex].result) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     afterIndexHitWindowLength =
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     afterIndexHitWindowLength =
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -383,8 +383,8 @@ export class ThreeFingerChecker {
             this.calculator.objects;
         const objectData: ReplayObjectData[] = this.data.hitObjectData;
 
-        const firstObjectResult: hitResult = objectData[0].result;
-        const lastObjectResult: hitResult = objectData.at(-1)!.result;
+        const firstObjectResult: HitResult = objectData[0].result;
+        const lastObjectResult: HitResult = objectData.at(-1)!.result;
 
         const isPrecise: boolean = this.calculator.mods.some(
             (m) => m instanceof ModPrecise
@@ -395,11 +395,11 @@ export class ThreeFingerChecker {
             this.hitWindow.hitWindowFor50(isPrecise);
         if (objects[0].object instanceof Circle) {
             switch (firstObjectResult) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     firstObjectHitWindow =
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     firstObjectHitWindow =
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -414,11 +414,11 @@ export class ThreeFingerChecker {
             this.hitWindow.hitWindowFor50(isPrecise);
         if (objects.at(-1)!.object instanceof Circle) {
             switch (lastObjectResult) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     lastObjectHitWindow =
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     lastObjectHitWindow =
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -526,11 +526,11 @@ export class ThreeFingerChecker {
         let firstObjectMinHitTime: number = firstObject.object.startTime;
         if (firstObject.object instanceof Circle) {
             switch (objectData[section.firstObjectIndex].result) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     firstObjectMinHitTime -=
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     firstObjectMinHitTime -=
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -545,11 +545,11 @@ export class ThreeFingerChecker {
         let lastObjectMaxHitTime: number = lastObject.object.startTime;
         if (lastObject.object instanceof Circle) {
             switch (objectData[section.lastObjectIndex].result) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     lastObjectMaxHitTime +=
                         this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     lastObjectMaxHitTime +=
                         this.hitWindow.hitWindowFor100(isPrecise);
                     break;
@@ -621,7 +621,7 @@ export class ThreeFingerChecker {
         let objectIndex: number = sectionObjects.findIndex(
             (v, i) =>
                 !(v.object instanceof Spinner) &&
-                sectionReplayObjectData[i].result !== hitResult.RESULT_0
+                sectionReplayObjectData[i].result !== HitResult.miss
         );
         if (objectIndex === -1) {
             return -1;
@@ -637,7 +637,7 @@ export class ThreeFingerChecker {
             const s: ReplayObjectData = sectionReplayObjectData[objectIndex];
             ++objectIndex;
 
-            if (s.result === hitResult.RESULT_0) {
+            if (s.result === HitResult.miss) {
                 continue;
             }
 
@@ -676,7 +676,7 @@ export class ThreeFingerChecker {
 
                 let isInObject: boolean = false;
 
-                if (cursors[nextHitIndex].id === movementType.MOVE) {
+                if (cursors[nextHitIndex].id === MovementType.move) {
                     // Try to interpolate movement between two movementType.MOVE cursor every 1ms.
                     // This minimizes rounding error.
                     for (
@@ -849,14 +849,14 @@ export class ThreeFingerChecker {
             const startTime: number =
                 objects[beatmapSection.firstObjectIndex].object.startTime +
                 (objectData[beatmapSection.firstObjectIndex].result !==
-                hitResult.RESULT_0
+                HitResult.miss
                     ? objectData[beatmapSection.firstObjectIndex].accuracy
                     : -this.hitWindow.hitWindowFor50(isPrecise));
 
             const endTime: number =
                 objects[beatmapSection.lastObjectIndex].object.endTime +
                 (objectData[beatmapSection.lastObjectIndex].result !==
-                hitResult.RESULT_0
+                HitResult.miss
                     ? objectData[beatmapSection.lastObjectIndex].accuracy
                     : this.hitWindow.hitWindowFor50(isPrecise));
 

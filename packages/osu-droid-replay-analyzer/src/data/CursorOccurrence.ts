@@ -1,5 +1,5 @@
 import { Vector2 } from "@rian8337/osu-base";
-import { movementType } from "../constants/movementType";
+import { MovementType } from "../constants/MovementType";
 
 /**
  * Represents a cursor's occurrence.
@@ -18,9 +18,9 @@ export class CursorOccurrence {
     /**
      * The movement ID of the occurrence.
      */
-    readonly id: movementType;
+    readonly id: MovementType;
 
-    constructor(time: number, x: number, y: number, id: movementType) {
+    constructor(time: number, x: number, y: number, id: MovementType) {
         this.time = time;
         this.position = new Vector2(x, y);
         this.id = id;

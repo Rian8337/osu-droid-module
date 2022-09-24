@@ -21,8 +21,8 @@ import {
     DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { hitResult } from "../constants/hitResult";
-import { movementType } from "../constants/movementType";
+import { HitResult } from "../constants/HitResult";
+import { MovementType } from "../constants/MovementType";
 import { CursorData } from "../data/CursorData";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
@@ -306,7 +306,7 @@ export class TwoHandChecker {
 
         if (
             object.object instanceof Spinner ||
-            data.result === hitResult.RESULT_0
+            data.result === HitResult.miss
         ) {
             return new IndexedHitObject(object, -1, -1, -1);
         }
@@ -319,10 +319,10 @@ export class TwoHandChecker {
         let hitWindowLength: number = this.hitWindow.hitWindowFor50(isPrecise);
         if (!(object.object instanceof Slider)) {
             switch (data.result) {
-                case hitResult.RESULT_300:
+                case HitResult.great:
                     hitWindowLength = this.hitWindow.hitWindowFor300(isPrecise);
                     break;
-                case hitResult.RESULT_100:
+                case HitResult.good:
                     hitWindowLength = this.hitWindow.hitWindowFor100(isPrecise);
                     break;
             }
@@ -387,14 +387,14 @@ export class TwoHandChecker {
 
                 if (
                     occurrence.time < minimumHitTime &&
-                    nextOccurrence?.id !== movementType.MOVE
+                    nextOccurrence?.id !== MovementType.move
                 ) {
                     continue;
                 }
 
                 if (occurrence.time > hitTime + hitWindowOffset) {
                     // Set distance to minimum just for the last.
-                    if (occurrence.id !== movementType.UP) {
+                    if (occurrence.id !== MovementType.up) {
                         distance = Math.min(
                             distance,
                             object.object
@@ -405,7 +405,7 @@ export class TwoHandChecker {
                     break;
                 }
 
-                if (occurrence.id === movementType.UP) {
+                if (occurrence.id === MovementType.up) {
                     continue;
                 }
 
@@ -414,7 +414,7 @@ export class TwoHandChecker {
                     .getDistance(cursorPosition);
 
                 if (
-                    nextOccurrence?.id === movementType.MOVE &&
+                    nextOccurrence?.id === MovementType.move &&
                     occurrence.time !== nextOccurrence.time &&
                     !occurrence.position.equals(nextOccurrence.position)
                 ) {
@@ -464,7 +464,7 @@ export class TwoHandChecker {
             let isDragged: boolean = false;
 
             // Get the latest down or movement cursor occurrence.
-            while (c[j]?.id === movementType.UP && j > hitTimeBeforeIndex) {
+            while (c[j]?.id === MovementType.up && j > hitTimeBeforeIndex) {
                 --j;
             }
 
@@ -472,7 +472,7 @@ export class TwoHandChecker {
                 // For circles, we only need to consider the actual press on the circle.
                 // Therefore, we need to get the latest down cursor occurrence instead.
                 while (
-                    c[j]?.id !== movementType.DOWN &&
+                    c[j]?.id !== MovementType.down &&
                     j > hitTimeBeforeIndex
                 ) {
                     --j;
@@ -481,7 +481,7 @@ export class TwoHandChecker {
 
             // Theoretically there can only be 1 up occurrence, but this is a
             // consideration if the user manually adds cursor occurrences.
-            if (c[j]?.id === movementType.UP) {
+            if (c[j]?.id === MovementType.up) {
                 ++j;
             }
 
@@ -607,7 +607,7 @@ export class TwoHandChecker {
                     .position.getDistance(
                         object.object.getStackedPosition(modes.droid)
                     ) <= object.object.getRadius(modes.droid) &&
-                dragOccurrences.every((v) => v.id === movementType.MOVE);
+                dragOccurrences.every((v) => v.id === MovementType.move);
 
             cursorInformations.push({
                 // If the angle is fulfilled or the player dragged,
@@ -655,7 +655,7 @@ export class TwoHandChecker {
     ): boolean {
         if (
             !(indexedHitObject.object.object instanceof Slider) ||
-            hitData.result === hitResult.RESULT_0
+            hitData.result === HitResult.miss
         ) {
             return false;
         }

@@ -23,8 +23,8 @@ import {
     ThreeFingerInformation,
 } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
-import { movementType } from "./constants/movementType";
-import { hitResult } from "./constants/hitResult";
+import { MovementType } from "./constants/MovementType";
+import { HitResult } from "./constants/HitResult";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -335,13 +335,13 @@ export class ReplayAnalyzer {
             const time: number[] = [];
             const x: number[] = [];
             const y: number[] = [];
-            const id: movementType[] = [];
+            const id: MovementType[] = [];
             for (let i = 0; i < moveSize; i++) {
                 time[i] = replayDataBuffer.readInt32BE(bufferCounter);
                 bufferCounter += this.INT_LENGTH;
                 id[i] = time[i] & 3;
                 time[i] >>= 2;
-                if (id[i] !== movementType.UP) {
+                if (id[i] !== MovementType.up) {
                     if (resultObject.replayVersion >= 5) {
                         x[i] = replayDataBuffer.readFloatBE(bufferCounter);
                         bufferCounter += this.FLOAT_LENGTH;
@@ -437,21 +437,21 @@ export class ReplayAnalyzer {
                     i + 1 !== objects.length ? objects[i + 1].isNewCombo : true;
 
                 switch (hitObjectData.result) {
-                    case hitResult.RESULT_0:
+                    case HitResult.miss:
                         ++hit0;
                         grantsGekiOrKatu = false;
                         break;
-                    case hitResult.RESULT_50:
+                    case HitResult.meh:
                         ++hit50;
                         grantsGekiOrKatu = false;
                         break;
-                    case hitResult.RESULT_100:
+                    case HitResult.good:
                         ++hit100;
                         if (grantsGekiOrKatu && isNextNewCombo) {
                             ++hit100k;
                         }
                         break;
-                    case hitResult.RESULT_300:
+                    case HitResult.great:
                         ++hit300;
                         if (grantsGekiOrKatu && isNextNewCombo) {
                             ++hit300k;
@@ -551,7 +551,7 @@ export class ReplayAnalyzer {
             const v: ReplayObjectData = hitObjectData[i];
             const o: HitObject = objects[i];
 
-            if (o instanceof Spinner || v.result === hitResult.RESULT_0) {
+            if (o instanceof Spinner || v.result === HitResult.miss) {
                 continue;
             }
 
@@ -572,7 +572,7 @@ export class ReplayAnalyzer {
             unstableRate:
                 MathUtils.calculateStandardDeviation(
                     hitObjectData.map((v, i) =>
-                        v.result !== hitResult.RESULT_0 &&
+                        v.result !== HitResult.miss &&
                         !(objects[i] instanceof Spinner)
                             ? v.accuracy
                             : 0

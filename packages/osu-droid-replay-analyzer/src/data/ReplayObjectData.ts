@@ -1,4 +1,4 @@
-import { hitResult } from "../constants/hitResult";
+import { HitResult } from "../constants/HitResult";
 
 /**
  * Represents a hitobject in an osu!droid replay.
@@ -23,7 +23,7 @@ export class ReplayObjectData {
     /**
      * The bitwise hit result of the hitobject.
      */
-    result: hitResult;
+    result: HitResult;
 
     constructor(values: {
         /**
@@ -41,7 +41,7 @@ export class ReplayObjectData {
         /**
          * The bitwise hit result of the hitobject.
          */
-        result: hitResult;
+        result: HitResult;
     }) {
         this.accuracy = values.accuracy;
         this.tickset = values.tickset;

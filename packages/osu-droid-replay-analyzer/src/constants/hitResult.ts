@@ -1,24 +1,24 @@
 /**
  * The result of a hit in an osu!droid replay.
  */
-export enum hitResult {
+export enum HitResult {
     /**
      * Miss (0).
      */
-    RESULT_0 = 1,
+    miss = 1,
 
     /**
      * Meh (50).
      */
-    RESULT_50 = 2,
+    meh = 2,
 
     /**
-     * Great (100).
+     * Good (100).
      */
-    RESULT_100 = 3,
+    good = 3,
 
     /**
-     * Good (300).
+     * Great (300).
      */
-    RESULT_300 = 4,
+    great = 4,
 }

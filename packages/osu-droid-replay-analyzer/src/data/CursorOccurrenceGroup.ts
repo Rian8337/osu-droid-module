@@ -1,4 +1,4 @@
-import { movementType } from "../constants/movementType";
+import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "./CursorOccurrence";
 
 /**
@@ -17,7 +17,7 @@ export class CursorOccurrenceGroup {
      * The cursor occurrence of movement type `movementType.DOWN`.
      */
     set down(value: CursorOccurrence) {
-        if (value.id !== movementType.DOWN) {
+        if (value.id !== MovementType.down) {
             throw new TypeError(
                 "Attempting to set the down cursor occurrence to one with different movement type."
             );
@@ -48,7 +48,7 @@ export class CursorOccurrenceGroup {
      * May not exist, such as when the player holds their cursor until the end of a beatmap.
      */
     set up(value: CursorOccurrence | undefined) {
-        if (value && value.id !== movementType.UP) {
+        if (value && value.id !== MovementType.up) {
             throw new TypeError(
                 "Attempting to set the up cursor occurrence to one with different movement type."
             );

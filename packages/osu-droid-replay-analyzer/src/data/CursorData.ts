@@ -1,4 +1,4 @@
-import { movementType } from "../constants/movementType";
+import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "./CursorOccurrence";
 import { CursorOccurrenceGroup } from "./CursorOccurrenceGroup";
 
@@ -29,7 +29,7 @@ export interface CursorInformation {
     /**
      * The hit results of this cursor instance.
      */
-    id: movementType[];
+    id: MovementType[];
 }
 
 /**
@@ -105,13 +105,13 @@ export class CursorData {
             );
 
             switch (occurrence.id) {
-                case movementType.DOWN:
+                case MovementType.down:
                     downOccurrence = occurrence;
                     break;
-                case movementType.MOVE:
+                case MovementType.move:
                     moveOccurrences.push(occurrence);
                     break;
-                case movementType.UP:
+                case MovementType.up:
                     if (downOccurrence) {
                         this.occurrenceGroups.push(
                             new CursorOccurrenceGroup(
