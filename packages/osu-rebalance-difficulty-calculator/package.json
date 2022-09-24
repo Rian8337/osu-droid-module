@@ -1,6 +1,6 @@
 {
   "name": "@rian8337/osu-rebalance-difficulty-calculator",
-  "version": "3.0.0-beta.10",
+  "version": "3.0.0-beta.11",
   "description": "A module for calculating osu!standard beatmap difficulty and performance value with respect to the latest osu!lazer difficulty and performance algorithm.",
   "keywords": [
     "osu",
@@ -30,7 +30,7 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "@rian8337/osu-base": "^3.0.0-beta.10"
+    "@rian8337/osu-base": "^3.0.0-beta.11"
   },
   "publishConfig": {
     "access": "public"
