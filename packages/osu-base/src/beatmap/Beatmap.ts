@@ -163,8 +163,7 @@ export class Beatmap {
                 continue;
             }
 
-            const ticksPerSpan: number = object.ticks;
-            const totalTicks: number = ticksPerSpan * (object.repeats + 1);
+            const { ticks } = object;
 
             // Apply slider head.
             score += 30;
@@ -175,8 +174,8 @@ export class Beatmap {
             combo += object.repeats;
 
             // Apply slider ticks.
-            score += 10 * totalTicks;
-            combo += totalTicks;
+            score += 10 * ticks;
+            combo += ticks;
 
             // Apply slider end.
             score += Math.floor(
@@ -238,8 +237,7 @@ export class Beatmap {
                 continue;
             }
 
-            const ticksPerSpan: number = object.ticks;
-            const totalTicks: number = ticksPerSpan * (object.repeats + 1);
+            const { ticks } = object;
 
             // Apply slider head.
             score += 30;
@@ -250,8 +248,8 @@ export class Beatmap {
             combo += object.repeats;
 
             // Apply slider ticks.
-            score += 10 * totalTicks;
-            combo += totalTicks;
+            score += 10 * ticks;
+            combo += ticks;
 
             // Apply slider end.
             score += Math.floor(
