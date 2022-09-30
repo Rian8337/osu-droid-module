@@ -72,7 +72,7 @@ export class DifficultyHitObjectCreator {
         params.objects[0].osuScale = osuScale;
 
         const scalingFactor: number = this.getScalingFactor(
-            params.objects[0].getRadius(params.mode)
+            params.objects[0].getRadius(this.mode)
         );
 
         const difficultyObjects: DifficultyHitObject[] = [];
@@ -101,6 +101,19 @@ export class DifficultyHitObjectCreator {
                 this.calculateSliderCursorPosition(object.object);
 
                 object.travelDistance = object.object.lazyTravelDistance;
+                // Bonus for repeat sliders until a better per nested object strain system can be achieved.
+                if (this.mode === modes.droid) {
+                    object.travelDistance *= Math.pow(
+                        1 + object.object.repeats / 4,
+                        1 / 4
+                    );
+                } else {
+                    object.travelDistance *= Math.pow(
+                        1 + object.object.repeats / 2.5,
+                        1 / 2.5
+                    );
+                }
+
                 object.travelTime = Math.max(
                     object.object.lazyTravelTime / params.speedMultiplier,
                     this.minDeltaTime
@@ -363,19 +376,6 @@ export class DifficultyHitObjectCreator {
             if (i === slider.nestedHitObjects.length - 1) {
                 slider.lazyEndPosition = currentCursorPosition;
             }
-        }
-
-        // Bonus for repeat sliders until a better per nested object strain system can be achieved.
-        if (this.mode === modes.droid) {
-            slider.lazyTravelDistance *= Math.pow(
-                1 + slider.repeats / 4,
-                1 / 4
-            );
-        } else {
-            slider.lazyTravelDistance *= Math.pow(
-                1 + slider.repeats / 2.5,
-                1 / 2.5
-            );
         }
     }
 

@@ -33,7 +33,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      */
     flashlight: number = 0;
 
-    protected override finalMultiplier = 1.12;
+    protected override finalMultiplier = 1.14;
     protected override readonly mode: modes = modes.osu;
 
     protected override calculateValues(): void {
@@ -94,7 +94,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             if (calculatedAR > 10.33) {
                 arFactor += 0.3 * (calculatedAR - 10.33);
             } else if (calculatedAR < 8) {
-                arFactor += 0.1 * (8 - calculatedAR);
+                arFactor += 0.05 * (8 - calculatedAR);
             }
 
             // Buff for longer maps with high AR.

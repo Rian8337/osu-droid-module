@@ -113,7 +113,7 @@ export class DifficultyHitObject {
     travelDistance: number = 0;
 
     /**
-     * The time taken to travel through `travelDistance`, with a minimum value of 25ms for a non-zero distance.
+     * The time taken to travel through `travelDistance`, with a minimum value of 25ms for sliders.
      */
     travelTime: number = 0;
 

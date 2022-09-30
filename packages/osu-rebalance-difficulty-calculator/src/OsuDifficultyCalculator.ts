@@ -121,7 +121,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (!isRelax) {
+        if (isRelax) {
+            this.speed = 0;
+        } else {
             this.postCalculateSpeed(speedSkill);
         }
 
@@ -185,7 +187,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         }
 
         if (this.mods.some((m) => m instanceof ModTouchDevice)) {
-            this.aim *= 0.8;
+            this.aim = Math.pow(this.aim, 0.8);
         }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
@@ -232,7 +234,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 
         if (this.mods.some((m) => m instanceof ModTouchDevice)) {
-            this.flashlight *= 0.8;
+            this.flashlight = Math.pow(this.flashlight, 0.8);
         }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
