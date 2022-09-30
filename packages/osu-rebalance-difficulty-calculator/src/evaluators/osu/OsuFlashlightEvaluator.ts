@@ -39,7 +39,9 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number = current.object
                     .getStackedPosition(modes.osu)
-                    .subtract(currentObject.object.endPosition).length;
+                    .subtract(
+                        currentObject.object.getStackedEndPosition(modes.osu)
+                    ).length;
 
                 cumulativeStrainTime += last.strainTime;
 

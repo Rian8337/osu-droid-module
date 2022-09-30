@@ -48,7 +48,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
             ) {
                 const jumpDistance: number = current.object
                     .getStackedPosition(modes.droid)
-                    .subtract(currentObject.object.endPosition).length;
+                    .subtract(
+                        currentObject.object.getStackedEndPosition(modes.droid)
+                    ).length;
 
                 cumulativeStrainTime += last.strainTime;
 

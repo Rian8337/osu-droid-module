@@ -165,15 +165,15 @@ describe("Test performance calculation with Flashlight", () => {
     test("SS", () => {
         const performance = calculatePerformance(difficulty);
 
-        expect(performance.flashlight).toBeCloseTo(61.538165729188705, 5);
-        expect(performance.total).toBeCloseTo(195.7502560727665, 5);
+        expect(performance.flashlight).toBeCloseTo(61.563689314464995, 5);
+        expect(performance.total).toBeCloseTo(195.77651562575653, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
-        expect(performance.flashlight).toBeCloseTo(59.21796223234604, 5);
-        expect(performance.total).toBeCloseTo(184.08970065076815, 5);
+        expect(performance.flashlight).toBeCloseTo(59.2425234894296, 5);
+        expect(performance.total).toBeCloseTo(184.11502826844475, 5);
     });
 
     test("99% approximated", () => {
@@ -184,8 +184,8 @@ describe("Test performance calculation with Flashlight", () => {
             }),
         });
 
-        expect(performance.flashlight).toBeCloseTo(61.22631691637187, 5);
-        expect(performance.total).toBeCloseTo(166.6841550279528, 5);
+        expect(performance.flashlight).toBeCloseTo(61.25171115915521, 5);
+        expect(performance.total).toBeCloseTo(166.71069133807018, 5);
     });
 
     test("10x100", () => {
@@ -195,8 +195,8 @@ describe("Test performance calculation with Flashlight", () => {
             }),
         });
 
-        expect(performance.flashlight).toBeCloseTo(61.19166704828111, 5);
-        expect(performance.total).toBeCloseTo(164.5222593889423, 5);
+        expect(performance.flashlight).toBeCloseTo(61.21704691967634, 5);
+        expect(performance.total).toBeCloseTo(164.54881382093146, 5);
     });
 });
 
@@ -209,16 +209,16 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
         const performance = calculatePerformance(difficulty);
 
         expect(performance.aim).toBeCloseTo(32.360789778121806, 5);
-        expect(performance.flashlight).toBeCloseTo(51.45039251291363, 5);
-        expect(performance.total).toBeCloseTo(162.45092912985726, 5);
+        expect(performance.flashlight).toBeCloseTo(51.46746346727857, 5);
+        expect(performance.total).toBeCloseTo(162.4685053159373, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
         expect(performance.aim).toBeCloseTo(31.114351648538225, 5);
-        expect(performance.flashlight).toBeCloseTo(49.510533253089, 5);
-        expect(performance.total).toBeCloseTo(151.98493106556347, 5);
+        expect(performance.flashlight).toBeCloseTo(49.52696057292985, 5);
+        expect(performance.total).toBeCloseTo(152.0018922640928, 5);
     });
 
     test("99% approximated", () => {
@@ -230,8 +230,8 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
         });
 
         expect(performance.aim).toBeCloseTo(32.032808800640844, 5);
-        expect(performance.flashlight).toBeCloseTo(51.189664172476576, 5);
-        expect(performance.total).toBeCloseTo(133.10359705213102, 5);
+        expect(performance.flashlight).toBeCloseTo(51.20664861862682, 5);
+        expect(performance.total).toBeCloseTo(133.12142700807524, 5);
     });
 
     test("10x100", () => {
@@ -242,8 +242,8 @@ describe("Test performance calculation with TouchDevice, Flashlight", () => {
         });
 
         expect(performance.aim).toBeCloseTo(31.996366469809622, 5);
-        expect(performance.flashlight).toBeCloseTo(51.160694356872455, 5);
-        expect(performance.total).toBeCloseTo(130.92799420192378, 5);
+        expect(performance.flashlight).toBeCloseTo(51.17766919099885, 5);
+        expect(performance.total).toBeCloseTo(130.9458424466107, 5);
     });
 });
 
@@ -255,15 +255,15 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
     test("SS", () => {
         const performance = calculatePerformance(difficulty);
 
-        expect(performance.flashlight).toBeCloseTo(75.5966686916786, 5);
-        expect(performance.total).toBeCloseTo(224.0760526172543, 5);
+        expect(performance.flashlight).toBeCloseTo(75.62720634678199, 5);
+        expect(performance.total).toBeCloseTo(224.10769341670655, 5);
     });
 
     test("1 miss", () => {
         const performance = calculatePerformance(difficulty, { miss: 1 });
 
-        expect(performance.flashlight).toBeCloseTo(72.74641059623957, 5);
-        expect(performance.total).toBeCloseTo(211.0174216755321, 5);
+        expect(performance.flashlight).toBeCloseTo(72.77579687522837, 5);
+        expect(performance.total).toBeCloseTo(211.04793537681596, 5);
     });
 
     test("99% approximated", () => {
@@ -274,8 +274,8 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
             }),
         });
 
-        expect(performance.flashlight).toBeCloseTo(75.2135774652005, 5);
-        expect(performance.total).toBeCloseTo(192.719965200523, 5);
+        expect(performance.flashlight).toBeCloseTo(75.2439603686733, 5);
+        expect(performance.total).toBeCloseTo(192.75190754109047, 5);
     });
 
     test("10x100", () => {
@@ -285,8 +285,8 @@ describe("Test performance calculation with Hidden, Flashlight", () => {
             }),
         });
 
-        expect(performance.flashlight).toBeCloseTo(75.1710117733696, 5);
-        expect(performance.total).toBeCloseTo(190.38331046186116, 5);
+        expect(performance.flashlight).toBeCloseTo(75.20137748221677, 5);
+        expect(performance.total).toBeCloseTo(190.4152718797593, 5);
     });
 });
 

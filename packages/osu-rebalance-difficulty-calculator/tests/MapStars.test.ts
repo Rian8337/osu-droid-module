@@ -289,7 +289,7 @@ test("Test difficulty calculation sample beatmap 3", async () => {
             noModPcRating: {
                 aim: 2.999322964576116,
                 speed: 3.0164501737543654,
-                flashlight: 1.9495654324845204,
+                flashlight: 1.9501085717169278,
                 total: 6.284400524147425,
             },
             clockRateDroidRating: {
@@ -303,7 +303,7 @@ test("Test difficulty calculation sample beatmap 3", async () => {
             clockRatePcRating: {
                 aim: 4.221180552801728,
                 speed: 4.543264147297868,
-                flashlight: 2.9079445444539602,
+                flashlight: 2.908633536037269,
                 total: 9.170095020246256,
             },
         }
@@ -351,28 +351,28 @@ test("Test difficulty calculation sample beatmap 5", async () => {
                 aim: 58.544217614822806,
                 tap: 5.143249153098792,
                 rhythm: 0.6681138931617763,
-                flashlight: 52.009818086037086,
+                flashlight: 52.11760510252108,
                 visual: 2.0271462086437175,
                 total: 42.1388543539706,
             },
             noModPcRating: {
                 aim: 16.043384642499753,
                 speed: 11.00140070367911,
-                flashlight: 249.20600856096326,
+                flashlight: 111.70041832492731,
                 total: 29.33821693274539,
             },
             clockRateDroidRating: {
                 aim: 73.7322143252105,
                 tap: 7.632874530309652,
                 rhythm: 0.718279203893433,
-                flashlight: 61.726507538195705,
+                flashlight: 62.01045880917641,
                 visual: 5.268685372970707,
                 total: 50.76106481575044,
             },
             clockRatePcRating: {
                 aim: 53.358097235057585,
                 speed: 13.206819579506805,
-                flashlight: 48.63681555963135,
+                flashlight: 44.18671236871769,
                 total: 90.6507656178002,
             },
         }
