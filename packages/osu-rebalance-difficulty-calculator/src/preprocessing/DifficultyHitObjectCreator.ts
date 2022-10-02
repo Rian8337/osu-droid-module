@@ -143,7 +143,11 @@ export class DifficultyHitObjectCreator {
                 continue;
             }
 
-            const visibleObjects: HitObject[] = [];
+            // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
+            // while the second array contains objects after the current object ends.
+            // For overlapping factor, we also need to consider previous visible objects.
+            const prevVisibleObjects: HitObject[] = [];
+            const nextVisibleObjects: HitObject[] = [];
 
             for (let j = i + 1; j < params.objects.length; ++j) {
                 const o: HitObject = params.objects[j];
@@ -159,17 +163,40 @@ export class DifficultyHitObjectCreator {
                     break;
                 }
 
-                visibleObjects.push(o);
+                nextVisibleObjects.push(o);
             }
 
-            for (const hitObject of visibleObjects) {
-                const deltaTime: number = Math.max(
-                    0,
-                    hitObject.startTime / params.speedMultiplier -
-                        object.endTime
-                );
+            for (let j = 0; j < object.index; ++j) {
+                const prev: DifficultyHitObject = object.previous(j)!;
 
-                object.noteDensity += 1 - deltaTime / object.timePreempt;
+                if (prev.object instanceof Spinner) {
+                    continue;
+                }
+
+                if (prev.startTime >= object.startTime) {
+                    continue;
+                }
+
+                if (prev.startTime < object.startTime - object.timePreempt) {
+                    break;
+                }
+
+                prevVisibleObjects.push(prev.object);
+            }
+
+            for (const hitObject of prevVisibleObjects.concat(
+                nextVisibleObjects
+            )) {
+                const startDeltaTime: number =
+                    hitObject.startTime / params.speedMultiplier -
+                    object.startTime;
+                const endDeltaTime: number =
+                    hitObject.startTime / params.speedMultiplier -
+                    object.endTime;
+
+                if (endDeltaTime >= 0) {
+                    object.noteDensity += 1 - endDeltaTime / object.timePreempt;
+                }
 
                 object.overlappingFactor +=
                     // Penalize objects that are too close to the object in both distance
@@ -188,7 +215,12 @@ export class DifficultyHitObjectCreator {
                         (1 +
                             Math.exp(
                                 0.15 *
-                                    (Math.max(deltaTime, this.minDeltaTime) -
+                                    (Math.max(
+                                        startDeltaTime < 0
+                                            ? Math.abs(startDeltaTime)
+                                            : endDeltaTime,
+                                        this.minDeltaTime
+                                    ) -
                                         75)
                             )));
             }
