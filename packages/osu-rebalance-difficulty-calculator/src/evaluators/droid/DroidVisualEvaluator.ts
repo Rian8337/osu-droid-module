@@ -115,25 +115,6 @@ export abstract class DroidVisualEvaluator {
             }
         }
 
-        // Nerf doubletappable doubles.
-        let doubletapness: number = 1;
-        const next: DifficultyHitObject | null = current.next(0);
-
-        if (next) {
-            const currentDeltaTime: number = Math.max(1, current.deltaTime);
-            const nextDeltaTime: number = Math.max(1, next.deltaTime);
-            const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime
-            );
-            const speedRatio: number =
-                currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
-            const windowRatio: number = Math.pow(
-                Math.min(1, currentDeltaTime / current.timePreempt),
-                2
-            );
-            doubletapness = Math.pow(speedRatio, 1 - windowRatio);
-        }
-
-        return strain * doubletapness;
+        return strain;
     }
 }
