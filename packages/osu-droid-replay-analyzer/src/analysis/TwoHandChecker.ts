@@ -11,7 +11,7 @@ import {
     Beatmap,
     Circle,
     HitObject,
-    modes,
+    Modes,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -398,7 +398,7 @@ export class TwoHandChecker {
                         distance = Math.min(
                             distance,
                             object.object
-                                .getStackedPosition(modes.droid)
+                                .getStackedPosition(Modes.droid)
                                 .getDistance(cursorPosition)
                         );
                     }
@@ -410,7 +410,7 @@ export class TwoHandChecker {
                 }
 
                 distance = object.object
-                    .getStackedPosition(modes.droid)
+                    .getStackedPosition(Modes.droid)
                     .getDistance(cursorPosition);
 
                 if (
@@ -438,7 +438,7 @@ export class TwoHandChecker {
                             (nextOccurrence.time - occurrence.time);
 
                         distance = object.object
-                            .getStackedPosition(modes.droid)
+                            .getStackedPosition(Modes.droid)
                             .getDistance(
                                 cursorPosition.add(displacement.scale(progress))
                             );
@@ -446,7 +446,7 @@ export class TwoHandChecker {
                 }
             }
 
-            if (distance > object.object.getRadius(modes.droid)) {
+            if (distance > object.object.getRadius(Modes.droid)) {
                 continue;
             }
 
@@ -541,7 +541,7 @@ export class TwoHandChecker {
                     );
 
                 const currentToNext: Vector2 =
-                    next.object.getStackedPosition(modes.droid).subtract(actualEndPosition);
+                    next.object.getStackedPosition(Modes.droid).subtract(actualEndPosition);
 
                 const dot: number = currentToNext.dot(movementVec);
                 const det: number =
@@ -605,8 +605,8 @@ export class TwoHandChecker {
                 dragOccurrences
                     .at(-1)!
                     .position.getDistance(
-                        object.object.getStackedPosition(modes.droid)
-                    ) <= object.object.getRadius(modes.droid) &&
+                        object.object.getStackedPosition(Modes.droid)
+                    ) <= object.object.getRadius(Modes.droid) &&
                 dragOccurrences.every((v) => v.id === MovementType.move);
 
             cursorInformations.push({
@@ -668,7 +668,7 @@ export class TwoHandChecker {
             this.allCursorOccurrences[indexedHitObject.actualCursorIndex];
 
         const acceptableRadius: number =
-            indexedHitObject.object.object.getRadius(modes.droid) * 2.4;
+            indexedHitObject.object.object.getRadius(Modes.droid) * 2.4;
 
         for (
             let i = 1;
@@ -699,7 +699,7 @@ export class TwoHandChecker {
 
                 if (
                     c[j].position.getDistance(
-                        object.getStackedPosition(modes.droid)
+                        object.getStackedPosition(Modes.droid)
                     ) <= acceptableRadius
                 ) {
                     cursorHitTick = true;

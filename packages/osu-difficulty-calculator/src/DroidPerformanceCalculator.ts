@@ -1,9 +1,9 @@
 import {
     Accuracy,
-    modes,
     ModRelax,
     ModScoreV2,
     ModFlashlight,
+    Modes,
 } from "@rian8337/osu-base";
 import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
@@ -50,7 +50,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
     private _tapPenalty: number = 1;
 
     protected override finalMultiplier = 1.24;
-    protected override readonly mode: modes = modes.droid;
+    protected override readonly mode: Modes = Modes.droid;
 
     /**
      * Applies a tap penalty value to this calculator.

@@ -5,7 +5,7 @@ import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
-import { modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
+import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -37,7 +37,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     visual: number = 0;
 
     protected override readonly difficultyMultiplier: number = 0.18;
-    protected override readonly mode: modes = modes.droid;
+    protected override readonly mode: Modes = Modes.droid;
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.

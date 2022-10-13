@@ -1,7 +1,7 @@
 import request from "request";
 import { Beatmap } from "../beatmap/Beatmap";
 import { MapStats } from "../utils/MapStats";
-import { rankedStatus } from "../constants/rankedStatus";
+import { RankedStatus } from "../constants/RankedStatus";
 import {
     OsuAPIRequestBuilder,
     RequestResponse,
@@ -9,7 +9,7 @@ import {
 import { Precision } from "../utils/Precision";
 import { TimingControlPoint } from "../beatmap/timings/TimingControlPoint";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
-import { modes } from "../constants/modes";
+import { Modes } from "../constants/Modes";
 import { MathUtils } from "../mathutil/MathUtils";
 import { If } from "../utils/If";
 
@@ -95,7 +95,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The ranking status of the beatmap.
      */
-    approved: rankedStatus = 0;
+    approved: RankedStatus = 0;
 
     /**
      * The ID of the beatmap.
@@ -415,9 +415,9 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      */
     convertStatus(): string {
         let status: string = "Unknown";
-        for (const stat in rankedStatus) {
+        for (const stat in RankedStatus) {
             if (
-                rankedStatus[stat as keyof typeof rankedStatus] ===
+                RankedStatus[stat as keyof typeof RankedStatus] ===
                 this.approved
             ) {
                 status = stat;
@@ -551,8 +551,8 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                 } - [Beatconnect](https://beatconnect.io/b/${
                     this.beatmapsetID
                 }/) - [Nerina](https://nerina.pw/d/${this.beatmapsetID})${
-                    this.approved >= rankedStatus.RANKED &&
-                    this.approved !== rankedStatus.QUALIFIED
+                    this.approved >= RankedStatus.ranked &&
+                    this.approved !== RankedStatus.qualified
                         ? ` - [Ripple](https://storage.ripple.moe/d/${this.beatmapsetID})`
                         : ""
                 }`;
@@ -578,11 +578,11 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                     ar: this.ar,
                     od: this.od,
                     hp: this.hp,
-                }).calculate({ mode: modes.droid });
+                }).calculate({ mode: Modes.droid });
 
                 const droidModifiedStats: MapStats = new MapStats(
                     mapParams
-                ).calculate({ mode: modes.droid });
+                ).calculate({ mode: Modes.droid });
 
                 droidOriginalStats.cs = MathUtils.round(
                     droidOriginalStats.cs!,

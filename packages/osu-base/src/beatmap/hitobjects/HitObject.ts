@@ -1,5 +1,5 @@
-import { modes } from "../../constants/modes";
-import { objectTypes } from "../../constants/objectTypes";
+import { Modes } from "../../constants/Modes";
+import { ObjectTypes } from "../../constants/ObjectTypes";
 import { Vector2 } from "../../mathutil/Vector2";
 import { HitSampleInfo } from "./HitSampleInfo";
 
@@ -15,7 +15,7 @@ export abstract class HitObject {
     /**
      * The bitwise type of the hitobject (circle/slider/spinner).
      */
-    readonly type: objectTypes;
+    readonly type: ObjectTypes;
 
     /**
      * The position of the hitobject in osu!pixels.
@@ -83,7 +83,7 @@ export abstract class HitObject {
     }) {
         this.startTime = values.startTime;
         this.endTime = values.endTime ?? values.startTime;
-        this.type = values.type ?? objectTypes.circle;
+        this.type = values.type ?? ObjectTypes.circle;
         this.position = values.position;
         this.endPosition = values.endPosition ?? this.position;
         this.isNewCombo = values.newCombo ?? false;
@@ -96,14 +96,14 @@ export abstract class HitObject {
      * @param mode The gamemode to evaluate for.
      * @returns The radius of the hitobject with respect to the gamemode.
      */
-    getRadius(mode: modes): number {
+    getRadius(mode: Modes): number {
         let radius: number = 64;
 
         switch (mode) {
-            case modes.droid:
+            case Modes.droid:
                 radius *= this.droidScale;
                 break;
-            case modes.osu:
+            case Modes.osu:
                 radius *= this.osuScale;
                 break;
         }
@@ -119,14 +119,14 @@ export abstract class HitObject {
      * @param mode The gamemode to evaluate for.
      * @returns The stack offset with respect to the gamemode.
      */
-    getStackOffset(mode: modes): Vector2 {
+    getStackOffset(mode: Modes): Vector2 {
         let coordinate: number = this.stackHeight * -6.4;
 
         switch (mode) {
-            case modes.droid:
+            case Modes.droid:
                 coordinate *= this.droidScale;
                 break;
-            case modes.osu:
+            case Modes.osu:
                 coordinate *= this.osuScale;
                 break;
         }
@@ -140,7 +140,7 @@ export abstract class HitObject {
      * @param mode The gamemode to evaluate for.
      * @returns The stacked position with respect to the gamemode.
      */
-    getStackedPosition(mode: modes): Vector2 {
+    getStackedPosition(mode: Modes): Vector2 {
         return this.evaluateStackedPosition(this.position, mode);
     }
 
@@ -150,7 +150,7 @@ export abstract class HitObject {
      * @param mode The gamemode to evaluate for.
      * @returns The stacked end position with respect to the gamemode.
      */
-    getStackedEndPosition(mode: modes): Vector2 {
+    getStackedEndPosition(mode: Modes): Vector2 {
         return this.evaluateStackedPosition(this.endPosition, mode);
     }
 
@@ -159,13 +159,13 @@ export abstract class HitObject {
      */
     typeStr(): string {
         let res = "";
-        if (this.type & objectTypes.circle) {
+        if (this.type & ObjectTypes.circle) {
             res += "circle | ";
         }
-        if (this.type & objectTypes.slider) {
+        if (this.type & ObjectTypes.slider) {
             res += "slider | ";
         }
-        if (this.type & objectTypes.spinner) {
+        if (this.type & ObjectTypes.spinner) {
             res += "spinner | ";
         }
         return res.substring(0, Math.max(0, res.length - 3));
@@ -183,8 +183,8 @@ export abstract class HitObject {
      * @param mode The gamemode to evaluate for.
      * @returns The stacked position.
      */
-    private evaluateStackedPosition(position: Vector2, mode: modes): Vector2 {
-        if (this.type & objectTypes.spinner) {
+    private evaluateStackedPosition(position: Vector2, mode: Modes): Vector2 {
+        if (this.type & ObjectTypes.spinner) {
             return position;
         }
 

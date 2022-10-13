@@ -1,10 +1,10 @@
 import {
     Accuracy,
-    modes,
     ModNoFail,
     ModSpunOut,
     ModRelax,
     MathUtils,
+    Modes,
 } from "@rian8337/osu-base";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { DifficultyCalculator } from "./DifficultyCalculator";
@@ -43,7 +43,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     /**
      * The gamemode to calculate for.
      */
-    protected abstract readonly mode: modes;
+    protected abstract readonly mode: Modes;
 
     /**
      * The amount of misses that are filtered out from sliderbreaks.
@@ -237,7 +237,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             if (combo < fullComboThreshold) {
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.mode === modes.droid
+                    this.mode === Modes.droid
                         ? // We're clamping miss count because since it's derived from combo, it can
                           // be higher than the amount of objects and that breaks some calculations.
                           this.difficultyCalculator.objects.length

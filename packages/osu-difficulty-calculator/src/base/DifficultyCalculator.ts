@@ -1,4 +1,4 @@
-import { Beatmap, Mod, MapStats, modes, Utils } from "@rian8337/osu-base";
+import { Beatmap, Mod, MapStats, Utils, Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
 import { StrainSkill } from "./StrainSkill";
@@ -55,7 +55,7 @@ export abstract class DifficultyCalculator {
 
     protected readonly sectionLength: number = 400;
     protected abstract readonly difficultyMultiplier: number;
-    protected abstract readonly mode: modes;
+    protected abstract readonly mode: Modes;
 
     /**
      * Constructs a new instance of the calculator.

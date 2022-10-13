@@ -2,7 +2,7 @@ import {
     HitObject,
     MapStats,
     Mod,
-    modes,
+    Modes,
     Precision,
     Slider,
     SliderRepeat,
@@ -28,7 +28,7 @@ export class DifficultyHitObjectCreator {
     /**
      * The gamemode this creator is creating for.
      */
-    private mode: modes = modes.osu;
+    private mode: Modes = Modes.osu;
 
     /**
      * The base normalized radius of hitobjects.
@@ -49,7 +49,7 @@ export class DifficultyHitObjectCreator {
         circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
-        mode: modes;
+        mode: Modes;
         preempt?: number;
     }): DifficultyHitObject[] {
         params.preempt ??= 600;
@@ -59,13 +59,13 @@ export class DifficultyHitObjectCreator {
         const droidCircleSize: number = new MapStats({
             cs: params.circleSize,
             mods: params.mods,
-        }).calculate({ mode: modes.droid }).cs!;
+        }).calculate({ mode: Modes.droid }).cs!;
         const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
 
         const osuCircleSize: number = new MapStats({
             cs: params.circleSize,
             mods: params.mods,
-        }).calculate({ mode: modes.osu }).cs!;
+        }).calculate({ mode: Modes.osu }).cs!;
         const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
 
         params.objects[0].droidScale = droidScale;
@@ -102,7 +102,7 @@ export class DifficultyHitObjectCreator {
 
                 object.travelDistance = object.object.lazyTravelDistance;
                 // Bonus for repeat sliders until a better per nested object strain system can be achieved.
-                if (this.mode === modes.droid) {
+                if (this.mode === Modes.droid) {
                     object.travelDistance *= Math.pow(
                         1 + object.object.repeats / 4,
                         1 / 4
@@ -283,7 +283,7 @@ export class DifficultyHitObjectCreator {
 
         // Droid doesn't have a legacy slider tail. Since beatmap parser defaults slider tail
         // to legacy slider tail, it needs to be changed to real slider tail first.
-        if (this.mode === modes.droid) {
+        if (this.mode === Modes.droid) {
             slider.tail.startTime += Slider.legacyLastTickOffset;
             slider.tail.endTime += Slider.legacyLastTickOffset;
 
@@ -390,7 +390,7 @@ export class DifficultyHitObjectCreator {
 
         // High circle size (small CS) bonus
         switch (this.mode) {
-            case modes.droid:
+            case Modes.droid:
                 if (radius < this.DROID_CIRCLESIZE_BUFF_THRESHOLD) {
                     scalingFactor *=
                         1 +
@@ -401,7 +401,7 @@ export class DifficultyHitObjectCreator {
                         );
                 }
                 break;
-            case modes.osu:
+            case Modes.osu:
                 if (radius < this.PC_CIRCLESIZE_BUFF_THRESHOLD) {
                     scalingFactor *=
                         1 +

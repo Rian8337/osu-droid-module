@@ -1,4 +1,4 @@
-import { modes, Spinner } from "@rian8337/osu-base";
+import { Modes, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
@@ -29,7 +29,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         }
 
         const scalingFactor: number =
-            52 / current.object.getRadius(modes.droid);
+            52 / current.object.getRadius(Modes.droid);
 
         let smallDistNerf: number = 1;
 
@@ -48,7 +48,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 !currentObject.isOverlapping(false)
             ) {
                 const jumpDistance: number = current.object
-                    .getStackedPosition(modes.droid)
+                    .getStackedPosition(Modes.droid)
                     .subtract(currentObject.object.endPosition).length;
 
                 cumulativeStrainTime += last.strainTime;

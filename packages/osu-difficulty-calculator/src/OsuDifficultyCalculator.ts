@@ -4,11 +4,11 @@ import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
-    modes,
     ModRelax,
     OsuHitWindow,
     ModFlashlight,
     ModTouchDevice,
+    Modes,
 } from "@rian8337/osu-base";
 
 /**
@@ -31,7 +31,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     flashlight: number = 0;
 
     protected override readonly difficultyMultiplier: number = 0.0675;
-    protected override readonly mode: modes = modes.osu;
+    protected override readonly mode: Modes = Modes.osu;
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.

@@ -1,12 +1,12 @@
 /**
  * Ranking status of a beatmap.
  */
-export enum rankedStatus {
-    GRAVEYARD = -2,
-    WIP = -1,
-    PENDING = 0,
-    RANKED = 1,
-    APPROVED = 2,
-    QUALIFIED = 3,
-    LOVED = 4,
+export enum RankedStatus {
+    graveyard = -2,
+    wip = -1,
+    pending = 0,
+    ranked = 1,
+    approved = 2,
+    qualified = 3,
+    loved = 4,
 }

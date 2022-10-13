@@ -1,10 +1,10 @@
 import {
     Accuracy,
-    modes,
     ModNoFail,
     ModSpunOut,
     ModRelax,
     MathUtils,
+    Modes,
 } from "@rian8337/osu-base";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { DifficultyCalculator } from "./DifficultyCalculator";
@@ -43,7 +43,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     /**
      * The gamemode to calculate for.
      */
-    protected abstract readonly mode: modes;
+    protected abstract readonly mode: Modes;
 
     /**
      * The amount of misses that are filtered out from sliderbreaks.

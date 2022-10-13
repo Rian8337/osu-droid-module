@@ -14,7 +14,7 @@ import { BeatmapSection } from "../constants/BeatmapSection";
 import { Decoder } from "./Decoder";
 import { SectionDecoder } from "./decoder/SectionDecoder";
 import { StoryboardDecoder } from "./StoryboardDecoder";
-import { modes } from "../constants/modes";
+import { Modes } from "../constants/Modes";
 
 /**
  * A beatmap decoder.
@@ -67,13 +67,13 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
         const droidCircleSize: number = new MapStats({
             cs: this.finalResult.difficulty.cs,
             mods,
-        }).calculate({ mode: modes.droid }).cs!;
+        }).calculate({ mode: Modes.droid }).cs!;
         const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
 
         const osuCircleSize: number = new MapStats({
             cs: this.finalResult.difficulty.cs,
             mods,
-        }).calculate({ mode: modes.osu }).cs!;
+        }).calculate({ mode: Modes.osu }).cs!;
         const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
 
         this.finalResult.hitObjects.objects.forEach((h) => {

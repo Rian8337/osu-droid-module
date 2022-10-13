@@ -1,5 +1,5 @@
 import { HitSoundType } from "../../../constants/HitSoundType";
-import { objectTypes } from "../../../constants/objectTypes";
+import { ObjectTypes } from "../../../constants/ObjectTypes";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { PathType } from "../../../constants/PathType";
 import { SampleBank } from "../../../constants/SampleBank";
@@ -40,11 +40,11 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         let tempType: number = type;
 
-        let comboOffset: number = (tempType & objectTypes.comboOffset) >> 4;
-        tempType &= ~objectTypes.comboOffset;
+        let comboOffset: number = (tempType & ObjectTypes.comboOffset) >> 4;
+        tempType &= ~ObjectTypes.comboOffset;
 
-        let newCombo: boolean = !!(type & objectTypes.newCombo);
-        tempType &= ~objectTypes.newCombo;
+        let newCombo: boolean = !!(type & ObjectTypes.newCombo);
+        tempType &= ~ObjectTypes.newCombo;
 
         const position: Vector2 = new Vector2(
             this.tryParseFloat(
@@ -65,7 +65,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         let object: HitObject | null = null;
 
-        if (type & objectTypes.circle) {
+        if (type & ObjectTypes.circle) {
             newCombo ||= this.forceNewCombo;
             comboOffset += this.extraComboOffset;
 
@@ -83,7 +83,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             if (s.length > 5) {
                 this.readCustomSampleBanks(bankInfo, s[5]);
             }
-        } else if (type & objectTypes.slider) {
+        } else if (type & ObjectTypes.slider) {
             if (s.length < 8) {
                 throw new Error("Ignoring malformed slider");
             }
@@ -253,7 +253,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 mapTickRate: this.target.difficulty.sliderTickRate,
                 tickDistanceMultiplier: tickDistanceMultiplier,
             });
-        } else if (type & objectTypes.spinner) {
+        } else if (type & ObjectTypes.spinner) {
             // Spinners don't create the new combo themselves, but force the next non-spinner hitobject to create a new combo.
             // Their combo offset is still added to that next hitobject's combo index.
             this.forceNewCombo ||= this.target.formatVersion <= 8 || newCombo;
@@ -365,12 +365,12 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             let objectI: HitObject = this.target.hitObjects.objects[i];
             if (
                 objectI.stackHeight !== 0 ||
-                objectI.type & objectTypes.spinner
+                objectI.type & ObjectTypes.spinner
             ) {
                 continue;
             }
 
-            if (objectI.type & objectTypes.circle) {
+            if (objectI.type & ObjectTypes.circle) {
                 while (--n >= 0) {
                     const objectN: HitObject =
                         this.target.hitObjects.objects[n];

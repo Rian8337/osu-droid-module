@@ -1,4 +1,4 @@
-import { Spinner, Slider, modes } from "@rian8337/osu-base";
+import { Spinner, Slider, Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
@@ -77,7 +77,7 @@ export abstract class DroidVisualEvaluator {
 
         if (current.object instanceof Slider) {
             const scalingFactor: number =
-                50 / current.object.getRadius(modes.droid);
+                50 / current.object.getRadius(Modes.droid);
 
             // Reward sliders based on velocity.
             strain +=

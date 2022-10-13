@@ -1,4 +1,4 @@
-import { modes, Slider, Spinner } from "@rian8337/osu-base";
+import { Modes, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
@@ -30,7 +30,7 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             return 0;
         }
 
-        const scalingFactor: number = 52 / current.object.getRadius(modes.osu);
+        const scalingFactor: number = 52 / current.object.getRadius(Modes.osu);
         let smallDistNerf: number = 1;
         let cumulativeStrainTime: number = 0;
         let result: number = 0;
@@ -42,7 +42,7 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
 
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number = current.object
-                    .getStackedPosition(modes.osu)
+                    .getStackedPosition(Modes.osu)
                     .subtract(currentObject.object.endPosition).length;
 
                 cumulativeStrainTime += last.strainTime;

@@ -1,4 +1,4 @@
-import { modes } from "../constants/modes";
+import { Modes } from "../constants/Modes";
 import { DroidHitWindow, OsuHitWindow } from "../utils/HitWindow";
 import { Mod } from "../mods/Mod";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
@@ -136,7 +136,7 @@ export class MapStats {
         /**
          * The gamemode to calculate for. Defaults to `modes.osu`.
          */
-        mode?: modes;
+        mode?: Modes;
 
         /**
          * The applied modifications in osu!standard format.
@@ -187,8 +187,8 @@ export class MapStats {
             statisticsMultiplier *= 0.5;
         }
 
-        switch (params?.mode ?? modes.osu) {
-            case modes.droid:
+        switch (params?.mode ?? Modes.osu) {
+            case Modes.droid:
                 // In droid pre-1.6.8, NC speed multiplier is assumed bugged (1.39).
                 if (
                     this.mods.some((m) => m instanceof ModNightCore) &&
@@ -272,7 +272,7 @@ export class MapStats {
                     );
                 }
                 break;
-            case modes.osu:
+            case Modes.osu:
                 if (
                     !this.mods.some((m) =>
                         ModUtil.mapChangingMods.find(

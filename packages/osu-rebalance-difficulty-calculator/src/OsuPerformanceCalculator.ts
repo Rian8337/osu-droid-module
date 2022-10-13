@@ -4,7 +4,7 @@ import {
     ModRelax,
     ModScoreV2,
     ModFlashlight,
-    modes,
+    Modes,
 } from "@rian8337/osu-base";
 import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
@@ -34,7 +34,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     flashlight: number = 0;
 
     protected override finalMultiplier = 1.14;
-    protected override readonly mode: modes = modes.osu;
+    protected override readonly mode: Modes = Modes.osu;
 
     protected override calculateValues(): void {
         this.calculateAimValue();
