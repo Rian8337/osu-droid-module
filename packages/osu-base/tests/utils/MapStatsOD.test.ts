@@ -3,7 +3,7 @@ import {
     Mod,
     ModDoubleTime,
     ModEasy,
-    modes,
+    Modes,
     ModHalfTime,
     ModHardRock,
     ModNightCore,
@@ -14,7 +14,7 @@ import {
 describe("Test OD conversion without speed multiplier", () => {
     const createStats = (params: {
         od: number;
-        mode: modes;
+        mode: Modes;
         mods?: Mod[];
         oldStatistics?: boolean;
     }) => {
@@ -25,7 +25,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 without mods", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
             });
 
             expect(stats.od).toBeCloseTo(4.17);
@@ -34,7 +34,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with HR", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHardRock()],
             });
 
@@ -44,7 +44,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 8 with EZ", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModEasy()],
             });
 
@@ -54,7 +54,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 8 with REZ", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModReallyEasy()],
             });
 
@@ -64,7 +64,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 7 with HR + REZ", () => {
             const stats = createStats({
                 od: 7,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
@@ -74,7 +74,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 10 with PR", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModPrecise()],
             });
 
@@ -84,7 +84,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with DT", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModDoubleTime()],
             });
 
@@ -94,7 +94,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 10 with HT", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHalfTime()],
             });
 
@@ -104,7 +104,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with NC, NC bug applied", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
             });
@@ -115,7 +115,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with NC, NC bug not applied", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModNightCore()],
             });
 
@@ -127,7 +127,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 without mods", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
             });
 
             expect(stats.od).toBeCloseTo(9);
@@ -136,7 +136,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with HR", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHardRock()],
             });
 
@@ -146,7 +146,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 8 with EZ", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModEasy()],
             });
 
@@ -156,7 +156,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 8 with REZ", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModReallyEasy()],
             });
 
@@ -166,7 +166,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 7 with HR + REZ", () => {
             const stats = createStats({
                 od: 7,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
@@ -176,7 +176,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 10 with PR", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModPrecise()],
             });
 
@@ -186,7 +186,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with DT", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModDoubleTime()],
             });
 
@@ -196,7 +196,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 10 with HT", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHalfTime()],
             });
 
@@ -206,7 +206,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with NC, NC bug applied", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
             });
@@ -217,7 +217,7 @@ describe("Test OD conversion without speed multiplier", () => {
         test("OD 9 with NC, NC bug not applied", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModNightCore()],
             });
 
@@ -229,7 +229,7 @@ describe("Test OD conversion without speed multiplier", () => {
 describe("Test OD conversion with speed multiplier", () => {
     const createStats = (params: {
         od: number;
-        mode: modes;
+        mode: Modes;
         speedMultiplier: number;
         mods?: Mod[];
         isForceAR?: boolean;
@@ -242,7 +242,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 without mods, 1.25x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.25,
             });
 
@@ -252,7 +252,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with HR, 1.5x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.5,
                 mods: [new ModHardRock()],
             });
@@ -263,7 +263,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 8 with EZ, 1.3x speed multiplier", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.3,
                 mods: [new ModEasy()],
             });
@@ -274,7 +274,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 8 with REZ, 1.75x speed multiplier", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.75,
                 mods: [new ModReallyEasy()],
             });
@@ -285,7 +285,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 7 with HR + REZ, 2x speed multiplier", () => {
             const stats = createStats({
                 od: 7,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 2,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
@@ -296,7 +296,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 10 with PR, 1.2x speed multiplier", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.2,
                 mods: [new ModPrecise()],
             });
@@ -307,7 +307,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with DT, 0.75x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 0.75,
                 mods: [new ModDoubleTime()],
             });
@@ -318,7 +318,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 10 with HT, 1.1x speed multiplier", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.1,
                 mods: [new ModHalfTime()],
             });
@@ -329,7 +329,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with NC, NC bug applied, 1.2x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.2,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
@@ -341,7 +341,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with NC, NC bug not applied, 1.05x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.05,
                 mods: [new ModNightCore()],
             });
@@ -354,7 +354,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 without mods, 1.25x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.25,
             });
 
@@ -364,7 +364,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with HR, 1.5x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.5,
                 mods: [new ModHardRock()],
             });
@@ -375,7 +375,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 8 with EZ, 1.3x speed multiplier", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.3,
                 mods: [new ModEasy()],
             });
@@ -386,7 +386,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 8 with REZ, 1.75x speed multiplier", () => {
             const stats = createStats({
                 od: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.75,
                 mods: [new ModReallyEasy()],
             });
@@ -397,7 +397,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 7 with HR + REZ, 2x speed multiplier", () => {
             const stats = createStats({
                 od: 7,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 2,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
@@ -408,7 +408,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 10 with PR, 1.2x speed multiplier", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.2,
                 mods: [new ModPrecise()],
             });
@@ -419,7 +419,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with DT, 0.75x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 0.75,
                 mods: [new ModDoubleTime()],
             });
@@ -430,7 +430,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 10 with HT, 1.1x speed multiplier", () => {
             const stats = createStats({
                 od: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.1,
                 mods: [new ModHalfTime()],
             });
@@ -441,7 +441,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with NC, NC bug applied, 1.2x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.2,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
@@ -453,7 +453,7 @@ describe("Test OD conversion with speed multiplier", () => {
         test("OD 9 with NC, NC bug not applied, 1.05x speed multiplier", () => {
             const stats = createStats({
                 od: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.05,
                 mods: [new ModNightCore()],
             });

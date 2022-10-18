@@ -3,7 +3,7 @@ import {
     Mod,
     ModDoubleTime,
     ModEasy,
-    modes,
+    Modes,
     ModHalfTime,
     ModHardRock,
     ModNightCore,
@@ -13,7 +13,7 @@ import {
 describe("Test AR conversion without speed multiplier", () => {
     const createStats = (params: {
         ar: number;
-        mode: modes;
+        mode: Modes;
         mods?: Mod[];
         isForceAR?: boolean;
         oldStatistics?: boolean;
@@ -25,7 +25,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 without mods", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
             });
 
             expect(stats.ar).toBeCloseTo(9);
@@ -34,7 +34,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with HR", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHardRock()],
             });
 
@@ -44,7 +44,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with EZ", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModEasy()],
             });
 
@@ -54,7 +54,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with REZ", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModReallyEasy()],
             });
 
@@ -64,7 +64,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with EZ + REZ", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModEasy(), new ModReallyEasy()],
             });
 
@@ -74,7 +74,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 7 with HR + REZ", () => {
             const stats = createStats({
                 ar: 7,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
@@ -84,7 +84,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with DT", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModDoubleTime()],
             });
 
@@ -94,7 +94,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 10 with HT", () => {
             const stats = createStats({
                 ar: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHalfTime()],
             });
 
@@ -104,7 +104,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with NC, NC bug applied", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
             });
@@ -115,7 +115,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with NC, NC bug not applied", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModNightCore()],
             });
 
@@ -125,7 +125,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with force AR", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 mods: [new ModHardRock()],
                 isForceAR: true,
             });
@@ -138,7 +138,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 without mods", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
             });
 
             expect(stats.ar).toBeCloseTo(9);
@@ -147,7 +147,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with HR", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHardRock()],
             });
 
@@ -157,7 +157,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with EZ", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModEasy()],
             });
 
@@ -167,7 +167,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with REZ", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModReallyEasy()],
             });
 
@@ -177,7 +177,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 7 with HR + REZ", () => {
             const stats = createStats({
                 ar: 7,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
@@ -187,7 +187,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with DT", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModDoubleTime()],
             });
 
@@ -197,7 +197,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 10 with HT", () => {
             const stats = createStats({
                 ar: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHalfTime()],
             });
 
@@ -207,7 +207,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with NC, NC bug applied", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
             });
@@ -218,7 +218,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 9 with NC, NC bug not applied", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModNightCore()],
             });
 
@@ -228,7 +228,7 @@ describe("Test AR conversion without speed multiplier", () => {
         test("AR 8 with force AR", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 mods: [new ModHardRock()],
                 isForceAR: true,
             });
@@ -241,7 +241,7 @@ describe("Test AR conversion without speed multiplier", () => {
 describe("Test AR conversion with speed multiplier", () => {
     const createStats = (params: {
         ar: number;
-        mode: modes;
+        mode: Modes;
         speedMultiplier: number;
         mods?: Mod[];
         isForceAR?: boolean;
@@ -254,7 +254,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 without mods, 1.25x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.25,
             });
 
@@ -264,7 +264,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with HR, 1.5x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.5,
                 mods: [new ModHardRock()],
             });
@@ -275,7 +275,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with EZ, 1.3x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.3,
                 mods: [new ModEasy()],
             });
@@ -286,7 +286,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with REZ, 1.75x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.75,
                 mods: [new ModReallyEasy()],
             });
@@ -297,7 +297,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 7 with HR + REZ, 2x speed multiplier", () => {
             const stats = createStats({
                 ar: 7,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 2,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
@@ -308,7 +308,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with DT, 0.75x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 0.75,
                 mods: [new ModDoubleTime()],
             });
@@ -319,7 +319,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 10 with HT, 1.1x speed multiplier", () => {
             const stats = createStats({
                 ar: 10,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.1,
                 mods: [new ModHalfTime()],
             });
@@ -330,7 +330,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with NC, NC bug applied, 1.2x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.2,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
@@ -342,7 +342,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with NC, NC bug not applied, 1.05x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.05,
                 mods: [new ModNightCore()],
             });
@@ -353,7 +353,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with force AR, 1.65x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.droid,
+                mode: Modes.droid,
                 speedMultiplier: 1.65,
                 mods: [new ModHardRock()],
                 isForceAR: true,
@@ -367,7 +367,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 without mods, 1.25x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.25,
             });
 
@@ -377,7 +377,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with HR, 1.5x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.5,
                 mods: [new ModHardRock()],
             });
@@ -388,7 +388,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with EZ, 1.3x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.3,
                 mods: [new ModEasy()],
             });
@@ -399,7 +399,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with REZ, 1.75x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.75,
                 mods: [new ModReallyEasy()],
             });
@@ -410,7 +410,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 7 with HR + REZ, 2x speed multiplier", () => {
             const stats = createStats({
                 ar: 7,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 2,
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
@@ -421,7 +421,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with DT, 0.75x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 0.75,
                 mods: [new ModDoubleTime()],
             });
@@ -432,7 +432,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 10 with HT, 1.1x speed multiplier", () => {
             const stats = createStats({
                 ar: 10,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.1,
                 mods: [new ModHalfTime()],
             });
@@ -443,7 +443,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with NC, NC bug applied, 1.2x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.2,
                 mods: [new ModNightCore()],
                 oldStatistics: true,
@@ -455,7 +455,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 9 with NC, NC bug not applied, 1.05x speed multiplier", () => {
             const stats = createStats({
                 ar: 9,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.05,
                 mods: [new ModNightCore()],
             });
@@ -466,7 +466,7 @@ describe("Test AR conversion with speed multiplier", () => {
         test("AR 8 with force AR, 1.65x speed multiplier", () => {
             const stats = createStats({
                 ar: 8,
-                mode: modes.osu,
+                mode: Modes.osu,
                 speedMultiplier: 1.65,
                 mods: [new ModHardRock()],
                 isForceAR: true,

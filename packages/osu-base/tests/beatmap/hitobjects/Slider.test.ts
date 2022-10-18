@@ -1,6 +1,6 @@
 import {
     SliderHead,
-    objectTypes,
+    ObjectTypes,
     PathType,
     SliderRepeat,
     Slider,
@@ -8,7 +8,7 @@ import {
     SliderTick,
     SliderTail,
     Vector2,
-    modes,
+    Modes,
 } from "../../../src";
 
 const createGlobalSliderValues = (newCombo?: boolean) => {
@@ -17,7 +17,7 @@ const createGlobalSliderValues = (newCombo?: boolean) => {
     // Will generate 1 slider tick by default
     return {
         startTime: 1000,
-        type: objectTypes.slider,
+        type: ObjectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 1,
         nodeSamples: [],
@@ -54,22 +54,22 @@ describe("Test slider position", () => {
         test("Without height", () => {
             const slider = new Slider(createGlobalSliderValues());
 
-            expect(slider.getStackedPosition(modes.droid)).toEqual(
+            expect(slider.getStackedPosition(Modes.droid)).toEqual(
                 slider.position
             );
-            expect(slider.getStackedPosition(modes.droid)).toEqual(
+            expect(slider.getStackedPosition(Modes.droid)).toEqual(
                 slider.position
             );
         });
 
         describe("With height", () => {
-            const executeTest = (mode: modes) => {
+            const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
                 slider.stackHeight = 1;
 
                 const scale =
-                    mode === modes.droid ? slider.droidScale : slider.osuScale;
+                    mode === Modes.droid ? slider.droidScale : slider.osuScale;
 
                 let positionOffset = slider
                     .getStackedPosition(mode)
@@ -109,8 +109,8 @@ describe("Test slider position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(modes.droid));
-            test("osu!standard gamemode", () => executeTest(modes.osu));
+            test("osu!droid gamemode", () => executeTest(Modes.droid));
+            test("osu!standard gamemode", () => executeTest(Modes.osu));
         });
     });
 
@@ -118,22 +118,22 @@ describe("Test slider position", () => {
         test("Without height", () => {
             const slider = new Slider(createGlobalSliderValues());
 
-            expect(slider.getStackedEndPosition(modes.droid)).toEqual(
+            expect(slider.getStackedEndPosition(Modes.droid)).toEqual(
                 slider.endPosition
             );
-            expect(slider.getStackedEndPosition(modes.osu)).toEqual(
+            expect(slider.getStackedEndPosition(Modes.osu)).toEqual(
                 slider.endPosition
             );
         });
 
         describe("With height", () => {
-            const executeTest = (mode: modes) => {
+            const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
                 slider.stackHeight = 1;
 
                 const scale =
-                    mode === modes.droid ? slider.droidScale : slider.osuScale;
+                    mode === Modes.droid ? slider.droidScale : slider.osuScale;
 
                 let positionOffset = slider
                     .getStackedEndPosition(mode)
@@ -173,8 +173,8 @@ describe("Test slider position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(modes.droid));
-            test("osu!standard gamemode", () => executeTest(modes.osu));
+            test("osu!droid gamemode", () => executeTest(Modes.droid));
+            test("osu!standard gamemode", () => executeTest(Modes.osu));
         });
     });
 });
@@ -352,13 +352,13 @@ describe("Test slider repeat points", () => {
         const position = new Vector2(300, 192);
 
         expect(repeatPoint.position).toEqual(position);
-        expect(repeatPoint.getStackedPosition(modes.droid)).toEqual(position);
-        expect(repeatPoint.getStackedPosition(modes.osu)).toEqual(position);
+        expect(repeatPoint.getStackedPosition(Modes.droid)).toEqual(position);
+        expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
         expect(repeatPoint.endPosition).toEqual(position);
-        expect(repeatPoint.getStackedEndPosition(modes.droid)).toEqual(
+        expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
             position
         );
-        expect(repeatPoint.getStackedEndPosition(modes.osu)).toEqual(position);
+        expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(position);
 
         expect(slider.endTime).toBeCloseTo(5000);
     });
@@ -387,15 +387,15 @@ describe("Test slider repeat points", () => {
             const position = new Vector2(i % 2 ? 100 : 300, 192);
 
             expect(repeatPoint.position).toEqual(position);
-            expect(repeatPoint.getStackedPosition(modes.droid)).toEqual(
+            expect(repeatPoint.getStackedPosition(Modes.droid)).toEqual(
                 position
             );
-            expect(repeatPoint.getStackedPosition(modes.osu)).toEqual(position);
+            expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
             expect(repeatPoint.endPosition).toEqual(position);
-            expect(repeatPoint.getStackedEndPosition(modes.droid)).toEqual(
+            expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
                 position
             );
-            expect(repeatPoint.getStackedEndPosition(modes.osu)).toEqual(
+            expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(
                 position
             );
         }

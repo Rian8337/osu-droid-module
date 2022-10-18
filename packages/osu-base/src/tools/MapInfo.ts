@@ -414,19 +414,18 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      * Converts the beatmap's status into a string.
      */
     convertStatus(): string {
-        let status: string = "Unknown";
+        let status: keyof typeof RankedStatus = "approved";
         for (const stat in RankedStatus) {
             if (
-                RankedStatus[stat as keyof typeof RankedStatus] ===
-                this.approved
+                RankedStatus[<keyof typeof RankedStatus>stat] === this.approved
             ) {
-                status = stat;
+                status = <keyof typeof RankedStatus>stat;
                 break;
             }
         }
-        return status !== "WIP"
-            ? status.charAt(0) + status.slice(1).toLowerCase()
-            : status;
+        return status !== "wip"
+            ? status.charAt(0).toUpperCase() + status.slice(1)
+            : status.toUpperCase();
     }
 
     /**

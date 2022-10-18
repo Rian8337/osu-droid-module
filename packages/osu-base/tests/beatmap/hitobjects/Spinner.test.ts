@@ -1,9 +1,9 @@
-import { modes, objectTypes, Spinner, Vector2 } from "../../../src";
+import { Modes, ObjectTypes, Spinner, Vector2 } from "../../../src";
 
 const createSpinner = (duration: number = 100) => {
     return new Spinner({
         startTime: 1000,
-        type: objectTypes.spinner,
+        type: ObjectTypes.spinner,
         endTime: 1000 + duration,
     });
 };
@@ -27,10 +27,10 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
         });
@@ -40,28 +40,28 @@ describe("Test spinner position", () => {
 
             spinner.stackHeight = 1;
 
-            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
 
             spinner.stackHeight = 2;
 
-            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
 
             spinner.stackHeight = 4;
 
-            expect(spinner.getStackedPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
         });
@@ -71,10 +71,10 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
         });
@@ -84,28 +84,28 @@ describe("Test spinner position", () => {
 
             spinner.stackHeight = 1;
 
-            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
 
             spinner.stackHeight = 2;
 
-            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
 
             spinner.stackHeight = 4;
 
-            expect(spinner.getStackedEndPosition(modes.droid)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
             );
-            expect(spinner.getStackedEndPosition(modes.osu)).toEqual(
+            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
                 playfieldCenter
             );
         });

@@ -1,10 +1,10 @@
-import { Circle, modes, objectTypes, Vector2 } from "../../../src";
+import { Circle, Modes, ObjectTypes, Vector2 } from "../../../src";
 
 const createCircle = (newCombo?: boolean) => {
     return new Circle({
         startTime: 1000,
         position: new Vector2(256, 192),
-        type: objectTypes.circle,
+        type: ObjectTypes.circle,
         newCombo: newCombo,
     });
 };
@@ -20,22 +20,22 @@ describe("Test circle position", () => {
         test("Without height", () => {
             const circle = createCircle();
 
-            expect(circle.getStackedPosition(modes.droid)).toEqual(
+            expect(circle.getStackedPosition(Modes.droid)).toEqual(
                 circle.position
             );
-            expect(circle.getStackedPosition(modes.osu)).toEqual(
+            expect(circle.getStackedPosition(Modes.osu)).toEqual(
                 circle.position
             );
         });
 
         describe("With height", () => {
-            const executeTest = (mode: modes) => {
+            const executeTest = (mode: Modes) => {
                 const circle = createCircle();
 
                 circle.stackHeight = 1;
 
                 const scale =
-                    mode === modes.droid ? circle.droidScale : circle.osuScale;
+                    mode === Modes.droid ? circle.droidScale : circle.osuScale;
 
                 let positionOffset = circle
                     .getStackedPosition(mode)
@@ -75,8 +75,8 @@ describe("Test circle position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(modes.droid));
-            test("osu!standard gamemode", () => executeTest(modes.osu));
+            test("osu!droid gamemode", () => executeTest(Modes.droid));
+            test("osu!standard gamemode", () => executeTest(Modes.osu));
         });
     });
 
@@ -84,22 +84,22 @@ describe("Test circle position", () => {
         test("Without height", () => {
             const circle = createCircle();
 
-            expect(circle.getStackedEndPosition(modes.droid)).toEqual(
+            expect(circle.getStackedEndPosition(Modes.droid)).toEqual(
                 circle.position
             );
-            expect(circle.getStackedEndPosition(modes.osu)).toEqual(
+            expect(circle.getStackedEndPosition(Modes.osu)).toEqual(
                 circle.position
             );
         });
 
         describe("With height", () => {
-            const executeTest = (mode: modes) => {
+            const executeTest = (mode: Modes) => {
                 const circle = createCircle();
 
                 circle.stackHeight = 1;
 
                 const scale =
-                    mode === modes.droid ? circle.droidScale : circle.osuScale;
+                    mode === Modes.droid ? circle.droidScale : circle.osuScale;
 
                 let positionOffset = circle
                     .getStackedEndPosition(mode)
@@ -139,8 +139,8 @@ describe("Test circle position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(modes.droid));
-            test("osu!standard gamemode", () => executeTest(modes.osu));
+            test("osu!droid gamemode", () => executeTest(Modes.droid));
+            test("osu!standard gamemode", () => executeTest(Modes.osu));
         });
     });
 });
@@ -163,29 +163,29 @@ describe("Test circle radius", () => {
     test("osu!droid gamemode", () => {
         const circle = createCircle();
 
-        expect(circle.getRadius(modes.droid)).toEqual(baseRadius);
+        expect(circle.getRadius(Modes.droid)).toEqual(baseRadius);
 
         circle.droidScale = 0.5;
 
-        expect(circle.getRadius(modes.droid)).toBeCloseTo(baseRadius / 2);
+        expect(circle.getRadius(Modes.droid)).toBeCloseTo(baseRadius / 2);
 
         circle.droidScale = 2;
 
-        expect(circle.getRadius(modes.droid)).toBeCloseTo(baseRadius * 2);
+        expect(circle.getRadius(Modes.droid)).toBeCloseTo(baseRadius * 2);
     });
 
     test("osu!standard gamemode", () => {
         const circle = createCircle();
 
-        expect(circle.getRadius(modes.osu)).toEqual(baseRadius);
+        expect(circle.getRadius(Modes.osu)).toEqual(baseRadius);
 
         circle.osuScale = 0.5;
 
-        expect(circle.getRadius(modes.osu)).toBeCloseTo(baseRadius / 2);
+        expect(circle.getRadius(Modes.osu)).toBeCloseTo(baseRadius / 2);
 
         circle.osuScale = 2;
 
-        expect(circle.getRadius(modes.osu)).toBeCloseTo(baseRadius * 2);
+        expect(circle.getRadius(Modes.osu)).toBeCloseTo(baseRadius * 2);
     });
 });
 

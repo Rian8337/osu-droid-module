@@ -1,7 +1,7 @@
 import {
     Circle,
-    modes,
-    objectTypes,
+    Modes,
+    ObjectTypes,
     PathType,
     Slider,
     SliderPath,
@@ -24,7 +24,7 @@ const createDifficultyHitObjects = () => {
             nodeSamples: [],
             speedMultiplier: 1,
             tickDistanceMultiplier: 1,
-            type: objectTypes.slider,
+            type: ObjectTypes.slider,
             repetitions: 1,
             path: new SliderPath({
                 pathType: PathType.Linear,
@@ -39,7 +39,7 @@ const createDifficultyHitObjects = () => {
         circleSize: 5.5,
         mods: [],
         speedMultiplier: 1,
-        mode: modes.osu,
+        mode: Modes.osu,
     });
 };
 

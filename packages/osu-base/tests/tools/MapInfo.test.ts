@@ -1,12 +1,12 @@
 import {
     OsuAPIResponse,
     MapInfo,
-    rankedStatus,
+    RankedStatus,
     MapStats,
     ModHidden,
     ModHardRock,
     MathUtils,
-    modes,
+    Modes,
     Mod,
 } from "../../src";
 
@@ -61,7 +61,7 @@ const getDroidStats = (
         ...beatmapInfo,
         mods: mods,
         speedMultiplier: speedMultiplier,
-    }).calculate({ mode: modes.droid });
+    }).calculate({ mode: Modes.droid });
 
     stats.cs = MathUtils.round(stats.cs!, 2);
     stats.ar = MathUtils.round(stats.ar!, 2);
@@ -150,31 +150,31 @@ test("Test BPM converter", () => {
 test("Test status converter", () => {
     const beatmapInfo = new MapInfo();
 
-    beatmapInfo.approved = rankedStatus.APPROVED;
+    beatmapInfo.approved = RankedStatus.approved;
 
     expect(beatmapInfo.convertStatus()).toBe("Approved");
 
-    beatmapInfo.approved = rankedStatus.GRAVEYARD;
+    beatmapInfo.approved = RankedStatus.graveyard;
 
     expect(beatmapInfo.convertStatus()).toBe("Graveyard");
 
-    beatmapInfo.approved = rankedStatus.LOVED;
+    beatmapInfo.approved = RankedStatus.loved;
 
     expect(beatmapInfo.convertStatus()).toBe("Loved");
 
-    beatmapInfo.approved = rankedStatus.PENDING;
+    beatmapInfo.approved = RankedStatus.pending;
 
     expect(beatmapInfo.convertStatus()).toBe("Pending");
 
-    beatmapInfo.approved = rankedStatus.QUALIFIED;
+    beatmapInfo.approved = RankedStatus.qualified;
 
     expect(beatmapInfo.convertStatus()).toBe("Qualified");
 
-    beatmapInfo.approved = rankedStatus.RANKED;
+    beatmapInfo.approved = RankedStatus.ranked;
 
     expect(beatmapInfo.convertStatus()).toBe("Ranked");
 
-    beatmapInfo.approved = rankedStatus.WIP;
+    beatmapInfo.approved = RankedStatus.wip;
 
     expect(beatmapInfo.convertStatus()).toBe("WIP");
 });
@@ -437,31 +437,31 @@ describe("Test statistics displayer", () => {
 test("Test status color", () => {
     const beatmapInfo = new MapInfo();
 
-    beatmapInfo.approved = rankedStatus.GRAVEYARD;
+    beatmapInfo.approved = RankedStatus.graveyard;
 
     expect(beatmapInfo.statusColor).toBe(16711711);
 
-    beatmapInfo.approved = rankedStatus.WIP;
+    beatmapInfo.approved = RankedStatus.wip;
 
     expect(beatmapInfo.statusColor).toBe(9442302);
 
-    beatmapInfo.approved = rankedStatus.PENDING;
+    beatmapInfo.approved = RankedStatus.pending;
 
     expect(beatmapInfo.statusColor).toBe(16312092);
 
-    beatmapInfo.approved = rankedStatus.RANKED;
+    beatmapInfo.approved = RankedStatus.ranked;
 
     expect(beatmapInfo.statusColor).toBe(2483712);
 
-    beatmapInfo.approved = rankedStatus.APPROVED;
+    beatmapInfo.approved = RankedStatus.approved;
 
     expect(beatmapInfo.statusColor).toBe(16741376);
 
-    beatmapInfo.approved = rankedStatus.QUALIFIED;
+    beatmapInfo.approved = RankedStatus.qualified;
 
     expect(beatmapInfo.statusColor).toBe(5301186);
 
-    beatmapInfo.approved = rankedStatus.LOVED;
+    beatmapInfo.approved = RankedStatus.loved;
 
     expect(beatmapInfo.statusColor).toBe(16711796);
 });

@@ -1,7 +1,7 @@
 import {
     BeatmapHitObjects,
     Circle,
-    objectTypes,
+    ObjectTypes,
     PathType,
     Slider,
     SliderPath,
@@ -21,7 +21,7 @@ const createSlider = (startTime: number = 1000) => {
     // Will generate 1 slider tick and repetitions by default
     return new Slider({
         startTime: startTime,
-        type: objectTypes.slider,
+        type: ObjectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 2,
         nodeSamples: [],
@@ -43,7 +43,7 @@ const createSlider = (startTime: number = 1000) => {
 const createSpinner = (startTime: number = 1000) =>
     new Spinner({
         startTime: startTime,
-        type: objectTypes.spinner,
+        type: ObjectTypes.spinner,
         endTime: startTime + 100,
     });
 

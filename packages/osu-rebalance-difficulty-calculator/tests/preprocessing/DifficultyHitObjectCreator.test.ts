@@ -1,10 +1,10 @@
 import {
     Slider,
     Vector2,
-    objectTypes,
+    ObjectTypes,
     SliderPath,
     PathType,
-    modes,
+    Modes,
 } from "@rian8337/osu-base";
 import { DifficultyHitObjectCreator } from "../../src";
 
@@ -21,7 +21,7 @@ test("Test extremely fast sliders", () => {
                 repetitions: 1,
                 speedMultiplier: 1,
                 tickDistanceMultiplier: 1,
-                type: objectTypes.slider,
+                type: ObjectTypes.slider,
                 path: new SliderPath({
                     pathType: PathType.Linear,
                     controlPoints: [new Vector2(300.0001, 100)],
@@ -31,14 +31,14 @@ test("Test extremely fast sliders", () => {
         ],
         circleSize: 4,
         mods: [],
-        mode: modes.droid,
+        mode: Modes.droid,
         speedMultiplier: 1,
     });
 
     const object = objects[0];
 
     expect(object.startTime).toBeCloseTo(object.endTime);
-    expect(object.object.getStackedPosition(modes.droid)).toEqual(
+    expect(object.object.getStackedPosition(Modes.droid)).toEqual(
         (<Slider>object.object).lazyEndPosition
     );
 });

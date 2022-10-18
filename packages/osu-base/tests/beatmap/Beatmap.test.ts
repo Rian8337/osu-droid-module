@@ -4,7 +4,7 @@ import {
     MapStats,
     ModHidden,
     ModRelax,
-    objectTypes,
+    ObjectTypes,
     PathType,
     Slider,
     SliderPath,
@@ -19,7 +19,7 @@ const createGlobalSliderValues = () => {
     // Will generate 1 slider tick by default
     return {
         startTime: 1000,
-        type: objectTypes.slider,
+        type: ObjectTypes.slider,
         position: new Vector2(100, 192),
         repetitions: 1,
         nodeSamples: [],
@@ -248,7 +248,7 @@ test("Test max combo getter", () => {
     beatmap.hitObjects.add(
         new Spinner({
             startTime: 1000,
-            type: objectTypes.spinner,
+            type: ObjectTypes.spinner,
             endTime: 1100,
         })
     );

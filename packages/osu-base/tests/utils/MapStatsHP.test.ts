@@ -2,13 +2,13 @@ import {
     MapStats,
     Mod,
     ModEasy,
-    modes,
+    Modes,
     ModHardRock,
     ModReallyEasy,
 } from "../../src";
 
 describe("Test HP conversion", () => {
-    const createStats = (hp: number, mode: modes, mods: Mod[] = []) => {
+    const createStats = (hp: number, mode: Modes, mods: Mod[] = []) => {
         return new MapStats({
             hp: hp,
             mods: mods,
@@ -17,31 +17,31 @@ describe("Test HP conversion", () => {
 
     describe("Test osu!droid HP conversion", () => {
         test("HP 6 without mods", () => {
-            const stats = createStats(6, modes.droid);
+            const stats = createStats(6, Modes.droid);
 
             expect(stats.hp).toBeCloseTo(6);
         });
 
         test("HP 7 with HR", () => {
-            const stats = createStats(7, modes.droid, [new ModHardRock()]);
+            const stats = createStats(7, Modes.droid, [new ModHardRock()]);
 
             expect(stats.hp).toBeCloseTo(9.8);
         });
 
         test("HP 10 with EZ", () => {
-            const stats = createStats(10, modes.droid, [new ModEasy()]);
+            const stats = createStats(10, Modes.droid, [new ModEasy()]);
 
             expect(stats.hp).toBeCloseTo(5);
         });
 
         test("HP 9 with REZ", () => {
-            const stats = createStats(9, modes.droid, [new ModReallyEasy()]);
+            const stats = createStats(9, Modes.droid, [new ModReallyEasy()]);
 
             expect(stats.hp).toBeCloseTo(4.5);
         });
 
         test("HP 5 with HR + REZ", () => {
-            const stats = createStats(5, modes.droid, [
+            const stats = createStats(5, Modes.droid, [
                 new ModHardRock(),
                 new ModReallyEasy(),
             ]);
@@ -52,31 +52,31 @@ describe("Test HP conversion", () => {
 
     describe("Test osu!standard HP conversion", () => {
         test("HP 6 without mods", () => {
-            const stats = createStats(6, modes.osu);
+            const stats = createStats(6, Modes.osu);
 
             expect(stats.hp).toBeCloseTo(6);
         });
 
         test("HP 7 with HR", () => {
-            const stats = createStats(7, modes.osu, [new ModHardRock()]);
+            const stats = createStats(7, Modes.osu, [new ModHardRock()]);
 
             expect(stats.hp).toBeCloseTo(9.8);
         });
 
         test("HP 10 with EZ", () => {
-            const stats = createStats(10, modes.osu, [new ModEasy()]);
+            const stats = createStats(10, Modes.osu, [new ModEasy()]);
 
             expect(stats.hp).toBeCloseTo(5);
         });
 
         test("HP 9 with REZ", () => {
-            const stats = createStats(9, modes.osu, [new ModReallyEasy()]);
+            const stats = createStats(9, Modes.osu, [new ModReallyEasy()]);
 
             expect(stats.hp).toBeCloseTo(9);
         });
 
         test("HP 5 with HR + REZ", () => {
-            const stats = createStats(5, modes.osu, [
+            const stats = createStats(5, Modes.osu, [
                 new ModHardRock(),
                 new ModReallyEasy(),
             ]);
