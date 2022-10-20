@@ -30,7 +30,7 @@
     "url": "https://github.com/Rian8337/osu-droid-module/issues"
   },
   "dependencies": {
-    "dotenv": "^14.2.0",
+    "dotenv": "^16.0.3",
     "lodash.clonedeep": "^4.5.0",
     "request": "^2.88.2"
   },
