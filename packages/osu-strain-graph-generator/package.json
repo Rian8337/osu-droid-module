@@ -1,42 +1,42 @@
 {
-  "name": "@rian8337/osu-strain-graph-generator",
-  "version": "3.0.0-beta.16",
-  "description": "A module for generating strain graph of an osu!standard beatmap.",
-  "keywords": [
-    "osu",
-    "osu-strain-graph"
-  ],
-  "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
-  "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "types": "typings/index.d.ts",
-  "typedocMain": "src/index.ts",
-  "files": [
-    "dist/**",
-    "typings/**"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rian8337/osu-droid-module.git"
-  },
-  "scripts": {
-    "build": "rollup -c ../../rollup.config.js",
-    "lint": "eslint --ext ts",
-    "prepare": "npm run build",
-    "test": "echo \"No tests for this module\""
-  },
-  "bugs": {
-    "url": "https://github.com/Rian8337/osu-droid-module/issues"
-  },
-  "dependencies": {
-    "@rian8337/osu-base": "^3.0.0-beta.12",
-    "@rian8337/osu-difficulty-calculator": "^3.0.0-beta.14",
-    "@rian8337/osu-rebalance-difficulty-calculator": "^3.0.0-beta.16",
-    "canvas": "^2.9.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
+    "name": "@rian8337/osu-strain-graph-generator",
+    "version": "3.0.0-beta.17",
+    "description": "A module for generating strain graph of an osu!standard beatmap.",
+    "keywords": [
+        "osu",
+        "osu-strain-graph"
+    ],
+    "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
+    "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "typings/index.d.ts",
+    "typedocMain": "src/index.ts",
+    "files": [
+        "dist/**",
+        "typings/**"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Rian8337/osu-droid-module.git"
+    },
+    "scripts": {
+        "build": "rollup -c ../../rollup.config.js",
+        "lint": "eslint --ext ts",
+        "prepare": "npm run build",
+        "test": "echo \"No tests for this module\""
+    },
+    "bugs": {
+        "url": "https://github.com/Rian8337/osu-droid-module/issues"
+    },
+    "dependencies": {
+        "@rian8337/osu-base": "^3.0.0-beta.17",
+        "@rian8337/osu-difficulty-calculator": "^3.0.0-beta.17",
+        "@rian8337/osu-rebalance-difficulty-calculator": "^3.0.0-beta.17",
+        "canvas": "^2.9.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }
