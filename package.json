@@ -19,7 +19,6 @@
     "cross-env": "^7.0.3",
     "eslint": "^8.7.0",
     "jest": "^27.4.7",
-    "lerna": "^4.0.0",
     "prettier": "^2.5.1",
     "rollup": "^2.73.0",
     "rollup-plugin-dts": "^4.2.1",
@@ -53,5 +52,8 @@
   },
   "prettier": {
     "tabWidth": 4
+  },
+  "dependencies": {
+    "lerna": "^6.0.1"
   }
 }
