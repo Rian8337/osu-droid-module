@@ -4,7 +4,7 @@ import {
     Accuracy,
 } from "@rian8337/osu-base";
 import { Score } from "./Score";
-import { MD5 } from "crypto-js";
+import { createHash } from "crypto";
 
 interface ExtraInformation {
     readonly rank: number;
@@ -138,9 +138,9 @@ export class Player {
         this.accuracy = parseFloat((parseFloat(headerRes[5]) * 100).toFixed(2));
         this.email = headerRes[6];
         this.location = headerRes[7];
-        this.avatarURL = `https://osudroid.moe/user/avatar?id=${MD5(
+        this.avatarURL = `https://osudroid.moe/user/avatar?id=${createHash("md5").update(
             this.email.trim().toLowerCase()
-        ).toString()}&s=200`;
+        ).digest("hex")}&s=200`;
         this.rank = obj.rank;
 
         const recent: ExtraInformation["recent"] = obj.recent;
