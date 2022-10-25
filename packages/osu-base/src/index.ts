@@ -87,6 +87,7 @@ export * from "./beatmap/timings/SampleControlPoint";
 export * from "./beatmap/timings/SampleControlPointManager";
 export * from "./beatmap/hitobjects/Slider";
 export * from "./beatmap/hitobjects/sliderObjects/SliderHead";
+export * from "./beatmap/hitobjects/sliderObjects/SliderNestedHitObject";
 export * from "./utils/SliderPath";
 export * from "./beatmap/hitobjects/sliderObjects/SliderRepeat";
 export * from "./beatmap/hitobjects/sliderObjects/SliderTick";

@@ -6,6 +6,7 @@ import { SliderRepeat } from "./sliderObjects/SliderRepeat";
 import { SliderTick } from "./sliderObjects/SliderTick";
 import { SliderTail } from "./sliderObjects/SliderTail";
 import { HitSampleInfo } from "./HitSampleInfo";
+import { SliderNestedHitObject } from "./sliderObjects/SliderNestedHitObject";
 
 /**
  * Represents a slider in a beatmap.
@@ -14,7 +15,7 @@ export class Slider extends HitObject {
     /**
      * The nested hitobjects of the slider. Consists of headcircle (sliderhead), slider ticks, repeat points, and tailcircle (sliderend).
      */
-    readonly nestedHitObjects: HitObject[] = [];
+    readonly nestedHitObjects: SliderNestedHitObject[] = [];
 
     /**
      * The slider's path.

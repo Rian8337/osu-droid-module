@@ -6,6 +6,7 @@ import {
     PlaceableHitObject,
     Precision,
     Slider,
+    SliderNestedHitObject,
     SliderRepeat,
     Spinner,
     Vector2,
@@ -348,7 +349,8 @@ export class DifficultyHitObjectCreator {
             this.normalizedRadius / slider.getRadius(this.mode);
 
         for (let i = 1; i < slider.nestedHitObjects.length; ++i) {
-            const currentMovementObject: HitObject = slider.nestedHitObjects[i];
+            const currentMovementObject: SliderNestedHitObject =
+                slider.nestedHitObjects[i];
 
             let currentMovement: Vector2 = currentMovementObject
                 .getStackedPosition(this.mode)

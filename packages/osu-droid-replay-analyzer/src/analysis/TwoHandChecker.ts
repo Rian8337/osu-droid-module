@@ -10,8 +10,8 @@ import {
     Vector2,
     Beatmap,
     Circle,
-    HitObject,
     Modes,
+    SliderNestedHitObject,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -681,7 +681,7 @@ export class TwoHandChecker {
                 continue;
             }
 
-            const object: HitObject =
+            const object: SliderNestedHitObject =
                 indexedHitObject.object.object.nestedHitObjects[i];
 
             let j = cursorLoopIndex;
