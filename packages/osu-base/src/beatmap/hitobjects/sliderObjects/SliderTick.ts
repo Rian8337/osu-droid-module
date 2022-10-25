@@ -21,10 +21,7 @@ export class SliderTick extends HitObject {
         spanIndex: number;
         spanStartTime: number;
     }) {
-        super({
-            startTime: values.startTime,
-            position: values.position,
-        });
+        super(values);
 
         this.spanIndex = values.spanIndex;
         this.spanStartTime = values.spanStartTime;

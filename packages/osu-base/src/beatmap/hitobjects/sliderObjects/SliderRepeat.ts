@@ -21,10 +21,7 @@ export class SliderRepeat extends HitObject {
         repeatIndex: number;
         spanDuration: number;
     }) {
-        super({
-            startTime: values.startTime,
-            position: values.position,
-        });
+        super(values);
         this.repeatIndex = values.repeatIndex;
         this.spanDuration = values.spanDuration;
     }
