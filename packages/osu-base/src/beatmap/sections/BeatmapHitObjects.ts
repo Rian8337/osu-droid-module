@@ -1,5 +1,5 @@
 import { Circle } from "../hitobjects/Circle";
-import { HitObject } from "../hitobjects/HitObject";
+import { PlaceableHitObject } from "../hitobjects/PlaceableHitObject";
 import { Slider } from "../hitobjects/Slider";
 import { SliderRepeat } from "../hitobjects/sliderObjects/SliderRepeat";
 import { SliderTick } from "../hitobjects/sliderObjects/SliderTick";
@@ -9,12 +9,12 @@ import { Spinner } from "../hitobjects/Spinner";
  * Contains information about hit objects of a beatmap.
  */
 export class BeatmapHitObjects {
-    private _objects: HitObject[] = [];
+    private _objects: PlaceableHitObject[] = [];
 
     /**
      * The objects of the beatmap.
      */
-    get objects(): readonly HitObject[] {
+    get objects(): readonly PlaceableHitObject[] {
         return this._objects;
     }
 
@@ -77,7 +77,7 @@ export class BeatmapHitObjects {
      *
      * @param objects The hitobjects to add.
      */
-    add(...objects: (Circle | Slider | Spinner)[]): void {
+    add(...objects: PlaceableHitObject[]): void {
         for (const object of objects) {
             // Objects may be out of order *only* if a user has manually edited an .osu file.
             // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
@@ -112,8 +112,8 @@ export class BeatmapHitObjects {
      * @param index The index of the hitobject to remove.
      * @returns The hitobject that was removed.
      */
-    removeAt(index: number): Circle | Slider | Spinner {
-        const object: HitObject = this._objects.splice(index, 1)[0];
+    removeAt(index: number): PlaceableHitObject {
+        const object: PlaceableHitObject = this._objects.splice(index, 1)[0];
 
         if (object instanceof Circle) {
             --this._circles;

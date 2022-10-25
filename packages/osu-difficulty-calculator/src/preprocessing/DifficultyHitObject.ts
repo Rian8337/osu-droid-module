@@ -1,8 +1,8 @@
 import {
-    HitObject,
     MathUtils,
     Modes,
     ModHidden,
+    PlaceableHitObject,
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
@@ -14,7 +14,7 @@ export class DifficultyHitObject {
     /**
      * The underlying hitobject.
      */
-    readonly object: HitObject;
+    readonly object: PlaceableHitObject;
 
     /**
      * The index of this hitobject in the list of all hitobjects.
@@ -167,7 +167,7 @@ export class DifficultyHitObject {
      * @param object The underlying hitobject.
      * @param hitObjects All difficulty hitobjects in the processed beatmap.
      */
-    constructor(object: HitObject, hitObjects: DifficultyHitObject[]) {
+    constructor(object: PlaceableHitObject, hitObjects: DifficultyHitObject[]) {
         this.object = object;
         this.hitObjects = hitObjects;
     }

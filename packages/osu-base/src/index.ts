@@ -74,6 +74,7 @@ export * from "./constants/Modes";
 export * from "./constants/ObjectTypes";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
+export * from "./beatmap/hitobjects/PlaceableHitObject";
 export * from "./utils/Playfield";
 export * from "./mathutil/Polynomial";
 export * from "./utils/Precision";

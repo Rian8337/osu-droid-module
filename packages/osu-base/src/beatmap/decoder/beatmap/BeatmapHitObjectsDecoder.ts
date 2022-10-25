@@ -9,8 +9,8 @@ import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
 import { Beatmap } from "../../Beatmap";
 import { Circle } from "../../hitobjects/Circle";
-import { HitObject } from "../../hitobjects/HitObject";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";
+import { PlaceableHitObject } from "../../hitobjects/PlaceableHitObject";
 import { SampleBankInfo } from "../../hitobjects/SampleBankInfo";
 import { Slider } from "../../hitobjects/Slider";
 import { Spinner } from "../../hitobjects/Spinner";
@@ -63,7 +63,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         const bankInfo: SampleBankInfo = new SampleBankInfo();
 
-        let object: HitObject | null = null;
+        let object: PlaceableHitObject | null = null;
 
         if (type & ObjectTypes.circle) {
             newCombo ||= this.forceNewCombo;
@@ -311,13 +311,13 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                     n < this.target.hitObjects.objects.length;
                     ++n
                 ) {
-                    const stackBaseObject: HitObject =
+                    const stackBaseObject: PlaceableHitObject =
                         this.target.hitObjects.objects[stackBaseIndex];
                     if (stackBaseObject instanceof Spinner) {
                         break;
                     }
 
-                    const objectN: HitObject =
+                    const objectN: PlaceableHitObject =
                         this.target.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         break;
@@ -362,7 +362,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
         for (let i = extendedEndIndex; i > startIndex; --i) {
             let n: number = i;
 
-            let objectI: HitObject = this.target.hitObjects.objects[i];
+            let objectI: PlaceableHitObject = this.target.hitObjects.objects[i];
             if (
                 objectI.stackHeight !== 0 ||
                 objectI.type & ObjectTypes.spinner
@@ -372,7 +372,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
             if (objectI.type & ObjectTypes.circle) {
                 while (--n >= 0) {
-                    const objectN: HitObject =
+                    const objectN: PlaceableHitObject =
                         this.target.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         continue;
@@ -400,7 +400,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                         const offset: number =
                             objectI.stackHeight - objectN.stackHeight + 1;
                         for (let j = n + 1; j <= i; ++j) {
-                            const objectJ: HitObject =
+                            const objectJ: PlaceableHitObject =
                                 this.target.hitObjects.objects[j];
                             if (
                                 (<Slider>objectN).endPosition.getDistance(
@@ -423,7 +423,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 }
             } else if (objectI instanceof Slider) {
                 while (--n >= startIndex) {
-                    const objectN: HitObject =
+                    const objectN: PlaceableHitObject =
                         this.target.hitObjects.objects[n];
                     if (objectN instanceof Spinner) {
                         continue;
@@ -473,7 +473,8 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
         }
 
         for (let i = 0; i < this.target.hitObjects.objects.length; ++i) {
-            const currentObject: HitObject = this.target.hitObjects.objects[i];
+            const currentObject: PlaceableHitObject =
+                this.target.hitObjects.objects[i];
 
             if (
                 currentObject.stackHeight !== 0 &&

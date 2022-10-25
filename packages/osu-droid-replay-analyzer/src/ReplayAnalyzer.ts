@@ -2,11 +2,11 @@ import {
     Accuracy,
     Beatmap,
     DroidAPIRequestBuilder,
-    HitObject,
     MathUtils,
     ModFlashlight,
     ModHidden,
     ModUtil,
+    PlaceableHitObject,
     RequestResponse,
     Spinner,
 } from "@rian8337/osu-base";
@@ -422,7 +422,7 @@ export class ReplayAnalyzer {
             let hit0: number = 0;
             let grantsGekiOrKatu: boolean = true;
 
-            const objects: readonly HitObject[] = (
+            const objects: readonly PlaceableHitObject[] = (
                 this.beatmap instanceof DroidDifficultyCalculator ||
                 this.beatmap instanceof RebalanceDroidDifficultyCalculator
                     ? this.beatmap.beatmap
@@ -540,7 +540,7 @@ export class ReplayAnalyzer {
         let positiveTotal: number = 0;
         let negativeTotal: number = 0;
 
-        const objects: readonly HitObject[] = (
+        const objects: readonly PlaceableHitObject[] = (
             this.beatmap instanceof DroidDifficultyCalculator ||
             this.beatmap instanceof RebalanceDroidDifficultyCalculator
                 ? this.beatmap.beatmap
@@ -549,7 +549,7 @@ export class ReplayAnalyzer {
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v: ReplayObjectData = hitObjectData[i];
-            const o: HitObject = objects[i];
+            const o: PlaceableHitObject = objects[i];
 
             if (o instanceof Spinner || v.result === HitResult.miss) {
                 continue;

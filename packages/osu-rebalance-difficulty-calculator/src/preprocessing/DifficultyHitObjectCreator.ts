@@ -3,6 +3,7 @@ import {
     MapStats,
     Mod,
     Modes,
+    PlaceableHitObject,
     Precision,
     Slider,
     SliderRepeat,
@@ -146,8 +147,8 @@ export class DifficultyHitObjectCreator {
             // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
             // while the second array contains objects after the current object ends.
             // For overlapping factor, we also need to consider previous visible objects.
-            const prevVisibleObjects: HitObject[] = [];
-            const nextVisibleObjects: HitObject[] = [];
+            const prevVisibleObjects: PlaceableHitObject[] = [];
+            const nextVisibleObjects: PlaceableHitObject[] = [];
 
             for (let j = i + 1; j < params.objects.length; ++j) {
                 const o: HitObject = params.objects[j];
@@ -438,7 +439,7 @@ export class DifficultyHitObjectCreator {
     /**
      * Returns the end cursor position of a hitobject.
      */
-    private getEndCursorPosition(object: HitObject): Vector2 {
+    private getEndCursorPosition(object: PlaceableHitObject): Vector2 {
         let pos: Vector2 = object.getStackedPosition(this.mode);
 
         if (object instanceof Slider) {

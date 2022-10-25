@@ -1,8 +1,8 @@
 import { HitSoundType } from "../../../constants/HitSoundType";
 import { SampleBank } from "../../../constants/SampleBank";
 import { Vector2 } from "../../../mathutil/Vector2";
-import { HitObject } from "../../hitobjects/HitObject";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";
+import { PlaceableHitObject } from "../../hitobjects/PlaceableHitObject";
 import { Slider } from "../../hitobjects/Slider";
 import { Spinner } from "../../hitobjects/Spinner";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
@@ -21,7 +21,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         }
     }
 
-    private encodeHitObject(object: HitObject): void {
+    private encodeHitObject(object: PlaceableHitObject): void {
         this.write(`${object.position.x},`);
         this.write(`${object.position.y},`);
         this.write(`${object.startTime},`);

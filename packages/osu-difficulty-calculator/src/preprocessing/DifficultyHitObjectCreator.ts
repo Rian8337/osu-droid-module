@@ -3,6 +3,7 @@ import {
     MapStats,
     Mod,
     Modes,
+    PlaceableHitObject,
     Precision,
     Slider,
     SliderRepeat,
@@ -143,10 +144,10 @@ export class DifficultyHitObjectCreator {
                 continue;
             }
 
-            const visibleObjects: HitObject[] = [];
+            const visibleObjects: PlaceableHitObject[] = [];
 
             for (let j = i + 1; j < params.objects.length; ++j) {
-                const o: HitObject = params.objects[j];
+                const o: PlaceableHitObject = params.objects[j];
 
                 if (o instanceof Spinner) {
                     continue;
@@ -419,7 +420,7 @@ export class DifficultyHitObjectCreator {
     /**
      * Returns the end cursor position of a hitobject.
      */
-    private getEndCursorPosition(object: HitObject): Vector2 {
+    private getEndCursorPosition(object: PlaceableHitObject): Vector2 {
         let pos: Vector2 = object.getStackedPosition(this.mode);
 
         if (object instanceof Slider) {
