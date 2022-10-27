@@ -562,9 +562,9 @@ export abstract class ErrorFunction {
                 case z < 1.25:
                     // Worst case absolute error found: 4.01854729e-21
                     r =
-                        Polynomial.evaluate(z - 1.25, this.erfImpDn) /
-                        Polynomial.evaluate(z - 1.25, this.erfImpDd);
-                    b = 0.4898625016;
+                        Polynomial.evaluate(z - 0.75, this.erfImpCn) /
+                        Polynomial.evaluate(z - 0.75, this.erfImpCd);
+                    b = 0.419990927;
                     break;
                 case z < 2.25:
                     // Worst case absolute error found: 2.866005373e-21
