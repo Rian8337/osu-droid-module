@@ -571,7 +571,7 @@ export class ReplayAnalyzer {
         // https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821
         //
         // In such cases, the slider is skipped.
-        const sliderbreakHitOffset: number = hitWindow50 + 13;
+        const sliderbreakHitOffset: number = Math.floor(hitWindow50) + 13;
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v: ReplayObjectData = hitObjectData[i];
