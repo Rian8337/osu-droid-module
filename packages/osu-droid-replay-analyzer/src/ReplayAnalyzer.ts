@@ -2,12 +2,16 @@ import {
     Accuracy,
     Beatmap,
     DroidAPIRequestBuilder,
+    DroidHitWindow,
+    MapStats,
     MathUtils,
     ModFlashlight,
     ModHidden,
+    ModPrecise,
     ModUtil,
     PlaceableHitObject,
     RequestResponse,
+    Slider,
     Spinner,
 } from "@rian8337/osu-base";
 import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
@@ -540,12 +544,34 @@ export class ReplayAnalyzer {
         let positiveTotal: number = 0;
         let negativeTotal: number = 0;
 
-        const objects: readonly PlaceableHitObject[] = (
+        const beatmap: Beatmap =
             this.beatmap instanceof DroidDifficultyCalculator ||
             this.beatmap instanceof RebalanceDroidDifficultyCalculator
                 ? this.beatmap.beatmap
-                : this.beatmap
-        ).hitObjects.objects;
+                : this.beatmap;
+        const objects: readonly PlaceableHitObject[] =
+            beatmap.hitObjects.objects;
+
+        const stats: MapStats = new MapStats({
+            od: beatmap.difficulty.od,
+            mods: this.data.convertedMods.filter(
+                (m) =>
+                    !ModUtil.speedChangingMods.some(
+                        (v) => v.acronym === m.acronym
+                    )
+            ),
+        }).calculate();
+        const hitWindow50: number = new DroidHitWindow(
+            stats.od!
+        ).hitWindowFor50(
+            this.data.convertedMods.some((m) => m instanceof ModPrecise)
+        );
+
+        // The accuracy of sliders is set to (50 hit window)ms + 13ms if their head was not hit:
+        // https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821
+        //
+        // In such cases, the slider is skipped.
+        const sliderbreakHitOffset: number = hitWindow50 + 13;
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v: ReplayObjectData = hitObjectData[i];
@@ -556,6 +582,10 @@ export class ReplayAnalyzer {
             }
 
             const accuracy: number = v.accuracy;
+
+            if (o instanceof Slider && v.accuracy === sliderbreakHitOffset) {
+                continue;
+            }
 
             if (accuracy >= 0) {
                 positiveTotal += accuracy;
@@ -571,12 +601,26 @@ export class ReplayAnalyzer {
             negativeAvg: negativeTotal / negativeCount || 0,
             unstableRate:
                 MathUtils.calculateStandardDeviation(
-                    hitObjectData.map((v, i) =>
-                        v.result !== HitResult.miss &&
-                        !(objects[i] instanceof Spinner)
-                            ? v.accuracy
-                            : 0
-                    )
+                    hitObjectData.map((v, i) => {
+                        if (v.result === HitResult.miss) {
+                            return 0;
+                        }
+
+                        const o: PlaceableHitObject = objects[i];
+
+                        if (o instanceof Spinner) {
+                            return 0;
+                        }
+
+                        if (
+                            o instanceof Slider &&
+                            v.accuracy === sliderbreakHitOffset
+                        ) {
+                            return 0;
+                        }
+
+                        return v.accuracy;
+                    })
                 ) * 10,
         };
     }
