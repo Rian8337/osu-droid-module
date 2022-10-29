@@ -243,19 +243,36 @@ export class SliderPath {
     }
 
     /**
-     * Returns the index of distance.
+     * Binary searches the cumulative length array and returns the
+     * index at which `arr[index] >= d`.
+     * 
+     * @param d The distance to search.
+     * @returns The index.
      */
     private indexOfDistance(d: number): number {
-        const index: number = this.cumulativeLength.indexOf(d);
+        if (this.cumulativeLength.length === 0 || d < this.cumulativeLength[0]) {
+            return 0;
+        }
 
-        if (index < 0) {
-            for (let i = 0; i < this.cumulativeLength.length; ++i) {
-                if (this.cumulativeLength[i] > d) {
-                    return i;
-                }
-            }
+        if (d >= this.cumulativeLength.at(-1)!) {
             return this.cumulativeLength.length;
         }
-        return index;
+
+        let l: number = 0;
+        let r: number = this.cumulativeLength.length - 2;
+
+        while (l <= r) {
+            const pivot: number = l + ((r - l) >> 1);
+
+            if (this.cumulativeLength[pivot] < d) {
+                l = pivot + 1;
+            } else if (this.cumulativeLength[pivot] > d) {
+                r = pivot - 1;
+            } else {
+                return pivot;
+            }
+        }
+
+        return l;
     }
 }
