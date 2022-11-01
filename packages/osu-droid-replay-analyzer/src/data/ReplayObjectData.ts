@@ -10,6 +10,21 @@ import { HitResult } from "../constants/HitResult";
 export class ReplayObjectData {
     /**
      * The offset of which the hitobject was hit in milliseconds.
+     * 
+     * For circles, this is the offset at which the circle was hit.
+     * 
+     * For sliders, this is the offset at which the slider head was hit. For
+     * sliderbreaks, the accuracy would be `(hit window 50)ms + 13ms` ([game source code](https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821)).
+     * 
+     * For spinners, this is the total amount at which the spinner was spinned:
+     * ```js
+     * const rotations = Math.floor(data.accuracy / 4);
+     * ```
+     * The remainder of the division denotes the hit result of the spinner:
+     * - `HitResult.great`: 3
+     * - `HitResult.good`: 2
+     * - `HitResult.meh`: 1
+     * - `HitResult.miss`: 0
      */
     accuracy: number;
 
