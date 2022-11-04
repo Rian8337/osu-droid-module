@@ -9,8 +9,6 @@ import { HitResult } from "../constants/HitResult";
  */
 export class ReplayObjectData {
     /**
-     * The offset of which the hitobject was hit in milliseconds.
-     * 
      * For circles, this is the offset at which the circle was hit.
      * 
      * For sliders, this is the offset at which the slider head was hit. For
@@ -31,7 +29,7 @@ export class ReplayObjectData {
     /**
      * The tickset of the hitobject.
      *
-     * This is used to determine whether or not a slider event (tick/repeat/end) is hit based on the order they appear.
+     * This is used to determine whether or not a slider event (tick, repeat, and end) is hit based on the order they appear.
      */
     tickset: boolean[];
 
