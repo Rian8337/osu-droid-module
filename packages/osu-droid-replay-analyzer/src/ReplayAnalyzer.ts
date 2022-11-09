@@ -400,10 +400,11 @@ export class ReplayAnalyzer {
                 }
                 // Int/int division in Java; numbers must be truncated to get actual number
                 for (let j = 0; j < len * 8; j++) {
-                    replayObjectData.tickset[j] =
+                    replayObjectData.tickset.push(
                         (bytes[len - Math.trunc(j / 8) - 1] &
                             (1 << Math.trunc(j % 8))) !==
-                        0;
+                            0
+                    );
                 }
             }
 
