@@ -67,7 +67,7 @@ export class Vector2 {
      * The length of this vector.
      */
     get length(): number {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        return Math.hypot(this.x, this.y);
     }
 
     /**
@@ -97,9 +97,17 @@ export class Vector2 {
      * @returns The distance between this vector and the other vector.
      */
     getDistance(vec: Vector2): number {
-        const x: number = this.x - vec.x;
-        const y: number = this.y - vec.y;
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        return Math.hypot(this.x - vec.x, this.y - vec.y);
+    }
+
+    /**
+     * Gets the angle between this vector and another vector.
+     *
+     * @param vec The other vector.
+     * @returns The angle between this vector and the other vector.
+     */
+    getAngle(vec: Vector2): number {
+        return Math.atan2(vec.y - this.y, vec.x - this.x);
     }
 
     /**
