@@ -245,12 +245,15 @@ export class SliderPath {
     /**
      * Binary searches the cumulative length array and returns the
      * index at which `arr[index] >= d`.
-     * 
+     *
      * @param d The distance to search.
      * @returns The index.
      */
     private indexOfDistance(d: number): number {
-        if (this.cumulativeLength.length === 0 || d < this.cumulativeLength[0]) {
+        if (
+            this.cumulativeLength.length === 0 ||
+            d < this.cumulativeLength[0]
+        ) {
             return 0;
         }
 
