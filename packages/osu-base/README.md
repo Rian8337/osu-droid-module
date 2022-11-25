@@ -136,7 +136,7 @@ if (!beatmapInfo.title) {
 }
 
 // Decoded beatmap can be accessed via the `map` field
-console.log(beatmapInfo.map);
+console.log(beatmapInfo.beatmap);
 ```
 
 #### Not retrieving beatmap file
