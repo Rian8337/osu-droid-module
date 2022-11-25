@@ -573,20 +573,25 @@ export class ReplayAnalyzer {
         //
         // In such cases, the slider is skipped.
         const sliderbreakHitOffset: number = Math.floor(hitWindow50) + 13;
+        const accuracies: number[] = [];
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v: ReplayObjectData = hitObjectData[i];
             const o: PlaceableHitObject = objects[i];
 
             if (o instanceof Spinner || v.result === HitResult.miss) {
+                accuracies.push(0);
                 continue;
             }
 
             const accuracy: number = v.accuracy;
 
             if (o instanceof Slider && v.accuracy === sliderbreakHitOffset) {
+                accuracies.push(0);
                 continue;
             }
+
+            accuracies.push(accuracy);
 
             if (accuracy >= 0) {
                 positiveTotal += accuracy;
@@ -600,29 +605,7 @@ export class ReplayAnalyzer {
         return {
             positiveAvg: positiveTotal / positiveCount || 0,
             negativeAvg: negativeTotal / negativeCount || 0,
-            unstableRate:
-                MathUtils.calculateStandardDeviation(
-                    hitObjectData.map((v, i) => {
-                        if (v.result === HitResult.miss) {
-                            return 0;
-                        }
-
-                        const o: PlaceableHitObject = objects[i];
-
-                        if (o instanceof Spinner) {
-                            return 0;
-                        }
-
-                        if (
-                            o instanceof Slider &&
-                            v.accuracy === sliderbreakHitOffset
-                        ) {
-                            return 0;
-                        }
-
-                        return v.accuracy;
-                    })
-                ) * 10,
+            unstableRate: MathUtils.calculateStandardDeviation(accuracies) * 10,
         };
     }
 
