@@ -46,12 +46,9 @@ export abstract class DifficultyCalculator {
     };
 
     /**
-     * Additional data that is used in performance calculation.
+     * Holds data that can be used to calculate performance points.
      */
-    readonly attributes: DifficultyAttributes = {
-        speedNoteCount: 0,
-        sliderFactor: 1,
-    };
+    abstract readonly attributes: DifficultyAttributes;
 
     protected readonly sectionLength: number = 400;
     protected abstract readonly difficultyMultiplier: number;
@@ -94,6 +91,7 @@ export abstract class DifficultyCalculator {
             oldStatistics: options?.stats?.oldStatistics,
         }).calculate({ mode: this.mode });
 
+        this.populateDifficultyAttributes();
         this.generateDifficultyHitObjects();
 
         this.calculateAll();
@@ -156,6 +154,19 @@ export abstract class DifficultyCalculator {
      * Creates skills to be calculated.
      */
     protected abstract createSkills(): StrainSkill[];
+
+    /**
+     * Populates the stored difficulty attributes with necessary data.
+     */
+    protected populateDifficultyAttributes(): void {
+        this.attributes.approachRate = this.stats.ar!;
+        this.attributes.hitCircleCount = this.beatmap.hitObjects.circles;
+        this.attributes.maxCombo = this.beatmap.maxCombo;
+        this.attributes.mods = this.mods.slice();
+        this.attributes.overallDifficulty = this.stats.od!;
+        this.attributes.sliderCount = this.beatmap.hitObjects.sliders;
+        this.attributes.spinnerCount = this.beatmap.hitObjects.spinners;
+    }
 
     /**
      * Calculates the star rating value of a difficulty.

@@ -6,6 +6,7 @@ import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
+import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -35,6 +36,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * The visual star rating of the beatmap.
      */
     visual: number = 0;
+
+    override readonly attributes: DroidDifficultyAttributes = {
+        tapDifficulty: 0,
+        rhythmDifficulty: 0,
+        visualDifficulty: 0,
+        mods: [],
+        starRating: 0,
+        maxCombo: 0,
+        aimDifficulty: 0,
+        flashlightDifficulty: 0,
+        speedNoteCount: 0,
+        sliderFactor: 0,
+        approachRate: 0,
+        overallDifficulty: 0,
+        hitCircleCount: 0,
+        sliderCount: 0,
+        spinnerCount: 0,
+    };
 
     protected override readonly difficultyMultiplier: number = 0.18;
     protected override readonly mode: Modes = Modes.droid;
@@ -251,6 +270,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.aim *= 0.9;
         }
+
+        this.attributes.aimDifficulty = this.aim;
     }
 
     /**
@@ -261,7 +282,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     private postCalculateTap(tapSkill: DroidTap): void {
         this.strainPeaks.speed = tapSkill.strainPeaks;
 
-        this.tap = this.starValue(tapSkill.difficultyValue());
+        this.tap = this.attributes.tapDifficulty = this.starValue(
+            tapSkill.difficultyValue()
+        );
     }
 
     /**
@@ -287,7 +310,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * @param rhythmSkill The rhythm skill.
      */
     private postCalculateRhythm(rhythmSkill: DroidRhythm): void {
-        this.rhythm = this.mods.some((m) => m instanceof ModRelax)
+        this.rhythm = this.attributes.rhythmDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax
+        )
             ? 0
             : this.starValue(rhythmSkill.difficultyValue());
     }
@@ -300,7 +325,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.flashlight = this.attributes.flashlightDifficulty = this.starValue(
+            flashlightSkill.difficultyValue()
+        );
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.flashlight *= 0.7;
@@ -313,7 +340,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * @param visualSkill The visual skill.
      */
     private postCalculateVisual(visualSkill: DroidVisual): void {
-        this.visual = this.mods.some((m) => m instanceof ModRelax)
+        this.visual = this.attributes.visualDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax
+        )
             ? 0
             : this.starValue(visualSkill.difficultyValue());
     }

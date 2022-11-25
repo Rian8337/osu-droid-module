@@ -5,14 +5,15 @@ import {
     ModScoreV2,
     ModFlashlight,
     Modes,
+    Utils,
 } from "@rian8337/osu-base";
-import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
  */
-export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficultyCalculator> {
+export class OsuPerformanceCalculator extends PerformanceCalculator {
     /**
      * The aim performance value.
      */
@@ -32,6 +33,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * The flashlight performance value.
      */
     flashlight: number = 0;
+
+    override readonly difficultyAttributes: OsuDifficultyAttributes;
 
     protected override finalMultiplier = 1.14;
     protected override readonly mode: Modes = Modes.osu;
@@ -55,19 +58,24 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     }
 
     /**
+     * @param difficultyAttributes The difficulty attributes to calculate.
+     */
+    constructor(difficultyAttributes: OsuDifficultyAttributes) {
+        super();
+
+        this.difficultyAttributes = Utils.deepCopy(difficultyAttributes);
+    }
+
+    /**
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): void {
-        // Global variables
-        const objectCount: number = this.difficultyCalculator.objects.length;
-        const calculatedAR: number = this.difficultyCalculator.stats.ar!;
-
-        this.aim = this.baseValue(this.difficultyCalculator.aim);
+        this.aim = this.baseValue(this.difficultyAttributes.aimDifficulty);
 
         // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, objectCount / 2000);
-        if (objectCount > 2000) {
-            lengthBonus += Math.log10(objectCount / 2000) * 0.5;
+        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
+        if (this.totalHits > 2000) {
+            lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
         }
 
         this.aim *= lengthBonus;
@@ -78,16 +86,21 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             this.aim *=
                 0.97 *
                 Math.pow(
-                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    1 -
+                        Math.pow(
+                            this.effectiveMissCount / this.totalHits,
+                            0.775
+                        ),
                     this.effectiveMissCount
                 );
         }
 
         // Combo scaling
         this.aim *= this.comboPenalty;
+        const calculatedAR: number = this.difficultyAttributes.approachRate;
 
         if (
-            !this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)
+            !this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)
         ) {
             // AR scaling
             let arFactor: number = 0;
@@ -103,7 +116,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
         if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
         ) {
             this.aim *= 1 + 0.04 * (12 - calculatedAR);
         }
@@ -112,11 +125,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.aim *= this.sliderNerfFactor;
 
         // Scale the aim value with accuracy.
-        this.aim *= this.computedAccuracy.value(objectCount);
+        this.aim *= this.computedAccuracy.value(this.totalHits);
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
-            Math.pow(this.difficultyCalculator.stats.od!, 2) / 2500;
+            Math.pow(this.difficultyAttributes.overallDifficulty, 2) / 2500;
         this.aim *= 0.98 + odScaling;
     }
 
@@ -124,23 +137,18 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the speed performance value of the beatmap.
      */
     private calculateSpeedValue(): void {
-        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
             this.speed = 0;
 
             return;
         }
 
-        // Global variables
-        const objectCount: number = this.difficultyCalculator.objects.length;
-        const calculatedAR: number = this.difficultyCalculator.stats.ar!;
-        const n50: number = this.computedAccuracy.n50;
-
-        this.speed = this.baseValue(this.difficultyCalculator.speed);
+        this.speed = this.baseValue(this.difficultyAttributes.speedDifficulty);
 
         // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, objectCount / 2000);
-        if (objectCount > 2000) {
-            lengthBonus += Math.log10(objectCount / 2000) * 0.5;
+        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
+        if (this.totalHits > 2000) {
+            lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
         }
 
         this.speed *= lengthBonus;
@@ -151,7 +159,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             this.speed *=
                 0.97 *
                 Math.pow(
-                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    1 -
+                        Math.pow(
+                            this.effectiveMissCount / this.totalHits,
+                            0.775
+                        ),
                     Math.pow(this.effectiveMissCount, 0.875)
                 );
         }
@@ -160,13 +172,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.speed *= this.comboPenalty;
 
         // AR scaling
+        const calculatedAR: number = this.difficultyAttributes.approachRate;
         if (calculatedAR > 10.33) {
             // Buff for longer maps with high AR.
             this.speed *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
         }
 
         if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
         ) {
             this.speed *= 1 + 0.04 * (12 - calculatedAR);
         }
@@ -177,7 +190,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         const countMeh: number = this.computedAccuracy.n50;
 
         const relevantTotalDiff: number =
-            objectCount - this.difficultyCalculator.attributes.speedNoteCount;
+            this.totalHits - this.difficultyAttributes.speedNoteCount;
 
         const relevantAccuracy: Accuracy = new Accuracy({
             n300: Math.max(0, countGreat - relevantTotalDiff),
@@ -194,49 +207,56 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // Scale the speed value with accuracy and OD.
         this.speed *=
-            (0.95 + Math.pow(this.difficultyCalculator.stats.od!, 2) / 750) *
+            (0.95 +
+                Math.pow(this.difficultyAttributes.overallDifficulty, 2) /
+                    750) *
             Math.pow(
-                (this.computedAccuracy.value(objectCount) +
+                (this.computedAccuracy.value(this.totalHits) +
                     relevantAccuracy.value()) /
                     2,
-                (14.5 - Math.max(this.difficultyCalculator.stats.od!, 8)) / 2
+                (14.5 -
+                    Math.max(this.difficultyAttributes.overallDifficulty, 8)) /
+                    2
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
-        this.speed *= Math.pow(0.99, Math.max(0, n50 - objectCount / 500));
+        this.speed *= Math.pow(
+            0.99,
+            Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500)
+        );
     }
 
     /**
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): void {
-        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
+            this.accuracy = 0;
+
             return;
         }
 
-        // Global variables
-        const nobjects: number = this.difficultyCalculator.objects.length;
-        const ncircles: number = this.difficultyCalculator.mods.some(
+        const ncircles: number = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModScoreV2
         )
-            ? nobjects - this.difficultyCalculator.beatmap.hitObjects.spinners
-            : this.difficultyCalculator.beatmap.hitObjects.circles;
+            ? this.totalHits - this.difficultyAttributes.spinnerCount
+            : this.difficultyAttributes.hitCircleCount;
 
         if (ncircles === 0) {
+            this.accuracy = 0;
+
             return;
         }
 
         const realAccuracy: Accuracy = new Accuracy({
             ...this.computedAccuracy,
-            n300:
-                this.computedAccuracy.n300 -
-                (this.difficultyCalculator.objects.length - ncircles),
+            n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
         });
 
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         this.accuracy =
-            Math.pow(1.52163, this.difficultyCalculator.stats.od!) *
+            Math.pow(1.52163, this.difficultyAttributes.overallDifficulty) *
             Math.pow(realAccuracy.value(ncircles), 24) *
             2.83;
 
@@ -244,12 +264,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
         if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModHidden)
+            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
         ) {
             this.accuracy *= 1.08;
         }
         if (
-            this.difficultyCalculator.mods.some(
+            this.difficultyAttributes.mods.some(
                 (m) => m instanceof ModFlashlight
             )
         ) {
@@ -262,18 +282,17 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      */
     private calculateFlashlightValue(): void {
         if (
-            !this.difficultyCalculator.mods.some(
+            !this.difficultyAttributes.mods.some(
                 (m) => m instanceof ModFlashlight
             )
         ) {
+            this.flashlight = 0;
+
             return;
         }
 
-        // Global variables
-        const objectCount: number = this.difficultyCalculator.objects.length;
-
         this.flashlight =
-            Math.pow(this.difficultyCalculator.flashlight, 2) * 25;
+            Math.pow(this.difficultyAttributes.flashlightDifficulty, 2) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
@@ -283,7 +302,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             this.flashlight *=
                 0.97 *
                 Math.pow(
-                    1 - Math.pow(this.effectiveMissCount / objectCount, 0.775),
+                    1 -
+                        Math.pow(
+                            this.effectiveMissCount / this.totalHits,
+                            0.775
+                        ),
                     Math.pow(this.effectiveMissCount, 0.875)
                 );
         }
@@ -291,17 +314,18 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
         this.flashlight *=
             0.7 +
-            0.1 * Math.min(1, objectCount / 200) +
-            (objectCount > 200
-                ? 0.2 * Math.min(1, (objectCount - 200) / 200)
+            0.1 * Math.min(1, this.totalHits / 200) +
+            (this.totalHits > 200
+                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
                 : 0);
 
         // Scale the flashlight value with accuracy slightly.
-        this.flashlight *= 0.5 + this.computedAccuracy.value(objectCount) / 2;
+        this.flashlight *=
+            0.5 + this.computedAccuracy.value(this.totalHits) / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
-            Math.pow(this.difficultyCalculator.stats.od!, 2) / 2500;
+            Math.pow(this.difficultyAttributes.overallDifficulty, 2) / 2500;
         this.flashlight *= 0.98 + odScaling;
     }
 

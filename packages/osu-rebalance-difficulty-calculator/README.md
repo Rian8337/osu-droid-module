@@ -118,13 +118,15 @@ const rating = new MapStars(beatmapInfo.map);
 
 // osu!droid performance
 const droidPerformance = new DroidPerformanceCalculator(
-    rating.droid
+    rating.droid.attributes
 ).calculate();
 
 console.log(droidPerformance);
 
 // osu!standard performance
-const osuPerformance = new OsuPerformanceCalculator(rating.osu).calculate();
+const osuPerformance = new OsuPerformanceCalculator(
+    rating.osu.attributes
+).calculate();
 
 console.log(osuPerformance);
 ```
@@ -179,7 +181,7 @@ const stats = new MapStats({
     speedMultiplier: 1.25,
 });
 
-const performance = new OsuPerformanceCalculator(rating).calculate({
+const performance = new OsuPerformanceCalculator(rating.attributes).calculate({
     combo: 1250,
     accPercent: accuracy,
     // The tap penalty will only be used by `DroidPerformanceCalculator` and

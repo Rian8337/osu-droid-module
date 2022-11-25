@@ -6,13 +6,13 @@ import {
     MathUtils,
     Modes,
 } from "@rian8337/osu-base";
+import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
-import { DifficultyCalculator } from "./DifficultyCalculator";
 
 /**
  * The base class of performance calculators.
  */
-export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
+export abstract class PerformanceCalculator {
     /**
      * The overall performance value.
      */
@@ -24,9 +24,9 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     computedAccuracy: Accuracy = new Accuracy({});
 
     /**
-     * The difficulty calculator that is being calculated.
+     * The difficulty attributes that is being calculated.
      */
-    readonly difficultyCalculator: T;
+    abstract readonly difficultyAttributes: DifficultyAttributes;
 
     /**
      * Penalty for combo breaks.
@@ -54,13 +54,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
      * Nerf factor used for nerfing beatmaps with very likely dropped sliderends.
      */
     protected sliderNerfFactor: number = 1;
-
-    /**
-     * @param difficultyCalculator The difficulty calculator to calculate.
-     */
-    constructor(difficultyCalculator: T) {
-        this.difficultyCalculator = difficultyCalculator;
-    }
 
     /**
      * Calculates the performance points of the beatmap.
@@ -95,6 +88,17 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     protected abstract calculateTotalValue(): void;
 
     /**
+     * The total hits that can be done in the beatmap.
+     */
+    protected get totalHits(): number {
+        return (
+            this.difficultyAttributes.hitCircleCount +
+            this.difficultyAttributes.sliderCount +
+            this.difficultyAttributes.spinnerCount
+        );
+    }
+
+    /**
      * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
@@ -107,7 +111,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
      * @param options Options for performance calculation.
      */
     protected handleOptions(options?: PerformanceCalculationOptions): void {
-        const maxCombo: number = this.difficultyCalculator.beatmap.maxCombo;
+        const maxCombo: number = this.difficultyAttributes.maxCombo;
         const miss: number = this.computedAccuracy.nmiss;
         const combo: number = options?.combo ?? maxCombo - miss;
 
@@ -119,7 +123,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
 
             if (this.computedAccuracy.n300 <= 0) {
                 this.computedAccuracy.n300 =
-                    this.difficultyCalculator.objects.length -
+                    this.totalHits -
                     this.computedAccuracy.n100 -
                     this.computedAccuracy.n50 -
                     this.computedAccuracy.nmiss;
@@ -127,7 +131,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         } else {
             this.computedAccuracy = new Accuracy({
                 percent: options?.accPercent,
-                nobjects: this.difficultyCalculator.objects.length,
+                nobjects: this.totalHits,
                 nmiss: options?.miss || 0,
             });
         }
@@ -138,7 +142,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         );
 
         if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModNoFail)
+            this.difficultyAttributes.mods.some((m) => m instanceof ModNoFail)
         ) {
             this.finalMultiplier *= Math.max(
                 0.9,
@@ -147,26 +151,26 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         }
 
         if (
-            this.difficultyCalculator.mods.some((m) => m instanceof ModSpunOut)
+            this.difficultyAttributes.mods.some((m) => m instanceof ModSpunOut)
         ) {
             this.finalMultiplier *=
                 1 -
                 Math.pow(
-                    this.difficultyCalculator.beatmap.hitObjects.spinners /
-                        this.difficultyCalculator.objects.length,
+                    this.difficultyAttributes.spinnerCount / this.totalHits,
                     0.85
                 );
         }
 
-        if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
             // Graph: https://www.desmos.com/calculator/bc9eybdthb
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
             const n100Multiplier: number = Math.max(
                 0,
-                this.difficultyCalculator.stats.od! > 0
+                this.difficultyAttributes.overallDifficulty > 0
                     ? 1 -
                           Math.pow(
-                              this.difficultyCalculator.stats.od! / 13.33,
+                              this.difficultyAttributes.overallDifficulty /
+                                  13.33,
                               1.8
                           )
                     : 1
@@ -174,10 +178,11 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
 
             const n50Multiplier: number = Math.max(
                 0,
-                this.difficultyCalculator.stats.od! > 0.0
+                this.difficultyAttributes.overallDifficulty > 0.0
                     ? 1 -
                           Math.pow(
-                              this.difficultyCalculator.stats.od! / 13.33,
+                              this.difficultyAttributes.overallDifficulty /
+                                  13.33,
                               5
                           )
                     : 1
@@ -189,14 +194,14 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 this.effectiveMissCount +
                     this.computedAccuracy.n100 * n100Multiplier +
                     this.computedAccuracy.n50 * n50Multiplier,
-                this.difficultyCalculator.objects.length
+                this.totalHits
             );
         }
 
-        if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
+        if (this.difficultyAttributes.sliderCount > 0) {
             // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
             const estimateDifficultSliders: number =
-                this.difficultyCalculator.beatmap.hitObjects.sliders * 0.15;
+                this.difficultyAttributes.sliderCount * 0.15;
             const estimateSliderEndsDropped: number = MathUtils.clamp(
                 Math.min(
                     this.computedAccuracy.n300 +
@@ -209,14 +214,14 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
             );
 
             this.sliderNerfFactor =
-                (1 - this.difficultyCalculator.attributes.sliderFactor) *
+                (1 - this.difficultyAttributes.sliderFactor) *
                     Math.pow(
                         1 -
                             estimateSliderEndsDropped /
                                 estimateDifficultSliders,
                         3
                     ) +
-                this.difficultyCalculator.attributes.sliderFactor;
+                this.difficultyAttributes.sliderFactor;
         }
     }
 
@@ -229,10 +234,9 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
     ): number {
         let comboBasedMissCount: number = 0;
 
-        if (this.difficultyCalculator.beatmap.hitObjects.sliders > 0) {
+        if (this.difficultyAttributes.sliderCount > 0) {
             const fullComboThreshold: number =
-                maxCombo -
-                0.1 * this.difficultyCalculator.beatmap.hitObjects.sliders;
+                maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
 
             if (combo < fullComboThreshold) {
                 comboBasedMissCount = Math.min(
@@ -240,7 +244,7 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                     this.mode === Modes.droid
                         ? // We're clamping miss count because since it's derived from combo, it can
                           // be higher than the amount of objects and that breaks some calculations.
-                          this.difficultyCalculator.objects.length
+                          this.totalHits
                         : // Clamp miss count to maximum amount of possible breaks.
                           this.computedAccuracy.n300 +
                               this.computedAccuracy.n100 +

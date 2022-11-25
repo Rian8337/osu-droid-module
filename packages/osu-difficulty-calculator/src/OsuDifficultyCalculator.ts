@@ -10,6 +10,7 @@ import {
     ModTouchDevice,
     Modes,
 } from "@rian8337/osu-base";
+import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
@@ -29,6 +30,22 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * The flashlight star rating of the beatmap.
      */
     flashlight: number = 0;
+
+    override readonly attributes: OsuDifficultyAttributes = {
+        speedDifficulty: 0,
+        mods: [],
+        starRating: 0,
+        maxCombo: 0,
+        aimDifficulty: 0,
+        flashlightDifficulty: 0,
+        speedNoteCount: 0,
+        sliderFactor: 0,
+        approachRate: 0,
+        overallDifficulty: 0,
+        hitCircleCount: 0,
+        sliderCount: 0,
+        spinnerCount: 0,
+    };
 
     protected override readonly difficultyMultiplier: number = 0.0675;
     protected override readonly mode: Modes = Modes.osu;
@@ -191,6 +208,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.aim *= 0.9;
         }
+
+        this.attributes.aimDifficulty = this.aim;
     }
 
     /**
@@ -201,7 +220,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     private postCalculateSpeed(speedSkill: OsuSpeed): void {
         this.strainPeaks.speed = speedSkill.strainPeaks;
 
-        this.speed = this.starValue(speedSkill.difficultyValue());
+        this.speed = this.attributes.speedDifficulty = this.starValue(
+            speedSkill.difficultyValue()
+        );
     }
 
     /**
@@ -238,5 +259,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.flashlight *= 0.7;
         }
+
+        this.attributes.flashlightDifficulty = this.flashlight;
     }
 }
