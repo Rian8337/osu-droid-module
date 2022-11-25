@@ -63,7 +63,7 @@ export abstract class DroidVisualEvaluator {
 
             strain +=
                 (1 -
-                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
+                    current.opacityAt(previous.object.startTime, isHiddenMod, Modes.droid)) /
                 4;
         }
 

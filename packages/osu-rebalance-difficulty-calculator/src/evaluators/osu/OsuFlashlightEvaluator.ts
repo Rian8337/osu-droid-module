@@ -63,7 +63,8 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod
+                                isHiddenMod,
+                                Modes.osu
                             ));
 
                 result +=
