@@ -114,7 +114,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         if (basePerformanceValue > 1e-5) {
             // Document for formula derivation:
             // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
-            this.total =
+            this.total = this.attributes.starRating =
                 Math.cbrt(1.14) *
                 0.027 *
                 (Math.cbrt(
