@@ -183,6 +183,9 @@ export class DifficultyHitObjectCreator {
             }
 
             for (const hitObject of nextVisibleObjects) {
+                // Future objects do not have their scale set, so set it here.
+                hitObject.scale = scale;
+
                 const distance: number = hitObject.stackedPosition.getDistance(
                     object.object.stackedEndPosition
                 );
@@ -193,9 +196,6 @@ export class DifficultyHitObjectCreator {
                 if (deltaTime >= 0) {
                     object.noteDensity += 1 - deltaTime / object.timePreempt;
                 }
-
-                // Future objects do not have their scale set, so set it here.
-                hitObject.scale = scale;
 
                 this.applyToOverlappingFactor(object, distance, deltaTime);
             }
