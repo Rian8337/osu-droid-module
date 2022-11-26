@@ -1,14 +1,14 @@
 /**
- * Based on `Vector2` class in C#.
+ * Represents a two-dimensional vector.
  */
 export class Vector2 {
     /**
-     * The x position of the vector.
+     * The x position of this vector.
      */
     x: number;
 
     /**
-     * The y position of the vector.
+     * The y position of this vector.
      */
     y: number;
 
@@ -18,49 +18,73 @@ export class Vector2 {
     }
 
     /**
-     * Multiplies the vector with another vector.
+     * Multiplies this vector with another vector.
+     *
+     * @param vec The other vector.
+     * @returns The multiplied vector.
      */
     multiply(vec: Vector2): Vector2 {
         return new Vector2(this.x * vec.x, this.y * vec.y);
     }
 
+    /**
+     * Divides this vector with a scalar.
+     *
+     * Attempting to divide by 0 will throw an error.
+     *
+     * @param divideFactor The factor to divide the vector by.
+     * @returns The divided vector.
+     */
     divide(divideFactor: number): Vector2 {
         if (divideFactor === 0) {
             throw new Error("Division by 0");
         }
+
         return new Vector2(this.x / divideFactor, this.y / divideFactor);
     }
 
     /**
-     * Adds the vector with another vector.
+     * Adds this vector with another vector.
+     *
+     * @param vec The other vector.
+     * @returns The added vector.
      */
     add(vec: Vector2): Vector2 {
         return new Vector2(this.x + vec.x, this.y + vec.y);
     }
 
     /**
-     * Subtracts the vector with another vector.
+     * Subtracts this vector with another vector.
+     *
+     * @param vec The other vector.
+     * @returns The subtracted vector.
      */
     subtract(vec: Vector2): Vector2 {
         return new Vector2(this.x - vec.x, this.y - vec.y);
     }
 
     /**
-     * The length of the vector.
+     * The length of this vector.
      */
     get length(): number {
-        return Math.sqrt(Math.pow(this.x, 2) + Math.pow(this.y, 2));
+        return Math.hypot(this.x, this.y);
     }
 
     /**
      * Performs a dot multiplication with another vector.
+     *
+     * @param vec The other vector.
+     * @returns The dot product of both vectors.
      */
     dot(vec: Vector2): number {
         return this.x * vec.x + this.y * vec.y;
     }
 
     /**
-     * Scales the vector.
+     * Scales this vector.
+     *
+     * @param scaleFactor The factor to scale the vector by.
+     * @returns The scaled vector.
      */
     scale(scaleFactor: number): Vector2 {
         return new Vector2(this.x * scaleFactor, this.y * scaleFactor);
@@ -68,11 +92,22 @@ export class Vector2 {
 
     /**
      * Gets the distance between this vector and another vector.
+     *
+     * @param vec The other vector.
+     * @returns The distance between this vector and the other vector.
      */
     getDistance(vec: Vector2): number {
-        const x: number = this.x - vec.x;
-        const y: number = this.y - vec.y;
-        return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        return Math.hypot(this.x - vec.x, this.y - vec.y);
+    }
+
+    /**
+     * Gets the angle between this vector and another vector.
+     *
+     * @param vec The other vector.
+     * @returns The angle between this vector and the other vector.
+     */
+    getAngle(vec: Vector2): number {
+        return Math.atan2(vec.y - this.y, vec.x - this.x);
     }
 
     /**
@@ -88,6 +123,7 @@ export class Vector2 {
      * Checks whether this vector is equal to another vector.
      *
      * @param other The other vector.
+     * @returns Whether this vector is equal to the other vector.
      */
     equals(other: Vector2): boolean {
         return this.x === other.x && this.y === other.y;

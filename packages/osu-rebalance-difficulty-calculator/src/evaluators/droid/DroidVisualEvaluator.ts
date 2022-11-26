@@ -1,4 +1,4 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
@@ -11,6 +11,7 @@ export abstract class DroidVisualEvaluator {
      * - note density of the current object,
      * - overlapping factor of the current object,
      * - the preempt time of the current object,
+     * - the visual opacity of the current object,
      * - the velocity of the current object if it's a slider,
      * - past objects' velocity if they are sliders,
      * - and whether the Hidden mod is enabled.
@@ -62,7 +63,11 @@ export abstract class DroidVisualEvaluator {
 
             strain +=
                 (1 -
-                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
+                    current.opacityAt(
+                        previous.object.startTime,
+                        isHiddenMod,
+                        modes.droid
+                    )) /
                 4;
         }
 

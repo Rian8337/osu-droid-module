@@ -1,8 +1,5 @@
 name: Publish to GitHub Pages
 on:
-  push:
-    tags:
-      - "*"
   release:
     types:
       - released

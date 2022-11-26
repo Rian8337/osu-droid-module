@@ -1,14 +1,13 @@
 import {
     Accuracy,
-    ModTouchDevice,
     ModHidden,
     ModRelax,
     ModScoreV2,
     ModFlashlight,
     modes,
 } from "@rian8337/osu-base";
-import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -34,7 +33,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      */
     flashlight: number = 0;
 
-    protected override finalMultiplier = 1.12;
+    protected override finalMultiplier = 1.14;
     protected override readonly mode: modes = modes.osu;
 
     protected override calculateValues(): void {
@@ -63,16 +62,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.mapStatistics.ar!;
 
-        this.aim = this.baseValue(
-            Math.pow(
-                this.difficultyCalculator.aim,
-                this.difficultyCalculator.mods.some(
-                    (m) => m instanceof ModTouchDevice
-                )
-                    ? 0.8
-                    : 1
-            )
-        );
+        this.aim = this.baseValue(this.difficultyCalculator.aim);
 
         // Longer maps are worth more
         let lengthBonus = 0.95 + 0.4 * Math.min(1, objectCount / 2000);
@@ -104,7 +94,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             if (calculatedAR > 10.33) {
                 arFactor += 0.3 * (calculatedAR - 10.33);
             } else if (calculatedAR < 8) {
-                arFactor += 0.1 * (8 - calculatedAR);
+                arFactor += 0.05 * (8 - calculatedAR);
             }
 
             // Buff for longer maps with high AR.
@@ -142,7 +132,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Global variables
         const objectCount: number = this.difficultyCalculator.objects.length;
         const calculatedAR: number = this.mapStatistics.ar!;
-        const n50: number = this.computedAccuracy.n50;
 
         this.speed = this.baseValue(this.difficultyCalculator.speed);
 
@@ -212,7 +201,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
-        this.speed *= Math.pow(0.99, Math.max(0, n50 - objectCount / 500));
+        this.speed *= Math.pow(
+            0.99,
+            Math.max(0, this.computedAccuracy.n50 - objectCount / 500)
+        );
     }
 
     /**
@@ -220,6 +212,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      */
     private calculateAccuracyValue(): void {
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+            this.accuracy = 0;
+
             return;
         }
 
@@ -232,14 +226,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             : this.difficultyCalculator.beatmap.hitObjects.circles;
 
         if (ncircles === 0) {
+            this.accuracy = 0;
+
             return;
         }
 
         const realAccuracy: Accuracy = new Accuracy({
             ...this.computedAccuracy,
-            n300:
-                this.computedAccuracy.n300 -
-                (this.difficultyCalculator.objects.length - ncircles),
+            n300: this.computedAccuracy.n300 - (nobjects - ncircles),
         });
 
         // Lots of arbitrary values from testing.
@@ -275,6 +269,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
                 (m) => m instanceof ModFlashlight
             )
         ) {
+            this.flashlight = 0;
+
             return;
         }
 
@@ -282,17 +278,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         const objectCount: number = this.difficultyCalculator.objects.length;
 
         this.flashlight =
-            Math.pow(
-                Math.pow(
-                    this.difficultyCalculator.flashlight,
-                    this.difficultyCalculator.mods.some(
-                        (m) => m instanceof ModTouchDevice
-                    )
-                        ? 0.8
-                        : 1
-                ),
-                2
-            ) * 25;
+            Math.pow(this.difficultyCalculator.flashlight, 2) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
@@ -319,8 +305,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         this.flashlight *= 0.5 + this.computedAccuracy.value(objectCount) / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number =
-            Math.pow(<number>this.mapStatistics.od, 2) / 2500;
+        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
         this.flashlight *= 0.98 + odScaling;
     }
 

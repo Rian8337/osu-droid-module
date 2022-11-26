@@ -1,12 +1,12 @@
 import {
     Accuracy,
-    MapStats,
-    modes,
-    Mod,
     ModNoFail,
     ModSpunOut,
     ModRelax,
     MathUtils,
+    modes,
+    MapStats,
+    Mod,
 } from "@rian8337/osu-base";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { DifficultyCalculator } from "./DifficultyCalculator";
@@ -169,34 +169,29 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
         }
 
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
-            let n100Multiplier: number = 1;
-            let n50Multiplier: number = 1;
+            // Graph: https://www.desmos.com/calculator/bc9eybdthb
+            // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
+            const n100Multiplier: number = Math.max(
+                0,
+                this.difficultyCalculator.stats.od! > 0
+                    ? 1 -
+                          Math.pow(
+                              this.difficultyCalculator.stats.od! / 13.33,
+                              1.8
+                          )
+                    : 1
+            );
 
-            if (this.mode === modes.droid) {
-                // Graph: https://www.desmos.com/calculator/bc9eybdthb
-                // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
-                n100Multiplier = Math.max(
-                    0,
-                    this.difficultyCalculator.stats.od! > 0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyCalculator.stats.od! / 13.33,
-                                  1.8
-                              )
-                        : 1
-                );
-
-                n50Multiplier = Math.max(
-                    0,
-                    this.difficultyCalculator.stats.od! > 0.0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyCalculator.stats.od! / 13.33,
-                                  5
-                              )
-                        : 1
-                );
-            }
+            const n50Multiplier: number = Math.max(
+                0,
+                this.difficultyCalculator.stats.od! > 0.0
+                    ? 1 -
+                          Math.pow(
+                              this.difficultyCalculator.stats.od! / 13.33,
+                              5
+                          )
+                    : 1
+            );
 
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
             // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
@@ -206,10 +201,6 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                     this.computedAccuracy.n50 * n50Multiplier,
                 this.difficultyCalculator.objects.length
             );
-
-            if (this.mode === modes.osu) {
-                this.finalMultiplier *= 0.6;
-            }
         }
 
         this.mapStatistics = new MapStats({
@@ -269,20 +260,20 @@ export abstract class PerformanceCalculator<T extends DifficultyCalculator> {
                 0.1 * this.difficultyCalculator.beatmap.hitObjects.sliders;
 
             if (combo < fullComboThreshold) {
-                // We're clamping miss count because since it's derived from combo, it can
-                // be higher than the amount of objects and that breaks some calculations.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.difficultyCalculator.objects.length
+                    this.mode === modes.droid
+                        ? // We're clamping miss count because since it's derived from combo, it can
+                          // be higher than the amount of objects and that breaks some calculations.
+                          this.difficultyCalculator.objects.length
+                        : // Clamp miss count to maximum amount of possible breaks.
+                          this.computedAccuracy.n300 +
+                              this.computedAccuracy.n100 +
+                              this.computedAccuracy.nmiss
                 );
             }
         }
 
-        return Math.max(
-            this.computedAccuracy.nmiss,
-            this.mode === modes.droid
-                ? comboBasedMissCount
-                : Math.floor(comboBasedMissCount)
-        );
+        return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
     }
 }

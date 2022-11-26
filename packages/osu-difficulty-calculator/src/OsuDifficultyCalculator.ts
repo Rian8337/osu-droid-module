@@ -4,10 +4,11 @@ import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
-    modes,
     ModRelax,
     OsuHitWindow,
     ModFlashlight,
+    ModTouchDevice,
+    modes,
 } from "@rian8337/osu-base";
 
 /**
@@ -95,7 +96,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             // Document for formula derivation:
             // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
             this.total =
-                Math.cbrt(1.12) *
+                Math.cbrt(1.14) *
                 0.027 *
                 (Math.cbrt(
                     (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
@@ -113,21 +114,18 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         const aimSkill: OsuAim = <OsuAim>skills[0];
         const aimSkillWithoutSliders: OsuAim = <OsuAim>skills[1];
-        let speedSkill: OsuSpeed | undefined;
-        let flashlightSkill: OsuFlashlight;
-
-        if (isRelax) {
-            flashlightSkill = <OsuFlashlight>skills[2];
-        } else {
-            speedSkill = <OsuSpeed>skills[2];
-            flashlightSkill = <OsuFlashlight>skills[3];
-        }
+        const speedSkill: OsuSpeed = <OsuSpeed>skills[2];
+        const flashlightSkill = <OsuFlashlight>skills[3];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (speedSkill) {
+        if (isRelax) {
+            this.speed = 0;
+        } else {
             this.postCalculateSpeed(speedSkill);
         }
+
+        this.calculateSpeedAttributes();
 
         this.postCalculateFlashlight(flashlightSkill);
 
@@ -185,6 +183,16 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                 this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
+
+        if (this.mods.some((m) => m instanceof ModTouchDevice)) {
+            this.aim = Math.pow(this.aim, 0.8);
+        }
+
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.aim *= 0.9;
+        }
+
+        this.aim;
     }
 
     /**
@@ -199,6 +207,23 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     }
 
     /**
+     * Calculates speed-related attributes.
+     */
+    private calculateSpeedAttributes(): void {
+        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
+
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.speedNoteCount = objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+        }
+    }
+
+    /**
      * Called after flashlight skill calculation.
      *
      * @param flashlightSkill The flashlight skill.
@@ -207,5 +232,13 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+
+        if (this.mods.some((m) => m instanceof ModTouchDevice)) {
+            this.flashlight = Math.pow(this.flashlight, 0.8);
+        }
+
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.flashlight *= 0.7;
+        }
     }
 }

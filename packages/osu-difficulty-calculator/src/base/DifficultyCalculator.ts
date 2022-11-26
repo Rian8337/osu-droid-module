@@ -1,4 +1,4 @@
-import { Beatmap, Mod, MapStats, modes, Utils } from "@rian8337/osu-base";
+import { Beatmap, Mod, MapStats, Utils, modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
 import { StrainSkill } from "./StrainSkill";

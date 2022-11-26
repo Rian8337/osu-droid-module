@@ -1,10 +1,10 @@
-import { Beatmap, Mod, MapStats, modes, Utils } from "@rian8337/osu-base";
+import { Beatmap, Mod, MapStats, Utils, modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
 import { StrainSkill } from "./StrainSkill";
-import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
+import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 
 /**
  * The base of a difficulty calculator.

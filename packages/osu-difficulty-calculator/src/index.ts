@@ -1,5 +1,6 @@
 export * from "./evaluators/base/AimEvaluator";
 export * from "./structures/CalculationOptions";
+export * from "./structures/DifficultyAttributes";
 export * from "./structures/DifficultyCalculationOptions";
 export * from "./base/DifficultyCalculator";
 export * from "./preprocessing/DifficultyHitObject";

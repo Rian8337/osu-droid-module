@@ -3,7 +3,7 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { modes, ModRelax, ModFlashlight } from "@rian8337/osu-base";
+import { ModRelax, ModFlashlight, modes } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 

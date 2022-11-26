@@ -1,8 +1,9 @@
 import {
-    modes,
     ModRelax,
     OsuHitWindow,
     ModFlashlight,
+    ModTouchDevice,
+    modes,
 } from "@rian8337/osu-base";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
@@ -120,7 +121,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (!isRelax) {
+        if (isRelax) {
+            this.speed = 0;
+        } else {
             this.postCalculateSpeed(speedSkill);
         }
 
@@ -183,6 +186,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                 this.aim;
         }
 
+        if (this.mods.some((m) => m instanceof ModTouchDevice)) {
+            this.aim = Math.pow(this.aim, 0.8);
+        }
+
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.aim *= 0.9;
         }
@@ -225,6 +232,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+
+        if (this.mods.some((m) => m instanceof ModTouchDevice)) {
+            this.flashlight = Math.pow(this.flashlight, 0.8);
+        }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.flashlight *= 0.7;

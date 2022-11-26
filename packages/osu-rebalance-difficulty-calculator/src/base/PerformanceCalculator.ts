@@ -1,12 +1,12 @@
 import {
     Accuracy,
-    MapStats,
-    modes,
-    Mod,
     ModNoFail,
     ModSpunOut,
     ModRelax,
     MathUtils,
+    modes,
+    MapStats,
+    Mod,
 } from "@rian8337/osu-base";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { DifficultyCalculator } from "./DifficultyCalculator";

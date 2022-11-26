@@ -1,4 +1,4 @@
-import { Interpolation, MathUtils, Spinner } from "@rian8337/osu-base";
+import { MathUtils, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
@@ -34,19 +34,24 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
         let strainTime: number = current.strainTime;
 
         const greatWindowFull: number = greatWindow * 2;
-        const speedWindowRatio: number = strainTime / greatWindowFull;
 
-        // Aim to nerf cheesy rhythms (very fast consecutive doubles with large deltatimes between).
-        if (
-            prev &&
-            strainTime < greatWindowFull &&
-            prev.strainTime > strainTime
-        ) {
-            strainTime = Interpolation.lerp(
-                prev.strainTime,
-                strainTime,
-                speedWindowRatio
+        // Nerf doubletappable doubles.
+        const next: DifficultyHitObject | null = current.next(0);
+        let doubletapness: number = 1;
+
+        if (next) {
+            const currentDeltaTime: number = Math.max(1, current.deltaTime);
+            const nextDeltaTime: number = Math.max(1, next.deltaTime);
+            const deltaDifference: number = Math.abs(
+                nextDeltaTime - currentDeltaTime
             );
+            const speedRatio: number =
+                currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
+            const windowRatio: number = Math.pow(
+                Math.min(1, currentDeltaTime / greatWindowFull),
+                2
+            );
+            doubletapness = Math.pow(speedRatio, 1 - windowRatio);
         }
 
         // Cap deltatime to the OD 300 hitwindow.
@@ -66,13 +71,14 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
         const travelDistance: number = prev?.travelDistance ?? 0;
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
-            travelDistance + current.lazyJumpDistance
+            travelDistance + current.minimumJumpDistance
         );
 
         return (
-            (speedBonus +
+            ((speedBonus +
                 speedBonus *
-                    Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) /
+                    Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) *
+                doubletapness) /
             strainTime
         );
     }

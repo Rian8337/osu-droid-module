@@ -1,12 +1,12 @@
 import {
     Accuracy,
-    modes,
     ModRelax,
     ModScoreV2,
     ModFlashlight,
+    modes,
 } from "@rian8337/osu-base";
-import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
@@ -38,10 +38,41 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     visual: number = 0;
 
+    /**
+     * The penalty used to penalize the tap performance value.
+     *
+     * Can be properly obtained by analyzing the replay associated with the score.
+     */
+    get tapPenalty(): number {
+        return this._tapPenalty;
+    }
+
     protected override finalMultiplier = 1.24;
     protected override readonly mode: modes = modes.droid;
 
-    private tapPenalty: number = 1;
+    private _tapPenalty: number = 1;
+
+    /**
+     * Applies a tap penalty value to this calculator.
+     *
+     * The total performance value will be recalculated afterwards.
+     *
+     * @param value The tap penalty value. Must be greater than 0.
+     */
+    applyTapPenalty(value: number): void {
+        if (value <= 0) {
+            throw new RangeError("New tap penalty must be greater than zero.");
+        }
+
+        if (value === this._tapPenalty) {
+            return;
+        }
+
+        this.tap *= this._tapPenalty / value;
+        this._tapPenalty = value;
+
+        this.calculateTotalValue();
+    }
 
     protected override calculateValues(): void {
         this.calculateAimValue();
@@ -66,7 +97,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
     protected override handleOptions(
         options?: PerformanceCalculationOptions
     ): void {
-        this.tapPenalty = options?.tapPenalty ?? 1;
+        this._tapPenalty = options?.tapPenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -97,13 +128,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
 
-        // Scale the aim value with accuracy.
-        this.aim *= this.computedAccuracy.value(objectCount);
-
-        // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
+        // Scale the aim value with accuracy and OD.
+        const od: number = this.mapStatistics.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
         this.aim *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+            (0.98 + (od > 0 ? odScaling : -odScaling)) *
+            Math.pow(
+                this.computedAccuracy.value(),
+                (14 - Math.max(od, 2.5)) / 2
+            );
     }
 
     /**
@@ -171,7 +204,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         );
 
         // Scale the tap value with three-fingered penalty.
-        this.tap /= this.tapPenalty;
+        this.tap /= this._tapPenalty;
     }
 
     /**
@@ -179,6 +212,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     private calculateAccuracyValue(): void {
         if (this.difficultyCalculator.mods.some((m) => m instanceof ModRelax)) {
+            this.accuracy = 0;
+
             return;
         }
 
@@ -192,6 +227,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             : this.difficultyCalculator.beatmap.hitObjects.circles;
 
         if (ncircles === 0) {
+            this.accuracy = 0;
+
             return;
         }
 
@@ -232,6 +269,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
                 (m) => m instanceof ModFlashlight
             )
         ) {
+            this.flashlight = 0;
+
             return;
         }
 
@@ -266,9 +305,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         this.flashlight *= 0.5 + this.computedAccuracy.value(objectCount) / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
-        this.flashlight *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+        const od: number = this.mapStatistics.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
+        this.flashlight *= 0.98 + (od >= 0 ? odScaling : -odScaling);
     }
 
     /**
@@ -305,9 +344,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         this.visual *= Math.pow(this.computedAccuracy.value(), 8);
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
-        this.visual *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+        const od: number = this.mapStatistics.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
+        this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
     }
 
     override toString(): string {
