@@ -165,6 +165,10 @@ export class DifficultyHitObjectCreator {
                     break;
                 }
 
+                // Future objects do not have their scales set, so we set them here.
+                o.droidScale = droidScale;
+                o.osuScale = osuScale;
+
                 nextVisibleObjects.push(o);
             }
 
