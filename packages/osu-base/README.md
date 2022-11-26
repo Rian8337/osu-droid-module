@@ -135,8 +135,8 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-// Decoded beatmap can be accessed via the `map` field
-console.log(beatmapInfo.map);
+// Decoded beatmap can be accessed via the `beatmap` field
+console.log(beatmapInfo.beatmap);
 ```
 
 #### Not retrieving beatmap file
