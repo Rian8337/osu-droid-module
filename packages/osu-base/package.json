@@ -1,45 +1,45 @@
 {
-  "name": "@rian8337/osu-base",
-  "version": "2.2.0",
-  "description": "Base module for all osu! related modules.",
-  "keywords": [
-    "osu",
-    "beatmap-parser"
-  ],
-  "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
-  "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "types": "typings/index.d.ts",
-  "typedocMain": "src/index.ts",
-  "files": [
-    "dist/**",
-    "typings/**"
-  ],
-  "scripts": {
-    "build": "rollup -c ../../rollup.config.js",
-    "lint": "eslint --ext ts",
-    "prepare": "npm run build",
-    "test": "jest"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rian8337/osu-droid-module.git"
-  },
-  "bugs": {
-    "url": "https://github.com/Rian8337/osu-droid-module/issues"
-  },
-  "dependencies": {
-    "dotenv": "^14.2.0",
-    "lodash.clonedeep": "^4.5.0",
-    "request": "^2.88.2"
-  },
-  "devDependencies": {
-    "@types/lodash.clonedeep": "^4.5.7",
-    "@types/request": "^2.48.8"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
+    "name": "@rian8337/osu-base",
+    "version": "2.3.0",
+    "description": "Base module for all osu! related modules.",
+    "keywords": [
+        "osu",
+        "beatmap-parser"
+    ],
+    "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
+    "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "typings/index.d.ts",
+    "typedocMain": "src/index.ts",
+    "files": [
+        "dist/**",
+        "typings/**"
+    ],
+    "scripts": {
+        "build": "rollup -c ../../rollup.config.js",
+        "lint": "eslint --ext ts",
+        "prepare": "npm run build",
+        "test": "jest"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Rian8337/osu-droid-module.git"
+    },
+    "bugs": {
+        "url": "https://github.com/Rian8337/osu-droid-module/issues"
+    },
+    "dependencies": {
+        "dotenv": "^14.2.0",
+        "lodash.clonedeep": "^4.5.0",
+        "request": "^2.88.2"
+    },
+    "devDependencies": {
+        "@types/lodash.clonedeep": "^4.5.7",
+        "@types/request": "^2.48.8"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }

@@ -1,39 +1,39 @@
 {
-  "name": "@rian8337/osu-difficulty-calculator",
-  "version": "2.2.0",
-  "description": "A module for calculating osu!standard beatmap difficulty and performance value with respect to the current difficulty and performance algorithm.",
-  "keywords": [
-    "osu",
-    "osu-difficulty-calculator"
-  ],
-  "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
-  "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
-  "license": "MIT",
-  "main": "dist/index.js",
-  "types": "typings/index.d.ts",
-  "typedocMain": "src/index.ts",
-  "files": [
-    "dist/**",
-    "typings/**"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Rian8337/osu-droid-module.git"
-  },
-  "scripts": {
-    "build": "rollup -c ../../rollup.config.js",
-    "lint": "eslint --ext ts",
-    "prepare": "npm run build",
-    "test": "jest"
-  },
-  "bugs": {
-    "url": "https://github.com/Rian8337/osu-droid-module/issues"
-  },
-  "dependencies": {
-    "@rian8337/osu-base": "^2.2.0"
-  },
-  "publishConfig": {
-    "access": "public"
-  },
-  "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
+    "name": "@rian8337/osu-difficulty-calculator",
+    "version": "2.3.0",
+    "description": "A module for calculating osu!standard beatmap difficulty and performance value with respect to the current difficulty and performance algorithm.",
+    "keywords": [
+        "osu",
+        "osu-difficulty-calculator"
+    ],
+    "author": "Rian8337 <52914632+Rian8337@users.noreply.github.com>",
+    "homepage": "https://github.com/Rian8337/osu-droid-module#readme",
+    "license": "MIT",
+    "main": "dist/index.js",
+    "types": "typings/index.d.ts",
+    "typedocMain": "src/index.ts",
+    "files": [
+        "dist/**",
+        "typings/**"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/Rian8337/osu-droid-module.git"
+    },
+    "scripts": {
+        "build": "rollup -c ../../rollup.config.js",
+        "lint": "eslint --ext ts",
+        "prepare": "npm run build",
+        "test": "jest"
+    },
+    "bugs": {
+        "url": "https://github.com/Rian8337/osu-droid-module/issues"
+    },
+    "dependencies": {
+        "@rian8337/osu-base": "^2.3.0"
+    },
+    "publishConfig": {
+        "access": "public"
+    },
+    "gitHead": "aa91d8c7ca9a687f63d920f402cf4f5771e04499"
 }
