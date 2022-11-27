@@ -41,7 +41,7 @@ import { default as getStrainChart } from "@rian8337/osu-strain-graph-generator"
     }
 
     const rating = new OsuStarRating().calculate({
-        map: beatmapInfo.map,
+        map: beatmapInfo.beatmap,
     });
 
     const chart = await getStrainChart(rating);

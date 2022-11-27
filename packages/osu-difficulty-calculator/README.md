@@ -43,17 +43,17 @@ if (!beatmapInfo.title) {
 }
 
 // Calculate osu!droid difficulty
-const droidRating = new DroidDifficultyCalculator(beatmapInfo.map).calculate();
+const droidRating = new DroidDifficultyCalculator(beatmapInfo.beatmap).calculate();
 
 console.log(droidRating);
 
 // Calculate osu!standard difficulty
-const osuRating = new OsuDifficultyCalculator(beatmapInfo.map).calculate();
+const osuRating = new OsuDifficultyCalculator(beatmapInfo.beatmap).calculate();
 
 console.log(osuRating);
 
 // Calculate both osu!droid and osu!standard difficulty
-const rating = new MapStars(beatmapInfo.map);
+const rating = new MapStars(beatmapInfo.beatmap);
 
 // osu!droid difficulty
 console.log(rating.droid);
@@ -87,7 +87,7 @@ const stats = new MapStats({
 });
 
 // Also available in `DroidDifficultyCalculator` and `OsuDifficultyCalculator` as a parameter of `calculate`
-const rating = new MapStars(beatmapInfo.map, {
+const rating = new MapStars(beatmapInfo.beatmap, {
     mods: mods,
     stats: stats,
 });
@@ -114,7 +114,7 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-const rating = new MapStars(beatmapInfo.map);
+const rating = new MapStars(beatmapInfo.beatmap);
 
 // osu!droid performance
 const droidPerformance = new DroidPerformanceCalculator(
@@ -152,7 +152,7 @@ if (!beatmapInfo.title) {
     return console.log("Beatmap not found");
 }
 
-const rating = new OsuDifficultyCalculator(beatmapInfo.map).calculate();
+const rating = new OsuDifficultyCalculator(beatmapInfo.beatmap).calculate();
 
 const accuracy = new Accuracy({
     // Specify your misses here

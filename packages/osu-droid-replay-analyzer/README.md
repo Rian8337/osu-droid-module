@@ -53,7 +53,7 @@ if (!beatmapInfo.title) {
 // A `ReplayAnalyzer` instance that contains the replay
 const replay = await new ReplayAnalyzer({
     scoreID: 12948732,
-    map: beatmapInfo.map,
+    map: beatmapInfo.beatmap,
 }).analyze();
 
 // The data of the replay
@@ -85,7 +85,7 @@ readFile("path/to/file.odr", async (err, replayData) => {
     }
 
     // A `ReplayAnalyzer` instance that contains the replay
-    const replay = new ReplayAnalyzer({ scoreID: 0, map: beatmapInfo.map });
+    const replay = new ReplayAnalyzer({ scoreID: 0, map: beatmapInfo.beatmap });
 
     replay.originalODR = replayData;
 
@@ -128,7 +128,7 @@ if (!beatmapInfo.title) {
 // A `ReplayAnalyzer` instance that contains the replay
 const replay = await new ReplayAnalyzer({
     scoreID: 12948732,
-    map: beatmapInfo.map,
+    map: beatmapInfo.beatmap,
 }).analyze();
 
 // The data of the replay
@@ -148,7 +148,7 @@ const stats = new MapStats({
 });
 
 replay.map = new DroidStarRating().calculate({
-    map: beatmapInfo.map,
+    map: beatmapInfo.beatmap,
     mods: data.convertedMods,
     stats: stats,
 });
