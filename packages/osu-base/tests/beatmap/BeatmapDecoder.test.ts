@@ -363,6 +363,12 @@ describe("Test metadata section", () => {
         expect(metadata.version).toBe("Normal");
         expect(metadata.source).toBe("");
         expect(metadata.tags.length).toBe(0);
+        expect(metadata.fullTitle).toBe(
+            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]"
+        );
+        expect(metadata.fullUnicodeTitle).toBe(
+            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]"
+        );
     });
 
     test("v14 file format", () => {
@@ -378,6 +384,12 @@ describe("Test metadata section", () => {
         expect(metadata.version).toBe("Please accept my overflowing emotions.");
         expect(metadata.source).toBe("");
         expect(metadata.tags.length).toBe(27);
+        expect(metadata.fullTitle).toBe(
+            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]"
+        );
+        expect(metadata.fullUnicodeTitle).toBe(
+            "YOASOBI - ラブレター (ohm002) [Please accept my overflowing emotions.]"
+        );
     });
 });
 

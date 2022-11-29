@@ -51,4 +51,22 @@ export class BeatmapMetadata {
      * The ID of the beatmapset containing this beatmap.
      */
     beatmapSetId?: number;
+
+    /**
+     * The full title of the beatmap, which is `Artist - Title (Creator) [Difficulty Name]`.
+     */
+    get fullTitle(): string {
+        return `${this.artist} - ${this.title} (${this.creator}) [${this.version}]`;
+    }
+
+    /**
+     * The full unicode title of the beatmap, which is `Artist - Title (Creator) [Difficulty Name]`.
+     *
+     * Will fallback to original artist and title if needed.
+     */
+    get fullUnicodeTitle(): string {
+        return `${this.artistUnicode || this.artist} - ${
+            this.titleUnicode || this.title
+        } (${this.creator}) [${this.version}]`;
+    }
 }
