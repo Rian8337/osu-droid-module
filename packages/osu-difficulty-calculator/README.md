@@ -43,7 +43,9 @@ if (!beatmapInfo.title) {
 }
 
 // Calculate osu!droid difficulty
-const droidRating = new DroidDifficultyCalculator(beatmapInfo.beatmap).calculate();
+const droidRating = new DroidDifficultyCalculator(
+    beatmapInfo.beatmap
+).calculate();
 
 console.log(droidRating);
 
