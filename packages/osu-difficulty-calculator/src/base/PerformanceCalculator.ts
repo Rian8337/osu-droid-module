@@ -239,16 +239,12 @@ export abstract class PerformanceCalculator {
                 maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
 
             if (combo < fullComboThreshold) {
+                // Clamp miss count to maximum amount of possible breaks.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.mode === Modes.droid
-                        ? // We're clamping miss count because since it's derived from combo, it can
-                          // be higher than the amount of objects and that breaks some calculations.
-                          this.totalHits
-                        : // Clamp miss count to maximum amount of possible breaks.
-                          this.computedAccuracy.n300 +
-                              this.computedAccuracy.n100 +
-                              this.computedAccuracy.nmiss
+                    this.computedAccuracy.n100 +
+                        this.computedAccuracy.n50 +
+                        this.computedAccuracy.nmiss
                 );
             }
         }

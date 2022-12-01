@@ -1,4 +1,4 @@
-import { Modes, Spinner } from "@rian8337/osu-base";
+import { Modes, Slider, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
@@ -9,8 +9,10 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
     /**
      * Evaluates the difficulty of memorizing and hitting the current object, based on:
      *
-     * - distance between the previous and the current object,
+     * - distance between a number of previous objects and the current object,
      * - the visual opacity of the current object,
+     * - the angle made by the current object,
+     * - length and speed of the current object (for sliders),
      * - and whether Hidden mod is enabled.
      *
      * @param current The current object.
@@ -30,14 +32,11 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
 
         const scalingFactor: number =
             52 / current.object.getRadius(Modes.droid);
-
         let smallDistNerf: number = 1;
-
         let cumulativeStrainTime: number = 0;
-
         let result: number = 0;
-
         let last: DifficultyHitObject = current;
+        let angleRepeatCount: number = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const currentObject: DifficultyHitObject = current.previous(i)!;
@@ -49,7 +48,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
             ) {
                 const jumpDistance: number = current.object
                     .getStackedPosition(Modes.droid)
-                    .subtract(currentObject.object.endPosition).length;
+                    .subtract(
+                        currentObject.object.getStackedEndPosition(Modes.droid)
+                    ).length;
 
                 cumulativeStrainTime += last.strainTime;
 
@@ -71,22 +72,63 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod
+                                isHiddenMod,
+                                Modes.droid
                             ));
 
                 result +=
                     (stackNerf * opacityBonus * scalingFactor * jumpDistance) /
                     cumulativeStrainTime;
+
+                if (currentObject.angle !== null && current.angle !== null) {
+                    // Objects further back in time should count less for the nerf.
+                    if (Math.abs(currentObject.angle - current.angle) < 0.02) {
+                        angleRepeatCount += Math.max(0, 1 - 0.1 * i);
+                    }
+                }
             }
 
             last = currentObject;
         }
+
+        result = Math.pow(smallDistNerf * result, 2);
 
         // Additional bonus for Hidden due to there being no approach circles.
         if (isHiddenMod) {
             result *= 1 + this.hiddenBonus;
         }
 
-        return Math.pow(smallDistNerf * result, 2);
+        // Nerf patterns with repeated angles.
+        result *=
+            this.minAngleMultiplier +
+            (1 - this.minAngleMultiplier) / (angleRepeatCount + 1);
+
+        let sliderBonus: number = 0;
+
+        if (current.object instanceof Slider) {
+            // Invert the scaling factor to determine the true travel distance independent of circle size.
+            const pixelTravelDistance: number =
+                current.object.lazyTravelDistance / scalingFactor;
+
+            // Reward sliders based on velocity.
+            sliderBonus = Math.pow(
+                Math.max(
+                    0,
+                    pixelTravelDistance / current.travelTime - this.minVelocity
+                ),
+                0.5
+            );
+
+            // Longer sliders require more memorization.
+            sliderBonus *= pixelTravelDistance;
+
+            // Nerf sliders with repeats, as less memorization is required.
+            if (current.object.repeats > 0)
+                sliderBonus /= current.object.repeats + 1;
+        }
+
+        result += sliderBonus * this.sliderMultiplier;
+
+        return result;
     }
 }

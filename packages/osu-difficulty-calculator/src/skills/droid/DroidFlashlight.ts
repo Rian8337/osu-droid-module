@@ -7,7 +7,7 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class DroidFlashlight extends DroidSkill {
-    protected override readonly skillMultiplier: number = 0.1;
+    protected override readonly skillMultiplier: number = 0.125;
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 0;
     protected override readonly reducedSectionBaseline: number = 1;

@@ -143,13 +143,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
 
-        // Scale the aim value with accuracy.
-        this.aim *= this.computedAccuracy.value(this.totalHits);
-
-        // It is also important to consider accuracy difficulty when doing that.
+        // Scale the aim value with accuracy and OD.
         const od: number = this.difficultyAttributes.overallDifficulty;
         const odScaling: number = Math.pow(od, 2) / 2500;
-        this.aim *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        this.aim *=
+            (0.98 + (od > 0 ? odScaling : -odScaling)) *
+            Math.pow(
+                this.computedAccuracy.value(this.totalHits),
+                (14 - Math.max(od, 2.5)) / 2
+            );
     }
 
     /**

@@ -242,8 +242,8 @@ export abstract class PerformanceCalculator {
                 // Clamp miss count to maximum amount of possible breaks.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.computedAccuracy.n300 +
-                        this.computedAccuracy.n100 +
+                    this.computedAccuracy.n100 +
+                        this.computedAccuracy.n50 +
                         this.computedAccuracy.nmiss
                 );
             }

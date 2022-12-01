@@ -205,6 +205,7 @@ export class DifficultyHitObject {
      *
      * @param time The time to calculate the hitobject's opacity at.
      * @param isHidden Whether Hidden mod is used.
+     * @param mode The gamemode to calculate the opacity for.
      * @returns The opacity of the hitobject at the given time.
      */
     opacityAt(time: number, isHidden: boolean, mode: Modes): number {

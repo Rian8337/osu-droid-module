@@ -6,4 +6,7 @@
 export abstract class FlashlightEvaluator {
     protected static readonly maxOpacityBonus: number = 0.4;
     protected static readonly hiddenBonus: number = 0.2;
+    protected static readonly minVelocity: number = 0.5;
+    protected static readonly sliderMultiplier: number = 1.3;
+    protected static readonly minAngleMultiplier: number = 0.2;
 }

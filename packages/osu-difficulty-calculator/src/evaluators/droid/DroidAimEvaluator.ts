@@ -231,7 +231,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             );
         }
 
-        if (last.travelTime) {
+        if (last.object instanceof Slider) {
             // Reward sliders based on velocity.
             sliderBonus = last.travelDistance / last.travelTime;
         }
