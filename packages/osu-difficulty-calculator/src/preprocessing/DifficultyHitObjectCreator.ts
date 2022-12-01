@@ -129,7 +129,11 @@ export class DifficultyHitObjectCreator {
                 continue;
             }
 
-            const visibleObjects: HitObject[] = [];
+            // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
+            // while the second array contains objects after the current object ends.
+            // For overlapping factor, we also need to consider previous visible objects.
+            const prevVisibleObjects: HitObject[] = [];
+            const nextVisibleObjects: HitObject[] = [];
 
             for (let j = i + 1; j < params.objects.length; ++j) {
                 const o: HitObject = params.objects[j];
@@ -145,38 +149,55 @@ export class DifficultyHitObjectCreator {
                     break;
                 }
 
-                visibleObjects.push(o);
+                nextVisibleObjects.push(o);
             }
 
-            for (const hitObject of visibleObjects) {
-                const deltaTime: number = Math.max(
-                    0,
-                    hitObject.startTime / params.speedMultiplier -
-                        object.endTime
-                );
+            for (let j = 0; j < object.index; ++j) {
+                const prev: DifficultyHitObject = object.previous(j)!;
 
-                object.noteDensity += 1 - deltaTime / object.timePreempt;
-                // Since next few objects' scale aren't set, set it here.
+                if (prev.object instanceof Spinner) {
+                    continue;
+                }
+
+                if (prev.startTime >= object.startTime) {
+                    continue;
+                }
+
+                if (prev.startTime < object.startTime - object.timePreempt) {
+                    break;
+                }
+
+                prevVisibleObjects.push(prev.object);
+            }
+
+            for (const hitObject of prevVisibleObjects) {
+                const distance: number =
+                    object.object.stackedPosition.getDistance(
+                        hitObject.stackedEndPosition
+                    );
+                const deltaTime: number =
+                    object.startTime -
+                    hitObject.endTime / params.speedMultiplier;
+
+                this.applyToOverlappingFactor(object, distance, deltaTime);
+            }
+
+            for (const hitObject of nextVisibleObjects) {
+                // Future objects do not have their scale set, so set it here.
                 hitObject.scale = scale;
 
-                object.overlappingFactor +=
-                    // Penalize objects that are too close to the object in both distance
-                    // and delta time to prevent stream maps from being overweighted.
-                    Math.max(
-                        0,
-                        1 -
-                            object.object.stackedPosition.getDistance(
-                                hitObject.stackedEndPosition
-                            ) /
-                                (3 * object.object.radius)
-                    ) *
-                    (7.5 /
-                        (1 +
-                            Math.exp(
-                                0.15 *
-                                    (Math.max(deltaTime, this.minDeltaTime) -
-                                        75)
-                            )));
+                const distance: number = hitObject.stackedPosition.getDistance(
+                    object.object.stackedEndPosition
+                );
+                const deltaTime: number =
+                    hitObject.startTime / params.speedMultiplier -
+                    object.endTime;
+
+                if (deltaTime >= 0) {
+                    object.noteDensity += 1 - deltaTime / object.timePreempt;
+                }
+
+                this.applyToOverlappingFactor(object, distance, deltaTime);
             }
 
             if (lastObject.object instanceof Spinner) {
@@ -409,5 +430,21 @@ export class DifficultyHitObjectCreator {
         }
 
         return pos;
+    }
+
+    private applyToOverlappingFactor(
+        object: DifficultyHitObject,
+        distance: number,
+        deltaTime: number
+    ): void {
+        // Penalize objects that are too close to the object in both distance
+        // and delta time to prevent stream maps from being overweighted.
+        object.overlappingFactor +=
+            Math.max(0, 1 - distance / (3 * object.object.radius)) *
+            (7.5 /
+                (1 +
+                    Math.exp(
+                        0.15 * (Math.max(deltaTime, this.minDeltaTime) - 75)
+                    )));
     }
 }

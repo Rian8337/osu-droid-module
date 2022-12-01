@@ -128,13 +128,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
 
-        // Scale the aim value with accuracy.
-        this.aim *= this.computedAccuracy.value(objectCount);
-
-        // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number = Math.pow(this.mapStatistics.od!, 2) / 2500;
+        // Scale the aim value with accuracy and OD.
+        const od: number = this.mapStatistics.od!;
+        const odScaling: number = Math.pow(od, 2) / 2500;
         this.aim *=
-            0.98 + (this.mapStatistics.od! >= 0 ? odScaling : -odScaling);
+            (0.98 + (od > 0 ? odScaling : -odScaling)) *
+            Math.pow(
+                this.computedAccuracy.value(),
+                (14 - Math.max(od, 2.5)) / 2
+            );
     }
 
     /**

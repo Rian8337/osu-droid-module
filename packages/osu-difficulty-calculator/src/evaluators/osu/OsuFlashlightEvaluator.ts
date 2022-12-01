@@ -6,10 +6,6 @@ import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
  * An evaluator for calculating osu!standard Flashlight skill.
  */
 export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
-    private static readonly minVelocity: number = 0.5;
-    private static readonly sliderMultiplier: number = 1.3;
-    private static readonly minAngleMultiplier: number = 0.2;
-
     /**
      * Evaluates the difficulty of memorizing and hitting the current object, based on:
      *

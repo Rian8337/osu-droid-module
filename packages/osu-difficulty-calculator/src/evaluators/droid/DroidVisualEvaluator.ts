@@ -1,4 +1,4 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
@@ -63,7 +63,11 @@ export abstract class DroidVisualEvaluator {
 
             strain +=
                 (1 -
-                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
+                    current.opacityAt(
+                        previous.object.startTime,
+                        isHiddenMod,
+                        modes.droid
+                    )) /
                 4;
         }
 
