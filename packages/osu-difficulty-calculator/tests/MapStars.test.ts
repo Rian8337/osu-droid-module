@@ -60,6 +60,27 @@ const testDiffCalc = async (
     expect(rating.droid.visual).toBeCloseTo(values.noModDroidRating.visual, 3);
     expect(rating.droid.total).toBeCloseTo(values.noModDroidRating.total, 4);
 
+    expect(rating.droid.attributes.aimDifficulty).toBeCloseTo(
+        rating.droid.aim,
+        5
+    );
+    expect(rating.droid.attributes.tapDifficulty).toBeCloseTo(
+        rating.droid.tap,
+        5
+    );
+    expect(rating.droid.attributes.rhythmDifficulty).toBeCloseTo(
+        rating.droid.rhythm,
+        5
+    );
+    expect(rating.droid.attributes.flashlightDifficulty).toBeCloseTo(
+        rating.droid.flashlight,
+        5
+    );
+    expect(rating.droid.attributes.visualDifficulty).toBeCloseTo(
+        rating.droid.visual,
+        5
+    );
+
     // NM PC star rating
     expect(rating.osu.aim).toBeCloseTo(values.noModPcRating.aim, 3);
     expect(rating.osu.speed).toBeCloseTo(values.noModPcRating.speed, 3);
@@ -68,6 +89,16 @@ const testDiffCalc = async (
         3
     );
     expect(rating.osu.total).toBeCloseTo(values.noModPcRating.total, 4);
+
+    expect(rating.osu.attributes.aimDifficulty).toBeCloseTo(rating.osu.aim, 5);
+    expect(rating.osu.attributes.speedDifficulty).toBeCloseTo(
+        rating.osu.speed,
+        5
+    );
+    expect(rating.osu.attributes.flashlightDifficulty).toBeCloseTo(
+        rating.osu.flashlight,
+        5
+    );
 
     const clockRateAdjustedRating = new MapStars(decoder.result, {
         mods: [new ModDoubleTime()],
@@ -129,6 +160,25 @@ const testDiffCalc = async (
         4
     );
 
+    expect(clockRateAdjustedRating.droid.attributes.aimDifficulty).toBeCloseTo(
+        clockRateAdjustedRating.droid.aim,
+        5
+    );
+    expect(clockRateAdjustedRating.droid.attributes.tapDifficulty).toBeCloseTo(
+        clockRateAdjustedRating.droid.tap,
+        5
+    );
+    expect(
+        clockRateAdjustedRating.droid.attributes.rhythmDifficulty
+    ).toBeCloseTo(clockRateAdjustedRating.droid.rhythm, 5);
+    expect(
+        clockRateAdjustedRating.droid.attributes.flashlightDifficulty
+    ).toBeCloseTo(clockRateAdjustedRating.droid.flashlight, 5);
+    expect(clockRateAdjustedRating.droid.attributes.visualDifficulty).toBeCloseTo(
+        clockRateAdjustedRating.droid.visual,
+        5
+    );
+
     // DT PC star rating
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
         values.clockRatePcRating.aim,
@@ -164,6 +214,18 @@ const testDiffCalc = async (
         values.clockRatePcRating.total,
         4
     );
+
+    expect(clockRateAdjustedRating.osu.attributes.aimDifficulty).toBeCloseTo(
+        clockRateAdjustedRating.osu.aim,
+        5
+    );
+    expect(clockRateAdjustedRating.osu.attributes.speedDifficulty).toBeCloseTo(
+        clockRateAdjustedRating.osu.speed,
+        5
+    );
+    expect(
+        clockRateAdjustedRating.osu.attributes.flashlightDifficulty
+    ).toBeCloseTo(clockRateAdjustedRating.osu.flashlight, 5);
 
     const { noModDroidRating: droidStrRating, noModPcRating: osuStrRating } =
         values;
