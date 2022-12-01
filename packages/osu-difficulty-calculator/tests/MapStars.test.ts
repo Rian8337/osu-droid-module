@@ -257,6 +257,10 @@ const testDiffCalc = async (
         mods: [new ModRelax()],
     });
 
+    expect(relaxRating.droid.tap).toBe(0);
+    relaxRating.droid.calculateTap();
+    expect(relaxRating.droid.tap).toBe(0);
+
     expect(relaxRating.droid.rhythm).toBe(0);
     relaxRating.droid.calculateRhythm();
     expect(relaxRating.droid.rhythm).toBe(0);
