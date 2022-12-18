@@ -87,7 +87,9 @@ test("Test removing parameter", () => {
 test("Test osu! API URL builder", () => {
     let builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
 
-    expect(() => builder.buildURL()).toThrow();
+    if (!process.env.OSU_API_KEY) {
+        expect(() => builder.buildURL()).toThrow();
+    }
 
     process.env.OSU_API_KEY = "testkey";
 
