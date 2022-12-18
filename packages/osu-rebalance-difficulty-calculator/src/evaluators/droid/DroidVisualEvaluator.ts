@@ -36,7 +36,7 @@ export abstract class DroidVisualEvaluator {
         let strain: number;
 
         if (isHiddenMod) {
-            strain = Math.min(25, Math.pow(current.noteDensity, 2.25));
+            strain = Math.min(25, Math.pow(current.noteDensity, 2.5));
         } else {
             strain = Math.min(20, Math.pow(current.noteDensity, 2));
         }
