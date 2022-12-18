@@ -174,10 +174,9 @@ const testDiffCalc = async (
     expect(
         clockRateAdjustedRating.droid.attributes.flashlightDifficulty
     ).toBeCloseTo(clockRateAdjustedRating.droid.flashlight, 5);
-    expect(clockRateAdjustedRating.droid.attributes.visualDifficulty).toBeCloseTo(
-        clockRateAdjustedRating.droid.visual,
-        5
-    );
+    expect(
+        clockRateAdjustedRating.droid.attributes.visualDifficulty
+    ).toBeCloseTo(clockRateAdjustedRating.droid.visual, 5);
 
     // DT PC star rating
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(

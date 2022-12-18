@@ -5,6 +5,7 @@ import {
     PlaceableHitObject,
     Slider,
     Spinner,
+    Vector2,
 } from "@rian8337/osu-base";
 
 /**
@@ -271,25 +272,25 @@ export class DifficultyHitObject {
         }
 
         if (considerDistance) {
-            return (
-                (previous.object instanceof Slider
-                    ? Math.min(
-                          previous.object
-                              .getStackedEndPosition(Modes.droid)
-                              .getDistance(
-                                  this.object.getStackedPosition(Modes.droid)
-                              ),
-                          previous.object.lazyEndPosition?.getDistance(
-                              this.object.getStackedPosition(Modes.droid)
-                          ) ?? Number.POSITIVE_INFINITY
-                      )
-                    : previous.object
-                          .getStackedEndPosition(Modes.droid)
-                          .getDistance(
-                              this.object.getStackedPosition(Modes.droid)
-                          )) <=
-                2 * this.object.getRadius(Modes.droid)
+            const endPosition: Vector2 = this.object.getStackedPosition(
+                Modes.droid
             );
+
+            let distance: number = previous.object
+                .getStackedEndPosition(Modes.droid)
+                .getDistance(endPosition);
+
+            if (
+                previous.object instanceof Slider &&
+                previous.object.lazyEndPosition
+            ) {
+                distance = Math.min(
+                    distance,
+                    previous.object.lazyEndPosition.getDistance(endPosition)
+                );
+            }
+
+            return distance <= 2 * this.object.getRadius(Modes.droid);
         }
 
         return true;
