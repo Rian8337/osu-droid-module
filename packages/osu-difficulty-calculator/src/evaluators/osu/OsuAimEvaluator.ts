@@ -79,84 +79,72 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
         let strain: number = currentVelocity;
 
         if (
-            Math.max(current.strainTime, last.strainTime) <
-            1.25 * Math.min(current.strainTime, last.strainTime)
-        ) {
             // If rhythms are the same.
+            Math.max(current.strainTime, last.strainTime) <
+                1.25 * Math.min(current.strainTime, last.strainTime) &&
+            current.angle !== null &&
+            last.angle !== null &&
+            lastLast.angle !== null
+        ) {
+            // Rewarding angles, take the smaller velocity as base.
+            const angleBonus: number = Math.min(currentVelocity, prevVelocity);
 
-            if (
-                current.angle !== null &&
-                last.angle !== null &&
-                lastLast.angle !== null
-            ) {
-                // Rewarding angles, take the smaller velocity as base.
-                const angleBonus: number = Math.min(
-                    currentVelocity,
-                    prevVelocity
-                );
+            wideAngleBonus = this.calculateWideAngleBonus(current.angle);
+            acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
 
-                wideAngleBonus = this.calculateWideAngleBonus(current.angle);
-                acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
+            // Only buff deltaTime exceeding 300 BPM 1/2.
+            if (current.strainTime > 100) {
+                acuteAngleBonus = 0;
+            } else {
+                acuteAngleBonus *=
+                    // Multiply by previous angle, we don't want to buff unless this is a wiggle type pattern.
+                    this.calculateAcuteAngleBonus(last.angle) *
+                    // The maximum velocity we buff is equal to 125 / strainTime.
+                    Math.min(angleBonus, 125 / current.strainTime) *
+                    // Scale buff from 300 BPM 1/2 to 400 BPM 1/2.
+                    Math.pow(
+                        Math.sin(
+                            (Math.PI / 2) *
+                                Math.min(1, (100 - current.strainTime) / 25)
+                        ),
+                        2
+                    ) *
+                    // Buff distance exceeding 50 (radius) up to 100 (diameter).
+                    Math.pow(
+                        Math.sin(
+                            ((Math.PI / 2) *
+                                (MathUtils.clamp(
+                                    current.lazyJumpDistance,
+                                    50,
+                                    100
+                                ) -
+                                    50)) /
+                                50
+                        ),
+                        2
+                    );
+            }
 
-                // Only buff deltaTime exceeding 300 BPM 1/2.
-                if (current.strainTime > 100) {
-                    acuteAngleBonus = 0;
-                } else {
-                    acuteAngleBonus *=
-                        // Multiply by previous angle, we don't want to buff unless this is a wiggle type pattern.
-                        this.calculateAcuteAngleBonus(last.angle) *
-                        // The maximum velocity we buff is equal to 125 / strainTime.
-                        Math.min(angleBonus, 125 / current.strainTime) *
-                        // Scale buff from 300 BPM 1/2 to 400 BPM 1/2.
-                        Math.pow(
-                            Math.sin(
-                                (Math.PI / 2) *
-                                    Math.min(1, (100 - current.strainTime) / 25)
-                            ),
-                            2
-                        ) *
-                        // Buff distance exceeding 50 (radius) up to 100 (diameter).
-                        Math.pow(
-                            Math.sin(
-                                ((Math.PI / 2) *
-                                    (MathUtils.clamp(
-                                        current.lazyJumpDistance,
-                                        50,
-                                        100
-                                    ) -
-                                        50)) /
-                                    50
-                            ),
-                            2
-                        );
-                }
-
-                // Penalize wide angles if they're repeated, reducing the penalty as last.angle gets more acute.
-                wideAngleBonus *=
-                    angleBonus *
+            // Penalize wide angles if they're repeated, reducing the penalty as last.angle gets more acute.
+            wideAngleBonus *=
+                angleBonus *
+                (1 -
+                    Math.min(
+                        wideAngleBonus,
+                        Math.pow(this.calculateWideAngleBonus(last.angle), 3)
+                    ));
+            // Penalize acute angles if they're repeated, reducing the penalty as lastLast.angle gets more obtuse.
+            acuteAngleBonus *=
+                0.5 +
+                0.5 *
                     (1 -
                         Math.min(
-                            wideAngleBonus,
+                            acuteAngleBonus,
                             Math.pow(
-                                this.calculateWideAngleBonus(last.angle),
+                                this.calculateAcuteAngleBonus(lastLast.angle),
                                 3
                             )
                         ));
-                // Penalize acute angles if they're repeated, reducing the penalty as lastLast.angle gets more obtuse.
-                acuteAngleBonus *=
-                    0.5 +
-                    0.5 *
-                        (1 -
-                            Math.min(
-                                acuteAngleBonus,
-                                Math.pow(
-                                    this.calculateAcuteAngleBonus(
-                                        lastLast.angle
-                                    ),
-                                    3
-                                )
-                            ));
-            }
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
