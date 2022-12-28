@@ -176,7 +176,7 @@ export class Player {
                     rank: play.mark,
                     combo: play.combo,
                     title: play.filename,
-                    date: (play.date + 3600 * 6 - minutesOffset * 60) * 1000,
+                    date: date.getTime() - minutesOffset * 60 * 1000,
                     mods: play.mode,
                     hash: play.hash,
                 })
