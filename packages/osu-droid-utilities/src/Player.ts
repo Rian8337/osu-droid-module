@@ -147,6 +147,20 @@ export class Player {
 
         const recent: ExtraInformation["recent"] = obj.recent;
         for (const play of recent) {
+            // https://stackoverflow.com/a/63199512
+            const date: Date = new Date((play.date + 3600 * 6) * 1000);
+            const tz: string = date
+                .toLocaleString("en", {
+                    timeZone: "Europe/Berlin",
+                    timeStyle: "long",
+                })
+                .split(" ")
+                .slice(-1)[0];
+            const dateString: string = date.toString();
+            const minutesOffset: number =
+                Date.parse(`${dateString} UTC`) -
+                Date.parse(`${dateString} ${tz}`);
+
             this.recentPlays.push(
                 new Score({
                     uid: this.uid,
@@ -162,7 +176,7 @@ export class Player {
                     rank: play.mark,
                     combo: play.combo,
                     title: play.filename,
-                    date: (play.date + 3600 * 6) * 1000,
+                    date: (play.date + 3600 * 6 - minutesOffset * 60) * 1000,
                     mods: play.mode,
                     hash: play.hash,
                 })

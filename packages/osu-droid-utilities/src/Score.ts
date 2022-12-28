@@ -259,8 +259,23 @@ export class Score {
             n50: parseInt(play[10]),
             nmiss: parseInt(play[11]),
         });
+
         const date: Date = new Date(parseInt(play[12]) * 1000);
         date.setUTCHours(date.getUTCHours() + 6);
+
+        // https://stackoverflow.com/a/63199512
+        const tz: string = date
+            .toLocaleString("en", {
+                timeZone: "Europe/Berlin",
+                timeStyle: "long",
+            })
+            .split(" ")
+            .slice(-1)[0];
+        const dateString: string = date.toString();
+        const minutesOffset: number =
+            Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
+        date.setUTCHours(date.getUTCHours() - minutesOffset / 60);
+
         this.date = date;
         this.title = play[13]
             .substring(0, play[13].length - 4)
