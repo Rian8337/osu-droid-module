@@ -26,9 +26,9 @@ test("Test fill information", () => {
         .split(" ")
         .slice(-1)[0];
     const dateString = date.toString();
-    const minutesOffset =
+    const msOffset =
         Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
-    date.setUTCHours(date.getUTCHours() - minutesOffset / 60);
+    date.setUTCMilliseconds(date.getUTCMilliseconds() - msOffset);
 
     expect(score.date).toEqual(date);
     expect(score.forcedAR).toBeUndefined();

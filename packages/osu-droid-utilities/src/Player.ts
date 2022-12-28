@@ -157,7 +157,7 @@ export class Player {
                 .split(" ")
                 .slice(-1)[0];
             const dateString: string = date.toString();
-            const minutesOffset: number =
+            const msOffset: number =
                 Date.parse(`${dateString} UTC`) -
                 Date.parse(`${dateString} ${tz}`);
 
@@ -176,7 +176,7 @@ export class Player {
                     rank: play.mark,
                     combo: play.combo,
                     title: play.filename,
-                    date: date.getTime() - minutesOffset * 60 * 1000,
+                    date: date.getTime() - msOffset,
                     mods: play.mode,
                     hash: play.hash,
                 })

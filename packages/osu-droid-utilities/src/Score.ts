@@ -272,9 +272,9 @@ export class Score {
             .split(" ")
             .slice(-1)[0];
         const dateString: string = date.toString();
-        const minutesOffset: number =
+        const msOffset: number =
             Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
-        date.setUTCHours(date.getUTCHours() - minutesOffset / 60);
+        date.setUTCMilliseconds(date.getUTCMilliseconds() - msOffset);
 
         this.date = date;
         this.title = play[13]
