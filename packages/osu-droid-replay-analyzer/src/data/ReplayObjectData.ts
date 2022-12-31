@@ -12,7 +12,7 @@ export class ReplayObjectData {
      * For circles, this is the offset at which the circle was hit. If the hit accuracy is 10000, it means the circle was tapped too late ([game source code](https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/HitCircle.java#L298-L306)).
      *
      * For sliders, this is the offset at which the slider head was hit. For
-     * sliderbreaks, the accuracy would be `(hit window 50)ms + 13ms` ([game source code](https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821)).
+     * sliderbreaks, the accuracy would be `Math.floor(<hit window 50>ms) + 13ms` ([game source code](https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821)).
      *
      * For spinners, this is the total amount at which the spinner was spinned:
      * ```js
