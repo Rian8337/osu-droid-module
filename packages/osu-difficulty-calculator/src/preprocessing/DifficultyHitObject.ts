@@ -162,7 +162,10 @@ export class DifficultyHitObject {
      */
     velocity: number = 0;
 
-    private readonly hitObjects: DifficultyHitObject[];
+    /**
+     * Other hitobjects in the beatmap, including this hitobject.
+     */
+    readonly hitObjects: DifficultyHitObject[];
 
     /**
      * @param object The underlying hitobject.
