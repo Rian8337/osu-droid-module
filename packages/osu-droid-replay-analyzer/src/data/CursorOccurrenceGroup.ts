@@ -68,11 +68,7 @@ export class CursorOccurrenceGroup {
      * The time at which this cursor occurrence group ends.
      */
     get endTime(): number {
-        if (this._up) {
-            return this._up.time;
-        }
-
-        return this._moves.at(-1)?.time ?? this._down.time;
+        return this._up?.time ?? this._moves.at(-1)?.time ?? this._down.time;
     }
 
     /**

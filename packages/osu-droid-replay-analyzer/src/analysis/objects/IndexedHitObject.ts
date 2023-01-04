@@ -6,19 +6,17 @@ import { DifficultyHitObject as RebalanceDifficultyHitObject } from "@rian8337/o
  */
 export class IndexedHitObject {
     /**
-     * The accepted index of the cursor that hits the hitobject.
+     * The cursor index that hits the hitobject.
+     *
+     * If -1, the detection was unable to find any cursor that attempted to hit
+     * the hitobject or it did not meet the criteria for detection.
      */
-    acceptedCursorIndex: number;
+    cursorIndex: number;
 
     /**
-     * The actual index of the cursor that hits the hitobject.
+     * The angle of the movement of the cursor towards the next hitobject.
      */
-    actualCursorIndex: number;
-
-    /**
-     * The occurrence index of the cursor that hits the hitobject.
-     */
-    occurrenceIndex: number;
+    angle: number | null;
 
     /**
      * If this is a slider, whether the slider was cheesed.
@@ -31,20 +29,24 @@ export class IndexedHitObject {
     readonly object: DifficultyHitObject | RebalanceDifficultyHitObject;
 
     /**
+     * Whether the hitobject was most likely two-handed.
+     */
+    get is2Handed(): boolean {
+        return this.angle !== null && this.angle >= Math.PI / 6;
+    }
+
+    /**
      * @param object The underlying difficulty hitobject.
-     * @param acceptedCursorIndex The accepted index of the cursor that hits the hitobject.
-     * @param actualCursorIndex The actual index of the cursor that hits the hitobject.
-     * @param occurrenceIndex The occurrence index of the cursor that hits the hitobject.
+     * @param cursorIndex The cursor index that moves towards the hitobject.
+     * @param angle The angle of the movement of the cursor that moves towards the hitobject.
      */
     constructor(
         object: DifficultyHitObject | RebalanceDifficultyHitObject,
-        acceptedCursorIndex: number,
-        actualCursorIndex: number,
-        occurrenceIndex: number
+        cursorIndex: number,
+        angle: number | null
     ) {
         this.object = object;
-        this.acceptedCursorIndex = acceptedCursorIndex;
-        this.actualCursorIndex = actualCursorIndex;
-        this.occurrenceIndex = occurrenceIndex;
+        this.cursorIndex = cursorIndex;
+        this.angle = angle;
     }
 }

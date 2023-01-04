@@ -234,8 +234,7 @@ export class ThreeFingerChecker {
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
                         (v) => v.acronym === m.acronym
-                    ) &&
-                    !(m instanceof ModPrecise)
+                    )
             ),
         }).calculate();
 
@@ -243,9 +242,7 @@ export class ThreeFingerChecker {
 
         const strainNotes:
             | DifficultyHitObject[]
-            //@ts-expect-error: No overloads match, but this is fine.
             | RebalanceDifficultyHitObject[] = calculator.objects.filter(
-            //@ts-expect-error: No overloads match, but this is fine.
             (v) => v.originalTapStrain >= ThreeFingerChecker.strainThreshold
         );
         this.strainNoteCount = strainNotes.length;
