@@ -152,55 +152,55 @@ export class TwoHandChecker {
             this.indexedHitObjects.push(indexedHitObject);
         }
 
-        console.log(
-            this.indexedHitObjects.filter((v) => v.cursorIndex !== -1).length +
-                1,
-            "indexes found,",
-            this.indexedHitObjects.filter((v) => v.cursorIndex === -1).length -
-                1,
-            "not found,",
-            this.indexedHitObjects.filter((v) => v.is2Handed).length,
-            "2 handed,",
-            this.indexedHitObjects.filter((v) => !v.is2Handed).length,
-            "not 2 handed"
-        );
+        // console.log(
+        //     this.indexedHitObjects.filter((v) => v.cursorIndex !== -1).length +
+        //         1,
+        //     "indexes found,",
+        //     this.indexedHitObjects.filter((v) => v.cursorIndex === -1).length -
+        //         1,
+        //     "not found,",
+        //     this.indexedHitObjects.filter((v) => v.is2Handed).length,
+        //     "2 handed,",
+        //     this.indexedHitObjects.filter((v) => !v.is2Handed).length,
+        //     "not 2 handed"
+        // );
 
-        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            console.log(
-                "Index",
-                i,
-                "count:",
-                this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
-            );
-        }
+        // for (let i = 0; i < this.data.cursorMovement.length; ++i) {
+        //     console.log(
+        //         "Index",
+        //         i,
+        //         "count:",
+        //         this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
+        //     );
+        // }
 
         // TODO: solve -1 cursor indexes
-        console.table(
-            this.indexedHitObjects
-                .filter(
-                    (v) =>
-                        // v.cursorIndex === -1 &&
-                        // v.object.aimStrainWithSliders > 200 &&
-                        v.object.deltaTime > 75 &&
-                        v.is2Handed
-                )
-                .map((v) => {
-                    return {
-                        startTime: v.object.object.startTime,
-                        type: v.object.object.typeStr(),
-                        strain: v.object.aimStrainWithSliders,
-                        hitAngle:
-                            v.angle !== null
-                                ? MathUtils.radiansToDegrees(v.angle)
-                                : null,
-                        objectAngle:
-                            v.object.angle !== null
-                                ? MathUtils.radiansToDegrees(v.object.angle)
-                                : null,
-                        cursorIndex: v.cursorIndex,
-                    };
-                })
-        );
+        // console.table(
+        //     this.indexedHitObjects
+        //         .filter(
+        //             (v) =>
+        //                 // v.cursorIndex === -1 &&
+        //                 // v.object.aimStrainWithSliders > 200 &&
+        //                 v.object.deltaTime > 75 &&
+        //                 v.is2Handed
+        //         )
+        //         .map((v) => {
+        //             return {
+        //                 startTime: v.object.object.startTime,
+        //                 type: v.object.object.typeStr(),
+        //                 strain: v.object.aimStrainWithSliders,
+        //                 hitAngle:
+        //                     v.angle !== null
+        //                         ? MathUtils.radiansToDegrees(v.angle)
+        //                         : null,
+        //                 objectAngle:
+        //                     v.object.angle !== null
+        //                         ? MathUtils.radiansToDegrees(v.object.angle)
+        //                         : null,
+        //                 cursorIndex: v.cursorIndex,
+        //             };
+        //         })
+        // );
     }
 
     /**
