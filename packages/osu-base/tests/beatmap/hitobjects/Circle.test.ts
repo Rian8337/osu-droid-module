@@ -36,16 +36,17 @@ describe("Test circle position", () => {
 
                 const scale =
                     mode === Modes.droid ? circle.droidScale : circle.osuScale;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedPosition(mode)
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
 
                 circle.stackHeight = 2;
@@ -55,10 +56,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
 
                 circle.stackHeight = 4;
@@ -68,10 +69,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
             };
 
@@ -100,16 +101,17 @@ describe("Test circle position", () => {
 
                 const scale =
                     mode === Modes.droid ? circle.droidScale : circle.osuScale;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedEndPosition(mode)
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
 
                 circle.stackHeight = 2;
@@ -119,10 +121,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
 
                 circle.stackHeight = 4;
@@ -132,10 +134,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * circle.stackHeight * -6.4
+                    scale * circle.stackHeight * stackMultiplier
                 );
             };
 

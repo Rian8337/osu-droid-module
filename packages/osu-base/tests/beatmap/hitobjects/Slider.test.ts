@@ -70,16 +70,17 @@ describe("Test slider position", () => {
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
 
                 slider.stackHeight = 2;
@@ -89,10 +90,10 @@ describe("Test slider position", () => {
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
 
                 slider.stackHeight = 0.5;
@@ -102,10 +103,10 @@ describe("Test slider position", () => {
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
             };
 
@@ -134,16 +135,17 @@ describe("Test slider position", () => {
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
 
                 slider.stackHeight = 2;
@@ -153,10 +155,10 @@ describe("Test slider position", () => {
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
 
                 slider.stackHeight = 0.5;
@@ -166,10 +168,10 @@ describe("Test slider position", () => {
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * -6.4
+                    scale * slider.stackHeight * stackMultiplier
                 );
             };
 

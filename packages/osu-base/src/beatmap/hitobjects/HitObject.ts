@@ -120,14 +120,14 @@ export abstract class HitObject {
      * @returns The stack offset with respect to the gamemode.
      */
     getStackOffset(mode: Modes): Vector2 {
-        let coordinate: number = this.stackHeight * -6.4;
+        let coordinate: number = this.stackHeight;
 
         switch (mode) {
             case Modes.droid:
-                coordinate *= this.droidScale;
+                coordinate *= this.droidScale * -4;
                 break;
             case Modes.osu:
-                coordinate *= this.osuScale;
+                coordinate *= this.osuScale * -6.4;
                 break;
         }
 
