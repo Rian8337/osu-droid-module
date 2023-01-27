@@ -343,12 +343,12 @@ test("Test difficulty calculation sample beatmap 3", async () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noModDroidRating: {
-                aim: 2.4325074833453617,
+                aim: 2.4284331251140285,
                 tap: 3.0126027197431164,
                 rhythm: 1.405878591040392,
                 flashlight: 1.0610817679095388,
                 visual: 0.9045624484382072,
-                total: 5.442204761302666,
+                total: 5.440780211111473,
             },
             noModPcRating: {
                 aim: 2.999322964576116,
@@ -357,12 +357,12 @@ test("Test difficulty calculation sample beatmap 3", async () => {
                 total: 6.284400524147425,
             },
             clockRateDroidRating: {
-                aim: 3.5416742221153252,
+                aim: 3.5335220146480264,
                 tap: 4.529028236256188,
                 rhythm: 1.632988701570522,
                 flashlight: 1.5816882613337735,
                 visual: 1.362637970062681,
-                total: 7.904557686351672,
+                total: 7.902374113999361,
             },
             clockRatePcRating: {
                 aim: 4.221180552801728,
@@ -412,12 +412,12 @@ test("Test difficulty calculation sample beatmap 5", async () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noModDroidRating: {
-                aim: 59.813928227363824,
+                aim: 59.80314173580019,
                 tap: 5.143249153098792,
                 rhythm: 0.6681138931617763,
-                flashlight: 52.11760510252108,
+                flashlight: 52.059725422118845,
                 visual: 1.7997869459845357,
-                total: 42.86324946190606,
+                total: 42.85709562490807,
             },
             noModPcRating: {
                 aim: 16.043384642499753,
@@ -426,12 +426,12 @@ test("Test difficulty calculation sample beatmap 5", async () => {
                 total: 29.33821693274539,
             },
             clockRateDroidRating: {
-                aim: 75.33141153135259,
+                aim: 75.32004598349347,
                 tap: 7.632874530309652,
                 rhythm: 0.718279203893433,
-                flashlight: 62.01045880917641,
-                visual: 5.221564334940608,
-                total: 51.6299974029191,
+                flashlight: 61.9362029775972,
+                visual: 5.220345852535436,
+                total: 51.6238227929352,
             },
             clockRatePcRating: {
                 aim: 53.358097235057585,
