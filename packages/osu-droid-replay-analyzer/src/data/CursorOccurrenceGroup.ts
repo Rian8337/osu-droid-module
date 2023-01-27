@@ -72,6 +72,13 @@ export class CursorOccurrenceGroup {
     }
 
     /**
+     * The duration this cursor occurrence group is active for.
+     */
+    get duration(): number {
+        return this.endTime - this.startTime;
+    }
+
+    /**
      * All cursor occurrences in this group.
      *
      * This iterates all occurrences and as such should be used sparingly or stored locally.
