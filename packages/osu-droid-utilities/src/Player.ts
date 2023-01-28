@@ -148,7 +148,7 @@ export class Player {
         const recent: ExtraInformation["recent"] = obj.recent;
         for (const play of recent) {
             // https://stackoverflow.com/a/63199512
-            const date: Date = new Date((play.date + 3600 * 6) * 1000);
+            const date: Date = new Date((play.date + 3600 * 8) * 1000);
             const tz: string = date
                 .toLocaleString("en", {
                     timeZone: "Europe/Berlin",

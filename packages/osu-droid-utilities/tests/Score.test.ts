@@ -6,7 +6,6 @@ const apiMock =
 
 test("Test fill information", () => {
     const score = new Score();
-
     score.fillInformation(apiMock);
 
     expect(score.accuracy.n300).toBe(1700);
@@ -15,22 +14,7 @@ test("Test fill information", () => {
     expect(score.accuracy.nmiss).toBe(0);
     expect(score.accuracy.value()).toBeCloseTo(0.98392);
     expect(score.combo).toBe(2376);
-
-    // https://stackoverflow.com/a/63199512
-    const date = new Date((1639619724 + 3600 * 6) * 1000);
-    const tz = date
-        .toLocaleString("en", {
-            timeZone: "Europe/Berlin",
-            timeStyle: "long",
-        })
-        .split(" ")
-        .slice(-1)[0];
-    const dateString = date.toString();
-    const msOffset =
-        Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
-    date.setUTCMilliseconds(date.getUTCMilliseconds() - msOffset);
-
-    expect(score.date).toEqual(date);
+    expect(score.date.getTime()).toBe(1639644924 * 1000);
     expect(score.forcedAR).toBeUndefined();
     expect(score.hash).toBe("70b1226af3d8b76d859982b505c4ce11");
     expect(score.mods.length).toBe(1);

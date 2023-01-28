@@ -261,7 +261,7 @@ export class Score {
         });
 
         const date: Date = new Date(parseInt(play[12]) * 1000);
-        date.setUTCHours(date.getUTCHours() + 6);
+        date.setUTCHours(date.getUTCHours() + 8);
 
         // https://stackoverflow.com/a/63199512
         const tz: string = date
