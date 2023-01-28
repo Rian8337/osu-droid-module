@@ -1,4 +1,4 @@
-import { Spinner, Slider, Modes } from "@rian8337/osu-base";
+import { Spinner, Slider, Modes, MathUtils } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
@@ -117,6 +117,66 @@ export abstract class DroidVisualEvaluator {
                     // Scale with cumulative strain time to avoid overbuffing past sliders.
                     Math.min(1, 300 / cumulativeStrainTime);
             }
+        }
+
+        // Reward for rhythm changes.
+        if (current.rhythmMultiplier > 1) {
+            let rhythmBonus: number = (current.rhythmMultiplier - 1) / 20;
+
+            // Rhythm changes are harder to read in Hidden.
+            // Add additional bonus for Hidden.
+            if (isHiddenMod) {
+                rhythmBonus += (current.rhythmMultiplier - 1) / 25;
+            }
+
+            // Rhythm changes are harder to read when objects are stacked together.
+            // Scale rhythm bonus based on the stack of past objects.
+            const diameter: number = 2 * current.object.getRadius(Modes.droid);
+            let cumulativeStrainTime: number = 0;
+
+            for (let i = 0; i < Math.min(current.index, 5); ++i) {
+                const previous: DifficultyHitObject = current.previous(i)!;
+
+                if (
+                    previous.object instanceof Spinner ||
+                    // Exclude overlapping objects that can be tapped at once.
+                    previous.isOverlapping(true)
+                ) {
+                    continue;
+                }
+
+                const jumpDistance: number = current.object
+                    .getStackedPosition(Modes.droid)
+                    .getDistance(
+                        previous.object.getStackedEndPosition(Modes.droid)
+                    );
+
+                cumulativeStrainTime += previous.strainTime;
+
+                rhythmBonus +=
+                    // Scale the bonus with diameter.
+                    MathUtils.clamp(
+                        (0.5 - jumpDistance / diameter) / 10,
+                        0,
+                        0.05
+                    ) *
+                    // Scale with cumulative strain time to avoid overbuffing past objects.
+                    Math.min(1, 300 / cumulativeStrainTime);
+
+                // Give a larger bonus for Hidden.
+                if (isHiddenMod) {
+                    rhythmBonus +=
+                        (1 -
+                            current.opacityAt(
+                                previous.object.startTime,
+                                isHiddenMod,
+                                Modes.droid
+                            )) /
+                        20;
+                }
+            }
+
+            strain += rhythmBonus;
         }
 
         return strain;
