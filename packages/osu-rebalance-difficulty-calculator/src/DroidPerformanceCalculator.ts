@@ -1,10 +1,13 @@
 import {
-    Accuracy,
     ModRelax,
-    ModScoreV2,
     ModFlashlight,
     Modes,
     Utils,
+    OsuHitWindow,
+    MapStats,
+    DroidHitWindow,
+    ModPrecise,
+    ErrorFunction,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -48,11 +51,27 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         return this._tapPenalty;
     }
 
+    /**
+     * The estimated deviation of the score.
+     */
+    get deviation(): number {
+        return this._deviation;
+    }
+
+    /**
+     * The estimated tap deviation of the score.
+     */
+    get tapDeviation(): number {
+        return this._tapDeviation;
+    }
+
     override readonly difficultyAttributes: DroidDifficultyAttributes;
     protected override finalMultiplier = 1.24;
     protected override readonly mode: Modes = Modes.droid;
 
     private _tapPenalty: number = 1;
+    private _deviation: number = 0;
+    private _tapDeviation: number = 0;
 
     /**
      * @param difficultyAttributes The difficulty attributes to calculate.
@@ -86,6 +105,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     protected override calculateValues(): void {
+        this._deviation = this.calculateDeviation();
+        this._tapDeviation = this.calculateTapDeviation();
+
         this.calculateAimValue();
         this.calculateTapValue();
         this.calculateAccuracyValue();
@@ -143,14 +165,16 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *= this.sliderNerfFactor;
 
         // Scale the aim value with accuracy and OD.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
-        this.aim *=
-            (0.98 + (od > 0 ? odScaling : -odScaling)) *
-            Math.pow(
-                this.computedAccuracy.value(this.totalHits),
-                (14 - Math.max(od, 2.5)) / 2
-            );
+        // const od: number = this.difficultyAttributes.overallDifficulty;
+        // const odScaling: number = Math.pow(od, 2) / 2500;
+        // this.aim *=
+        //     (0.98 + (od > 0 ? odScaling : -odScaling)) *
+        //     Math.pow(
+        //         this.computedAccuracy.value(this.totalHits),
+        //         (14 - Math.max(od, 2.5)) / 2
+        //     );
+
+        this.aim *= ErrorFunction.erf(50 / (Math.SQRT2 * this._deviation));
     }
 
     /**
@@ -178,45 +202,46 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *= this.comboPenalty;
 
         // Calculate accuracy assuming the worst case scenario.
-        const countGreat: number = this.computedAccuracy.n300;
-        const countOk: number = this.computedAccuracy.n100;
-        const countMeh: number = this.computedAccuracy.n50;
+        // const countGreat: number = this.computedAccuracy.n300;
+        // const countOk: number = this.computedAccuracy.n100;
+        // const countMeh: number = this.computedAccuracy.n50;
 
-        const relevantTotalDiff: number =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
+        // const relevantTotalDiff: number =
+        //     this.totalHits - this.difficultyAttributes.speedNoteCount;
 
-        const relevantAccuracy: Accuracy = new Accuracy({
-            n300: Math.max(0, countGreat - relevantTotalDiff),
-            n100: Math.max(
-                0,
-                countOk - Math.max(0, relevantTotalDiff - countGreat)
-            ),
-            n50: Math.max(
-                0,
-                countMeh - Math.max(0, relevantTotalDiff - countGreat - countOk)
-            ),
-            nmiss: this.effectiveMissCount,
-        });
+        // const relevantAccuracy: Accuracy = new Accuracy({
+        //     n300: Math.max(0, countGreat - relevantTotalDiff),
+        //     n100: Math.max(
+        //         0,
+        //         countOk - Math.max(0, relevantTotalDiff - countGreat)
+        //     ),
+        //     n50: Math.max(
+        //         0,
+        //         countMeh - Math.max(0, relevantTotalDiff - countGreat - countOk)
+        //     ),
+        //     nmiss: this.effectiveMissCount,
+        // });
 
         // Scale the tap value with accuracy and OD.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 750;
-        this.tap *=
-            (0.95 + (od > 0 ? odScaling : -odScaling)) *
-            Math.pow(
-                (this.computedAccuracy.value(this.totalHits) +
-                    relevantAccuracy.value(
-                        this.difficultyAttributes.speedNoteCount
-                    )) /
-                    2,
-                (14 - Math.max(od, 2.5)) / 2
-            );
+        // const od: number = this.difficultyAttributes.overallDifficulty;
+        // const odScaling: number = Math.pow(od, 2) / 750;
+        // this.tap *=
+        //     (0.95 + (od > 0 ? odScaling : -odScaling)) *
+        //     Math.pow(
+        //         (this.computedAccuracy.value(this.totalHits) +
+        //             relevantAccuracy.value(
+        //                 this.difficultyAttributes.speedNoteCount
+        //             )) /
+        //             2,
+        //         (14 - Math.max(od, 2.5)) / 2
+        //     );
 
         // Scale the tap value with # of 50s to punish doubletapping.
-        this.tap *= Math.pow(
-            0.99,
-            Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500)
-        );
+        // this.tap *= Math.pow(
+        //     0.99,
+        //     Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500)
+        // );
+        this.tap *= ErrorFunction.erf(20 / (Math.SQRT2 * this._tapDeviation));
 
         // Scale the tap value with three-fingered penalty.
         this.tap /= this._tapPenalty;
@@ -226,38 +251,42 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): void {
-        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
+        if (
+            this.difficultyAttributes.mods.some((m) => m instanceof ModRelax) ||
+            this.totalSuccessfulHits === 0
+        ) {
             this.accuracy = 0;
 
             return;
         }
 
-        const ncircles: number = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2
-        )
-            ? this.totalHits - this.difficultyAttributes.spinnerCount
-            : this.difficultyAttributes.hitCircleCount;
+        // const ncircles: number = this.difficultyAttributes.mods.some(
+        //     (m) => m instanceof ModScoreV2
+        // )
+        //     ? this.totalHits - this.difficultyAttributes.spinnerCount
+        //     : this.difficultyAttributes.hitCircleCount;
 
-        if (ncircles === 0) {
-            this.accuracy = 0;
+        // if (ncircles === 0) {
+        //     this.accuracy = 0;
 
-            return;
-        }
+        //     return;
+        // }
 
-        const realAccuracy: Accuracy = new Accuracy({
-            ...this.computedAccuracy,
-            n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
-        });
+        // const realAccuracy: Accuracy = new Accuracy({
+        //     ...this.computedAccuracy,
+        //     n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
+        // });
 
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
-        this.accuracy =
-            Math.pow(1.4, this.difficultyAttributes.overallDifficulty) *
-            Math.pow(realAccuracy.value(ncircles), 12) *
-            10;
+        // this.accuracy =
+        //     Math.pow(1.4, this.difficultyAttributes.overallDifficulty) *
+        //     Math.pow(realAccuracy.value(ncircles), 12) *
+        //     10;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
-        this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
+        // this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
+        this.accuracy = 500 * Math.exp(-0.125 * this._deviation);
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
@@ -319,13 +348,16 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 : 0);
 
         // Scale the flashlight value with accuracy slightly.
-        this.flashlight *=
-            0.5 + this.computedAccuracy.value(this.totalHits) / 2;
+        // this.flashlight *=
+        //     0.5 + this.computedAccuracy.value(this.totalHits) / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
-        this.flashlight *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        // const od: number = this.difficultyAttributes.overallDifficulty;
+        // const odScaling: number = Math.pow(od, 2) / 2500;
+        // this.flashlight *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        this.flashlight *= ErrorFunction.erf(
+            50 / (Math.SQRT2 * this._deviation)
+        );
     }
 
     /**
@@ -361,12 +393,127 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         );
 
         // Scale the visual value with accuracy harshly.
-        this.visual *= Math.pow(this.computedAccuracy.value(), 8);
+        // this.visual *= Math.pow(this.computedAccuracy.value(), 8);
 
         // It is also important to consider accuracy difficulty when doing that.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
-        this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        // const od: number = this.difficultyAttributes.overallDifficulty;
+        // const odScaling: number = Math.pow(od, 2) / 2500;
+        // this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        this.visual *= ErrorFunction.erf(50 / (Math.SQRT2 * this._deviation));
+    }
+
+    /**
+     * Estimates the player's tap deviation based on the OD, number of circles and sliders,
+     * and number of 300s, 100s, 50s, and misses, assuming the player's mean hit error is 0.
+     *
+     * The estimation is consistent in that two SS scores on the same map
+     * with the same settings will always return the same deviation.
+     *
+     * Sliders are treated as circles with a 50 hit window.
+     *
+     * Misses are ignored because they are usually due to misaiming, and 50s
+     * are grouped with 100s since they are usually due to misreading.
+     *
+     * Inaccuracies are capped to the number of circles in the map.
+     */
+    private calculateDeviation(): number {
+        if (this.totalSuccessfulHits === 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const hitWindow300: number = new OsuHitWindow(
+            this.difficultyAttributes.overallDifficulty
+        ).hitWindowFor300();
+
+        // Obtain the 50 hit window for droid.
+        const clockRate: number = new MapStats({
+            mods: this.difficultyAttributes.mods,
+        }).calculate().speedMultiplier;
+
+        const realHitWindow300: number = hitWindow300 * clockRate;
+        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
+            OsuHitWindow.hitWindow300ToOD(realHitWindow300)
+        );
+        const hitWindow50: number =
+            droidHitWindow.hitWindowFor50(
+                this.difficultyAttributes.mods.some(
+                    (m) => m instanceof ModPrecise
+                )
+            ) / clockRate;
+
+        const greatCountOnCircles: number =
+            this.difficultyAttributes.hitCircleCount -
+            this.computedAccuracy.n100 -
+            this.computedAccuracy.n50 -
+            this.computedAccuracy.nmiss;
+
+        // The probability that a player hits a circle is unknown, but we can estimate it to be
+        // the number of greats on circles divided by the number of circles, and then add one
+        // to the number of circles as a bias correction / bayesian prior.
+        const greatProbabilityCircle: number = Math.max(
+            0,
+            greatCountOnCircles / (this.difficultyAttributes.hitCircleCount + 1)
+        );
+        let greatProbabilitySlider: number;
+
+        if (greatCountOnCircles < 0) {
+            const nonCircleMisses: number = -greatCountOnCircles;
+            greatProbabilitySlider = Math.max(
+                0,
+                (this.difficultyAttributes.sliderCount - nonCircleMisses) /
+                    (this.difficultyAttributes.sliderCount + 1)
+            );
+        } else {
+            greatProbabilitySlider =
+                this.difficultyAttributes.sliderCount /
+                (this.difficultyAttributes.sliderCount + 1);
+        }
+
+        if (greatProbabilityCircle === 0 && greatProbabilitySlider === 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const deviationOnCircles: number =
+            hitWindow300 /
+            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
+        const deviationOnSliders: number =
+            hitWindow50 /
+            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilitySlider));
+
+        return Math.min(deviationOnCircles, deviationOnSliders);
+    }
+
+    /**
+     * Does the same as {@link calculateDeviation}, but only for notes and inaccuracies that are relevant to tap difficulty.
+     *
+     * Treats all difficult speed notes as circles, so this method can sometimes return a lower deviation than {@link calculateDeviation}.
+     * This is fine though, since this method is only used to scale tap pp.
+     */
+    private calculateTapDeviation(): number {
+        if (this.totalSuccessfulHits === 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const hitWindow300: number = new OsuHitWindow(
+            this.difficultyAttributes.overallDifficulty
+        ).hitWindowFor300();
+        const relevantTotalDiff: number =
+            this.totalHits - this.difficultyAttributes.speedNoteCount;
+        const relevantCountGreat = Math.max(
+            0,
+            this.computedAccuracy.n300 - relevantTotalDiff
+        );
+
+        if (relevantCountGreat == 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const greatProbability: number =
+            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
+
+        return (
+            hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
+        );
     }
 
     override toString(): string {

@@ -99,6 +99,17 @@ export abstract class PerformanceCalculator {
     }
 
     /**
+     * The total hits that were successfully done.
+     */
+    protected get totalSuccessfulHits(): number {
+        return (
+            this.computedAccuracy.n300 +
+            this.computedAccuracy.n100 +
+            this.computedAccuracy.n50
+        );
+    }
+
+    /**
      * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
