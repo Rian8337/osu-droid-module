@@ -241,7 +241,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         //     0.99,
         //     Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500)
         // );
-        this.tap *= ErrorFunction.erf(20 / (Math.SQRT2 * this._tapDeviation));
+        this.tap *=
+            1.1 *
+            Math.pow(
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._tapDeviation)),
+                1.5
+            );
 
         // Scale the tap value with three-fingered penalty.
         this.tap /= this._tapPenalty;
@@ -286,7 +291,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
         // this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
-        this.accuracy = 477.793 * Math.exp(-0.197612 * this._deviation);
+        this.accuracy =
+            500 *
+            Math.exp(-0.135 * this._deviation) *
+            // The following function is to give higher reward for deviations lower than 15 (150 UR).
+            (10 / (this._deviation + 10) + 0.625);
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
@@ -399,7 +408,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // const od: number = this.difficultyAttributes.overallDifficulty;
         // const odScaling: number = Math.pow(od, 2) / 2500;
         // this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
-        this.visual *= ErrorFunction.erf(50 / (Math.SQRT2 * this._deviation));
+        this.visual *= ErrorFunction.erf(35 / (Math.SQRT2 * this._deviation));
     }
 
     /**
