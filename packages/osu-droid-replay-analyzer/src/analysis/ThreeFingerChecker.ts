@@ -9,6 +9,7 @@ import {
     Spinner,
     Interpolation,
     Modes,
+    Slider,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -615,112 +616,129 @@ export class ThreeFingerChecker {
         sectionReplayObjectData: ReplayObjectData[],
         cursorIndexes: number[]
     ): number {
-        let objectIndex: number = sectionObjects.findIndex(
-            (v, i) =>
-                !(v.object instanceof Spinner) &&
-                sectionReplayObjectData[i].result !== HitResult.miss
+        const isPrecise: boolean = this.calculator.mods.some(
+            (m) => m instanceof ModPrecise
         );
-        if (objectIndex === -1) {
-            return -1;
-        }
+        const hitWindow50: number = this.hitWindow.hitWindowFor50(isPrecise);
 
-        while (cursorIndexes.length > 0) {
-            if (objectIndex === sectionObjects.length) {
-                break;
-            }
+        for (
+            let i = 0;
+            i < sectionObjects.length && cursorIndexes.every((v) => v !== -1);
+            ++i
+        ) {
+            const object: DifficultyHitObject | RebalanceDifficultyHitObject =
+                sectionObjects[i];
+            const objectData: ReplayObjectData = sectionReplayObjectData[i];
 
-            const o: DifficultyHitObject | RebalanceDifficultyHitObject =
-                sectionObjects[objectIndex];
-            const s: ReplayObjectData = sectionReplayObjectData[objectIndex];
-            ++objectIndex;
-
-            if (s.result === HitResult.miss) {
+            if (
+                object.object instanceof Spinner ||
+                objectData.result === HitResult.miss
+            ) {
                 continue;
             }
 
-            // Get the cursor instance that is closest to the object's hit time.
+            // Exclude sliderbreaks.
+            if (
+                object.object instanceof Slider &&
+                objectData.accuracy === Math.floor(hitWindow50) + 13
+            ) {
+                continue;
+            }
+
+            const objectPosition: Vector2 = object.object.getStackedPosition(
+                Modes.droid
+            );
+            const hitTime: number =
+                object.object.startTime + objectData.accuracy;
+
+            // Observe the cursor position at the object's hit time.
             for (let j = 0; j < cursorIndexes.length; ++j) {
-                const c: CursorData =
+                if (cursorIndexes[j] === -1) {
+                    continue;
+                }
+
+                const cursorData: CursorData =
                     this.data.cursorMovement[cursorIndexes[j]];
-
-                // Cursor instances aren't always recorded at all times,
-                // therefore the game emulates the movement between
-                // movementType.MOVE cursors.
-                const hitTime: number = o.object.startTime + s.accuracy;
-
                 const cursorGroup: CursorOccurrenceGroup | undefined =
-                    c.occurrenceGroups.find((v) => v.isActiveAt(hitTime));
+                    cursorData.occurrenceGroups.find((v) =>
+                        v.isActiveAt(hitTime)
+                    );
 
                 if (!cursorGroup) {
                     continue;
                 }
 
                 const cursors: CursorOccurrence[] = cursorGroup.allOccurrences;
+                for (let k = 1; k < cursors.length; ++k) {
+                    const cursor: CursorOccurrence = cursors[k];
+                    const prevCursor: CursorOccurrence = cursors[k - 1];
 
-                const nextHitIndex: number = cursors.findIndex(
-                    (v) => v.time >= hitTime
-                );
-                const hitIndex: number = nextHitIndex - 1;
-                if (hitIndex <= -1) {
-                    cursorIndexes[j] = -1;
-                    continue;
-                }
-
-                const cursorPosition: Vector2 = new Vector2(
-                    cursors[hitIndex].position.x,
-                    cursors[hitIndex].position.y
-                );
-
-                let isInObject: boolean = false;
-
-                if (cursors[nextHitIndex].id === MovementType.move) {
-                    // Try to interpolate movement between two movementType.MOVE cursor every 1ms.
-                    // This minimizes rounding error.
-                    for (
-                        let mSecPassed = cursors[hitIndex].time;
-                        mSecPassed <= cursors[nextHitIndex].time;
-                        ++mSecPassed
+                    if (
+                        prevCursor.time <
+                        object.object.startTime - hitWindow50
                     ) {
-                        const t: number =
-                            (mSecPassed - cursors[nextHitIndex].time) /
-                            (cursors[hitIndex].time -
-                                cursors[nextHitIndex].time);
-                        cursorPosition.x = Interpolation.lerp(
-                            cursors[hitIndex].position.x,
-                            cursors[nextHitIndex].position.x,
-                            t
-                        );
-                        cursorPosition.y = Interpolation.lerp(
-                            cursors[hitIndex].position.y,
-                            cursors[nextHitIndex].position.y,
-                            t
-                        );
-
-                        if (
-                            o.object
-                                .getStackedPosition(Modes.droid)
-                                .getDistance(cursorPosition) <=
-                            o.object.getRadius(Modes.droid)
-                        ) {
-                            isInObject = true;
-                            break;
-                        }
+                        continue;
                     }
-                } else {
-                    isInObject =
-                        o.object
-                            .getStackedPosition(Modes.droid)
-                            .getDistance(cursorPosition) <=
-                        o.object.getRadius(Modes.droid);
-                }
-                if (!isInObject) {
-                    cursorIndexes[j] = -1;
+
+                    if (
+                        prevCursor.time >
+                        object.object.startTime + hitWindow50
+                    ) {
+                        break;
+                    }
+
+                    let isInObject: boolean = false;
+
+                    switch (cursor.id) {
+                        case MovementType.up:
+                            isInObject =
+                                prevCursor.position.getDistance(
+                                    objectPosition
+                                ) <= object.object.getRadius(Modes.droid);
+                            break;
+                        case MovementType.move:
+                            // Interpolate movement.
+                            for (
+                                let mSecPassed = prevCursor.time;
+                                !isInObject &&
+                                mSecPassed <=
+                                    Math.min(
+                                        cursor.time,
+                                        object.object.startTime + hitWindow50
+                                    );
+                                ++mSecPassed
+                            ) {
+                                const t: number =
+                                    (mSecPassed - prevCursor.time) /
+                                    (cursor.time - prevCursor.time);
+                                const cursorPosition: Vector2 = new Vector2(
+                                    Interpolation.lerp(
+                                        prevCursor.position.x,
+                                        cursor.position.x,
+                                        t
+                                    ),
+                                    Interpolation.lerp(
+                                        prevCursor.position.y,
+                                        cursor.position.y,
+                                        t
+                                    )
+                                );
+
+                                isInObject =
+                                    objectPosition.getDistance(
+                                        cursorPosition
+                                    ) <= object.object.getRadius(Modes.droid);
+                            }
+                    }
+
+                    if (!isInObject) {
+                        cursorIndexes[j] = -1;
+                    }
                 }
             }
-            cursorIndexes = cursorIndexes.filter((v) => v !== -1);
         }
 
-        return cursorIndexes.shift() ?? -1;
+        return cursorIndexes.find((v) => v !== -1) ?? -1;
     }
 
     /**
@@ -857,13 +875,6 @@ export class ThreeFingerChecker {
                     ? objectData[beatmapSection.lastObjectIndex].accuracy
                     : this.hitWindow.hitWindowFor50(isPrecise));
 
-            // Filter cursor instances during section.
-            this.downCursorInstances.forEach((c) => {
-                const i: number = c.findIndex((t) => t.time >= startTime);
-                if (i !== -1) {
-                    c = c.slice(i);
-                }
-            });
             const cursorAmounts: number[] = [];
             const cursorVectorTimes: {
                 readonly vector: Vector2;
@@ -953,7 +964,8 @@ export class ThreeFingerChecker {
             // Ignore cursor presses that are only 1 for now since they are very likely to be accidental
             if (
                 (threeFingerRatio > this.threeFingerRatioThreshold &&
-                    cursorAmounts.filter((v) => v > 1).length > 3) ||
+                    cursorAmounts.filter((v) => v > 1).length >
+                        fingerSplitIndex) ||
                 validPresses.length > 0
             ) {
                 // Strain factor
