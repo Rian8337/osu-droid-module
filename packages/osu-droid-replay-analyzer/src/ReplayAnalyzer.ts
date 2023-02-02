@@ -103,11 +103,9 @@ export class ReplayAnalyzer {
     hasBeenCheckedFor2Hand: boolean = false;
 
     /**
-     * The cursor indexes at which each object was hit.
-     *
-     * This is filled after 2 hand usage has been checked.
+     * The amount of two-handed objects.
      */
-    twoHandCursorIndexes: number[] = [];
+    twoHandedObjects: number = 0;
 
     // Sizes of primitive data types in Java (in bytes)
     private readonly BYTE_LENGTH: number = 1;
@@ -700,7 +698,7 @@ export class ReplayAnalyzer {
         const result: TwoHandInformation = twoHandChecker.check();
 
         this.is2Hand = result.is2Hand;
-        this.twoHandCursorIndexes = result.cursorIndexes;
+        this.twoHandedObjects = result.twoHandedObjects;
         this.hasBeenCheckedFor2Hand = true;
     }
 }
