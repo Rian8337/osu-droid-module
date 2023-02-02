@@ -45,7 +45,7 @@ export interface TwoHandInformation {
     /**
      * The amount of two-handed objects.
      */
-    readonly twoHandedObjects: number;
+    readonly twoHandedNoteCount: number;
 }
 
 interface CursorPositionInformation {
@@ -137,7 +137,7 @@ export class TwoHandChecker {
                 (v) => v.occurrenceGroups.length > 0
             ).length <= 1
         ) {
-            return { is2Hand: false, twoHandedObjects: 0 };
+            return { is2Hand: false, twoHandedNoteCount: 0 };
         }
 
         this.indexHitObjects();
@@ -189,15 +189,41 @@ export class TwoHandChecker {
         //     this.csvString
         // );
 
-        const twoHandedObjects: number = this.indexedHitObjects.filter(
-            (v) => v.is2Handed
-        ).length;
+        let twoHandedNoteCount: number = 0;
+        const maxStrain: number = Math.max(
+            ...this.calculator.objects.map((v) => v.aimStrainWithSliders)
+        );
+
+        if (maxStrain) {
+            twoHandedNoteCount = this.indexedHitObjects.reduce(
+                (total, object) => {
+                    if (!object.is2Handed) {
+                        return total;
+                    }
+
+                    return (
+                        total +
+                        1 /
+                            (1 +
+                                Math.exp(
+                                    -(
+                                        (object.object.aimStrainWithSliders /
+                                            maxStrain) *
+                                            12 -
+                                        6
+                                    )
+                                ))
+                    );
+                },
+                0
+            );
+        }
 
         return {
             is2Hand:
-                twoHandedObjects >
+                twoHandedNoteCount >
                 this.calculator.attributes.aimNoteCount * 0.15,
-            twoHandedObjects: twoHandedObjects,
+            twoHandedNoteCount: twoHandedNoteCount,
         };
     }
 

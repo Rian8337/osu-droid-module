@@ -105,7 +105,7 @@ export class ReplayAnalyzer {
     /**
      * The amount of two-handed objects.
      */
-    twoHandedObjects: number = 0;
+    twoHandedNoteCount: number = 0;
 
     // Sizes of primitive data types in Java (in bytes)
     private readonly BYTE_LENGTH: number = 1;
@@ -698,7 +698,7 @@ export class ReplayAnalyzer {
         const result: TwoHandInformation = twoHandChecker.check();
 
         this.is2Hand = result.is2Hand;
-        this.twoHandedObjects = result.twoHandedObjects;
+        this.twoHandedNoteCount = result.twoHandedNoteCount;
         this.hasBeenCheckedFor2Hand = true;
     }
 }
