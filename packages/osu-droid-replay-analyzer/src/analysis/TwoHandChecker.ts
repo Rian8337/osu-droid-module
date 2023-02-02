@@ -43,9 +43,9 @@ export interface TwoHandInformation {
     readonly is2Hand: boolean;
 
     /**
-     * The indexes of hitobjects.
+     * The amount of two-handed objects.
      */
-    readonly cursorIndexes: number[];
+    readonly twoHandedObjects: number;
 }
 
 interface CursorPositionInformation {
@@ -137,11 +137,11 @@ export class TwoHandChecker {
                 (v) => v.occurrenceGroups.length > 0
             ).length <= 1
         ) {
-            return { is2Hand: false, cursorIndexes: [] };
+            return { is2Hand: false, twoHandedObjects: 0 };
         }
 
         this.indexHitObjects();
-        this.applyPenalty();
+        // this.applyPenalty();
 
         // for (let i = 0; i < this.calculator.objects.length; ++i) {
         //     const object: PlaceableHitObject =
@@ -189,7 +189,16 @@ export class TwoHandChecker {
         //     this.csvString
         // );
 
-        return { is2Hand: false, cursorIndexes: [] };
+        const twoHandedObjects: number = this.indexedHitObjects.filter(
+            (v) => v.is2Handed
+        ).length;
+
+        return {
+            is2Hand:
+                twoHandedObjects >
+                this.calculator.attributes.aimNoteCount * 0.15,
+            twoHandedObjects: twoHandedObjects,
+        };
     }
 
     /**
@@ -211,6 +220,7 @@ export class TwoHandChecker {
             this.indexedHitObjects.push(indexedHitObject);
         }
 
+        // console.log("Aim note count:", this.calculator.attributes.aimNoteCount);
         // console.log(
         //     this.indexedHitObjects.filter((v) => v.cursorIndex !== -1).length +
         //         1,
@@ -278,9 +288,9 @@ export class TwoHandChecker {
         }
 
         // We don't care if the aim strain is too low.
-        if (diffObject.aimStrainWithSliders < 200) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
+        // if (diffObject.aimStrainWithSliders < 200) {
+        //     return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
+        // }
 
         const prevObject: PlaceableHitObject =
             this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
@@ -415,68 +425,68 @@ export class TwoHandChecker {
             finalAngle = Math.min(finalAngle, movementAngle);
         }
 
-        let is2Handed: boolean = finalAngle >= Math.PI / 6;
-        if (is2Handed) {
-            // If angle isn't fulfilled, check for cursor velocity.
-            let deltaTime: number = Math.max(
-                object.startTime - prevObject.startTime,
-                25
-            );
-            if (prevObject instanceof Slider) {
-                deltaTime = Math.max(deltaTime - prevObject.lazyTravelTime, 25);
-            }
+        const is2Handed: boolean = finalAngle >= Math.PI / 6;
+        // if (is2Handed) {
+        //     // If angle isn't fulfilled, check for cursor velocity.
+        //     let deltaTime: number = Math.max(
+        //         object.startTime - prevObject.startTime,
+        //         25
+        //     );
+        //     if (prevObject instanceof Slider) {
+        //         deltaTime = Math.max(deltaTime - prevObject.lazyTravelTime, 25);
+        //     }
 
-            // "Initial velocity" is the movement velocity from the previous object's end time to the current object's start time.
-            const initialVelocity: number =
-                objectStartPosition.getDistance(prevObjectEndPosition) /
-                deltaTime;
+        //     // "Initial velocity" is the movement velocity from the previous object's end time to the current object's start time.
+        //     const initialVelocity: number =
+        //         objectStartPosition.getDistance(prevObjectEndPosition) /
+        //         deltaTime;
 
-            // const finalCursor: CursorOccurrence =
-            //     cursorGroup.moves.at(-1) ?? cursorGroup.down;
-            const currentCursorGroup: CursorOccurrenceGroup =
-                this.data.cursorMovement[objectInformation.cursorIndex]
-                    .occurrenceGroups[objectInformation.groupIndex];
+        //     // const finalCursor: CursorOccurrence =
+        //     //     cursorGroup.moves.at(-1) ?? cursorGroup.down;
+        //     const currentCursorGroup: CursorOccurrenceGroup =
+        //         this.data.cursorMovement[objectInformation.cursorIndex]
+        //             .occurrenceGroups[objectInformation.groupIndex];
 
-            // const cursorDistance: number = currentCursorGroup.down.position.getDistance(
-            //     finalCursor.position
-            // );
-            const cursorDuration: number = Math.max(
-                0,
-                currentCursorGroup.startTime - cursorGroup.endTime
-            );
+        //     // const cursorDistance: number = currentCursorGroup.down.position.getDistance(
+        //     //     finalCursor.position
+        //     // );
+        //     const cursorDuration: number = Math.max(
+        //         0,
+        //         currentCursorGroup.startTime - cursorGroup.endTime
+        //     );
 
-            // "Air velocity" is the cursor velocity from the moment the previous cursor release action to the next cursor press action.
-            // const airVelocity: number = cursorDistance / cursorDuration;
-            is2Handed =
-                // airVelocity / initialVelocity < 0.8 &&
-                cursorDuration / deltaTime > 0.2;
+        //     // "Air velocity" is the cursor velocity from the moment the previous cursor release action to the next cursor press action.
+        //     // const airVelocity: number = cursorDistance / cursorDuration;
+        //     is2Handed =
+        //         // airVelocity / initialVelocity < 0.8 &&
+        //         cursorDuration / deltaTime > 0.2;
 
-            for (
-                let i = prevObjectInformation.occurrenceIndex + 1;
-                i < cursors.length && is2Handed;
-                ++i
-            ) {
-                const cursor: CursorOccurrence = cursors[i];
-                const prevCursor: CursorOccurrence = cursors[i - 1];
+        //     for (
+        //         let i = prevObjectInformation.occurrenceIndex + 1;
+        //         i < cursors.length && is2Handed;
+        //         ++i
+        //     ) {
+        //         const cursor: CursorOccurrence = cursors[i];
+        //         const prevCursor: CursorOccurrence = cursors[i - 1];
 
-                if (
-                    cursor.position.equals(prevCursor.position) ||
-                    cursor.time === prevCursor.time
-                ) {
-                    continue;
-                }
+        //         if (
+        //             cursor.position.equals(prevCursor.position) ||
+        //             cursor.time === prevCursor.time
+        //         ) {
+        //             continue;
+        //         }
 
-                if (cursor.id === MovementType.up) {
-                    break;
-                }
+        //         if (cursor.id === MovementType.up) {
+        //             break;
+        //         }
 
-                // "Cursor velocity" is the velocity from the previous object's cursor release time to the current object's press time.
-                const cursorVelocity: number =
-                    cursor.position.getDistance(prevCursor.position) /
-                    (cursor.time - prevCursor.time);
-                is2Handed = cursorVelocity / initialVelocity < 0.8;
-            }
-        }
+        //         // "Cursor velocity" is the velocity from the previous object's cursor release time to the current object's press time.
+        //         const cursorVelocity: number =
+        //             cursor.position.getDistance(prevCursor.position) /
+        //             (cursor.time - prevCursor.time);
+        //         is2Handed = cursorVelocity / initialVelocity < 0.8;
+        //     }
+        // }
 
         if (!Number.isFinite(finalAngle)) {
             return new IndexedHitObject(diffObject, -1, -1, -1, null, false);

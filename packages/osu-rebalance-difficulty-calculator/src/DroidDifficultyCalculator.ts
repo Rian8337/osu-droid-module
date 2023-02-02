@@ -41,6 +41,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         tapDifficulty: 0,
         rhythmDifficulty: 0,
         visualDifficulty: 0,
+        aimNoteCount: 0,
         mods: [],
         starRating: 0,
         maxCombo: 0,
@@ -272,6 +273,25 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         }
 
         this.attributes.aimDifficulty = this.aim;
+        this.calculateAimAttributes();
+    }
+
+    /**
+     * Calculates aim-related attributes.
+     */
+    private calculateAimAttributes(): void {
+        const objectStrains: number[] = this.objects.map(
+            (v) => v.aimStrainWithSliders
+        );
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.aimNoteCount = objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                0
+            );
+        }
     }
 
     /**
@@ -292,7 +312,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      */
     private calculateSpeedAttributes(): void {
         const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
-
         const maxStrain: number = Math.max(...objectStrains);
 
         if (maxStrain) {
