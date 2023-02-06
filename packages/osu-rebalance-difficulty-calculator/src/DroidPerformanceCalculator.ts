@@ -174,7 +174,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         //         (14 - Math.max(od, 2.5)) / 2
         //     );
 
-        this.aim *= ErrorFunction.erf(50 / (Math.SQRT2 * this._deviation));
+        this.aim *=
+            1.05 *
+            Math.pow(
+                ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
+                1.5
+            );
     }
 
     /**
@@ -408,7 +413,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // const od: number = this.difficultyAttributes.overallDifficulty;
         // const odScaling: number = Math.pow(od, 2) / 2500;
         // this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
-        this.visual *= ErrorFunction.erf(35 / (Math.SQRT2 * this._deviation));
+        this.visual *=
+            1.065 *
+            Math.pow(
+                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
+                1.75
+            );
     }
 
     /**
