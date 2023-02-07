@@ -297,9 +297,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
         // this.accuracy *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
         this.accuracy =
-            500 *
-            Math.exp(-0.135 * this._deviation) *
-            // The following function is to give higher reward for deviations lower than 15 (150 UR).
+            625 *
+            Math.exp(-0.125 * this._deviation) *
+            // The following function is to give higher reward for deviations lower than 25 (250 UR).
             (10 / (this._deviation + 10) + 0.625);
 
         // Scale the accuracy value with rhythm complexity.
