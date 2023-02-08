@@ -109,6 +109,11 @@ export class ReplayAnalyzer {
     hasBeenCheckedFor2Hand: boolean = false;
 
     /**
+     * Whether this repla has been checked against slider cheesing.
+     */
+    hasBeenCheckedForSliderCheesing: boolean = false;
+
+    /**
      * The amount of two-handed objects.
      */
     twoHandedNoteCount: number = 0;
@@ -728,5 +733,6 @@ export class ReplayAnalyzer {
             new SliderCheeseChecker(this.beatmap, this.data);
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
+        this.hasBeenCheckedForSliderCheesing = true;
     }
 }
