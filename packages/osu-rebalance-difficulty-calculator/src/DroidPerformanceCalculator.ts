@@ -65,10 +65,20 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         return this._tapDeviation;
     }
 
+    /**
+     * The penalty used to penalize the aim performance value.
+     *
+     * Can be properly obtained by analyzing the replay associated with the score.
+     */
+    get sliderCheesePenalty(): number {
+        return this._sliderCheesePenalty;
+    }
+
     override readonly difficultyAttributes: DroidDifficultyAttributes;
     protected override finalMultiplier = 1.28;
     protected override readonly mode: Modes = Modes.droid;
 
+    private _sliderCheesePenalty: number = 1;
     private _tapPenalty: number = 1;
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
@@ -85,7 +95,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     /**
      * Applies a tap penalty value to this calculator.
      *
-     * The total performance value will be recalculated afterwards.
+     * The tap and total performance value will be recalculated afterwards.
      *
      * @param value The tap penalty value. Must be greater than 0.
      */
@@ -101,6 +111,30 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *= this._tapPenalty / value;
         this._tapPenalty = value;
 
+        this.calculateTotalValue();
+    }
+
+    /**
+     * Applies a slider cheese penalty value to this calculator.
+     *
+     * The aim and total performance value will be recalculated afterwards.
+     *
+     * @param value The slider cheese penalty value. Must be greater than 0.
+     */
+    applySliderCheesePenalty(value: number): void {
+        if (value <= 0) {
+            throw new RangeError(
+                "New slider cheese penalty must be greater than zero."
+            );
+        }
+
+        if (value === this._sliderCheesePenalty) {
+            return;
+        }
+
+        this._sliderCheesePenalty = value;
+
+        this.calculateAimValue();
         this.calculateTotalValue();
     }
 
@@ -131,6 +165,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         options?: PerformanceCalculationOptions
     ): void {
         this._tapPenalty = options?.tapPenalty ?? 1;
+        this._sliderCheesePenalty = options?.sliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -140,7 +175,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAimValue(): void {
         this.aim = this.baseValue(
-            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8)
+            Math.pow(
+                this.difficultyAttributes.aimDifficulty /
+                    this._sliderCheesePenalty,
+                0.8
+            )
         );
 
         if (this.effectiveMissCount > 0) {
