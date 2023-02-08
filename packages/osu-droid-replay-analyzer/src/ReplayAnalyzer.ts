@@ -71,7 +71,7 @@ export class ReplayAnalyzer {
     is2Hand?: boolean;
 
     /**
-     * The beatmap that is being analyzed. `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
+     * The beatmap that is being analyzed. `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
      */
     beatmap?:
         | Beatmap
@@ -129,7 +129,7 @@ export class ReplayAnalyzer {
         /**
          * The beatmap to analyze.
          *
-         * `DroidStarRating` or `RebalanceDroidStarRating` is required for three finger or two hand analyzing.
+         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
          */
         map?:
             | Beatmap
@@ -657,7 +657,7 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 3 fingers.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
      */
     checkFor3Finger(): void {
         if (
@@ -684,7 +684,7 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 2 hands.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
      */
     checkFor2Hand(): void {
         if (
@@ -711,7 +711,7 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play has cheesed sliders.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
      */
     checkForSliderCheesing(): void {
         if (
