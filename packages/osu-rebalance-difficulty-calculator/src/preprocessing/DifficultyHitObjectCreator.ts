@@ -37,7 +37,7 @@ export class DifficultyHitObjectCreator {
      */
     private readonly normalizedRadius: number = 50;
 
-    private readonly maximumSliderRadius: number = this.normalizedRadius * 2.4;
+    private maximumSliderRadius: number = this.normalizedRadius * 2.4;
 
     private readonly assumedSliderRadius: number = this.normalizedRadius * 1.8;
 
@@ -57,6 +57,9 @@ export class DifficultyHitObjectCreator {
         params.preempt ??= 600;
 
         this.mode = params.mode;
+        if (this.mode === Modes.droid) {
+            this.maximumSliderRadius = this.normalizedRadius * 2;
+        }
 
         const droidCircleSize: number = new MapStats({
             cs: params.circleSize,

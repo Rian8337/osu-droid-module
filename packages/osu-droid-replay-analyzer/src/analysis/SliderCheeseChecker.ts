@@ -107,7 +107,7 @@ export class SliderCheeseChecker {
         // Current loop indexes are stored for efficiency.
         const cursorLoopIndexes: number[] = Utils.initializeArray(10, 0);
         const acceptableRadius: number =
-            this.calculator.objects[0].object.getRadius(Modes.droid) * 2.4;
+            this.calculator.objects[0].object.getRadius(Modes.droid) * 2;
 
         for (let i = 0; i < this.calculator.objects.length; ++i) {
             const diffObject:
