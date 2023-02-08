@@ -29,6 +29,7 @@ import {
 import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
 import { MovementType } from "./constants/MovementType";
 import { HitResult } from "./constants/HitResult";
+import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -91,6 +92,11 @@ export class ReplayAnalyzer {
      * Penalty value used to penalize dpp for 3 finger abuse.
      */
     tapPenalty: number = 1;
+
+    /**
+     * Penalty value used to penalize dpp for slider cheesing.
+     */
+    sliderCheesePenalty: number = 1;
 
     /**
      * Whether this replay has been checked against 3 finger usage.
@@ -700,5 +706,27 @@ export class ReplayAnalyzer {
         this.is2Hand = result.is2Hand;
         this.twoHandedNoteCount = result.twoHandedNoteCount;
         this.hasBeenCheckedFor2Hand = true;
+    }
+
+    /**
+     * Checks if a play has cheesed sliders.
+     *
+     * Requires `analyze()` to be called first and `map` to be defined as `DroidStarRating` or `RebalanceDroidStarRating`.
+     */
+    checkForSliderCheesing(): void {
+        if (
+            !(
+                this.beatmap instanceof DroidDifficultyCalculator ||
+                this.beatmap instanceof RebalanceDroidDifficultyCalculator
+            ) ||
+            !this.data
+        ) {
+            return;
+        }
+
+        const sliderCheeseChecker: SliderCheeseChecker =
+            new SliderCheeseChecker(this.beatmap, this.data);
+
+        this.sliderCheesePenalty = sliderCheeseChecker.check();
     }
 }
