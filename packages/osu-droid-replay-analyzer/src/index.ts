@@ -7,4 +7,6 @@ export * from "./constants/MovementType";
 export * from "./ReplayAnalyzer";
 export * from "./data/ReplayData";
 export * from "./data/ReplayObjectData";
+export * from "./analysis/SliderCheeseChecker";
 export * from "./analysis/ThreeFingerChecker";
+export * from "./analysis/TwoHandChecker";
