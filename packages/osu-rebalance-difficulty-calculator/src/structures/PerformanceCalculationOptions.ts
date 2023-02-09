@@ -25,7 +25,17 @@ export interface PerformanceCalculationOptions {
     tapPenalty?: number;
 
     /**
-     * The slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
+     * The aim slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
      */
-    sliderCheesePenalty?: number;
+    aimSliderCheesePenalty?: number;
+
+    /**
+     * The flashlight slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
+     */
+    flashlightSliderCheesePenalty?: number;
+
+    /**
+     * The visual slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
+     */
+    visualSliderCheesePenalty?: number;
 }

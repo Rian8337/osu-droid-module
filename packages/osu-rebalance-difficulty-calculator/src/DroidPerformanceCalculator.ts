@@ -234,7 +234,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         options?: PerformanceCalculationOptions
     ): void {
         this._tapPenalty = options?.tapPenalty ?? 1;
-        this._aimSliderCheesePenalty = options?.sliderCheesePenalty ?? 1;
+        this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
+        this._flashlightSliderCheesePenalty =
+            options?.flashlightSliderCheesePenalty ?? 1;
+        this._visualSliderCheesePenalty =
+            options?.visualSliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
     }
