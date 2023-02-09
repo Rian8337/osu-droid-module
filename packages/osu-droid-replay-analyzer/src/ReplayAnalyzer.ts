@@ -29,7 +29,10 @@ import {
 import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
 import { MovementType } from "./constants/MovementType";
 import { HitResult } from "./constants/HitResult";
-import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
+import {
+    SliderCheeseChecker,
+    SliderCheeseInformation,
+} from "./analysis/SliderCheeseChecker";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -94,9 +97,13 @@ export class ReplayAnalyzer {
     tapPenalty: number = 1;
 
     /**
-     * Penalty value used to penalize dpp for slider cheesing.
+     * Penalty values used to penalize dpp for slider cheesing.
      */
-    sliderCheesePenalty: number = 1;
+    sliderCheesePenalty: SliderCheeseInformation = {
+        aimPenalty: 1,
+        flashlightPenalty: 1,
+        visualPenalty: 1,
+    };
 
     /**
      * Whether this replay has been checked against 3 finger usage.

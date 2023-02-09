@@ -24,6 +24,23 @@ import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 
+export interface SliderCheeseInformation {
+    /**
+     * The value used to penalize the aim performance value.
+     */
+    aimPenalty: number;
+
+    /**
+     * The value used to penalize the flashlight performance value.
+     */
+    flashlightPenalty: number;
+
+    /**
+     * The value used to penalize the visual performance value.
+     */
+    visualPenalty: number;
+}
+
 /**
  * Utility to check whether relevant sliders in a beatmap are cheesed.
  */
@@ -91,9 +108,13 @@ export class SliderCheeseChecker {
      * Returns a number that can be passed to a `DroidPerformanceCalculator`
      * to alter the aim performance value.
      */
-    check(): number {
+    check(): SliderCheeseInformation {
         if (this.calculator.attributes.sliderCount === 0) {
-            return 1;
+            return {
+                aimPenalty: 1,
+                flashlightPenalty: 1,
+                visualPenalty: 1,
+            };
         }
 
         this.checkSliderCheesing();
@@ -259,7 +280,7 @@ export class SliderCheeseChecker {
     /**
      * Calculates the slider cheese penalty.
      */
-    private calculateSliderCheesePenalty(): number {
+    private calculateSliderCheesePenalty(): SliderCheeseInformation {
         let calculator:
             | DroidDifficultyCalculator
             | RebalanceDroidDifficultyCalculator;
@@ -280,7 +301,13 @@ export class SliderCheeseChecker {
             calculator.objects[index].travelDistance = 0;
         }
 
-        calculator.calculateAim();
-        return this.calculator.aim / calculator.aim;
+        calculator.calculateAll();
+
+        return {
+            aimPenalty: this.calculator.aim / calculator.aim,
+            flashlightPenalty:
+                this.calculator.flashlight / calculator.flashlight,
+            visualPenalty: this.calculator.visual / calculator.visual,
+        };
     }
 }
