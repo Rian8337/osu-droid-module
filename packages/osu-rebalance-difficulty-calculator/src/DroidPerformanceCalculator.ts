@@ -70,15 +70,36 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * Can be properly obtained by analyzing the replay associated with the score.
      */
-    get sliderCheesePenalty(): number {
-        return this._sliderCheesePenalty;
+    get aimSliderCheesePenalty(): number {
+        return this._aimSliderCheesePenalty;
+    }
+
+    /**
+     * The penalty used to penalize the flashlight performance value.
+     *
+     * Can be properly obtained by analyzing the replay associated with the score.
+     */
+    get flashlightSliderCheesePenalty(): number {
+        return this._flashlightSliderCheesePenalty;
+    }
+
+    /**
+     * The penalty used to penalize the visual performance value.
+     *
+     * Can be properly obtained by analyzing the replay associated with the score.
+     */
+    get visualSliderCheesePenalty(): number {
+        return this._visualSliderCheesePenalty;
     }
 
     override readonly difficultyAttributes: DroidDifficultyAttributes;
     protected override finalMultiplier = 1.28;
     protected override readonly mode: Modes = Modes.droid;
 
-    private _sliderCheesePenalty: number = 1;
+    private _aimSliderCheesePenalty: number = 1;
+    private _flashlightSliderCheesePenalty: number = 1;
+    private _visualSliderCheesePenalty: number = 1;
+
     private _tapPenalty: number = 1;
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
@@ -115,26 +136,74 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     /**
-     * Applies a slider cheese penalty value to this calculator.
+     * Applies an aim slider cheese penalty value to this calculator.
      *
      * The aim and total performance value will be recalculated afterwards.
      *
      * @param value The slider cheese penalty value. Must be greater than 0.
      */
-    applySliderCheesePenalty(value: number): void {
+    applyAimSliderCheesePenalty(value: number): void {
         if (value <= 0) {
             throw new RangeError(
-                "New slider cheese penalty must be greater than zero."
+                "New aim slider cheese penalty must be greater than zero."
             );
         }
 
-        if (value === this._sliderCheesePenalty) {
+        if (value === this._aimSliderCheesePenalty) {
             return;
         }
 
-        this._sliderCheesePenalty = value;
+        this._aimSliderCheesePenalty = value;
 
         this.calculateAimValue();
+        this.calculateTotalValue();
+    }
+
+    /**
+     * Applies a flashlight slider cheese penalty value to this calculator.
+     *
+     * The flashlight and total performance value will be recalculated afterwards.
+     *
+     * @param value The slider cheese penalty value. Must be greater than 0.
+     */
+    applyFlashlightSliderCheesePenalty(value: number): void {
+        if (value <= 0) {
+            throw new RangeError(
+                "New flashlight slider cheese penalty must be greater than zero."
+            );
+        }
+
+        if (value === this._flashlightSliderCheesePenalty) {
+            return;
+        }
+
+        this._flashlightSliderCheesePenalty = value;
+
+        this.calculateFlashlightValue();
+        this.calculateTotalValue();
+    }
+
+    /**
+     * Applies a visual slider cheese penalty value to this calculator.
+     *
+     * The visual and total performance value will be recalculated afterwards.
+     *
+     * @param value The slider cheese penalty value. Must be greater than 0.
+     */
+    applyVisualSliderCheesePenalty(value: number): void {
+        if (value <= 0) {
+            throw new RangeError(
+                "New visual slider cheese penalty must be greater than zero."
+            );
+        }
+
+        if (value === this._visualSliderCheesePenalty) {
+            return;
+        }
+
+        this._visualSliderCheesePenalty = value;
+
+        this.calculateVisualValue();
         this.calculateTotalValue();
     }
 
@@ -165,7 +234,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         options?: PerformanceCalculationOptions
     ): void {
         this._tapPenalty = options?.tapPenalty ?? 1;
-        this._sliderCheesePenalty = options?.sliderCheesePenalty ?? 1;
+        this._aimSliderCheesePenalty = options?.sliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -177,7 +246,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim = this.baseValue(
             Math.pow(
                 this.difficultyAttributes.aimDifficulty /
-                    this._sliderCheesePenalty,
+                    this._aimSliderCheesePenalty,
                 0.8
             )
         );
@@ -299,7 +368,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         this.flashlight =
-            Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
+            Math.pow(
+                this.difficultyAttributes.flashlightDifficulty /
+                    this._flashlightSliderCheesePenalty,
+                1.6
+            ) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
@@ -337,7 +410,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateVisualValue(): void {
         this.visual =
-            Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
+            Math.pow(
+                this.difficultyAttributes.visualDifficulty /
+                    this._visualSliderCheesePenalty,
+                1.6
+            ) * 22.5;
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
