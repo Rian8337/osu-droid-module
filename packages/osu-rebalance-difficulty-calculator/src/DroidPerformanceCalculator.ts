@@ -336,9 +336,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.accuracy =
             650 *
-            Math.exp(-0.1 * this._deviation) *
-            // The following function is to give higher reward for deviations lower than 15 (150 UR).
-            (10 / (this._deviation + 10) + 0.625);
+            Math.exp(-0.125 * this._deviation) *
+            // The following function is to give higher reward for deviations lower than 25 (250 UR).
+            (15 / (this._deviation + 15) + 0.65);
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
