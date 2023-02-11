@@ -468,7 +468,7 @@ test("Test new combo", () => {
 test("Test type string", () => {
     const slider = new Slider(createGlobalSliderValues());
 
-    expect(slider.typeStr()).toBe("slider");
+    expect(slider.typeStr).toBe("slider");
 });
 
 test("Test string concatenation", () => {

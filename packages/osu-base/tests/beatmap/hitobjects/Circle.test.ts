@@ -194,7 +194,7 @@ describe("Test circle radius", () => {
 test("Test type string", () => {
     const circle = createCircle();
 
-    expect(circle.typeStr()).toBe("circle");
+    expect(circle.typeStr).toBe("circle");
 });
 
 test("Test string concatenation", () => {

@@ -149,7 +149,7 @@ test("Test new combo", () => {
 test("Test type string", () => {
     const spinner = createSpinner();
 
-    expect(spinner.typeStr()).toBe("spinner");
+    expect(spinner.typeStr).toBe("spinner");
 });
 
 test("Test string concatenation", () => {
