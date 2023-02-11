@@ -72,6 +72,27 @@ export abstract class HitObject {
      */
     osuScale: number = 1;
 
+    /**
+     * The hitobject type (circle, slider, or spinner).
+     */
+    get typeStr(): string {
+        let res = "";
+
+        if (this.type & ObjectTypes.circle) {
+            res += "circle | ";
+        }
+
+        if (this.type & ObjectTypes.slider) {
+            res += "slider | ";
+        }
+
+        if (this.type & ObjectTypes.spinner) {
+            res += "spinner | ";
+        }
+
+        return res.substring(0, Math.max(0, res.length - 3));
+    }
+
     constructor(values: {
         startTime: number;
         position: Vector2;
@@ -152,23 +173,6 @@ export abstract class HitObject {
      */
     getStackedEndPosition(mode: Modes): Vector2 {
         return this.evaluateStackedPosition(this.endPosition, mode);
-    }
-
-    /**
-     * Returns the hitobject type.
-     */
-    typeStr(): string {
-        let res = "";
-        if (this.type & ObjectTypes.circle) {
-            res += "circle | ";
-        }
-        if (this.type & ObjectTypes.slider) {
-            res += "slider | ";
-        }
-        if (this.type & ObjectTypes.spinner) {
-            res += "spinner | ";
-        }
-        return res.substring(0, Math.max(0, res.length - 3));
     }
 
     /**
