@@ -1,6 +1,6 @@
 // import { writeFileSync } from "fs";
 import {
-    Beatmap,
+    // Beatmap,
     Circle,
     DroidHitWindow,
     Interpolation,
@@ -12,7 +12,7 @@ import {
     PlaceableHitObject,
     Slider,
     Spinner,
-    Utils,
+    // Utils,
     Vector2,
 } from "@rian8337/osu-base";
 import {
@@ -936,105 +936,105 @@ export class TwoHandChecker {
     /**
      * Applies penalty to the original star rating instance.
      */
-    private applyPenalty(): void {
-        const beatmaps: [Beatmap, Beatmap] = [
-            Utils.deepCopy(this.calculator.beatmap),
-            Utils.deepCopy(this.calculator.beatmap),
-        ];
+    // private applyPenalty(): void {
+    //     const beatmaps: [Beatmap, Beatmap] = [
+    //         Utils.deepCopy(this.calculator.beatmap),
+    //         Utils.deepCopy(this.calculator.beatmap),
+    //     ];
 
-        for (const beatmap of beatmaps) {
-            beatmap.hitObjects.clear();
-        }
+    //     for (const beatmap of beatmaps) {
+    //         beatmap.hitObjects.clear();
+    //     }
 
-        let addToSecondBeatmap: boolean = true;
-        this.indexedHitObjects.forEach((o) => {
-            if (!o.is2Handed) {
-                beatmaps[0].hitObjects.add(o.object.object);
-                addToSecondBeatmap = true;
-                return;
-            }
+    //     let addToSecondBeatmap: boolean = true;
+    //     this.indexedHitObjects.forEach((o) => {
+    //         if (!o.is2Handed) {
+    //             beatmaps[0].hitObjects.add(o.object.object);
+    //             addToSecondBeatmap = true;
+    //             return;
+    //         }
 
-            const beatmap: Beatmap = addToSecondBeatmap
-                ? beatmaps[1]
-                : beatmaps[0];
-            beatmap.hitObjects.add(o.object.object);
+    //         const beatmap: Beatmap = addToSecondBeatmap
+    //             ? beatmaps[1]
+    //             : beatmaps[0];
+    //         beatmap.hitObjects.add(o.object.object);
 
-            addToSecondBeatmap = !addToSecondBeatmap;
-        });
+    //         addToSecondBeatmap = !addToSecondBeatmap;
+    //     });
 
-        // Preserve some values that aren't reasonable for them to be changed.
-        const preservedValues: {
-            noteDensity: number;
-            overlappingFactor: number;
-            rhythmStrain: number;
-            rhythmMultiplier: number;
-        }[] = this.calculator.objects.map((v) => {
-            return {
-                noteDensity: v.noteDensity,
-                overlappingFactor: v.overlappingFactor,
-                rhythmStrain: v.rhythmStrain,
-                rhythmMultiplier: v.rhythmMultiplier,
-            };
-        });
+    //     // Preserve some values that aren't reasonable for them to be changed.
+    //     const preservedValues: {
+    //         noteDensity: number;
+    //         overlappingFactor: number;
+    //         rhythmStrain: number;
+    //         rhythmMultiplier: number;
+    //     }[] = this.calculator.objects.map((v) => {
+    //         return {
+    //             noteDensity: v.noteDensity,
+    //             overlappingFactor: v.overlappingFactor,
+    //             rhythmStrain: v.rhythmStrain,
+    //             rhythmMultiplier: v.rhythmMultiplier,
+    //         };
+    //     });
 
-        this.calculator.objects.length = 0;
+    //     this.calculator.objects.length = 0;
 
-        beatmaps.forEach((beatmap) => {
-            if (beatmap.hitObjects.objects.length === 0) {
-                return;
-            }
+    //     beatmaps.forEach((beatmap) => {
+    //         if (beatmap.hitObjects.objects.length === 0) {
+    //             return;
+    //         }
 
-            const difficultyCalculator:
-                | DroidDifficultyCalculator
-                | RebalanceDroidDifficultyCalculator = Object.assign(
-                Utils.deepCopy(this.calculator),
-                { beatmap: beatmap }
-            );
-            difficultyCalculator.generateDifficultyHitObjects();
-            difficultyCalculator.objects[0].deltaTime =
-                difficultyCalculator.objects[0].startTime -
-                this.indexedHitObjects[0].object.startTime;
-            difficultyCalculator.objects[0].strainTime = Math.max(
-                25,
-                difficultyCalculator.objects[0].deltaTime
-            );
-            (<(DifficultyHitObject | RebalanceDifficultyHitObject)[]>(
-                this.calculator.objects
-            )).push(...difficultyCalculator.objects);
-        });
+    //         const difficultyCalculator:
+    //             | DroidDifficultyCalculator
+    //             | RebalanceDroidDifficultyCalculator = Object.assign(
+    //             Utils.deepCopy(this.calculator),
+    //             { beatmap: beatmap }
+    //         );
+    //         difficultyCalculator.generateDifficultyHitObjects();
+    //         difficultyCalculator.objects[0].deltaTime =
+    //             difficultyCalculator.objects[0].startTime -
+    //             this.indexedHitObjects[0].object.startTime;
+    //         difficultyCalculator.objects[0].strainTime = Math.max(
+    //             25,
+    //             difficultyCalculator.objects[0].deltaTime
+    //         );
+    //         (<(DifficultyHitObject | RebalanceDifficultyHitObject)[]>(
+    //             this.calculator.objects
+    //         )).push(...difficultyCalculator.objects);
+    //     });
 
-        this.calculator.objects.sort((a, b) => a.startTime - b.startTime);
+    //     this.calculator.objects.sort((a, b) => a.startTime - b.startTime);
 
-        // Reassign preserved values before calculating.
-        for (let i = 0; i < this.calculator.objects.length; ++i) {
-            const diffObject:
-                | DifficultyHitObject
-                | RebalanceDifficultyHitObject = this.calculator.objects[i];
-            const indexedHitObject: IndexedHitObject =
-                this.indexedHitObjects[i];
+    //     // Reassign preserved values before calculating.
+    //     for (let i = 0; i < this.calculator.objects.length; ++i) {
+    //         const diffObject:
+    //             | DifficultyHitObject
+    //             | RebalanceDifficultyHitObject = this.calculator.objects[i];
+    //         const indexedHitObject: IndexedHitObject =
+    //             this.indexedHitObjects[i];
 
-            const preservedValue = preservedValues[i];
+    //         const preservedValue = preservedValues[i];
 
-            diffObject.index = i - 1;
-            diffObject.hitObjects.length = 0;
-            diffObject.hitObjects.push(...this.calculator.objects);
+    //         diffObject.index = i - 1;
+    //         diffObject.hitObjects.length = 0;
+    //         diffObject.hitObjects.push(...this.calculator.objects);
 
-            diffObject.noteDensity = preservedValue.noteDensity;
-            diffObject.overlappingFactor = preservedValue.overlappingFactor;
-            diffObject.rhythmStrain = preservedValue.rhythmStrain;
-            diffObject.rhythmMultiplier = preservedValue.rhythmMultiplier;
+    //         diffObject.noteDensity = preservedValue.noteDensity;
+    //         diffObject.overlappingFactor = preservedValue.overlappingFactor;
+    //         diffObject.rhythmStrain = preservedValue.rhythmStrain;
+    //         diffObject.rhythmMultiplier = preservedValue.rhythmMultiplier;
 
-            // Set slider travel distance to 0 if the slider was cheesed.
-            if (indexedHitObject.sliderCheesed) {
-                diffObject.travelDistance = 0;
-            }
-        }
+    //         // Set slider travel distance to 0 if the slider was cheesed.
+    //         if (indexedHitObject.sliderCheesed) {
+    //             diffObject.travelDistance = 0;
+    //         }
+    //     }
 
-        // Do not include rhythm skill.
-        this.calculator.calculateAim();
-        this.calculator.calculateTap();
-        this.calculator.calculateFlashlight();
-        this.calculator.calculateVisual();
-        this.calculator.calculateTotal();
-    }
+    //     // Do not include rhythm skill.
+    //     this.calculator.calculateAim();
+    //     this.calculator.calculateTap();
+    //     this.calculator.calculateFlashlight();
+    //     this.calculator.calculateVisual();
+    //     this.calculator.calculateTotal();
+    // }
 }

@@ -165,7 +165,7 @@ export class DifficultyHitObject {
     /**
      * Other hitobjects in the beatmap, including this hitobject.
      */
-    readonly hitObjects: DifficultyHitObject[];
+    private readonly hitObjects: DifficultyHitObject[];
 
     /**
      * @param object The underlying hitobject.
