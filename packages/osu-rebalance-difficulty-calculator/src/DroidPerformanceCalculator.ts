@@ -93,7 +93,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     override readonly difficultyAttributes: DroidDifficultyAttributes;
-    protected override finalMultiplier = 1.28;
+    protected override finalMultiplier = 1.24;
     protected override readonly mode: Modes = Modes.droid;
 
     private _aimSliderCheesePenalty: number = 1;
