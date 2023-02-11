@@ -27,7 +27,7 @@ export class DroidVisual extends DroidSkill {
             DroidVisualEvaluator.evaluateDifficultyOf(current, this.isHidden) *
             this.skillMultiplier;
 
-        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 5);
+        return this.currentStrain;
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
