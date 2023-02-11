@@ -133,11 +133,18 @@ export abstract class PerformanceCalculator {
             this.computedAccuracy = new Accuracy(options.accPercent);
 
             if (this.computedAccuracy.n300 <= 0) {
-                this.computedAccuracy.n300 =
+                this.computedAccuracy.n300 = Math.max(
+                    0,
                     this.totalHits -
-                    this.computedAccuracy.n100 -
-                    this.computedAccuracy.n50 -
-                    this.computedAccuracy.nmiss;
+                        this.computedAccuracy.n100 -
+                        this.computedAccuracy.n50 -
+                        this.computedAccuracy.nmiss
+                );
+            } else {
+                this.computedAccuracy.nmiss = Math.max(
+                    0,
+                    this.totalHits - this.totalSuccessfulHits
+                );
             }
         } else {
             this.computedAccuracy = new Accuracy({

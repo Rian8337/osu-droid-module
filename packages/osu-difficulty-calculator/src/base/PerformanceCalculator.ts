@@ -99,6 +99,17 @@ export abstract class PerformanceCalculator {
     }
 
     /**
+     * The total hits that were successfully done.
+     */
+    protected get totalSuccessfulHits(): number {
+        return (
+            this.computedAccuracy.n300 +
+            this.computedAccuracy.n100 +
+            this.computedAccuracy.n50
+        );
+    }
+
+    /**
      * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
@@ -122,11 +133,18 @@ export abstract class PerformanceCalculator {
             this.computedAccuracy = new Accuracy(options.accPercent);
 
             if (this.computedAccuracy.n300 <= 0) {
-                this.computedAccuracy.n300 =
+                this.computedAccuracy.n300 = Math.max(
+                    0,
                     this.totalHits -
-                    this.computedAccuracy.n100 -
-                    this.computedAccuracy.n50 -
-                    this.computedAccuracy.nmiss;
+                        this.computedAccuracy.n100 -
+                        this.computedAccuracy.n50 -
+                        this.computedAccuracy.nmiss
+                );
+            } else {
+                this.computedAccuracy.nmiss = Math.max(
+                    0,
+                    this.totalHits - this.totalSuccessfulHits
+                );
             }
         } else {
             this.computedAccuracy = new Accuracy({
