@@ -146,6 +146,31 @@ export class Score {
      */
     replay?: ReplayAnalyzer;
 
+    /**
+     * The complete mod string of this score (mods, speed multiplier, and force AR combined).
+     */
+    get completeModString(): string {
+        let finalString: string = `+${
+            this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
+        }`;
+
+        if (this.forcedAR !== undefined || this.speedMultiplier !== 1) {
+            finalString += " (";
+            if (this.forcedAR !== undefined) {
+                finalString += `AR${this.forcedAR}`;
+            }
+            if (this.speedMultiplier !== 1) {
+                if (this.forcedAR !== undefined) {
+                    finalString += ", ";
+                }
+                finalString += `${this.speedMultiplier}x`;
+            }
+            finalString += ")";
+        }
+
+        return finalString;
+    }
+
     constructor(values?: ScoreInformation) {
         this.uid = values?.uid ?? 0;
         this.scoreID = values?.scoreID ?? 0;
@@ -282,31 +307,6 @@ export class Score {
             .replace(/_/g, " ");
         this.hash = play[14];
         return this;
-    }
-
-    /**
-     * Returns the complete mod string of this score (mods, speed multiplier, and force AR combined).
-     */
-    getCompleteModString(): string {
-        let finalString: string = `+${
-            this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
-        }`;
-
-        if (this.forcedAR !== undefined || this.speedMultiplier !== 1) {
-            finalString += " (";
-            if (this.forcedAR !== undefined) {
-                finalString += `AR${this.forcedAR}`;
-            }
-            if (this.speedMultiplier !== 1) {
-                if (this.forcedAR !== undefined) {
-                    finalString += ", ";
-                }
-                finalString += `${this.speedMultiplier}x`;
-            }
-            finalString += ")";
-        }
-
-        return finalString;
     }
 
     /**
