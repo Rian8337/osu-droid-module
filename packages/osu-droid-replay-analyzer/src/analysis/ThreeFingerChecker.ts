@@ -241,9 +241,12 @@ export class ThreeFingerChecker {
 
         this.hitWindow = new DroidHitWindow(stats.od!);
 
-        const strainNotes:
-            | DifficultyHitObject[]
-            | RebalanceDifficultyHitObject[] = calculator.objects.filter(
+        const strainNotes: (
+            | DifficultyHitObject
+            | RebalanceDifficultyHitObject
+        )[] = (<(DifficultyHitObject | RebalanceDifficultyHitObject)[]>(
+            calculator.objects
+        )).filter(
             (v) => v.originalTapStrain >= ThreeFingerChecker.strainThreshold
         );
         this.strainNoteCount = strainNotes.length;
