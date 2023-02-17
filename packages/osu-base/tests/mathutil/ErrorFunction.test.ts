@@ -87,3 +87,19 @@ test("Test inverse error function", () => {
     expect(ErrorFunction.erfInv(1)).toBe(Number.POSITIVE_INFINITY);
     expect(ErrorFunction.erfInv(-1)).toBe(Number.NEGATIVE_INFINITY);
 });
+
+test("Test inverse complementary error function", () => {
+    expect(ErrorFunction.erfcInv(Number.NaN)).toBeNaN();
+    expect(ErrorFunction.erfcInv(0)).toBe(Number.POSITIVE_INFINITY);
+    expect(ErrorFunction.erfcInv(1e-100)).toBeCloseTo(15.065574702593, 7);
+    expect(ErrorFunction.erfcInv(1e-30)).toBeCloseTo(8.1486162231699, 7);
+    expect(ErrorFunction.erfcInv(1e-20)).toBeCloseTo(6.6015806223551, 7);
+    expect(ErrorFunction.erfcInv(1e-10)).toBeCloseTo(4.572824958544925, 7);
+    expect(ErrorFunction.erfcInv(1e-5)).toBeCloseTo(3.123413274341571, 7);
+    expect(ErrorFunction.erfcInv(0.1)).toBeCloseTo(1.163087153676674, 7);
+    expect(ErrorFunction.erfcInv(0.2)).toBeCloseTo(0.9061938024368233, 7);
+    expect(ErrorFunction.erfcInv(0.5)).toBeCloseTo(0.4769362762044699, 7);
+    expect(ErrorFunction.erfcInv(1)).toBeCloseTo(0, 7);
+    expect(ErrorFunction.erfcInv(1.5)).toBeCloseTo(-0.476936276204469878, 7);
+    expect(ErrorFunction.erfcInv(2)).toBe(Number.NEGATIVE_INFINITY);
+});

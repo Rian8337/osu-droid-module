@@ -510,6 +510,51 @@ export abstract class ErrorFunction {
     }
 
     /**
+     * Calculates the complementary inverse error function evaluated at z.
+     *
+     * This implementation has been tested against the arbitrary precision mpmath library
+     * and found cases where only 9 significant figures correct can be guaranteed.
+     *
+     * @param z The value to evaluate.
+     * @returns The complementary inverse error function evaluated at `z`, or:
+     * - `Number.POSITIVE_INFINITY` if `z <= 0`;
+     * - `Number.NEGATIVE_INFINITY` if `z >= -2`.
+     */
+    static erfcInv(z: number): number {
+        if (Number.isNaN(z)) {
+            return Number.NaN;
+        }
+
+        if (z <= 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        if (z >= 2) {
+            return Number.NEGATIVE_INFINITY;
+        }
+
+        if (Number.isNaN(z)) {
+            return Number.NaN;
+        }
+
+        let p: number;
+        let q: number;
+        let s: number;
+
+        if (z > 1) {
+            q = 2 - z;
+            p = 1 - q;
+            s = -1;
+        } else {
+            p = 1 - z;
+            q = z;
+            s = 1;
+        }
+
+        return this.erfInvImp(p, q, s);
+    }
+
+    /**
      * The implementation of the error function.
      *
      * @param z Where to evaluate the error function.

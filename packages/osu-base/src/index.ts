@@ -71,6 +71,7 @@ export * from "./mods/ModSuddenDeath";
 export * from "./mods/ModTouchDevice";
 export * from "./utils/ModUtil";
 export * from "./constants/Modes";
+export * from "./mathutil/NormalDistribution";
 export * from "./constants/ObjectTypes";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
