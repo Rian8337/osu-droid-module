@@ -46,19 +46,19 @@ const testDiffCalc = async (
     const rating = new MapStars(decoder.result);
 
     // NM droid star rating
-    expect(rating.droid.aim).toBeCloseTo(values.noModDroidRating.aim, 3);
-    expect(rating.droid.tap).toBeCloseTo(values.noModDroidRating.tap, 3);
-    expect(rating.droid.rhythm).toBeCloseTo(values.noModDroidRating.rhythm, 3);
+    expect(rating.droid.aim).toBeCloseTo(values.noModDroidRating.aim, 5);
+    expect(rating.droid.tap).toBeCloseTo(values.noModDroidRating.tap, 5);
+    expect(rating.droid.rhythm).toBeCloseTo(values.noModDroidRating.rhythm, 5);
     expect(rating.droid.flashlight).toBeCloseTo(
         values.noModDroidRating.flashlight,
-        3
+        5
     );
     expect(rating.droid.flashlight).toBeCloseTo(
         values.noModDroidRating.flashlight,
-        3
+        5
     );
-    expect(rating.droid.visual).toBeCloseTo(values.noModDroidRating.visual, 3);
-    expect(rating.droid.total).toBeCloseTo(values.noModDroidRating.total, 4);
+    expect(rating.droid.visual).toBeCloseTo(values.noModDroidRating.visual, 5);
+    expect(rating.droid.total).toBeCloseTo(values.noModDroidRating.total, 6);
 
     expect(rating.droid.attributes.aimDifficulty).toBeCloseTo(
         rating.droid.aim,
@@ -82,13 +82,13 @@ const testDiffCalc = async (
     );
 
     // NM PC star rating
-    expect(rating.osu.aim).toBeCloseTo(values.noModPcRating.aim, 3);
-    expect(rating.osu.speed).toBeCloseTo(values.noModPcRating.speed, 3);
+    expect(rating.osu.aim).toBeCloseTo(values.noModPcRating.aim, 5);
+    expect(rating.osu.speed).toBeCloseTo(values.noModPcRating.speed, 5);
     expect(rating.osu.flashlight).toBeCloseTo(
         values.noModPcRating.flashlight,
-        3
+        5
     );
-    expect(rating.osu.total).toBeCloseTo(values.noModPcRating.total, 4);
+    expect(rating.osu.total).toBeCloseTo(values.noModPcRating.total, 5);
 
     expect(rating.osu.attributes.aimDifficulty).toBeCloseTo(rating.osu.aim, 5);
     expect(rating.osu.attributes.speedDifficulty).toBeCloseTo(
@@ -107,57 +107,57 @@ const testDiffCalc = async (
     // DT droid star rating
     expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
         values.clockRateDroidRating.aim,
-        3
+        5
     );
     clockRateAdjustedRating.droid.calculateAim();
     expect(clockRateAdjustedRating.droid.aim).toBeCloseTo(
         values.clockRateDroidRating.aim,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
         values.clockRateDroidRating.tap,
-        3
+        5
     );
     clockRateAdjustedRating.droid.calculateTap();
     expect(clockRateAdjustedRating.droid.tap).toBeCloseTo(
         values.clockRateDroidRating.tap,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
         values.clockRateDroidRating.rhythm,
-        3
+        5
     );
     clockRateAdjustedRating.droid.calculateRhythm();
     expect(clockRateAdjustedRating.droid.rhythm).toBeCloseTo(
         values.clockRateDroidRating.rhythm,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
         values.clockRateDroidRating.flashlight,
-        3
+        5
     );
     clockRateAdjustedRating.droid.calculateFlashlight();
     expect(clockRateAdjustedRating.droid.flashlight).toBeCloseTo(
         values.clockRateDroidRating.flashlight,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
         values.clockRateDroidRating.visual,
-        3
+        5
     );
     clockRateAdjustedRating.droid.calculateVisual();
     expect(clockRateAdjustedRating.droid.visual).toBeCloseTo(
         values.clockRateDroidRating.visual,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.droid.total).toBeCloseTo(
         values.clockRateDroidRating.total,
-        4
+        5
     );
 
     expect(clockRateAdjustedRating.droid.attributes.aimDifficulty).toBeCloseTo(
@@ -181,37 +181,37 @@ const testDiffCalc = async (
     // DT PC star rating
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
         values.clockRatePcRating.aim,
-        3
+        5
     );
     clockRateAdjustedRating.osu.calculateAim();
     expect(clockRateAdjustedRating.osu.aim).toBeCloseTo(
         values.clockRatePcRating.aim,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
         values.clockRatePcRating.speed,
-        3
+        5
     );
     clockRateAdjustedRating.osu.calculateSpeed();
     expect(clockRateAdjustedRating.osu.speed).toBeCloseTo(
         values.clockRatePcRating.speed,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
         values.clockRatePcRating.flashlight,
-        3
+        5
     );
     clockRateAdjustedRating.osu.calculateFlashlight();
     expect(clockRateAdjustedRating.osu.flashlight).toBeCloseTo(
         values.clockRatePcRating.flashlight,
-        3
+        5
     );
 
     expect(clockRateAdjustedRating.osu.total).toBeCloseTo(
         values.clockRatePcRating.total,
-        4
+        5
     );
 
     expect(clockRateAdjustedRating.osu.attributes.aimDifficulty).toBeCloseTo(
@@ -291,7 +291,7 @@ test("Test difficulty calculation sample beatmap 1", async () => {
                 aim: 2.7930791212404427,
                 tap: 2.272025971813077,
                 rhythm: 1.1467786666588318,
-                flashlight: 0.6473871469148181,
+                flashlight: 0.6473759706598877,
                 visual: 0.9527115896839398,
                 total: 4.818892153534984,
             },
@@ -446,7 +446,7 @@ test("Test difficulty calculation sample beatmap 5", async () => {
 test("Test difficulty calculation sample beatmap 6", async () => {
     await testDiffCalc("negativeOD", {
         noModDroidRating: {
-            aim: 0.00005558648801559708,
+            aim: 0.000017639389451895763,
             tap: 0.18279086410430911,
             rhythm: 0,
             flashlight: 0,
@@ -460,7 +460,7 @@ test("Test difficulty calculation sample beatmap 6", async () => {
             total: 0.1437742937317235,
         },
         clockRateDroidRating: {
-            aim: 0.00006807926611577256,
+            aim: 0.000021603751765688227,
             tap: 0.22387217334898948,
             rhythm: 0,
             flashlight: 0,
