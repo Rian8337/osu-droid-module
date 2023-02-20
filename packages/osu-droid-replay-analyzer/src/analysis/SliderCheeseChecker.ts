@@ -130,7 +130,15 @@ export class SliderCheeseChecker {
         const acceptableRadius: number =
             this.calculator.objects[0].object.getRadius(Modes.droid) * 2;
 
-        for (let i = 0; i < this.calculator.objects.length; ++i) {
+        for (
+            let i = 0;
+            i <
+            Math.min(
+                this.data.hitObjectData.length,
+                this.calculator.objects.length
+            );
+            ++i
+        ) {
             const diffObject:
                 | DifficultyHitObject
                 | RebalanceDifficultyHitObject = this.calculator.objects[i];

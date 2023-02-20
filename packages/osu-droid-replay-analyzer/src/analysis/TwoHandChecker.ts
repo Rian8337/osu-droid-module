@@ -233,7 +233,15 @@ export class TwoHandChecker {
     private indexHitObjects(): void {
         const indexes: number[] = [];
 
-        for (let i = 0; i < this.calculator.objects.length; ++i) {
+        for (
+            let i = 0;
+            i <
+            Math.min(
+                this.data.hitObjectData.length,
+                this.calculator.objects.length
+            );
+            ++i
+        ) {
             const indexedHitObject: IndexedHitObject =
                 this.getIndexedHitObject(i);
 
