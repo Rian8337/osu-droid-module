@@ -1,6 +1,6 @@
 {
     "name": "@rian8337/osu-strain-graph-generator",
-    "version": "3.1.0",
+    "version": "3.1.1",
     "description": "A module for generating strain graph of an osu!standard beatmap.",
     "keywords": [
         "osu",
@@ -30,9 +30,9 @@
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "^3.0.0",
-        "@rian8337/osu-difficulty-calculator": "^3.1.0",
-        "@rian8337/osu-rebalance-difficulty-calculator": "^3.1.0",
+        "@rian8337/osu-base": "^3.1.1",
+        "@rian8337/osu-difficulty-calculator": "^3.1.1",
+        "@rian8337/osu-rebalance-difficulty-calculator": "^3.1.1",
         "canvas": "^2.9.0"
     },
     "publishConfig": {
