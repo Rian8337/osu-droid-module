@@ -185,19 +185,17 @@ export class Score {
 
         const modstrings: string[] = (values?.mods ?? "").split("|");
         let actualMods: string = "";
-        for (let i = 0; i < modstrings.length; ++i) {
-            if (!modstrings[i]) {
+        for (const str of modstrings) {
+            if (!str) {
                 continue;
             }
 
-            if (modstrings[i].startsWith("AR")) {
-                this.forcedAR = parseFloat(modstrings[i].replace("AR", ""));
-            } else if (modstrings[i].startsWith("x")) {
-                this.speedMultiplier = parseFloat(
-                    modstrings[i].replace("x", "")
-                );
+            if (str.startsWith("AR")) {
+                this.forcedAR = parseFloat(str.replace("AR", ""));
+            } else if (str.startsWith("x")) {
+                this.speedMultiplier = parseFloat(str.replace("x", ""));
             } else {
-                actualMods += modstrings[i];
+                actualMods += str;
             }
         }
 
@@ -259,19 +257,17 @@ export class Score {
 
         const modstrings: string[] = play[6].split("|");
         let actualMods: string = "";
-        for (let i = 0; i < modstrings.length; ++i) {
-            if (!modstrings[i]) {
+        for (const str of modstrings) {
+            if (!str) {
                 continue;
             }
 
-            if (modstrings[i].startsWith("AR")) {
-                this.forcedAR = parseFloat(modstrings[i].replace("AR", ""));
-            } else if (modstrings[i].startsWith("x")) {
-                this.speedMultiplier = parseFloat(
-                    modstrings[i].replace("x", "")
-                );
+            if (str.startsWith("AR")) {
+                this.forcedAR = parseFloat(str.replace("AR", ""));
+            } else if (str.startsWith("x")) {
+                this.speedMultiplier = parseFloat(str.replace("x", ""));
             } else {
-                actualMods += modstrings[i];
+                actualMods += str;
             }
         }
 
