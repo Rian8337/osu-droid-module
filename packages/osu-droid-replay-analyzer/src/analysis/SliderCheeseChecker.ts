@@ -289,6 +289,14 @@ export class SliderCheeseChecker {
      * Calculates the slider cheese penalty.
      */
     private calculateSliderCheesePenalty(): SliderCheeseInformation {
+        if (this.cheesedObjectIndexes.length === 0) {
+            return {
+                aimPenalty: 1,
+                flashlightPenalty: 1,
+                visualPenalty: 1,
+            };
+        }
+
         let calculator:
             | DroidDifficultyCalculator
             | RebalanceDroidDifficultyCalculator;
