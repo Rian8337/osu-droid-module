@@ -302,6 +302,7 @@ export class SliderCheeseChecker {
         }
 
         Object.assign(calculator.attributes, this.calculator.attributes);
+        calculator.mods = this.calculator.mods;
         calculator.stats = this.calculator.stats;
         calculator.generateDifficultyHitObjects();
 
