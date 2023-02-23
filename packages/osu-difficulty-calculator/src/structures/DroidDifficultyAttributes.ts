@@ -33,7 +33,7 @@ export interface DroidDifficultyAttributes extends DifficultyAttributes {
      *
      * A value closer to 0 indicates most of flashlight difficulty is contributed by sliders.
      */
-    flashlightSliderFactor?: number;
+    flashlightSliderFactor: number;
 
     /**
      * Describes how much of flashlight difficulty is contributed to by hitcircles or sliders.
@@ -42,5 +42,5 @@ export interface DroidDifficultyAttributes extends DifficultyAttributes {
      *
      * A value closer to 0 indicates most of flashlight difficulty is contributed by sliders.
      */
-    visualSliderFactor?: number;
+    visualSliderFactor: number;
 }
