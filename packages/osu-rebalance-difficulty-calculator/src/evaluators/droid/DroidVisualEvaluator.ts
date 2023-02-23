@@ -18,10 +18,12 @@ export abstract class DroidVisualEvaluator {
      *
      * @param current The current object.
      * @param isHiddenMod Whether the Hidden mod is enabled.
+     * @param withSliders Whether to take slider difficulty into account. Defaults to `true`.
      */
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
-        isHiddenMod: boolean
+        isHiddenMod: boolean,
+        withSliders: boolean = true
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -79,7 +81,7 @@ export abstract class DroidVisualEvaluator {
             strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
         }
 
-        if (current.object instanceof Slider) {
+        if (current.object instanceof Slider && withSliders) {
             const scalingFactor: number =
                 50 / current.object.getRadius(Modes.droid);
 

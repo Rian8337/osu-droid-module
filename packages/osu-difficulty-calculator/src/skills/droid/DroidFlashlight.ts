@@ -14,11 +14,13 @@ export class DroidFlashlight extends DroidSkill {
     protected override readonly starsPerDouble: number = 1.05;
 
     private readonly isHidden: boolean;
+    private readonly withSliders: boolean;
 
-    constructor(mods: Mod[]) {
+    constructor(mods: Mod[], withSliders: boolean = true) {
         super(mods);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
+        this.withSliders = withSliders;
     }
 
     /**
@@ -29,13 +31,18 @@ export class DroidFlashlight extends DroidSkill {
         this.currentStrain +=
             DroidFlashlightEvaluator.evaluateDifficultyOf(
                 current,
-                this.isHidden
+                this.isHidden,
+                this.withSliders
             ) * this.skillMultiplier;
 
         return this.currentStrain;
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.flashlightStrain = this.currentStrain;
+        if (this.withSliders) {
+            current.flashlightStrain = this.currentStrain;
+        } else {
+            current.flashlightStrainWithoutSliders = this.currentStrain;
+        }
     }
 }
