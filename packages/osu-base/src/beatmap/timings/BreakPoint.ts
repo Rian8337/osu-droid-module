@@ -18,14 +18,15 @@ export class BreakPoint {
     readonly endTime: number;
 
     /**
-     * The duration of the break period. This is obtained from `endTime - startTime`.
+     * The duration of the break period.
      */
-    readonly duration: number;
+    get duration(): number {
+        return this.endTime - this.startTime;
+    }
 
     constructor(values: { startTime: number; endTime: number }) {
         this.startTime = values.startTime;
         this.endTime = values.endTime;
-        this.duration = this.endTime - this.startTime;
     }
 
     /**
