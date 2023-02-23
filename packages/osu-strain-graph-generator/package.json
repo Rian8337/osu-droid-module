@@ -21,7 +21,7 @@
         "url": "git+https://github.com/Rian8337/osu-droid-module.git"
     },
     "scripts": {
-        "build": "rollup -c ../../rollup.config.js",
+        "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
         "prepare": "npm run build",
         "test": "echo \"No tests for this module\""
