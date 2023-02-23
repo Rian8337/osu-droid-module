@@ -6,6 +6,5 @@ import { Vector2 } from "@rian8337/osu-base";
 export interface CursorVectorSimilarity {
     vector: Vector2;
     count: number;
-
     lastTime: number;
 }
