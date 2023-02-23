@@ -54,6 +54,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         hitCircleCount: 0,
         sliderCount: 0,
         spinnerCount: 0,
+        flashlightSliderFactor: 0,
+        visualSliderFactor: 0,
     };
 
     protected override readonly difficultyMultiplier: number = 0.18;
@@ -112,11 +114,19 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill: DroidFlashlight = new DroidFlashlight(this.mods);
+        const flashlightSkill: DroidFlashlight = new DroidFlashlight(
+            this.mods,
+            true
+        );
+        const flashlightSkillWithoutSliders: DroidFlashlight =
+            new DroidFlashlight(this.mods, false);
 
-        this.calculateSkills(flashlightSkill);
+        this.calculateSkills(flashlightSkill, flashlightSkillWithoutSliders);
 
-        this.postCalculateFlashlight(flashlightSkill);
+        this.postCalculateFlashlight(
+            flashlightSkill,
+            flashlightSkillWithoutSliders
+        );
     }
 
     /**
@@ -129,11 +139,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             return;
         }
 
-        const visualSkill: DroidVisual = new DroidVisual(this.mods);
+        const visualSkill: DroidVisual = new DroidVisual(this.mods, true);
+        const visualSkillWithoutSliders: DroidVisual = new DroidVisual(
+            this.mods,
+            false
+        );
 
-        this.calculateSkills(visualSkill);
+        this.calculateSkills(visualSkill, visualSkillWithoutSliders);
 
-        this.postCalculateVisual(visualSkill);
+        this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
     }
 
     override calculateTotal(): void {
@@ -175,19 +189,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
 
         if (isRelax) {
-            // Remove visual skill to reduce overhead.
+            // Remove visual skills to reduce overhead.
+            skills.pop();
             skills.pop();
         }
 
         this.calculateSkills(...skills);
 
-        const aimSkill: DroidAim = <DroidAim>skills[0];
-        const aimSkillWithoutSliders: DroidAim = <DroidAim>skills[1];
-        const rhythmSkill: DroidRhythm = <DroidRhythm>skills[2];
-        const tapSkill: DroidTap = <DroidTap>skills[3];
-        const flashlightSkill: DroidFlashlight = <DroidFlashlight>skills[4];
-        const visualSkill: DroidVisual | null =
-            <DroidVisual | null>skills[5] ?? null;
+        const aimSkill = <DroidAim>skills[0];
+        const aimSkillWithoutSliders = <DroidAim>skills[1];
+        const rhythmSkill = <DroidRhythm>skills[2];
+        const tapSkill = <DroidTap>skills[3];
+        const flashlightSkill = <DroidFlashlight>skills[4];
+        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[5];
+        const visualSkill = <DroidVisual | null>skills[6] ?? null;
+        const visualSkillWithoutSliders = <DroidVisual | null>skills[7] ?? null;
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
@@ -203,10 +219,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             this.postCalculateRhythm(rhythmSkill);
         }
 
-        this.postCalculateFlashlight(flashlightSkill);
+        this.postCalculateFlashlight(
+            flashlightSkill,
+            flashlightSkillWithoutSliders
+        );
 
-        if (visualSkill) {
-            this.postCalculateVisual(visualSkill);
+        if (visualSkill && visualSkillWithoutSliders) {
+            this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
         }
 
         this.calculateTotal();
@@ -242,8 +261,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             // Tap skill depends on rhythm skill, so we put it first
             new DroidRhythm(this.mods, this.stats.od!),
             new DroidTap(this.mods, this.stats.od!),
-            new DroidFlashlight(this.mods),
-            new DroidVisual(this.mods),
+            new DroidFlashlight(this.mods, true),
+            new DroidFlashlight(this.mods, false),
+            new DroidVisual(this.mods, true),
+            new DroidVisual(this.mods, false),
         ];
     }
 
@@ -340,12 +361,23 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     /**
      * Called after flashlight skill calculation.
      *
-     * @param flashlightSkill The flashlight skill.
+     * @param flashlightSkill The flashlight skill that considers sliders.
+     * @param flashlightSkillWithoutSliders The flashlight skill that doesn't consider sliders.
      */
-    private postCalculateFlashlight(flashlightSkill: DroidFlashlight): void {
+    private postCalculateFlashlight(
+        flashlightSkill: DroidFlashlight,
+        flashlightSkillWithoutSliders: DroidFlashlight
+    ): void {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+
+        if (this.flashlight) {
+            this.attributes.flashlightSliderFactor =
+                this.starValue(
+                    flashlightSkillWithoutSliders.difficultyValue()
+                ) / this.flashlight;
+        }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.flashlight *= 0.7;
@@ -357,13 +389,23 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     /**
      * Called after visual skill calculation.
      *
-     * @param visualSkill The visual skill.
+     * @param visualSkillWithSliders The visual skill that considers sliders.
+     * @param visualSkillWithoutSliders The visual skill that doesn't consider sliders.
      */
-    private postCalculateVisual(visualSkill: DroidVisual): void {
+    private postCalculateVisual(
+        visualSkillWithSliders: DroidVisual,
+        visualSkillWithoutSliders: DroidVisual
+    ): void {
         this.visual = this.attributes.visualDifficulty = this.mods.some(
             (m) => m instanceof ModRelax
         )
             ? 0
-            : this.starValue(visualSkill.difficultyValue());
+            : this.starValue(visualSkillWithSliders.difficultyValue());
+
+        if (this.visual) {
+            this.attributes.visualSliderFactor =
+                this.starValue(visualSkillWithoutSliders.difficultyValue()) /
+                this.visual;
+        }
     }
 }
