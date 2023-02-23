@@ -66,6 +66,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateSpeed(): void {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.speed = this.attributes.speedDifficulty = 0;
+            return;
+        }
+
         const speedSkill: OsuSpeed = new OsuSpeed(
             this.mods,
             new OsuHitWindow(this.stats.od!).hitWindowFor300()
@@ -75,6 +80,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.speed = 0;
+            this.attributes.speedDifficulty = 0;
         } else {
             this.postCalculateSpeed(speedSkill);
         }
@@ -121,6 +127,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                     (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
                 ) +
                     4);
+        } else {
+            this.total = this.attributes.starRating = 0;
         }
     }
 
@@ -140,6 +148,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         if (isRelax) {
             this.speed = 0;
+            this.attributes.speedDifficulty = 0;
         } else {
             this.postCalculateSpeed(speedSkill);
         }
