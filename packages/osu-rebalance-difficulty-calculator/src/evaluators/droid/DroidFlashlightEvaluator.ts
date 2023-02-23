@@ -17,12 +17,12 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
      *
      * @param current The current object.
      * @param isHiddenMod Whether the Hidden mod is enabled.
-     * @param withSliders Whether to take slider difficulty into account. Defaults to `true`.
+     * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
         isHiddenMod: boolean,
-        withSliders: boolean = true
+        withSliders: boolean
     ): number {
         if (
             current.object instanceof Spinner ||

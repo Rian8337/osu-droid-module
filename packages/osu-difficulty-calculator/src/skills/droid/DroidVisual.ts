@@ -16,7 +16,7 @@ export class DroidVisual extends DroidSkill {
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
 
-    constructor(mods: Mod[], withSliders: boolean = true) {
+    constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
@@ -37,7 +37,7 @@ export class DroidVisual extends DroidSkill {
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
         if (this.withSliders) {
-            current.visualStrain = this.currentStrain;
+            current.visualStrainWithSliders = this.currentStrain;
         } else {
             current.visualStrainWithoutSliders = this.currentStrain;
         }

@@ -16,7 +16,7 @@ export class DroidFlashlight extends DroidSkill {
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
 
-    constructor(mods: Mod[], withSliders: boolean = true) {
+    constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
@@ -40,7 +40,7 @@ export class DroidFlashlight extends DroidSkill {
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
         if (this.withSliders) {
-            current.flashlightStrain = this.currentStrain;
+            current.flashlightStrainWithSliders = this.currentStrain;
         } else {
             current.flashlightStrainWithoutSliders = this.currentStrain;
         }

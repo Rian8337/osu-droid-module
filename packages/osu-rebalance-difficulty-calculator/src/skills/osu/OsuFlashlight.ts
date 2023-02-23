@@ -36,6 +36,6 @@ export class OsuFlashlight extends OsuSkill {
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.flashlightStrain = this.currentStrain;
+        current.flashlightStrainWithSliders = this.currentStrain;
     }
 }
