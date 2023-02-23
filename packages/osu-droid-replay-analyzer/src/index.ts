@@ -9,4 +9,5 @@ export * from "./data/ReplayData";
 export * from "./data/ReplayObjectData";
 export * from "./analysis/SliderCheeseChecker";
 export * from "./analysis/ThreeFingerChecker";
+export * from "./analysis/structures/ThreeFingerInformation";
 export * from "./analysis/TwoHandChecker";

@@ -14,18 +14,21 @@ import {
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
-import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
-import { DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    DroidDifficultyCalculator,
+    ExtendedDroidDifficultyAttributes,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
+    ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
 import { ReplayData, ReplayInformation } from "./data/ReplayData";
 import { CursorData } from "./data/CursorData";
 import { ReplayObjectData } from "./data/ReplayObjectData";
-import {
-    ThreeFingerChecker,
-    ThreeFingerInformation,
-} from "./analysis/ThreeFingerChecker";
+import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
 import { MovementType } from "./constants/MovementType";
 import { HitResult } from "./constants/HitResult";
@@ -33,6 +36,7 @@ import {
     SliderCheeseChecker,
     SliderCheeseInformation,
 } from "./analysis/SliderCheeseChecker";
+import { ThreeFingerInformation } from "./analysis/structures/ThreeFingerInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -80,6 +84,13 @@ export class ReplayAnalyzer {
         | Beatmap
         | DroidDifficultyCalculator
         | RebalanceDroidDifficultyCalculator;
+
+    /**
+     * The difficulty attributes of the beatmap.
+     */
+    difficultyAttributes?:
+        | ExtendedDroidDifficultyAttributes
+        | RebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The results of the analyzer. `null` when initialized.
@@ -141,15 +152,29 @@ export class ReplayAnalyzer {
         /**
          * The beatmap to analyze.
          *
-         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
+         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for two hand and slider cheese analyzing.
          */
         map?:
             | Beatmap
             | DroidDifficultyCalculator
             | RebalanceDroidDifficultyCalculator;
+
+        /**
+         * The difficulty attributes.
+         *
+         * If `map` is defined as `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator`, the difficulty attributes will be obtained from it instead.
+         */
+        difficultyAttributes?:
+            | ExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes;
     }) {
         this.scoreID = values.scoreID;
         this.beatmap = values.map;
+        this.difficultyAttributes = values.difficultyAttributes;
+
+        if (this.beatmap && !(this.beatmap instanceof Beatmap)) {
+            this.difficultyAttributes = this.beatmap.attributes;
+        }
     }
 
     /**
@@ -669,22 +694,19 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 3 fingers.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
+     * Requires `analyze()` to be called first and `map` and `difficultyAttributes` to be defined.
      */
     checkFor3Finger(): void {
-        if (
-            !(
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-            ) ||
-            !this.data
-        ) {
+        if (!this.beatmap || !this.data || !this.difficultyAttributes) {
             return;
         }
 
         const threeFingerChecker: ThreeFingerChecker = new ThreeFingerChecker(
-            this.beatmap,
-            this.data
+            this.beatmap instanceof Beatmap
+                ? this.beatmap
+                : this.beatmap.beatmap,
+            this.data,
+            this.difficultyAttributes
         );
         const result: ThreeFingerInformation = threeFingerChecker.check();
 
