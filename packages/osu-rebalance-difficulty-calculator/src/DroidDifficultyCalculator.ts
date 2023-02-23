@@ -82,7 +82,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.calculateSkills(tapSkill);
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.tap = 0;
+            this.tap = this.attributes.tapDifficulty = 0;
         } else {
             this.postCalculateTap(tapSkill);
         }
@@ -95,7 +95,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      */
     calculateRhythm(): void {
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.rhythm = 0;
+            this.rhythm = this.attributes.rhythmDifficulty = 0;
 
             return;
         }
@@ -134,7 +134,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      */
     calculateVisual(): void {
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.visual = 0;
+            this.visual = this.attributes.visualDifficulty = 0;
 
             return;
         }
@@ -180,6 +180,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
                 ) +
                     4);
+        } else {
+            this.total = this.attributes.starRating = 0;
         }
     }
 
@@ -208,7 +210,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
         if (isRelax) {
-            this.tap = 0;
+            this.tap = this.attributes.tapDifficulty = 0;
         } else {
             this.postCalculateTap(tapSkill);
         }
@@ -226,6 +228,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
         if (visualSkill && visualSkillWithoutSliders) {
             this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
+        } else {
+            this.visual = this.attributes.visualDifficulty = 0;
         }
 
         this.calculateTotal();
