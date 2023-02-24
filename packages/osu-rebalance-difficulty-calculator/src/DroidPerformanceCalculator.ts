@@ -617,7 +617,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.speedNoteCount / this.totalHits;
 
         const nonGreatCount: number =
-            this.computedAccuracy.n100 + this.computedAccuracy.n50;
+            this.computedAccuracy.n100 +
+            this.computedAccuracy.n50 +
+            this.computedAccuracy.nmiss;
         const nonGreatRatio: number =
             1 -
             (1 - speedNoteRatio) *
@@ -625,7 +627,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 ErrorFunction.erf(20 / hitWindow300);
         const relevantCountGreat: number = Math.max(
             0,
-            this.computedAccuracy.n300 - nonGreatCount * nonGreatRatio
+            this.difficultyAttributes.speedNoteCount -
+                nonGreatCount * nonGreatRatio
         );
 
         if (relevantCountGreat === 0) {
@@ -633,7 +636,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         const greatProbability: number =
-            relevantCountGreat / (this.totalHits + 1);
+            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
 
         return (
             hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
