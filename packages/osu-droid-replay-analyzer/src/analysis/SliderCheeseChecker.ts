@@ -23,23 +23,7 @@ import { CursorOccurrence } from "../data/CursorOccurrence";
 import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
-
-export interface SliderCheeseInformation {
-    /**
-     * The value used to penalize the aim performance value.
-     */
-    aimPenalty: number;
-
-    /**
-     * The value used to penalize the flashlight performance value.
-     */
-    flashlightPenalty: number;
-
-    /**
-     * The value used to penalize the visual performance value.
-     */
-    visualPenalty: number;
-}
+import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
 
 /**
  * Utility to check whether relevant sliders in a beatmap are cheesed.
