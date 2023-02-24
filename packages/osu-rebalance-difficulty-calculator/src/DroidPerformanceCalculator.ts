@@ -633,7 +633,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         const greatProbability: number =
-            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
+            relevantCountGreat / (this.totalHits + 1);
 
         return (
             hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
