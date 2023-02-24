@@ -338,7 +338,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
                 while (
                     topDifficultSliders.length >
-                    Math.floor(0.15 * this.objects.length)
+                    Math.floor(0.15 * this.beatmap.hitObjects.sliders)
                 ) {
                     topDifficultSliders.pop();
                 }
