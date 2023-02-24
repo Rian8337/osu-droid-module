@@ -743,21 +743,21 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play has cheesed sliders.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
+     * Requires `analyze()` to be called first and `map` and `difficultyAttributes` to be defined.
      */
     checkForSliderCheesing(): void {
-        if (
-            !(
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-            ) ||
-            !this.data
-        ) {
+        if (!this.beatmap || !this.data || !this.difficultyAttributes) {
             return;
         }
 
         const sliderCheeseChecker: SliderCheeseChecker =
-            new SliderCheeseChecker(this.beatmap, this.data);
+            new SliderCheeseChecker(
+                this.beatmap instanceof Beatmap
+                    ? this.beatmap
+                    : this.beatmap.beatmap,
+                this.data,
+                this.difficultyAttributes
+            );
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;

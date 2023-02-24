@@ -3,17 +3,17 @@
  */
 export interface SliderCheeseInformation {
     /**
-     * The value used to penalize the aim performance value.
+     * The value used to penalize the aim performance value, from 0 to 1.
      */
     aimPenalty: number;
 
     /**
-     * The value used to penalize the flashlight performance value.
+     * The value used to penalize the flashlight performance value, from 0 to 1.
      */
     flashlightPenalty: number;
 
     /**
-     * The value used to penalize the visual performance value.
+     * The value used to penalize the visual performance value, from 0 to 1.
      */
     visualPenalty: number;
 }

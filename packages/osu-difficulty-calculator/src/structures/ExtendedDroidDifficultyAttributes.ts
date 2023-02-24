@@ -1,3 +1,4 @@
+import { DifficultSlider } from "./DifficultSlider";
 import { DroidDifficultyAttributes } from "./DroidDifficultyAttributes";
 import { HighStrainSection } from "./HighStrainSection";
 
@@ -11,6 +12,11 @@ export interface ExtendedDroidDifficultyAttributes
      * Possible sections at which the player can use three fingers on.
      */
     possibleThreeFingeredSections: HighStrainSection[];
+
+    /**
+     * Sliders that are considered difficult.
+     */
+    difficultSliders: DifficultSlider[];
 
     /**
      * The number of clickable objects weighted by difficulty.

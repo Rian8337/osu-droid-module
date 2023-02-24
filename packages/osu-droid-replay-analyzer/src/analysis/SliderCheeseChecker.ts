@@ -1,4 +1,5 @@
 import {
+    Beatmap,
     DroidHitWindow,
     Interpolation,
     MapStats,
@@ -10,14 +11,8 @@ import {
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import {
-    DifficultyHitObject,
-    DroidDifficultyCalculator,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    DifficultyHitObject as RebalanceDifficultyHitObject,
-    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
-} from "@rian8337/osu-rebalance-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
@@ -30,11 +25,9 @@ import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
  */
 export class SliderCheeseChecker {
     /**
-     * The difficulty calculator that is being analyzed.
+     * The beatmap that is being analyzed.
      */
-    readonly calculator:
-        | DroidDifficultyCalculator
-        | RebalanceDroidDifficultyCalculator;
+    readonly beatmap: Beatmap;
 
     /**
      * The data of the replay.
@@ -42,9 +35,11 @@ export class SliderCheeseChecker {
     readonly data: ReplayData;
 
     /**
-     * The osu!droid hitwindow of the analyzed beatmap.
+     * The difficulty attributes of the beatmap.
      */
-    private readonly hitWindow: DroidHitWindow;
+    readonly difficultyAttributes:
+        | ExtendedDroidDifficultyAttributes
+        | RebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The 50 osu!droid hit window of the analyzed beatmap.
@@ -52,26 +47,29 @@ export class SliderCheeseChecker {
     private readonly hitWindow50: number;
 
     /**
-     * The indexes of objects that were cheesed.
+     * The difficulty ratings of sliders that were cheesed.
      */
-    private readonly cheesedObjectIndexes: number[] = [];
+    private readonly cheesedDifficultyRatings: number[] = [];
 
     /**
-     * @param calculator The difficulty calculator to analyze.
+     * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
+     * @param difficultyAttributes The difficulty attributes of the beatmap.
      */
     constructor(
-        calculator:
-            | DroidDifficultyCalculator
-            | RebalanceDroidDifficultyCalculator,
-        data: ReplayData
+        beatmap: Beatmap,
+        data: ReplayData,
+        difficultyAttributes:
+            | ExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes
     ) {
-        this.calculator = calculator;
+        this.beatmap = beatmap;
         this.data = data;
+        this.difficultyAttributes = difficultyAttributes;
 
         const stats: MapStats = new MapStats({
-            od: this.calculator.beatmap.difficulty.od,
-            mods: this.calculator.mods.filter(
+            od: this.beatmap.difficulty.od,
+            mods: this.difficultyAttributes.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
@@ -80,9 +78,8 @@ export class SliderCheeseChecker {
             ),
         }).calculate();
 
-        this.hitWindow = new DroidHitWindow(stats.od!);
-        this.hitWindow50 = this.hitWindow.hitWindowFor50(
-            calculator.mods.some((m) => m instanceof ModPrecise)
+        this.hitWindow50 = new DroidHitWindow(stats.od!).hitWindowFor50(
+            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise)
         );
     }
 
@@ -90,7 +87,7 @@ export class SliderCheeseChecker {
      * Checks if relevant sliders in the given beatmap was cheesed.
      */
     check(): SliderCheeseInformation {
-        if (this.calculator.attributes.sliderCount === 0) {
+        if (this.difficultyAttributes.difficultSliders.length === 0) {
             return {
                 aimPenalty: 1,
                 flashlightPenalty: 1,
@@ -109,33 +106,23 @@ export class SliderCheeseChecker {
         // Current loop indexes are stored for efficiency.
         const cursorLoopIndexes: number[] = Utils.initializeArray(10, 0);
         const acceptableRadius: number =
-            this.calculator.objects[0].object.getRadius(Modes.droid) * 2;
+            this.beatmap.hitObjects.objects[0].getRadius(Modes.droid) * 2;
 
-        for (
-            let i = 0;
-            i <
-            Math.min(
-                this.data.hitObjectData.length,
-                this.calculator.objects.length
-            );
-            ++i
-        ) {
-            const diffObject:
-                | DifficultyHitObject
-                | RebalanceDifficultyHitObject = this.calculator.objects[i];
-            const { object } = diffObject;
-
-            if (
-                diffObject.travelDistance === 0 ||
-                !(object instanceof Slider)
-            ) {
+        for (const difficultSlider of this.difficultyAttributes
+            .difficultSliders) {
+            if (difficultSlider.index >= this.data.hitObjectData.length) {
                 continue;
             }
+
+            const object = <Slider>(
+                this.beatmap.hitObjects.objects[difficultSlider.index]
+            );
 
             const objectStartPosition: Vector2 = object.getStackedPosition(
                 Modes.droid
             );
-            const objectData: ReplayObjectData = this.data.hitObjectData[i];
+            const objectData: ReplayObjectData =
+                this.data.hitObjectData[difficultSlider.index];
 
             // If a slider break occurs, we disregard the check for that slider.
             if (objectData.accuracy === Math.floor(this.hitWindow50) + 13) {
@@ -261,7 +248,9 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
-                this.cheesedObjectIndexes.push(i);
+                this.cheesedDifficultyRatings.push(
+                    difficultSlider.difficultyRating
+                );
             }
         }
     }
@@ -270,42 +259,21 @@ export class SliderCheeseChecker {
      * Calculates the slider cheese penalty.
      */
     private calculateSliderCheesePenalty(): SliderCheeseInformation {
-        if (this.cheesedObjectIndexes.length === 0) {
-            return {
-                aimPenalty: 1,
-                flashlightPenalty: 1,
-                visualPenalty: 1,
-            };
-        }
-
-        let calculator:
-            | DroidDifficultyCalculator
-            | RebalanceDroidDifficultyCalculator;
-
-        if (this.calculator instanceof DroidDifficultyCalculator) {
-            calculator = new DroidDifficultyCalculator(this.calculator.beatmap);
-        } else {
-            calculator = new RebalanceDroidDifficultyCalculator(
-                this.calculator.beatmap
-            );
-        }
-
-        Object.assign(calculator.attributes, this.calculator.attributes);
-        calculator.mods = this.calculator.mods;
-        calculator.stats = this.calculator.stats;
-        calculator.generateDifficultyHitObjects();
-
-        for (const index of this.cheesedObjectIndexes) {
-            calculator.objects[index].travelDistance = 0;
-        }
-
-        calculator.calculateAll();
+        const summedDifficultyRating: number =
+            this.cheesedDifficultyRatings.reduce((a, v) => a + v, 0);
 
         return {
-            aimPenalty: this.calculator.aim / calculator.aim,
+            aimPenalty:
+                1 -
+                summedDifficultyRating * this.difficultyAttributes.sliderFactor,
             flashlightPenalty:
-                this.calculator.flashlight / calculator.flashlight,
-            visualPenalty: this.calculator.visual / calculator.visual,
+                1 -
+                summedDifficultyRating *
+                    this.difficultyAttributes.flashlightSliderFactor,
+            visualPenalty:
+                1 -
+                summedDifficultyRating *
+                    this.difficultyAttributes.visualSliderFactor,
         };
     }
 }

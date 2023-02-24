@@ -3,7 +3,7 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
+import { ModRelax, ModFlashlight, Modes, Slider } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
@@ -65,6 +65,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         flashlightSliderFactor: 0,
         visualSliderFactor: 0,
         possibleThreeFingeredSections: [],
+        difficultSliders: [],
     };
 
     protected override readonly difficultyMultiplier: number = 0.18;
@@ -315,10 +316,34 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * Calculates aim-related attributes.
      */
     private calculateAimAttributes(): void {
-        const objectStrains: number[] = this.objects.map(
-            (v) => v.aimStrainWithSliders
-        );
-        const maxStrain: number = Math.max(...objectStrains);
+        const objectStrains: number[] = [];
+        let maxStrain: number = 0;
+
+        // Take the top 15% most difficult sliders based on velocity.
+        const topDifficultSliders: { index: number; velocity: number }[] = [];
+
+        for (let i = 0; i < this.objects.length; ++i) {
+            const object = this.objects[i];
+
+            objectStrains.push(object.aimStrainWithSliders);
+            maxStrain = Math.max(maxStrain, object.aimStrainWithSliders);
+
+            if (object.object instanceof Slider) {
+                topDifficultSliders.push({
+                    index: i,
+                    velocity: object.travelDistance / object.travelTime,
+                });
+
+                topDifficultSliders.sort((a, b) => b.velocity - a.velocity);
+
+                while (
+                    topDifficultSliders.length >
+                    Math.floor(0.15 * this.objects.length)
+                ) {
+                    topDifficultSliders.pop();
+                }
+            }
+        }
 
         if (maxStrain) {
             this.attributes.aimNoteCount = objectStrains.reduce(
@@ -326,6 +351,18 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
                 0
             );
+        }
+
+        const velocitySum: number = topDifficultSliders.reduce(
+            (a, v) => a + v.velocity,
+            0
+        );
+
+        for (const slider of topDifficultSliders) {
+            this.attributes.difficultSliders.push({
+                index: slider.index,
+                difficultyRating: slider.velocity / velocitySum,
+            });
         }
     }
 
