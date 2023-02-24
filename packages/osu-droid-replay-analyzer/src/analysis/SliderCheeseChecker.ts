@@ -119,9 +119,10 @@ export class SliderCheeseChecker {
                 continue;
             }
 
-            const object = <Slider>(
-                this.beatmap.hitObjects.objects[difficultSlider.index]
+            const object = Utils.deepCopy(
+                <Slider>this.beatmap.hitObjects.objects[difficultSlider.index]
             );
+            object.droidScale = scale;
 
             const objectStartPosition: Vector2 = object.getStackedPosition(
                 Modes.droid
@@ -183,6 +184,7 @@ export class SliderCheeseChecker {
 
                         const nestedObject: SliderNestedHitObject =
                             object.nestedHitObjects[l];
+                        nestedObject.droidScale = scale;
                         const nestedPosition: Vector2 =
                             nestedObject.getStackedPosition(Modes.droid);
 

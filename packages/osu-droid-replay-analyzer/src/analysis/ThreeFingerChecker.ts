@@ -13,6 +13,7 @@ import {
     Beatmap,
     BreakPoint,
     PlaceableHitObject,
+    Utils,
 } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
@@ -50,9 +51,9 @@ export class ThreeFingerChecker {
         | RebalanceExtendedDroidDifficultyAttributes;
 
     /**
-     * The true radius of objects.
+     * The true scale of objects.
      */
-    private readonly trueRadius: number;
+    private readonly trueScale: number;
 
     /**
      * The distance threshold between cursors to assume that two cursors are
@@ -174,8 +175,7 @@ export class ThreeFingerChecker {
             cs: this.beatmap.difficulty.cs,
             mods: this.difficultyAttributes.mods,
         }).calculate({ mode: Modes.droid }).cs!;
-        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
-        this.trueRadius = 64 * scale;
+        this.trueScale = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
     }
 
     /**
@@ -556,7 +556,7 @@ export class ThreeFingerChecker {
             i < sectionObjects.length && cursorIndexes.every((v) => v !== -1);
             ++i
         ) {
-            const object: PlaceableHitObject = sectionObjects[i];
+            let object: PlaceableHitObject = sectionObjects[i];
             const objectData: ReplayObjectData = sectionReplayObjectData[i];
 
             if (
@@ -573,6 +573,10 @@ export class ThreeFingerChecker {
             ) {
                 continue;
             }
+
+            // Deep copy the instance so that we can assign scale.
+            object = Utils.deepCopy(object);
+            object.droidScale = this.trueScale;
 
             const objectPosition: Vector2 = object.getStackedPosition(
                 Modes.droid
@@ -616,7 +620,7 @@ export class ThreeFingerChecker {
                             isInObject =
                                 prevCursor.position.getDistance(
                                     objectPosition
-                                ) <= this.trueRadius;
+                                ) <= object.getRadius(Modes.droid);
                             break;
                         case MovementType.move:
                             // Interpolate movement.
@@ -649,7 +653,7 @@ export class ThreeFingerChecker {
                                 isInObject =
                                     objectPosition.getDistance(
                                         cursorPosition
-                                    ) <= this.trueRadius;
+                                    ) <= object.getRadius(Modes.droid);
                             }
                     }
 
