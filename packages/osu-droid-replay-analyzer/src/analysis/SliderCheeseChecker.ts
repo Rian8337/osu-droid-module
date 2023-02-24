@@ -188,16 +188,13 @@ export class SliderCheeseChecker {
                             continue;
                         }
 
-                        if (object.nestedHitObjects[l].droidScale !== scale) {
-                            // Deep clone the object so that we can assign scale properly
-                            object.nestedHitObjects[l] = Utils.deepCopy(
-                                object.nestedHitObjects[l]
-                            );
-                            object.nestedHitObjects[l].droidScale = scale;
-                        }
-
-                        const nestedObject: SliderNestedHitObject =
+                        let nestedObject: SliderNestedHitObject =
                             object.nestedHitObjects[l];
+                        if (nestedObject.droidScale !== scale) {
+                            // Deep clone the object so that we can assign scale properly
+                            nestedObject = Utils.deepCopy(nestedObject);
+                            nestedObject.droidScale = scale;
+                        }
                         const nestedPosition: Vector2 =
                             nestedObject.getStackedPosition(Modes.droid);
 
