@@ -187,7 +187,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         if (value > 1) {
             throw new RangeError(
-                "New visual slider cheese penalty must be less than or equal to one."
+                "New aim slider cheese penalty must be less than or equal to one."
             );
         }
 
