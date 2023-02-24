@@ -608,14 +608,24 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return Number.POSITIVE_INFINITY;
         }
 
+        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
+        // Graph: https://www.desmos.com/calculator/31argjcxqc
         const hitWindow300: number = new OsuHitWindow(
             this.difficultyAttributes.overallDifficulty
         ).hitWindowFor300();
-        const relevantTotalDiff: number =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
+        const speedNoteRatio: number =
+            this.difficultyAttributes.speedNoteCount / this.totalHits;
+
+        const nonGreatCount: number =
+            this.computedAccuracy.n100 + this.computedAccuracy.n50;
+        const nonGreatRatio: number =
+            1 -
+            (1 - speedNoteRatio) *
+                ErrorFunction.erf(1 - speedNoteRatio) *
+                ErrorFunction.erf(20 / hitWindow300);
         const relevantCountGreat: number = Math.max(
             0,
-            this.computedAccuracy.n300 - relevantTotalDiff
+            this.computedAccuracy.n300 - nonGreatCount * nonGreatRatio
         );
 
         if (relevantCountGreat === 0) {
