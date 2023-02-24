@@ -32,11 +32,9 @@ import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
 import { MovementType } from "./constants/MovementType";
 import { HitResult } from "./constants/HitResult";
-import {
-    SliderCheeseChecker,
-    SliderCheeseInformation,
-} from "./analysis/SliderCheeseChecker";
+import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { ThreeFingerInformation } from "./analysis/structures/ThreeFingerInformation";
+import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
