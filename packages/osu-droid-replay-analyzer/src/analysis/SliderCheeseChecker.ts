@@ -88,9 +88,6 @@ export class SliderCheeseChecker {
 
     /**
      * Checks if relevant sliders in the given beatmap was cheesed.
-     *
-     * Returns a number that can be passed to a `DroidPerformanceCalculator`
-     * to alter the aim performance value.
      */
     check(): SliderCheeseInformation {
         if (this.calculator.attributes.sliderCount === 0) {
