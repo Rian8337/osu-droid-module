@@ -50,11 +50,9 @@ export class ThreeFingerChecker {
         | RebalanceExtendedDroidDifficultyAttributes;
 
     /**
-     * The strain threshold to start detecting for 3-fingered section.
-     *
-     * Increasing this number will result in less sections being flagged.
+     * The true radius of objects.
      */
-    private static readonly strainThreshold: number = 175;
+    private readonly trueRadius: number;
 
     /**
      * The distance threshold between cursors to assume that two cursors are
@@ -171,6 +169,13 @@ export class ThreeFingerChecker {
                 (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,
                 0
             );
+
+        const circleSize: number = new MapStats({
+            cs: this.beatmap.difficulty.cs,
+            mods: this.difficultyAttributes.mods,
+        }).calculate({ mode: Modes.droid }).cs!;
+        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
+        this.trueRadius = 64 * scale;
     }
 
     /**
@@ -611,7 +616,7 @@ export class ThreeFingerChecker {
                             isInObject =
                                 prevCursor.position.getDistance(
                                     objectPosition
-                                ) <= object.getRadius(Modes.droid);
+                                ) <= this.trueRadius;
                             break;
                         case MovementType.move:
                             // Interpolate movement.
@@ -644,7 +649,7 @@ export class ThreeFingerChecker {
                                 isInObject =
                                     objectPosition.getDistance(
                                         cursorPosition
-                                    ) <= object.getRadius(Modes.droid);
+                                    ) <= this.trueRadius;
                             }
                     }
 

@@ -105,8 +105,13 @@ export class SliderCheeseChecker {
     private checkSliderCheesing(): void {
         // Current loop indexes are stored for efficiency.
         const cursorLoopIndexes: number[] = Utils.initializeArray(10, 0);
-        const acceptableRadius: number =
-            this.beatmap.hitObjects.objects[0].getRadius(Modes.droid) * 2;
+        const circleSize: number = new MapStats({
+            cs: this.beatmap.difficulty.cs,
+            mods: this.difficultyAttributes.mods,
+        }).calculate({ mode: Modes.droid }).cs!;
+
+        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
+        const acceptableRadius: number = 128 * scale;
 
         for (const difficultSlider of this.difficultyAttributes
             .difficultSliders) {
