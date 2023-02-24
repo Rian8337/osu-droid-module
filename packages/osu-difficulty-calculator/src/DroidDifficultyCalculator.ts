@@ -3,7 +3,7 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { ModRelax, ModFlashlight, Modes, Slider } from "@rian8337/osu-base";
+import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
@@ -328,10 +328,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             objectStrains.push(object.aimStrainWithSliders);
             maxStrain = Math.max(maxStrain, object.aimStrainWithSliders);
 
-            if (object.object instanceof Slider) {
+            const velocity: number = object.travelDistance / object.travelTime;
+            if (velocity > 0) {
                 topDifficultSliders.push({
                     index: i,
-                    velocity: object.travelDistance / object.travelTime,
+                    velocity: velocity,
                 });
 
                 topDifficultSliders.sort((a, b) => b.velocity - a.velocity);
