@@ -574,9 +574,11 @@ export class ThreeFingerChecker {
                 continue;
             }
 
-            // Deep copy the instance so that we can assign scale.
-            object = Utils.deepCopy(object);
-            object.droidScale = this.trueScale;
+            if (object.droidScale !== this.trueScale) {
+                // Deep copy the instance so that we can assign scale.
+                object = Utils.deepCopy(object);
+                object.droidScale = this.trueScale;
+            }
 
             const objectPosition: Vector2 = object.getStackedPosition(
                 Modes.droid

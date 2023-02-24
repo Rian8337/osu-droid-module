@@ -119,14 +119,6 @@ export class SliderCheeseChecker {
                 continue;
             }
 
-            const object = Utils.deepCopy(
-                <Slider>this.beatmap.hitObjects.objects[difficultSlider.index]
-            );
-            object.droidScale = scale;
-
-            const objectStartPosition: Vector2 = object.getStackedPosition(
-                Modes.droid
-            );
             const objectData: ReplayObjectData =
                 this.data.hitObjectData[difficultSlider.index];
 
@@ -134,6 +126,20 @@ export class SliderCheeseChecker {
             if (objectData.accuracy === Math.floor(this.hitWindow50) + 13) {
                 continue;
             }
+
+            let object = <Slider>(
+                this.beatmap.hitObjects.objects[difficultSlider.index]
+            );
+
+            if (object.droidScale !== scale) {
+                // Deep clone the object so that we can assign scale properly.
+                object = Utils.deepCopy(object);
+                object.droidScale = scale;
+            }
+
+            const objectStartPosition: Vector2 = object.getStackedPosition(
+                Modes.droid
+            );
 
             let isCheesed: boolean = false;
 
@@ -182,9 +188,16 @@ export class SliderCheeseChecker {
                             continue;
                         }
 
+                        if (object.nestedHitObjects[l].droidScale !== scale) {
+                            // Deep clone the object so that we can assign scale properly
+                            object.nestedHitObjects[l] = Utils.deepCopy(
+                                object.nestedHitObjects[l]
+                            );
+                            object.nestedHitObjects[l].droidScale = scale;
+                        }
+
                         const nestedObject: SliderNestedHitObject =
                             object.nestedHitObjects[l];
-                        nestedObject.droidScale = scale;
                         const nestedPosition: Vector2 =
                             nestedObject.getStackedPosition(Modes.droid);
 
