@@ -621,10 +621,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.computedAccuracy.n50 +
             this.computedAccuracy.nmiss;
         const nonGreatRatio: number =
-            1 -
-            (1 - speedNoteRatio) *
-                ErrorFunction.erf(1 - speedNoteRatio) *
-                ErrorFunction.erf(20 / hitWindow300);
+            (ErrorFunction.erf(5 * Math.sqrt(speedNoteRatio)) /
+                ErrorFunction.erf(5)) *
+            (1 -
+                (1 - speedNoteRatio) *
+                    ErrorFunction.erf(1 - speedNoteRatio) *
+                    ErrorFunction.erf(20 / hitWindow300));
         const relevantCountGreat: number = Math.max(
             0,
             this.difficultyAttributes.speedNoteCount -
