@@ -17,10 +17,6 @@ export class OsuSpeed extends OsuSkill {
 
     private currentSpeedStrain: number = 0;
     private currentRhythm: number = 0;
-
-    // ~200 1/4 BPM streams
-    private readonly minSpeedBonus: number = 75;
-
     private readonly greatWindow: number;
 
     constructor(mods: Mod[], greatWindow: number) {
