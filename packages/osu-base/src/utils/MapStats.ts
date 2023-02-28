@@ -201,8 +201,13 @@ export class MapStats {
                 // needs to be computed regardless of map-changing mods
                 // and statistics multiplier.
                 if (this.od !== undefined) {
-                    // Apply EZ or HR to OD.
-                    this.od = Math.min(this.od * statisticsMultiplier, 10);
+                    // Apply non-speed changing mods to OD.
+                    this.od *= statisticsMultiplier;
+                    if (this.mods.some((m) => m instanceof ModReallyEasy)) {
+                        this.od /= 2;
+                    }
+
+                    this.od = Math.min(this.od, 10);
 
                     // Convert original OD to droid hit window to take
                     // droid hit window and the PR mod in mind.
