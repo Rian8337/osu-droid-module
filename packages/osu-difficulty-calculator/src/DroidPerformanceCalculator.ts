@@ -421,11 +421,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the flashlight value with slider cheese penalty.
         this.flashlight *= this._flashlightSliderCheesePenalty;
 
-        this.flashlight *=
-            // Scale the flashlight value with deviation.
-            this.flashlight *= ErrorFunction.erf(
-                50 / (Math.SQRT2 * this._deviation)
-            );
+        // Scale the flashlight value with deviation.
+        this.flashlight *= ErrorFunction.erf(
+            50 / (Math.SQRT2 * this._deviation)
+        );
     }
 
     /**
