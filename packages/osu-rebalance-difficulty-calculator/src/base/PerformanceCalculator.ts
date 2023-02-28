@@ -250,6 +250,7 @@ export abstract class PerformanceCalculator {
         combo: number,
         maxCombo: number
     ): number {
+        // Guess the number of misses + slider breaks from combo.
         let comboBasedMissCount: number = 0;
 
         if (this.difficultyAttributes.sliderCount > 0) {
