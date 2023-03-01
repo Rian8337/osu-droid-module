@@ -376,11 +376,12 @@ export class ThreeFingerChecker {
                 const group: CursorOccurrenceGroup =
                     cursorInstance.occurrenceGroups[j];
 
-                if (
-                    group.startTime < firstObjectHitTime ||
-                    group.endTime > lastObjectHitTime
-                ) {
+                if (group.startTime < firstObjectHitTime) {
                     continue;
+                }
+
+                if (group.startTime > lastObjectHitTime) {
+                    break;
                 }
 
                 if (
