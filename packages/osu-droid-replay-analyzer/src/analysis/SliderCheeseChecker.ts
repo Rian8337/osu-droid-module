@@ -280,17 +280,24 @@ export class SliderCheeseChecker {
             this.cheesedDifficultyRatings.reduce((a, v) => a + v, 0);
 
         return {
-            aimPenalty:
+            aimPenalty: Math.pow(
                 1 -
-                summedDifficultyRating * this.difficultyAttributes.sliderFactor,
-            flashlightPenalty:
+                    summedDifficultyRating *
+                        this.difficultyAttributes.sliderFactor,
+                3
+            ),
+            flashlightPenalty: Math.pow(
                 1 -
-                summedDifficultyRating *
-                    this.difficultyAttributes.flashlightSliderFactor,
-            visualPenalty:
+                    summedDifficultyRating *
+                        this.difficultyAttributes.flashlightSliderFactor,
+                3
+            ),
+            visualPenalty: Math.pow(
                 1 -
-                summedDifficultyRating *
-                    this.difficultyAttributes.visualSliderFactor,
+                    summedDifficultyRating *
+                        this.difficultyAttributes.visualSliderFactor,
+                3
+            ),
         };
     }
 }
