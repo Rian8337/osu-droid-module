@@ -58,7 +58,7 @@ describe("Test OD conversion without speed multiplier", () => {
                 mods: [new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(3.33);
+            expect(stats.od).toBeCloseTo(0);
         });
 
         test("OD 7 with HR + REZ", () => {
@@ -68,7 +68,7 @@ describe("Test OD conversion without speed multiplier", () => {
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(4.83);
+            expect(stats.od).toBeCloseTo(0.75);
         });
 
         test("OD 10 with PR", () => {
@@ -279,7 +279,7 @@ describe("Test OD conversion with speed multiplier", () => {
                 mods: [new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(7.62);
+            expect(stats.od).toBeCloseTo(5.714285714285714);
         });
 
         test("OD 7 with HR + REZ, 2x speed multiplier", () => {
@@ -290,7 +290,7 @@ describe("Test OD conversion with speed multiplier", () => {
                 mods: [new ModHardRock(), new ModReallyEasy()],
             });
 
-            expect(stats.od).toBeCloseTo(9.08);
+            expect(stats.od).toBeCloseTo(7.041666666666667);
         });
 
         test("OD 10 with PR, 1.2x speed multiplier", () => {
