@@ -9,7 +9,6 @@ import {
     ModPrecise,
     ErrorFunction,
     ModScoreV2,
-    NormalDistribution,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -68,35 +67,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     /**
-     * The "true" deviation ability of the score.
-     *
-     * This is estimated from deviation with respect to the amount of circles of the beatmap. Using
-     * {@link https://en.wikipedia.org/wiki/Hypergeometric_distribution hypergeometric distribution},
-     * the amount of retries required to get a "desired run" in a beatmap is estimated.
-     *
-     * The metric is then used to estimate the "true" deviation ability of the player using the
-     * {@link https://en.wikipedia.org/wiki/Quantile_function inverse cumulative density function} of
-     * {@link https://en.wikipedia.org/wiki/Normal_distribution Gaussian distribution}.
-     */
-    get deviationAbility(): number {
-        return this._deviationAbility;
-    }
-
-    /**
-     * The "true" tap deviation ability of the score.
-     *
-     * This is estimated from deviation with respect to the amount of circles of the beatmap. Using
-     * {@link https://en.wikipedia.org/wiki/Hypergeometric_distribution hypergeometric distribution},
-     * the amount of retries required to get a "desired run" in a beatmap is estimated, which is then
-     * used to estimate the "true" deviation ability of the player using the
-     * {@link https://en.wikipedia.org/wiki/Quantile_function inverse cumulative density function} of
-     * {@link https://en.wikipedia.org/wiki/Normal_distribution Gaussian distribution}.
-     */
-    get tapDeviationAbility(): number {
-        return this._tapDeviationAbility;
-    }
-
-    /**
      * The penalty used to penalize the aim performance value.
      *
      * Can be properly obtained by analyzing the replay associated with the score.
@@ -134,9 +104,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private _tapPenalty: number = 1;
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
-
-    private _deviationAbility: number = 0;
-    private _tapDeviationAbility: number = 0;
 
     /**
      * @param difficultyAttributes The difficulty attributes to calculate.
@@ -195,7 +162,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.aim *= this._aimSliderCheesePenalty / value;
+        this.aim *= value / this._aimSliderCheesePenalty;
         this._aimSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -225,7 +192,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.flashlight *= this._flashlightSliderCheesePenalty / value;
+        this.flashlight *= value / this._flashlightSliderCheesePenalty;
         this._flashlightSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -255,7 +222,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.visual *= this._visualSliderCheesePenalty / value;
+        this.visual *= value / this._visualSliderCheesePenalty;
         this._visualSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -264,13 +231,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     protected override calculateValues(): void {
         this._deviation = this.calculateDeviation();
         this._tapDeviation = this.calculateTapDeviation();
-
-        this._deviationAbility = this.calculateDeviationAbility(
-            this._deviation
-        );
-        this._tapDeviationAbility = this.calculateDeviationAbility(
-            this._tapDeviation
-        );
 
         this.calculateAimValue();
         this.calculateTapValue();
@@ -340,9 +300,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.aim *=
             1.05 *
             Math.pow(
-                ErrorFunction.erf(
-                    32.0625 / (Math.SQRT2 * this._deviationAbility)
-                ),
+                ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
                 1.5
             );
     }
@@ -375,9 +333,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(
-                    25 / (Math.SQRT2 * this._tapDeviationAbility)
-                ),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._tapDeviation)),
                 1.25
             );
 
@@ -400,9 +356,21 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.accuracy =
             650 *
-            Math.exp(-0.125 * this._deviationAbility) *
+            Math.exp(-0.125 * this._deviation) *
             // The following function is to give higher reward for deviations lower than 25 (250 UR).
-            (15 / (this._deviationAbility + 15) + 0.65);
+            (15 / (this._deviation + 15) + 0.65);
+
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
+        const ncircles: number = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModScoreV2
+        )
+            ? this.totalHits - this.difficultyAttributes.spinnerCount
+            : this.difficultyAttributes.hitCircleCount;
+
+        this.accuracy *= Math.min(
+            1.15,
+            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000))
+        );
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
@@ -468,7 +436,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Scale the flashlight value with deviation.
         this.flashlight *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._deviationAbility)
+            50 / (Math.SQRT2 * this._deviation)
         );
     }
 
@@ -511,7 +479,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.visual *=
             1.065 *
             Math.pow(
-                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviationAbility)),
+                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
                 1.75
             );
     }
@@ -642,36 +610,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         return (
             hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
-        );
-    }
-
-    /**
-     * Estimates the player's "true UR ability".
-     *
-     * This is done by estimating the expected number of retries required to
-     * get a "desired run" under a hypergeometric distribution, which is then used
-     * to estimate the player's "true UR ability" with beatmap statistics in mind.
-     *
-     * @param deviation The deviation of the score.
-     */
-    private calculateDeviationAbility(deviation: number): number {
-        const accuracyHits: number = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2
-        )
-            ? this.totalHits - this.difficultyAttributes.spinnerCount
-            : this.difficultyAttributes.hitCircleCount;
-
-        // It is assumed for a worst case scenario that a player will "retry" a map 25000/n times where n is the circle count.
-        // This is the expected significance level of a score a player will achieve after retrying that amount.
-        // As an example, for a beatmap with 100 circles, the significance level is 0.996015936255, meaning
-        // that we expect a player to realistically "go for" a score that beats out 99.6% of their scores.
-        const expectedRetries: number =
-            1 - 1 / (Math.max(1, 25000 / accuracyHits) + 1);
-
-        return NormalDistribution.invCDF(
-            deviation,
-            deviation / Math.sqrt(2 * accuracyHits),
-            expectedRetries
         );
     }
 
