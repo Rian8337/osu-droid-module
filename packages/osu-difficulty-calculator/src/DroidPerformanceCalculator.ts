@@ -8,6 +8,7 @@ import {
     DroidHitWindow,
     ModPrecise,
     ErrorFunction,
+    ModScoreV2,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -161,7 +162,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.aim *= this._aimSliderCheesePenalty / value;
+        this.aim *= value / this._aimSliderCheesePenalty;
         this._aimSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -191,7 +192,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.flashlight *= this._flashlightSliderCheesePenalty / value;
+        this.flashlight *= value / this._flashlightSliderCheesePenalty;
         this._flashlightSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -221,7 +222,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.visual *= this._visualSliderCheesePenalty / value;
+        this.visual *= value / this._visualSliderCheesePenalty;
         this._visualSliderCheesePenalty = value;
 
         this.calculateTotalValue();
@@ -358,6 +359,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.exp(-0.125 * this._deviation) *
             // The following function is to give higher reward for deviations lower than 25 (250 UR).
             (15 / (this._deviation + 15) + 0.65);
+
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
+        const ncircles: number = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModScoreV2
+        )
+            ? this.totalHits - this.difficultyAttributes.spinnerCount
+            : this.difficultyAttributes.hitCircleCount;
+
+        this.accuracy *= Math.min(
+            1.15,
+            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000))
+        );
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=

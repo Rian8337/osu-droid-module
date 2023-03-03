@@ -1,4 +1,4 @@
-import { Spinner, Slider, OsuHitWindow } from "@rian8337/osu-base";
+import { Spinner, Slider } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 
@@ -20,7 +20,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            current.deltaTime < 5
+            current.isOverlapping(false)
         ) {
             return 1;
         }
@@ -48,7 +48,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 break;
             }
 
-            if (object.deltaTime >= 5) {
+            if (!object.isOverlapping(false)) {
                 validPrevious.push(object);
             }
         }
@@ -193,24 +193,8 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
         return (
             Math.sqrt(
-                4 +
-                    rhythmComplexitySum *
-                        this.calculateRhythmMultiplier(greatWindow) *
-                        doubletapness
+                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness
             ) / 2
         );
-    }
-
-    /**
-     * Calculates the rhythm multiplier of a given hit window.
-     *
-     * @param greatWindow The great hit window.
-     */
-    private static calculateRhythmMultiplier(greatWindow: number): number {
-        const od: number = OsuHitWindow.hitWindow300ToOD(greatWindow);
-
-        const odScaling: number = Math.pow(od, 2) / 400;
-
-        return 0.75 + (od >= 0 ? odScaling : -odScaling);
     }
 }
