@@ -134,7 +134,7 @@ export class MapStats {
      */
     calculate(params?: {
         /**
-         * The gamemode to calculate for. Defaults to `modes.osu`.
+         * The gamemode to calculate for. Defaults to `Modes.osu`.
          */
         mode?: Modes;
 
@@ -152,6 +152,12 @@ export class MapStats {
          * Whether force AR is turned on.
          */
         isForceAR?: boolean;
+
+        /**
+         * Whether to convert osu!droid OD to osu!standard OD. Defaults to `true`.
+         * Will only be considered when using `Modes.droid` for `mode`.
+         */
+        convertDroidOD?: boolean;
     }): MapStats {
         if (this.calculated) {
             return this;
@@ -211,13 +217,24 @@ export class MapStats {
 
                     // Convert original OD to droid hit window to take
                     // droid hit window and the PR mod in mind.
+                    // Consider speed multiplier as well.
+                    const isPrecise: boolean = this.mods.some(
+                        (m) => m instanceof ModPrecise
+                    );
                     const droidToMS: number =
-                        new DroidHitWindow(this.od).hitWindowFor300(
-                            this.mods.some((m) => m instanceof ModPrecise)
-                        ) / this.speedMultiplier;
+                        new DroidHitWindow(this.od).hitWindowFor300(isPrecise) /
+                        this.speedMultiplier;
 
-                    // Convert droid hit window back to original OD.
-                    this.od = OsuHitWindow.hitWindow300ToOD(droidToMS);
+                    if (params?.convertDroidOD !== false) {
+                        // Convert droid hit window to osu!standard OD.
+                        this.od = OsuHitWindow.hitWindow300ToOD(droidToMS);
+                    } else {
+                        // Convert droid hit window back to original OD.
+                        this.od = DroidHitWindow.hitWindow300ToOD(
+                            droidToMS,
+                            isPrecise
+                        );
+                    }
                 }
 
                 // HR and EZ works differently in droid in terms of
