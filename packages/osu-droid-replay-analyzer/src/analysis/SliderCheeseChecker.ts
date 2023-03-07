@@ -47,11 +47,6 @@ export class SliderCheeseChecker {
     private readonly hitWindow50: number;
 
     /**
-     * The difficulty ratings of sliders that were cheesed.
-     */
-    private readonly cheesedDifficultyRatings: number[] = [];
-
-    /**
      * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
      * @param difficultyAttributes The difficulty attributes of the beatmap.
@@ -95,14 +90,16 @@ export class SliderCheeseChecker {
             };
         }
 
-        this.checkSliderCheesing();
-        return this.calculateSliderCheesePenalty();
+        const cheesedDifficultyRatings: number[] = this.checkSliderCheesing();
+        return this.calculateSliderCheesePenalty(cheesedDifficultyRatings);
     }
 
     /**
      * Checks for sliders that were cheesed.
      */
-    private checkSliderCheesing(): void {
+    private checkSliderCheesing(): number[] {
+        const cheesedDifficultyRatings: number[] = [];
+
         // Current loop indices are stored for efficiency.
         const cursorLoopIndices: number[] = Utils.initializeArray(10, 0);
         const circleSize: number = new MapStats({
@@ -187,9 +184,7 @@ export class SliderCheeseChecker {
             const closestDistance: number = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius) {
-                this.cheesedDifficultyRatings.push(
-                    difficultSlider.difficultyRating
-                );
+                cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
 
@@ -276,19 +271,23 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
-                this.cheesedDifficultyRatings.push(
-                    difficultSlider.difficultyRating
-                );
+                cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
             }
         }
+
+        return cheesedDifficultyRatings;
     }
 
     /**
      * Calculates the slider cheese penalty.
      */
-    private calculateSliderCheesePenalty(): SliderCheeseInformation {
-        const summedDifficultyRating: number =
-            this.cheesedDifficultyRatings.reduce((a, v) => a + v, 0);
+    private calculateSliderCheesePenalty(
+        cheesedDifficultyRatings: number[]
+    ): SliderCheeseInformation {
+        const summedDifficultyRating: number = cheesedDifficultyRatings.reduce(
+            (a, v) => a + v,
+            0
+        );
 
         return {
             aimPenalty: Math.pow(
