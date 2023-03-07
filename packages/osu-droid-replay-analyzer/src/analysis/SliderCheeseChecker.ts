@@ -103,8 +103,8 @@ export class SliderCheeseChecker {
      * Checks for sliders that were cheesed.
      */
     private checkSliderCheesing(): void {
-        // Current loop indexes are stored for efficiency.
-        const cursorLoopIndexes: number[] = Utils.initializeArray(10, 0);
+        // Current loop indices are stored for efficiency.
+        const cursorLoopIndices: number[] = Utils.initializeArray(10, 0);
         const circleSize: number = new MapStats({
             cs: this.beatmap.difficulty.cs,
             mods: this.difficultyAttributes.mods,
@@ -113,8 +113,10 @@ export class SliderCheeseChecker {
         const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
         const acceptableRadius: number = 128 * scale;
 
-        for (const difficultSlider of this.difficultyAttributes
-            .difficultSliders) {
+        // Sort difficult sliders by index so that cursor loop indices work properly.
+        for (const difficultSlider of this.difficultyAttributes.difficultSliders
+            .slice()
+            .sort((a, b) => a.index - b.index)) {
             if (difficultSlider.index >= this.data.hitObjectData.length) {
                 continue;
             }
@@ -141,22 +143,22 @@ export class SliderCheeseChecker {
                 Modes.droid
             );
 
-            let isCheesed: boolean = false;
+            // Get the closest tap distance across all cursor.
+            const closestDistances: number[] = [];
+            const closestGroupIndices: number[] = [];
 
-            for (let j = 0; j < this.data.cursorMovement.length; ++j) {
-                if (isCheesed) {
-                    break;
-                }
-
+            for (let i = 0; i < this.data.cursorMovement.length; ++i) {
                 const cursorGroups: CursorOccurrenceGroup[] =
-                    this.data.cursorMovement[j].occurrenceGroups;
+                    this.data.cursorMovement[i].occurrenceGroups;
+                let closestDistance: number = Number.POSITIVE_INFINITY;
+                let closestIndex: number = cursorGroups.length;
 
                 for (
-                    let k = cursorLoopIndexes[j];
-                    k < cursorGroups.length;
-                    k = ++cursorLoopIndexes[j]
+                    let j = cursorLoopIndices[i];
+                    j < cursorGroups.length;
+                    j = ++cursorLoopIndices[i]
                 ) {
-                    const group: CursorOccurrenceGroup = cursorGroups[k];
+                    const group: CursorOccurrenceGroup = cursorGroups[j];
 
                     if (group.startTime < object.startTime - this.hitWindow50) {
                         continue;
@@ -166,101 +168,110 @@ export class SliderCheeseChecker {
                         break;
                     }
 
-                    if (
-                        group.down.position.getDistance(objectStartPosition) >
-                        acceptableRadius
-                    ) {
-                        continue;
+                    const distance: number =
+                        group.down.position.getDistance(objectStartPosition);
+
+                    if (closestDistance > distance) {
+                        closestDistance = distance;
+                        closestIndex = j;
                     }
+                }
 
-                    // Track cursor movement to see if it lands on every tick.
-                    let occurrenceLoopIndex: number = 1;
-                    let isSliderFulfilled: boolean = true;
-                    const { allOccurrences } = group;
+                closestDistances.push(closestDistance);
+                closestGroupIndices.push(closestIndex);
+            }
 
-                    for (let l = 1; l < object.nestedHitObjects.length; ++l) {
-                        if (!isSliderFulfilled) {
-                            break;
-                        }
+            const cursorIndex: number = closestDistances.indexOf(
+                Math.min(...closestDistances)
+            );
+            const closestDistance: number = closestDistances[cursorIndex];
 
-                        const tickWasHit: boolean = objectData.tickset[l - 1];
-                        if (!tickWasHit) {
-                            continue;
-                        }
+            if (closestDistance > acceptableRadius) {
+                this.cheesedDifficultyRatings.push(
+                    difficultSlider.difficultyRating
+                );
+                continue;
+            }
 
-                        let nestedObject: SliderNestedHitObject =
-                            object.nestedHitObjects[l];
-                        if (nestedObject.droidScale !== scale) {
-                            // Deep clone the object so that we can assign scale properly
-                            nestedObject = Utils.deepCopy(nestedObject);
-                            nestedObject.droidScale = scale;
-                        }
-                        const nestedPosition: Vector2 =
-                            nestedObject.getStackedPosition(Modes.droid);
+            const group: CursorOccurrenceGroup =
+                this.data.cursorMovement[cursorIndex].occurrenceGroups[
+                    closestGroupIndices[cursorIndex]
+                ];
 
-                        while (
-                            occurrenceLoopIndex < allOccurrences.length &&
-                            allOccurrences[occurrenceLoopIndex].time <
-                                nestedObject.startTime
-                        ) {
-                            ++occurrenceLoopIndex;
-                        }
+            let isCheesed: boolean = false;
+            // Track cursor movement to see if it lands on every tick.
+            let occurrenceLoopIndex: number = 1;
+            const { allOccurrences } = group;
 
-                        if (occurrenceLoopIndex === allOccurrences.length) {
-                            continue;
-                        }
+            for (let i = 1; i < object.nestedHitObjects.length; ++i) {
+                if (isCheesed) {
+                    break;
+                }
 
-                        const occurrence: CursorOccurrence =
-                            allOccurrences[occurrenceLoopIndex];
-                        const prevOccurrence: CursorOccurrence =
-                            allOccurrences[occurrenceLoopIndex - 1];
+                const tickWasHit: boolean = objectData.tickset[i - 1];
+                if (!tickWasHit) {
+                    continue;
+                }
 
-                        switch (occurrence.id) {
-                            case MovementType.move: {
-                                // Interpolate cursor position during nested object time.
-                                const t: number =
-                                    (nestedObject.startTime -
-                                        prevOccurrence.time) /
-                                    (occurrence.time - prevOccurrence.time);
+                let nestedObject: SliderNestedHitObject =
+                    object.nestedHitObjects[i];
+                if (nestedObject.droidScale !== scale) {
+                    // Deep clone the object so that we can assign scale properly
+                    nestedObject = Utils.deepCopy(nestedObject);
+                    nestedObject.droidScale = scale;
+                }
+                const nestedPosition: Vector2 = nestedObject.getStackedPosition(
+                    Modes.droid
+                );
 
-                                const cursorPosition: Vector2 = new Vector2(
-                                    Interpolation.lerp(
-                                        prevOccurrence.position.x,
-                                        occurrence.position.x,
-                                        t
-                                    ),
-                                    Interpolation.lerp(
-                                        prevOccurrence.position.y,
-                                        occurrence.position.y,
-                                        t
-                                    )
-                                );
+                while (
+                    occurrenceLoopIndex < allOccurrences.length &&
+                    allOccurrences[occurrenceLoopIndex].time <
+                        nestedObject.startTime
+                ) {
+                    ++occurrenceLoopIndex;
+                }
 
-                                const distance: number =
-                                    cursorPosition.getDistance(nestedPosition);
+                if (occurrenceLoopIndex === allOccurrences.length) {
+                    continue;
+                }
 
-                                if (distance > acceptableRadius) {
-                                    isSliderFulfilled = false;
-                                }
+                const occurrence: CursorOccurrence =
+                    allOccurrences[occurrenceLoopIndex];
+                const prevOccurrence: CursorOccurrence =
+                    allOccurrences[occurrenceLoopIndex - 1];
 
-                                break;
-                            }
-                            case MovementType.up:
-                                if (
-                                    prevOccurrence.position.getDistance(
-                                        nestedPosition
-                                    ) > acceptableRadius
-                                ) {
-                                    isSliderFulfilled = false;
-                                    break;
-                                }
-                        }
-                    }
+                switch (occurrence.id) {
+                    case MovementType.move: {
+                        // Interpolate cursor position during nested object time.
+                        const t: number =
+                            (nestedObject.startTime - prevOccurrence.time) /
+                            (occurrence.time - prevOccurrence.time);
 
-                    if (!isSliderFulfilled) {
-                        isCheesed = true;
+                        const cursorPosition: Vector2 = new Vector2(
+                            Interpolation.lerp(
+                                prevOccurrence.position.x,
+                                occurrence.position.x,
+                                t
+                            ),
+                            Interpolation.lerp(
+                                prevOccurrence.position.y,
+                                occurrence.position.y,
+                                t
+                            )
+                        );
+
+                        const distance: number =
+                            cursorPosition.getDistance(nestedPosition);
+
+                        isCheesed = distance > acceptableRadius;
                         break;
                     }
+                    case MovementType.up:
+                        isCheesed =
+                            prevOccurrence.position.getDistance(
+                                nestedPosition
+                            ) > acceptableRadius;
                 }
             }
 
