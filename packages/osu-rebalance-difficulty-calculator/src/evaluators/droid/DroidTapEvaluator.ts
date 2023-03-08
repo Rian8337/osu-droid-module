@@ -1,4 +1,4 @@
-import { Spinner, MathUtils } from "@rian8337/osu-base";
+import { Spinner, MathUtils, ErrorFunction } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
@@ -68,7 +68,11 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
 
         if (strainTime < this.minSpeedBonus) {
             speedBonus +=
-                0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
+                0.75 *
+                Math.pow(
+                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
+                    2
+                );
         }
 
         return (speedBonus * doubletapness) / strainTime;
