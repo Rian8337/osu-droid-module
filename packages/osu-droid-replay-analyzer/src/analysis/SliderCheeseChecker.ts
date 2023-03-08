@@ -6,6 +6,7 @@ import {
     Modes,
     ModPrecise,
     ModUtil,
+    PlaceableHitObject,
     Slider,
     SliderNestedHitObject,
     Utils,
@@ -13,6 +14,7 @@ import {
 } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
@@ -103,6 +105,7 @@ export class SliderCheeseChecker {
      * Checks for sliders that were cheesed.
      */
     private checkSliderCheesing(): number[] {
+        const { objects } = this.beatmap.hitObjects;
         const cheesedDifficultyRatings: number[] = [];
 
         // Current loop indices are stored for efficiency.
@@ -126,15 +129,15 @@ export class SliderCheeseChecker {
             const objectData: ReplayObjectData =
                 this.data.hitObjectData[difficultSlider.index];
 
-            // If a slider break occurs, we disregard the check for that slider.
-            if (objectData.accuracy === Math.floor(this.hitWindow50) + 13) {
+            // If a miss or slider break occurs, we disregard the check for that slider.
+            if (
+                objectData.result === HitResult.miss ||
+                objectData.accuracy === Math.floor(this.hitWindow50) + 13
+            ) {
                 continue;
             }
 
-            let object = <Slider>(
-                this.beatmap.hitObjects.objects[difficultSlider.index]
-            );
-
+            let object = <Slider>objects[difficultSlider.index];
             if (object.droidScale !== scale) {
                 // Deep clone the object so that we can assign scale properly.
                 object = Utils.deepCopy(object);
@@ -144,6 +147,32 @@ export class SliderCheeseChecker {
             const objectStartPosition: Vector2 = object.getStackedPosition(
                 Modes.droid
             );
+            let minTimeLimit: number = object.startTime;
+            let maxTimeLimit: number = object.startTime;
+
+            if (difficultSlider.index > 0) {
+                const prevObject: PlaceableHitObject =
+                    objects[difficultSlider.index - 1];
+
+                minTimeLimit -= Math.min(
+                    this.hitWindow50,
+                    object.startTime - prevObject.endTime
+                );
+            } else {
+                minTimeLimit -= this.hitWindow50;
+            }
+
+            if (difficultSlider.index < objects.length - 1) {
+                const nextObject: PlaceableHitObject =
+                    objects[difficultSlider.index + 1];
+
+                maxTimeLimit += Math.min(
+                    this.hitWindow50,
+                    nextObject.startTime - object.endTime
+                );
+            } else {
+                maxTimeLimit += this.hitWindow50;
+            }
 
             // Get the closest tap distance across all cursor.
             const closestDistances: number[] = [];
@@ -162,11 +191,11 @@ export class SliderCheeseChecker {
                 ) {
                     const group: CursorOccurrenceGroup = cursorGroups[j];
 
-                    if (group.startTime < object.startTime - this.hitWindow50) {
+                    if (group.endTime < minTimeLimit) {
                         continue;
                     }
 
-                    if (group.startTime > object.startTime + this.hitWindow50) {
+                    if (group.startTime > maxTimeLimit) {
                         break;
                     }
 
@@ -176,6 +205,91 @@ export class SliderCheeseChecker {
                     if (closestDistance > distance) {
                         closestDistance = distance;
                         closestIndex = j;
+                    }
+
+                    if (closestDistance <= acceptableRadius / 2) {
+                        break;
+                    }
+
+                    const { allOccurrences } = group;
+                    // Check if there are cursor presses within the group's active time.
+                    for (let k = 0; k < this.data.cursorMovement.length; ++k) {
+                        // Skip the current cursor index.
+                        if (k === i) {
+                            continue;
+                        }
+
+                        const cursorGroups: CursorOccurrenceGroup[] =
+                            this.data.cursorMovement[k].occurrenceGroups;
+                        for (const cursorGroup of cursorGroups) {
+                            if (cursorGroup.startTime < group.startTime) {
+                                continue;
+                            }
+
+                            if (cursorGroup.startTime > group.endTime) {
+                                break;
+                            }
+
+                            const cursorIndex: number =
+                                allOccurrences.findIndex(
+                                    (v) =>
+                                        v.time >= cursorGroup.startTime &&
+                                        v.time <= maxTimeLimit
+                                );
+                            if (cursorIndex === -1) {
+                                continue;
+                            }
+
+                            const occurrence: CursorOccurrence =
+                                allOccurrences[cursorIndex];
+                            const prevOccurrence: CursorOccurrence =
+                                allOccurrences[cursorIndex - 1];
+
+                            let distance: number = Number.POSITIVE_INFINITY;
+
+                            // We will not consider presses here as it has already been processed above.
+                            switch (occurrence.id) {
+                                case MovementType.move: {
+                                    const t: number =
+                                        (cursorGroup.startTime -
+                                            occurrence.time) /
+                                        (occurrence.time - prevOccurrence.time);
+
+                                    const cursorPosition: Vector2 = new Vector2(
+                                        Interpolation.lerp(
+                                            prevOccurrence.position.x,
+                                            occurrence.position.x,
+                                            t
+                                        ),
+                                        Interpolation.lerp(
+                                            prevOccurrence.position.y,
+                                            occurrence.position.y,
+                                            t
+                                        )
+                                    );
+
+                                    distance =
+                                        cursorPosition.getDistance(
+                                            objectStartPosition
+                                        );
+                                    break;
+                                }
+                                case MovementType.up:
+                                    distance =
+                                        prevOccurrence.position.getDistance(
+                                            objectStartPosition
+                                        );
+                            }
+
+                            if (closestDistance > distance) {
+                                closestDistance = distance;
+                                closestIndex = j;
+                            }
+
+                            if (closestDistance <= acceptableRadius / 2) {
+                                break;
+                            }
+                        }
                     }
                 }
 
@@ -188,7 +302,7 @@ export class SliderCheeseChecker {
             );
             const closestDistance: number = closestDistances[cursorIndex];
 
-            if (closestDistance > acceptableRadius) {
+            if (closestDistance > acceptableRadius / 2) {
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
