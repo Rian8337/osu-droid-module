@@ -73,7 +73,7 @@ export class SliderCheeseChecker {
                         (v) => v.acronym === m.acronym
                     )
             ),
-        }).calculate();
+        }).calculate({ mode: Modes.droid, convertDroidOD: false });
 
         this.hitWindow50 = new DroidHitWindow(stats.od!).hitWindowFor50(
             this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise)

@@ -159,7 +159,7 @@ export class ThreeFingerChecker {
                         (v) => v.acronym === m.acronym
                     )
             ),
-        }).calculate();
+        }).calculate({ mode: Modes.droid, convertDroidOD: false });
 
         this.isPrecise = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise

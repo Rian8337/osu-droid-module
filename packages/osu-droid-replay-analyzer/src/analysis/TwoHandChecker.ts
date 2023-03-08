@@ -111,7 +111,7 @@ export class TwoHandChecker {
                         (v) => v.acronym === m.acronym
                     )
             ),
-        }).calculate();
+        }).calculate({ mode: Modes.droid, convertDroidOD: false });
 
         this.hitWindow = new DroidHitWindow(stats.od!);
         this.hitWindow50 = this.hitWindow.hitWindowFor50(
