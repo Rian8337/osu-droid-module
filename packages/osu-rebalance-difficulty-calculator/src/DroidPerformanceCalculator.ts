@@ -143,12 +143,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The aim and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be between than 0 (exclusive) and 1 (inclusive).
+     * @param value The slider cheese penalty value. Must be between than 0 and 1.
      */
     applyAimSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New aim slider cheese penalty must be greater than zero."
+                "New aim slider cheese penalty must be greater than or equal to zero."
             );
         }
 
@@ -173,12 +173,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The flashlight and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be between 0 (exclusive) and 1 (inclusive).
+     * @param value The slider cheese penalty value. Must be between 0 and 1.
      */
     applyFlashlightSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New flashlight slider cheese penalty must be greater than zero."
+                "New flashlight slider cheese penalty must be greater than or equal to zero."
             );
         }
 
@@ -203,12 +203,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The visual and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be between 0 (exclusive) and 1 (inclusive).
+     * @param value The slider cheese penalty value. Must be between 0 and 1.
      */
     applyVisualSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New visual slider cheese penalty must be greater than zero."
+                "New visual slider cheese penalty must be greater than or equal to zero."
             );
         }
 
