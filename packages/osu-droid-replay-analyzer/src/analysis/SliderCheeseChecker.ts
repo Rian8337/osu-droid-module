@@ -284,9 +284,9 @@ export class SliderCheeseChecker {
     private calculateSliderCheesePenalty(
         cheesedDifficultyRatings: number[]
     ): SliderCheeseInformation {
-        const summedDifficultyRating: number = cheesedDifficultyRatings.reduce(
-            (a, v) => a + v,
-            0
+        const summedDifficultyRating: number = Math.min(
+            1,
+            cheesedDifficultyRatings.reduce((a, v) => a + v, 0)
         );
 
         return {
