@@ -162,9 +162,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.aim *= value / this._aimSliderCheesePenalty;
         this._aimSliderCheesePenalty = value;
 
+        this.calculateAimValue();
         this.calculateTotalValue();
     }
 
@@ -192,9 +192,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.flashlight *= value / this._flashlightSliderCheesePenalty;
         this._flashlightSliderCheesePenalty = value;
 
+        this.calculateFlashlightValue();
         this.calculateTotalValue();
     }
 
@@ -222,9 +222,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.visual *= value / this._visualSliderCheesePenalty;
         this._visualSliderCheesePenalty = value;
 
+        this.calculateVisualValue();
         this.calculateTotalValue();
     }
 
