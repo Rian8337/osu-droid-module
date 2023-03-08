@@ -290,23 +290,32 @@ export class SliderCheeseChecker {
         );
 
         return {
-            aimPenalty: Math.pow(
-                1 -
-                    summedDifficultyRating *
-                        this.difficultyAttributes.sliderFactor,
-                3
+            aimPenalty: Math.max(
+                this.difficultyAttributes.sliderFactor,
+                Math.pow(
+                    1 -
+                        summedDifficultyRating *
+                            this.difficultyAttributes.sliderFactor,
+                    3
+                )
             ),
-            flashlightPenalty: Math.pow(
-                1 -
-                    summedDifficultyRating *
-                        this.difficultyAttributes.flashlightSliderFactor,
-                3
+            flashlightPenalty: Math.max(
+                this.difficultyAttributes.flashlightSliderFactor,
+                Math.pow(
+                    1 -
+                        summedDifficultyRating *
+                            this.difficultyAttributes.flashlightSliderFactor,
+                    3
+                )
             ),
-            visualPenalty: Math.pow(
-                1 -
-                    summedDifficultyRating *
-                        this.difficultyAttributes.visualSliderFactor,
-                3
+            visualPenalty: Math.max(
+                this.difficultyAttributes.visualSliderFactor,
+                Math.pow(
+                    1 -
+                        summedDifficultyRating *
+                            this.difficultyAttributes.visualSliderFactor,
+                    3
+                )
             ),
         };
     }
