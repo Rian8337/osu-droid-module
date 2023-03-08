@@ -222,16 +222,15 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         }
 
         // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
-        strain +=
+        strain += Math.max(
+            acuteAngleBonus * this.acuteAngleMultiplier,
             Math.pow(
                 1 +
-                    Math.max(
-                        acuteAngleBonus * this.acuteAngleMultiplier,
-                        wideAngleBonus * this.wideAngleMultiplier +
-                            velocityChangeBonus * this.velocityChangeMultiplier
-                    ),
+                    wideAngleBonus * this.wideAngleMultiplier +
+                    velocityChangeBonus * this.velocityChangeMultiplier,
                 1 / 0.8
-            ) - 1;
+            ) - 1
+        );
 
         // Add in additional slider velocity bonus.
         if (withSliders) {
