@@ -264,7 +264,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             (Math.pow(
                 1 +
                     (speedBonus *
-                        Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 5)) /
+                        Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 2)) /
                         current.strainTime,
                 1 / 0.8
             ) -
