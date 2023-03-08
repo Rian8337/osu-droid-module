@@ -82,7 +82,12 @@ export class SliderCheeseChecker {
      * Checks if relevant sliders in the given beatmap was cheesed.
      */
     check(): SliderCheeseInformation {
-        if (this.difficultyAttributes.difficultSliders.length === 0) {
+        if (
+            this.difficultyAttributes.difficultSliders.length === 0 ||
+            (this.difficultyAttributes.sliderFactor === 1 &&
+                this.difficultyAttributes.flashlightSliderFactor === 1 &&
+                this.difficultyAttributes.visualSliderFactor === 1)
+        ) {
             return {
                 aimPenalty: 1,
                 flashlightPenalty: 1,
