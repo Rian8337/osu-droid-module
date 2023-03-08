@@ -255,10 +255,15 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         );
 
         return (
-            (50 *
-                speedBonus *
-                Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 5)) /
-            current.strainTime
+            75 *
+            (Math.pow(
+                1 +
+                    (speedBonus *
+                        Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 5)) /
+                        current.strainTime,
+                1 / 0.8
+            ) -
+                1)
         );
     }
 }
