@@ -84,6 +84,7 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
                 h.nestedHitObjects.forEach((n) => {
                     n.droidScale = droidScale;
                     n.osuScale = osuScale;
+                    n.stackHeight = h.stackHeight;
                 });
             }
         });
