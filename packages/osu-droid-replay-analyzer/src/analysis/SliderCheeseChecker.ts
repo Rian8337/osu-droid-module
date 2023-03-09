@@ -415,7 +415,7 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.sliderFactor,
-                    3
+                    2
                 )
             ),
             flashlightPenalty: Math.max(
@@ -424,7 +424,7 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.flashlightSliderFactor,
-                    3
+                    2
                 )
             ),
             visualPenalty: Math.max(
@@ -433,7 +433,7 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.visualSliderFactor,
-                    3
+                    2
                 )
             ),
         };
