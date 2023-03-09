@@ -196,6 +196,10 @@ export class SliderCheeseChecker {
                     }
 
                     if (group.startTime > maxTimeLimit) {
+                        if (j > 0) {
+                            // Decrement the index. The previous group may also have a role on the next slider.
+                            --cursorLoopIndices[i];
+                        }
                         break;
                     }
 
