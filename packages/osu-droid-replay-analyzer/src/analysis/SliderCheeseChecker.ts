@@ -256,7 +256,7 @@ export class SliderCheeseChecker {
                                 case MovementType.move: {
                                     const t: number =
                                         (cursorGroup.startTime -
-                                            occurrence.time) /
+                                            prevOccurrence.time) /
                                         (occurrence.time - prevOccurrence.time);
 
                                     const cursorPosition: Vector2 = new Vector2(
