@@ -309,14 +309,6 @@ export class SliderCheeseChecker {
             const closestDistance: number = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius / 2) {
-                console.log(
-                    "Object",
-                    difficultSlider.index,
-                    "was cheesed with rating",
-                    difficultSlider.difficultyRating,
-                    "at",
-                    object.startTime
-                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
@@ -409,14 +401,6 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
-                console.log(
-                    "Object",
-                    difficultSlider.index,
-                    "was cheesed with rating",
-                    difficultSlider.difficultyRating,
-                    "at",
-                    object.startTime
-                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
             }
         }
@@ -434,8 +418,6 @@ export class SliderCheeseChecker {
             1,
             cheesedDifficultyRatings.reduce((a, v) => a + v, 0)
         );
-
-        console.log("Summed difficulty rating", summedDifficultyRating);
 
         return {
             aimPenalty: Math.max(
