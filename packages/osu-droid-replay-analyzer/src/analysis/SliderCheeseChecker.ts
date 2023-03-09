@@ -9,6 +9,7 @@ import {
     PlaceableHitObject,
     Slider,
     SliderNestedHitObject,
+    SliderTail,
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
@@ -308,6 +309,14 @@ export class SliderCheeseChecker {
             const closestDistance: number = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius / 2) {
+                console.log(
+                    "Object",
+                    difficultSlider.index,
+                    "was cheesed with rating",
+                    difficultSlider.difficultyRating,
+                    "at",
+                    object.startTime
+                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
@@ -332,13 +341,18 @@ export class SliderCheeseChecker {
                     continue;
                 }
 
-                let nestedObject: SliderNestedHitObject =
+                const nestedObject: SliderNestedHitObject =
                     object.nestedHitObjects[i];
-                if (nestedObject.droidScale !== scale) {
-                    // Deep clone the object so that we can assign scale properly
-                    nestedObject = Utils.deepCopy(nestedObject);
-                    nestedObject.droidScale = scale;
+                nestedObject.droidScale = scale;
+
+                // Special treatment for slider tail where its treated as a "legacy tail" in osu!standard.
+                // In that case, its time is assumed to be 36ms behind the slider's end time. However, that
+                // is not the case for osu!droid.
+                if (nestedObject instanceof SliderTail) {
+                    nestedObject.startTime = object.endTime;
+                    nestedObject.endTime = object.endTime;
                 }
+
                 const nestedPosition: Vector2 = nestedObject.getStackedPosition(
                     Modes.droid
                 );
@@ -395,6 +409,14 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
+                console.log(
+                    "Object",
+                    difficultSlider.index,
+                    "was cheesed with rating",
+                    difficultSlider.difficultyRating,
+                    "at",
+                    object.startTime
+                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
             }
         }
@@ -412,6 +434,8 @@ export class SliderCheeseChecker {
             1,
             cheesedDifficultyRatings.reduce((a, v) => a + v, 0)
         );
+
+        console.log("Summed difficulty rating", summedDifficultyRating);
 
         return {
             aimPenalty: Math.max(
