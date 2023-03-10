@@ -6,7 +6,6 @@ import {
     Modes,
     ModPrecise,
     ModUtil,
-    PlaceableHitObject,
     Slider,
     SliderNestedHitObject,
     SliderTail,
@@ -148,34 +147,14 @@ export class SliderCheeseChecker {
             const objectStartPosition: Vector2 = object.getStackedPosition(
                 Modes.droid
             );
-            let minTimeLimit: number = object.startTime;
-            let maxTimeLimit: number = object.startTime;
 
-            if (difficultSlider.index > 0) {
-                const prevObject: PlaceableHitObject =
-                    objects[difficultSlider.index - 1];
+            // These time boundaries should consider the delta time between the previous and next
+            // object as well as their hit accuracy. However, they are somewhat complicated to
+            // compute and the accuracy gain is small. As such, let's settle with 50 hit window.
+            const minTimeLimit: number = object.startTime - this.hitWindow50;
+            const maxTimeLimit: number = object.startTime + this.hitWindow50;
 
-                minTimeLimit -= Math.min(
-                    this.hitWindow50,
-                    object.startTime - prevObject.endTime
-                );
-            } else {
-                minTimeLimit -= this.hitWindow50;
-            }
-
-            if (difficultSlider.index < objects.length - 1) {
-                const nextObject: PlaceableHitObject =
-                    objects[difficultSlider.index + 1];
-
-                maxTimeLimit += Math.min(
-                    this.hitWindow50,
-                    nextObject.startTime - object.endTime
-                );
-            } else {
-                maxTimeLimit += this.hitWindow50;
-            }
-
-            // Get the closest tap distance across all cursor.
+            // Get the closest tap distance across all cursors.
             const closestDistances: number[] = [];
             const closestGroupIndices: number[] = [];
 
