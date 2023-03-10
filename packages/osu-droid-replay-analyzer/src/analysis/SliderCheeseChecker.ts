@@ -200,16 +200,20 @@ export class SliderCheeseChecker {
                         break;
                     }
 
-                    const distance: number =
-                        group.down.position.getDistance(objectStartPosition);
+                    if (group.startTime >= minTimeLimit) {
+                        const distance: number =
+                            group.down.position.getDistance(
+                                objectStartPosition
+                            );
 
-                    if (closestDistance > distance) {
-                        closestDistance = distance;
-                        closestIndex = j;
-                    }
+                        if (closestDistance > distance) {
+                            closestDistance = distance;
+                            closestIndex = j;
+                        }
 
-                    if (closestDistance <= acceptableRadius / 2) {
-                        break;
+                        if (closestDistance <= acceptableRadius / 2) {
+                            break;
+                        }
                     }
 
                     const { allOccurrences } = group;
@@ -223,11 +227,11 @@ export class SliderCheeseChecker {
                         const cursorGroups: CursorOccurrenceGroup[] =
                             this.data.cursorMovement[k].occurrenceGroups;
                         for (const cursorGroup of cursorGroups) {
-                            if (cursorGroup.startTime < group.startTime) {
+                            if (cursorGroup.startTime < minTimeLimit) {
                                 continue;
                             }
 
-                            if (cursorGroup.startTime > group.endTime) {
+                            if (cursorGroup.startTime > maxTimeLimit) {
                                 break;
                             }
 
