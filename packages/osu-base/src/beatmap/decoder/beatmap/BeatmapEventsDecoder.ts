@@ -54,8 +54,12 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
     private parseBreak(s: string[]): void {
         this.target.events.breaks.push(
             new BreakPoint({
-                startTime: this.tryParseInt(this.setPosition(s[1])),
-                endTime: this.tryParseInt(this.setPosition(s[2])),
+                startTime: this.target.getOffsetTime(
+                    this.tryParseInt(this.setPosition(s[1]))
+                ),
+                endTime: this.target.getOffsetTime(
+                    this.tryParseInt(this.setPosition(s[2]))
+                ),
             })
         );
     }
