@@ -262,7 +262,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             object = new Spinner({
                 startTime: time,
                 type: type,
-                endTime: this.tryParseInt(this.setPosition(s[5])),
+                endTime: this.target.getOffsetTime(
+                    this.tryParseInt(this.setPosition(s[5]))
+                ),
             });
 
             if (s.length > 6) {
