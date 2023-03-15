@@ -7,9 +7,9 @@ import { ModNightCore } from "../mods/ModNightCore";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModEasy } from "../mods/ModEasy";
 import { ModPrecise } from "../mods/ModPrecise";
-import { ModSmallCircle } from "../mods/ModSmallCircle";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModUtil } from "./ModUtil";
+import { CircleSizeCalculator } from "./CircleSizeCalculator";
 
 /**
  * Holds general beatmap statistics for further modifications.
@@ -244,29 +244,13 @@ export class MapStats {
                 // from the bitwise enum of mods to prevent double
                 // calculation.
                 if (this.cs !== undefined) {
-                    // Assume 681 is height.
-                    const assumedHeight: number = 681;
-
-                    let scale: number =
-                        ((assumedHeight / 480) * (54.42 - this.cs * 4.48) * 2) /
-                            128 +
-                        (0.5 * (11 - 5.2450170716245195)) / 5;
-
-                    if (this.mods.some((m) => m instanceof ModHardRock)) {
-                        scale -= 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModEasy)) {
-                        scale += 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModReallyEasy)) {
-                        scale += 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModSmallCircle)) {
-                        scale -= ((assumedHeight / 480) * (4 * 4.48) * 2) / 128;
-                    }
+                    const scale: number =
+                        CircleSizeCalculator.droidCSToDroidScale(
+                            this.cs,
+                            this.mods
+                        );
                     const radius: number =
-                        (64 * Math.max(1e-3, scale)) /
-                        ((assumedHeight * 0.85) / 384);
+                        CircleSizeCalculator.droidScaleToStandardRadius(scale);
                     this.cs = Math.min(5 + ((1 - radius / 32) * 5) / 0.7, 10);
                 }
 
