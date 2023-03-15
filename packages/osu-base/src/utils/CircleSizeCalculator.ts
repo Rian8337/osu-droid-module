@@ -17,7 +17,7 @@ export abstract class CircleSizeCalculator {
      * @param mods The mods to apply.
      * @return The calculated osu!droid scale.
      */
-    static droidCSToDroidScale(cs: number, mods: Mod[]): number {
+    static droidCSToDroidScale(cs: number, mods: Mod[] = []): number {
         let scale: number =
             ((this.assumedDroidHeight / 480) * (54.42 - cs * 4.48) * 2) / 128 +
             (0.5 * (11 - 5.2450170716245195)) / 5;
@@ -35,7 +35,7 @@ export abstract class CircleSizeCalculator {
             scale -= ((this.assumedDroidHeight / 480) * (4 * 4.48) * 2) / 128;
         }
 
-        return scale;
+        return Math.max(scale, 1e-3);
     }
 
     /**

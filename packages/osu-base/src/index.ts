@@ -23,6 +23,7 @@ export * from "./beatmap/storyboard/enums/BlendingType";
 export * from "./beatmap/timings/BreakPoint";
 export * from "./mathutil/Brent";
 export * from "./beatmap/hitobjects/Circle";
+export * from "./utils/CircleSizeCalculator";
 export * from "./beatmap/storyboard/commands/Command";
 export * from "./beatmap/storyboard/commands/CommandLoop";
 export * from "./beatmap/storyboard/commands/CommandTimeline";
