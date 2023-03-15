@@ -1,5 +1,6 @@
 import {
     Beatmap,
+    CircleSizeCalculator,
     DroidHitWindow,
     Interpolation,
     MapStats,
@@ -115,8 +116,9 @@ export class SliderCheeseChecker {
             mods: this.difficultyAttributes.mods,
         }).calculate({ mode: Modes.droid }).cs!;
 
-        const scale: number = (1 - (0.7 * (circleSize - 5)) / 5) / 2;
-        const acceptableRadius: number = 128 * scale;
+        const scale: number =
+            CircleSizeCalculator.standardCSToStandardScale(circleSize);
+        const acceptableRadius: number = 64 * scale * 2.4;
 
         // Sort difficult sliders by index so that cursor loop indices work properly.
         for (const difficultSlider of this.difficultyAttributes.difficultSliders
