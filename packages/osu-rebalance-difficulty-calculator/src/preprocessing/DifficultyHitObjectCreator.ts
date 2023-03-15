@@ -1,4 +1,5 @@
 import {
+    CircleSizeCalculator,
     HitObject,
     MapStats,
     Mod,
@@ -65,13 +66,15 @@ export class DifficultyHitObjectCreator {
             cs: params.circleSize,
             mods: params.mods,
         }).calculate({ mode: Modes.droid }).cs!;
-        const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
+        const droidScale: number =
+            CircleSizeCalculator.standardCSToStandardScale(droidCircleSize);
 
         const osuCircleSize: number = new MapStats({
             cs: params.circleSize,
             mods: params.mods,
         }).calculate({ mode: Modes.osu }).cs!;
-        const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
+        const osuScale: number =
+            CircleSizeCalculator.standardCSToStandardScale(osuCircleSize);
 
         params.objects[0].droidScale = droidScale;
         params.objects[0].osuScale = osuScale;
@@ -97,11 +100,6 @@ export class DifficultyHitObjectCreator {
             if (object.object instanceof Slider) {
                 object.velocity =
                     object.object.velocity * params.speedMultiplier;
-
-                object.object.nestedHitObjects.forEach((o) => {
-                    o.droidScale = droidScale;
-                    o.osuScale = osuScale;
-                });
 
                 this.calculateSliderCursorPosition(object.object);
 

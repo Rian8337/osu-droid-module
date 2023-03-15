@@ -246,9 +246,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.calculateTotal();
     }
 
-    /**
-     * Returns a string representative of the class.
-     */
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -266,9 +263,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         );
     }
 
-    /**
-     * Creates skills to be calculated.
-     */
     protected override createSkills(): DroidSkill[] {
         return [
             new DroidAim(this.mods, true),
