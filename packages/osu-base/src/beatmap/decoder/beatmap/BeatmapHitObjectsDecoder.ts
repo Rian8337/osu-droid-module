@@ -5,6 +5,7 @@ import { PathType } from "../../../constants/PathType";
 import { SampleBank } from "../../../constants/SampleBank";
 import { MathUtils } from "../../../mathutil/MathUtils";
 import { Vector2 } from "../../../mathutil/Vector2";
+import { MapStats } from "../../../utils/MapStats";
 import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
 import { Beatmap } from "../../Beatmap";
@@ -282,24 +283,16 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
     }
 
     /**
-     * Applies stacking to hitobjects for this.map version 6 or above.
+     * Applies stacking to hitobjects for beatmap version 6 or above.
      */
     applyStacking(startIndex: number, endIndex: number): void {
         if (this.target.formatVersion < 6) {
+            this.applyStackingOld();
             return;
         }
 
         const stackDistance: number = 3;
-
-        let timePreempt: number = 600;
-        const ar: number = this.target.difficulty.ar!;
-        if (ar > 5) {
-            timePreempt = 1200 + ((450 - 1200) * (ar - 5)) / 5;
-        } else if (ar < 5) {
-            timePreempt = 1200 - ((1200 - 1800) * (5 - ar)) / 5;
-        } else {
-            timePreempt = 1200;
-        }
+        const timePreempt: number = MapStats.arToMS(this.target.difficulty.ar!);
 
         let extendedEndIndex: number = endIndex;
         const stackThreshold: number =
@@ -455,24 +448,16 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
     }
 
     /**
-     * Applies stacking to hitobjects for this.map version 5 or below.
+     * Applies stacking to hitobjects for beatmap version 5 or below.
      */
     applyStackingOld(): void {
         if (this.target.formatVersion > 5) {
+            this.applyStacking(0, this.target.hitObjects.objects.length - 1);
             return;
         }
 
         const stackDistance: number = 3;
-        let timePreempt: number = 600;
-        const ar: number = this.target.difficulty.ar!;
-
-        if (ar > 5) {
-            timePreempt = 1200 + ((450 - 1200) * (ar - 5)) / 5;
-        } else if (ar < 5) {
-            timePreempt = 1200 - ((1200 - 1800) * (5 - ar)) / 5;
-        } else {
-            timePreempt = 1200;
-        }
+        const timePreempt: number = MapStats.arToMS(this.target.difficulty.ar!);
 
         for (let i = 0; i < this.target.hitObjects.objects.length; ++i) {
             const currentObject: PlaceableHitObject =
