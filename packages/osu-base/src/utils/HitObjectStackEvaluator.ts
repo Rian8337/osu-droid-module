@@ -2,6 +2,7 @@ import { Circle } from "../beatmap/hitobjects/Circle";
 import { PlaceableHitObject } from "../beatmap/hitobjects/PlaceableHitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { Spinner } from "../beatmap/hitobjects/Spinner";
+import { CircleSizeCalculator } from "./CircleSizeCalculator";
 import { MapStats } from "./MapStats";
 
 /**
@@ -218,6 +219,11 @@ export abstract class HitObjectStackEvaluator {
 
         hitObjects[0].droidStackHeight = 0;
 
+        const convertedScale: number =
+            CircleSizeCalculator.standardScaleToDroidScale(
+                hitObjects[0].droidScale
+            );
+
         for (let i = 0; i < hitObjects.length - 1; ++i) {
             const currentObject: PlaceableHitObject = hitObjects[i];
             const nextObject: PlaceableHitObject = hitObjects[i + 1];
@@ -226,7 +232,7 @@ export abstract class HitObjectStackEvaluator {
                 nextObject.startTime - currentObject.startTime <
                     2000 * stackLeniency &&
                 nextObject.position.getDistance(currentObject.position) <
-                    Math.sqrt(currentObject.droidScale)
+                    Math.sqrt(convertedScale)
             ) {
                 nextObject.droidStackHeight =
                     currentObject.droidStackHeight + 1;
