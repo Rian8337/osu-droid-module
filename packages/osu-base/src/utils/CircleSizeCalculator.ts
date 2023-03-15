@@ -1,3 +1,4 @@
+import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Mod } from "../mods/Mod";
 import { ModEasy } from "../mods/ModEasy";
 import { ModHardRock } from "../mods/ModHardRock";
@@ -15,7 +16,7 @@ export abstract class CircleSizeCalculator {
      *
      * @param cs The CS to convert.
      * @param mods The mods to apply.
-     * @return The calculated osu!droid scale.
+     * @returns The calculated osu!droid scale.
      */
     static droidCSToDroidScale(cs: number, mods: Mod[] = []): number {
         let scale: number =
@@ -42,7 +43,7 @@ export abstract class CircleSizeCalculator {
      * Converts osu!droid scale to osu!standard radius.
      *
      * @param scale The osu!droid scale to convert.
-     * @return The osu!standard radius of the given osu!droid scale.
+     * @returns The osu!standard radius of the given osu!droid scale.
      */
     static droidScaleToStandardRadius(scale: number): number {
         return (
@@ -52,22 +53,57 @@ export abstract class CircleSizeCalculator {
     }
 
     /**
+     * Converts osu!standard radius to osu!droid scale.
+     *
+     * @param radius The osu!standard radius to convert.
+     * @returns The osu!droid scale of the given osu!standard radius.
+     */
+    static standardRadiusToDroidScale(radius: number): number {
+        return (
+            (radius * ((this.assumedDroidHeight * 0.85) / 384)) /
+            HitObject.baseRadius
+        );
+    }
+
+    /**
      * Converts osu!standard radius to osu!standard circle size.
      *
      * @param radius The osu!standard radius to convert.
-     * @return The osu!standard circle size of the given radius.
+     * @returns The osu!standard circle size of the given radius.
      */
     static standardRadiusToStandardCS(radius: number): number {
-        return 5 + ((1 - radius / 32) * 5) / 0.7;
+        return 5 + ((1 - radius / (HitObject.baseRadius / 2)) * 5) / 0.7;
     }
 
     /**
      * Converts osu!standard circle size to osu!standard scale.
      *
      * @param cs The osu!standard circle size to convert.
-     * @return The osu!standard scale of the given circle size.
+     * @returns The osu!standard scale of the given circle size.
      */
     static standardCSToStandardScale(cs: number): number {
         return (1 - (0.7 * (cs - 5)) / 5) / 2;
+    }
+
+    /**
+     * Converts osu!standard scale to osu!droid scale.
+     *
+     * @param scale The osu!standard scale to convert.
+     * @returns The osu!droid scale of the given osu!standard scale.
+     */
+    static standardScaleToDroidScale(scale: number): number {
+        return this.standardRadiusToDroidScale(HitObject.baseRadius * scale);
+    }
+
+    /**
+     * Converts osu!standard circle size to osu!droid scale.
+     *
+     * @param cs The osu!standard circle size to convert.
+     * @returns The osu!droid scale of the given osu!droid scale.
+     */
+    static standardCSToDroidScale(cs: number): number {
+        return this.standardScaleToDroidScale(
+            this.standardCSToStandardScale(cs)
+        );
     }
 }

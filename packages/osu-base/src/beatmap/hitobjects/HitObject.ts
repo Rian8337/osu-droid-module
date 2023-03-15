@@ -8,6 +8,11 @@ import { HitSampleInfo } from "./HitSampleInfo";
  */
 export abstract class HitObject {
     /**
+     * The base radius of all hitobjects.
+     */
+    static readonly baseRadius: number = 64;
+
+    /**
      * The start time of the hitobject in milliseconds.
      */
     startTime: number;
@@ -179,18 +184,14 @@ export abstract class HitObject {
      * @returns The radius of the hitobject with respect to the gamemode.
      */
     getRadius(mode: Modes): number {
-        let radius: number = 64;
-
         switch (mode) {
             case Modes.droid:
-                radius *= this._droidScale;
+                return HitObject.baseRadius * this._droidScale;
                 break;
             case Modes.osu:
-                radius *= this._osuScale;
+                return HitObject.baseRadius * this._osuScale;
                 break;
         }
-
-        return radius;
     }
 
     /**
