@@ -60,4 +60,14 @@ export abstract class CircleSizeCalculator {
     static standardRadiusToStandardCS(radius: number): number {
         return 5 + ((1 - radius / 32) * 5) / 0.7;
     }
+
+    /**
+     * Converts osu!standard circle size to osu!standard scale.
+     *
+     * @param cs The osu!standard circle size to convert.
+     * @return The osu!standard scale of the given circle size.
+     */
+    static standardCSToStandardScale(cs: number): number {
+        return (1 - (0.7 * (cs - 5)) / 5) / 2;
+    }
 }

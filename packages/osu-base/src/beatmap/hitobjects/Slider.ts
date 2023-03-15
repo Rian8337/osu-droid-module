@@ -85,6 +85,54 @@ export class Slider extends HitObject {
         return this.repetitions - 1;
     }
 
+    override get droidScale(): number {
+        return this._droidScale;
+    }
+
+    override set droidScale(value: number) {
+        super.droidScale = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.droidScale = value;
+        }
+    }
+
+    override get osuScale(): number {
+        return this._osuScale;
+    }
+
+    override set osuScale(value: number) {
+        super.osuScale = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.osuScale = value;
+        }
+    }
+
+    override get droidStackHeight(): number {
+        return this._droidStackHeight;
+    }
+
+    override set droidStackHeight(value: number) {
+        super.droidStackHeight = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.droidStackHeight = value;
+        }
+    }
+
+    override get osuStackHeight(): number {
+        return this._osuStackHeight;
+    }
+
+    override set osuStackHeight(value: number) {
+        super.osuStackHeight = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.osuStackHeight = value;
+        }
+    }
+
     /**
      * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
      */
@@ -180,6 +228,7 @@ export class Slider extends HitObject {
                         spanIndex: span,
                         spanStartTime: spanStartTime,
                     });
+
                     sliderTicks.push(sliderTick);
                 }
 

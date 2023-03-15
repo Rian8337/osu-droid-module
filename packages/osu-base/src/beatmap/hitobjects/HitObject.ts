@@ -58,19 +58,80 @@ export abstract class HitObject {
     samples: HitSampleInfo[] = [];
 
     /**
-     * The stack height of the hitobject.
+     * The osu!droid stack height of the hitobject.
      */
-    stackHeight: number = 0;
+    protected _droidStackHeight: number = 0;
+
+    /**
+     * The osu!droid stack height of the hitobject.
+     */
+    get droidStackHeight(): number {
+        return this._droidStackHeight;
+    }
+
+    /**
+     * The osu!standard stack height of the hitobject.
+     */
+    set droidStackHeight(value: number) {
+        this._droidStackHeight = value;
+    }
+
+    /**
+     * The osu!standard stack height of the hitobject.
+     */
+    protected _osuStackHeight: number = 0;
+
+    /**
+     * The osu!standard stack height of the hitobject.
+     */
+    get osuStackHeight(): number {
+        return this._osuStackHeight;
+    }
+
+    /**
+     * The osu!standard stack height of the hitobject.
+     */
+    set osuStackHeight(value: number) {
+        this._osuStackHeight = value;
+    }
 
     /**
      * The osu!droid scale used to calculate stacked position and radius.
      */
-    droidScale: number = 1;
+    protected _droidScale: number = 1;
+
+    /**
+     * The osu!droid scale used to calculate stacked position and radius.
+     */
+    get droidScale(): number {
+        return this._droidScale;
+    }
+
+    /**
+     * The osu!droid scale used to calculate stacked position and radius.
+     */
+    set droidScale(value: number) {
+        this._droidScale = value;
+    }
 
     /**
      * The osu!standard scale used to calculate stacked position and radius.
      */
-    osuScale: number = 1;
+    protected _osuScale: number = 1;
+
+    /**
+     * The osu!standard scale used to calculate stacked position and radius.
+     */
+    get osuScale(): number {
+        return this._osuScale;
+    }
+
+    /**
+     * The osu!standard scale used to calculate stacked position and radius.
+     */
+    set osuScale(value: number) {
+        this._osuScale = value;
+    }
 
     /**
      * The hitobject type (circle, slider, or spinner).
@@ -122,10 +183,10 @@ export abstract class HitObject {
 
         switch (mode) {
             case Modes.droid:
-                radius *= this.droidScale;
+                radius *= this._droidScale;
                 break;
             case Modes.osu:
-                radius *= this.osuScale;
+                radius *= this._osuScale;
                 break;
         }
 
@@ -141,14 +202,14 @@ export abstract class HitObject {
      * @returns The stack offset with respect to the gamemode.
      */
     getStackOffset(mode: Modes): Vector2 {
-        let coordinate: number = this.stackHeight;
+        let coordinate: number;
 
         switch (mode) {
             case Modes.droid:
-                coordinate *= this.droidScale * -4;
+                coordinate = this._droidStackHeight * this.droidScale * 4;
                 break;
             case Modes.osu:
-                coordinate *= this.osuScale * -6.4;
+                coordinate = this._osuStackHeight * this.osuScale * -6.4;
                 break;
         }
 

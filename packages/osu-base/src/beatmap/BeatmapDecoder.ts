@@ -1,5 +1,4 @@
 import { Beatmap } from "./Beatmap";
-import { Slider } from "./hitobjects/Slider";
 import { MapStats } from "../utils/MapStats";
 import { Mod } from "../mods/Mod";
 import { BeatmapHitObjectsDecoder } from "./decoder/beatmap/BeatmapHitObjectsDecoder";
@@ -16,6 +15,7 @@ import { SectionDecoder } from "./decoder/SectionDecoder";
 import { StoryboardDecoder } from "./StoryboardDecoder";
 import { Modes } from "../constants/Modes";
 import { HitObjectStackEvaluator } from "../utils/HitObjectStackEvaluator";
+import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 
 /**
  * A beatmap decoder.
@@ -52,6 +52,30 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             }
         }
 
+        const droidCircleSize: number = new MapStats({
+            cs: this.finalResult.difficulty.cs,
+            mods,
+        }).calculate({ mode: Modes.droid }).cs!;
+        const droidScale: number =
+            CircleSizeCalculator.standardCSToStandardScale(droidCircleSize);
+
+        const osuCircleSize: number = new MapStats({
+            cs: this.finalResult.difficulty.cs,
+            mods,
+        }).calculate({ mode: Modes.osu }).cs!;
+        const osuScale: number =
+            CircleSizeCalculator.standardCSToStandardScale(osuCircleSize);
+
+        this.finalResult.hitObjects.objects.forEach((h) => {
+            h.droidScale = droidScale;
+            h.osuScale = osuScale;
+        });
+
+        HitObjectStackEvaluator.applyDroidStacking(
+            this.finalResult.hitObjects.objects,
+            this.finalResult.general.stackLeniency
+        );
+
         HitObjectStackEvaluator.applyStandardStacking(
             this.formatVersion,
             this.finalResult.hitObjects.objects,
@@ -60,31 +84,6 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             0,
             this.finalResult.hitObjects.objects.length - 1
         );
-
-        const droidCircleSize: number = new MapStats({
-            cs: this.finalResult.difficulty.cs,
-            mods,
-        }).calculate({ mode: Modes.droid }).cs!;
-        const droidScale: number = (1 - (0.7 * (droidCircleSize - 5)) / 5) / 2;
-
-        const osuCircleSize: number = new MapStats({
-            cs: this.finalResult.difficulty.cs,
-            mods,
-        }).calculate({ mode: Modes.osu }).cs!;
-        const osuScale: number = (1 - (0.7 * (osuCircleSize - 5)) / 5) / 2;
-
-        this.finalResult.hitObjects.objects.forEach((h) => {
-            h.droidScale = droidScale;
-            h.osuScale = osuScale;
-
-            if (h instanceof Slider) {
-                h.nestedHitObjects.forEach((n) => {
-                    n.droidScale = droidScale;
-                    n.osuScale = osuScale;
-                    n.stackHeight = h.stackHeight;
-                });
-            }
-        });
 
         return this;
     }

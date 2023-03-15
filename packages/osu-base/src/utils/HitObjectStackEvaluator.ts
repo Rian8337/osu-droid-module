@@ -1,7 +1,7 @@
+import { Circle } from "../beatmap/hitobjects/Circle";
 import { PlaceableHitObject } from "../beatmap/hitobjects/PlaceableHitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { Spinner } from "../beatmap/hitobjects/Spinner";
-import { ObjectTypes } from "../constants/ObjectTypes";
 import { MapStats } from "./MapStats";
 
 /**
@@ -81,7 +81,7 @@ export abstract class HitObjectStackEvaluator {
                         stackBaseIndex = n;
 
                         // Hit objects after the specified update range haven't been reset yet
-                        objectN.stackHeight = 0;
+                        objectN.osuStackHeight = 0;
                     }
                 }
 
@@ -110,17 +110,14 @@ export abstract class HitObjectStackEvaluator {
             // then we come backwards on the i loop iteration until we reach 3 and handle 1.
             // 2 and 1 will be ignored in the i loop because they already have a stack value.
             let objectI: PlaceableHitObject = hitObjects[i];
-            if (
-                objectI.stackHeight !== 0 ||
-                objectI.type & ObjectTypes.spinner
-            ) {
+            if (objectI.osuStackHeight !== 0 || objectI instanceof Spinner) {
                 continue;
             }
 
             // If this object is a hit circle, then we enter this "special" case.
             // It either ends with a stack of hit circles only, or a stack of hit circles that are underneath a slider.
             // Any other case is handled by the "instanceof Slider" code below this.
-            if (objectI.type & ObjectTypes.circle) {
+            if (objectI instanceof Circle) {
                 while (--n >= 0) {
                     const objectN: PlaceableHitObject = hitObjects[n];
                     if (objectN instanceof Spinner) {
@@ -134,7 +131,7 @@ export abstract class HitObjectStackEvaluator {
 
                     // Hit objects before the specified update range haven't been reset yet
                     if (n < extendedStartIndex) {
-                        objectN.stackHeight = 0;
+                        objectN.osuStackHeight = 0;
                         extendedStartIndex = n;
                     }
 
@@ -148,7 +145,7 @@ export abstract class HitObjectStackEvaluator {
                             this.stackDistance
                     ) {
                         const offset: number =
-                            objectI.stackHeight - objectN.stackHeight + 1;
+                            objectI.osuStackHeight - objectN.osuStackHeight + 1;
                         for (let j = n + 1; j <= i; ++j) {
                             // For each object which was declared under this slider, we will offset it to appear *below* the slider end (rather than above).
                             const objectJ: PlaceableHitObject = hitObjects[j];
@@ -157,7 +154,7 @@ export abstract class HitObjectStackEvaluator {
                                     objectJ.position
                                 ) < this.stackDistance
                             ) {
-                                objectJ.stackHeight -= offset;
+                                objectJ.osuStackHeight -= offset;
                             }
                         }
 
@@ -172,7 +169,7 @@ export abstract class HitObjectStackEvaluator {
                     ) {
                         // Keep processing as if there are no sliders. If we come across a slider, this gets cancelled out.
                         // NOTE: Sliders with start positions stacking are a special case that is also handled here.
-                        objectN.stackHeight = objectI.stackHeight + 1;
+                        objectN.osuStackHeight = objectI.osuStackHeight + 1;
                         objectI = objectN;
                     }
                 }
@@ -197,7 +194,7 @@ export abstract class HitObjectStackEvaluator {
                         objectN.endPosition.getDistance(objectI.position) <
                         this.stackDistance
                     ) {
-                        objectN.stackHeight = objectI.stackHeight + 1;
+                        objectN.osuStackHeight = objectI.osuStackHeight + 1;
                         objectI = objectN;
                     }
                 }
@@ -219,7 +216,7 @@ export abstract class HitObjectStackEvaluator {
             return;
         }
 
-        hitObjects[0].stackHeight = 0;
+        hitObjects[0].droidStackHeight = 0;
 
         for (let i = 0; i < hitObjects.length - 1; ++i) {
             const currentObject: PlaceableHitObject = hitObjects[i];
@@ -231,9 +228,10 @@ export abstract class HitObjectStackEvaluator {
                 nextObject.position.getDistance(currentObject.position) <
                     Math.sqrt(currentObject.droidScale)
             ) {
-                nextObject.stackHeight = currentObject.stackHeight + 1;
+                nextObject.droidStackHeight =
+                    currentObject.droidStackHeight + 1;
             } else {
-                nextObject.stackHeight = 0;
+                nextObject.droidStackHeight = 0;
             }
         }
     }
@@ -258,7 +256,7 @@ export abstract class HitObjectStackEvaluator {
             const currentObject: PlaceableHitObject = hitObjects[i];
 
             if (
-                currentObject.stackHeight !== 0 &&
+                currentObject.osuStackHeight !== 0 &&
                 !(currentObject instanceof Slider)
             ) {
                 continue;
@@ -278,7 +276,7 @@ export abstract class HitObjectStackEvaluator {
                     hitObjects[j].position.getDistance(currentObject.position) <
                     this.stackDistance
                 ) {
-                    ++currentObject.stackHeight;
+                    ++currentObject.osuStackHeight;
                     startTime = hitObjects[j].endTime;
                 } else if (
                     hitObjects[j].position.getDistance(
@@ -287,7 +285,7 @@ export abstract class HitObjectStackEvaluator {
                 ) {
                     // Case for sliders - bump notes down and right, rather than up and left.
                     ++sliderStack;
-                    hitObjects[j].stackHeight -= sliderStack;
+                    hitObjects[j].osuStackHeight -= sliderStack;
                     startTime = hitObjects[j].endTime;
                 }
             }
