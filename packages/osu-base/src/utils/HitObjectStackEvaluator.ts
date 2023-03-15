@@ -11,22 +11,22 @@ export abstract class HitObjectStackEvaluator {
     private static readonly stackDistance: number = 3;
 
     /**
-     * Applies note stacking to hitobjects using osu!standard algorithm.
+     * Applies note stacking to hit objects using osu!standard algorithm.
      *
      * @param formatVersion The format version of the beatmap containing the hit objects.
-     * @param objects The hitobjects to apply stacking to.
+     * @param objects The hit objects to apply stacking to.
      * @param ar The calculated approach rate of the beatmap.
      * @param stackLeniency The multiplier for the threshold in time where hit objects placed close together stack, ranging from 0 to 1.
-     * @param startIndex The minimum index bound of the hit object to apply stacking to.
-     * @param endIndex The maximum index bound of the hit object to apply stacking to.
+     * @param startIndex The minimum index bound of the hit object to apply stacking to. Defaults to 0.
+     * @param endIndex The maximum index bound of the hit object to apply stacking to. Defaults to the last index of the array of hit objects.
      */
     static applyStandardStacking(
         formatVersion: number,
         hitObjects: readonly PlaceableHitObject[],
         ar: number,
         stackLeniency: number,
-        startIndex: number,
-        endIndex: number
+        startIndex: number = 0,
+        endIndex: number = hitObjects.length - 1
     ): void {
         if (formatVersion < 6) {
             // Use the old version of stacking algorithm for beatmap version 5 or lower.
