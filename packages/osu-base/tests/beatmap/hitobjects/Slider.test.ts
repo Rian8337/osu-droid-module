@@ -57,7 +57,7 @@ describe("Test slider position", () => {
             expect(slider.getStackedPosition(Modes.droid)).toEqual(
                 slider.position
             );
-            expect(slider.getStackedPosition(Modes.droid)).toEqual(
+            expect(slider.getStackedPosition(Modes.osu)).toEqual(
                 slider.position
             );
         });
@@ -66,47 +66,83 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                slider.stackHeight = 1;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 1;
+                } else {
+                    slider.osuStackHeight = 1;
+                }
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
 
-                slider.stackHeight = 2;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 2;
+                } else {
+                    slider.osuStackHeight = 2;
+                }
 
                 positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
 
-                slider.stackHeight = 0.5;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 0.5;
+                } else {
+                    slider.osuStackHeight = 0.5;
+                }
 
                 positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
             };
 
@@ -131,47 +167,83 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                slider.stackHeight = 1;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 1;
+                } else {
+                    slider.osuStackHeight = 1;
+                }
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
 
-                slider.stackHeight = 2;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 2;
+                } else {
+                    slider.osuStackHeight = 2;
+                }
 
                 positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
 
-                slider.stackHeight = 0.5;
+                if (mode === Modes.droid) {
+                    slider.droidStackHeight = 0.5;
+                } else {
+                    slider.osuStackHeight = 0.5;
+                }
 
                 positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale * slider.stackHeight * stackMultiplier
+                    scale *
+                        (mode === Modes.droid
+                            ? slider.droidStackHeight
+                            : slider.osuStackHeight) *
+                        stackMultiplier
                 );
             };
 

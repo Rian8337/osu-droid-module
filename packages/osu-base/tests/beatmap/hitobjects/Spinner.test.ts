@@ -38,7 +38,8 @@ describe("Test spinner position", () => {
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.stackHeight = 1;
+            spinner.droidStackHeight = 1;
+            spinner.osuStackHeight = 1;
 
             expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
@@ -47,7 +48,8 @@ describe("Test spinner position", () => {
                 playfieldCenter
             );
 
-            spinner.stackHeight = 2;
+            spinner.droidStackHeight = 2;
+            spinner.osuStackHeight = 2;
 
             expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
@@ -56,7 +58,8 @@ describe("Test spinner position", () => {
                 playfieldCenter
             );
 
-            spinner.stackHeight = 4;
+            spinner.droidStackHeight = 4;
+            spinner.osuStackHeight = 4;
 
             expect(spinner.getStackedPosition(Modes.droid)).toEqual(
                 playfieldCenter
@@ -82,7 +85,8 @@ describe("Test spinner position", () => {
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.stackHeight = 1;
+            spinner.droidStackHeight = 1;
+            spinner.osuStackHeight = 1;
 
             expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
@@ -91,7 +95,8 @@ describe("Test spinner position", () => {
                 playfieldCenter
             );
 
-            spinner.stackHeight = 2;
+            spinner.droidStackHeight = 2;
+            spinner.osuStackHeight = 2;
 
             expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
@@ -100,7 +105,8 @@ describe("Test spinner position", () => {
                 playfieldCenter
             );
 
-            spinner.stackHeight = 4;
+            spinner.droidStackHeight = 4;
+            spinner.osuStackHeight = 4;
 
             expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
                 playfieldCenter
