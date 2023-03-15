@@ -196,6 +196,21 @@ export abstract class ModUtil {
     }
 
     /**
+     * Removes speed-changing mods from an array of mods.
+     *
+     * @param mods The array of mods.
+     * @returns A new array with speed changing mods filtered out.
+     */
+    static removeSpeedChangingMods(mods: Mod[]): Mod[] {
+        return mods
+            .slice()
+            .filter(
+                (m) =>
+                    !this.speedChangingMods.some((v) => m.acronym === v.acronym)
+            );
+    }
+
+    /**
      * Processes parsing options.
      *
      * @param mods The mods to process.
