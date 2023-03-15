@@ -15,6 +15,7 @@ import { Decoder } from "./Decoder";
 import { SectionDecoder } from "./decoder/SectionDecoder";
 import { StoryboardDecoder } from "./StoryboardDecoder";
 import { Modes } from "../constants/Modes";
+import { HitObjectStackEvaluator } from "../utils/HitObjectStackEvaluator";
 
 /**
  * A beatmap decoder.
@@ -51,18 +52,14 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             }
         }
 
-        const hitObjectsDecoder: BeatmapHitObjectsDecoder = <
-            BeatmapHitObjectsDecoder
-        >this.decoders[BeatmapSection.hitObjects];
-
-        if (this.formatVersion >= 6) {
-            hitObjectsDecoder.applyStacking(
-                0,
-                this.finalResult.hitObjects.objects.length - 1
-            );
-        } else {
-            hitObjectsDecoder.applyStackingOld();
-        }
+        HitObjectStackEvaluator.applyStandardStacking(
+            this.formatVersion,
+            this.finalResult.hitObjects.objects,
+            this.finalResult.difficulty.ar!,
+            this.finalResult.general.stackLeniency,
+            0,
+            this.finalResult.hitObjects.objects.length - 1
+        );
 
         const droidCircleSize: number = new MapStats({
             cs: this.finalResult.difficulty.cs,

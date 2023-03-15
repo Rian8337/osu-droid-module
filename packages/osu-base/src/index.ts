@@ -40,6 +40,7 @@ export * from "./mathutil/ErrorFunction";
 export * from "./constants/GameMode";
 export * from "./utils/HitWindow";
 export * from "./beatmap/hitobjects/HitObject";
+export * from "./utils/HitObjectStackEvaluator";
 export * from "./beatmap/hitobjects/HitSampleInfo";
 export * from "./constants/HitSoundType";
 export * from "./utils/If";
