@@ -1,7 +1,5 @@
 import {
-    CircleSizeCalculator,
     HitObject,
-    MapStats,
     Mod,
     Modes,
     PlaceableHitObject,
@@ -62,23 +60,6 @@ export class DifficultyHitObjectCreator {
             this.maximumSliderRadius = this.normalizedRadius * 2;
         }
 
-        const droidCircleSize: number = new MapStats({
-            cs: params.circleSize,
-            mods: params.mods,
-        }).calculate({ mode: Modes.droid }).cs!;
-        const droidScale: number =
-            CircleSizeCalculator.standardCSToStandardScale(droidCircleSize);
-
-        const osuCircleSize: number = new MapStats({
-            cs: params.circleSize,
-            mods: params.mods,
-        }).calculate({ mode: Modes.osu }).cs!;
-        const osuScale: number =
-            CircleSizeCalculator.standardCSToStandardScale(osuCircleSize);
-
-        params.objects[0].droidScale = droidScale;
-        params.objects[0].osuScale = osuScale;
-
         const scalingFactor: number = this.getScalingFactor(
             params.objects[0].getRadius(this.mode)
         );
@@ -92,8 +73,6 @@ export class DifficultyHitObjectCreator {
             );
 
             object.index = difficultyObjects.length - 1;
-            object.object.droidScale = droidScale;
-            object.object.osuScale = osuScale;
             object.timePreempt = params.preempt;
             object.baseTimePreempt = params.preempt * params.speedMultiplier;
 
@@ -165,10 +144,6 @@ export class DifficultyHitObjectCreator {
                 ) {
                     break;
                 }
-
-                // Future objects do not have their scales set, so we set them here.
-                o.droidScale = droidScale;
-                o.osuScale = osuScale;
 
                 nextVisibleObjects.push(o);
             }

@@ -12,6 +12,7 @@ import {
     HitObjectStackEvaluator,
     MapStats,
     ModUtil,
+    CircleSizeCalculator,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
@@ -170,6 +171,14 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     }
 
     protected override preProcess(): void {
+        const scale: number = CircleSizeCalculator.standardCSToStandardScale(
+            this.stats.cs!
+        );
+
+        for (const object of this.beatmap.hitObjects.objects) {
+            object.osuScale = scale;
+        }
+
         const ar: number = new MapStats({
             ar: this.beatmap.difficulty.ar,
             mods: ModUtil.removeSpeedChangingMods(this.mods),

@@ -377,12 +377,12 @@ test("Test difficulty calculation sample beatmap 3", async () => {
 test("Test difficulty calculation sample beatmap 4", async () => {
     await testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noModDroidRating: {
-            aim: 2.780432840118443,
+            aim: 2.780377081660682,
             tap: 1.426294639438133,
             rhythm: 0.8252861028509693,
             flashlight: 1.3070770605106055,
             visual: 1.9501639319420152,
-            total: 4.9838498368856285,
+            total: 4.983820762958974,
         },
         noModPcRating: {
             aim: 4.4331801158225765,
@@ -391,12 +391,12 @@ test("Test difficulty calculation sample beatmap 4", async () => {
             total: 7.638354833794094,
         },
         clockRateDroidRating: {
-            aim: 3.9057584465326753,
+            aim: 3.9056434788933365,
             tap: 2.029381252428971,
             rhythm: 1.0115706792350665,
-            flashlight: 1.6759454737385382,
+            flashlight: 1.6759518060720648,
             visual: 3.0132329796767694,
-            total: 6.4375549521735635,
+            total: 6.437496746689438,
         },
         clockRatePcRating: {
             aim: 5.866277249054482,

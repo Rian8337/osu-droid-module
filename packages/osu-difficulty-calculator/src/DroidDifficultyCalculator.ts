@@ -3,7 +3,13 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
+import {
+    ModRelax,
+    ModFlashlight,
+    Modes,
+    CircleSizeCalculator,
+    HitObjectStackEvaluator,
+} from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
@@ -260,6 +266,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             " flashlight, " +
             this.visual.toFixed(2) +
             " visual)"
+        );
+    }
+
+    protected override preProcess(): void {
+        const scale: number = CircleSizeCalculator.standardCSToStandardScale(
+            this.stats.cs!
+        );
+
+        for (const object of this.beatmap.hitObjects.objects) {
+            object.droidScale = scale;
+        }
+
+        HitObjectStackEvaluator.applyDroidStacking(
+            this.beatmap.hitObjects.objects,
+            this.beatmap.general.stackLeniency
         );
     }
 
