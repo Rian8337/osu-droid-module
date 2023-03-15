@@ -206,10 +206,10 @@ export abstract class HitObject {
 
         switch (mode) {
             case Modes.droid:
-                coordinate = this._droidStackHeight * this.droidScale * 4;
+                coordinate = this._droidStackHeight * this._droidScale * 4;
                 break;
             case Modes.osu:
-                coordinate = this._osuStackHeight * this.osuScale * -6.4;
+                coordinate = this._osuStackHeight * this._osuScale * -6.4;
                 break;
         }
 
