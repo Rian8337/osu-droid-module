@@ -251,7 +251,10 @@ export class MapStats {
                         );
                     const radius: number =
                         CircleSizeCalculator.droidScaleToStandardRadius(scale);
-                    this.cs = Math.min(5 + ((1 - radius / 32) * 5) / 0.7, 10);
+                    this.cs = Math.min(
+                        CircleSizeCalculator.standardRadiusToStandardCS(radius),
+                        10
+                    );
                 }
 
                 if (this.hp !== undefined) {
