@@ -165,7 +165,7 @@ export abstract class HitObjectStackEvaluator {
                     }
 
                     if (
-                        objectN.endPosition.getDistance(objectI.position) <
+                        objectN.position.getDistance(objectI.position) <
                         this.stackDistance
                     ) {
                         // Keep processing as if there are no sliders. If we come across a slider, this gets cancelled out.
