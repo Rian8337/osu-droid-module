@@ -1,12 +1,10 @@
 import request from "request";
 import { Beatmap } from "../beatmap/Beatmap";
 import { RankedStatus } from "../constants/RankedStatus";
-import {
-    OsuAPIRequestBuilder,
-    RequestResponse,
-} from "../utils/APIRequestBuilder";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { If } from "../utils/If";
+import { OsuAPIRequestBuilder } from "./OsuAPIRequestBuilder";
+import { RequestResponse } from "./RequestResponse";
 
 export interface OsuAPIResponse {
     readonly approved: string;

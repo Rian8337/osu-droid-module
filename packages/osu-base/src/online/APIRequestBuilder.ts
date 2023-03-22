@@ -1,47 +1,11 @@
 import request from "request";
-import { Utils } from "./Utils";
+import { Utils } from "../utils/Utils";
+import { RequestResponse } from "./RequestResponse";
 
-export interface RequestResponse {
-    /**
-     * The result of the API request.
-     */
-    readonly data: Buffer;
-
-    /**
-     * The status code of the API request.
-     */
-    readonly statusCode: number;
-}
-
-type DroidAPIEndpoint =
-    | "getuserinfo.php"
-    | "scoresearch.php"
-    | "scoresearchv2.php"
-    | "upload"
-    | "user_list.php"
-    | "usergeneral.php"
-    | "top.php"
-    | "time.php"
-    | "account_ban_get.php"
-    | "account_ban_set.php"
-    | "account_restricted_get.php"
-    | "account_restricted_set.php"
-    | "single_score_wipe.php"
-    | "user_wipe.php"
-    | "user_rename.php";
-
-type OsuAPIEndpoint =
-    | "get_beatmaps"
-    | "get_user"
-    | "get_scores"
-    | "get_user_best"
-    | "get_user_recent"
-    | "get_match"
-    | "get_replay";
-
-abstract class APIRequestBuilder<
-    APIParams extends DroidAPIEndpoint | OsuAPIEndpoint
-> {
+/**
+ * The base of API request builders.
+ */
+export abstract class APIRequestBuilder<Params extends string = string> {
     /**
      * The main point of API host.
      */
@@ -72,6 +36,13 @@ abstract class APIRequestBuilder<
      */
     protected readonly params: Map<string, string | number> = new Map();
 
+    /**
+     * The base URL of this builder.
+     */
+    protected get baseURL(): string {
+        return this.host + this.endpoint;
+    }
+
     private fetchAttempts: number = 0;
 
     /**
@@ -79,7 +50,7 @@ abstract class APIRequestBuilder<
      *
      * @param endpoint The endpoint to set.
      */
-    setEndpoint(endpoint: APIParams): this {
+    setEndpoint(endpoint: Params): this {
         this.endpoint = endpoint;
 
         return this;
@@ -99,22 +70,7 @@ abstract class APIRequestBuilder<
      * Builds the URL to request the API.
      */
     buildURL(): string {
-        let url: string = this.host + this.endpoint;
-
-        if (
-            this instanceof DroidAPIRequestBuilder &&
-            this.endpoint === "upload"
-        ) {
-            url += "/";
-
-            for (const [, value] of this.params.entries()) {
-                url += value;
-            }
-
-            return url;
-        }
-
-        url += "?";
+        let url: string = this.baseURL + "?";
 
         if (this.requiresAPIkey) {
             if (!this.APIkey) {
@@ -196,22 +152,4 @@ abstract class APIRequestBuilder<
         this.params.delete(param);
         return this;
     }
-}
-
-/**
- * API request builder for osu!droid.
- */
-export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> {
-    protected override readonly host: string = "https://osudroid.moe/api/";
-    protected override readonly APIkey: string = process.env.DROID_API_KEY!;
-    protected override readonly APIkeyParam: string = `apiKey=${this.APIkey}&`;
-}
-
-/**
- * API request builder for osu!standard.
- */
-export class OsuAPIRequestBuilder extends APIRequestBuilder<OsuAPIEndpoint> {
-    protected override readonly host: string = "https://osu.ppy.sh/api/";
-    protected override readonly APIkey: string = process.env.OSU_API_KEY!;
-    protected override readonly APIkeyParam: string = `k=${this.APIkey}&`;
 }
