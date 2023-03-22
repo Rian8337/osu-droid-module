@@ -377,7 +377,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
 
             const url: string = `https://osu.ppy.sh/osu/${this.beatmapID}`;
             const dataArray: Buffer[] = [];
-            request(url, { timeout: 10000 })
+            request(url)
                 .on("data", (chunk) => {
                     dataArray.push(Buffer.from(chunk));
                 })
