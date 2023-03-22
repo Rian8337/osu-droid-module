@@ -398,7 +398,7 @@ export class ReplayAnalyzer {
             const replayObjectData: ReplayObjectData = {
                 accuracy: 0,
                 tickset: [],
-                result: 0,
+                result: HitResult.miss,
             };
 
             replayObjectData.accuracy =

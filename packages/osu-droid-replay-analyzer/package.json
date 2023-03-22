@@ -22,7 +22,7 @@
         "url": "git+https://github.com/Rian8337/osu-droid-module.git"
     },
     "scripts": {
-        "build": "dts-gen -m java-deserialization -o -f ./node_modules/java-deserialization/src/index.d.ts && rollup -c ../../rollup.config.js",
+        "build": "dts-gen -m java-deserialization -o -f ./node_modules/java-deserialization/src/index.d.ts && rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
         "prepare": "npm run build",
         "test": "echo \"No tests for this module\""

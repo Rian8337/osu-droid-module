@@ -17,7 +17,7 @@
         "typings/**"
     ],
     "scripts": {
-        "build": "rollup -c ../../rollup.config.js",
+        "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
         "prepare": "npm run build",
         "test": "jest"
