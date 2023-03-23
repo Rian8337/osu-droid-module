@@ -8,6 +8,11 @@ import { HitSampleInfo } from "./HitSampleInfo";
  */
 export abstract class HitObject {
     /**
+     * The base radius of all hitobjects.
+     */
+    static readonly baseRadius: number = 64;
+
+    /**
      * The start time of the hitobject in milliseconds.
      */
     startTime: number;
@@ -60,17 +65,59 @@ export abstract class HitObject {
     /**
      * The stack height of the hitobject.
      */
-    stackHeight: number = 0;
+    protected _stackHeight: number = 0;
+
+    /**
+     * The stack height of the hitobject.
+     */
+    get stackHeight(): number {
+        return this._stackHeight;
+    }
+
+    /**
+     * The stack height of the hitobject.
+     */
+    set stackHeight(value: number) {
+        this._stackHeight = value;
+    }
 
     /**
      * The osu!droid scale used to calculate stacked position and radius.
      */
-    droidScale: number = 1;
+    protected _droidScale: number = 1;
+
+    /**
+     * The osu!droid scale used to calculate stacked position and radius.
+     */
+    get droidScale(): number {
+        return this._droidScale;
+    }
+
+    /**
+     * The osu!droid scale used to calculate stacked position and radius.
+     */
+    set droidScale(value: number) {
+        this._droidScale = value;
+    }
 
     /**
      * The osu!standard scale used to calculate stacked position and radius.
      */
-    osuScale: number = 1;
+    protected _osuScale: number = 1;
+
+    /**
+     * The osu!standard scale used to calculate stacked position and radius.
+     */
+    get osuScale(): number {
+        return this._osuScale;
+    }
+
+    /**
+     * The osu!standard scale used to calculate stacked position and radius.
+     */
+    set osuScale(value: number) {
+        this._osuScale = value;
+    }
 
     /**
      * The hitobject type (circle, slider, or spinner).
@@ -118,18 +165,14 @@ export abstract class HitObject {
      * @returns The radius of the hitobject with respect to the gamemode.
      */
     getRadius(mode: Modes): number {
-        let radius: number = 64;
-
         switch (mode) {
             case Modes.droid:
-                radius *= this.droidScale;
+                return HitObject.baseRadius * this._droidScale;
                 break;
             case Modes.osu:
-                radius *= this.osuScale;
+                return HitObject.baseRadius * this._osuScale;
                 break;
         }
-
-        return radius;
     }
 
     /**
@@ -141,14 +184,14 @@ export abstract class HitObject {
      * @returns The stack offset with respect to the gamemode.
      */
     getStackOffset(mode: Modes): Vector2 {
-        let coordinate: number = this.stackHeight;
+        let coordinate: number = this._stackHeight;
 
         switch (mode) {
             case Modes.droid:
-                coordinate *= this.droidScale * -4;
+                coordinate *= this._droidScale * 4;
                 break;
             case Modes.osu:
-                coordinate *= this.osuScale * -6.4;
+                coordinate *= this._osuScale * -6.4;
                 break;
         }
 

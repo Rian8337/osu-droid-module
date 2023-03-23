@@ -280,10 +280,13 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
     }
 
     /**
-     * Applies stacking to hitobjects for this.map version 6 or above.
+     * Applies stacking to hitobjects for beatmap version 6 or above.
+     *
+     * @deprecated Use `HitObjectStackEvaluator.applyStandardStacking` instead.
      */
     applyStacking(startIndex: number, endIndex: number): void {
         if (this.target.formatVersion < 6) {
+            this.applyStackingOld();
             return;
         }
 
@@ -453,10 +456,13 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
     }
 
     /**
-     * Applies stacking to hitobjects for this.map version 5 or below.
+     * Applies stacking to hitobjects for beatmap version 5 or below.
+     *
+     * @deprecated Use `HitObjectStackEvaluator.applyStandardStacking` instead.
      */
     applyStackingOld(): void {
         if (this.target.formatVersion > 5) {
+            this.applyStacking(0, this.target.hitObjects.objects.length - 1);
             return;
         }
 

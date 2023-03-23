@@ -85,6 +85,42 @@ export class Slider extends HitObject {
         return this.repetitions - 1;
     }
 
+    override get stackHeight(): number {
+        return this._stackHeight;
+    }
+
+    override set stackHeight(value: number) {
+        super.stackHeight = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.stackHeight = value;
+        }
+    }
+
+    override get droidScale(): number {
+        return this._droidScale;
+    }
+
+    override set droidScale(value: number) {
+        super.droidScale = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.droidScale = value;
+        }
+    }
+
+    override get osuScale(): number {
+        return this._osuScale;
+    }
+
+    override set osuScale(value: number) {
+        super.osuScale = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.osuScale = value;
+        }
+    }
+
     /**
      * The repetition amount of the slider. Note that 1 repetition means no repeats (1 loop).
      */

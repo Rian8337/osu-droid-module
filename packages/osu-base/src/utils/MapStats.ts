@@ -7,9 +7,9 @@ import { ModNightCore } from "../mods/ModNightCore";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModEasy } from "../mods/ModEasy";
 import { ModPrecise } from "../mods/ModPrecise";
-import { ModSmallCircle } from "../mods/ModSmallCircle";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModUtil } from "./ModUtil";
+import { CircleSizeCalculator } from "./CircleSizeCalculator";
 
 /**
  * Holds general beatmap statistics for further modifications.
@@ -134,7 +134,7 @@ export class MapStats {
      */
     calculate(params?: {
         /**
-         * The gamemode to calculate for. Defaults to `modes.osu`.
+         * The gamemode to calculate for. Defaults to `Modes.osu`.
          */
         mode?: Modes;
 
@@ -152,6 +152,12 @@ export class MapStats {
          * Whether force AR is turned on.
          */
         isForceAR?: boolean;
+
+        /**
+         * Whether to convert osu!droid OD to osu!standard OD. Defaults to `true`.
+         * Will only be considered when using `Modes.droid` for `mode`.
+         */
+        convertDroidOD?: boolean;
     }): MapStats {
         if (this.calculated) {
             return this;
@@ -201,18 +207,34 @@ export class MapStats {
                 // needs to be computed regardless of map-changing mods
                 // and statistics multiplier.
                 if (this.od !== undefined) {
-                    // Apply EZ or HR to OD.
-                    this.od = Math.min(this.od * statisticsMultiplier, 10);
+                    // Apply non-speed changing mods to OD.
+                    this.od *= statisticsMultiplier;
+                    if (this.mods.some((m) => m instanceof ModReallyEasy)) {
+                        this.od /= 2;
+                    }
+
+                    this.od = Math.min(this.od, 10);
 
                     // Convert original OD to droid hit window to take
                     // droid hit window and the PR mod in mind.
+                    // Consider speed multiplier as well.
+                    const isPrecise: boolean = this.mods.some(
+                        (m) => m instanceof ModPrecise
+                    );
                     const droidToMS: number =
-                        new DroidHitWindow(this.od).hitWindowFor300(
-                            this.mods.some((m) => m instanceof ModPrecise)
-                        ) / this.speedMultiplier;
+                        new DroidHitWindow(this.od).hitWindowFor300(isPrecise) /
+                        this.speedMultiplier;
 
-                    // Convert droid hit window back to original OD.
-                    this.od = OsuHitWindow.hitWindow300ToOD(droidToMS);
+                    if (params?.convertDroidOD !== false) {
+                        // Convert droid hit window to osu!standard OD.
+                        this.od = OsuHitWindow.hitWindow300ToOD(droidToMS);
+                    } else {
+                        // Convert droid hit window back to original OD.
+                        this.od = DroidHitWindow.hitWindow300ToOD(
+                            droidToMS,
+                            isPrecise
+                        );
+                    }
                 }
 
                 // HR and EZ works differently in droid in terms of
@@ -222,30 +244,17 @@ export class MapStats {
                 // from the bitwise enum of mods to prevent double
                 // calculation.
                 if (this.cs !== undefined) {
-                    // Assume 681 is height.
-                    const assumedHeight: number = 681;
-
-                    let scale: number =
-                        ((assumedHeight / 480) * (54.42 - this.cs * 4.48) * 2) /
-                            128 +
-                        (0.5 * (11 - 5.2450170716245195)) / 5;
-
-                    if (this.mods.some((m) => m instanceof ModHardRock)) {
-                        scale -= 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModEasy)) {
-                        scale += 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModReallyEasy)) {
-                        scale += 0.125;
-                    }
-                    if (this.mods.some((m) => m instanceof ModSmallCircle)) {
-                        scale -= ((assumedHeight / 480) * (4 * 4.48) * 2) / 128;
-                    }
+                    const scale: number =
+                        CircleSizeCalculator.droidCSToDroidScale(
+                            this.cs,
+                            this.mods
+                        );
                     const radius: number =
-                        (64 * Math.max(1e-3, scale)) /
-                        ((assumedHeight * 0.85) / 384);
-                    this.cs = Math.min(5 + ((1 - radius / 32) * 5) / 0.7, 10);
+                        CircleSizeCalculator.droidScaleToStandardRadius(scale);
+                    this.cs = Math.min(
+                        CircleSizeCalculator.standardRadiusToStandardCS(radius),
+                        10
+                    );
                 }
 
                 if (this.hp !== undefined) {
