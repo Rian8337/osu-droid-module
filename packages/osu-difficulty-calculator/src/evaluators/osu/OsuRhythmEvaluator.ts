@@ -6,8 +6,6 @@ import { RhythmEvaluator } from "../base/RhythmEvaluator";
  * An evaluator for calculating osu!standard Rhythm skill.
  */
 export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
-    private static readonly rhythmMultiplier: number = 0.75;
-
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
      * with historic data of the current object.

@@ -3,7 +3,13 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { ModRelax, ModFlashlight, Modes } from "@rian8337/osu-base";
+import {
+    ModRelax,
+    ModFlashlight,
+    Modes,
+    CircleSizeCalculator,
+    HitObjectStackEvaluator,
+} from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -235,9 +241,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         this.calculateTotal();
     }
 
-    /**
-     * Returns a string representative of the class.
-     */
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -255,9 +258,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         );
     }
 
-    /**
-     * Creates skills to be calculated.
-     */
+    protected override preProcess(): void {
+        const scale: number = CircleSizeCalculator.standardCSToStandardScale(
+            this.stats.cs!
+        );
+
+        for (const object of this.beatmap.hitObjects.objects) {
+            object.droidScale = scale;
+        }
+
+        HitObjectStackEvaluator.applyDroidStacking(
+            this.beatmap.hitObjects.objects,
+            this.beatmap.general.stackLeniency
+        );
+    }
+
     protected override createSkills(): DroidSkill[] {
         return [
             new DroidAim(this.mods, true),

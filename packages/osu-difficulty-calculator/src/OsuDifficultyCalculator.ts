@@ -9,6 +9,10 @@ import {
     ModFlashlight,
     ModTouchDevice,
     Modes,
+    CircleSizeCalculator,
+    HitObjectStackEvaluator,
+    MapStats,
+    ModUtil,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
@@ -153,9 +157,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.calculateTotal();
     }
 
-    /**
-     * Returns a string representative of the class.
-     */
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -169,9 +170,28 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         );
     }
 
-    /**
-     * Creates skills to be calculated.
-     */
+    protected override preProcess(): void {
+        const scale: number = CircleSizeCalculator.standardCSToStandardScale(
+            this.stats.cs!
+        );
+
+        for (const object of this.beatmap.hitObjects.objects) {
+            object.osuScale = scale;
+        }
+
+        const ar: number = new MapStats({
+            ar: this.beatmap.difficulty.ar,
+            mods: ModUtil.removeSpeedChangingMods(this.mods),
+        }).calculate().ar!;
+
+        HitObjectStackEvaluator.applyStandardStacking(
+            this.beatmap.formatVersion,
+            this.beatmap.hitObjects.objects,
+            ar,
+            this.beatmap.general.stackLeniency
+        );
+    }
+
     protected override createSkills(): OsuSkill[] {
         return [
             new OsuAim(this.mods, true),

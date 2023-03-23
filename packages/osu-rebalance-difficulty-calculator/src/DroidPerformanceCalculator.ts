@@ -9,7 +9,6 @@ import {
     ModPrecise,
     ErrorFunction,
     ModScoreV2,
-    NormalDistribution,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -68,35 +67,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     /**
-     * The "true" deviation ability of the score.
-     *
-     * This is estimated from deviation with respect to the amount of circles of the beatmap. Using
-     * {@link https://en.wikipedia.org/wiki/Hypergeometric_distribution hypergeometric distribution},
-     * the amount of retries required to get a "desired run" in a beatmap is estimated.
-     *
-     * The metric is then used to estimate the "true" deviation ability of the player using the
-     * {@link https://en.wikipedia.org/wiki/Quantile_function inverse cumulative density function} of
-     * {@link https://en.wikipedia.org/wiki/Normal_distribution Gaussian distribution}.
-     */
-    get deviationAbility(): number {
-        return this._deviationAbility;
-    }
-
-    /**
-     * The "true" tap deviation ability of the score.
-     *
-     * This is estimated from deviation with respect to the amount of circles of the beatmap. Using
-     * {@link https://en.wikipedia.org/wiki/Hypergeometric_distribution hypergeometric distribution},
-     * the amount of retries required to get a "desired run" in a beatmap is estimated, which is then
-     * used to estimate the "true" deviation ability of the player using the
-     * {@link https://en.wikipedia.org/wiki/Quantile_function inverse cumulative density function} of
-     * {@link https://en.wikipedia.org/wiki/Normal_distribution Gaussian distribution}.
-     */
-    get tapDeviationAbility(): number {
-        return this._tapDeviationAbility;
-    }
-
-    /**
      * The penalty used to penalize the aim performance value.
      *
      * Can be properly obtained by analyzing the replay associated with the score.
@@ -135,9 +105,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
 
-    private _deviationAbility: number = 0;
-    private _tapDeviationAbility: number = 0;
-
     /**
      * @param difficultyAttributes The difficulty attributes to calculate.
      */
@@ -152,11 +119,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The tap and total performance value will be recalculated afterwards.
      *
-     * @param value The tap penalty value. Must be greater than 0.
+     * @param value The tap penalty value. Must be greater than or equal to 1.
      */
     applyTapPenalty(value: number): void {
-        if (value <= 0) {
-            throw new RangeError("New tap penalty must be greater than zero.");
+        if (value < 1) {
+            throw new RangeError(
+                "New tap penalty must be greater than or equal to one."
+            );
         }
 
         if (value === this._tapPenalty) {
@@ -174,12 +143,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The aim and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be greater than 0.
+     * @param value The slider cheese penalty value. Must be between than 0 and 1.
      */
     applyAimSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New aim slider cheese penalty must be greater than zero."
+                "New aim slider cheese penalty must be greater than or equal to zero."
+            );
+        }
+
+        if (value > 1) {
+            throw new RangeError(
+                "New aim slider cheese penalty must be less than or equal to one."
             );
         }
 
@@ -198,12 +173,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The flashlight and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be greater than 0.
+     * @param value The slider cheese penalty value. Must be between 0 and 1.
      */
     applyFlashlightSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New flashlight slider cheese penalty must be greater than zero."
+                "New flashlight slider cheese penalty must be greater than or equal to zero."
+            );
+        }
+
+        if (value > 1) {
+            throw new RangeError(
+                "New flashlight slider cheese penalty must be less than or equal to one."
             );
         }
 
@@ -222,12 +203,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      *
      * The visual and total performance value will be recalculated afterwards.
      *
-     * @param value The slider cheese penalty value. Must be greater than 0.
+     * @param value The slider cheese penalty value. Must be between 0 and 1.
      */
     applyVisualSliderCheesePenalty(value: number): void {
-        if (value <= 0) {
+        if (value < 0) {
             throw new RangeError(
-                "New visual slider cheese penalty must be greater than zero."
+                "New visual slider cheese penalty must be greater than or equal to zero."
+            );
+        }
+
+        if (value > 1) {
+            throw new RangeError(
+                "New visual slider cheese penalty must be less than or equal to one."
             );
         }
 
@@ -244,13 +231,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     protected override calculateValues(): void {
         this._deviation = this.calculateDeviation();
         this._tapDeviation = this.calculateTapDeviation();
-
-        this._deviationAbility = this.calculateDeviationAbility(
-            this._deviation
-        );
-        this._tapDeviationAbility = this.calculateDeviationAbility(
-            this._tapDeviation
-        );
 
         this.calculateAimValue();
         this.calculateTapValue();
@@ -289,11 +269,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAimValue(): void {
         this.aim = this.baseValue(
-            Math.pow(
-                this.difficultyAttributes.aimDifficulty /
-                    this._aimSliderCheesePenalty,
-                0.8
-            )
+            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8)
         );
 
         if (this.effectiveMissCount > 0) {
@@ -317,13 +293,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
 
+        // Scale the aim value with slider cheese penalty.
+        this.aim *= this._aimSliderCheesePenalty;
+
         // Scale the aim value with deviation.
         this.aim *=
             1.05 *
             Math.pow(
-                ErrorFunction.erf(
-                    32.0625 / (Math.SQRT2 * this._deviationAbility)
-                ),
+                ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
                 1.5
             );
     }
@@ -356,9 +333,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(
-                    25 / (Math.SQRT2 * this._tapDeviationAbility)
-                ),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._tapDeviation)),
                 1.25
             );
 
@@ -381,9 +356,21 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.accuracy =
             650 *
-            Math.exp(-0.125 * this._deviationAbility) *
+            Math.exp(-0.125 * this._deviation) *
             // The following function is to give higher reward for deviations lower than 25 (250 UR).
-            (15 / (this._deviationAbility + 15) + 0.65);
+            (15 / (this._deviation + 15) + 0.65);
+
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
+        const ncircles: number = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModScoreV2
+        )
+            ? this.totalHits - this.difficultyAttributes.spinnerCount
+            : this.difficultyAttributes.hitCircleCount;
+
+        this.accuracy *= Math.min(
+            1.15,
+            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000))
+        );
 
         // Scale the accuracy value with rhythm complexity.
         this.accuracy *=
@@ -417,11 +404,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         this.flashlight =
-            Math.pow(
-                this.difficultyAttributes.flashlightDifficulty /
-                    this._flashlightSliderCheesePenalty,
-                1.6
-            ) * 25;
+            Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
         // Combo scaling
         this.flashlight *= this.comboPenalty;
@@ -448,9 +431,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
                 : 0);
 
+        // Scale the flashlight value with slider cheese penalty.
+        this.flashlight *= this._flashlightSliderCheesePenalty;
+
         // Scale the flashlight value with deviation.
         this.flashlight *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._deviationAbility)
+            50 / (Math.SQRT2 * this._deviation)
         );
     }
 
@@ -459,11 +445,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateVisualValue(): void {
         this.visual =
-            Math.pow(
-                this.difficultyAttributes.visualDifficulty /
-                    this._visualSliderCheesePenalty,
-                1.6
-            ) * 22.5;
+            Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
@@ -490,11 +472,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
         );
 
+        // Scale the visual value with slider cheese penalty.
+        this.visual *= this._visualSliderCheesePenalty;
+
         // Scale the visual value with deviation.
         this.visual *=
             1.065 *
             Math.pow(
-                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviationAbility)),
+                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
                 1.75
             );
     }
@@ -596,12 +581,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         ).hitWindowFor300();
         const relevantTotalDiff: number =
             this.totalHits - this.difficultyAttributes.speedNoteCount;
-        const relevantCountGreat = Math.max(
+        const relevantCountGreat: number = Math.max(
             0,
             this.computedAccuracy.n300 - relevantTotalDiff
         );
 
-        if (relevantCountGreat == 0) {
+        if (relevantCountGreat === 0) {
             return Number.POSITIVE_INFINITY;
         }
 
@@ -610,36 +595,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         return (
             hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
-        );
-    }
-
-    /**
-     * Estimates the player's "true UR ability".
-     *
-     * This is done by estimating the expected number of retries required to
-     * get a "desired run" under a hypergeometric distribution, which is then used
-     * to estimate the player's "true UR ability" with beatmap statistics in mind.
-     *
-     * @param deviation The deviation of the score.
-     */
-    private calculateDeviationAbility(deviation: number): number {
-        const accuracyHits: number = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2
-        )
-            ? this.totalHits - this.difficultyAttributes.spinnerCount
-            : this.difficultyAttributes.hitCircleCount;
-
-        // It is assumed for a worst case scenario that a player will "retry" a map 25000/n times where n is the circle count.
-        // This is the expected significance level of a score a player will achieve after retrying that amount.
-        // As an example, for a beatmap with 100 circles, the significance level is 0.996015936255, meaning
-        // that we expect a player to realistically "go for" a score that beats out 99.6% of their scores.
-        const expectedRetries: number =
-            1 - 1 / (Math.max(1, 25000 / accuracyHits) + 1);
-
-        return NormalDistribution.invCDF(
-            deviation,
-            deviation / Math.sqrt(2 * accuracyHits),
-            expectedRetries
         );
     }
 

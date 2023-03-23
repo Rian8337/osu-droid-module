@@ -90,6 +90,8 @@ export abstract class DifficultyCalculator {
             oldStatistics: options?.stats?.oldStatistics ?? false,
         }).calculate({ mode: this.mode });
 
+        this.preProcess();
+
         this.populateDifficultyAttributes();
         this.generateDifficultyHitObjects();
 
@@ -113,6 +115,13 @@ export abstract class DifficultyCalculator {
                 preempt: MapStats.arToMS(this.stats.ar!),
             })
         );
+    }
+
+    /**
+     * Performs some pre-processing before proceeding with difficulty calculation.
+     */
+    protected preProcess(): void {
+        void 0;
     }
 
     /**

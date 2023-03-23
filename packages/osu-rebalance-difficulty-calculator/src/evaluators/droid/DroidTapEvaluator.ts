@@ -1,4 +1,4 @@
-import { Spinner, MathUtils } from "@rian8337/osu-base";
+import { Spinner, MathUtils, ErrorFunction } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
@@ -56,10 +56,10 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
 
             // Cap deltatime to the OD 300 hitwindow.
-            // 0.58 is derived from making sure 260 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.91 limits the effect of the cap.
+            // 0.63 is derived from making sure 240 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.9 limits the effect of the cap.
             strainTime /= MathUtils.clamp(
-                strainTime / greatWindowFull / 0.58,
-                0.91,
+                strainTime / greatWindowFull / 0.63,
+                0.9,
                 1
             );
         }
@@ -68,7 +68,11 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
 
         if (strainTime < this.minSpeedBonus) {
             speedBonus +=
-                0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
+                0.75 *
+                Math.pow(
+                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
+                    2
+                );
         }
 
         return (speedBonus * doubletapness) / strainTime;
