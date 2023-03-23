@@ -40,6 +40,8 @@ export class DifficultyControlPoint extends ControlPoint {
             ", " +
             "speed multiplier: " +
             this.speedMultiplier.toFixed(2) +
+            ", generate ticks: " +
+            this.generateTicks +
             " }"
         );
     }
