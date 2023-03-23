@@ -70,7 +70,7 @@ describe("Test slider position", () => {
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedPosition(mode)
@@ -135,7 +135,7 @@ describe("Test slider position", () => {
 
                 const scale =
                     mode === Modes.droid ? slider.droidScale : slider.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
                     .getStackedEndPosition(mode)

@@ -36,7 +36,7 @@ describe("Test circle position", () => {
 
                 const scale =
                     mode === Modes.droid ? circle.droidScale : circle.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedPosition(mode)
@@ -101,7 +101,7 @@ describe("Test circle position", () => {
 
                 const scale =
                     mode === Modes.droid ? circle.droidScale : circle.osuScale;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedEndPosition(mode)
