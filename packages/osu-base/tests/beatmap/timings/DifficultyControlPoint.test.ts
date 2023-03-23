@@ -40,6 +40,6 @@ test("Test string concatenation", () => {
     });
 
     expect(timingPoint.toString()).toBe(
-        "{ time: 1000, speed multiplier: 1.00 }"
+        "{ time: 1000, speed multiplier: 1.00, generate ticks: true }"
     );
 });
