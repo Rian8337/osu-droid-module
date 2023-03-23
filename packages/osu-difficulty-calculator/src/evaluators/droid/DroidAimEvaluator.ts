@@ -230,8 +230,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
 
         // Add in additional slider velocity bonus.
         if (withSliders) {
-            strain +=
-                Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
+            strain += sliderBonus * this.sliderMultiplier;
         }
 
         return strain;
