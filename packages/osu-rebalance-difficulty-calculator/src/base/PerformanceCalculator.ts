@@ -222,7 +222,7 @@ export abstract class PerformanceCalculator {
                 this.difficultyAttributes.sliderCount * 0.15;
             const estimateSliderEndsDropped: number = MathUtils.clamp(
                 Math.min(
-                    this.computedAccuracy.n300 +
+                    this.computedAccuracy.n100 +
                         this.computedAccuracy.n50 +
                         this.computedAccuracy.nmiss,
                     maxCombo - combo

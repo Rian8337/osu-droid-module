@@ -125,7 +125,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         this.aim *= this.sliderNerfFactor;
 
         // Scale the aim value with accuracy.
-        this.aim *= this.computedAccuracy.value(this.totalHits);
+        this.aim *= this.computedAccuracy.value();
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
@@ -202,7 +202,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
                 0,
                 countMeh - Math.max(0, relevantTotalDiff - countGreat - countOk)
             ),
-            nmiss: this.effectiveMissCount,
         });
 
         // Scale the speed value with accuracy and OD.
@@ -211,8 +210,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
                 Math.pow(this.difficultyAttributes.overallDifficulty, 2) /
                     750) *
             Math.pow(
-                (this.computedAccuracy.value(this.totalHits) +
-                    relevantAccuracy.value()) /
+                (this.computedAccuracy.value() +
+                    relevantAccuracy.value(
+                        this.difficultyAttributes.speedNoteCount
+                    )) /
                     2,
                 (14.5 -
                     Math.max(this.difficultyAttributes.overallDifficulty, 8)) /
@@ -257,7 +258,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         this.accuracy =
             Math.pow(1.52163, this.difficultyAttributes.overallDifficulty) *
-            Math.pow(realAccuracy.value(ncircles), 24) *
+            Math.pow(realAccuracy.value(), 24) *
             2.83;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
@@ -320,8 +321,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
                 : 0);
 
         // Scale the flashlight value with accuracy slightly.
-        this.flashlight *=
-            0.5 + this.computedAccuracy.value(this.totalHits) / 2;
+        this.flashlight *= 0.5 + this.computedAccuracy.value() / 2;
 
         // It is also important to consider accuracy difficulty when doing that.
         const odScaling: number =
