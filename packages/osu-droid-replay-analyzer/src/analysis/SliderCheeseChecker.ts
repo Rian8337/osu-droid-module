@@ -197,48 +197,37 @@ export class SliderCheeseChecker {
                         }
                     }
 
+                    // Normally, we check if there are cursor presses within the group's active time.
+                    // However, some funky workarounds are used throughout the game for replays, so
+                    // for the time being we only check for cursor distances across the group.
                     const { allOccurrences } = group;
-                    // Check if there are cursor presses within the group's active time.
-                    for (let k = 0; k < this.data.cursorMovement.length; ++k) {
-                        // Skip the current cursor index.
-                        if (k === i) {
-                            continue;
-                        }
 
-                        const cursorGroups: CursorOccurrenceGroup[] =
-                            this.data.cursorMovement[k].occurrenceGroups;
-                        for (const cursorGroup of cursorGroups) {
-                            if (cursorGroup.startTime < minTimeLimit) {
-                                continue;
-                            }
+                    for (let k = 1; k < allOccurrences.length; ++k) {
+                        const occurrence: CursorOccurrence = allOccurrences[k];
+                        const prevOccurrence: CursorOccurrence =
+                            allOccurrences[k - 1];
 
-                            if (cursorGroup.startTime > maxTimeLimit) {
+                        let distance: number = Number.POSITIVE_INFINITY;
+
+                        switch (occurrence.id) {
+                            case MovementType.up:
+                                distance =
+                                    prevOccurrence.position.getDistance(
+                                        objectStartPosition
+                                    );
                                 break;
-                            }
-
-                            const cursorIndex: number =
-                                allOccurrences.findIndex(
-                                    (v) =>
-                                        v.time >= cursorGroup.startTime &&
-                                        v.time <= maxTimeLimit
-                                );
-                            if (cursorIndex === -1) {
-                                continue;
-                            }
-
-                            const occurrence: CursorOccurrence =
-                                allOccurrences[cursorIndex];
-                            const prevOccurrence: CursorOccurrence =
-                                allOccurrences[cursorIndex - 1];
-
-                            let distance: number = Number.POSITIVE_INFINITY;
-
-                            // We will not consider presses here as it has already been processed above.
-                            switch (occurrence.id) {
-                                case MovementType.move: {
+                            case MovementType.move:
+                                for (
+                                    let mSecPassed = Math.max(
+                                        prevOccurrence.time,
+                                        minTimeLimit
+                                    );
+                                    mSecPassed <=
+                                    Math.min(occurrence.time, maxTimeLimit);
+                                    ++mSecPassed
+                                ) {
                                     const t: number =
-                                        (cursorGroup.startTime -
-                                            prevOccurrence.time) /
+                                        (mSecPassed - prevOccurrence.time) /
                                         (occurrence.time - prevOccurrence.time);
 
                                     const cursorPosition: Vector2 = new Vector2(
@@ -258,23 +247,28 @@ export class SliderCheeseChecker {
                                         cursorPosition.getDistance(
                                             objectStartPosition
                                         );
-                                    break;
+
+                                    if (closestDistance > distance) {
+                                        closestDistance = distance;
+                                        closestIndex = j;
+                                    }
+
+                                    if (
+                                        closestDistance <=
+                                        acceptableRadius / 2
+                                    ) {
+                                        break;
+                                    }
                                 }
-                                case MovementType.up:
-                                    distance =
-                                        prevOccurrence.position.getDistance(
-                                            objectStartPosition
-                                        );
-                            }
+                        }
 
-                            if (closestDistance > distance) {
-                                closestDistance = distance;
-                                closestIndex = j;
-                            }
+                        if (closestDistance > distance) {
+                            closestDistance = distance;
+                            closestIndex = j;
+                        }
 
-                            if (closestDistance <= acceptableRadius / 2) {
-                                break;
-                            }
+                        if (closestDistance <= acceptableRadius / 2) {
+                            break;
                         }
                     }
                 }
@@ -294,6 +288,14 @@ export class SliderCheeseChecker {
             const closestDistance: number = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius / 2) {
+                console.log(
+                    "Index",
+                    difficultSlider.index,
+                    "was cheesed with rating",
+                    difficultSlider.difficultyRating,
+                    "time",
+                    object.startTime
+                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
@@ -386,6 +388,14 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
+                console.log(
+                    "Index",
+                    difficultSlider.index,
+                    "was cheesed with rating",
+                    difficultSlider.difficultyRating,
+                    "time",
+                    object.startTime
+                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
             }
         }
