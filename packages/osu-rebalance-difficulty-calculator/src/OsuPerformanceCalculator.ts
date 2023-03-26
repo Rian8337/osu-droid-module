@@ -258,7 +258,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         this.accuracy =
             Math.pow(1.52163, this.difficultyAttributes.overallDifficulty) *
-            Math.pow(realAccuracy.value(), 24) *
+            // It is possible to reach a negative accuracy with this formula. Cap it at zero - zero points.
+            Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
             2.83;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
