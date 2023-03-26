@@ -288,14 +288,6 @@ export class SliderCheeseChecker {
             const closestDistance: number = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius / 2) {
-                console.log(
-                    "Index",
-                    difficultSlider.index,
-                    "was cheesed with rating",
-                    difficultSlider.difficultyRating,
-                    "time",
-                    object.startTime
-                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
@@ -388,14 +380,6 @@ export class SliderCheeseChecker {
             }
 
             if (isCheesed) {
-                console.log(
-                    "Index",
-                    difficultSlider.index,
-                    "was cheesed with rating",
-                    difficultSlider.difficultyRating,
-                    "time",
-                    object.startTime
-                );
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
             }
         }
