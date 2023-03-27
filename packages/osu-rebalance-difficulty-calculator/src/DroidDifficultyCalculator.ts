@@ -480,6 +480,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     current.originalTapStrain < threeFingerStrainThreshold
                 ) {
                     inSpeedSection = false;
+
+                    // Ignore sections that don't meet object count requirement.
+                    if (i - newFirstObjectIndex < minSectionObjectCount) {
+                        continue;
+                    }
+
                     this.attributes.possibleThreeFingeredSections.push({
                         firstObjectIndex: newFirstObjectIndex,
                         lastObjectIndex: i,
@@ -492,7 +498,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             }
 
             // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-            if (inSpeedSection) {
+            // Ignore sections that don't meet object count requirement.
+            if (
+                inSpeedSection &&
+                section.lastObjectIndex - newFirstObjectIndex >=
+                    minSectionObjectCount
+            ) {
                 this.attributes.possibleThreeFingeredSections.push({
                     firstObjectIndex: newFirstObjectIndex,
                     lastObjectIndex: section.lastObjectIndex,
