@@ -333,8 +333,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     private calculateAimAttributes(): void {
         const objectStrains: number[] = [];
         let maxStrain: number = 0;
-
-        // Take the top 15% most difficult sliders based on velocity.
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
         for (let i = 0; i < this.objects.length; ++i) {
@@ -349,15 +347,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     index: i,
                     velocity: velocity,
                 });
-
-                topDifficultSliders.sort((a, b) => b.velocity - a.velocity);
-
-                while (
-                    topDifficultSliders.length >
-                    Math.ceil(0.15 * this.beatmap.hitObjects.sliders)
-                ) {
-                    topDifficultSliders.pop();
-                }
             }
         }
 
@@ -375,10 +364,27 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         );
 
         for (const slider of topDifficultSliders) {
-            this.attributes.difficultSliders.push({
-                index: slider.index,
-                difficultyRating: slider.velocity / velocitySum,
-            });
+            const difficultyRating: number = slider.velocity / velocitySum;
+
+            // Only consider sliders that are fast enough.
+            if (difficultyRating > 0.02) {
+                this.attributes.difficultSliders.push({
+                    index: slider.index,
+                    difficultyRating: slider.velocity / velocitySum,
+                });
+            }
+        }
+
+        this.attributes.difficultSliders.sort(
+            (a, b) => b.difficultyRating - a.difficultyRating
+        );
+
+        // Take the top 15% most difficult sliders.
+        while (
+            this.attributes.difficultSliders.length >
+            Math.ceil(0.15 * this.beatmap.hitObjects.sliders)
+        ) {
+            this.attributes.difficultSliders.pop();
         }
     }
 
