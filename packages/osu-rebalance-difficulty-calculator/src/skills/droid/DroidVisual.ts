@@ -32,7 +32,7 @@ export class DroidVisual extends DroidSkill {
                 this.withsliders
             ) * this.skillMultiplier;
 
-        return this.currentStrain;
+        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 5);
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
