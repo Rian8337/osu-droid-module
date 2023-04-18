@@ -28,7 +28,8 @@ export abstract class DroidVisualEvaluator {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(true)
+            current.isOverlapping(true) ||
+            current.index === 0
         ) {
             return 0;
         }
