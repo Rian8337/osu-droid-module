@@ -272,23 +272,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8)
         );
 
-        if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects.
-            // Default a 3% reduction for any # of misses.
-            this.aim *=
-                0.97 *
-                Math.pow(
-                    1 -
-                        Math.pow(
-                            this.effectiveMissCount / this.totalHits,
-                            0.775
-                        ),
-                    this.effectiveMissCount
-                );
-        }
-
-        // Combo scaling
-        this.aim *= this.comboPenalty;
+        this.aim *= this.calculateMissPenalty(
+            this.difficultyAttributes.aimDifficultStrainCount
+        );
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -311,6 +297,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private calculateTapValue(): void {
         this.tap = this.baseValue(this.difficultyAttributes.tapDifficulty);
 
+        this.tap *= this.calculateMissPenalty(
+            this.difficultyAttributes.tapDifficultStrainCount
+        );
         if (this.effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects.
             // Default a 3% reduction for any # of misses.
@@ -325,9 +314,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     Math.pow(this.effectiveMissCount, 0.875)
                 );
         }
-
-        // Combo scaling
-        this.tap *= this.comboPenalty;
 
         // Scale the tap value with tap deviation.
         this.tap *=
@@ -406,22 +392,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.flashlight =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        // Combo scaling
-        this.flashlight *= this.comboPenalty;
-
-        if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            this.flashlight *=
-                0.97 *
-                Math.pow(
-                    1 -
-                        Math.pow(
-                            this.effectiveMissCount / this.totalHits,
-                            0.775
-                        ),
-                    Math.pow(this.effectiveMissCount, 0.875)
-                );
-        }
+        this.flashlight *= this.calculateMissPenalty(
+            this.difficultyAttributes.flashlightDifficultStrainCount
+        );
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
         this.flashlight *=
@@ -447,22 +420,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.visual =
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
-        if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
-            this.visual *=
-                0.97 *
-                Math.pow(
-                    1 -
-                        Math.pow(
-                            this.effectiveMissCount / this.totalHits,
-                            0.775
-                        ),
-                    this.effectiveMissCount
-                );
-        }
-
-        // Combo scaling
-        this.visual *= this.comboPenalty;
+        this.visual *= this.calculateMissPenalty(
+            this.difficultyAttributes.visualDifficultStrainCount
+        );
 
         // Scale the visual value with object count to penalize short maps.
         this.visual *= Math.min(
@@ -482,6 +442,25 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
                 1.75
             );
+    }
+
+    /**
+     * Calculates miss penalty.
+     *
+     * Miss penalty assumes that a player will miss on the hardest parts of a map,
+     * so we use the amount of relatively difficult sections to adjust miss penalty
+     * to make it more punishing on maps with lower amount of hard sections.
+     */
+    private calculateMissPenalty(difficultStrainCount: number): number {
+        if (this.effectiveMissCount === 0) {
+            return 1;
+        }
+
+        return (
+            0.94 /
+            (this.effectiveMissCount / (2 * Math.sqrt(difficultStrainCount)) +
+                1)
+        );
     }
 
     /**

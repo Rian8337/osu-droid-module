@@ -18,4 +18,24 @@ export interface DroidDifficultyAttributes extends DifficultyAttributes {
      * The difficulty corresponding to the visual skill.
      */
     visualDifficulty: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the aim skill.
+     */
+    aimDifficultStrainCount: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the tap skill.
+     */
+    tapDifficultStrainCount: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the flashlight skill.
+     */
+    flashlightDifficultStrainCount: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the visual skill.
+     */
+    visualDifficultStrainCount: number;
 }

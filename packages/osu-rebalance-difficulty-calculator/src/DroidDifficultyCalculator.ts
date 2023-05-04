@@ -68,6 +68,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         hitCircleCount: 0,
         sliderCount: 0,
         spinnerCount: 0,
+        aimDifficultStrainCount: 0,
+        tapDifficultStrainCount: 0,
+        flashlightDifficultStrainCount: 0,
+        visualDifficultStrainCount: 0,
         flashlightSliderFactor: 0,
         visualSliderFactor: 0,
         possibleThreeFingeredSections: [],
@@ -356,6 +360,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
                 0
             );
+            this.attributes.aimDifficultStrainCount = objectStrains.reduce(
+                (total, next) => total + Math.pow(next / maxStrain, 4),
+                0
+            );
         }
 
         const velocitySum: number = topDifficultSliders.reduce(
@@ -521,6 +529,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
                 0
             );
+            this.attributes.tapDifficultStrainCount = objectStrains.reduce(
+                (total, next) => total + Math.pow(next / maxStrain, 4),
+                0
+            );
         }
     }
 
@@ -587,6 +599,19 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             this.flashlight *= 0.7;
         }
 
+        const objectStrains: number[] = this.objects.map(
+            (v) => v.flashlightStrainWithSliders
+        );
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.flashlightDifficultStrainCount =
+                objectStrains.reduce(
+                    (total, next) => total + Math.pow(next / maxStrain, 4),
+                    0
+                );
+        }
+
         this.attributes.flashlightDifficulty = this.flashlight;
     }
 
@@ -610,6 +635,18 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             this.attributes.visualSliderFactor =
                 this.starValue(visualSkillWithoutSliders.difficultyValue()) /
                 this.visual;
+        }
+
+        const objectStrains: number[] = this.objects.map(
+            (v) => v.flashlightStrainWithSliders
+        );
+        const maxStrain: number = Math.max(...objectStrains);
+
+        if (maxStrain) {
+            this.attributes.visualDifficultStrainCount = objectStrains.reduce(
+                (total, next) => total + Math.pow(next / maxStrain, 4),
+                0
+            );
         }
     }
 }
