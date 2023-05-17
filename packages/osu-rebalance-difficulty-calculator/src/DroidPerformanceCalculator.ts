@@ -4,7 +4,6 @@ import {
     Modes,
     Utils,
     OsuHitWindow,
-    MapStats,
     DroidHitWindow,
     ModPrecise,
     ErrorFunction,
@@ -487,11 +486,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         ).hitWindowFor300();
 
         // Obtain the 50 hit window for droid.
-        const clockRate: number = new MapStats({
-            mods: this.difficultyAttributes.mods,
-        }).calculate().speedMultiplier;
-
-        const realHitWindow300: number = hitWindow300 * clockRate;
+        const realHitWindow300: number =
+            hitWindow300 * this.difficultyAttributes.clockRate;
         const droidHitWindow: DroidHitWindow = new DroidHitWindow(
             OsuHitWindow.hitWindow300ToOD(realHitWindow300)
         );
@@ -500,7 +496,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 this.difficultyAttributes.mods.some(
                     (m) => m instanceof ModPrecise
                 )
-            ) / clockRate;
+            ) / this.difficultyAttributes.clockRate;
 
         const greatCountOnCircles: number =
             this.difficultyAttributes.hitCircleCount -

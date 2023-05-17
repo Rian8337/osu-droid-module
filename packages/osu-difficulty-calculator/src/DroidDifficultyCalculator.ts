@@ -63,6 +63,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         flashlightDifficulty: 0,
         speedNoteCount: 0,
         sliderFactor: 0,
+        clockRate: 1,
         approachRate: 0,
         overallDifficulty: 0,
         hitCircleCount: 0,

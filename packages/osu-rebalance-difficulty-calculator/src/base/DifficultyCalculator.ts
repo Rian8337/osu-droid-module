@@ -173,6 +173,7 @@ export abstract class DifficultyCalculator {
         this.attributes.overallDifficulty = this.stats.od!;
         this.attributes.sliderCount = this.beatmap.hitObjects.sliders;
         this.attributes.spinnerCount = this.beatmap.hitObjects.spinners;
+        this.attributes.clockRate = this.stats.speedMultiplier;
     }
 
     /**
