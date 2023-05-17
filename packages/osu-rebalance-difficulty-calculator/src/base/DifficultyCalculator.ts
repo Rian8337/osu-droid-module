@@ -50,7 +50,6 @@ export abstract class DifficultyCalculator {
      */
     abstract readonly attributes: DifficultyAttributes;
 
-    protected readonly sectionLength: number = 400;
     protected abstract readonly difficultyMultiplier: number;
     protected abstract readonly mode: Modes;
 
