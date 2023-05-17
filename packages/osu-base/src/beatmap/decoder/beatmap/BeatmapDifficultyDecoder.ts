@@ -1,3 +1,4 @@
+import { MathUtils } from "../../../mathutil/MathUtils";
 import { Beatmap } from "../../Beatmap";
 import { SectionDecoder } from "../SectionDecoder";
 
@@ -30,13 +31,17 @@ export class BeatmapDifficultyDecoder extends SectionDecoder<Beatmap> {
                 );
                 break;
             case "SliderMultiplier":
-                this.target.difficulty.sliderMultiplier = this.tryParseFloat(
-                    this.setPosition(p[1])
+                this.target.difficulty.sliderMultiplier = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0.4,
+                    3.6
                 );
                 break;
             case "SliderTickRate":
-                this.target.difficulty.sliderTickRate = this.tryParseFloat(
-                    this.setPosition(p[1])
+                this.target.difficulty.sliderTickRate = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0.5,
+                    8
                 );
         }
     }
