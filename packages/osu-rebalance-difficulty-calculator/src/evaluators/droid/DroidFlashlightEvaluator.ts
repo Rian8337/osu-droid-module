@@ -74,8 +74,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod,
-                                Modes.droid
+                                isHiddenMod
                             ));
 
                 result +=
