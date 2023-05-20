@@ -56,9 +56,9 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
 
             // Cap deltatime to the OD 300 hitwindow.
-            // 0.63 is derived from making sure 240 BPM 1/4 OD5 streams aren't nerfed harshly, whilst 0.9 limits the effect of the cap.
+            // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.9 limits the effect of the cap.
             strainTime /= MathUtils.clamp(
-                strainTime / greatWindowFull / 0.63,
+                strainTime / greatWindowFull / 0.93,
                 0.9,
                 1
             );

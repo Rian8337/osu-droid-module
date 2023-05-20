@@ -299,20 +299,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *= this.calculateMissPenalty(
             this.difficultyAttributes.tapDifficultStrainCount
         );
-        if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects.
-            // Default a 3% reduction for any # of misses.
-            this.tap *=
-                0.97 *
-                Math.pow(
-                    1 -
-                        Math.pow(
-                            this.effectiveMissCount / this.totalHits,
-                            0.775
-                        ),
-                    Math.pow(this.effectiveMissCount, 0.875)
-                );
-        }
 
         // Scale the tap value with tap deviation.
         this.tap *=
