@@ -327,9 +327,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.accuracy =
             650 *
-            Math.exp(-0.125 * this._deviation) *
+            Math.exp(-0.15 * this._deviation) *
             // The following function is to give higher reward for deviations lower than 25 (250 UR).
-            (15 / (this._deviation + 15) + 0.65);
+            (10 / (this._deviation + 10) + 0.65);
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         const ncircles: number = this.difficultyAttributes.mods.some(
