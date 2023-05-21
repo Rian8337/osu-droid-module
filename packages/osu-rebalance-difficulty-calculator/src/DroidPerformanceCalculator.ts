@@ -8,7 +8,6 @@ import {
     ModPrecise,
     ErrorFunction,
     ModScoreV2,
-    Accuracy,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -282,14 +281,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the aim value with slider cheese penalty.
         this.aim *= this._aimSliderCheesePenalty;
 
-        // Scale the aim value with accuracy and OD.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
+        // Scale the aim value with deviation.
         this.aim *=
-            (0.98 + (od > 0 ? odScaling : -odScaling)) *
+            1.05 *
             Math.pow(
-                this.computedAccuracy.value(this.totalHits),
-                (14 - Math.max(od, 2.5)) / 2
+                ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
+                1.5
             );
     }
 
@@ -303,46 +300,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.tapDifficultStrainCount
         );
 
-        // Calculate accuracy assuming the worst case scenario.
-        const countGreat: number = this.computedAccuracy.n300;
-        const countOk: number = this.computedAccuracy.n100;
-        const countMeh: number = this.computedAccuracy.n50;
-
-        const relevantTotalDiff: number =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
-
-        const relevantAccuracy: Accuracy = new Accuracy({
-            n300: Math.max(0, countGreat - relevantTotalDiff),
-            n100: Math.max(
-                0,
-                countOk - Math.max(0, relevantTotalDiff - countGreat)
-            ),
-            n50: Math.max(
-                0,
-                countMeh - Math.max(0, relevantTotalDiff - countGreat - countOk)
-            ),
-            nmiss: this.effectiveMissCount,
-        });
-
-        // Scale the tap value with accuracy and OD.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 750;
+        // Scale the tap value with tap deviation.
         this.tap *=
-            (0.95 + (od > 0 ? odScaling : -odScaling)) *
+            1.1 *
             Math.pow(
-                (this.computedAccuracy.value(this.totalHits) +
-                    relevantAccuracy.value(
-                        this.difficultyAttributes.speedNoteCount
-                    )) /
-                    2,
-                (14 - Math.max(od, 2.5)) / 2
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._tapDeviation)),
+                1.25
             );
-
-        // Scale the tap value with # of 50s to punish doubletapping.
-        this.tap *= Math.pow(
-            0.99,
-            Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500)
-        );
 
         // Scale the tap value with three-fingered penalty.
         this.tap /= this._tapPenalty;
@@ -361,29 +325,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
+        this.accuracy =
+            650 *
+            Math.exp(-0.1 * this._deviation) *
+            // The following function is to give higher reward for deviations lower than 25 (250 UR).
+            (15 / (this._deviation + 15) + 0.65);
+
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         const ncircles: number = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModScoreV2
         )
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
-
-        if (ncircles === 0) {
-            this.accuracy = 0;
-
-            return;
-        }
-
-        const realAccuracy: Accuracy = new Accuracy({
-            ...this.computedAccuracy,
-            n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
-        });
-
-        // Lots of arbitrary values from testing.
-        // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
-        this.accuracy =
-            Math.pow(1.4, this.difficultyAttributes.overallDifficulty) *
-            Math.pow(realAccuracy.value(ncircles), 12) *
-            10;
 
         this.accuracy *= Math.min(
             1.15,
@@ -439,14 +392,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the flashlight value with slider cheese penalty.
         this.flashlight *= this._flashlightSliderCheesePenalty;
 
-        // Scale the flashlight value with accuracy slightly.
-        this.flashlight *=
-            0.5 + this.computedAccuracy.value(this.totalHits) / 2;
-
-        // It is also important to consider accuracy difficulty when doing that.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
-        this.flashlight *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        // Scale the flashlight value with deviation.
+        this.flashlight *= ErrorFunction.erf(
+            50 / (Math.SQRT2 * this._deviation)
+        );
     }
 
     /**
@@ -471,13 +420,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the visual value with slider cheese penalty.
         this.visual *= this._visualSliderCheesePenalty;
 
-        // Scale the visual value with accuracy harshly.
-        this.visual *= Math.pow(this.computedAccuracy.value(), 8);
-
-        // It is also important to consider accuracy difficulty when doing that.
-        const od: number = this.difficultyAttributes.overallDifficulty;
-        const odScaling: number = Math.pow(od, 2) / 2500;
-        this.visual *= 0.98 + (od >= 0 ? odScaling : -odScaling);
+        // Scale the visual value with deviation.
+        this.visual *=
+            1.065 *
+            Math.pow(
+                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
+                1.75
+            );
     }
 
     /**
