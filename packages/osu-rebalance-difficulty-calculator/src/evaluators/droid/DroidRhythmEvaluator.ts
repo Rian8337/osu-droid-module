@@ -97,9 +97,9 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6
+                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.4
                 ) /
-                    (greatWindow * 0.6)
+                    (greatWindow * 0.4)
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
