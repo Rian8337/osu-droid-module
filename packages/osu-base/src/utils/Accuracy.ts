@@ -159,4 +159,19 @@ export class Accuracy implements AccuracyInformation {
         const res = (n300 * 6 + this.n100 * 2 + this.n50) / (nobjects * 6);
         return MathUtils.clamp(res, 0, 1);
     }
+
+    /**
+     * Determines whether this accuracy instance is equal to another instance.
+     *
+     * @param other The other accuracy instance.
+     * @returns Whether both instances are equal.
+     */
+    equals(other: Accuracy): boolean {
+        return (
+            this.n300 === other.n300 &&
+            this.n100 === other.n100 &&
+            this.n50 === other.n50 &&
+            this.nmiss === other.nmiss
+        );
+    }
 }
