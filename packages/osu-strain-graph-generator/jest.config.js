@@ -2,7 +2,7 @@
 const base = require("../../jest.config.base.js");
 const pack = require("./package.json");
 
-/** @type {import('ts-jest/dist/types').InitialOptionsTsJest} */
+/** @type {import('ts-jest/dist/types').JestConfigWithTsJest} */
 module.exports = {
     ...base,
     name: pack.name,
