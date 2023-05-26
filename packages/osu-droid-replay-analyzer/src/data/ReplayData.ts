@@ -67,12 +67,8 @@ export interface ReplayInformation {
 
     /**
      * The accuracy achieved in the play.
-     *
-     * Only available in replay v3 or later.
-     *
-     * If `map` is defined in analyzer (either in `Beatmap` or `StarRating` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
-    accuracy?: Accuracy;
+    accuracy: Accuracy;
 
     /**
      * Whether or not the play achieved the beatmap's maximum combo.
@@ -97,12 +93,8 @@ export interface ReplayInformation {
 
     /**
      * The achieved rank in the play.
-     *
-     * Only available in replay v3 or later.
-     *
-     * If `map` is defined in analyzer (either in `Beatmap` or `StarRating` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
-    rank?: string;
+    rank: string;
 
     /**
      * Enabled modifications during the play in osu!standard format.

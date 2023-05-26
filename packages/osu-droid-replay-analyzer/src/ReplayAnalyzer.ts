@@ -265,38 +265,20 @@ export class ReplayAnalyzer {
             hash: rawObject[3],
             cursorMovement: [],
             hitObjectData: [],
+            accuracy: new Accuracy({ n300: 0 }),
+            rank: "",
         };
 
-        if (resultObject.replayVersion >= 3) {
-            resultObject.time = new Date(
-                Number(rawObject[4].readBigUInt64BE(0))
-            );
-            resultObject.hit300k = rawObject[4].readInt32BE(8);
-            resultObject.hit100k = rawObject[4].readInt32BE(16);
-            resultObject.score = rawObject[4].readInt32BE(32);
-            resultObject.maxCombo = rawObject[4].readInt32BE(36);
-            resultObject.accuracy = new Accuracy({
-                n300: rawObject[4].readInt32BE(12),
-                n100: rawObject[4].readInt32BE(20),
-                n50: rawObject[4].readInt32BE(24),
-                nmiss: rawObject[4].readInt32BE(28),
-            });
-            resultObject.isFullCombo = !!rawObject[4][44];
-            resultObject.playerName = rawObject[5];
-            resultObject.rawMods = rawObject[6].elements;
-            resultObject.convertedMods = ModUtil.droidStringToMods(
-                this.convertDroidMods(rawObject[6].elements)
-            );
-
-            // Determine rank
+        const determineRank = () => {
             const totalHits: number =
                 resultObject.accuracy.n300 +
                 resultObject.accuracy.n100 +
                 resultObject.accuracy.n50 +
                 resultObject.accuracy.nmiss;
-            const isHidden: boolean = resultObject.convertedMods.some(
-                (m) => m instanceof ModHidden || m instanceof ModFlashlight
-            );
+            const isHidden: boolean =
+                resultObject.convertedMods?.some(
+                    (m) => m instanceof ModHidden || m instanceof ModFlashlight
+                ) ?? false;
 
             const hit300Ratio: number = resultObject.accuracy.n300 / totalHits;
 
@@ -331,6 +313,30 @@ export class ReplayAnalyzer {
                 default:
                     resultObject.rank = "D";
             }
+        };
+
+        if (resultObject.replayVersion >= 3) {
+            resultObject.time = new Date(
+                Number(rawObject[4].readBigUInt64BE(0))
+            );
+            resultObject.hit300k = rawObject[4].readInt32BE(8);
+            resultObject.hit100k = rawObject[4].readInt32BE(16);
+            resultObject.score = rawObject[4].readInt32BE(32);
+            resultObject.maxCombo = rawObject[4].readInt32BE(36);
+            resultObject.accuracy = new Accuracy({
+                n300: rawObject[4].readInt32BE(12),
+                n100: rawObject[4].readInt32BE(20),
+                n50: rawObject[4].readInt32BE(24),
+                nmiss: rawObject[4].readInt32BE(28),
+            });
+            resultObject.isFullCombo = !!rawObject[4][44];
+            resultObject.playerName = rawObject[5];
+            resultObject.rawMods = rawObject[6].elements;
+            resultObject.convertedMods = ModUtil.droidStringToMods(
+                this.convertDroidMods(rawObject[6].elements)
+            );
+
+            determineRank();
         }
 
         if (resultObject.replayVersion >= 4) {
@@ -457,48 +463,47 @@ export class ReplayAnalyzer {
         }
 
         // Parse max combo, hit results, and accuracy in old replay version
-        if (resultObject.replayVersion < 3 && this.beatmap) {
-            let hit300: number = 0;
-            let hit300k: number = 0;
-            let hit100: number = 0;
-            let hit100k: number = 0;
-            let hit50: number = 0;
-            let hit0: number = 0;
-            let grantsGekiOrKatu: boolean = true;
-
-            const objects: readonly PlaceableHitObject[] = (
+        if (resultObject.replayVersion < 3) {
+            const objects: readonly PlaceableHitObject[] | undefined = (
                 this.beatmap instanceof DroidDifficultyCalculator ||
                 this.beatmap instanceof RebalanceDroidDifficultyCalculator
                     ? this.beatmap.beatmap
                     : this.beatmap
-            ).hitObjects.objects;
+            )?.hitObjects.objects;
+
+            let grantsGekiOrKatu: boolean = true;
 
             for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
                 // Hit result
                 const hitObjectData: ReplayObjectData =
                     resultObject.hitObjectData[i];
-                const isNextNewCombo: boolean =
-                    i + 1 !== objects.length ? objects[i + 1].isNewCombo : true;
+                const isNextNewCombo: boolean = objects
+                    ? i + 1 !== objects.length
+                        ? objects[i + 1].isNewCombo
+                        : true
+                    : false;
 
                 switch (hitObjectData.result) {
                     case HitResult.miss:
-                        ++hit0;
+                        ++resultObject.accuracy.nmiss;
                         grantsGekiOrKatu = false;
                         break;
                     case HitResult.meh:
-                        ++hit50;
+                        ++resultObject.accuracy.n50;
                         grantsGekiOrKatu = false;
                         break;
                     case HitResult.good:
-                        ++hit100;
+                        ++resultObject.accuracy.n100;
                         if (grantsGekiOrKatu && isNextNewCombo) {
-                            ++hit100k;
+                            resultObject.hit100k ??= 0;
+                            ++resultObject.hit100k;
                         }
                         break;
                     case HitResult.great:
-                        ++hit300;
+                        ++resultObject.accuracy.n300;
                         if (grantsGekiOrKatu && isNextNewCombo) {
-                            ++hit300k;
+                            resultObject.hit300k ??= 0;
+                            ++resultObject.hit300k;
                         }
                         break;
                 }
@@ -508,61 +513,7 @@ export class ReplayAnalyzer {
                 }
             }
 
-            resultObject.hit300k = hit300k;
-            resultObject.hit100k = hit100k;
-
-            resultObject.accuracy = new Accuracy({
-                n300: hit300,
-                n100: hit100,
-                n50: hit50,
-                nmiss: hit0,
-                nobjects: hit300 + hit100 + hit50 + hit0,
-            });
-
-            // Determine rank
-            const totalHits: number =
-                resultObject.accuracy.n300 +
-                resultObject.accuracy.n100 +
-                resultObject.accuracy.n50 +
-                resultObject.accuracy.nmiss;
-            const isHidden: boolean =
-                resultObject.convertedMods?.some(
-                    (m) => m instanceof ModHidden || m instanceof ModFlashlight
-                ) ?? false;
-
-            const hit300Ratio: number = resultObject.accuracy.n300 / totalHits;
-
-            switch (true) {
-                case resultObject.accuracy.value() === 1:
-                    if (isHidden) {
-                        resultObject.rank = "XH";
-                    } else {
-                        resultObject.rank = "X";
-                    }
-                    break;
-                case hit300Ratio > 0.9 &&
-                    resultObject.accuracy.n50 / totalHits < 0.01 &&
-                    !resultObject.accuracy.nmiss:
-                    if (isHidden) {
-                        resultObject.rank = "SH";
-                    } else {
-                        resultObject.rank = "S";
-                    }
-                    break;
-                case (hit300Ratio > 0.8 && !resultObject.accuracy.nmiss) ||
-                    hit300Ratio > 0.9:
-                    resultObject.rank = "A";
-                    break;
-                case (hit300Ratio > 0.7 && !resultObject.accuracy.nmiss) ||
-                    hit300Ratio > 0.8:
-                    resultObject.rank = "B";
-                    break;
-                case hit300Ratio > 0.6:
-                    resultObject.rank = "C";
-                    break;
-                default:
-                    resultObject.rank = "D";
-            }
+            determineRank();
         }
 
         this.data = new ReplayData(resultObject);
