@@ -77,6 +77,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         visualSliderFactor: 0,
         possibleThreeFingeredSections: [],
         difficultSliders: [],
+        averageSpeedDeltaTime: 0,
     };
 
     protected override readonly difficultyMultiplier: number = 0.18;
@@ -418,6 +419,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
 
         const objectStrains: number[] = [];
+        const objectDeltaTimes: number[] = [];
         let maxStrain: number = 0;
 
         const maxSectionDeltaTime: number = 2000;
@@ -430,9 +432,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
             if (i === 0) {
                 objectStrains.push(current.tapStrain);
+                objectDeltaTimes.push(current.deltaTime);
             }
 
             objectStrains.push(next.tapStrain);
+            objectDeltaTimes.push(next.deltaTime);
             maxStrain = Math.max(current.tapStrain, maxStrain);
 
             const realDeltaTime: number =
@@ -530,6 +534,29 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
                 0
             );
+
+            this.attributes.averageSpeedDeltaTime =
+                objectDeltaTimes.reduce(
+                    (total, next, index) =>
+                        total +
+                        (next * 1) /
+                            (1 +
+                                Math.exp(
+                                    -(
+                                        (objectStrains[index] / maxStrain) *
+                                            25 -
+                                        20
+                                    )
+                                )),
+                    0
+                ) /
+                objectStrains.reduce(
+                    (total, next) =>
+                        total +
+                        1 / (1 + Math.exp(-((next / maxStrain) * 25 - 20))),
+                    0
+                );
+
             this.attributes.tapDifficultStrainCount = objectStrains.reduce(
                 (total, next) => total + Math.pow(next / maxStrain, 4),
                 0

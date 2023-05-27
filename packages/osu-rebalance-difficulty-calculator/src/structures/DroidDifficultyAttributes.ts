@@ -38,4 +38,6 @@ export interface DroidDifficultyAttributes extends DifficultyAttributes {
      * The amount of strains that are considered difficult with respect to the visual skill.
      */
     visualDifficultStrainCount: number;
+
+    averageSpeedDeltaTime: number;
 }

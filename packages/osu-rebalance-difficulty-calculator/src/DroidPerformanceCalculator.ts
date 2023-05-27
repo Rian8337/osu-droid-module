@@ -300,11 +300,35 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.tapDifficultStrainCount
         );
 
+        const normalizedDeviation: number =
+            this.tapDeviation *
+            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
+        const adjustedDeviation: number =
+            normalizedDeviation *
+            (1 +
+                1 /
+                    (1 +
+                        Math.exp(
+                            -(
+                                normalizedDeviation -
+                                7500 /
+                                    (60000 /
+                                        4 /
+                                        this.difficultyAttributes
+                                            .averageSpeedDeltaTime)
+                            ) /
+                                ((2 * 300) /
+                                    60000 /
+                                    4 /
+                                    this.difficultyAttributes
+                                        .averageSpeedDeltaTime)
+                        )));
+
         // Scale the tap value with tap deviation.
         this.tap *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._tapDeviation)),
+                ErrorFunction.erf(25 / (Math.SQRT2 * adjustedDeviation)),
                 1.25
             );
 

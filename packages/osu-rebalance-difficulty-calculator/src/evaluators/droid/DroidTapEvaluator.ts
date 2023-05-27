@@ -59,8 +59,8 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             // 0.75 is derived from making sure 200 BPM 1/4 OD5 streams aren't nerfed harshly,
             // whilst the other 0.75 limits the effect of the cap.
             strainTime /= MathUtils.clamp(
-                Math.pow(strainTime / greatWindowFull / 0.75, 2),
-                0.75,
+                strainTime / greatWindowFull / 0.58,
+                0.91,
                 1
             );
         }
