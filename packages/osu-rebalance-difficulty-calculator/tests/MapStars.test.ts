@@ -344,11 +344,11 @@ test("Test difficulty calculation sample beatmap 3", async () => {
         {
             noModDroidRating: {
                 aim: 2.44127211907008,
-                tap: 2.9443204277823054,
+                tap: 3.117972161824811,
                 rhythm: 1.3826649938231392,
                 flashlight: 1.0610817679095388,
                 visual: 0.9527184962728866,
-                total: 5.376557944299304,
+                total: 5.5960400380414095,
             },
             noModPcRating: {
                 aim: 2.999322964576116,
@@ -358,11 +358,11 @@ test("Test difficulty calculation sample beatmap 3", async () => {
             },
             clockRateDroidRating: {
                 aim: 3.5559425722174915,
-                tap: 4.138499503212245,
+                tap: 4.286469840011708,
                 rhythm: 1.5340787024519122,
                 flashlight: 1.5816882613337735,
                 visual: 1.5308285851524783,
-                total: 7.4248849825127525,
+                total: 7.6176826850453,
             },
             clockRatePcRating: {
                 aim: 4.221180552801728,
@@ -413,11 +413,11 @@ test("Test difficulty calculation sample beatmap 5", async () => {
         {
             noModDroidRating: {
                 aim: 61.32153093452518,
-                tap: 4.84397080450506,
+                tap: 5.162578632768778,
                 rhythm: 0.6426864308702024,
                 flashlight: 52.11739931378549,
                 visual: 1.812074200576403,
-                total: 43.71117459658418,
+                total: 43.721701071524464,
             },
             noModPcRating: {
                 aim: 16.043384642499753,
@@ -427,11 +427,11 @@ test("Test difficulty calculation sample beatmap 5", async () => {
             },
             clockRateDroidRating: {
                 aim: 75.8665509276328,
-                tap: 6.629775499578122,
+                tap: 6.9780334193777875,
                 rhythm: 0.6571757664657181,
                 flashlight: 62.02204910492798,
                 visual: 5.2191835128360635,
-                total: 51.86920905466258,
+                total: 51.88503740549334,
             },
             clockRatePcRating: {
                 aim: 53.35263471901449,
