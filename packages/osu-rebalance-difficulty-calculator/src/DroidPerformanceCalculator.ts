@@ -489,24 +489,26 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.overallDifficulty
         ).hitWindowFor300();
 
-        // Obtain the 50 hit window for droid.
+        // Obtain the 50 and 100 hit window for droid.
         const realHitWindow300: number =
             hitWindow300 * this.difficultyAttributes.clockRate;
         const droidHitWindow: DroidHitWindow = new DroidHitWindow(
             OsuHitWindow.hitWindow300ToOD(realHitWindow300)
         );
+        const isPrecise: boolean = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModPrecise
+        );
         const hitWindow50: number =
-            droidHitWindow.hitWindowFor50(
-                this.difficultyAttributes.mods.some(
-                    (m) => m instanceof ModPrecise
-                )
-            ) / this.difficultyAttributes.clockRate;
+            droidHitWindow.hitWindowFor50(isPrecise) /
+            this.difficultyAttributes.clockRate;
+        const hitWindow100: number =
+            droidHitWindow.hitWindowFor100(isPrecise) /
+            this.difficultyAttributes.clockRate;
+
+        const { n300, n100, n50, nmiss } = this.computedAccuracy;
 
         const greatCountOnCircles: number =
-            this.difficultyAttributes.hitCircleCount -
-            this.computedAccuracy.n100 -
-            this.computedAccuracy.n50 -
-            this.computedAccuracy.nmiss;
+            this.difficultyAttributes.hitCircleCount - n100 - n50 - nmiss;
 
         // The probability that a player hits a circle is unknown, but we can estimate it to be
         // the number of greats on circles divided by the number of circles, and then add one
@@ -534,12 +536,53 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return Number.POSITIVE_INFINITY;
         }
 
-        const deviationOnCircles: number =
-            hitWindow300 /
-            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-        const deviationOnSliders: number =
-            hitWindow50 /
-            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilitySlider));
+        const calculateDeviation = (
+            mainHitWindow: number,
+            probability: number
+        ): number => {
+            if (probability === 0) {
+                return Number.POSITIVE_INFINITY;
+            }
+
+            // Start with normal deviation.
+            const normalDeviation: number =
+                mainHitWindow /
+                (Math.SQRT2 * ErrorFunction.erfInv(probability));
+
+            // Get the variance of the truncated variable.
+            const truncatedVariance: number =
+                Math.pow(normalDeviation, 2) -
+                (Math.SQRT2 *
+                    hitWindow100 *
+                    normalDeviation *
+                    Math.exp(
+                        -0.5 * Math.pow(hitWindow100 / normalDeviation, 2)
+                    )) /
+                    (Math.sqrt(Math.PI) *
+                        ErrorFunction.erf(
+                            hitWindow100 / (Math.SQRT2 * normalDeviation)
+                        ));
+
+            // Add 50s by assuming they are uniformly distributed.
+            return Math.sqrt(
+                (1 / (n300 + n100 + n50)) *
+                    ((n300 + n100) * truncatedVariance +
+                        (n50 *
+                            (Math.pow(hitWindow50, 2) +
+                                hitWindow100 * hitWindow50 +
+                                Math.pow(hitWindow100, 2))) /
+                            3)
+            );
+        };
+
+        const deviationOnCircles: number = calculateDeviation(
+            hitWindow300,
+            greatProbabilityCircle
+        );
+        const deviationOnSliders: number = calculateDeviation(
+            hitWindow50,
+            greatProbabilitySlider
+        );
 
         return Math.min(deviationOnCircles, deviationOnSliders);
     }
@@ -555,18 +598,33 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return Number.POSITIVE_INFINITY;
         }
 
-        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
-        // Graph: https://www.desmos.com/calculator/31argjcxqc
         const hitWindow300: number = new OsuHitWindow(
             this.difficultyAttributes.overallDifficulty
         ).hitWindowFor300();
+        // Obtain the 50 and 100 hit window for droid.
+        const realHitWindow300: number =
+            hitWindow300 * this.difficultyAttributes.clockRate;
+        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
+            OsuHitWindow.hitWindow300ToOD(realHitWindow300)
+        );
+        const isPrecise: boolean = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModPrecise
+        );
+        const hitWindow50: number =
+            droidHitWindow.hitWindowFor50(isPrecise) /
+            this.difficultyAttributes.clockRate;
+        const hitWindow100: number =
+            droidHitWindow.hitWindowFor100(isPrecise) /
+            this.difficultyAttributes.clockRate;
+
+        const { n300, n100, n50, nmiss } = this.computedAccuracy;
+
+        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
+        // Graph: https://www.desmos.com/calculator/31argjcxqc
         const speedNoteRatio: number =
             this.difficultyAttributes.speedNoteCount / this.totalHits;
 
-        const nonGreatCount: number =
-            this.computedAccuracy.n100 +
-            this.computedAccuracy.n50 +
-            this.computedAccuracy.nmiss;
+        const nonGreatCount: number = n100 + n50 + nmiss;
         const nonGreatRatio: number =
             1 -
             (Math.pow(
@@ -588,8 +646,32 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const greatProbability: number =
             relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
 
-        return (
-            hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
+        // Start with normal deviation.
+        const normalDeviation: number =
+            hitWindow300 /
+            (Math.SQRT2 * ErrorFunction.erfInv(greatProbability));
+
+        // Get the variance of the truncated variable.
+        const truncatedVariance: number =
+            Math.pow(normalDeviation, 2) -
+            (Math.SQRT2 *
+                hitWindow100 *
+                normalDeviation *
+                Math.exp(-0.5 * Math.pow(hitWindow100 / normalDeviation, 2))) /
+                (Math.sqrt(Math.PI) *
+                    ErrorFunction.erf(
+                        hitWindow100 / (Math.SQRT2 * normalDeviation)
+                    ));
+
+        // Add 50s by assuming they are uniformly distributed.
+        return Math.sqrt(
+            (1 / (n300 + n100 + n50)) *
+                ((n300 + n100) * truncatedVariance +
+                    (n50 *
+                        (Math.pow(hitWindow50, 2) +
+                            hitWindow100 * hitWindow50 +
+                            Math.pow(hitWindow100, 2))) /
+                        3)
         );
     }
 
