@@ -219,10 +219,9 @@ export class DifficultyHitObject {
      *
      * @param time The time to calculate the hitobject's opacity at.
      * @param isHidden Whether Hidden mod is used.
-     * @param mode The gamemode to calculate the opacity for.
      * @returns The opacity of the hitobject at the given time.
      */
-    opacityAt(time: number, isHidden: boolean, mode: Modes): number {
+    opacityAt(time: number, isHidden: boolean): number {
         if (time > this.object.startTime) {
             // Consider a hitobject as being invisible when its start time is passed.
             // In reality the hitobject will be visible beyond its start time up until its hittable window has passed,
@@ -237,10 +236,7 @@ export class DifficultyHitObject {
         if (isHidden) {
             const fadeOutStartTime: number = fadeInStartTime + fadeInDuration;
             const fadeOutDuration: number =
-                this.baseTimePreempt *
-                (mode === Modes.droid
-                    ? 0.35
-                    : ModHidden.fadeOutDurationMultiplier);
+                this.baseTimePreempt * ModHidden.fadeOutDurationMultiplier;
 
             return Math.min(
                 MathUtils.clamp(

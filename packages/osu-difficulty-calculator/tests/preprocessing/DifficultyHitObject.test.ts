@@ -65,56 +65,46 @@ describe("Test object opacity", () => {
     describe("Before and during hit time", () => {
         describe("Without Hidden mod", () => {
             test("osu!droid", () => {
-                expect(object.opacityAt(400, false, Modes.droid)).toBe(0);
-                expect(object.opacityAt(600, false, Modes.droid)).toBeCloseTo(
-                    0.5
-                );
-                expect(object.opacityAt(800, false, Modes.droid)).toBe(1);
-                expect(object.opacityAt(1000, false, Modes.droid)).toBe(1);
+                expect(object.opacityAt(400, false)).toBe(0);
+                expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
+                expect(object.opacityAt(800, false)).toBe(1);
+                expect(object.opacityAt(1000, false)).toBe(1);
             });
 
             test("osu!standard", () => {
-                expect(object.opacityAt(400, false, Modes.osu)).toBe(0);
-                expect(object.opacityAt(600, false, Modes.osu)).toBeCloseTo(
-                    0.5
-                );
-                expect(object.opacityAt(800, false, Modes.osu)).toBe(1);
-                expect(object.opacityAt(1000, false, Modes.osu)).toBe(1);
+                expect(object.opacityAt(400, false)).toBe(0);
+                expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
+                expect(object.opacityAt(800, false)).toBe(1);
+                expect(object.opacityAt(1000, false)).toBe(1);
             });
         });
 
         describe("With Hidden mod", () => {
             test("osu!droid", () => {
-                expect(object.opacityAt(400, true, Modes.droid)).toBe(0);
-                expect(object.opacityAt(600, true, Modes.droid)).toBeCloseTo(
-                    0.5
+                expect(object.opacityAt(400, true)).toBe(0);
+                expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
+                expect(object.opacityAt(800, true)).toBe(1);
+                expect(object.opacityAt(900, true)).toBeCloseTo(
+                    0.4444444444444444
                 );
-                expect(object.opacityAt(800, true, Modes.droid)).toBe(1);
-                expect(object.opacityAt(900, true, Modes.droid)).toBeCloseTo(
-                    0.5238095238095238
-                );
-                expect(object.opacityAt(1000, true, Modes.droid)).toBeCloseTo(
-                    0.04761904761904767
-                );
-                expect(object.opacityAt(1100, true, Modes.droid)).toBe(0);
+                expect(object.opacityAt(1000, true)).toBeCloseTo(0);
+                expect(object.opacityAt(1100, true)).toBe(0);
             });
 
             test("osu!standard", () => {
-                expect(object.opacityAt(400, true, Modes.osu)).toBe(0);
-                expect(object.opacityAt(600, true, Modes.osu)).toBeCloseTo(0.5);
-                expect(object.opacityAt(800, true, Modes.osu)).toBe(1);
-                expect(object.opacityAt(900, true, Modes.osu)).toBeCloseTo(
-                    0.44
-                );
-                expect(object.opacityAt(1000, true, Modes.osu)).toBe(0);
+                expect(object.opacityAt(400, true)).toBe(0);
+                expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
+                expect(object.opacityAt(800, true)).toBe(1);
+                expect(object.opacityAt(900, true)).toBeCloseTo(0.44);
+                expect(object.opacityAt(1000, true)).toBe(0);
             });
         });
     });
 
     test("After hit time", () => {
-        expect(object.opacityAt(1100, false, Modes.droid)).toBe(0);
-        expect(object.opacityAt(1100, false, Modes.osu)).toBe(0);
-        expect(object.opacityAt(1100, true, Modes.droid)).toBe(0);
-        expect(object.opacityAt(1100, true, Modes.osu)).toBe(0);
+        expect(object.opacityAt(1100, false)).toBe(0);
+        expect(object.opacityAt(1100, false)).toBe(0);
+        expect(object.opacityAt(1100, true)).toBe(0);
+        expect(object.opacityAt(1100, true)).toBe(0);
     });
 });

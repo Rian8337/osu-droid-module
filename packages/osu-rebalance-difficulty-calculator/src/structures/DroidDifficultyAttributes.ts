@@ -39,5 +39,8 @@ export interface DroidDifficultyAttributes extends DifficultyAttributes {
      */
     visualDifficultStrainCount: number;
 
+    /**
+     * The average delta time of speed objects.
+     */
     averageSpeedDeltaTime: number;
 }
