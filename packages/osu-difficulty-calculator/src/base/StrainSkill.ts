@@ -48,8 +48,6 @@ export abstract class StrainSkill extends Skill {
 
     private currentSectionEnd: number = 0;
 
-    private isFirstObject: boolean = true;
-
     /**
      * Calculates the strain value of a hitobject and stores the value in it. This value is affected by previously processed objects.
      *
@@ -57,12 +55,10 @@ export abstract class StrainSkill extends Skill {
      */
     override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
-        if (this.isFirstObject) {
+        if (current.index === 0) {
             this.currentSectionEnd =
                 Math.ceil(current.startTime / this.sectionLength) *
                 this.sectionLength;
-
-            this.isFirstObject = false;
         }
 
         while (current.startTime > this.currentSectionEnd) {
