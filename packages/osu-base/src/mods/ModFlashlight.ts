@@ -12,7 +12,7 @@ export class ModFlashlight
     override readonly acronym: string = "FL";
     override readonly name: string = "Flashlight";
 
-    readonly droidRanked: boolean = false;
+    readonly droidRanked: boolean = true;
     readonly pcRanked: boolean = true;
     readonly droidScoreMultiplier: number = 1.12;
     readonly pcScoreMultiplier: number = 1.12;

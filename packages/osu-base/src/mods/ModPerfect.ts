@@ -12,7 +12,7 @@ export class ModPerfect
     override readonly acronym: string = "PF";
     override readonly name: string = "Perfect";
 
-    readonly droidRanked: boolean = false;
+    readonly droidRanked: boolean = true;
     readonly pcRanked: boolean = true;
     readonly droidScoreMultiplier: number = 1;
     readonly pcScoreMultiplier: number = 1;

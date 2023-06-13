@@ -12,7 +12,7 @@ export class ModSuddenDeath
     override readonly acronym: string = "SD";
     override readonly name: string = "Sudden Death";
 
-    readonly droidRanked: boolean = false;
+    readonly droidRanked: boolean = true;
     readonly pcRanked: boolean = true;
     readonly droidScoreMultiplier: number = 1;
     readonly pcScoreMultiplier: number = 1;
