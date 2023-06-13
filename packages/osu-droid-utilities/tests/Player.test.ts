@@ -8,9 +8,7 @@ test("Test fill information", () => {
     player.fillInformation(apiMock);
 
     expect(player.accuracy).toBe(97.64);
-    expect(player.avatarURL).toBe(
-        "https://osudroid.moe/user/avatar?id=51076&s=200"
-    );
+    expect(player.avatarURL).toBe("https://osudroid.moe/user/avatar?id=51076");
     expect(player.email).toBe("sampleemail@idk.com");
     expect(player.location).toBe("ID");
     expect(player.playCount).toBe(746);

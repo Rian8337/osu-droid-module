@@ -137,7 +137,7 @@ export class Player {
         this.accuracy = parseFloat((parseFloat(headerRes[5]) * 100).toFixed(2));
         this.email = headerRes[6];
         this.location = headerRes[7];
-        this.avatarURL = `https://osudroid.moe/user/avatar?id=${this.uid}&s=200`;
+        this.avatarURL = `https://osudroid.moe/user/avatar?id=${this.uid}`;
         this.rank = obj.rank;
 
         const recent: ExtraInformation["recent"] = obj.recent;
