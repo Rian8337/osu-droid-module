@@ -618,14 +618,12 @@ export class ReplayAnalyzer {
             MOD_PERFECT: "f",
             MOD_SUDDENDEATH: "u",
             MOD_SCOREV2: "v",
+            MOD_FLASHLIGHT: "i",
         };
 
         let modString: string = "";
         for (const mod of replayMods) {
             for (const property in replayModsConstants) {
-                if (!(property in replayModsConstants)) {
-                    continue;
-                }
                 if (!mod.includes(property)) {
                     continue;
                 }
