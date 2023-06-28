@@ -23,7 +23,7 @@ import {
     ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
-import * as javaDeserialization from "java-deserialization";
+import * as javaDeserialization from "./java-deserialization/index";
 import { Readable } from "stream";
 import { ReplayData, ReplayInformation } from "./data/ReplayData";
 import { CursorData } from "./data/CursorData";

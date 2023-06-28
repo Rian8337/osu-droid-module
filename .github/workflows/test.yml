@@ -13,11 +13,8 @@ jobs:
         with:
           node-version: 16
 
-      - name: Install main dependencies
+      - name: Install dependencies
         run: npm i
-
-      - name: Lerna bootstrap
-        run: lerna bootstrap
 
       - name: ESLint
         run: lerna run lint
