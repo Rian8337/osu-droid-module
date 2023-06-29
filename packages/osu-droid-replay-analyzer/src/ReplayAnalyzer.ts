@@ -23,7 +23,7 @@ import {
     ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
-import * as javaDeserialization from "./java-deserialization/index";
+import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
 import { ReplayData, ReplayInformation } from "./data/ReplayData";
 import { CursorData } from "./data/CursorData";
@@ -248,6 +248,10 @@ export class ReplayAnalyzer {
      * Parses a replay after being downloaded and converted to a buffer.
      */
     private parseReplay(): void {
+        if (!this.fixedODR) {
+            return;
+        }
+
         // javaDeserialization can only somewhat parse some string field
         // the rest will be a buffer that we need to manually parse
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

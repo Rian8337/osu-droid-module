@@ -5,7 +5,6 @@
     "outDir": "./dist"
   },
   "include": [
-    "./src",
-    "java-deserialization"
+    "./src"
   ]
 }
