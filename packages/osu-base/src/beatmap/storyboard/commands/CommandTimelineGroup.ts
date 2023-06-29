@@ -5,7 +5,6 @@ import { StoryboardCommandType } from "../enums/StoryboardCommandType";
 import { StoryboardParameterCommandType } from "../enums/StoryboardParameterCommandType";
 import { Command } from "./Command";
 import { CommandTimeline, ICommandTimeline } from "./CommandTimeline";
-import { CommandTimelineSelector } from "./CommandTimelineSelector";
 
 /**
  * Represents a group of command timelines.
@@ -188,3 +187,7 @@ export class CommandTimelineGroup {
         return timeline.commands;
     }
 }
+
+export type CommandTimelineSelector<T> = (
+    timelineGroup: CommandTimelineGroup
+) => CommandTimeline<T>;
