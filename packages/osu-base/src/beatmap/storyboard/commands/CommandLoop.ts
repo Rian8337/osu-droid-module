@@ -1,6 +1,5 @@
 import { Command } from "./Command";
-import { CommandTimelineGroup } from "./CommandTimelineGroup";
-import { CommandTimelineSelector } from "./CommandTimelineSelector";
+import { CommandTimelineGroup, CommandTimelineSelector } from "./CommandTimelineGroup";
 
 /**
  * Represents a loop compound command.

@@ -27,7 +27,6 @@ export * from "./beatmap/storyboard/commands/Command";
 export * from "./beatmap/storyboard/commands/CommandLoop";
 export * from "./beatmap/storyboard/commands/CommandTimeline";
 export * from "./beatmap/storyboard/commands/CommandTimelineGroup";
-export * from "./beatmap/storyboard/commands/CommandTimelineSelector";
 export * from "./beatmap/storyboard/commands/CommandTrigger";
 export * from "./beatmap/timings/ControlPointManager";
 export * from "./beatmap/timings/DifficultyControlPoint";

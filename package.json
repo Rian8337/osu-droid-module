@@ -2,7 +2,12 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/osu-base",
+    "packages/osu-difficulty-calculator",
+    "packages/osu-rebalance-difficulty-calculator",
+    "packages/osu-droid-replay-analyzer",
+    "packages/osu-droid-utilities",
+    "packages/osu-strain-graph-generator"
   ],
   "scripts": {
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
