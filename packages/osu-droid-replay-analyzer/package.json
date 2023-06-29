@@ -22,7 +22,7 @@
         "url": "git+https://github.com/Rian8337/osu-droid-module.git"
     },
     "scripts": {
-        "build": "rollup -c ../../rollup.config.mjs",
+        "build": "tsc",
         "lint": "eslint --ext ts",
         "prepare": "npm run build",
         "test": "echo \"No tests for this module\""
@@ -31,9 +31,9 @@
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "file:../osu-base",
-        "@rian8337/osu-difficulty-calculator": "file:../osu-difficulty-calculator",
-        "@rian8337/osu-rebalance-difficulty-calculator": "file:../osu-rebalance-difficulty-calculator",
+        "@rian8337/osu-base": "^4.0.0-beta.11",
+        "@rian8337/osu-difficulty-calculator": "^4.0.0-beta.11",
+        "@rian8337/osu-rebalance-difficulty-calculator": "^4.0.0-beta.11",
         "java-deserialization": "^0.1.0",
         "long": "^3.2.0",
         "unzipper": "^0.10.11"

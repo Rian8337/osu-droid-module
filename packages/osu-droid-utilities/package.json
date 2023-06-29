@@ -21,7 +21,7 @@
         "url": "git+https://github.com/Rian8337/osu-droid-module.git"
     },
     "scripts": {
-        "build": "rollup -c ../../rollup.config.mjs",
+        "build": "tsc",
         "lint": "eslint --ext ts",
         "prepare": "npm run build",
         "test": "jest"
@@ -30,8 +30,8 @@
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "file:../osu-base",
-        "@rian8337/osu-droid-replay-analyzer": "file:../osu-droid-replay-analyzer"
+        "@rian8337/osu-base": "^4.0.0-beta.11",
+        "@rian8337/osu-droid-replay-analyzer": "^4.0.0-beta.11"
     },
     "publishConfig": {
         "access": "public"

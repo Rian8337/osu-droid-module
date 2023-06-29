@@ -2,7 +2,12 @@
   "name": "root",
   "private": true,
   "workspaces": [
-    "packages/*"
+    "packages/osu-base",
+    "packages/osu-difficulty-calculator",
+    "packages/osu-rebalance-difficulty-calculator",
+    "packages/osu-droid-replay-analyzer",
+    "packages/osu-droid-utilities",
+    "packages/osu-strain-graph-generator"
   ],
   "scripts": {
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
@@ -28,6 +33,7 @@
     "rollup-plugin-dts": "^5.3.0",
     "rollup-plugin-node-externals": "^6.0.1",
     "ts-jest": "^29.0.5",
+    "tslib": "^2.6.0",
     "typedoc": "^0.24.8",
     "typedoc-plugin-missing-exports": "^2.0.0",
     "typescript": "^5.1.3"
