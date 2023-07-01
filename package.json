@@ -14,6 +14,7 @@
     "generate-docs": "cross-env NODE_OPTIONS=--max-old-space-size=4096 typedoc \"packages/*\"",
     "generate-docs-windows": "rmdir docs /s /q & npm run generate-docs",
     "generate-docs-linux": "rm -rf docs & npm run generate-docs",
+    "postinstall": "lerna run build",
     "publish-release": "lerna publish",
     "publish-prerelease": "lerna publish --dist-tag beta",
     "test": "lerna run test"
