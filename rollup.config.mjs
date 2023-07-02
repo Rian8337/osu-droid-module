@@ -4,6 +4,9 @@ import dts from "rollup-plugin-dts";
 
 const PACKAGE_ROOT = process.cwd();
 
+/**
+ * @type {import("rollup").RollupOptions[]}
+ */
 export default [
     {
         plugins: [
