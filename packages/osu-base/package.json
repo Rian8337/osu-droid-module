@@ -13,7 +13,7 @@
     "types": "typings/index.d.ts",
     "typedocMain": "src/index.ts",
     "engines": {
-        "node": ">=16"
+        "node": ">=18"
     },
     "files": [
         "dist/**",
@@ -34,12 +34,10 @@
     },
     "dependencies": {
         "dotenv": "^16.0.3",
-        "lodash.clonedeep": "^4.5.0",
-        "request": "^2.88.2"
+        "lodash.clonedeep": "^4.5.0"
     },
     "devDependencies": {
-        "@types/lodash.clonedeep": "^4.5.7",
-        "@types/request": "^2.48.8"
+        "@types/lodash.clonedeep": "^4.5.7"
     },
     "publishConfig": {
         "access": "public"

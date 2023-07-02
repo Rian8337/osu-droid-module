@@ -13,7 +13,7 @@
     "typings": "typings/index.d.ts",
     "typedocMain": "src/index.ts",
     "engines": {
-        "node": ">=16"
+        "node": ">=18"
     },
     "files": [
         "dist/**",

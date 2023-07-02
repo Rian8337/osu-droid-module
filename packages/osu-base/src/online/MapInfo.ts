@@ -1,4 +1,3 @@
-import request from "request";
 import { Beatmap } from "../beatmap/Beatmap";
 import { RankedStatus } from "../constants/RankedStatus";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
@@ -367,30 +366,30 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      *
      * @param force Whether to download the file regardless if it's already available.
      */
-    retrieveBeatmapFile(force?: boolean): Promise<void> {
-        return new Promise((resolve) => {
-            if (this.hasDownloadedBeatmap() && !force) {
-                return resolve();
-            }
+    async retrieveBeatmapFile(force?: boolean): Promise<void> {
+        if (this.hasDownloadedBeatmap() && !force) {
+            return;
+        }
 
-            const url: string = `https://osu.ppy.sh/osu/${this.beatmapID}`;
-            const dataArray: Buffer[] = [];
-            request(url)
-                .on("data", (chunk) => {
-                    dataArray.push(Buffer.from(chunk));
-                })
-                .on("complete", (response) => {
-                    if (response.statusCode !== 200) {
-                        return resolve();
-                    }
+        const url: string = `https://osu.ppy.sh/osu/${this.beatmapID}`;
 
-                    this.cachedBeatmap = new BeatmapDecoder().decode(
-                        Buffer.concat(dataArray).toString("utf8")
-                    ).result;
+        return fetch(url)
+            .then(async (res) => {
+                const text: string = await res.text();
 
-                    resolve();
-                });
-        });
+                if (res.status >= 500) {
+                    throw new Error(text);
+                }
+
+                this.cachedBeatmap = new BeatmapDecoder().decode(
+                    text
+                ).result;
+            })
+            .catch((e: Error) => {
+                console.error(
+                    `Request to ${url} failed with the following error: ${e.message}; aborting`
+                );
+            });
     }
 
     /**

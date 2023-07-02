@@ -1,5 +1,3 @@
-import request from "request";
-import { Utils } from "../utils/Utils";
 import { RequestResponse } from "./RequestResponse";
 
 /**
@@ -97,37 +95,37 @@ export abstract class APIRequestBuilder<Params extends string = string> {
     sendRequest(): Promise<RequestResponse> {
         return new Promise((resolve) => {
             const url: string = this.buildURL();
-            const dataArray: Buffer[] = [];
 
-            request(url)
-                .on("data", (chunk) => {
-                    dataArray.push(Buffer.from(chunk));
-                })
-                .on("complete", async (response) => {
+            fetch(url)
+                .then(async (res) => {
                     ++this.fetchAttempts;
 
-                    const { statusCode } = response;
-
-                    if (
-                        (statusCode === 500 || statusCode === 503) &&
-                        this.fetchAttempts < 5
-                    ) {
+                    if (res.status >= 500 && this.fetchAttempts < 5) {
                         console.error(
-                            `Request to ${url} failed; ${this.fetchAttempts} attempts so far; retrying`
+                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts} attempts so far; retrying`
                         );
-
-                        await Utils.sleep(0.2);
 
                         return resolve(this.sendRequest());
                     }
 
+                    this.fetchAttempts = 0;
+
                     return resolve({
-                        data: Buffer.concat(dataArray),
-                        statusCode: response.statusCode,
+                        data: Buffer.from(await res.arrayBuffer()),
+                        statusCode: res.status,
                     });
                 })
-                .on("error", (e) => {
-                    throw e;
+                .catch((e: Error) => {
+                    console.error(
+                        `Request to ${url} failed with the following error: ${e.message}; ${this.fetchAttempts} attempts so far; aborting`
+                    );
+
+                    this.fetchAttempts = 0;
+
+                    return resolve({
+                        data: Buffer.from([]),
+                        statusCode: 400,
+                    });
                 });
         });
     }
