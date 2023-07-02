@@ -48,11 +48,6 @@ export abstract class StrainSkill extends Skill {
 
     private currentSectionEnd: number = 0;
 
-    /**
-     * Calculates the strain value of a hitobject and stores the value in it. This value is affected by previously processed objects.
-     *
-     * @param current The hitobject to process.
-     */
     override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
         if (current.index === 0) {
@@ -76,6 +71,11 @@ export abstract class StrainSkill extends Skill {
             this.currentStrain,
             this.currentSectionPeak
         );
+
+        if (!current.next(0)) {
+            // Don't forget to save the last strain peak, which would otherwise be ignored.
+            this.saveCurrentPeak();
+        }
     }
 
     /**

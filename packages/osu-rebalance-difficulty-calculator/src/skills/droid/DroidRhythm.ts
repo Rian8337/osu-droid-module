@@ -7,11 +7,8 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
 export class DroidRhythm extends DroidSkill {
-    protected override readonly skillMultiplier: number = 1;
-    protected override readonly reducedSectionCount: number = 5;
-    protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly starsPerDouble: number = 1.75;
+    protected override readonly difficultyMultiplier: number = 2;
 
     private currentRhythm: number = 1;
     private readonly hitWindow: OsuHitWindow;
@@ -20,6 +17,24 @@ export class DroidRhythm extends DroidSkill {
         super(mods);
 
         this.hitWindow = new OsuHitWindow(overallDifficulty);
+    }
+
+    override difficultyValue(): number {
+        // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
+        // This also applies to two sets of notes with equal difficulty.
+        return Math.pow(
+            this.strains.reduce((a, v) => {
+                if (v.strainCountChange <= 0 || v.strain <= 0) {
+                    return a;
+                }
+
+                return (
+                    a +
+                    Math.pow(v.strain, 1 / Math.log2(this.difficultyMultiplier))
+                );
+            }, 0),
+            Math.log2(this.difficultyMultiplier)
+        );
     }
 
     protected override strainValueAt(current: DifficultyHitObject): number {

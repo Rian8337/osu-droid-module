@@ -1,10 +1,10 @@
 import { Beatmap, Mod, MapStats, Utils, Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
-import { StrainSkill } from "./StrainSkill";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
+import { Skill } from "./Skill";
 
 /**
  * The base of a difficulty calculator.
@@ -128,18 +128,13 @@ export abstract class DifficultyCalculator {
      *
      * @param skills The skills to calculate.
      */
-    protected calculateSkills(...skills: StrainSkill[]): void {
+    protected calculateSkills(...skills: Skill[]): void {
         // The first object doesn't generate a strain, so we begin calculating from the second object.
-        this.objects.slice(1).forEach((h, i) => {
-            skills.forEach((skill) => {
-                skill.process(h);
-
-                if (i === this.objects.length - 2) {
-                    // Don't forget to save the last strain peak, which would otherwise be ignored.
-                    skill.saveCurrentPeak();
-                }
-            });
-        });
+        for (const object of this.objects.slice(1)) {
+            for (const skill of skills) {
+                skill.process(object);
+            }
+        }
     }
 
     /**
@@ -160,7 +155,7 @@ export abstract class DifficultyCalculator {
     /**
      * Creates skills to be calculated.
      */
-    protected abstract createSkills(): StrainSkill[];
+    protected abstract createSkills(): Skill[];
 
     /**
      * Populates the stored difficulty attributes with necessary data.
