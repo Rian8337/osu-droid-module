@@ -12,6 +12,9 @@
     "main": "dist/index.js",
     "types": "typings/index.d.ts",
     "typedocMain": "src/index.ts",
+    "engines": {
+        "node": ">=16"
+    },
     "files": [
         "dist/**",
         "typings/**"
