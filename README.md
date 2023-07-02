@@ -10,7 +10,7 @@ Keep in mind that I mainly develop these modules for my use case. Therefore, the
 
 # Requirements
 
-You need Node v16 or newer to use all modules in this repository.
+You need Node.js version 18 or newer to use all modules in this repository.
 
 # Projects in this monorepo
 
