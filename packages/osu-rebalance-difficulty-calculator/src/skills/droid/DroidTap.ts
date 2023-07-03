@@ -8,7 +8,7 @@ import { DroidSkill } from "./DroidSkill";
  */
 export class DroidTap extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly starsPerDouble: number = 1.05;
+    protected override readonly starsPerDouble: number = 1.075;
 
     private currentTapStrain: number = 0;
     private currentOriginalTapStrain: number = 0;

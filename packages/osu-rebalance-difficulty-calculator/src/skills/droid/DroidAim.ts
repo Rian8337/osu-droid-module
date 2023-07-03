@@ -11,7 +11,7 @@ export class DroidAim extends DroidSkill {
     protected override readonly starsPerDouble: number = 1.025;
 
     private readonly withSliders: boolean;
-    private readonly skillMultiplier: number = 23.55;
+    private readonly skillMultiplier: number = 23.25;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
