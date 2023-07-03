@@ -7,6 +7,7 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to read every object in the map.
  */
 export class DroidVisual extends DroidSkill {
+    protected override readonly starsPerDouble: number = 1.025;
     protected override readonly strainDecayBase: number = 0.1;
 
     private readonly isHidden: boolean;

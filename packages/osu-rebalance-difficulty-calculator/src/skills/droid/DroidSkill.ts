@@ -8,9 +8,9 @@ import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
  */
 export abstract class DroidSkill extends Skill {
     /**
-     * The final multiplier to be applied to the difficulty value after all other calculations.
+     * The bonus multiplier that is given for a sequence of notes of equal difficulty.
      */
-    protected readonly difficultyMultiplier: number = 1.06;
+    protected abstract readonly starsPerDouble: number;
 
     /**
      * The strains of hitobjects.
@@ -25,7 +25,6 @@ export abstract class DroidSkill extends Skill {
     protected abstract readonly strainDecayBase: number;
 
     protected readonly sectionLength: number = 400;
-    protected readonly decayWeight: number = 0.9;
     protected currentStrain: number = 0;
 
     override process(current: DifficultyHitObject): void {
@@ -51,12 +50,8 @@ export abstract class DroidSkill extends Skill {
         // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
         // This also applies to two sets of notes with equal difficulty.
         let result: number = 0;
-        let currentWeight: number = 1;
         let frequency: number = 0;
-
         const strainDecayRate: number = Math.log(this.strainDecayBase) / 1000;
-        const sumDecayRate: number =
-            Math.log(this.decayWeight) / this.sectionLength;
 
         for (let i = 0; i < strains.length - 1; ++i) {
             const current: StrainValue = strains[i];
@@ -65,24 +60,17 @@ export abstract class DroidSkill extends Skill {
             frequency += current.strainCountChange;
 
             if (frequency > 0 && current.strain > 0) {
-                const time: number =
-                    (Math.log(next.strain / current.strain) * frequency) /
-                    strainDecayRate;
-                const nextWeight: number =
-                    currentWeight * Math.exp(sumDecayRate * time);
                 const combinedDecay: number =
-                    this.sectionLength *
-                    (sumDecayRate + strainDecayRate / frequency);
+                    this.sectionLength * (strainDecayRate / frequency);
 
                 result +=
-                    (next.strain * nextWeight -
-                        current.strain * currentWeight) /
+                    (this.calculateWeightedStrain(next.strain) -
+                        this.calculateWeightedStrain(current.strain)) /
                     combinedDecay;
-                currentWeight = nextWeight;
             }
         }
 
-        return result * this.difficultyMultiplier;
+        return Math.pow(result, Math.log2(this.starsPerDouble));
     }
 
     /**
@@ -102,5 +90,15 @@ export abstract class DroidSkill extends Skill {
      */
     protected strainDecay(ms: number): number {
         return Math.pow(this.strainDecayBase, ms / 1000);
+    }
+
+    /**
+     * Calculates the strain to be weighed towards the final difficulty value.
+     *
+     * @param strain The strain.
+     * @returns The weighed strain.
+     */
+    private calculateWeightedStrain(strain: number): number {
+        return Math.pow(strain, 1 / Math.log2(this.starsPerDouble));
     }
 }
