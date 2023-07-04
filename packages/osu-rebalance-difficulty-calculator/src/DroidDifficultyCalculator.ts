@@ -80,7 +80,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         averageSpeedDeltaTime: 0,
     };
 
-    protected override readonly difficultyMultiplier: number = 0.18;
+    protected override readonly difficultyMultiplier: number = 0.0675;
     protected override readonly mode: Modes = Modes.droid;
 
     /**

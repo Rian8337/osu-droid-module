@@ -8,7 +8,6 @@ import { DroidSkill } from "./DroidSkill";
  */
 export class DroidFlashlight extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.15;
-    protected override readonly starsPerDouble: number = 1.06;
 
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
@@ -49,7 +48,7 @@ export class DroidFlashlight extends DroidSkill {
             this.strains.reduce(
                 (a, v) => a + (v.strainCountChange > 0 ? v.strain : 0),
                 0
-            ) * this.starsPerDouble,
+            ) * this.difficultyMultiplier,
             0.8
         );
     }

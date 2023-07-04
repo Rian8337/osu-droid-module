@@ -8,9 +8,9 @@ import { DroidSkill } from "./DroidSkill";
  */
 export class DroidRhythm extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly starsPerDouble: number = 1.75;
 
     private currentRhythm: number = 1;
+    private readonly skillMultiplier: number = 20;
     private readonly hitWindow: OsuHitWindow;
 
     constructor(mods: Mod[], overallDifficulty: number) {
@@ -26,7 +26,7 @@ export class DroidRhythm extends DroidSkill {
         );
 
         this.currentStrain *= this.strainDecay(current.deltaTime);
-        this.currentStrain += this.currentRhythm - 1;
+        this.currentStrain += (this.currentRhythm - 1) * this.skillMultiplier;
 
         return this.currentStrain;
     }

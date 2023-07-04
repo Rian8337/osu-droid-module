@@ -8,7 +8,6 @@ import { DroidSkill } from "./DroidSkill";
  */
 export class DroidAim extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.15;
-    protected override readonly starsPerDouble: number = 1.025;
 
     private readonly withSliders: boolean;
     private readonly skillMultiplier: number = 23.25;
