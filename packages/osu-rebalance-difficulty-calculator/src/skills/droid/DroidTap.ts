@@ -7,6 +7,7 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
  */
 export class DroidTap extends DroidSkill {
+    protected override readonly difficultyMultiplier: number = 1.2;
     protected override readonly strainDecayBase: number = 0.3;
 
     private currentTapStrain: number = 0;
