@@ -80,7 +80,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         averageSpeedDeltaTime: 0,
     };
 
-    protected override readonly difficultyMultiplier: number = 0.0675;
+    protected override readonly difficultyMultiplier: number = 0.18;
     protected override readonly mode: Modes = Modes.droid;
 
     /**
@@ -314,12 +314,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         aimSkill: DroidAim,
         aimSkillWithoutSliders: DroidAim
     ): void {
-        this.strainPeaks.aimWithSliders = aimSkill.strains
-            .filter((v) => v.strainCountChange > 0)
-            .map((v) => v.strain);
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strains
-            .filter((v) => v.strainCountChange > 0)
-            .map((v) => v.strain);
+        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
 
         this.aim = this.starValue(aimSkill.difficultyValue());
 
@@ -408,9 +404,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * @param tapSkill The tap skill.
      */
     private postCalculateTap(tapSkill: DroidTap): void {
-        this.strainPeaks.speed = tapSkill.strains
-            .filter((v) => v.strainCountChange > 0)
-            .map((v) => v.strain);
+        this.strainPeaks.speed = tapSkill.strainPeaks;
 
         this.tap = this.attributes.tapDifficulty = this.starValue(
             tapSkill.difficultyValue()
@@ -618,9 +612,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         flashlightSkill: DroidFlashlight,
         flashlightSkillWithoutSliders: DroidFlashlight
     ): void {
-        this.strainPeaks.flashlight = flashlightSkill.strains
-            .filter((v) => v.strainCountChange > 0)
-            .map((v) => v.strain);
+        this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
         this.flashlight = this.starValue(flashlightSkill.difficultyValue());
 

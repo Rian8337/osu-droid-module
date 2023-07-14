@@ -7,10 +7,13 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
 export class DroidRhythm extends DroidSkill {
+    protected override readonly skillMultiplier: number = 1;
+    protected override readonly reducedSectionCount: number = 5;
+    protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly strainDecayBase: number = 0.3;
+    protected override readonly starsPerDouble: number = 1.75;
 
     private currentRhythm: number = 1;
-    private readonly skillMultiplier: number = 20;
     private readonly hitWindow: OsuHitWindow;
 
     constructor(mods: Mod[], overallDifficulty: number) {
@@ -26,7 +29,7 @@ export class DroidRhythm extends DroidSkill {
         );
 
         this.currentStrain *= this.strainDecay(current.deltaTime);
-        this.currentStrain += (this.currentRhythm - 1) * this.skillMultiplier;
+        this.currentStrain += this.currentRhythm - 1;
 
         return this.currentStrain;
     }
