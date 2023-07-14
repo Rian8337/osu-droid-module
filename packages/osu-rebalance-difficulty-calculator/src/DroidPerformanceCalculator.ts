@@ -275,6 +275,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.aimDifficultStrainCount
         );
 
+        // Scale the aim value with object count to penalize short maps.
+        this.aim *= Math.min(
+            1,
+            1.650668 +
+                (0.4845796 - 1.650668) /
+                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
+        );
+
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
 
@@ -298,6 +306,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this.tap *= this.calculateMissPenalty(
             this.difficultyAttributes.tapDifficultStrainCount
+        );
+
+        // Scale the tap value with object count to penalize short maps.
+        this.tap *= Math.min(
+            1,
+            1.650668 +
+                (0.4845796 - 1.650668) /
+                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
         );
 
         // Normalize the deviation to 300 BPM.
