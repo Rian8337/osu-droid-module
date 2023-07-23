@@ -42,15 +42,15 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         }
 
         return (
-            this.aimStrainOf(current, withSliders) +
-            this.movementStrainOf(current)
+            this.snapAimStrainOf(current, withSliders) +
+            this.flowAimStrainOf(current)
         );
     }
 
     /**
      * Calculates the aim strain of a hitobject.
      */
-    private static aimStrainOf(
+    private static snapAimStrainOf(
         current: DifficultyHitObject,
         withSliders: boolean
     ): number {
@@ -240,7 +240,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     /**
      * Calculates the movement strain of a hitobject.
      */
-    private static movementStrainOf(current: DifficultyHitObject): number {
+    private static flowAimStrainOf(current: DifficultyHitObject): number {
         let speedBonus: number = 1;
 
         if (current.strainTime < this.minSpeedBonus) {
