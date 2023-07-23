@@ -278,12 +278,20 @@ export abstract class HitObjectStackEvaluator {
                     break;
                 }
 
+                // Note the use of `startTime` in the code below doesn't match osu!stable's use of `endTime`.
+                // This is because in osu!stable's implementation, `UpdateCalculations` is not called on the inner-loop hitobject (j)
+                // and therefore it does not have a correct `endTime`, but instead the default of `endTime = startTime`.
+                //
+                // Effects of this can be seen on https://osu.ppy.sh/beatmapsets/243#osu/1146 at sliders around 86647 ms, where
+                // if we use `endTime` here it would result in unexpected stacking.
+                //
+                // Reference: https://github.com/ppy/osu/pull/24188
                 if (
                     hitObjects[j].position.getDistance(currentObject.position) <
                     this.stackDistance
                 ) {
                     ++currentObject.osuStackHeight;
-                    startTime = hitObjects[j].endTime;
+                    startTime = hitObjects[j].startTime;
                 } else if (
                     hitObjects[j].position.getDistance(
                         currentObject.endPosition
@@ -292,7 +300,7 @@ export abstract class HitObjectStackEvaluator {
                     // Case for sliders - bump notes down and right, rather than up and left.
                     ++sliderStack;
                     hitObjects[j].osuStackHeight -= sliderStack;
-                    startTime = hitObjects[j].endTime;
+                    startTime = hitObjects[j].startTime;
                 }
             }
         }
