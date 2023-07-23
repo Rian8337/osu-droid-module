@@ -10,13 +10,10 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     protected static override readonly sliderMultiplier: number = 1.5;
     protected static override readonly velocityChangeMultiplier: number = 0.85;
 
-    /**
-     * Spacing threshold for a single hitobject spacing.
-     */
-    private static readonly SINGLE_SPACING_THRESHOLD: number = 175;
+    private static readonly singleSpacingThreshold: number = 100;
 
-    // ~200 1/2 BPM jumps
-    private static readonly minSpeedBonus: number = 150;
+    // 200 1/4 BPM delta time
+    private static readonly minSpeedBonus: number = 75;
 
     /**
      * Evaluates the difficulty of aiming the current object, based on:
@@ -246,20 +243,18 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         if (current.strainTime < this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
-                Math.pow((this.minSpeedBonus - current.strainTime) / 45, 2);
+                Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
         }
 
         const travelDistance: number = current.previous(0)?.travelDistance ?? 0;
-        const distance: number = Math.min(
-            this.SINGLE_SPACING_THRESHOLD,
-            travelDistance + current.minimumJumpDistance
+        const shortDistancePenalty: number = Math.pow(
+            Math.min(
+                this.singleSpacingThreshold,
+                travelDistance + current.minimumJumpDistance
+            ) / this.singleSpacingThreshold,
+            3.5
         );
 
-        return (
-            (50 *
-                speedBonus *
-                Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 5)) /
-            current.strainTime
-        );
+        return (100 * speedBonus * shortDistancePenalty) / current.strainTime;
     }
 }
