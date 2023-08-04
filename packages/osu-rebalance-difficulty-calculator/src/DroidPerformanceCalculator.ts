@@ -311,9 +311,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the tap value with object count to penalize short maps.
         this.tap *= Math.min(
             1,
-            1.650668 +
-                (0.4845796 - 1.650668) /
-                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
+            1.625 +
+                (0.4845796 - 1.625) /
+                    (1 + Math.pow(this.totalHits / 850, 1.147469))
         );
 
         // Normalize the deviation to 300 BPM.
