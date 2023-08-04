@@ -506,10 +506,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         ).hitWindowFor300();
 
         // Obtain the 50 and 100 hit window for droid.
-        const realHitWindow300: number =
-            hitWindow300 * this.difficultyAttributes.clockRate;
         const droidHitWindow: DroidHitWindow = new DroidHitWindow(
-            OsuHitWindow.hitWindow300ToOD(realHitWindow300)
+            OsuHitWindow.hitWindow300ToOD(
+                hitWindow300 * this.difficultyAttributes.clockRate
+            )
         );
         const isPrecise: boolean = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise
@@ -521,86 +521,98 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             droidHitWindow.hitWindowFor100(isPrecise) /
             this.difficultyAttributes.clockRate;
 
-        const { n300, n100, n50, nmiss } = this.computedAccuracy;
+        const { n100, n50, nmiss } = this.computedAccuracy;
 
-        const greatCountOnCircles: number =
-            this.difficultyAttributes.hitCircleCount - n100 - n50 - nmiss;
-
-        // The probability that a player hits a circle is unknown, but we can estimate it to be
-        // the number of greats on circles divided by the number of circles, and then add one
-        // to the number of circles as a bias correction / bayesian prior.
-        const greatProbabilityCircle: number = Math.max(
-            0,
-            greatCountOnCircles / (this.difficultyAttributes.hitCircleCount + 1)
+        const circleCount: number = this.difficultyAttributes.hitCircleCount;
+        const missCountCircles: number = Math.min(nmiss, circleCount);
+        const mehCountCircles: number = Math.min(
+            n50,
+            circleCount - missCountCircles
         );
-        let greatProbabilitySlider: number;
+        const okCountCircles: number = Math.min(
+            n100,
+            circleCount - missCountCircles - mehCountCircles
+        );
+        const greatCountCircles: number = Math.max(
+            0,
+            circleCount - missCountCircles - mehCountCircles - okCountCircles
+        );
 
-        if (greatCountOnCircles < 0) {
-            const nonCircleMisses: number = -greatCountOnCircles;
-            greatProbabilitySlider = Math.max(
+        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
+        // compute the deviation on circles.
+        if (greatCountCircles > 0) {
+            // The probability that a player hits a circle is unknown, but we can estimate it to be
+            // the number of greats on circles divided by the number of circles, and then add one
+            // to the number of circles as a bias correction / bayesian prior.
+            const greatProbabilityCircle: number = Math.max(
                 0,
-                (this.difficultyAttributes.sliderCount - nonCircleMisses) /
-                    (this.difficultyAttributes.sliderCount + 1)
+                greatCountCircles /
+                    (circleCount - missCountCircles - mehCountCircles + 1)
             );
-        } else {
-            greatProbabilitySlider =
-                this.difficultyAttributes.sliderCount /
-                (this.difficultyAttributes.sliderCount + 1);
+
+            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
+            // Begin with the normal distribution first.
+            let deviationOnCircles: number =
+                hitWindow300 /
+                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
+
+            deviationOnCircles *=
+                Math.sqrt(
+                    1 -
+                        Math.sqrt(2 / Math.PI) *
+                            hitWindow100 *
+                            Math.exp(
+                                -0.5 *
+                                    Math.pow(
+                                        hitWindow100 / deviationOnCircles,
+                                        2
+                                    )
+                            )
+                ) /
+                (deviationOnCircles *
+                    ErrorFunction.erf(
+                        hitWindow100 / (Math.SQRT2 * deviationOnCircles)
+                    ));
+
+            // Then compute the variance for 50s.
+            const mehVariance: number =
+                (Math.pow(hitWindow50, 2) +
+                    hitWindow100 * hitWindow50 +
+                    Math.pow(hitWindow100, 2)) /
+                3;
+
+            // Find the total deviation.
+            return Math.sqrt(
+                ((greatCountCircles + okCountCircles) *
+                    Math.pow(deviationOnCircles, 2) +
+                    mehCountCircles * mehVariance) /
+                    (greatCountCircles + okCountCircles + mehCountCircles)
+            );
         }
 
-        if (greatProbabilityCircle === 0 && greatProbabilitySlider === 0) {
+        // If there are more non-300s than there are circles, compute the deviation on sliders instead.
+        // Here, all that matters is whether or not the slider was missed, since it is impossible
+        // to get a 100 or 50 on a slider by mis-tapping it.
+        const sliderCount: number = this.difficultyAttributes.sliderCount;
+        const missCountSliders: number = Math.min(
+            sliderCount,
+            nmiss - missCountCircles
+        );
+        const greatCountSliders: number = sliderCount - missCountSliders;
+
+        // We only get here if nothing was hit. In this case, there is no estimate for deviation.
+        // Note that this is never negative, so checking if this is only equal to 0 makes sense.
+        if (greatCountSliders === 0) {
             return Number.POSITIVE_INFINITY;
         }
 
-        const calculateDeviation = (
-            mainHitWindow: number,
-            probability: number
-        ): number => {
-            if (probability === 0) {
-                return Number.POSITIVE_INFINITY;
-            }
+        const greatProbabilitySlider: number =
+            greatCountSliders / (sliderCount + 1);
 
-            // Start with normal deviation.
-            const normalDeviation: number =
-                mainHitWindow /
-                (Math.SQRT2 * ErrorFunction.erfInv(probability));
-
-            // Get the variance of the truncated variable.
-            const truncatedVariance: number =
-                Math.pow(normalDeviation, 2) -
-                (Math.SQRT2 *
-                    hitWindow100 *
-                    normalDeviation *
-                    Math.exp(
-                        -0.5 * Math.pow(hitWindow100 / normalDeviation, 2)
-                    )) /
-                    (Math.sqrt(Math.PI) *
-                        ErrorFunction.erf(
-                            hitWindow100 / (Math.SQRT2 * normalDeviation)
-                        ));
-
-            // Add 50s by assuming they are uniformly distributed.
-            return Math.sqrt(
-                (1 / (n300 + n100 + n50)) *
-                    ((n300 + n100) * truncatedVariance +
-                        (n50 *
-                            (Math.pow(hitWindow50, 2) +
-                                hitWindow100 * hitWindow50 +
-                                Math.pow(hitWindow100, 2))) /
-                            3)
-            );
-        };
-
-        const deviationOnCircles: number = calculateDeviation(
-            hitWindow300,
-            greatProbabilityCircle
+        return (
+            hitWindow50 /
+            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilitySlider))
         );
-        const deviationOnSliders: number = calculateDeviation(
-            hitWindow50,
-            greatProbabilitySlider
-        );
-
-        return Math.min(deviationOnCircles, deviationOnSliders);
     }
 
     /**
@@ -633,61 +645,77 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             droidHitWindow.hitWindowFor100(isPrecise) /
             this.difficultyAttributes.clockRate;
 
-        const { n300, n100, n50, nmiss } = this.computedAccuracy;
+        const { n100, n50, nmiss } = this.computedAccuracy;
 
         // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
         // Graph: https://www.desmos.com/calculator/31argjcxqc
-        const speedNoteRatio: number =
-            this.difficultyAttributes.speedNoteCount / this.totalHits;
+        // const speedNoteRatio: number =
+        //     this.difficultyAttributes.speedNoteCount / this.totalHits;
 
-        const nonGreatCount: number = n100 + n50 + nmiss;
-        const nonGreatRatio: number =
-            1 -
-            (Math.pow(
-                Math.exp(Math.sqrt(hitWindow300)) + 1,
-                1 - speedNoteRatio
-            ) -
-                1) /
-                Math.exp(Math.sqrt(hitWindow300));
-        const relevantCountGreat: number = Math.max(
+        // const nonGreatCount: number = n100 + n50 + nmiss;
+        // const nonGreatRatio: number =
+        //     1 -
+        //     (Math.pow(
+        //         Math.exp(Math.sqrt(hitWindow300)) + 1,
+        //         1 - speedNoteRatio
+        //     ) -
+        //         1) /
+        //         Math.exp(Math.sqrt(hitWindow300));
+        // const relevantCountGreat: number = Math.max(
+        //     0,
+        //     this.difficultyAttributes.speedNoteCount -
+        //         nonGreatCount * nonGreatRatio
+        // );
+
+        const noteCount: number = this.difficultyAttributes.speedNoteCount;
+        const missCount: number = Math.min(nmiss, noteCount);
+        const mehCount: number = Math.min(n50, noteCount - missCount);
+        const okCount: number = Math.min(
+            n100,
+            noteCount - missCount - mehCount
+        );
+        const greatCount: number = Math.max(
             0,
-            this.difficultyAttributes.speedNoteCount -
-                nonGreatCount * nonGreatRatio
+            noteCount - missCount - mehCount - okCount
         );
 
-        if (relevantCountGreat === 0) {
+        if (greatCount === 0) {
             return Number.POSITIVE_INFINITY;
         }
 
-        const greatProbability: number =
-            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
+        const greatProbability: number = Math.max(
+            0,
+            greatCount / (noteCount - missCount - mehCount + 1)
+        );
 
-        // Start with normal deviation.
-        const normalDeviation: number =
+        // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
+        // Begin with the normal distribution first.
+        let deviation: number =
             hitWindow300 /
             (Math.SQRT2 * ErrorFunction.erfInv(greatProbability));
 
-        // Get the variance of the truncated variable.
-        const truncatedVariance: number =
-            Math.pow(normalDeviation, 2) -
-            (Math.SQRT2 *
-                hitWindow100 *
-                normalDeviation *
-                Math.exp(-0.5 * Math.pow(hitWindow100 / normalDeviation, 2))) /
-                (Math.sqrt(Math.PI) *
-                    ErrorFunction.erf(
-                        hitWindow100 / (Math.SQRT2 * normalDeviation)
-                    ));
+        deviation *=
+            Math.sqrt(
+                1 -
+                    Math.sqrt(2 / Math.PI) *
+                        hitWindow100 *
+                        Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))
+            ) /
+            (deviation *
+                ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
 
-        // Add 50s by assuming they are uniformly distributed.
+        // Then compute the variance for 50s.
+        const mehVariance: number =
+            (Math.pow(hitWindow50, 2) +
+                hitWindow100 * hitWindow50 +
+                Math.pow(hitWindow100, 2)) /
+            3;
+
+        // Find the total deviation.
         return Math.sqrt(
-            (1 / (n300 + n100 + n50)) *
-                ((n300 + n100) * truncatedVariance +
-                    (n50 *
-                        (Math.pow(hitWindow50, 2) +
-                            hitWindow100 * hitWindow50 +
-                            Math.pow(hitWindow100, 2))) /
-                        3)
+            ((greatCount + okCount) * Math.pow(deviation, 2) +
+                mehCount * mehVariance) /
+                (greatCount + okCount + mehCount)
         );
     }
 
