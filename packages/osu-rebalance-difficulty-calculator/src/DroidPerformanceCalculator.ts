@@ -123,7 +123,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     applyTapPenalty(value: number): void {
         if (value < 1) {
             throw new RangeError(
-                "New tap penalty must be greater than or equal to one."
+                "New tap penalty must be greater than or equal to one.",
             );
         }
 
@@ -147,13 +147,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     applyAimSliderCheesePenalty(value: number): void {
         if (value < 0) {
             throw new RangeError(
-                "New aim slider cheese penalty must be greater than or equal to zero."
+                "New aim slider cheese penalty must be greater than or equal to zero.",
             );
         }
 
         if (value > 1) {
             throw new RangeError(
-                "New aim slider cheese penalty must be less than or equal to one."
+                "New aim slider cheese penalty must be less than or equal to one.",
             );
         }
 
@@ -177,13 +177,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     applyFlashlightSliderCheesePenalty(value: number): void {
         if (value < 0) {
             throw new RangeError(
-                "New flashlight slider cheese penalty must be greater than or equal to zero."
+                "New flashlight slider cheese penalty must be greater than or equal to zero.",
             );
         }
 
         if (value > 1) {
             throw new RangeError(
-                "New flashlight slider cheese penalty must be less than or equal to one."
+                "New flashlight slider cheese penalty must be less than or equal to one.",
             );
         }
 
@@ -207,13 +207,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     applyVisualSliderCheesePenalty(value: number): void {
         if (value < 0) {
             throw new RangeError(
-                "New visual slider cheese penalty must be greater than or equal to zero."
+                "New visual slider cheese penalty must be greater than or equal to zero.",
             );
         }
 
         if (value > 1) {
             throw new RangeError(
-                "New visual slider cheese penalty must be less than or equal to one."
+                "New visual slider cheese penalty must be less than or equal to one.",
             );
         }
 
@@ -246,12 +246,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1) +
                     Math.pow(this.visual, 1.1),
-                1 / 1.1
+                1 / 1.1,
             ) * this.finalMultiplier;
     }
 
     protected override handleOptions(
-        options?: PerformanceCalculationOptions
+        options?: PerformanceCalculationOptions,
     ): void {
         this._tapPenalty = options?.tapPenalty ?? 1;
         this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
@@ -268,11 +268,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
      */
     private calculateAimValue(): void {
         this.aim = this.baseValue(
-            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8)
+            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
         this.aim *= this.calculateMissPenalty(
-            this.difficultyAttributes.aimDifficultStrainCount
+            this.difficultyAttributes.aimDifficultStrainCount,
         );
 
         // Scale the aim value with object count to penalize short maps.
@@ -280,7 +280,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1,
             1.650668 +
                 (0.4845796 - 1.650668) /
-                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
+                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469)),
         );
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
@@ -294,7 +294,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1.05 *
             Math.pow(
                 ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
-                1.5
+                1.5,
             );
     }
 
@@ -305,7 +305,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap = this.baseValue(this.difficultyAttributes.tapDifficulty);
 
         this.tap *= this.calculateMissPenalty(
-            this.difficultyAttributes.tapDifficultStrainCount
+            this.difficultyAttributes.tapDifficultStrainCount,
         );
 
         // Scale the tap value with object count to penalize short maps.
@@ -313,7 +313,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1,
             1.625 +
                 (0.4845796 - 1.625) /
-                    (1 + Math.pow(this.totalHits / 850, 1.147469))
+                    (1 + Math.pow(this.totalHits / 850, 1.147469)),
         );
 
         // Normalize the deviation to 300 BPM.
@@ -331,7 +331,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     (1 +
                         Math.exp(
                             -(normalizedDeviation - 7500 / averageBPM) /
-                                ((2 * 300) / averageBPM)
+                                ((2 * 300) / averageBPM),
                         )));
 
         // Scale the tap value with tap deviation.
@@ -339,7 +339,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1.1 *
             Math.pow(
                 ErrorFunction.erf(25 / (Math.SQRT2 * adjustedDeviation)),
-                1.25
+                1.25,
             );
 
         // Scale the tap value with three-fingered penalty.
@@ -367,14 +367,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         const ncircles: number = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2
+            (m) => m instanceof ModScoreV2,
         )
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
 
         this.accuracy *= Math.min(
             1.15,
-            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000))
+            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000)),
         );
 
         // Scale the accuracy value with rhythm complexity.
@@ -382,12 +382,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1.5 /
             (1 +
                 Math.exp(
-                    -(this.difficultyAttributes.rhythmDifficulty - 1) / 2
+                    -(this.difficultyAttributes.rhythmDifficulty - 1) / 2,
                 ));
 
         if (
             this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight
+                (m) => m instanceof ModFlashlight,
             )
         ) {
             this.accuracy *= 1.02;
@@ -400,7 +400,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private calculateFlashlightValue(): void {
         if (
             !this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight
+                (m) => m instanceof ModFlashlight,
             )
         ) {
             this.flashlight = 0;
@@ -412,7 +412,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
         this.flashlight *= this.calculateMissPenalty(
-            this.difficultyAttributes.flashlightDifficultStrainCount
+            this.difficultyAttributes.flashlightDifficultStrainCount,
         );
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
@@ -428,7 +428,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         // Scale the flashlight value with deviation.
         this.flashlight *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._deviation)
+            50 / (Math.SQRT2 * this._deviation),
         );
     }
 
@@ -440,7 +440,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
         this.visual *= this.calculateMissPenalty(
-            this.difficultyAttributes.visualDifficultStrainCount
+            this.difficultyAttributes.visualDifficultStrainCount,
         );
 
         // Scale the visual value with object count to penalize short maps.
@@ -448,7 +448,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1,
             1.650668 +
                 (0.4845796 - 1.650668) /
-                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469))
+                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469)),
         );
 
         // Scale the visual value with slider cheese penalty.
@@ -459,7 +459,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1.065 *
             Math.pow(
                 ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
-                1.75
+                1.75,
             );
     }
 
@@ -502,17 +502,17 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         const hitWindow300: number = new OsuHitWindow(
-            this.difficultyAttributes.overallDifficulty
+            this.difficultyAttributes.overallDifficulty,
         ).hitWindowFor300();
 
         // Obtain the 50 and 100 hit window for droid.
         const droidHitWindow: DroidHitWindow = new DroidHitWindow(
             OsuHitWindow.hitWindow300ToOD(
-                hitWindow300 * this.difficultyAttributes.clockRate
-            )
+                hitWindow300 * this.difficultyAttributes.clockRate,
+            ),
         );
         const isPrecise: boolean = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise
+            (m) => m instanceof ModPrecise,
         );
         const hitWindow50: number =
             droidHitWindow.hitWindowFor50(isPrecise) /
@@ -527,15 +527,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const missCountCircles: number = Math.min(nmiss, circleCount);
         const mehCountCircles: number = Math.min(
             n50,
-            circleCount - missCountCircles
+            circleCount - missCountCircles,
         );
         const okCountCircles: number = Math.min(
             n100,
-            circleCount - missCountCircles - mehCountCircles
+            circleCount - missCountCircles - mehCountCircles,
         );
         const greatCountCircles: number = Math.max(
             0,
-            circleCount - missCountCircles - mehCountCircles - okCountCircles
+            circleCount - missCountCircles - mehCountCircles - okCountCircles,
         );
 
         // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
@@ -546,33 +546,27 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             // to the number of circles as a bias correction / bayesian prior.
             const greatProbabilityCircle: number = Math.max(
                 0,
-                greatCountCircles /
-                    (circleCount - missCountCircles - mehCountCircles + 1)
+                greatCountCircles / (greatCountCircles + okCountCircles + 1),
             );
 
             // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
             // Begin with the normal distribution first.
-            let deviationOnCircles: number =
+            const deviationOnCircles: number =
                 hitWindow300 /
                 (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
 
-            deviationOnCircles *=
-                Math.sqrt(
-                    1 -
-                        Math.sqrt(2 / Math.PI) *
-                            hitWindow100 *
-                            Math.exp(
-                                -0.5 *
-                                    Math.pow(
-                                        hitWindow100 / deviationOnCircles,
-                                        2
-                                    )
-                            )
-                ) /
-                (deviationOnCircles *
+            // Get the variance of the truncated variable.
+            const truncatedVariance: number =
+                Math.pow(deviationOnCircles, 2) -
+                (Math.sqrt(2 / Math.PI) *
+                    hitWindow100 *
+                    deviationOnCircles *
+                    Math.exp(
+                        -0.5 * Math.pow(hitWindow100 / deviationOnCircles, 2),
+                    )) /
                     ErrorFunction.erf(
-                        hitWindow100 / (Math.SQRT2 * deviationOnCircles)
-                    ));
+                        hitWindow100 / (Math.SQRT2 * deviationOnCircles),
+                    );
 
             // Then compute the variance for 50s.
             const mehVariance: number =
@@ -583,10 +577,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
             // Find the total deviation.
             return Math.sqrt(
-                ((greatCountCircles + okCountCircles) *
-                    Math.pow(deviationOnCircles, 2) +
+                ((greatCountCircles + okCountCircles) * truncatedVariance +
                     mehCountCircles * mehVariance) /
-                    (greatCountCircles + okCountCircles + mehCountCircles)
+                    (greatCountCircles + okCountCircles + mehCountCircles),
             );
         }
 
@@ -596,7 +589,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const sliderCount: number = this.difficultyAttributes.sliderCount;
         const missCountSliders: number = Math.min(
             sliderCount,
-            nmiss - missCountCircles
+            nmiss - missCountCircles,
         );
         const greatCountSliders: number = sliderCount - missCountSliders;
 
@@ -627,95 +620,39 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         }
 
         const hitWindow300: number = new OsuHitWindow(
-            this.difficultyAttributes.overallDifficulty
+            this.difficultyAttributes.overallDifficulty,
         ).hitWindowFor300();
-        // Obtain the 50 and 100 hit window for droid.
-        const realHitWindow300: number =
-            hitWindow300 * this.difficultyAttributes.clockRate;
-        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
-            OsuHitWindow.hitWindow300ToOD(realHitWindow300)
-        );
-        const isPrecise: boolean = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise
-        );
-        const hitWindow50: number =
-            droidHitWindow.hitWindowFor50(isPrecise) /
-            this.difficultyAttributes.clockRate;
-        const hitWindow100: number =
-            droidHitWindow.hitWindowFor100(isPrecise) /
-            this.difficultyAttributes.clockRate;
-
         const { n100, n50, nmiss } = this.computedAccuracy;
 
         // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
         // Graph: https://www.desmos.com/calculator/31argjcxqc
-        // const speedNoteRatio: number =
-        //     this.difficultyAttributes.speedNoteCount / this.totalHits;
+        const speedNoteRatio: number =
+            this.difficultyAttributes.speedNoteCount / this.totalHits;
 
-        // const nonGreatCount: number = n100 + n50 + nmiss;
-        // const nonGreatRatio: number =
-        //     1 -
-        //     (Math.pow(
-        //         Math.exp(Math.sqrt(hitWindow300)) + 1,
-        //         1 - speedNoteRatio
-        //     ) -
-        //         1) /
-        //         Math.exp(Math.sqrt(hitWindow300));
-        // const relevantCountGreat: number = Math.max(
-        //     0,
-        //     this.difficultyAttributes.speedNoteCount -
-        //         nonGreatCount * nonGreatRatio
-        // );
-
-        const noteCount: number = this.difficultyAttributes.speedNoteCount;
-        const missCount: number = Math.min(nmiss, noteCount);
-        const mehCount: number = Math.min(n50, noteCount - missCount);
-        const okCount: number = Math.min(
-            n100,
-            noteCount - missCount - mehCount
-        );
-        const greatCount: number = Math.max(
+        const nonGreatCount: number = n100 + n50 + nmiss;
+        const nonGreatRatio: number =
+            1 -
+            (Math.pow(
+                Math.exp(Math.sqrt(hitWindow300)) + 1,
+                1 - speedNoteRatio,
+            ) -
+                1) /
+                Math.exp(Math.sqrt(hitWindow300));
+        const relevantCountGreat: number = Math.max(
             0,
-            noteCount - missCount - mehCount - okCount
+            this.difficultyAttributes.speedNoteCount -
+                nonGreatCount * nonGreatRatio,
         );
 
-        if (greatCount === 0) {
+        if (relevantCountGreat === 0) {
             return Number.POSITIVE_INFINITY;
         }
 
-        const greatProbability: number = Math.max(
-            0,
-            greatCount / (noteCount - missCount - mehCount + 1)
-        );
+        const greatProbability: number =
+            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
 
-        // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-        // Begin with the normal distribution first.
-        let deviation: number =
-            hitWindow300 /
-            (Math.SQRT2 * ErrorFunction.erfInv(greatProbability));
-
-        deviation *=
-            Math.sqrt(
-                1 -
-                    Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))
-            ) /
-            (deviation *
-                ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
-
-        // Then compute the variance for 50s.
-        const mehVariance: number =
-            (Math.pow(hitWindow50, 2) +
-                hitWindow100 * hitWindow50 +
-                Math.pow(hitWindow100, 2)) /
-            3;
-
-        // Find the total deviation.
-        return Math.sqrt(
-            ((greatCount + okCount) * Math.pow(deviation, 2) +
-                mehCount * mehVariance) /
-                (greatCount + okCount + mehCount)
+        return (
+            hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
         );
     }
 
