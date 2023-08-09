@@ -341,7 +341,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
-        this.accuracy = 650 * Math.exp(-0.1 * this._deviation);
+        this.accuracy = 600 * Math.exp(-0.075 * this._deviation);
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         const ncircles: number = this.difficultyAttributes.mods.some(
