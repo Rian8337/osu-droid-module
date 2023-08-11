@@ -385,9 +385,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             6;
 
         this.accuracy =
-            2.83 *
-            Math.pow(1.52163, odFixedAlpha) *
-            Math.pow(((3 * ncircles - 1) * alpha) / (3 * (ncircles - 1)), 24);
+            Math.pow(1.4, odFixedAlpha) *
+            Math.pow(((3 * ncircles - 1) * alpha) / (3 * (ncircles - 1)), 12) *
+            10;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         this.accuracy *= Math.min(
