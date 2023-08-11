@@ -446,9 +446,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the visual value with object count to penalize short maps.
         this.visual *= Math.min(
             1,
-            1.650668 +
-                (0.4845796 - 1.650668) /
-                    (1 + Math.pow(this.totalHits / 817.9306, 1.147469)),
+            1.6 +
+                (0.4845796 - 1.6) /
+                    (1 + Math.pow(this.totalHits / 1000, 1.147469)),
         );
 
         // Scale the visual value with slider cheese penalty.
@@ -461,6 +461,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
                 1.75,
             );
+
+        // OD 5 SS stays the same.
+        this.tap *= 0.98 + Math.pow(5, 2) / 2500;
     }
 
     /**
