@@ -331,7 +331,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap /= this._tapPenalty;
 
         // OD 8 SS stays the same.
-        this.tap *= 0.98 + Math.pow(8, 2) / 2500;
+        this.tap *= 0.95 + Math.pow(8, 2) / 2500;
     }
 
     /**
