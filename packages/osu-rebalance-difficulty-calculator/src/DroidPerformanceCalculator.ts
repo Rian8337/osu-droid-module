@@ -365,29 +365,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             return;
         }
 
+        this.accuracy = 800 * Math.exp(-0.1 * this._deviation);
+
         const ncircles: number = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModScoreV2,
         )
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
-
-        // The accuracy that we want.
-        const alpha: number = 1 / 3 + ((2 / 3) * ncircles) / (ncircles + 1);
-
-        // The OD that achieves 100(alpha)% accuracy with respect to the estimated deviation.
-        // Note that the 3/2(alpha-1/3) factor is to convert accuracy to the proportion of 300s.
-        // For most deviations, accuracy = 1/3 + 2/3 * proportion of 300s, and we need to invert that to get the proportion of 300s.
-        const odFixedAlpha: number =
-            (80 -
-                Math.SQRT2 *
-                    this._deviation *
-                    ErrorFunction.erfInv((3 * (alpha - 1 / 3)) / 2)) /
-            6;
-
-        this.accuracy =
-            Math.pow(1.4, odFixedAlpha) *
-            Math.pow(((3 * ncircles - 1) * alpha) / (3 * (ncircles - 1)), 12) *
-            10;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
         this.accuracy *= Math.min(
