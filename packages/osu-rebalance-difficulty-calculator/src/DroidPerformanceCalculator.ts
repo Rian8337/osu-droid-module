@@ -292,10 +292,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the aim value with deviation.
         this.aim *=
             1.05 *
-            Math.pow(
-                ErrorFunction.erf(32.0625 / (Math.SQRT2 * this._deviation)),
-                1.5,
-            );
+            Math.sqrt(ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)));
 
         // OD 7 SS stays the same.
         this.aim *= 0.98 + Math.pow(7, 2) / 2500;
@@ -341,8 +338,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.tap *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * adjustedDeviation)),
-                1.25,
+                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
+                0.625,
             );
 
         // Scale the tap value with three-fingered penalty.
@@ -460,12 +457,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.visual *=
             1.065 *
             Math.pow(
-                ErrorFunction.erf(30 / (Math.SQRT2 * this._deviation)),
-                1.75,
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
+                0.8,
             );
 
         // OD 5 SS stays the same.
-        this.tap *= 0.98 + Math.pow(5, 2) / 2500;
+        this.visual *= 0.98 + Math.pow(5, 2) / 2500;
     }
 
     /**
