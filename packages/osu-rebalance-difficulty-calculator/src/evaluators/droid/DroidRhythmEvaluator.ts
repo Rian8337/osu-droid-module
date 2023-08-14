@@ -36,7 +36,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
         let rhythmStart: number = 0;
 
-        const historicalNoteCount: number = Math.min(current.index, 16);
+        const historicalNoteCount: number = Math.min(current.index, 32);
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DifficultyHitObject[] = [];
