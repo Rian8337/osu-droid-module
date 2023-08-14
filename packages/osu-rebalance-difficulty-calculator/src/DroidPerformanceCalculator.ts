@@ -369,6 +369,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     -(this.difficultyAttributes.rhythmDifficulty - 1) / 2
                 ));
 
+        const missRatio: number = this.computedAccuracy.nmiss / this.totalHits;
+        if (missRatio >= 0.1) {
+            this.accuracy *= 1 / (1 + Math.exp(20 * (missRatio - 0.35)));
+        }
+
         if (
             this.difficultyAttributes.mods.some(
                 (m) => m instanceof ModFlashlight
