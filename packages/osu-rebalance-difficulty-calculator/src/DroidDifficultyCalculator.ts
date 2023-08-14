@@ -657,7 +657,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             (m) => m instanceof ModRelax
         )
             ? 0
-            : this.starValue(visualSkillWithSliders.difficultyValue());
+            : Math.sqrt(this.starValue(visualSkillWithSliders.difficultyValue()));
 
         if (this.visual) {
             this.attributes.visualSliderFactor =
