@@ -16,6 +16,8 @@ export class DroidVisual extends DroidSkill {
     private readonly isHidden: boolean;
     private readonly withsliders: boolean;
 
+    private currentVisualStrain: number = 0;
+
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
@@ -24,15 +26,17 @@ export class DroidVisual extends DroidSkill {
     }
 
     protected override strainValueAt(current: DifficultyHitObject): number {
-        this.currentStrain *= this.strainDecay(current.deltaTime);
-        this.currentStrain +=
+        this.currentVisualStrain *= this.strainDecay(current.deltaTime);
+        this.currentVisualStrain +=
             DroidVisualEvaluator.evaluateDifficultyOf(
                 current,
                 this.isHidden,
-                this.withsliders
+                this.withsliders,
             ) * this.skillMultiplier;
 
-        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 5);
+        return (
+            this.currentVisualStrain * (1 + (current.rhythmMultiplier - 1) / 5)
+        );
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
