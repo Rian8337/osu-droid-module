@@ -541,14 +541,16 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         ).hitWindowFor300();
 
         // Obtain the 50 and 100 hit window for droid.
-        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
-            OsuHitWindow.hitWindow300ToOD(
-                hitWindow300 * this.difficultyAttributes.clockRate
-            )
-        );
         const isPrecise: boolean = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise
         );
+        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
+            DroidHitWindow.hitWindow300ToOD(
+                hitWindow300 * this.difficultyAttributes.clockRate,
+                isPrecise
+            )
+        );
+
         const hitWindow50: number =
             droidHitWindow.hitWindowFor50(isPrecise) /
             this.difficultyAttributes.clockRate;
