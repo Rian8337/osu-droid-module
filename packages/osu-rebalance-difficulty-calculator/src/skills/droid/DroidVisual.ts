@@ -53,7 +53,7 @@ export class DroidVisual extends DroidSkill {
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
         const strain: number =
-            this.currentVisualStrain - this.currentRhythmMultiplier;
+            this.currentVisualStrain * this.currentRhythmMultiplier;
 
         if (this.withsliders) {
             current.visualStrainWithSliders = strain;
