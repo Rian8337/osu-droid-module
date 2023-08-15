@@ -271,9 +271,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8)
         );
 
-        this.aim *= this.calculateMissPenalty(
-            this.difficultyAttributes.aimDifficultStrainCount
-        );
+        this.aim *= this.proportionalMissPenalty;
 
         // Scale the aim value with slider factor to nerf very likely dropped sliderends.
         this.aim *= this.sliderNerfFactor;
@@ -296,7 +294,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private calculateTapValue(): void {
         this.tap = this.baseValue(this.difficultyAttributes.tapDifficulty);
 
-        this.tap *= this.calculateMissPenalty(
+        this.tap *= this.calculateStrainBasedMissPenalty(
             this.difficultyAttributes.tapDifficultStrainCount
         );
 
@@ -369,6 +367,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                     -(this.difficultyAttributes.rhythmDifficulty - 1) / 2
                 ));
 
+        const missRatio: number = this.computedAccuracy.nmiss / this.totalHits;
+        if (missRatio >= 0.1) {
+            this.accuracy *= 1 / (1 + Math.exp(20 * (missRatio - 0.35)));
+        }
+
         if (
             this.difficultyAttributes.mods.some(
                 (m) => m instanceof ModFlashlight
@@ -395,7 +398,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.flashlight =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        this.flashlight *= this.calculateMissPenalty(
+        this.flashlight *= this.calculateStrainBasedMissPenalty(
             this.difficultyAttributes.flashlightDifficultStrainCount
         );
 
@@ -423,9 +426,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         this.visual =
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
-        this.visual *= this.calculateMissPenalty(
-            this.difficultyAttributes.visualDifficultStrainCount
-        );
+        this.visual *= this.proportionalMissPenalty;
 
         // Scale the visual value with object count to penalize short maps.
         this.visual *= Math.min(
@@ -448,13 +449,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     }
 
     /**
-     * Calculates miss penalty.
+     * Calculates a strain-based miss penalty.
      *
-     * Miss penalty assumes that a player will miss on the hardest parts of a map,
+     * Strain-based miss penalty assumes that a player will miss on the hardest parts of a map,
      * so we use the amount of relatively difficult sections to adjust miss penalty
      * to make it more punishing on maps with lower amount of hard sections.
      */
-    private calculateMissPenalty(difficultStrainCount: number): number {
+    private calculateStrainBasedMissPenalty(
+        difficultStrainCount: number
+    ): number {
         if (this.effectiveMissCount === 0) {
             return 1;
         }
@@ -463,6 +466,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             0.94 /
             (this.effectiveMissCount / (2 * Math.sqrt(difficultStrainCount)) +
                 1)
+        );
+    }
+
+    /**
+     * The object-based proportional miss penalty.
+     */
+    private get proportionalMissPenalty(): number {
+        if (this.effectiveMissCount === 0) {
+            return 1;
+        }
+
+        const missProportion: number =
+            (this.totalHits - this.effectiveMissCount) / (this.totalHits + 1);
+        const noMissProportion: number = this.totalHits / (this.totalHits + 1);
+
+        return (
+            // Aim deviation-based scale.
+            (ErrorFunction.erfInv(missProportion) /
+                ErrorFunction.erfInv(noMissProportion)) *
+            // Cheesing-based scale (i.e. 50% misses is deliberately only hitting each other
+            // note, 90% misses is deliberately only hitting 1 note every 10 notes).
+            Math.pow(missProportion, 8)
         );
     }
 
