@@ -23,7 +23,7 @@ export abstract class DroidVisualEvaluator {
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
         isHiddenMod: boolean,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -70,13 +70,13 @@ export abstract class DroidVisualEvaluator {
                 4;
         }
 
-        // Scale the value with overlapping factor.
-        strain /= 10 * (1 + current.overlappingFactor);
-
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
             strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
         }
+
+        // Scale the value with overlapping factor.
+        strain /= 10 * (1 + current.overlappingFactor);
 
         if (current.object instanceof Slider && withSliders) {
             const scalingFactor: number =
@@ -109,7 +109,7 @@ export abstract class DroidVisualEvaluator {
                     // Avoid overbuffing extremely fast velocity changes.
                     Math.min(
                         10,
-                        2.5 * Math.abs(current.velocity - last.velocity)
+                        2.5 * Math.abs(current.velocity - last.velocity),
                     ) *
                     // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
                     Math.min(1, last.travelDistance / scalingFactor / 100) *
