@@ -22,7 +22,7 @@ export class DroidTap extends DroidSkill {
         super(mods);
 
         this.greatWindow = new OsuHitWindow(
-            overallDifficulty
+            overallDifficulty,
         ).hitWindowFor300();
     }
 
@@ -37,7 +37,7 @@ export class DroidTap extends DroidSkill {
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
                 this.greatWindow,
-                true
+                true,
             ) * this.skillMultiplier;
 
         this.currentOriginalTapStrain *= decay;
@@ -45,9 +45,8 @@ export class DroidTap extends DroidSkill {
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
                 this.greatWindow,
-                false
+                false,
             ) * this.skillMultiplier;
-        this.currentOriginalTapStrain *= current.rhythmMultiplier;
 
         return this.currentTapStrain * current.rhythmMultiplier;
     }
@@ -57,6 +56,7 @@ export class DroidTap extends DroidSkill {
      */
     protected override saveToHitObject(current: DifficultyHitObject): void {
         current.tapStrain = this.currentStrain;
-        current.originalTapStrain = this.currentOriginalTapStrain;
+        current.originalTapStrain =
+            this.currentOriginalTapStrain * current.rhythmMultiplier;
     }
 }
