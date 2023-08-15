@@ -66,7 +66,7 @@ export abstract class PerformanceCalculator {
 
         this.calculateValues();
 
-        this.calculateTotalValue();
+        this.total = this.calculateTotalValue();
 
         return this;
     }
@@ -85,7 +85,7 @@ export abstract class PerformanceCalculator {
     /**
      * Calculates the total performance value of the beatmap and stores it in this instance.
      */
-    protected abstract calculateTotalValue(): void;
+    protected abstract calculateTotalValue(): number;
 
     /**
      * The total hits that can be done in the beatmap.
@@ -138,12 +138,12 @@ export abstract class PerformanceCalculator {
                     this.totalHits -
                         this.computedAccuracy.n100 -
                         this.computedAccuracy.n50 -
-                        this.computedAccuracy.nmiss
+                        this.computedAccuracy.nmiss,
                 );
             } else {
                 this.computedAccuracy.nmiss = Math.max(
                     0,
-                    this.totalHits - this.totalSuccessfulHits
+                    this.totalHits - this.totalSuccessfulHits,
                 );
             }
         } else {
@@ -156,7 +156,7 @@ export abstract class PerformanceCalculator {
 
         this.effectiveMissCount = this.calculateEffectiveMissCount(
             combo,
-            maxCombo
+            maxCombo,
         );
 
         if (
@@ -164,7 +164,7 @@ export abstract class PerformanceCalculator {
         ) {
             this.finalMultiplier *= Math.max(
                 0.9,
-                1 - 0.02 * this.effectiveMissCount
+                1 - 0.02 * this.effectiveMissCount,
             );
         }
 
@@ -175,7 +175,7 @@ export abstract class PerformanceCalculator {
                 1 -
                 Math.pow(
                     this.difficultyAttributes.spinnerCount / this.totalHits,
-                    0.85
+                    0.85,
                 );
         }
 
@@ -189,9 +189,9 @@ export abstract class PerformanceCalculator {
                           Math.pow(
                               this.difficultyAttributes.overallDifficulty /
                                   13.33,
-                              1.8
+                              1.8,
                           )
-                    : 1
+                    : 1,
             );
 
             const n50Multiplier: number = Math.max(
@@ -201,9 +201,9 @@ export abstract class PerformanceCalculator {
                           Math.pow(
                               this.difficultyAttributes.overallDifficulty /
                                   13.33,
-                              5
+                              5,
                           )
-                    : 1
+                    : 1,
             );
 
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
@@ -212,7 +212,7 @@ export abstract class PerformanceCalculator {
                 this.effectiveMissCount +
                     this.computedAccuracy.n100 * n100Multiplier +
                     this.computedAccuracy.n50 * n50Multiplier,
-                this.totalHits
+                this.totalHits,
             );
         }
 
@@ -225,10 +225,10 @@ export abstract class PerformanceCalculator {
                     this.computedAccuracy.n100 +
                         this.computedAccuracy.n50 +
                         this.computedAccuracy.nmiss,
-                    maxCombo - combo
+                    maxCombo - combo,
                 ),
                 0,
-                estimateDifficultSliders
+                estimateDifficultSliders,
             );
 
             this.sliderNerfFactor =
@@ -237,7 +237,7 @@ export abstract class PerformanceCalculator {
                         1 -
                             estimateSliderEndsDropped /
                                 estimateDifficultSliders,
-                        3
+                        3,
                     ) +
                 this.difficultyAttributes.sliderFactor;
         }
@@ -248,7 +248,7 @@ export abstract class PerformanceCalculator {
      */
     private calculateEffectiveMissCount(
         combo: number,
-        maxCombo: number
+        maxCombo: number,
     ): number {
         // Guess the number of misses + slider breaks from combo.
         let comboBasedMissCount: number = 0;
@@ -263,7 +263,7 @@ export abstract class PerformanceCalculator {
                     fullComboThreshold / Math.max(1, combo),
                     this.computedAccuracy.n100 +
                         this.computedAccuracy.n50 +
-                        this.computedAccuracy.nmiss
+                        this.computedAccuracy.nmiss,
                 );
             }
         }

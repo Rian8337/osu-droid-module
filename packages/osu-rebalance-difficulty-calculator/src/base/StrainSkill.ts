@@ -7,16 +7,6 @@ import { Skill } from "./Skill";
  */
 export abstract class StrainSkill extends Skill {
     /**
-     * The strain of currently calculated hitobject.
-     */
-    protected currentStrain: number = 0;
-
-    /**
-     * The current section's strain peak.
-     */
-    protected currentSectionPeak: number = 0;
-
-    /**
      * Strain peaks are stored here.
      */
     readonly strainPeaks: number[] = [];
@@ -33,11 +23,6 @@ export abstract class StrainSkill extends Skill {
     protected abstract readonly reducedSectionBaseline: number;
 
     /**
-     * Strain values are multiplied by this number for the given skill. Used to balance the value of different skills between each other.
-     */
-    protected abstract readonly skillMultiplier: number;
-
-    /**
      * Determines how quickly strain decays for the given skill.
      *
      * For example, a value of 0.15 indicates that strain decays to 15% of its original value in one second.
@@ -45,7 +30,8 @@ export abstract class StrainSkill extends Skill {
     protected abstract readonly strainDecayBase: number;
 
     private readonly sectionLength: number = 400;
-
+    private currentStrain: number = 0;
+    private currentSectionPeak: number = 0;
     private currentSectionEnd: number = 0;
 
     override process(current: DifficultyHitObject): void {
@@ -69,7 +55,7 @@ export abstract class StrainSkill extends Skill {
 
         this.currentSectionPeak = Math.max(
             this.currentStrain,
-            this.currentSectionPeak
+            this.currentSectionPeak,
         );
 
         if (!current.next(0)) {
@@ -96,6 +82,8 @@ export abstract class StrainSkill extends Skill {
 
     /**
      * Calculates the strain value at a hitobject.
+     *
+     * @param current The hitobject to calculate.
      */
     protected abstract strainValueAt(current: DifficultyHitObject): number;
 
@@ -105,19 +93,29 @@ export abstract class StrainSkill extends Skill {
     protected abstract saveToHitObject(current: DifficultyHitObject): void;
 
     /**
+     * Retrieves the peak strain at a point in time.
+     *
+     * @param time The time to retrieve the peak strain at.
+     * @param current The current hit object.
+     * @returns The peak strain.
+     */
+    protected abstract calculateInitialStrain(
+        time: number,
+        current: DifficultyHitObject,
+    ): number;
+
+    /**
      * Sets the initial strain level for a new section.
      *
-     * @param offset The beginning of the new section in milliseconds, adjusted by speed multiplier.
+     * @param time The beginning of the new section in milliseconds.
      * @param current The current hitobject.
      */
     private startNewSectionFrom(
-        offset: number,
-        current: DifficultyHitObject
+        time: number,
+        current: DifficultyHitObject,
     ): void {
-        // The maximum strain of the new section is not zero by default, strain decays as usual regardless of section boundaries.
+        // The maximum strain of the new section is not zero by default
         // This means we need to capture the strain level at the beginning of the new section, and use that as the initial peak level.
-        this.currentSectionPeak =
-            this.currentStrain *
-            this.strainDecay(offset - current.previous(0)!.startTime);
+        this.currentSectionPeak = this.calculateInitialStrain(time, current);
     }
 }

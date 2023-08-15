@@ -91,7 +91,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         const aimSkillWithoutSliders: DroidAim = new DroidAim(this.mods, false);
 
         this.calculateSkills(aimSkill, aimSkillWithoutSliders);
-
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
     }
 
@@ -99,37 +98,25 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
      * Calculates the tap star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
-        const tapSkill: DroidTap = new DroidTap(this.mods, this.stats.od!);
+        const od: number = this.stats.od!;
 
-        this.calculateSkills(tapSkill);
+        const tapSkillCheese: DroidTap = new DroidTap(this.mods, od, true);
+        const tapSkillNoCheese: DroidTap = new DroidTap(this.mods, od, false);
 
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.tap = this.attributes.tapDifficulty = 0;
-            this.attributes.possibleThreeFingeredSections = [];
-        } else {
-            this.postCalculateTap(tapSkill);
-        }
-
-        this.calculateSpeedAttributes();
+        this.calculateSkills(tapSkillCheese, tapSkillNoCheese);
+        this.postCalculateTap(tapSkillCheese);
     }
 
     /**
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.rhythm = this.attributes.rhythmDifficulty = 0;
-
-            return;
-        }
-
         const rhythmSkill: DroidRhythm = new DroidRhythm(
             this.mods,
             this.stats.od!
         );
 
         this.calculateSkills(rhythmSkill);
-
         this.postCalculateRhythm(rhythmSkill);
     }
 
@@ -145,7 +132,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
             new DroidFlashlight(this.mods, false);
 
         this.calculateSkills(flashlightSkill, flashlightSkillWithoutSliders);
-
         this.postCalculateFlashlight(
             flashlightSkill,
             flashlightSkillWithoutSliders
@@ -169,7 +155,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         );
 
         this.calculateSkills(visualSkill, visualSkillWithoutSliders);
-
         this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
     }
 
@@ -210,50 +195,30 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
 
     override calculateAll(): void {
         const skills: DroidSkill[] = this.createSkills();
-
-        const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
-
-        if (isRelax) {
-            // Remove visual skills to reduce overhead.
-            skills.pop();
-            skills.pop();
-        }
-
         this.calculateSkills(...skills);
 
         const aimSkill = <DroidAim>skills[0];
         const aimSkillWithoutSliders = <DroidAim>skills[1];
         const rhythmSkill = <DroidRhythm>skills[2];
-        const tapSkill = <DroidTap>skills[3];
-        const flashlightSkill = <DroidFlashlight>skills[4];
-        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[5];
-        const visualSkill = <DroidVisual | null>skills[6] ?? null;
-        const visualSkillWithoutSliders = <DroidVisual | null>skills[7] ?? null;
+        const tapSkillCheese = <DroidTap>skills[3];
+        const flashlightSkill = <DroidFlashlight>skills[5];
+        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[6];
+        const visualSkill = <DroidVisual>skills[7];
+        const visualSkillWithoutSliders = <DroidVisual>skills[8];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (isRelax) {
-            this.tap = this.attributes.tapDifficulty = 0;
-        } else {
-            this.postCalculateTap(tapSkill);
-        }
+        this.postCalculateTap(tapSkillCheese);
+        this.calculateTapAttributes();
 
-        this.calculateSpeedAttributes();
-
-        if (!isRelax) {
-            this.postCalculateRhythm(rhythmSkill);
-        }
+        this.postCalculateRhythm(rhythmSkill);
 
         this.postCalculateFlashlight(
             flashlightSkill,
             flashlightSkillWithoutSliders
         );
 
-        if (visualSkill && visualSkillWithoutSliders) {
-            this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
-        } else {
-            this.visual = this.attributes.visualDifficulty = 0;
-        }
+        this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
 
         this.calculateTotal();
     }
@@ -291,12 +256,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     }
 
     protected override createSkills(): DroidSkill[] {
+        const od: number = this.stats.od!;
+
         return [
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
-            new DroidRhythm(this.mods, this.stats.od!),
-            new DroidTap(this.mods, this.stats.od!),
+            new DroidRhythm(this.mods, od),
+            new DroidTap(this.mods, od, true),
+            new DroidTap(this.mods, od, false),
             new DroidFlashlight(this.mods, true),
             new DroidFlashlight(this.mods, false),
             new DroidVisual(this.mods, true),
@@ -330,6 +298,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
         }
 
         this.attributes.aimDifficulty = this.aim;
+
         this.calculateAimAttributes();
     }
 
@@ -401,20 +370,27 @@ export class DroidDifficultyCalculator extends DifficultyCalculator {
     /**
      * Called after tap skill calculation.
      *
-     * @param tapSkill The tap skill.
+     * @param tapSkillCheese The tap skill that considers cheesing.
      */
-    private postCalculateTap(tapSkill: DroidTap): void {
-        this.strainPeaks.speed = tapSkill.strainPeaks;
+    private postCalculateTap(tapSkillCheese: DroidTap): void {
+        this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
-        this.tap = this.attributes.tapDifficulty = this.starValue(
-            tapSkill.difficultyValue()
-        );
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.tap = this.attributes.tapDifficulty = 0;
+            this.attributes.possibleThreeFingeredSections = [];
+        } else {
+            this.tap = this.attributes.tapDifficulty = this.starValue(
+                tapSkillCheese.difficultyValue()
+            );
+        }
+
+        this.calculateTapAttributes();
     }
 
     /**
-     * Calculates speed-related attributes.
+     * Calculates tap-related attributes.
      */
-    private calculateSpeedAttributes(): void {
+    private calculateTapAttributes(): void {
         this.attributes.possibleThreeFingeredSections = [];
         const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
 

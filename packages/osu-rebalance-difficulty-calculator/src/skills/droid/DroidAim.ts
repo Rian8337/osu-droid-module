@@ -7,13 +7,15 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class DroidAim extends DroidSkill {
-    protected override readonly skillMultiplier: number = 23.55;
     protected override readonly strainDecayBase: number = 0.15;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly starsPerDouble: number = 1.05;
 
+    private readonly skillMultiplier: number = 23.55;
+
     private readonly withSliders: boolean;
+    private currentAimStrain: number = 0;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
@@ -21,16 +23,23 @@ export class DroidAim extends DroidSkill {
         this.withSliders = withSliders;
     }
 
-    /**
-     * @param current The hitobject to calculate.
-     */
     protected override strainValueAt(current: DifficultyHitObject): number {
-        this.currentStrain *= this.strainDecay(current.deltaTime);
-        this.currentStrain +=
+        this.currentAimStrain *= this.strainDecay(current.deltaTime);
+        this.currentAimStrain +=
             DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
             this.skillMultiplier;
 
-        return this.currentStrain;
+        return this.currentAimStrain;
+    }
+
+    protected override calculateInitialStrain(
+        time: number,
+        current: DifficultyHitObject,
+    ): number {
+        return (
+            this.currentAimStrain *
+            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
+        );
     }
 
     /**
@@ -38,9 +47,9 @@ export class DroidAim extends DroidSkill {
      */
     protected override saveToHitObject(current: DifficultyHitObject): void {
         if (this.withSliders) {
-            current.aimStrainWithSliders = this.currentStrain;
+            current.aimStrainWithSliders = this.currentAimStrain;
         } else {
-            current.aimStrainWithoutSliders = this.currentStrain;
+            current.aimStrainWithoutSliders = this.currentAimStrain;
         }
     }
 }

@@ -63,7 +63,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         const aimSkillWithoutSliders: OsuAim = new OsuAim(this.mods, false);
 
         this.calculateSkills(aimSkill, aimSkillWithoutSliders);
-
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
     }
 
@@ -71,26 +70,13 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateSpeed(): void {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.speed = this.attributes.speedDifficulty = 0;
-            return;
-        }
-
         const speedSkill: OsuSpeed = new OsuSpeed(
             this.mods,
-            new OsuHitWindow(this.stats.od!).hitWindowFor300()
+            new OsuHitWindow(this.stats.od!).hitWindowFor300(),
         );
 
         this.calculateSkills(speedSkill);
-
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.speed = 0;
-            this.attributes.speedDifficulty = 0;
-        } else {
-            this.postCalculateSpeed(speedSkill);
-        }
-
-        this.calculateSpeedAttributes();
+        this.postCalculateSpeed(speedSkill);
     }
 
     /**
@@ -100,14 +86,13 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         const flashlightSkill: OsuFlashlight = new OsuFlashlight(this.mods);
 
         this.calculateSkills(flashlightSkill);
-
         this.postCalculateFlashlight(flashlightSkill);
     }
 
     override calculateTotal(): void {
         const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
         const speedPerformanceValue: number = this.basePerformanceValue(
-            this.speed
+            this.speed,
         );
         let flashlightPerformanceValue: number = 0;
 
@@ -119,7 +104,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             Math.pow(aimPerformanceValue, 1.1) +
                 Math.pow(speedPerformanceValue, 1.1) +
                 Math.pow(flashlightPerformanceValue, 1.1),
-            1 / 1.1
+            1 / 1.1,
         );
 
         if (basePerformanceValue > 1e-5) {
@@ -129,7 +114,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                 Math.cbrt(1.14) *
                 0.027 *
                 (Math.cbrt(
-                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
+                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue,
                 ) +
                     4);
         } else {
@@ -139,9 +124,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
     override calculateAll(): void {
         const skills: OsuSkill[] = this.createSkills();
-
-        const isRelax: boolean = this.mods.some((m) => m instanceof ModRelax);
-
         this.calculateSkills(...skills);
 
         const aimSkill: OsuAim = <OsuAim>skills[0];
@@ -151,13 +133,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        if (isRelax) {
-            this.speed = 0;
-            this.attributes.speedDifficulty = 0;
-        } else {
-            this.postCalculateSpeed(speedSkill);
-        }
-
+        this.postCalculateSpeed(speedSkill);
         this.calculateSpeedAttributes();
 
         this.postCalculateFlashlight(flashlightSkill);
@@ -180,7 +156,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
     protected override preProcess(): void {
         const scale: number = CircleSizeCalculator.standardCSToStandardScale(
-            this.stats.cs!
+            this.stats.cs!,
         );
 
         for (const object of this.beatmap.hitObjects.objects) {
@@ -196,7 +172,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             this.beatmap.formatVersion,
             this.beatmap.hitObjects.objects,
             ar,
-            this.beatmap.general.stackLeniency
+            this.beatmap.general.stackLeniency,
         );
     }
 
@@ -206,7 +182,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             new OsuAim(this.mods, false),
             new OsuSpeed(
                 this.mods,
-                new OsuHitWindow(this.stats.od!).hitWindowFor300()
+                new OsuHitWindow(this.stats.od!).hitWindowFor300(),
             ),
             new OsuFlashlight(this.mods),
         ];
@@ -220,7 +196,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      */
     private postCalculateAim(
         aimSkill: OsuAim,
-        aimSkillWithoutSliders: OsuAim
+        aimSkillWithoutSliders: OsuAim,
     ): void {
         this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
@@ -252,9 +228,13 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     private postCalculateSpeed(speedSkill: OsuSpeed): void {
         this.strainPeaks.speed = speedSkill.strainPeaks;
 
-        this.speed = this.attributes.speedDifficulty = this.starValue(
-            speedSkill.difficultyValue()
-        );
+        this.speed = this.attributes.speedDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax,
+        )
+            ? 0
+            : this.starValue(speedSkill.difficultyValue());
+
+        this.calculateSpeedAttributes();
     }
 
     /**
@@ -269,7 +249,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             this.attributes.speedNoteCount = objectStrains.reduce(
                 (total, next) =>
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0
+                0,
             );
         }
     }
