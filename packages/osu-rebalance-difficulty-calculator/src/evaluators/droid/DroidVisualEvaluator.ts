@@ -72,7 +72,7 @@ export abstract class DroidVisualEvaluator {
 
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
-            strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
+            strain += Math.pow(400 - current.timePreempt, 1.4) / 100;
         }
 
         // Scale the value with overlapping factor.
