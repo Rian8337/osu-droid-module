@@ -114,7 +114,7 @@ export abstract class StrainSkill extends Skill {
         time: number,
         current: DifficultyHitObject,
     ): void {
-        // The maximum strain of the new section is not zero by default
+        // The maximum strain of the new section is not zero by default.
         // This means we need to capture the strain level at the beginning of the new section, and use that as the initial peak level.
         this.currentSectionPeak = this.calculateInitialStrain(time, current);
     }

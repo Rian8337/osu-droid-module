@@ -70,13 +70,13 @@ export abstract class DroidVisualEvaluator {
                 4;
         }
 
-        if (current.timePreempt < 400) {
-            // Give bonus for AR higher than 10.33.
-            strain += Math.pow(400 - current.timePreempt, 1.3) / 20;
-        }
-
         // Scale the value with overlapping factor.
         strain /= 10 * (1 + current.overlappingFactor);
+
+        if (current.timePreempt < 400) {
+            // Give bonus for AR higher than 10.33.
+            strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
+        }
 
         if (current.object instanceof Slider && withSliders) {
             const scalingFactor: number =
