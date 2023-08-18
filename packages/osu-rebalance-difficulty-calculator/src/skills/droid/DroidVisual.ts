@@ -35,7 +35,7 @@ export class DroidVisual extends DroidSkill {
                 this.withsliders,
             ) * this.skillMultiplier;
 
-        this.currentRhythmMultiplier = 1 + (current.rhythmMultiplier - 1) / 5;
+        this.currentRhythmMultiplier = current.rhythmMultiplier;
 
         return this.currentVisualStrain * this.currentRhythmMultiplier;
     }
