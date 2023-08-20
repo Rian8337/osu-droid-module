@@ -12,7 +12,7 @@ export class DroidAim extends DroidSkill {
     protected override readonly reducedSectionBaseline: number = 0.75;
     protected override readonly starsPerDouble: number = 1.05;
 
-    private readonly skillMultiplier: number = 23.55;
+    private readonly skillMultiplier: number = 24.55;
 
     private readonly withSliders: boolean;
     private currentAimStrain: number = 0;
