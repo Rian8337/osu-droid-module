@@ -13,7 +13,7 @@ export class DroidVisual extends DroidSkill {
     protected override readonly strainDecayBase: number = 0.1;
 
     private readonly isHidden: boolean;
-    private readonly withsliders: boolean;
+    private readonly withSliders: boolean;
 
     private currentVisualStrain: number = 0;
     private currentRhythmMultiplier: number = 1;
@@ -23,7 +23,7 @@ export class DroidVisual extends DroidSkill {
         super(mods);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
-        this.withsliders = withSliders;
+        this.withSliders = withSliders;
     }
 
     protected override strainValueAt(current: DifficultyHitObject): number {
@@ -32,7 +32,7 @@ export class DroidVisual extends DroidSkill {
             DroidVisualEvaluator.evaluateDifficultyOf(
                 current,
                 this.isHidden,
-                this.withsliders,
+                this.withSliders,
             ) * this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
@@ -55,7 +55,7 @@ export class DroidVisual extends DroidSkill {
         const strain: number =
             this.currentVisualStrain * this.currentRhythmMultiplier;
 
-        if (this.withsliders) {
+        if (this.withSliders) {
             current.visualStrainWithSliders = strain;
         } else {
             current.visualStrainWithoutSliders = strain;
