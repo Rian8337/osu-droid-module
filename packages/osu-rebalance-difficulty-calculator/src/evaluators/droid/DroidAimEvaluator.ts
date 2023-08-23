@@ -28,7 +28,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      */
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -45,11 +45,11 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     }
 
     /**
-     * Calculates the aim strain of a hitobject.
+     * Calculates the snap aim strain of a hitobject.
      */
     private static snapAimStrainOf(
         current: DifficultyHitObject,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.index <= 1 ||
@@ -80,7 +80,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             // Take the larger total combined velocity.
             currentVelocity = Math.max(
                 currentVelocity,
-                movementVelocity + travelVelocity
+                movementVelocity + travelVelocity,
             );
         }
 
@@ -98,7 +98,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
 
             prevVelocity = Math.max(
                 prevVelocity,
-                movementVelocity + travelVelocity
+                movementVelocity + travelVelocity,
             );
         }
 
@@ -137,9 +137,9 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                     Math.pow(
                         Math.sin(
                             (Math.PI / 2) *
-                                Math.min(1, (100 - current.strainTime) / 25)
+                                Math.min(1, (100 - current.strainTime) / 25),
                         ),
-                        2
+                        2,
                     ) *
                     // Buff distance exceeding 50 (radius) up to 100 (diameter).
                     Math.pow(
@@ -148,12 +148,12 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                                 (MathUtils.clamp(
                                     current.lazyJumpDistance,
                                     50,
-                                    100
+                                    100,
                                 ) -
                                     50)) /
-                                50
+                                50,
                         ),
-                        2
+                        2,
                     );
             }
 
@@ -163,7 +163,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 (1 -
                     Math.min(
                         wideAngleBonus,
-                        Math.pow(this.calculateWideAngleBonus(last.angle), 3)
+                        Math.pow(this.calculateWideAngleBonus(last.angle), 3),
                     ));
             // Penalize acute angles if they're repeated, reducing the penalty as lastLast.angle gets more obtuse.
             acuteAngleBonus *=
@@ -174,8 +174,8 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                             acuteAngleBonus,
                             Math.pow(
                                 this.calculateAcuteAngleBonus(lastLast.angle),
-                                3
-                            )
+                                3,
+                            ),
                         ));
         }
 
@@ -192,15 +192,15 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             const distanceRatio: number = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
-                        Math.max(prevVelocity, currentVelocity)
+                        Math.max(prevVelocity, currentVelocity),
                 ),
-                2
+                2,
             );
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff: number = Math.min(
                 125 / Math.min(current.strainTime, last.strainTime),
-                Math.abs(prevVelocity - currentVelocity)
+                Math.abs(prevVelocity - currentVelocity),
             );
 
             velocityChangeBonus = overlapVelocityBuff * distanceRatio;
@@ -209,7 +209,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             velocityChangeBonus *= Math.pow(
                 Math.min(current.strainTime, last.strainTime) /
                     Math.max(current.strainTime, last.strainTime),
-                2
+                2,
             );
         }
 
@@ -222,7 +222,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
             wideAngleBonus * this.wideAngleMultiplier +
-                velocityChangeBonus * this.velocityChangeMultiplier
+                velocityChangeBonus * this.velocityChangeMultiplier,
         );
 
         // Add in additional slider velocity bonus.
@@ -235,7 +235,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     }
 
     /**
-     * Calculates the movement strain of a hitobject.
+     * Calculates the flow aim strain of a hitobject.
      */
     private static flowAimStrainOf(current: DifficultyHitObject): number {
         let speedBonus: number = 1;
@@ -250,11 +250,11 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         const shortDistancePenalty: number = Math.pow(
             Math.min(
                 this.singleSpacingThreshold,
-                travelDistance + current.minimumJumpDistance
+                travelDistance + current.minimumJumpDistance,
             ) / this.singleSpacingThreshold,
-            3.5
+            3.5,
         );
 
-        return (100 * speedBonus * shortDistancePenalty) / current.strainTime;
+        return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
     }
 }
