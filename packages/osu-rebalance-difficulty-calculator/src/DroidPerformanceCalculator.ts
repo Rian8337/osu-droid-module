@@ -133,8 +133,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this._tapPenalty = value;
         this.tap = this.calculateTapValue();
-
-        this.calculateTotalValue();
+        this.total = this.calculateTotalValue();
     }
 
     /**
@@ -163,8 +162,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this._aimSliderCheesePenalty = value;
         this.aim = this.calculateAimValue();
-
-        this.calculateTotalValue();
+        this.total = this.calculateTotalValue();
     }
 
     /**
@@ -193,8 +191,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this._flashlightSliderCheesePenalty = value;
         this.flashlight = this.calculateFlashlightValue();
-
-        this.calculateTotalValue();
+        this.total = this.calculateTotalValue();
     }
 
     /**
@@ -223,8 +220,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
 
         this._visualSliderCheesePenalty = value;
         this.visual = this.calculateVisualValue();
-
-        this.calculateTotalValue();
+        this.total = this.calculateTotalValue();
     }
 
     protected override calculateValues(): void {
