@@ -144,7 +144,7 @@ export class ThreeFingerChecker {
         data: ReplayData,
         difficultyAttributes:
             | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes,
     ) {
         this.beatmap = beatmap;
         this.data = data;
@@ -156,19 +156,19 @@ export class ThreeFingerChecker {
                 (m) =>
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym
-                    )
+                        (v) => v.acronym === m.acronym,
+                    ),
             ),
         }).calculate({ mode: Modes.droid, convertDroidOD: false });
 
         this.isPrecise = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise
+            (m) => m instanceof ModPrecise,
         );
         this.hitWindow = new DroidHitWindow(stats.od!);
         this.strainNoteCount =
             this.difficultyAttributes.possibleThreeFingeredSections.reduce(
                 (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,
-                0
+                0,
             );
 
         const circleSize: number = new MapStats({
@@ -186,7 +186,7 @@ export class ThreeFingerChecker {
     static isEligibleToDetect(
         difficultyAttributes:
             | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes,
     ): boolean {
         return difficultyAttributes.possibleThreeFingeredSections.length > 0;
     }
@@ -242,7 +242,7 @@ export class ThreeFingerChecker {
             const beforeIndex: number = MathUtils.clamp(
                 objects.findIndex((o) => o.endTime >= breakPoint.startTime) - 1,
                 0,
-                objects.length - 2
+                objects.length - 2,
             );
             let timeBefore: number = objects[beforeIndex].endTime;
 
@@ -252,17 +252,17 @@ export class ThreeFingerChecker {
             switch (objectData[beforeIndex].result) {
                 case HitResult.great:
                     beforeIndexHitWindowLength = this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     beforeIndexHitWindowLength = this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     beforeIndexHitWindowLength = this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
 
@@ -277,17 +277,17 @@ export class ThreeFingerChecker {
             switch (objectData[afterIndex].result) {
                 case HitResult.great:
                     afterIndexHitWindowLength = this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     afterIndexHitWindowLength = this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     afterIndexHitWindowLength = this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
 
@@ -297,7 +297,7 @@ export class ThreeFingerChecker {
                 new BreakPoint({
                     startTime: timeBefore,
                     endTime: timeAfter,
-                })
+                }),
             );
         }
     }
@@ -316,46 +316,46 @@ export class ThreeFingerChecker {
 
         // For sliders, automatically set hit window length to be as lenient as possible.
         let firstObjectHitWindow: number = this.hitWindow.hitWindowFor50(
-            this.isPrecise
+            this.isPrecise,
         );
         if (objects[0] instanceof Circle) {
             switch (firstObjectResult) {
                 case HitResult.great:
                     firstObjectHitWindow = this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     firstObjectHitWindow = this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     firstObjectHitWindow = this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
         }
 
         // For sliders, automatically set hit window length to be as lenient as possible.
         let lastObjectHitWindow: number = this.hitWindow.hitWindowFor50(
-            this.isPrecise
+            this.isPrecise,
         );
         if (objects.at(-1) instanceof Circle) {
             switch (lastObjectResult) {
                 case HitResult.great:
                     lastObjectHitWindow = this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     lastObjectHitWindow = this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     lastObjectHitWindow = this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
         }
@@ -388,7 +388,7 @@ export class ThreeFingerChecker {
                     this.breakPointAccurateTimes.some(
                         (v) =>
                             group.startTime >= v.startTime &&
-                            group.endTime <= v.endTime
+                            group.endTime <= v.endTime,
                     )
                 ) {
                     continue;
@@ -448,22 +448,22 @@ export class ThreeFingerChecker {
             switch (objectData[section.firstObjectIndex].result) {
                 case HitResult.great:
                     firstObjectMinHitTime -= this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     firstObjectMinHitTime -= this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
         } else {
             firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
-                this.isPrecise
+                this.isPrecise,
             );
         }
 
@@ -472,22 +472,22 @@ export class ThreeFingerChecker {
             switch (objectData[section.lastObjectIndex].result) {
                 case HitResult.great:
                     lastObjectMaxHitTime += this.hitWindow.hitWindowFor300(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 case HitResult.good:
                     lastObjectMaxHitTime += this.hitWindow.hitWindowFor100(
-                        this.isPrecise
+                        this.isPrecise,
                     );
                     break;
                 default:
                     lastObjectMaxHitTime += this.hitWindow.hitWindowFor50(
-                        this.isPrecise
+                        this.isPrecise,
                     );
             }
         } else {
             lastObjectMaxHitTime += this.hitWindow.hitWindowFor50(
-                this.isPrecise
+                this.isPrecise,
             );
         }
 
@@ -506,7 +506,7 @@ export class ThreeFingerChecker {
                 c.occurrenceGroups.filter(
                     (v) =>
                         v.startTime >= firstObjectMinHitTime &&
-                        v.endTime <= lastObjectMaxHitTime
+                        v.endTime <= lastObjectMaxHitTime,
                 ).length === 0
             ) {
                 continue;
@@ -526,13 +526,13 @@ export class ThreeFingerChecker {
         return this.findDragIndex(
             objects.slice(
                 section.firstObjectIndex,
-                section.lastObjectIndex + 1
+                section.lastObjectIndex + 1,
             ),
             objectData.slice(
                 section.firstObjectIndex,
-                section.lastObjectIndex + 1
+                section.lastObjectIndex + 1,
             ),
-            cursorIndexes
+            cursorIndexes,
         );
     }
 
@@ -546,10 +546,10 @@ export class ThreeFingerChecker {
     private findDragIndex(
         sectionObjects: PlaceableHitObject[],
         sectionReplayObjectData: ReplayObjectData[],
-        cursorIndexes: number[]
+        cursorIndexes: number[],
     ): number {
         const hitWindow50: number = this.hitWindow.hitWindowFor50(
-            this.isPrecise
+            this.isPrecise,
         );
 
         for (
@@ -582,7 +582,7 @@ export class ThreeFingerChecker {
             }
 
             const objectPosition: Vector2 = object.getStackedPosition(
-                Modes.droid
+                Modes.droid,
             );
             const hitTime: number = object.startTime + objectData.accuracy;
 
@@ -596,7 +596,7 @@ export class ThreeFingerChecker {
                     this.data.cursorMovement[cursorIndexes[j]];
                 const cursorGroup: CursorOccurrenceGroup | undefined =
                     cursorData.occurrenceGroups.find((v) =>
-                        v.isActiveAt(hitTime)
+                        v.isActiveAt(hitTime),
                     );
 
                 if (!cursorGroup) {
@@ -622,7 +622,7 @@ export class ThreeFingerChecker {
                         case MovementType.up:
                             isInObject =
                                 prevCursor.position.getDistance(
-                                    objectPosition
+                                    objectPosition,
                                 ) <= object.getRadius(Modes.droid);
                             break;
                         case MovementType.move:
@@ -633,7 +633,7 @@ export class ThreeFingerChecker {
                                 mSecPassed <=
                                     Math.min(
                                         cursor.time,
-                                        object.startTime + hitWindow50
+                                        object.startTime + hitWindow50,
                                     );
                                 ++mSecPassed
                             ) {
@@ -644,18 +644,18 @@ export class ThreeFingerChecker {
                                     Interpolation.lerp(
                                         prevCursor.position.x,
                                         cursor.position.x,
-                                        t
+                                        t,
                                     ),
                                     Interpolation.lerp(
                                         prevCursor.position.y,
                                         cursor.position.y,
-                                        t
-                                    )
+                                        t,
+                                    ),
                                 );
 
                                 isInObject =
                                     objectPosition.getDistance(
-                                        cursorPosition
+                                        cursorPosition,
                                     ) <= object.getRadius(Modes.droid);
                             }
                     }
@@ -679,18 +679,16 @@ export class ThreeFingerChecker {
      */
     private preventAccidentalTaps(): void {
         let filledCursorAmount: number = this.downCursorInstances.filter(
-            (v) => v.length > 0
+            (v) => v.length > 0,
         ).length;
         if (filledCursorAmount <= 3) {
             return;
         }
-
         const { objects } = this.beatmap.hitObjects;
         const totalCursorAmount: number = this.downCursorInstances.reduce(
             (acc, value) => acc + value.length,
-            0
+            0,
         );
-
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
             if (filledCursorAmount <= 3) {
                 break;
@@ -751,7 +749,7 @@ export class ThreeFingerChecker {
                 }
                 const cursors: CursorOccurrence[] = this.downCursorInstances[i];
                 let amount = 0;
-                for (let j: number = 0; j < cursors.length; ++j) {
+                for (let j = 0; j < cursors.length; ++j) {
                     if (
                         cursors[j].time >= startTime &&
                         cursors[j].time <= endTime
@@ -760,7 +758,7 @@ export class ThreeFingerChecker {
                         cursorVectorTimes.push({
                             vector: new Vector2(
                                 cursors[j].position.x,
-                                cursors[j].position.y
+                                cursors[j].position.y,
                             ),
                             time: cursors[j].time,
                         });
@@ -785,12 +783,13 @@ export class ThreeFingerChecker {
                     .reduce((acc, value) => acc + value, 0);
 
             const similarPresses: CursorVectorSimilarity[] = [];
+            cursorVectorTimes.sort((a, b) => a.time - b.time);
 
             for (const cursorVectorTime of cursorVectorTimes) {
                 const pressIndex: number = similarPresses.findIndex(
                     (v) =>
                         v.vector.getDistance(cursorVectorTime.vector) <=
-                        this.cursorDistancingDistanceThreshold
+                        this.cursorDistancingDistanceThreshold,
                 );
 
                 if (pressIndex !== -1) {
@@ -853,9 +852,9 @@ export class ThreeFingerChecker {
                                   Math.pow(
                                       ((index + 1) * value * objectCount) /
                                           this.strainNoteCount,
-                                      0.9
+                                      0.9,
                                   ),
-                              1
+                              1,
                           )
                         : Math.pow(
                               validPresses.reduce(
@@ -869,11 +868,11 @@ export class ThreeFingerChecker {
                                                       2)) *
                                               objectCount) /
                                               this.strainNoteCount,
-                                          0.2
+                                          0.2,
                                       ),
-                                  1
+                                  1,
                               ),
-                              0.2
+                              0.2,
                           );
 
                 // Length factor applies more penalty if there are more 3-fingered object.
@@ -901,9 +900,9 @@ export class ThreeFingerChecker {
                     0.015 *
                         Math.pow(
                             n.strainFactor * n.fingerFactor * n.lengthFactor,
-                            1.05
+                            1.05,
                         ),
-                0
+                0,
             )
         );
     }
