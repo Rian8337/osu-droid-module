@@ -201,7 +201,7 @@ export class Chart implements ChartInitializer {
                     this.pointRadius,
                     0,
                     2 * Math.PI,
-                    false
+                    false,
                 );
                 c.fill();
                 c.closePath();
@@ -267,7 +267,7 @@ export class Chart implements ChartInitializer {
             c.fillText(
                 this.xLabel,
                 this.x + this.width / 2,
-                this.y + this.height + labelOffset
+                this.y + this.height + labelOffset,
             );
             c.restore();
         }
@@ -285,13 +285,13 @@ export class Chart implements ChartInitializer {
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
                     this.x +
                     yLabelOffset,
-                this.y + this.height - labelOffset
+                this.y + this.height - labelOffset,
             );
             c.lineTo(
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
                     this.x +
                     yLabelOffset,
-                this.y + this.height - labelOffset - this.tickSize
+                this.y + this.height - labelOffset - this.tickSize,
             );
             c.stroke();
         }
@@ -304,7 +304,7 @@ export class Chart implements ChartInitializer {
 
         for (let n = 0; n < this.numXTicks; ++n) {
             const label: number = Math.round(
-                ((n + 1) * this.maxX) / this.numXTicks
+                ((n + 1) * this.maxX) / this.numXTicks,
             );
             let stringLabel: string = label.toString();
             switch (this.xValueType) {
@@ -317,7 +317,7 @@ export class Chart implements ChartInitializer {
                 ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
                     this.x +
                     yLabelOffset,
-                this.y + this.height + this.padding - labelOffset
+                this.y + this.height + this.padding - labelOffset,
             );
             c.fillText(stringLabel, 0, 0);
             c.restore();
@@ -344,7 +344,7 @@ export class Chart implements ChartInitializer {
             c.fillText(
                 this.yLabel,
                 this.y + xLabelOffset + this.height / 2,
-                this.x - labelOffset * 2.5
+                this.x - labelOffset * 2.5,
             );
             c.restore();
         }
@@ -361,11 +361,11 @@ export class Chart implements ChartInitializer {
             c.beginPath();
             c.moveTo(
                 this.x + labelOffset,
-                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y
+                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y,
             );
             c.lineTo(
                 this.x + labelOffset + this.tickSize,
-                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y
+                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y,
             );
             c.stroke();
         }
@@ -378,12 +378,12 @@ export class Chart implements ChartInitializer {
 
         for (let n = 0; n < this.numYTicks; ++n) {
             const value: number = Math.round(
-                this.maxY - (n * this.maxY) / this.numYTicks
+                this.maxY - (n * this.maxY) / this.numYTicks,
             );
             c.save();
             c.translate(
                 this.x + labelOffset - this.padding,
-                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y
+                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y,
             );
             c.fillText(value.toString(), 0, 0);
             c.restore();
@@ -401,7 +401,7 @@ export class Chart implements ChartInitializer {
         // Move context to point (0, 0) in graph
         c.translate(
             this.x + (this.yLabel ? this.baseLabelOffset : 0),
-            this.y + this.height - (this.xLabel ? this.baseLabelOffset : 0)
+            this.y + this.height - (this.xLabel ? this.baseLabelOffset : 0),
         );
 
         // Invert the Y scale so that it
@@ -425,7 +425,7 @@ export class Chart implements ChartInitializer {
             }
             longestValueWidth = Math.max(
                 longestValueWidth,
-                this.context.measureText(stringValue).width
+                this.context.measureText(stringValue).width,
             );
         }
         return longestValueWidth;
@@ -448,7 +448,7 @@ export class Chart implements ChartInitializer {
             0,
             0,
             this.canvas.width,
-            this.canvas.height
+            this.canvas.height,
         );
         this.context.globalAlpha = 0.8;
         this.context.fillStyle = "#bbbbbb";
@@ -460,10 +460,31 @@ export class Chart implements ChartInitializer {
     /**
      * Time string parsing function for axis labels.
      */
-    private timeString(second: number): string {
-        return new Date(1000 * Math.ceil(second))
-            .toISOString()
-            .substr(11, 8)
-            .replace(/^[0:]+/, "");
+    private timeString(seconds: number): string {
+        seconds = Math.trunc(seconds);
+
+        const days: number = Math.floor(seconds / 86400);
+        seconds -= days * 86400;
+
+        const hours: number = Math.floor(seconds / 3600);
+        seconds -= hours * 3600;
+
+        const minutes: number = Math.floor(seconds / 60);
+        seconds -= minutes * 60;
+
+        const final: string[] = [
+            minutes.toString(),
+            seconds.toString().padStart(2, "0"),
+        ];
+
+        if (hours > 0) {
+            final.unshift(hours.toString());
+        }
+
+        if (days > 0) {
+            final.unshift(days.toString());
+        }
+
+        return final.join(":");
     }
 }
