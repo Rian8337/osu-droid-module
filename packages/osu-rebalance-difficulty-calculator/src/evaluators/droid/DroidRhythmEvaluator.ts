@@ -1,4 +1,4 @@
-import { Spinner, Slider, Precision } from "@rian8337/osu-base";
+import { Spinner, Slider } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 
@@ -71,7 +71,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                Math.pow((validPrevious.length - i) / validPrevious.length, 2),
+                (validPrevious.length - i) / validPrevious.length,
             );
 
             const currentDelta: number = validPrevious[i - 1].strainTime;
@@ -126,40 +126,12 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
                     if (previousIslandSize === islandSize) {
                         // Repeated island size (ex: triplet -> triplet).
-                        effectiveRatio /= 8;
+                        effectiveRatio /= 4;
                     }
 
                     if (previousIslandSize % 2 === islandSize % 2) {
                         // Repeated island polarity (2 -> 4, 3 -> 5).
-                        effectiveRatio /= 4;
-                    }
-
-                    if (
-                        Precision.almostEqualsNumber(
-                            lastDelta,
-                            prevDelta * 2,
-                        ) ||
-                        Precision.almostEqualsNumber(
-                            prevDelta,
-                            currentDelta * 2,
-                        )
-                    ) {
-                        // 1/2 transition, commonly used.
-                        effectiveRatio /= 8;
-                    }
-
-                    if (
-                        Precision.almostEqualsNumber(
-                            lastDelta,
-                            prevDelta * 4,
-                        ) ||
-                        Precision.almostEqualsNumber(
-                            prevDelta,
-                            currentDelta * 4,
-                        )
-                    ) {
-                        // 1/4 transition, pretty commonly used.
-                        effectiveRatio /= 4;
+                        effectiveRatio /= 2;
                     }
 
                     if (
