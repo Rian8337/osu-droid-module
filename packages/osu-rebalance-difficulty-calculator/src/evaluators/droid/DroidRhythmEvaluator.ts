@@ -1,4 +1,4 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, Precision } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 
@@ -15,7 +15,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      */
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
-        greatWindow: number
+        greatWindow: number,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -71,7 +71,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (validPrevious.length - i) / validPrevious.length
+                (validPrevious.length - i) / validPrevious.length,
             );
 
             const currentDelta: number = validPrevious[i - 1].strainTime;
@@ -87,19 +87,19 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                             Math.sin(
                                 Math.PI /
                                     (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta))
+                                        Math.max(prevDelta, currentDelta)),
                             ),
-                            2
-                        )
+                            2,
+                        ),
                     );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.4
+                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
                 ) /
-                    (greatWindow * 0.4)
+                    (greatWindow * 0.6),
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
@@ -126,12 +126,40 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
                     if (previousIslandSize === islandSize) {
                         // Repeated island size (ex: triplet -> triplet).
-                        effectiveRatio /= 4;
+                        effectiveRatio /= 8;
                     }
 
                     if (previousIslandSize % 2 === islandSize % 2) {
                         // Repeated island polarity (2 -> 4, 3 -> 5).
-                        effectiveRatio /= 2;
+                        effectiveRatio /= 4;
+                    }
+
+                    if (
+                        Precision.almostEqualsNumber(
+                            lastDelta,
+                            prevDelta * 2,
+                        ) ||
+                        Precision.almostEqualsNumber(
+                            prevDelta,
+                            currentDelta * 2,
+                        )
+                    ) {
+                        // 1/2 transition, commonly used.
+                        effectiveRatio /= 8;
+                    }
+
+                    if (
+                        Precision.almostEqualsNumber(
+                            lastDelta,
+                            prevDelta * 4,
+                        ) ||
+                        Precision.almostEqualsNumber(
+                            prevDelta,
+                            currentDelta * 4,
+                        )
+                    ) {
+                        // 1/4 transition, pretty commonly used.
+                        effectiveRatio /= 4;
                     }
 
                     if (
@@ -180,20 +208,20 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             const currentDeltaTime: number = Math.max(1, current.deltaTime);
             const nextDeltaTime: number = Math.max(1, next.deltaTime);
             const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime
+                nextDeltaTime - currentDeltaTime,
             );
             const speedRatio: number =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
             const windowRatio: number = Math.pow(
                 Math.min(1, currentDeltaTime / (greatWindow * 2)),
-                2
+                2,
             );
             doubletapness = Math.pow(speedRatio, 1 - windowRatio);
         }
 
         return (
             Math.sqrt(
-                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness
+                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness,
             ) / 2
         );
     }
