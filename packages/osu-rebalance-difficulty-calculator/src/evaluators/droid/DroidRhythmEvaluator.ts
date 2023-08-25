@@ -71,7 +71,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (validPrevious.length - i) / validPrevious.length,
+                Math.pow((validPrevious.length - i) / validPrevious.length, 2),
             );
 
             const currentDelta: number = validPrevious[i - 1].strainTime;
