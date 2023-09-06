@@ -23,7 +23,7 @@ export abstract class DroidVisualEvaluator {
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
         isHiddenMod: boolean,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -82,12 +82,17 @@ export abstract class DroidVisualEvaluator {
             const scalingFactor: number =
                 50 / current.object.getRadius(Modes.droid);
 
-            // Reward sliders based on velocity.
+            // Invert the scaling factor to determine the true travel distance independent of circle size.
+            const pixelTravelDistance: number =
+                current.object.lazyTravelDistance / scalingFactor;
+            const currentVelocity: number =
+                pixelTravelDistance / current.travelTime;
+
             strain +=
-                // Avoid overbuffing extremely fast sliders.
-                Math.min(6, current.velocity * 1.5) *
-                // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
-                Math.min(1, current.travelDistance / scalingFactor / 125);
+                // Reward sliders based on velocity, while also avoiding overbuffing extremely fast sliders.
+                Math.min(6, currentVelocity * 1.5) *
+                // Longer sliders require more reading.
+                (pixelTravelDistance / 100);
 
             let cumulativeStrainTime: number = 0;
 
@@ -105,15 +110,22 @@ export abstract class DroidVisualEvaluator {
                     continue;
                 }
 
+                // Invert the scaling factor to determine the true travel distance independent of circle size.
+                const pixelTravelDistance: number =
+                    last.object.lazyTravelDistance / scalingFactor;
+                const lastVelocity: number =
+                    pixelTravelDistance / last.travelTime;
+
                 strain +=
-                    // Avoid overbuffing extremely fast velocity changes.
+                    // Reward past sliders based on velocity changes, while also
+                    // avoiding overbuffing extremely fast velocity changes.
                     Math.min(
                         10,
-                        2.5 * Math.abs(current.velocity - last.velocity)
+                        2.5 * Math.abs(currentVelocity - lastVelocity),
                     ) *
-                    // Scale with distance travelled to avoid overbuffing fast sliders with short distance.
-                    Math.min(1, last.travelDistance / scalingFactor / 100) *
-                    // Scale with cumulative strain time to avoid overbuffing past sliders.
+                    // Longer sliders require more reading.
+                    (pixelTravelDistance / 125) *
+                    // Avoid overbuffing past sliders.
                     Math.min(1, 300 / cumulativeStrainTime);
             }
         }

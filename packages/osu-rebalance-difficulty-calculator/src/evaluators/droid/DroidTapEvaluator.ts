@@ -30,7 +30,6 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             return 0;
         }
 
-        const greatWindowFull: number = greatWindow * 2;
         let doubletapness: number = 1;
 
         if (considerCheesability) {
@@ -38,6 +37,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             const next: DifficultyHitObject | null = current.next(0);
 
             if (next) {
+                const greatWindowFull: number = greatWindow * 2;
                 const currentDeltaTime: number = Math.max(1, current.deltaTime);
                 const nextDeltaTime: number = Math.max(1, next.deltaTime);
                 const deltaDifference: number = Math.abs(

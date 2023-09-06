@@ -22,7 +22,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
         isHiddenMod: boolean,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -51,7 +51,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 const jumpDistance: number = current.object
                     .getStackedPosition(Modes.droid)
                     .subtract(
-                        currentObject.object.getStackedEndPosition(Modes.droid)
+                        currentObject.object.getStackedEndPosition(Modes.droid),
                     ).length;
 
                 cumulativeStrainTime += last.strainTime;
@@ -64,7 +64,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 // We also want to nerf stacks so that only the first object of the stack is accounted for.
                 const stackNerf: number = Math.min(
                     1,
-                    currentObject.lazyJumpDistance / scalingFactor / 25
+                    currentObject.lazyJumpDistance / scalingFactor / 25,
                 );
 
                 // Bonus based on how visible the object is.
@@ -74,7 +74,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod
+                                isHiddenMod,
                             ));
 
                 result +=
@@ -115,9 +115,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
             sliderBonus = Math.pow(
                 Math.max(
                     0,
-                    pixelTravelDistance / current.travelTime - this.minVelocity
+                    pixelTravelDistance / current.travelTime - this.minVelocity,
                 ),
-                0.5
+                0.5,
             );
 
             // Longer sliders require more memorization.

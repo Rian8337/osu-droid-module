@@ -15,7 +15,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      */
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
-        greatWindow: number
+        greatWindow: number,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -71,7 +71,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (validPrevious.length - i) / validPrevious.length
+                (validPrevious.length - i) / validPrevious.length,
             );
 
             const currentDelta: number = validPrevious[i - 1].strainTime;
@@ -87,19 +87,19 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                             Math.sin(
                                 Math.PI /
                                     (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta))
+                                        Math.max(prevDelta, currentDelta)),
                             ),
-                            2
-                        )
+                            2,
+                        ),
                     );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.4
+                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
                 ) /
-                    (greatWindow * 0.4)
+                    (greatWindow * 0.6),
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;
@@ -180,20 +180,20 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             const currentDeltaTime: number = Math.max(1, current.deltaTime);
             const nextDeltaTime: number = Math.max(1, next.deltaTime);
             const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime
+                nextDeltaTime - currentDeltaTime,
             );
             const speedRatio: number =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
             const windowRatio: number = Math.pow(
                 Math.min(1, currentDeltaTime / (greatWindow * 2)),
-                2
+                2,
             );
             doubletapness = Math.pow(speedRatio, 1 - windowRatio);
         }
 
         return (
             Math.sqrt(
-                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness
+                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness,
             ) / 2
         );
     }

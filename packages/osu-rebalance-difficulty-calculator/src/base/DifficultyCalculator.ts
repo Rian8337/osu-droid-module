@@ -75,6 +75,7 @@ export abstract class DifficultyCalculator {
      * beginning of the new chunk.
      *
      * @param options Options for the difficulty calculation.
+     * @returns The current instance.
      */
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
@@ -112,7 +113,7 @@ export abstract class DifficultyCalculator {
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),
-            })
+            }),
         );
     }
 

@@ -10,36 +10,55 @@ export class DroidVisual extends DroidSkill {
     protected override readonly starsPerDouble: number = 1.025;
     protected override readonly reducedSectionCount: number = 10;
     protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly skillMultiplier: number = 10;
     protected override readonly strainDecayBase: number = 0.1;
 
     private readonly isHidden: boolean;
-    private readonly withsliders: boolean;
+    private readonly withSliders: boolean;
+
+    private currentVisualStrain: number = 0;
+    private currentRhythmMultiplier: number = 1;
+    private readonly skillMultiplier: number = 10;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
-        this.withsliders = withSliders;
+        this.withSliders = withSliders;
     }
 
     protected override strainValueAt(current: DifficultyHitObject): number {
-        this.currentStrain *= this.strainDecay(current.deltaTime);
-        this.currentStrain +=
+        this.currentVisualStrain *= this.strainDecay(current.deltaTime);
+        this.currentVisualStrain +=
             DroidVisualEvaluator.evaluateDifficultyOf(
                 current,
                 this.isHidden,
-                this.withsliders
+                this.withSliders,
             ) * this.skillMultiplier;
 
-        return this.currentStrain * (1 + (current.rhythmMultiplier - 1) / 5);
+        this.currentRhythmMultiplier = current.rhythmMultiplier;
+
+        return this.currentVisualStrain * this.currentRhythmMultiplier;
+    }
+
+    protected override calculateInitialStrain(
+        time: number,
+        current: DifficultyHitObject,
+    ): number {
+        return (
+            this.currentVisualStrain *
+            this.currentRhythmMultiplier *
+            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
+        );
     }
 
     protected override saveToHitObject(current: DifficultyHitObject): void {
-        if (this.withsliders) {
-            current.visualStrainWithSliders = this.currentStrain;
+        const strain: number =
+            this.currentVisualStrain * this.currentRhythmMultiplier;
+
+        if (this.withSliders) {
+            current.visualStrainWithSliders = strain;
         } else {
-            current.visualStrainWithoutSliders = this.currentStrain;
+            current.visualStrainWithoutSliders = strain;
         }
     }
 }

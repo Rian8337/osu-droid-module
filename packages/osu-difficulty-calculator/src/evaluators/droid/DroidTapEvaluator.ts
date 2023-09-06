@@ -20,7 +20,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
     static evaluateDifficultyOf(
         current: DifficultyHitObject,
         greatWindow: number,
-        considerCheesability: boolean
+        considerCheesability: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -33,23 +33,22 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
         let doubletapness: number = 1;
 
         if (considerCheesability) {
-            const greatWindowFull: number = greatWindow * 2;
-
             // Nerf doubletappable doubles.
             const next: DifficultyHitObject | null = current.next(0);
 
             if (next) {
+                const greatWindowFull: number = greatWindow * 2;
                 const currentDeltaTime: number = Math.max(1, current.deltaTime);
                 const nextDeltaTime: number = Math.max(1, next.deltaTime);
                 const deltaDifference: number = Math.abs(
-                    nextDeltaTime - currentDeltaTime
+                    nextDeltaTime - currentDeltaTime,
                 );
                 const speedRatio: number =
                     currentDeltaTime /
                     Math.max(currentDeltaTime, deltaDifference);
                 const windowRatio: number = Math.pow(
                     Math.min(1, currentDeltaTime / greatWindowFull),
-                    2
+                    2,
                 );
                 doubletapness = Math.pow(speedRatio, 1 - windowRatio);
             }
@@ -62,9 +61,9 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
                 0.75 *
                 Math.pow(
                     ErrorFunction.erf(
-                        (this.minSpeedBonus - current.strainTime) / 40
+                        (this.minSpeedBonus - current.strainTime) / 40,
                     ),
-                    2
+                    2,
                 );
         }
 
