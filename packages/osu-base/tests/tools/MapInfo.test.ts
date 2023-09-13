@@ -40,6 +40,7 @@ const apiMock: OsuAPIResponse = {
     video: "0",
     download_unavailable: "0",
     audio_unavailable: "0",
+    packs: null,
 };
 
 const convertLastUpdateDate = () => {
@@ -69,17 +70,19 @@ test("Test fill metadata", () => {
     expect(beatmapInfo.cs).toBe(parseFloat(apiMock.diff_size));
     expect(beatmapInfo.favorites).toBe(parseInt(apiMock.favourite_count));
     expect(beatmapInfo.fullTitle).toBe(
-        `${apiMock.artist} - ${apiMock.title} (${apiMock.creator}) [${apiMock.version}]`
+        `${apiMock.artist} - ${apiMock.title} (${apiMock.creator}) [${apiMock.version}]`,
     );
     expect(beatmapInfo.hash).toBe(apiMock.file_md5);
     expect(beatmapInfo.hitLength).toBe(parseInt(apiMock.hit_length));
     expect(beatmapInfo.hp).toBe(parseFloat(apiMock.diff_drain));
     expect(beatmapInfo.lastUpdate).toEqual(convertLastUpdateDate());
-    expect(beatmapInfo.maxCombo).toBe(parseInt(apiMock.max_combo));
+    expect(beatmapInfo.maxCombo).toBe(
+        apiMock.max_combo !== null ? parseInt(apiMock.max_combo) : null,
+    );
     expect(beatmapInfo.objects).toBe(
         parseInt(apiMock.count_normal) +
             parseInt(apiMock.count_slider) +
-            parseInt(apiMock.count_spinner)
+            parseInt(apiMock.count_spinner),
     );
     expect(beatmapInfo.od).toBe(parseFloat(apiMock.diff_overall));
     expect(beatmapInfo.packs).toEqual(apiMock.packs ?? []);
@@ -89,12 +92,12 @@ test("Test fill metadata", () => {
     expect(beatmapInfo.speedDifficulty).toBe(parseFloat(apiMock.diff_speed!));
     expect(beatmapInfo.spinners).toBe(parseInt(apiMock.count_spinner));
     expect(beatmapInfo.storyboardAvailable).toBe(
-        Boolean(parseInt(apiMock.storyboard))
+        Boolean(parseInt(apiMock.storyboard)),
     );
     expect(beatmapInfo.submitDate).toEqual(convertSubmitDate());
     expect(beatmapInfo.title).toBe(apiMock.title);
     expect(beatmapInfo.totalDifficulty).toBe(
-        parseFloat(apiMock.difficultyrating!)
+        parseFloat(apiMock.difficultyrating!),
     );
     expect(beatmapInfo.totalLength).toBe(parseInt(apiMock.total_length));
     expect(beatmapInfo.version).toBe(apiMock.version);

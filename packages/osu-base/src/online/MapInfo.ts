@@ -8,7 +8,7 @@ import { RequestResponse } from "./RequestResponse";
 export interface OsuAPIResponse {
     readonly approved: string;
     readonly submit_date: string;
-    readonly approved_date: string;
+    readonly approved_date: string | null;
     readonly last_update: string;
     readonly artist: string;
     readonly beatmap_id: string;
@@ -16,9 +16,9 @@ export interface OsuAPIResponse {
     readonly bpm: string;
     readonly creator: string;
     readonly creator_id: string;
-    readonly difficultyrating?: string;
-    readonly diff_aim?: string;
-    readonly diff_speed?: string;
+    readonly difficultyrating: string | null;
+    readonly diff_aim: string | null;
+    readonly diff_speed: string | null;
     readonly diff_size: string;
     readonly diff_overall: string;
     readonly diff_approach: string;
@@ -40,12 +40,12 @@ export interface OsuAPIResponse {
     readonly count_normal: string;
     readonly count_slider: string;
     readonly count_spinner: string;
-    readonly max_combo: string;
+    readonly max_combo: string | null;
     readonly storyboard: string;
     readonly video: string;
     readonly download_unavailable: string;
     readonly audio_unavailable: string;
-    readonly packs?: string;
+    readonly packs: string | null;
 }
 
 /**
@@ -159,7 +159,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The maximum combo of the beatmap.
      */
-    maxCombo: number = 0;
+    maxCombo: number | null = null;
 
     /**
      * The circle size of the beatmap.
@@ -189,17 +189,17 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The aim difficulty rating of the beatmap.
      */
-    aimDifficulty: number = 0;
+    aimDifficulty: number | null = null;
 
     /**
      * The speed difficulty rating of the beatmap.
      */
-    speedDifficulty: number = 0;
+    speedDifficulty: number | null = null;
 
     /**
      * The generic difficulty rating of the beatmap.
      */
-    totalDifficulty: number = 0;
+    totalDifficulty: number | null = null;
 
     /**
      * The MD5 hash of the beatmap.
@@ -234,7 +234,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      */
     static async getInformation(
         beatmapIdOrHash: string | number,
-        downloadBeatmap?: boolean
+        downloadBeatmap?: boolean,
     ): Promise<MapInfo<true> | null>;
 
     /**
@@ -246,19 +246,19 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      */
     static async getInformation(
         beatmapIdOrHash: string | number,
-        downloadBeatmap: false
+        downloadBeatmap: false,
     ): Promise<MapInfo<false> | null>;
 
     static async getInformation(
         beatmapIdOrHash: string | number,
-        downloadBeatmap?: boolean
+        downloadBeatmap?: boolean,
     ): Promise<MapInfo | null> {
         const apiRequestBuilder: OsuAPIRequestBuilder =
             new OsuAPIRequestBuilder()
                 .setEndpoint("get_beatmaps")
                 .addParameter(
                     typeof beatmapIdOrHash === "string" ? "h" : "b",
-                    beatmapIdOrHash
+                    beatmapIdOrHash,
                 );
 
         const map: MapInfo = new MapInfo();
@@ -269,7 +269,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
         }
 
         const mapinfo: OsuAPIResponse = JSON.parse(
-            result.data.toString("utf-8")
+            result.data.toString("utf-8"),
         )[0];
 
         if (!mapinfo) {
@@ -309,13 +309,13 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
             .split(/[- :]/)
             .map((e) => parseInt(e));
         this.lastUpdate = new Date(
-            Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5])
+            Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]),
         );
         const s: number[] = mapinfo.submit_date
             .split(/[- :]/)
             .map((e) => parseInt(e));
         this.submitDate = new Date(
-            Date.UTC(s[0], s[1] - 1, s[2], s[3], s[4], s[5])
+            Date.UTC(s[0], s[1] - 1, s[2], s[3], s[4], s[5]),
         );
         this.hitLength = parseInt(mapinfo.hit_length);
         this.totalLength = parseInt(mapinfo.total_length);
@@ -329,7 +329,8 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
         this.spinners = mapinfo.count_spinner
             ? parseInt(mapinfo.count_spinner)
             : 0;
-        this.maxCombo = parseInt(mapinfo.max_combo);
+        this.maxCombo =
+            mapinfo.max_combo !== null ? parseInt(mapinfo.max_combo) : null;
         this.cs = parseFloat(mapinfo.diff_size);
         this.ar = parseFloat(mapinfo.diff_approach);
         this.od = parseFloat(mapinfo.diff_overall);
@@ -339,13 +340,13 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
         }
         this.aimDifficulty = mapinfo.diff_aim
             ? parseFloat(mapinfo.diff_aim)
-            : 0;
+            : null;
         this.speedDifficulty = mapinfo.diff_speed
             ? parseFloat(mapinfo.diff_speed)
-            : 0;
+            : null;
         this.totalDifficulty = mapinfo.difficultyrating
             ? parseFloat(mapinfo.difficultyrating)
-            : 0;
+            : null;
         this.hash = mapinfo.file_md5;
         this.storyboardAvailable = !!parseInt(mapinfo.storyboard);
         this.videoAvailable = !!parseInt(mapinfo.video);
@@ -381,13 +382,11 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                     throw new Error(text);
                 }
 
-                this.cachedBeatmap = new BeatmapDecoder().decode(
-                    text
-                ).result;
+                this.cachedBeatmap = new BeatmapDecoder().decode(text).result;
             })
             .catch((e: Error) => {
                 console.error(
-                    `Request to ${url} failed with the following error: ${e.message}; aborting`
+                    `Request to ${url} failed with the following error: ${e.message}; aborting`,
                 );
             });
     }
