@@ -26,17 +26,17 @@
     "lerna": "^7.0.2",
     "prettier": "^3.0.1",
     "rollup": "^3.17.2",
-    "rollup-plugin-dts": "^5.3.0",
+    "rollup-plugin-dts": "^6.0.2",
     "rollup-plugin-node-externals": "^6.0.1",
     "ts-jest": "^29.0.5",
     "tslib": "^2.6.0",
-    "typedoc": "^0.24.8",
-    "typedoc-plugin-missing-exports": "^2.0.0",
-    "typescript": "^5.1.3"
+    "typedoc": "^0.25.1",
+    "typedoc-plugin-missing-exports": "^2.1.0",
+    "typescript": "^5.2.2"
   },
   "eslintConfig": {
     "env": {
-      "es2021": true,
+      "es2022": true,
       "node": true
     },
     "extends": [
