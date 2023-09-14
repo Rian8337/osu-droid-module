@@ -197,18 +197,26 @@ export class OsuPerformanceCalculator extends PerformanceCalculator {
         const relevantTotalDiff: number =
             this.totalHits - this.difficultyAttributes.speedNoteCount;
 
-        const relevantAccuracy: Accuracy = new Accuracy({
-            n300: Math.max(0, countGreat - relevantTotalDiff),
-            n100: Math.max(
-                0,
-                countOk - Math.max(0, relevantTotalDiff - countGreat),
-            ),
-            n50: Math.max(
-                0,
-                countMeh -
-                    Math.max(0, relevantTotalDiff - countGreat - countOk),
-            ),
-        });
+        const relevantAccuracy: Accuracy = new Accuracy(
+            this.difficultyAttributes.speedNoteCount > 0
+                ? {
+                      n300: Math.max(0, countGreat - relevantTotalDiff),
+                      n100: Math.max(
+                          0,
+                          countOk - Math.max(0, relevantTotalDiff - countGreat),
+                      ),
+                      n50: Math.max(
+                          0,
+                          countMeh -
+                              Math.max(
+                                  0,
+                                  relevantTotalDiff - countGreat - countOk,
+                              ),
+                      ),
+                  }
+                : // Set accuracy to 0.
+                  { n300: 0, nobjects: 1 },
+        );
 
         // Scale the speed value with accuracy and OD.
         speedValue *=
