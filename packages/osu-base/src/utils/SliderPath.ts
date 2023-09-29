@@ -92,7 +92,7 @@ export class SliderPath {
                 const spanEnd: number = i + 1;
                 const cpSpan: Vector2[] = this.controlPoints.slice(
                     spanStart,
-                    spanEnd
+                    spanEnd,
                 );
                 this.calculateSubPath(cpSpan).forEach((t) => {
                     if (
@@ -114,14 +114,21 @@ export class SliderPath {
         switch (this.pathType) {
             case PathType.Linear:
                 return PathApproximator.approximateLinear(subControlPoints);
-            case PathType.PerfectCurve:
+            case PathType.PerfectCurve: {
                 if (subControlPoints.length !== 3) {
                     break;
                 }
 
-                return PathApproximator.approximateCircularArc(
-                    subControlPoints
-                );
+                const subPath: Vector2[] =
+                    PathApproximator.approximateCircularArc(subControlPoints);
+
+                // If for some reason a circular arc could not be fit to the 3 given points, fall back to a numerically stable Bézier approximation.
+                if (subPath.length === 0) {
+                    break;
+                }
+
+                return subPath;
+            }
             case PathType.Catmull:
                 return PathApproximator.approximateCatmull(subControlPoints);
         }
@@ -139,17 +146,19 @@ export class SliderPath {
 
         for (let i = 0; i < this.calculatedPath.length - 1; ++i) {
             const diff: Vector2 = this.calculatedPath[i + 1].subtract(
-                this.calculatedPath[i]
+                this.calculatedPath[i],
             );
             calculatedLength += diff.length;
             this.cumulativeLength.push(calculatedLength);
         }
 
         if (calculatedLength !== this.expectedDistance) {
-            // In osu-stable, if the last two control points of a slider are equal, extension is not performed.
+            // In osu-stable, if the last two path points of a slider are equal, extension is not performed.
             if (
-                this.controlPoints.length >= 2 &&
-                this.controlPoints.at(-1)!.equals(this.controlPoints.at(-2)!) &&
+                this.calculatedPath.length >= 2 &&
+                this.calculatedPath
+                    .at(-1)!
+                    .equals(this.calculatedPath.at(-2)!) &&
                 this.expectedDistance > calculatedLength
             ) {
                 this.cumulativeLength.push(calculatedLength);
@@ -179,14 +188,16 @@ export class SliderPath {
 
             // The direction of the segment to shorten or lengthen
             const dir: Vector2 = this.calculatedPath[pathEndIndex].subtract(
-                this.calculatedPath[pathEndIndex - 1]
+                this.calculatedPath[pathEndIndex - 1],
             );
             dir.normalize();
 
             this.calculatedPath[pathEndIndex] = this.calculatedPath[
                 pathEndIndex - 1
             ].add(
-                dir.scale(this.expectedDistance - this.cumulativeLength.at(-1)!)
+                dir.scale(
+                    this.expectedDistance - this.cumulativeLength.at(-1)!,
+                ),
             );
             this.cumulativeLength.push(this.expectedDistance);
         }

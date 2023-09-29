@@ -64,13 +64,13 @@ const testPathValidity = (path: SliderPath) => {
 describe("Test bezier slider", () => {
     test("Without red anchor point", () => {
         const slider = parseSlider(
-            "387,350,73381,6,0,B|262:394|299:299|153:344,1,215.999993408203,10|0,2:0|3:0,2:0:0:0:"
+            "387,350,73381,6,0,B|262:394|299:299|153:344,1,215.999993408203,10|0,2:0|3:0,2:0:0:0:",
         );
 
         const path = new SliderPath(slider);
 
         expect(path.cumulativeLength.at(-1)).toBeCloseTo(
-            slider.expectedDistance
+            slider.expectedDistance,
         );
 
         testPathValidity(path);
@@ -78,7 +78,7 @@ describe("Test bezier slider", () => {
 
     test("With red anchor point", () => {
         const slider = parseSlider(
-            "45,352,22787,6,0,B|-27:363|-27:363|3:269,1,170.999994781494,4|10,1:2|2:0,2:0:0:0:"
+            "45,352,22787,6,0,B|-27:363|-27:363|3:269,1,170.999994781494,4|10,1:2|2:0,2:0:0:0:",
         );
 
         const path = new SliderPath(slider);
@@ -86,7 +86,7 @@ describe("Test bezier slider", () => {
         testPathValidity(path);
 
         expect(path.cumulativeLength.at(-1)).toBeCloseTo(
-            slider.expectedDistance
+            slider.expectedDistance,
         );
         expect(path.calculatedPath).toContainEqual(new Vector2(-72, 11));
     });
@@ -94,7 +94,7 @@ describe("Test bezier slider", () => {
 
 test("Test linear slider", () => {
     const slider = parseSlider(
-        "36,53,24587,2,0,L|102:42,1,56.9999982604981,10|0,1:2|2:0,2:0:0:0:"
+        "36,53,24587,2,0,L|102:42,1,56.9999982604981,10|0,1:2|2:0,2:0:0:0:",
     );
 
     const path = new SliderPath(slider);
@@ -106,26 +106,26 @@ test("Test linear slider", () => {
 describe("Test perfect curve slider", () => {
     test("With 3 anchor points", () => {
         const slider = parseSlider(
-            "117,124,25187,6,0,P|167:148|196:196,1,113.999996520996,4|2,1:2|2:0,2:0:0:0:"
+            "117,124,25187,6,0,P|167:148|196:196,1,113.999996520996,4|2,1:2|2:0,2:0:0:0:",
         );
 
         const path = new SliderPath(slider);
 
         expect(path.cumulativeLength.at(-1)).toBeCloseTo(
-            slider.expectedDistance
+            slider.expectedDistance,
         );
         testPathValidity(path);
     });
 
     test("Not with 3 anchor points", () => {
         const slider = parseSlider(
-            "117,124,25187,6,0,P|167:148|196:196|225:225,1,113.999996520996,4|2,1:2|2:0,2:0:0:0:"
+            "117,124,25187,6,0,P|167:148|196:196|225:225,1,113.999996520996,4|2,1:2|2:0,2:0:0:0:",
         );
 
         const path = new SliderPath(slider);
 
         expect(path.cumulativeLength.at(-1)).toBeCloseTo(
-            slider.expectedDistance
+            slider.expectedDistance,
         );
         testPathValidity(path);
     });
@@ -134,12 +134,12 @@ describe("Test perfect curve slider", () => {
 describe("Test catmull slider", () => {
     test("With last two anchor points being equal", () => {
         const slider = parseSlider(
-            "416,320,11119,6,0,C|416:320|128:320|128:320,1,300"
+            "416,320,11119,6,0,C|416:320|128:320|128:320,1,300",
         );
 
         const path = new SliderPath(slider);
 
-        expect(path.cumulativeLength.at(-1)).toBeCloseTo(288);
+        expect(path.cumulativeLength.at(-1)).toBeCloseTo(300);
         testPathValidity(path);
     });
 
@@ -149,7 +149,7 @@ describe("Test catmull slider", () => {
         const path = new SliderPath(slider);
 
         expect(path.cumulativeLength.at(-1)).toBeCloseTo(
-            slider.expectedDistance
+            slider.expectedDistance,
         );
         testPathValidity(path);
     });
