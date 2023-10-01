@@ -43,39 +43,45 @@ const apiMock: OsuAPIResponse = {
     packs: null,
 };
 
-const convertLastUpdateDate = () => {
-    const t = apiMock.last_update.split(/[- :]/).map((e) => parseInt(e));
-
-    return new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
-};
-
-const convertSubmitDate = () => {
-    const t = apiMock.submit_date.split(/[- :]/).map((e) => parseInt(e));
+const convertDate = (str: string) => {
+    const t = str.split(/[- :]/).map((e) => parseInt(e));
 
     return new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
 };
 
 test("Test fill metadata", () => {
-    const beatmapInfo = new MapInfo().fillMetadata(apiMock);
+    const beatmapInfo = MapInfo.from(apiMock);
 
     expect(beatmapInfo.aimDifficulty).toBe(parseFloat(apiMock.diff_aim!));
     expect(beatmapInfo.approved).toBe(parseInt(apiMock.approved));
+    expect(beatmapInfo.approvedDate).toEqual(
+        apiMock.approved_date ? convertDate(apiMock.approved_date) : null,
+    );
     expect(beatmapInfo.ar).toBe(parseFloat(apiMock.diff_approach));
     expect(beatmapInfo.artist).toBe(apiMock.artist);
-    expect(beatmapInfo.beatmapID).toBe(parseInt(apiMock.beatmap_id));
-    expect(beatmapInfo.beatmapsetID).toBe(parseInt(apiMock.beatmapset_id));
+    expect(beatmapInfo.audioAvailable).toBe(
+        !parseInt(apiMock.audio_unavailable),
+    );
+    expect(beatmapInfo.beatmapId).toBe(parseInt(apiMock.beatmap_id));
+    expect(beatmapInfo.beatmapSetId).toBe(parseInt(apiMock.beatmapset_id));
     expect(beatmapInfo.bpm).toBe(parseFloat(apiMock.bpm));
     expect(beatmapInfo.circles).toBe(parseInt(apiMock.count_normal));
     expect(beatmapInfo.creator).toBe(apiMock.creator);
+    expect(beatmapInfo.creatorId).toBe(parseInt(apiMock.creator_id));
     expect(beatmapInfo.cs).toBe(parseFloat(apiMock.diff_size));
+    expect(beatmapInfo.downloadAvailable).toBe(
+        !parseInt(apiMock.download_unavailable),
+    );
     expect(beatmapInfo.favorites).toBe(parseInt(apiMock.favourite_count));
     expect(beatmapInfo.fullTitle).toBe(
         `${apiMock.artist} - ${apiMock.title} (${apiMock.creator}) [${apiMock.version}]`,
     );
+    expect(beatmapInfo.genre).toBe(parseInt(apiMock.genre_id));
     expect(beatmapInfo.hash).toBe(apiMock.file_md5);
     expect(beatmapInfo.hitLength).toBe(parseInt(apiMock.hit_length));
     expect(beatmapInfo.hp).toBe(parseFloat(apiMock.diff_drain));
-    expect(beatmapInfo.lastUpdate).toEqual(convertLastUpdateDate());
+    expect(beatmapInfo.language).toBe(parseInt(apiMock.language_id));
+    expect(beatmapInfo.lastUpdate).toEqual(convertDate(apiMock.last_update));
     expect(beatmapInfo.maxCombo).toBe(
         apiMock.max_combo !== null ? parseInt(apiMock.max_combo) : null,
     );
@@ -86,7 +92,9 @@ test("Test fill metadata", () => {
     );
     expect(beatmapInfo.od).toBe(parseFloat(apiMock.diff_overall));
     expect(beatmapInfo.packs).toEqual(apiMock.packs ?? []);
+    expect(beatmapInfo.passes).toBe(parseInt(apiMock.passcount));
     expect(beatmapInfo.plays).toBe(parseInt(apiMock.playcount));
+    expect(beatmapInfo.rating).toBe(parseFloat(apiMock.rating));
     expect(beatmapInfo.sliders).toBe(parseInt(apiMock.count_slider));
     expect(beatmapInfo.source).toBe(apiMock.source);
     expect(beatmapInfo.speedDifficulty).toBe(parseFloat(apiMock.diff_speed!));
@@ -94,7 +102,8 @@ test("Test fill metadata", () => {
     expect(beatmapInfo.storyboardAvailable).toBe(
         Boolean(parseInt(apiMock.storyboard)),
     );
-    expect(beatmapInfo.submitDate).toEqual(convertSubmitDate());
+    expect(beatmapInfo.submitDate).toEqual(convertDate(apiMock.submit_date));
+    expect(beatmapInfo.tags).toEqual(apiMock.tags.split(" "));
     expect(beatmapInfo.title).toBe(apiMock.title);
     expect(beatmapInfo.totalDifficulty).toBe(
         parseFloat(apiMock.difficultyrating!),
@@ -102,4 +111,10 @@ test("Test fill metadata", () => {
     expect(beatmapInfo.totalLength).toBe(parseInt(apiMock.total_length));
     expect(beatmapInfo.version).toBe(apiMock.version);
     expect(beatmapInfo.videoAvailable).toBe(Boolean(parseInt(apiMock.video)));
+});
+
+test("Test API response conversion", () => {
+    const beatmapInfo = MapInfo.from(apiMock);
+
+    expect(beatmapInfo.toAPIResponse()).toEqual(apiMock);
 });

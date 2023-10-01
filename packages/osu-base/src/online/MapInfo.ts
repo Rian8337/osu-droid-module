@@ -4,6 +4,8 @@ import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { If } from "../utils/If";
 import { OsuAPIRequestBuilder } from "./OsuAPIRequestBuilder";
 import { RequestResponse } from "./RequestResponse";
+import { BeatmapGenre } from "./BeatmapGenre";
+import { BeatmapLanguage } from "./BeatmapLanguage";
 
 export interface OsuAPIResponse {
     readonly approved: string;
@@ -40,7 +42,7 @@ export interface OsuAPIResponse {
     readonly count_normal: string;
     readonly count_slider: string;
     readonly count_spinner: string;
-    readonly max_combo: string | null;
+    readonly max_combo: string;
     readonly storyboard: string;
     readonly video: string;
     readonly download_unavailable: string;
@@ -75,6 +77,11 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     creator: string = "";
 
     /**
+     * The user ID of the creator of the beatmap.
+     */
+    creatorId: number = 0;
+
+    /**
      * The difficulty name of the beatmap.
      */
     version: string = "";
@@ -92,12 +99,12 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The ID of the beatmap.
      */
-    beatmapID: number = 0;
+    beatmapId: number = 0;
 
     /**
      * The ID of the beatmapset containing the beatmap.
      */
-    beatmapsetID: number = 0;
+    beatmapSetId: number = 0;
 
     /**
      * The amount of times the beatmap has been played.
@@ -105,14 +112,29 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     plays: number = 0;
 
     /**
+     * The amount of times this beatmap has been passed.
+     */
+    passes: number = 0;
+
+    /**
      * The amount of times the beatmap has been favorited.
      */
     favorites: number = 0;
 
     /**
+     * The user rating of this beatmap.
+     */
+    rating: number = 0;
+
+    /**
      * The date of which the beatmap was submitted.
      */
     submitDate: Date = new Date(0);
+
+    /**
+     * The date of which this beatmap was approved.
+     */
+    approvedDate: Date | null = null;
 
     /**
      * The date of which the beatmap was last updated.
@@ -128,6 +150,16 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
      * The duration of the beatmap including breaks.
      */
     totalLength: number = 0;
+
+    /**
+     * The genre of this beatmap.
+     */
+    genre: BeatmapGenre = BeatmapGenre.any;
+
+    /**
+     * The language of this beatmap.
+     */
+    language: BeatmapLanguage = BeatmapLanguage.any;
 
     /**
      * The BPM of the beatmap.
@@ -159,7 +191,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The maximum combo of the beatmap.
      */
-    maxCombo: number | null = null;
+    maxCombo: number = 0;
 
     /**
      * The circle size of the beatmap.
@@ -187,6 +219,11 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     packs: string[] = [];
 
     /**
+     * The tags of this beatmap.
+     */
+    tags: string[] = [];
+
+    /**
      * The aim difficulty rating of the beatmap.
      */
     aimDifficulty: number | null = null;
@@ -207,20 +244,48 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     hash: string = "";
 
     /**
-     * Whether or not this beatmap has a storyboard.
+     * Whether this beatmap has a storyboard.
      */
     storyboardAvailable: boolean = false;
 
     /**
-     * Whether or not this beatmap has a video.
+     * Whether this beatmap has a video.
      */
     videoAvailable: boolean = false;
+
+    /**
+     * Whether the download for this beatmap is available.
+     *
+     * The download of a beatmap may not be available due to old beatmap, etc.
+     */
+    downloadAvailable: boolean = true;
+
+    /**
+     * Whether the audio of this beatmap is available.
+     *
+     * The audio of a beatmap may not be available due to DMCA takedown, etc.
+     */
+    audioAvailable: boolean = true;
 
     /**
      * The decoded beatmap from beatmap decoder.
      */
     get beatmap(): If<HasBeatmap, Beatmap> {
         return <If<HasBeatmap, Beatmap>>this.cachedBeatmap;
+    }
+
+    /**
+     * The osu! site link to this beatmap.
+     */
+    get beatmapLink(): string {
+        return `https://osu.ppy.sh/b/${this.beatmapId}`;
+    }
+
+    /**
+     * The osu! site link to this beatmapset.
+     */
+    get beatmapSetLink(): string {
+        return `https://osu.ppy.sh/s/${this.beatmapSetId}`;
     }
 
     private cachedBeatmap: Beatmap | null = null;
@@ -261,7 +326,6 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
                     beatmapIdOrHash,
                 );
 
-        const map: MapInfo = new MapInfo();
         const result: RequestResponse = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
@@ -280,7 +344,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
             return null;
         }
 
-        map.fillMetadata(mapinfo);
+        const map = this.from(mapinfo);
 
         if (downloadBeatmap !== false) {
             await map.retrieveBeatmapFile();
@@ -290,67 +354,137 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     }
 
     /**
-     * Fills the current instance with map data.
+     * Constructs a `MapInfo` from an osu! API response.
      *
-     * @param mapinfo The map data.
+     * @param mapinfo The osu! API response.
+     * @returns A `MapInfo` instance representing the osu! API response.
      */
-    fillMetadata(mapinfo: OsuAPIResponse): MapInfo {
-        this.title = mapinfo.title;
-        this.artist = mapinfo.artist;
-        this.creator = mapinfo.creator;
-        this.version = mapinfo.version;
-        this.source = mapinfo.source;
-        this.approved = parseInt(mapinfo.approved);
-        this.beatmapID = parseInt(mapinfo.beatmap_id);
-        this.beatmapsetID = parseInt(mapinfo.beatmapset_id);
-        this.plays = parseInt(mapinfo.playcount);
-        this.favorites = parseInt(mapinfo.favourite_count);
-        const t: number[] = mapinfo.last_update
-            .split(/[- :]/)
-            .map((e) => parseInt(e));
-        this.lastUpdate = new Date(
-            Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]),
-        );
-        const s: number[] = mapinfo.submit_date
-            .split(/[- :]/)
-            .map((e) => parseInt(e));
-        this.submitDate = new Date(
-            Date.UTC(s[0], s[1] - 1, s[2], s[3], s[4], s[5]),
-        );
-        this.hitLength = parseInt(mapinfo.hit_length);
-        this.totalLength = parseInt(mapinfo.total_length);
-        this.bpm = parseFloat(mapinfo.bpm);
-        this.circles = mapinfo.count_normal
-            ? parseInt(mapinfo.count_normal)
-            : 0;
-        this.sliders = mapinfo.count_slider
-            ? parseInt(mapinfo.count_slider)
-            : 0;
-        this.spinners = mapinfo.count_spinner
+    static from(mapinfo: OsuAPIResponse): MapInfo {
+        const map = new MapInfo();
+
+        const parseDate = (str: string): Date => {
+            const t: number[] = str.split(/[- :]/).map((e) => parseInt(e));
+
+            return new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
+        };
+
+        map.title = mapinfo.title;
+        map.artist = mapinfo.artist;
+        map.creator = mapinfo.creator;
+        map.creatorId = parseInt(mapinfo.creator_id);
+        map.version = mapinfo.version;
+        map.source = mapinfo.source;
+        map.approved = parseInt(mapinfo.approved);
+        map.beatmapId = parseInt(mapinfo.beatmap_id);
+        map.beatmapSetId = parseInt(mapinfo.beatmapset_id);
+        map.plays = parseInt(mapinfo.playcount);
+        map.passes = parseInt(mapinfo.passcount);
+        map.favorites = parseInt(mapinfo.favourite_count);
+        map.rating = parseFloat(mapinfo.rating);
+        map.lastUpdate = parseDate(mapinfo.last_update);
+        map.submitDate = parseDate(mapinfo.submit_date);
+        map.approvedDate = mapinfo.approved_date
+            ? parseDate(mapinfo.approved_date)
+            : null;
+        map.hitLength = parseInt(mapinfo.hit_length);
+        map.totalLength = parseInt(mapinfo.total_length);
+        map.genre = parseInt(mapinfo.genre_id);
+        map.language = parseInt(mapinfo.language_id);
+        map.bpm = parseFloat(mapinfo.bpm);
+        map.circles = mapinfo.count_normal ? parseInt(mapinfo.count_normal) : 0;
+        map.sliders = mapinfo.count_slider ? parseInt(mapinfo.count_slider) : 0;
+        map.spinners = mapinfo.count_spinner
             ? parseInt(mapinfo.count_spinner)
             : 0;
-        this.maxCombo =
-            mapinfo.max_combo !== null ? parseInt(mapinfo.max_combo) : null;
-        this.cs = parseFloat(mapinfo.diff_size);
-        this.ar = parseFloat(mapinfo.diff_approach);
-        this.od = parseFloat(mapinfo.diff_overall);
-        this.hp = parseFloat(mapinfo.diff_drain);
+        map.maxCombo = parseInt(mapinfo.max_combo);
+        map.cs = parseFloat(mapinfo.diff_size);
+        map.ar = parseFloat(mapinfo.diff_approach);
+        map.od = parseFloat(mapinfo.diff_overall);
+        map.hp = parseFloat(mapinfo.diff_drain);
         if (mapinfo.packs) {
-            this.packs = mapinfo.packs.split(",").map((pack) => pack.trim());
+            map.packs = mapinfo.packs.split(",").map((pack) => pack.trim());
         }
-        this.aimDifficulty = mapinfo.diff_aim
+        map.tags = mapinfo.tags.split(" ");
+        map.aimDifficulty = mapinfo.diff_aim
             ? parseFloat(mapinfo.diff_aim)
             : null;
-        this.speedDifficulty = mapinfo.diff_speed
+        map.speedDifficulty = mapinfo.diff_speed
             ? parseFloat(mapinfo.diff_speed)
             : null;
-        this.totalDifficulty = mapinfo.difficultyrating
+        map.totalDifficulty = mapinfo.difficultyrating
             ? parseFloat(mapinfo.difficultyrating)
             : null;
-        this.hash = mapinfo.file_md5;
-        this.storyboardAvailable = !!parseInt(mapinfo.storyboard);
-        this.videoAvailable = !!parseInt(mapinfo.video);
-        return this;
+        map.hash = mapinfo.file_md5;
+        map.storyboardAvailable = !!parseInt(mapinfo.storyboard);
+        map.videoAvailable = !!parseInt(mapinfo.video);
+        map.downloadAvailable = !parseInt(mapinfo.download_unavailable);
+        map.audioAvailable = !parseInt(mapinfo.audio_unavailable);
+
+        return map;
+    }
+
+    /**
+     * Converts this `MapInfo` to its raw API response.
+     *
+     * @returns The raw API response represented by this `MapInfo`.
+     */
+    toAPIResponse(): OsuAPIResponse {
+        const padDateNumber = (num: number) => num.toString().padStart(2, "0");
+
+        const convertDate = (date: Date) =>
+            `${date.getUTCFullYear()}-${padDateNumber(
+                date.getUTCMonth() + 1,
+            )}-${padDateNumber(date.getUTCDate())} ${padDateNumber(
+                date.getUTCHours(),
+            )}:${padDateNumber(date.getUTCMinutes())}:${padDateNumber(
+                date.getUTCSeconds(),
+            )}`;
+
+        return {
+            approved: this.approved.toString(),
+            submit_date: convertDate(this.submitDate),
+            approved_date: this.approvedDate
+                ? convertDate(this.approvedDate)
+                : null,
+            last_update: convertDate(this.lastUpdate),
+            artist: this.artist,
+            beatmap_id: this.beatmapId.toString(),
+            beatmapset_id: this.beatmapSetId.toString(),
+            bpm: this.bpm.toString(),
+            creator: this.creator.toString(),
+            creator_id: this.creatorId.toString(),
+            difficultyrating: this.totalDifficulty?.toString() ?? null,
+            diff_aim: this.aimDifficulty?.toString() ?? null,
+            diff_speed: this.speedDifficulty?.toString() ?? null,
+            diff_size: this.cs.toString(),
+            diff_overall: this.od.toString(),
+            diff_approach: this.ar.toString(),
+            diff_drain: this.hp.toString(),
+            hit_length: this.hitLength.toString(),
+            source: this.source.toString(),
+            genre_id: this.genre.toString(),
+            language_id: this.language.toString(),
+            title: this.title.toString(),
+            total_length: this.totalLength.toString(),
+            version: this.version.toString(),
+            file_md5: this.hash.toString(),
+            // Guaranteed to be osu!standard for the time being.
+            mode: "0",
+            tags: this.tags.join(" "),
+            favourite_count: this.favorites.toString(),
+            rating: this.rating.toString(),
+            playcount: this.plays.toString(),
+            passcount: this.passes.toString(),
+            count_normal: this.circles.toString(),
+            count_slider: this.sliders.toString(),
+            count_spinner: this.spinners.toString(),
+            max_combo: this.maxCombo.toString(),
+            storyboard: this.storyboardAvailable ? "1" : "0",
+            video: this.videoAvailable ? "1" : "0",
+            download_unavailable: this.downloadAvailable ? "0" : "1",
+            audio_unavailable: this.audioAvailable ? "0" : "1",
+            packs: this.packs.join(" ") || null,
+        };
     }
 
     /**
@@ -372,7 +506,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
             return;
         }
 
-        const url: string = `https://osu.ppy.sh/osu/${this.beatmapID}`;
+        const url: string = `https://osu.ppy.sh/osu/${this.beatmapId}`;
 
         return fetch(url)
             .then(async (res) => {
