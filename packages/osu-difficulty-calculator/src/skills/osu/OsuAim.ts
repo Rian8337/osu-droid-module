@@ -1,7 +1,7 @@
 import { OsuSkill } from "./OsuSkill";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { Mod } from "@rian8337/osu-base";
 import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -22,7 +22,7 @@ export class OsuAim extends OsuSkill {
         this.withSliders = withSliders;
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentAimStrain *= this.strainDecay(current.deltaTime);
         this.currentAimStrain +=
             OsuAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
@@ -33,7 +33,7 @@ export class OsuAim extends OsuSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: OsuDifficultyHitObject,
     ): number {
         return (
             this.currentAimStrain *
@@ -44,7 +44,7 @@ export class OsuAim extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
         if (this.withSliders) {
             current.aimStrainWithSliders = this.currentAimStrain;
         } else {

@@ -1,5 +1,5 @@
 import { Spinner, Slider, Modes } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Visual skill.
@@ -21,7 +21,7 @@ export abstract class DroidVisualEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         isHiddenMod: boolean,
         withSliders: boolean,
     ): number {
@@ -46,7 +46,7 @@ export abstract class DroidVisualEvaluator {
 
         // Bonus based on how visible the object is.
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const previous: DifficultyHitObject = current.previous(i)!;
+            const previous: DroidDifficultyHitObject = current.previous(i)!;
 
             if (
                 previous.object instanceof Spinner ||
@@ -98,7 +98,7 @@ export abstract class DroidVisualEvaluator {
 
             // Reward for velocity changes based on last few sliders.
             for (let i = 0; i < Math.min(current.index, 4); ++i) {
-                const last: DifficultyHitObject = current.previous(i)!;
+                const last: DroidDifficultyHitObject = current.previous(i)!;
 
                 cumulativeStrainTime += last.strainTime;
 

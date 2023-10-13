@@ -1,6 +1,6 @@
 import { Spinner, ErrorFunction } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid tap skill.
@@ -18,7 +18,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
      * @param considerCheesability Whether to consider cheesability.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         greatWindow: number,
         considerCheesability: boolean,
     ): number {
@@ -34,7 +34,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
 
         if (considerCheesability) {
             // Nerf doubletappable doubles.
-            const next: DifficultyHitObject | null = current.next(0);
+            const next: DroidDifficultyHitObject | null = current.next(0);
 
             if (next) {
                 const greatWindowFull: number = greatWindow * 2;

@@ -1,6 +1,6 @@
 import { Modes, Slider, Spinner } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Flashlight skill.
@@ -20,9 +20,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         isHiddenMod: boolean,
-        withSliders: boolean
+        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -37,11 +37,12 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         let smallDistNerf: number = 1;
         let cumulativeStrainTime: number = 0;
         let result: number = 0;
-        let last: DifficultyHitObject = current;
+        let last: DroidDifficultyHitObject = current;
         let angleRepeatCount: number = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const currentObject: DifficultyHitObject = current.previous(i)!;
+            const currentObject: DroidDifficultyHitObject =
+                current.previous(i)!;
 
             if (
                 !(currentObject.object instanceof Spinner) &&
@@ -51,7 +52,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 const jumpDistance: number = current.object
                     .getStackedPosition(Modes.droid)
                     .subtract(
-                        currentObject.object.getStackedEndPosition(Modes.droid)
+                        currentObject.object.getStackedEndPosition(Modes.droid),
                     ).length;
 
                 cumulativeStrainTime += last.strainTime;
@@ -64,7 +65,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                 // We also want to nerf stacks so that only the first object of the stack is accounted for.
                 const stackNerf: number = Math.min(
                     1,
-                    currentObject.lazyJumpDistance / scalingFactor / 25
+                    currentObject.lazyJumpDistance / scalingFactor / 25,
                 );
 
                 // Bonus based on how visible the object is.
@@ -74,7 +75,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod
+                                isHiddenMod,
                             ));
 
                 result +=
@@ -115,9 +116,9 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
             sliderBonus = Math.pow(
                 Math.max(
                     0,
-                    pixelTravelDistance / current.travelTime - this.minVelocity
+                    pixelTravelDistance / current.travelTime - this.minVelocity,
                 ),
-                0.5
+                0.5,
             );
 
             // Longer sliders require more memorization.

@@ -1,5 +1,5 @@
 import { Spinner, Slider } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 
 /**
@@ -14,8 +14,8 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
      * @param greatWindow The great hit window of the current object.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
-        greatWindow: number
+        current: OsuDifficultyHitObject,
+        greatWindow: number,
     ): number {
         if (current.object instanceof Spinner) {
             return 0;
@@ -43,9 +43,11 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
         }
 
         for (let i = rhythmStart; i > 0; --i) {
-            const currentObject: DifficultyHitObject = current.previous(i - 1)!;
-            const prevObject: DifficultyHitObject = current.previous(i)!;
-            const lastObject: DifficultyHitObject = current.previous(i + 1)!;
+            const currentObject: OsuDifficultyHitObject = current.previous(
+                i - 1,
+            )!;
+            const prevObject: OsuDifficultyHitObject = current.previous(i)!;
+            const lastObject: OsuDifficultyHitObject = current.previous(i + 1)!;
 
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay: number =
@@ -56,7 +58,7 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
                 currentHistoricalDecay,
-                (historicalNoteCount - i) / historicalNoteCount
+                (historicalNoteCount - i) / historicalNoteCount,
             );
 
             const currentDelta: number = currentObject.strainTime;
@@ -72,19 +74,19 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
                             Math.sin(
                                 Math.PI /
                                     (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta))
+                                        Math.max(prevDelta, currentDelta)),
                             ),
-                            2
-                        )
+                            2,
+                        ),
                     );
 
             const windowPenalty: number = Math.min(
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6
+                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
                 ) /
-                    (greatWindow * 0.6)
+                    (greatWindow * 0.6),
             );
 
             let effectiveRatio: number = windowPenalty * currentRatio;

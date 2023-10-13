@@ -1,7 +1,7 @@
 import { Mod, OsuHitWindow } from "@rian8337/osu-base";
 import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * Represents the skill required to properly follow a beatmap's rhythm.
@@ -22,7 +22,9 @@ export class DroidRhythm extends DroidSkill {
         this.hitWindow = new OsuHitWindow(overallDifficulty);
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(
+        current: DroidDifficultyHitObject,
+    ): number {
         this.currentRhythmMultiplier =
             DroidRhythmEvaluator.evaluateDifficultyOf(
                 current,
@@ -37,7 +39,7 @@ export class DroidRhythm extends DroidSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
     ): number {
         return (
             this.currentRhythmStrain *
@@ -45,7 +47,9 @@ export class DroidRhythm extends DroidSkill {
         );
     }
 
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+    ): void {
         current.rhythmStrain = this.currentRhythmStrain;
         current.rhythmMultiplier = this.currentRhythmMultiplier;
     }

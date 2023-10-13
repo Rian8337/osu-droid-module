@@ -15,11 +15,12 @@ import {
     CircleSizeCalculator,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
+import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
  */
-export class OsuDifficultyCalculator extends DifficultyCalculator {
+export class OsuDifficultyCalculator extends DifficultyCalculator<OsuDifficultyHitObject> {
     /**
      * The aim star rating of the beatmap.
      */
@@ -78,7 +79,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
         const speedSkill: OsuSpeed = new OsuSpeed(
             this.mods,
-            new OsuHitWindow(this.stats.od!).hitWindowFor300()
+            new OsuHitWindow(this.stats.od!).hitWindowFor300(),
         );
 
         this.calculateSkills(speedSkill);
@@ -100,7 +101,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
     override calculateTotal(): void {
         const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
         const speedPerformanceValue: number = this.basePerformanceValue(
-            this.speed
+            this.speed,
         );
         let flashlightPerformanceValue: number = 0;
 
@@ -112,7 +113,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             Math.pow(aimPerformanceValue, 1.1) +
                 Math.pow(speedPerformanceValue, 1.1) +
                 Math.pow(flashlightPerformanceValue, 1.1),
-            1 / 1.1
+            1 / 1.1,
         );
 
         if (basePerformanceValue > 1e-5) {
@@ -122,7 +123,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
                 Math.cbrt(1.14) *
                 0.027 *
                 (Math.cbrt(
-                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue
+                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue,
                 ) +
                     4);
         } else {
@@ -173,7 +174,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
 
     protected override preProcess(): void {
         const scale: number = CircleSizeCalculator.standardCSToStandardScale(
-            this.stats.cs!
+            this.stats.cs!,
         );
 
         for (const object of this.beatmap.hitObjects.objects) {
@@ -189,7 +190,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             this.beatmap.formatVersion,
             this.beatmap.hitObjects.objects,
             ar,
-            this.beatmap.general.stackLeniency
+            this.beatmap.general.stackLeniency,
         );
     }
 
@@ -199,7 +200,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             new OsuAim(this.mods, false),
             new OsuSpeed(
                 this.mods,
-                new OsuHitWindow(this.stats.od!).hitWindowFor300()
+                new OsuHitWindow(this.stats.od!).hitWindowFor300(),
             ),
             new OsuFlashlight(this.mods),
         ];
@@ -213,7 +214,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      */
     private postCalculateAim(
         aimSkill: OsuAim,
-        aimSkillWithoutSliders: OsuAim
+        aimSkillWithoutSliders: OsuAim,
     ): void {
         this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
@@ -246,7 +247,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
         this.strainPeaks.speed = speedSkill.strainPeaks;
 
         this.speed = this.attributes.speedDifficulty = this.starValue(
-            speedSkill.difficultyValue()
+            speedSkill.difficultyValue(),
         );
     }
 
@@ -254,7 +255,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * Calculates speed-related attributes.
      */
     private calculateSpeedAttributes(): void {
-        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
+        const objectStrains: number[] = this.objects.map((v) => v.speedStrain);
 
         const maxStrain: number = Math.max(...objectStrains);
 
@@ -262,7 +263,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
             this.attributes.speedNoteCount = objectStrains.reduce(
                 (total, next) =>
                     total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0
+                0,
             );
         }
     }

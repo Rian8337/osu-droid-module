@@ -1,6 +1,6 @@
 import { Spinner, Slider } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
@@ -14,7 +14,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      * @param greatWindow The great hit window of the current object.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         greatWindow: number,
     ): number {
         if (
@@ -39,10 +39,10 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         const historicalNoteCount: number = Math.min(current.index, 32);
 
         // Exclude overlapping objects that can be tapped at once.
-        const validPrevious: DifficultyHitObject[] = [];
+        const validPrevious: DroidDifficultyHitObject[] = [];
 
         for (let i = 0; i < historicalNoteCount; ++i) {
-            const object: DifficultyHitObject | null = current.previous(i);
+            const object: DroidDifficultyHitObject | null = current.previous(i);
 
             if (!object) {
                 break;
@@ -173,7 +173,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         }
 
         // Nerf doubles that can be tapped at the same time to get Great hit results.
-        const next: DifficultyHitObject | null = current.next(0);
+        const next: DroidDifficultyHitObject | null = current.next(0);
         let doubletapness: number = 1;
 
         if (next) {

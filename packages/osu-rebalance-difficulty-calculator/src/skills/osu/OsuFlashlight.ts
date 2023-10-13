@@ -1,7 +1,7 @@
 import { Mod, ModHidden } from "@rian8337/osu-base";
 import { OsuFlashlightEvaluator } from "../../evaluators/osu/OsuFlashlightEvaluator";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { OsuSkill } from "./OsuSkill";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
@@ -22,7 +22,7 @@ export class OsuFlashlight extends OsuSkill {
         this.isHidden = mods.some((m) => m instanceof ModHidden);
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
             OsuFlashlightEvaluator.evaluateDifficultyOf(
@@ -35,7 +35,7 @@ export class OsuFlashlight extends OsuSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: OsuDifficultyHitObject,
     ): number {
         return (
             this.currentFlashlightStrain *
@@ -43,7 +43,7 @@ export class OsuFlashlight extends OsuSkill {
         );
     }
 
-    protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.flashlightStrainWithSliders = this.currentFlashlightStrain;
+    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
+        current.flashlightStrain = this.currentFlashlightStrain;
     }
 }

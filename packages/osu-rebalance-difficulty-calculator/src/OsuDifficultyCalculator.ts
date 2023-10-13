@@ -15,11 +15,12 @@ import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
+import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
  */
-export class OsuDifficultyCalculator extends DifficultyCalculator {
+export class OsuDifficultyCalculator extends DifficultyCalculator<OsuDifficultyHitObject> {
     /**
      * The aim star rating of the beatmap.
      */
@@ -241,7 +242,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator {
      * Calculates speed-related attributes.
      */
     private calculateSpeedAttributes(): void {
-        const objectStrains: number[] = this.objects.map((v) => v.tapStrain);
+        const objectStrains: number[] = this.objects.map((v) => v.speedStrain);
 
         const maxStrain: number = Math.max(...objectStrains);
 

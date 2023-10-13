@@ -1,8 +1,8 @@
 import { OsuSkill } from "./OsuSkill";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { Mod } from "@rian8337/osu-base";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -29,7 +29,7 @@ export class OsuSpeed extends OsuSkill {
     /**
      * @param current The hitobject to calculate.
      */
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentSpeedStrain *= this.strainDecay(current.strainTime);
         this.currentSpeedStrain +=
             OsuSpeedEvaluator.evaluateDifficultyOf(current, this.greatWindow) *
@@ -45,7 +45,7 @@ export class OsuSpeed extends OsuSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: OsuDifficultyHitObject,
     ): number {
         return (
             this.currentSpeedStrain *
@@ -57,8 +57,8 @@ export class OsuSpeed extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: DifficultyHitObject): void {
-        current.tapStrain = this.currentSpeedStrain * this.currentRhythm;
+    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
+        current.speedStrain = this.currentSpeedStrain * this.currentRhythm;
         current.rhythmMultiplier = this.currentRhythm;
     }
 }

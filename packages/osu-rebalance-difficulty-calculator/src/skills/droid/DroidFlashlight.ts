@@ -2,6 +2,7 @@ import { Mod, ModHidden } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
@@ -24,7 +25,9 @@ export class DroidFlashlight extends DroidSkill {
         this.withSliders = withSliders;
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(
+        current: DroidDifficultyHitObject,
+    ): number {
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
             DroidFlashlightEvaluator.evaluateDifficultyOf(
@@ -46,7 +49,9 @@ export class DroidFlashlight extends DroidSkill {
         );
     }
 
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+    ): void {
         if (this.withSliders) {
             current.flashlightStrainWithSliders = this.currentFlashlightStrain;
         } else {

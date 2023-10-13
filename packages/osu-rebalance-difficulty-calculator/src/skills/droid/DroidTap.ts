@@ -1,7 +1,7 @@
 import { OsuHitWindow, Mod } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -32,7 +32,9 @@ export class DroidTap extends DroidSkill {
         this.considerCheesability = considerCheesability;
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(
+        current: DroidDifficultyHitObject,
+    ): number {
         const decay: number = this.strainDecay(current.strainTime);
 
         this.currentTapStrain *= decay;
@@ -50,7 +52,7 @@ export class DroidTap extends DroidSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
     ): number {
         return (
             this.currentTapStrain *
@@ -62,7 +64,9 @@ export class DroidTap extends DroidSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+    ): void {
         const strain: number =
             this.currentTapStrain * this.currentRhythmMultiplier;
 

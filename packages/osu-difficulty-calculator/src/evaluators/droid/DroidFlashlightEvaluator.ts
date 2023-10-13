@@ -1,6 +1,6 @@
 import { Modes, Slider, Spinner } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Flashlight skill.
@@ -20,7 +20,7 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         isHiddenMod: boolean,
         withSliders: boolean,
     ): number {
@@ -37,11 +37,12 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         let smallDistNerf: number = 1;
         let cumulativeStrainTime: number = 0;
         let result: number = 0;
-        let last: DifficultyHitObject = current;
+        let last: DroidDifficultyHitObject = current;
         let angleRepeatCount: number = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const currentObject: DifficultyHitObject = current.previous(i)!;
+            const currentObject: DroidDifficultyHitObject =
+                current.previous(i)!;
 
             if (
                 !(currentObject.object instanceof Spinner) &&

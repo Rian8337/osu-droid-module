@@ -1,5 +1,5 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { AimEvaluator } from "../base/AimEvaluator";
 
 /**
@@ -18,10 +18,10 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
-        withSliders: boolean
+        current: OsuDifficultyHitObject,
+        withSliders: boolean,
     ): number {
-        const last: DifficultyHitObject | null = current.previous(0)!;
+        const last: OsuDifficultyHitObject | null = current.previous(0)!;
 
         if (
             current.object instanceof Spinner ||
@@ -31,7 +31,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             return 0;
         }
 
-        const lastLast: DifficultyHitObject = current.previous(1)!;
+        const lastLast: OsuDifficultyHitObject = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity: number =
@@ -50,7 +50,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             // Take the larger total combined velocity.
             currentVelocity = Math.max(
                 currentVelocity,
-                movementVelocity + travelVelocity
+                movementVelocity + travelVelocity,
             );
         }
 
@@ -66,7 +66,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
 
             prevVelocity = Math.max(
                 prevVelocity,
-                movementVelocity + travelVelocity
+                movementVelocity + travelVelocity,
             );
         }
 
@@ -105,9 +105,9 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                     Math.pow(
                         Math.sin(
                             (Math.PI / 2) *
-                                Math.min(1, (100 - current.strainTime) / 25)
+                                Math.min(1, (100 - current.strainTime) / 25),
                         ),
-                        2
+                        2,
                     ) *
                     // Buff distance exceeding 50 (radius) up to 100 (diameter).
                     Math.pow(
@@ -116,12 +116,12 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                                 (MathUtils.clamp(
                                     current.lazyJumpDistance,
                                     50,
-                                    100
+                                    100,
                                 ) -
                                     50)) /
-                                50
+                                50,
                         ),
-                        2
+                        2,
                     );
             }
 
@@ -131,7 +131,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                 (1 -
                     Math.min(
                         wideAngleBonus,
-                        Math.pow(this.calculateWideAngleBonus(last.angle), 3)
+                        Math.pow(this.calculateWideAngleBonus(last.angle), 3),
                     ));
             // Penalize acute angles if they're repeated, reducing the penalty as lastLast.angle gets more obtuse.
             acuteAngleBonus *=
@@ -142,8 +142,8 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                             acuteAngleBonus,
                             Math.pow(
                                 this.calculateAcuteAngleBonus(lastLast.angle),
-                                3
-                            )
+                                3,
+                            ),
                         ));
         }
 
@@ -160,15 +160,15 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             const distanceRatio: number = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
-                        Math.max(prevVelocity, currentVelocity)
+                        Math.max(prevVelocity, currentVelocity),
                 ),
-                2
+                2,
             );
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff: number = Math.min(
                 125 / Math.min(current.strainTime, last.strainTime),
-                Math.abs(prevVelocity - currentVelocity)
+                Math.abs(prevVelocity - currentVelocity),
             );
 
             velocityChangeBonus = overlapVelocityBuff * distanceRatio;
@@ -177,7 +177,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             velocityChangeBonus *= Math.pow(
                 Math.min(current.strainTime, last.strainTime) /
                     Math.max(current.strainTime, last.strainTime),
-                2
+                2,
             );
         }
 
@@ -190,7 +190,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
             wideAngleBonus * this.wideAngleMultiplier +
-                velocityChangeBonus * this.velocityChangeMultiplier
+                velocityChangeBonus * this.velocityChangeMultiplier,
         );
 
         // Add in additional slider velocity bonus.

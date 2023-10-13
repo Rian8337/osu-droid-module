@@ -1,5 +1,5 @@
 import { Modes, Slider, Spinner } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
 /**
@@ -19,8 +19,8 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
      * @param isHiddenMod Whether the Hidden mod is enabled.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
-        isHiddenMod: boolean
+        current: OsuDifficultyHitObject,
+        isHiddenMod: boolean,
     ): number {
         if (current.object instanceof Spinner) {
             return 0;
@@ -30,11 +30,11 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
         let smallDistNerf: number = 1;
         let cumulativeStrainTime: number = 0;
         let result: number = 0;
-        let last: DifficultyHitObject = current;
+        let last: OsuDifficultyHitObject = current;
         let angleRepeatCount: number = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const currentObject: DifficultyHitObject = current.previous(i)!;
+            const currentObject: OsuDifficultyHitObject = current.previous(i)!;
 
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance: number = current.object
@@ -51,7 +51,7 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                 // We also want to nerf stacks so that only the first object of the stack is accounted for.
                 const stackNerf: number = Math.min(
                     1,
-                    currentObject.lazyJumpDistance / scalingFactor / 25
+                    currentObject.lazyJumpDistance / scalingFactor / 25,
                 );
 
                 // Bonus based on how visible the object is.
@@ -61,7 +61,7 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod
+                                isHiddenMod,
                             ));
 
                 result +=
@@ -102,9 +102,9 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             sliderBonus = Math.pow(
                 Math.max(
                     0,
-                    pixelTravelDistance / current.travelTime - this.minVelocity
+                    pixelTravelDistance / current.travelTime - this.minVelocity,
                 ),
-                0.5
+                0.5,
             );
 
             // Longer sliders require more memorization.

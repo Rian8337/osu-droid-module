@@ -1,7 +1,7 @@
 import { Mod, ModHidden } from "@rian8337/osu-base";
 import { DroidVisualEvaluator } from "../../evaluators/droid/DroidVisualEvaluator";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * Represents the skill required to read every object in the map.
@@ -26,7 +26,9 @@ export class DroidVisual extends DroidSkill {
         this.withSliders = withSliders;
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(
+        current: DroidDifficultyHitObject,
+    ): number {
         this.currentVisualStrain *= this.strainDecay(current.deltaTime);
         this.currentVisualStrain +=
             DroidVisualEvaluator.evaluateDifficultyOf(
@@ -42,7 +44,7 @@ export class DroidVisual extends DroidSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
     ): number {
         return (
             this.currentVisualStrain *
@@ -51,7 +53,9 @@ export class DroidVisual extends DroidSkill {
         );
     }
 
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+    ): void {
         const strain: number =
             this.currentVisualStrain * this.currentRhythmMultiplier;
 

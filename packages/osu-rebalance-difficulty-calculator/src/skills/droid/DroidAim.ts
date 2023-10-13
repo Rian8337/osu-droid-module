@@ -1,7 +1,7 @@
 import { Mod } from "@rian8337/osu-base";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -23,7 +23,9 @@ export class DroidAim extends DroidSkill {
         this.withSliders = withSliders;
     }
 
-    protected override strainValueAt(current: DifficultyHitObject): number {
+    protected override strainValueAt(
+        current: DroidDifficultyHitObject,
+    ): number {
         this.currentAimStrain *= this.strainDecay(current.deltaTime);
         this.currentAimStrain +=
             DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
@@ -34,7 +36,7 @@ export class DroidAim extends DroidSkill {
 
     protected override calculateInitialStrain(
         time: number,
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
     ): number {
         return (
             this.currentAimStrain *
@@ -45,7 +47,9 @@ export class DroidAim extends DroidSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: DifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+    ): void {
         if (this.withSliders) {
             current.aimStrainWithSliders = this.currentAimStrain;
         } else {

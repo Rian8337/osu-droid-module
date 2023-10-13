@@ -1,6 +1,6 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { AimEvaluator } from "../base/AimEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Aim skill.
@@ -27,7 +27,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         withSliders: boolean,
     ): number {
         if (
@@ -48,7 +48,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      * Calculates the snap aim strain of a hitobject.
      */
     private static snapAimStrainOf(
-        current: DifficultyHitObject,
+        current: DroidDifficultyHitObject,
         withSliders: boolean,
     ): number {
         if (
@@ -58,8 +58,8 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             return 0;
         }
 
-        const last: DifficultyHitObject = current.previous(0)!;
-        const lastLast: DifficultyHitObject = current.previous(1)!;
+        const last: DroidDifficultyHitObject = current.previous(0)!;
+        const lastLast: DroidDifficultyHitObject = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity: number =
@@ -237,7 +237,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     /**
      * Calculates the flow aim strain of a hitobject.
      */
-    private static flowAimStrainOf(current: DifficultyHitObject): number {
+    private static flowAimStrainOf(current: DroidDifficultyHitObject): number {
         let speedBonus: number = 1;
 
         if (current.strainTime < this.minSpeedBonus) {

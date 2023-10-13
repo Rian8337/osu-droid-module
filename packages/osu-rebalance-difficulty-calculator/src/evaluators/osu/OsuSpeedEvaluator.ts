@@ -1,5 +1,5 @@
 import { MathUtils, Spinner } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
 /**
@@ -22,34 +22,34 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
      * @param greatWindow The great hit window of the current object.
      */
     static evaluateDifficultyOf(
-        current: DifficultyHitObject,
-        greatWindow: number
+        current: OsuDifficultyHitObject,
+        greatWindow: number,
     ): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
 
-        const prev: DifficultyHitObject | null = current.previous(0);
+        const prev: OsuDifficultyHitObject | null = current.previous(0);
 
         let strainTime: number = current.strainTime;
 
         const greatWindowFull: number = greatWindow * 2;
 
         // Nerf doubletappable doubles.
-        const next: DifficultyHitObject | null = current.next(0);
+        const next: OsuDifficultyHitObject | null = current.next(0);
         let doubletapness: number = 1;
 
         if (next) {
             const currentDeltaTime: number = Math.max(1, current.deltaTime);
             const nextDeltaTime: number = Math.max(1, next.deltaTime);
             const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime
+                nextDeltaTime - currentDeltaTime,
             );
             const speedRatio: number =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
             const windowRatio: number = Math.pow(
                 Math.min(1, currentDeltaTime / greatWindowFull),
-                2
+                2,
             );
             doubletapness = Math.pow(speedRatio, 1 - windowRatio);
         }
@@ -59,7 +59,7 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
         strainTime /= MathUtils.clamp(
             strainTime / greatWindowFull / 0.93,
             0.92,
-            1
+            1,
         );
 
         let speedBonus: number = 1;
@@ -71,7 +71,7 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
         const travelDistance: number = prev?.travelDistance ?? 0;
         const distance: number = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
-            travelDistance + current.minimumJumpDistance
+            travelDistance + current.minimumJumpDistance,
         );
 
         return (

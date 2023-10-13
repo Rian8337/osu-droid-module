@@ -9,7 +9,7 @@ import { Skill } from "./Skill";
 /**
  * The base of a difficulty calculator.
  */
-export abstract class DifficultyCalculator {
+export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
     /**
      * The calculated beatmap.
      */
@@ -18,7 +18,7 @@ export abstract class DifficultyCalculator {
     /**
      * The difficulty objects of the beatmap.
      */
-    readonly objects: DifficultyHitObject[] = [];
+    readonly objects: T[] = [];
 
     /**
      * The modifications applied.
@@ -106,14 +106,14 @@ export abstract class DifficultyCalculator {
     generateDifficultyHitObjects(): void {
         this.objects.length = 0;
         this.objects.push(
-            ...new DifficultyHitObjectCreator().generateDifficultyObjects({
+            ...(new DifficultyHitObjectCreator().generateDifficultyObjects({
                 objects: this.beatmap.hitObjects.objects,
                 circleSize: this.beatmap.difficulty.cs,
                 mods: this.mods,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),
-            }),
+            }) as T[]),
         );
     }
 

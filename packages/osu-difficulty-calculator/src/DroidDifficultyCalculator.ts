@@ -14,11 +14,12 @@ import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 import { HighStrainSection } from "./structures/HighStrainSection";
+import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
  */
-export class DroidDifficultyCalculator extends DifficultyCalculator {
+export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficultyHitObject> {
     /**
      * The aim star rating of the beatmap.
      */

@@ -11,6 +11,8 @@ import {
     Vector2,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
+import { DroidDifficultyHitObject } from "./DroidDifficultyHitObject";
+import { OsuDifficultyHitObject } from "./OsuDifficultyHitObject";
 
 /**
  * A converter used to convert normal hitobjects into difficulty hitobjects.
@@ -50,6 +52,39 @@ export class DifficultyHitObjectCreator {
         circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
+        mode: Modes.droid;
+        preempt?: number;
+    }): DroidDifficultyHitObject[];
+
+    /**
+     * Generates difficulty hitobjects for difficulty calculation.
+     */
+    generateDifficultyObjects(params: {
+        objects: readonly HitObject[];
+        circleSize: number;
+        mods: Mod[];
+        speedMultiplier: number;
+        mode: Modes.osu;
+        preempt?: number;
+    }): OsuDifficultyHitObject[];
+
+    /**
+     * Generates difficulty hitobjects for difficulty calculation.
+     */
+    generateDifficultyObjects(params: {
+        objects: readonly HitObject[];
+        circleSize: number;
+        mods: Mod[];
+        speedMultiplier: number;
+        mode: Modes;
+        preempt?: number;
+    }): DifficultyHitObject[];
+
+    generateDifficultyObjects(params: {
+        objects: readonly HitObject[];
+        circleSize: number;
+        mods: Mod[];
+        speedMultiplier: number;
         mode: Modes;
         preempt?: number;
     }): DifficultyHitObject[] {
@@ -61,25 +96,28 @@ export class DifficultyHitObjectCreator {
         }
 
         const scalingFactor: number = this.getScalingFactor(
-            params.objects[0].getRadius(this.mode)
+            params.objects[0].getRadius(this.mode),
         );
 
         const difficultyObjects: DifficultyHitObject[] = [];
 
         for (let i = 0; i < params.objects.length; ++i) {
-            const object: DifficultyHitObject = new DifficultyHitObject(
-                params.objects[i],
-                difficultyObjects
-            );
+            const object: DifficultyHitObject =
+                this.mode === Modes.droid
+                    ? new DroidDifficultyHitObject(
+                          params.objects[i],
+                          difficultyObjects as DroidDifficultyHitObject[],
+                      )
+                    : new OsuDifficultyHitObject(
+                          params.objects[i],
+                          difficultyObjects as OsuDifficultyHitObject[],
+                      );
 
             object.index = difficultyObjects.length - 1;
             object.timePreempt = params.preempt;
             object.baseTimePreempt = params.preempt * params.speedMultiplier;
 
             if (object.object instanceof Slider) {
-                object.velocity =
-                    object.object.velocity * params.speedMultiplier;
-
                 this.calculateSliderCursorPosition(object.object);
 
                 object.travelDistance = object.object.lazyTravelDistance;
@@ -87,18 +125,18 @@ export class DifficultyHitObjectCreator {
                 if (this.mode === Modes.droid) {
                     object.travelDistance *= Math.pow(
                         1 + object.object.repeats / 4,
-                        1 / 4
+                        1 / 4,
                     );
                 } else {
                     object.travelDistance *= Math.pow(
                         1 + object.object.repeats / 2.5,
-                        1 / 2.5
+                        1 / 2.5,
                     );
                 }
 
                 object.travelTime = Math.max(
                     object.object.lazyTravelTime / params.speedMultiplier,
-                    this.minDeltaTime
+                    this.minDeltaTime,
                 );
             }
 
@@ -125,73 +163,81 @@ export class DifficultyHitObjectCreator {
                 continue;
             }
 
-            // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
-            // while the second array contains objects after the current object ends.
-            // For overlapping factor, we also need to consider previous visible objects.
-            const prevVisibleObjects: PlaceableHitObject[] = [];
-            const nextVisibleObjects: PlaceableHitObject[] = [];
+            if (object instanceof DroidDifficultyHitObject) {
+                // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
+                // while the second array contains objects after the current object ends.
+                // For overlapping factor, we also need to consider previous visible objects.
+                const prevVisibleObjects: PlaceableHitObject[] = [];
+                const nextVisibleObjects: PlaceableHitObject[] = [];
 
-            for (let j = i + 1; j < params.objects.length; ++j) {
-                const o: HitObject = params.objects[j];
+                for (let j = i + 1; j < params.objects.length; ++j) {
+                    const o: HitObject = params.objects[j];
 
-                if (o instanceof Spinner) {
-                    continue;
+                    if (o instanceof Spinner) {
+                        continue;
+                    }
+
+                    if (
+                        o.startTime / params.speedMultiplier >
+                        object.endTime + object.timePreempt
+                    ) {
+                        break;
+                    }
+
+                    nextVisibleObjects.push(o);
                 }
 
-                if (
-                    o.startTime / params.speedMultiplier >
-                    object.endTime + object.timePreempt
-                ) {
-                    break;
+                for (let j = 0; j < object.index; ++j) {
+                    const prev: DifficultyHitObject = object.previous(j)!;
+
+                    if (prev.object instanceof Spinner) {
+                        continue;
+                    }
+
+                    if (prev.startTime >= object.startTime) {
+                        continue;
+                    }
+
+                    if (
+                        prev.startTime <
+                        object.startTime - object.timePreempt
+                    ) {
+                        break;
+                    }
+
+                    prevVisibleObjects.push(prev.object);
                 }
 
-                nextVisibleObjects.push(o);
-            }
+                for (const hitObject of prevVisibleObjects) {
+                    const distance: number = object.object
+                        .getStackedPosition(this.mode)
+                        .getDistance(
+                            hitObject.getStackedEndPosition(this.mode),
+                        );
+                    const deltaTime: number =
+                        object.startTime -
+                        hitObject.endTime / params.speedMultiplier;
 
-            for (let j = 0; j < object.index; ++j) {
-                const prev: DifficultyHitObject = object.previous(j)!;
-
-                if (prev.object instanceof Spinner) {
-                    continue;
+                    this.applyToOverlappingFactor(object, distance, deltaTime);
                 }
 
-                if (prev.startTime >= object.startTime) {
-                    continue;
+                for (const hitObject of nextVisibleObjects) {
+                    const distance: number = hitObject
+                        .getStackedPosition(this.mode)
+                        .getDistance(
+                            object.object.getStackedEndPosition(this.mode),
+                        );
+                    const deltaTime: number =
+                        hitObject.startTime / params.speedMultiplier -
+                        object.endTime;
+
+                    if (deltaTime >= 0) {
+                        object.noteDensity +=
+                            1 - deltaTime / object.timePreempt;
+                    }
+
+                    this.applyToOverlappingFactor(object, distance, deltaTime);
                 }
-
-                if (prev.startTime < object.startTime - object.timePreempt) {
-                    break;
-                }
-
-                prevVisibleObjects.push(prev.object);
-            }
-
-            for (const hitObject of prevVisibleObjects) {
-                const distance: number = object.object
-                    .getStackedPosition(this.mode)
-                    .getDistance(hitObject.getStackedEndPosition(this.mode));
-                const deltaTime: number =
-                    object.startTime -
-                    hitObject.endTime / params.speedMultiplier;
-
-                this.applyToOverlappingFactor(object, distance, deltaTime);
-            }
-
-            for (const hitObject of nextVisibleObjects) {
-                const distance: number = hitObject
-                    .getStackedPosition(this.mode)
-                    .getDistance(
-                        object.object.getStackedEndPosition(this.mode)
-                    );
-                const deltaTime: number =
-                    hitObject.startTime / params.speedMultiplier -
-                    object.endTime;
-
-                if (deltaTime >= 0) {
-                    object.noteDensity += 1 - deltaTime / object.timePreempt;
-                }
-
-                this.applyToOverlappingFactor(object, distance, deltaTime);
             }
 
             if (lastObject.object instanceof Spinner) {
@@ -200,7 +246,7 @@ export class DifficultyHitObjectCreator {
             }
 
             const lastCursorPosition: Vector2 = this.getEndCursorPosition(
-                lastObject.object
+                lastObject.object,
             );
 
             object.lazyJumpDistance = object.object
@@ -213,7 +259,7 @@ export class DifficultyHitObjectCreator {
             if (lastObject.object instanceof Slider) {
                 object.minimumJumpTime = Math.max(
                     object.strainTime - lastObject.travelTime,
-                    this.minDeltaTime
+                    this.minDeltaTime,
                 );
 
                 // There are two types of slider-to-object patterns to consider in order to better approximate the real movement a player will take to jump between the hitobjects.
@@ -247,8 +293,8 @@ export class DifficultyHitObjectCreator {
                         object.lazyJumpDistance -
                             (this.maximumSliderRadius -
                                 this.assumedSliderRadius),
-                        tailJumpDistance - this.maximumSliderRadius
-                    )
+                        tailJumpDistance - this.maximumSliderRadius,
+                    ),
                 );
             }
 
@@ -257,7 +303,7 @@ export class DifficultyHitObjectCreator {
                     this.getEndCursorPosition(lastLastObject.object);
 
                 const v1: Vector2 = lastLastCursorPosition.subtract(
-                    lastObject.object.getStackedPosition(this.mode)
+                    lastObject.object.getStackedPosition(this.mode),
                 );
                 const v2: Vector2 = object.object
                     .getStackedPosition(this.mode)
@@ -323,7 +369,7 @@ export class DifficultyHitObjectCreator {
             .add(slider.path.positionAt(endTimeMin));
 
         let currentCursorPosition: Vector2 = slider.getStackedPosition(
-            this.mode
+            this.mode,
         );
         const scalingFactor: number =
             this.normalizedRadius / slider.getRadius(this.mode);
@@ -347,7 +393,7 @@ export class DifficultyHitObjectCreator {
                 // For sliders that are circular, the lazy end position may actually be farther away than the sliders' true end.
                 // This code is designed to prevent buffing situations where lazy end is actually a less efficient movement.
                 const lazyMovement: Vector2 = slider.lazyEndPosition.subtract(
-                    currentCursorPosition
+                    currentCursorPosition,
                 );
 
                 if (lazyMovement.length < currentMovement.length) {
@@ -366,8 +412,8 @@ export class DifficultyHitObjectCreator {
                 currentCursorPosition = currentCursorPosition.add(
                     currentMovement.scale(
                         (currentMovementLength - requiredMovement) /
-                            currentMovementLength
-                    )
+                            currentMovementLength,
+                    ),
                 );
                 currentMovementLength *=
                     (currentMovementLength - requiredMovement) /
@@ -399,7 +445,7 @@ export class DifficultyHitObjectCreator {
                         Math.pow(
                             (this.DROID_CIRCLESIZE_BUFF_THRESHOLD - radius) /
                                 50,
-                            2
+                            2,
                         );
                 }
                 break;
@@ -409,7 +455,7 @@ export class DifficultyHitObjectCreator {
                         1 +
                         Math.min(
                             this.PC_CIRCLESIZE_BUFF_THRESHOLD - radius,
-                            5
+                            5,
                         ) /
                             50;
                 }
@@ -433,21 +479,21 @@ export class DifficultyHitObjectCreator {
     }
 
     private applyToOverlappingFactor(
-        object: DifficultyHitObject,
+        object: DroidDifficultyHitObject,
         distance: number,
-        deltaTime: number
+        deltaTime: number,
     ): void {
         // Penalize objects that are too close to the object in both distance
         // and delta time to prevent stream maps from being overweighted.
         object.overlappingFactor +=
             Math.max(
                 0,
-                1 - distance / (3 * object.object.getRadius(this.mode))
+                1 - distance / (3 * object.object.getRadius(this.mode)),
             ) *
             (7.5 /
                 (1 +
                     Math.exp(
-                        0.15 * (Math.max(deltaTime, this.minDeltaTime) - 75)
+                        0.15 * (Math.max(deltaTime, this.minDeltaTime) - 75),
                     )));
     }
 }
