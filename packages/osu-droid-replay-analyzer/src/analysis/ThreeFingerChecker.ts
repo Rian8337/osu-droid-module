@@ -809,11 +809,8 @@ export class ThreeFingerChecker {
                 .sort((a, b) => b.count - a.count)
                 .slice(fingerSplitIndex);
 
-            // Ignore cursor presses that are only 1 for now since they are very likely to be accidental
             if (
-                (threeFingerRatio > this.threeFingerRatioThreshold &&
-                    cursorAmounts.filter((v) => v > 1).length >
-                        fingerSplitIndex) ||
+                threeFingerRatio > this.threeFingerRatioThreshold ||
                 validPresses.length > 0
             ) {
                 // Strain factor
