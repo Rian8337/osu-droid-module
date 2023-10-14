@@ -1,6 +1,12 @@
 import { ModFlashlight, Vector2 } from "@rian8337/osu-base";
-import { DifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
-import { DifficultyCalculator as RebalanceDifficultyCalculator } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    DifficultyCalculator,
+    DifficultyHitObject,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    DifficultyCalculator as RebalanceDifficultyCalculator,
+    DifficultyHitObject as RebalanceDifficultyHitObject,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { loadImage } from "canvas";
 import { Chart } from "./Chart";
 
@@ -12,9 +18,11 @@ import { Chart } from "./Chart";
  * @param color The color of the graph.
  */
 export default async function getStrainChart(
-    calculator: DifficultyCalculator | RebalanceDifficultyCalculator,
+    calculator:
+        | DifficultyCalculator<DifficultyHitObject>
+        | RebalanceDifficultyCalculator<RebalanceDifficultyHitObject>,
     beatmapsetID?: number,
-    color: string = "#000000"
+    color: string = "#000000",
 ): Promise<Buffer | null> {
     if (
         [
@@ -31,7 +39,7 @@ export default async function getStrainChart(
 
     const currentSectionEnd: number =
         Math.ceil(
-            calculator.beatmap.hitObjects.objects[0].startTime / sectionLength
+            calculator.beatmap.hitObjects.objects[0].startTime / sectionLength,
         ) * sectionLength;
 
     const strainInformations: {
@@ -41,8 +49,8 @@ export default async function getStrainChart(
         Math.max(
             calculator.strainPeaks.aimWithSliders.length,
             calculator.strainPeaks.speed.length,
-            calculator.strainPeaks.flashlight.length
-        )
+            calculator.strainPeaks.flashlight.length,
+        ),
     );
 
     for (let i = 0; i < strainInformations.length; ++i) {
@@ -66,7 +74,7 @@ export default async function getStrainChart(
         ...strainInformations.map((v) => {
             return v.strain;
         }),
-        1
+        1,
     );
 
     const maxXUnits: number = 10;
@@ -85,7 +93,7 @@ export default async function getStrainChart(
         unitsPerTickX,
         unitsPerTickY,
         background: await loadImage(
-            `https://assets.ppy.sh/beatmaps/${beatmapsetID}/covers/cover.jpg`
+            `https://assets.ppy.sh/beatmaps/${beatmapsetID}/covers/cover.jpg`,
         ).catch(() => {
             return undefined;
         }),
@@ -97,7 +105,7 @@ export default async function getStrainChart(
 
     chart.drawArea(
         strainInformations.map((v) => new Vector2(v.time, v.strain)),
-        color
+        color,
     );
 
     return chart.getBuffer();
