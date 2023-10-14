@@ -804,16 +804,15 @@ export class ThreeFingerChecker {
             }
 
             // Sort by highest count; assume the order is 3rd, 4th, 5th, ... finger
-            const validPresses: CursorVectorSimilarity[] = similarPresses
+            const threeFingerPresses: CursorVectorSimilarity[] = similarPresses
                 .filter((v) => v.count >= this.cursorDistancingCountThreshold)
                 .sort((a, b) => b.count - a.count)
                 .slice(fingerSplitIndex);
 
             if (
                 threeFingerRatio > this.threeFingerRatioThreshold ||
-                validPresses.length > 0
+                threeFingerPresses.length > 0
             ) {
-                // Strain factor
                 const objectCount: number =
                     beatmapSection.lastObjectIndex -
                     beatmapSection.firstObjectIndex +
@@ -839,7 +838,7 @@ export class ThreeFingerChecker {
                               1,
                           )
                         : Math.pow(
-                              validPresses.reduce(
+                              threeFingerPresses.reduce(
                                   (acc, value, index) =>
                                       acc +
                                       Math.pow(
