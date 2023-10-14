@@ -13,7 +13,6 @@ import {
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
-import { HighStrainSection } from "./structures/HighStrainSection";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -376,14 +375,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
     private postCalculateTap(tapSkillCheese: DroidTap): void {
         this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.tap = this.attributes.tapDifficulty = 0;
-            this.attributes.possibleThreeFingeredSections = [];
-        } else {
-            this.tap = this.attributes.tapDifficulty = this.starValue(
-                tapSkillCheese.difficultyValue(),
-            );
-        }
+        this.tap = this.attributes.tapDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax,
+        )
+            ? 0
+            : this.starValue(tapSkillCheese.difficultyValue());
 
         this.calculateTapAttributes();
     }
@@ -392,114 +388,77 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
      * Calculates tap-related attributes.
      */
     private calculateTapAttributes(): void {
-        this.attributes.possibleThreeFingeredSections = [];
-        const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
-
         const objectStrains: number[] = [];
         const objectDeltaTimes: number[] = [];
         let maxStrain: number = 0;
 
-        const maxSectionDeltaTime: number = 2000;
+        // Filter sections with tap strain and average delta time in mind.
+        this.attributes.possibleThreeFingeredSections = [];
+        const { threeFingerStrainThreshold } = DroidDifficultyCalculator;
+
         const minSectionObjectCount: number = 5;
-        let firstObjectIndex: number = 0;
+        const maxDistance: number = 100;
 
-        for (let i = 0; i < this.objects.length - 1; ++i) {
+        let inSpeedSection: boolean = false;
+        let firstSpeedObjectIndex: number = 0;
+
+        for (let i = 0; i < this.objects.length; ++i) {
             const current = this.objects[i];
-            const next = this.objects[i + 1];
 
-            if (i === 0) {
-                objectStrains.push(current.tapStrain);
-                objectDeltaTimes.push(current.deltaTime);
-            }
-
-            objectStrains.push(next.tapStrain);
-            objectDeltaTimes.push(next.deltaTime);
+            objectStrains.push(current.tapStrain);
+            objectDeltaTimes.push(current.deltaTime);
             maxStrain = Math.max(current.tapStrain, maxStrain);
 
-            const realDeltaTime: number =
-                next.object.startTime - current.object.endTime;
-
-            if (realDeltaTime >= maxSectionDeltaTime) {
-                // Ignore sections that don't meet object count requirement.
-                if (i - firstObjectIndex < minSectionObjectCount) {
-                    firstObjectIndex = i + 1;
-                    continue;
-                }
-
-                tempSections.push({
-                    firstObjectIndex,
-                    lastObjectIndex: i,
-                });
-
-                firstObjectIndex = i + 1;
+            if (i < 2) {
+                continue;
             }
-        }
 
-        // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-        if (this.objects.length - firstObjectIndex > minSectionObjectCount) {
-            tempSections.push({
-                firstObjectIndex,
-                lastObjectIndex: this.objects.length - 1,
-            });
-        }
+            const prev = this.objects[i - 1];
+            const distance: number =
+                current.minimumJumpDistance + prev?.travelDistance ?? 0;
 
-        // Refilter with tap strain in mind.
-        const { threeFingerStrainThreshold } = DroidDifficultyCalculator;
-        for (const section of tempSections) {
-            let inSpeedSection: boolean = false;
-            let newFirstObjectIndex = section.firstObjectIndex;
-
-            for (
-                let i = section.firstObjectIndex;
-                i <= section.lastObjectIndex;
-                ++i
+            if (
+                !inSpeedSection &&
+                current.originalTapStrain >= threeFingerStrainThreshold &&
+                distance <= maxDistance
             ) {
-                const current = this.objects[i];
-
-                if (
-                    !inSpeedSection &&
-                    current.originalTapStrain >= threeFingerStrainThreshold
-                ) {
-                    inSpeedSection = true;
-                    newFirstObjectIndex = i;
-                    continue;
-                }
-
-                if (
-                    inSpeedSection &&
-                    current.originalTapStrain < threeFingerStrainThreshold
-                ) {
-                    inSpeedSection = false;
-
-                    // Ignore sections that don't meet object count requirement.
-                    if (i - newFirstObjectIndex < minSectionObjectCount) {
-                        continue;
-                    }
-
-                    this.attributes.possibleThreeFingeredSections.push({
-                        firstObjectIndex: newFirstObjectIndex,
-                        lastObjectIndex: i,
-                        sumStrain: this.calculateThreeFingerSummedStrain(
-                            newFirstObjectIndex,
-                            i,
-                        ),
-                    });
-                }
+                inSpeedSection = true;
+                firstSpeedObjectIndex = i;
+                continue;
             }
 
-            // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-            // Ignore sections that don't meet object count requirement.
+            const currentDelta: number = current.deltaTime;
+            const prevDelta: number = prev.deltaTime;
+
+            const deltaRatio: number =
+                Math.min(prevDelta, currentDelta) /
+                Math.max(prevDelta, currentDelta);
+
             if (
                 inSpeedSection &&
-                section.lastObjectIndex - newFirstObjectIndex >=
-                    minSectionObjectCount
+                (current.originalTapStrain < threeFingerStrainThreshold ||
+                    // Stop speed section on slowing down 1/2 rhythm change or anything slower.
+                    (prevDelta < currentDelta && deltaRatio <= 0.5) ||
+                    // Objects further up is unlikely to be three-fingered.
+                    distance > maxDistance ||
+                    // Don't forget to manually add the last section, which would otherwise be ignored.
+                    i === this.objects.length - 1)
             ) {
+                const lastSpeedObjectIndex: number =
+                    i - (i === this.objects.length - 1 ? 0 : 1);
+                inSpeedSection = false;
+
+                // Ignore sections that don't meet object count requirement.
+                if (i - firstSpeedObjectIndex < minSectionObjectCount) {
+                    continue;
+                }
+
                 this.attributes.possibleThreeFingeredSections.push({
-                    firstObjectIndex: newFirstObjectIndex,
-                    lastObjectIndex: section.lastObjectIndex,
+                    firstObjectIndex: firstSpeedObjectIndex,
+                    lastObjectIndex: lastSpeedObjectIndex,
                     sumStrain: this.calculateThreeFingerSummedStrain(
-                        newFirstObjectIndex,
-                        section.lastObjectIndex,
+                        firstSpeedObjectIndex,
+                        lastSpeedObjectIndex,
                     ),
                 });
             }
@@ -554,7 +513,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
     ): number {
         return Math.pow(
             this.objects
-                .slice(firstObjectIndex, lastObjectIndex)
+                .slice(firstObjectIndex, lastObjectIndex + 1)
                 .reduce(
                     (a, v) =>
                         a +
