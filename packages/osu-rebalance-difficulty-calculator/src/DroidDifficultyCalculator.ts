@@ -1,4 +1,3 @@
-import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
@@ -15,6 +14,8 @@ import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 import { HighStrainSection } from "./structures/HighStrainSection";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
+import { DroidSnapAim } from "./skills/droid/DroidSnapAim";
+import { DroidFlowAim } from "./skills/droid/DroidFlowAim";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -44,6 +45,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
      * The visual star rating of the beatmap.
      */
     visual: number = 0;
+
+    private snapAim = 0;
+    private flowAim = 0;
 
     /**
      * The strain threshold to start detecting for possible three-fingered section.
@@ -88,11 +92,23 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
-        const aimSkill: DroidAim = new DroidAim(this.mods, true);
-        const aimSkillWithoutSliders: DroidAim = new DroidAim(this.mods, false);
+        const snapAimSkill: DroidSnapAim = new DroidSnapAim(this.mods, true);
+        const snapAimSkillWithoutSliders: DroidSnapAim = new DroidSnapAim(
+            this.mods,
+            false,
+        );
+        const flowAimSkill: DroidFlowAim = new DroidFlowAim(this.mods);
 
-        this.calculateSkills(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        this.calculateSkills(
+            snapAimSkill,
+            snapAimSkillWithoutSliders,
+            flowAimSkill,
+        );
+        this.postCalculateAim(
+            snapAimSkill,
+            snapAimSkillWithoutSliders,
+            flowAimSkill,
+        );
     }
 
     /**
@@ -198,16 +214,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
         const skills: DroidSkill[] = this.createSkills();
         this.calculateSkills(...skills);
 
-        const aimSkill = <DroidAim>skills[0];
-        const aimSkillWithoutSliders = <DroidAim>skills[1];
-        const rhythmSkill = <DroidRhythm>skills[2];
-        const tapSkillCheese = <DroidTap>skills[3];
-        const flashlightSkill = <DroidFlashlight>skills[5];
-        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[6];
-        const visualSkill = <DroidVisual>skills[7];
-        const visualSkillWithoutSliders = <DroidVisual>skills[8];
+        const snapAimSkill = <DroidSnapAim>skills[0];
+        const snapAimSkillWithoutSliders = <DroidSnapAim>skills[1];
+        const flowAimSkill = <DroidFlowAim>skills[2];
+        const rhythmSkill = <DroidRhythm>skills[3];
+        const tapSkillCheese = <DroidTap>skills[4];
+        const flashlightSkill = <DroidFlashlight>skills[6];
+        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[7];
+        const visualSkill = <DroidVisual>skills[8];
+        const visualSkillWithoutSliders = <DroidVisual>skills[9];
 
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        this.postCalculateAim(
+            snapAimSkill,
+            snapAimSkillWithoutSliders,
+            flowAimSkill,
+        );
 
         this.postCalculateTap(tapSkillCheese);
         this.calculateTapAttributes();
@@ -229,7 +250,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
             this.total.toFixed(2) +
             " stars (" +
             this.aim.toFixed(2) +
-            " aim, " +
+            " aim (" +
+            this.snapAim.toFixed(2) +
+            " snap, " +
+            this.flowAim.toFixed(2) +
+            " flow), " +
             this.tap.toFixed(2) +
             " tap, " +
             this.rhythm.toFixed(2) +
@@ -260,8 +285,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
         const od: number = this.stats.od!;
 
         return [
-            new DroidAim(this.mods, true),
-            new DroidAim(this.mods, false),
+            new DroidSnapAim(this.mods, true),
+            new DroidSnapAim(this.mods, false),
+            new DroidFlowAim(this.mods),
             // Tap skill depends on rhythm skill, so we put it first
             new DroidRhythm(this.mods, od),
             new DroidTap(this.mods, od, true),
@@ -276,23 +302,32 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
     /**
      * Called after aim skill calculation.
      *
-     * @param aimSkill The aim skill that considers sliders.
-     * @param aimSkillWithoutSliders The aim skill that doesn't consider sliders.
+     * @param snapAimSkill The snap aim skill that considers sliders.
+     * @param snapAimSkillWithoutSliders The snap aim skill that doesn't consider sliders.
+     * @param flowAimSkill The flow aim skill.
      */
     private postCalculateAim(
-        aimSkill: DroidAim,
-        aimSkillWithoutSliders: DroidAim,
+        snapAimSkill: DroidSnapAim,
+        snapAimSkillWithoutSliders: DroidSnapAim,
+        flowAimSkill: DroidFlowAim,
     ): void {
-        this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
-        this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
+        this.strainPeaks.aimWithSliders = snapAimSkill.strainPeaks;
+        this.strainPeaks.aimWithoutSliders =
+            snapAimSkillWithoutSliders.strainPeaks;
 
-        this.aim = this.starValue(aimSkill.difficultyValue());
+        this.snapAim = this.starValue(snapAimSkill.difficultyValue());
+        this.flowAim = this.starValue(flowAimSkill.difficultyValue());
 
-        if (this.aim) {
+        if (this.snapAim > 0) {
             this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
-                this.aim;
+                this.starValue(snapAimSkillWithoutSliders.difficultyValue()) /
+                this.snapAim;
         }
+
+        this.aim = Math.pow(
+            Math.pow(this.snapAim, 1.1) + Math.pow(this.flowAim, 1.1),
+            1 / 1.1,
+        );
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.aim *= 0.9;
@@ -314,8 +349,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
         for (let i = 0; i < this.objects.length; ++i) {
             const object = this.objects[i];
 
-            objectStrains.push(object.aimStrainWithSliders);
-            maxStrain = Math.max(maxStrain, object.aimStrainWithSliders);
+            objectStrains.push(object.snapAimStrain);
+            maxStrain = Math.max(maxStrain, object.snapAimStrain);
 
             const velocity: number = object.travelDistance / object.travelTime;
             if (velocity > 0) {
