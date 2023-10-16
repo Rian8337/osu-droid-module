@@ -855,7 +855,7 @@ export class ThreeFingerChecker {
             const threeFingerPresses: CursorVectorSimilarity[] = similarPresses
                 .filter((v) => v.count >= this.cursorDistancingCountThreshold)
                 .sort((a, b) => b.count - a.count)
-                .slice(3);
+                .slice(fingerSplitIndex);
 
             if (
                 threeFingerRatio > this.threeFingerRatioThreshold ||
