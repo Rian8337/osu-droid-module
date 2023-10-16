@@ -15,9 +15,16 @@ import {
     Utils,
     CircleSizeCalculator,
     HitObjectStackEvaluator,
+    Interpolation,
 } from "@rian8337/osu-base";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import {
+    ExtendedDroidDifficultyAttributes,
+    HighStrainSection,
+} from "@rian8337/osu-difficulty-calculator";
+import {
+    ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
+    HighStrainSection as RebalanceHighStrainSection,
+} from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { CursorData } from "../data/CursorData";
 import { CursorOccurrence } from "../data/CursorOccurrence";
@@ -29,6 +36,7 @@ import { NerfFactor } from "./structures/NerfFactor";
 import { ThreeFingerBeatmapSection } from "./structures/ThreeFingerBeatmapSection";
 import { ThreeFingerInformation } from "./structures/ThreeFingerInformation";
 import { ThreeFingerObject } from "./structures/ThreeFingerObject";
+import { MovementType } from "../constants/MovementType";
 
 /**
  * Utility to check whether or not a beatmap is three-fingered.
@@ -410,6 +418,7 @@ export class ThreeFingerChecker {
 
         for (const section of this.difficultyAttributes
             .possibleThreeFingeredSections) {
+            const dragFingerIndex: number = this.findDragIndex(section);
             const objects: ThreeFingerObject[] = [];
 
             for (
@@ -423,12 +432,14 @@ export class ThreeFingerChecker {
                         this.hitObjects[i],
                         this.data.hitObjectData[i],
                         cursorLookupIndices,
+                        dragFingerIndex,
                     ),
                 });
             }
 
             this.beatmapSections.push({
                 ...section,
+                dragFingerIndex: dragFingerIndex,
                 objects: objects,
             });
         }
@@ -440,12 +451,14 @@ export class ThreeFingerChecker {
      * @param object The object to obtain the index for.
      * @param objectData The hit data of the object.
      * @param cursorLookupIndices The cursor indices to start looking for the cursor from, to save computation time.
+     * @param excludedIndices The cursor indices that should not be checked.
      * @returns The index of the cursor, -1 if the object was missed or it's a spinner.
      */
     private getObjectPressIndex(
         object: PlaceableHitObject,
         objectData: ReplayObjectData,
         cursorLookupIndices: number[],
+        ...excludedCursorIndices: number[]
     ): Pick<
         ThreeFingerObject,
         "pressingCursorIndex" | "pressingCursorInstanceIndex"
@@ -502,6 +515,10 @@ export class ThreeFingerChecker {
         let nearestTime: number = Number.POSITIVE_INFINITY;
 
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
+            if (excludedCursorIndices.includes(i)) {
+                continue;
+            }
+
             const cursors: CursorOccurrence[] = this.downCursorInstances[i];
 
             for (
@@ -538,6 +555,214 @@ export class ThreeFingerChecker {
     }
 
     /**
+     * Checks if a section is dragged and returns the index of the drag finger.
+     *
+     * If the section is not dragged, -1 will be returned.
+     *
+     * @param section The section to check.
+     */
+    private findDragIndex(
+        section: HighStrainSection | RebalanceHighStrainSection,
+    ): number {
+        const objectData: ReplayObjectData[] = this.data.hitObjectData;
+
+        const firstObject: PlaceableHitObject =
+            this.hitObjects[section.firstObjectIndex];
+        const lastObject: PlaceableHitObject =
+            this.hitObjects[section.lastObjectIndex];
+
+        let firstObjectMinHitTime: number = firstObject.startTime;
+        if (firstObject instanceof Circle) {
+            switch (objectData[section.firstObjectIndex].result) {
+                case HitResult.great:
+                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor300(
+                        this.isPrecise,
+                    );
+                    break;
+                case HitResult.good:
+                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor100(
+                        this.isPrecise,
+                    );
+                    break;
+                default:
+                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
+                        this.isPrecise,
+                    );
+            }
+        } else {
+            firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
+                this.isPrecise,
+            );
+        }
+
+        let lastObjectMaxHitTime: number = lastObject.startTime;
+        if (lastObject instanceof Circle) {
+            switch (objectData[section.lastObjectIndex].result) {
+                case HitResult.great:
+                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor300(
+                        this.isPrecise,
+                    );
+                    break;
+                case HitResult.good:
+                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor100(
+                        this.isPrecise,
+                    );
+                    break;
+                default:
+                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor50(
+                        this.isPrecise,
+                    );
+            }
+        } else {
+            lastObjectMaxHitTime += this.hitWindow.hitWindowFor50(
+                this.isPrecise,
+            );
+        }
+
+        // Since there may be more than 1 cursor instance index,
+        // we check which cursor instance follows hitobjects all over.
+        const cursorIndices: number[] = [];
+        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
+            const c: CursorData = this.data.cursorMovement[i];
+            if (c.occurrenceGroups.length === 0) {
+                continue;
+            }
+
+            // Do not include cursors that don't have an occurence in this section
+            // this speeds up checking process.
+            if (
+                c.occurrenceGroups.filter(
+                    (v) =>
+                        v.startTime >= firstObjectMinHitTime &&
+                        v.endTime <= lastObjectMaxHitTime,
+                ).length === 0
+            ) {
+                continue;
+            }
+
+            // If this cursor instance doesn't move, it's not the cursor instance we want.
+            if (
+                c.occurrenceGroups.filter((v) => v.moves.length > 0).length ===
+                0
+            ) {
+                continue;
+            }
+
+            cursorIndices.push(i);
+        }
+
+        const sectionObjects: PlaceableHitObject[] = this.hitObjects.slice(
+            section.firstObjectIndex,
+            section.lastObjectIndex + 1,
+        );
+        const sectionReplayObjectData: ReplayObjectData[] = objectData.slice(
+            section.firstObjectIndex,
+            section.lastObjectIndex + 1,
+        );
+        const hitWindow50: number = this.hitWindow.hitWindowFor50(
+            this.isPrecise,
+        );
+
+        for (
+            let i = 0;
+            i < sectionObjects.length && cursorIndices.some((v) => v !== -1);
+            ++i
+        ) {
+            const object: PlaceableHitObject = sectionObjects[i];
+            const objectData: ReplayObjectData = sectionReplayObjectData[i];
+
+            if (
+                object instanceof Spinner ||
+                objectData.result === HitResult.miss
+            ) {
+                continue;
+            }
+
+            // Exclude sliderbreaks.
+            if (
+                object instanceof Slider &&
+                objectData.accuracy === Math.floor(hitWindow50) + 13
+            ) {
+                continue;
+            }
+
+            const objectPosition: Vector2 = object.getStackedPosition(
+                Modes.droid,
+            );
+            const hitTime: number = object.startTime + objectData.accuracy;
+
+            // Observe the cursor position at the object's hit time.
+            for (let j = 0; j < cursorIndices.length; ++j) {
+                if (cursorIndices[j] === -1) {
+                    continue;
+                }
+
+                const cursorData: CursorData =
+                    this.data.cursorMovement[cursorIndices[j]];
+                const cursorGroup: CursorOccurrenceGroup | undefined =
+                    cursorData.occurrenceGroups.find((v) =>
+                        v.isActiveAt(hitTime),
+                    );
+
+                if (!cursorGroup) {
+                    continue;
+                }
+
+                const cursors: CursorOccurrence[] = cursorGroup.allOccurrences;
+                let isInObject: boolean = false;
+
+                for (let k = 1; k < cursors.length; ++k) {
+                    const cursor: CursorOccurrence = cursors[k];
+                    const prevCursor: CursorOccurrence = cursors[k - 1];
+
+                    // Only consider cursor at interval prev.time <= hitTime <= current.time.
+                    if (prevCursor.time <= hitTime && cursor.time >= hitTime) {
+                        switch (cursor.id) {
+                            case MovementType.up:
+                                isInObject =
+                                    prevCursor.position.getDistance(
+                                        objectPosition,
+                                    ) <= object.getRadius(Modes.droid);
+                                break;
+                            case MovementType.move: {
+                                // Interpolate movement.
+                                const t: number =
+                                    (hitTime - prevCursor.time) /
+                                    (cursor.time - prevCursor.time);
+                                const cursorPosition: Vector2 = new Vector2(
+                                    Interpolation.lerp(
+                                        prevCursor.position.x,
+                                        cursor.position.x,
+                                        t,
+                                    ),
+                                    Interpolation.lerp(
+                                        prevCursor.position.y,
+                                        cursor.position.y,
+                                        t,
+                                    ),
+                                );
+
+                                isInObject =
+                                    objectPosition.getDistance(
+                                        cursorPosition,
+                                    ) <= object.getRadius(Modes.droid);
+                            }
+                        }
+
+                        break;
+                    }
+                }
+
+                if (!isInObject) {
+                    cursorIndices[j] = -1;
+                }
+            }
+        }
+
+        return cursorIndices.find((v) => v !== -1) ?? -1;
+    }
+
+    /**
      * Creates nerf factors by scanning through objects.
      */
     private calculateNerfFactors(): void {
@@ -551,7 +776,11 @@ export class ThreeFingerChecker {
                 readonly time: number;
             }[] = [];
             for (const object of beatmapSection.objects) {
-                if (object.pressingCursorIndex === -1) {
+                if (
+                    object.pressingCursorIndex === -1 ||
+                    object.pressingCursorInstanceIndex ===
+                        beatmapSection.dragFingerIndex
+                ) {
                     continue;
                 }
 
@@ -567,13 +796,21 @@ export class ThreeFingerChecker {
                 });
             }
 
+            // This index will be used to detect if a section is 3-fingered.
+            // If the section is dragged, the dragged instance will be ignored,
+            // hence why the index is 1 less than nondragged section.
+            const fingerSplitIndex =
+                beatmapSection.dragFingerIndex !== -1 ? 2 : 3;
+
             // Divide >=4th (3rd for drag) cursor instances with 1st + 2nd (+ 3rd for nondrag)
             // to check if the section is 3-fingered.
             const threeFingerRatio: number =
-                cursorAmounts.slice(3).reduce((acc, value) => acc + value, 0) /
+                cursorAmounts
+                    .slice(fingerSplitIndex)
+                    .reduce((acc, value) => acc + value, 0) /
                 Math.max(
                     cursorAmounts
-                        .slice(0, 3)
+                        .slice(0, fingerSplitIndex)
                         .reduce((acc, value) => acc + value, 0),
                     1,
                 );
@@ -632,7 +869,7 @@ export class ThreeFingerChecker {
                 // We can ignore the first 3 (2 for drag) filled cursor instances
                 // since they are guaranteed not 3 finger.
                 const threeFingerCursorAmounts: number[] = cursorAmounts
-                    .slice(3)
+                    .slice(fingerSplitIndex)
                     .filter((amount) => amount > 0);
 
                 // Finger factor applies more penalty if more fingers were used.
