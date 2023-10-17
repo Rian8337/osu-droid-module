@@ -796,6 +796,11 @@ export class ThreeFingerChecker {
                 });
             }
 
+            if (beatmapSection.dragFingerIndex !== -1) {
+                // Remove the drag index to prevent it from being picked up into the detection.
+                cursorAmounts.splice(beatmapSection.dragFingerIndex, 1);
+            }
+
             // This index will be used to detect if a section is 3-fingered.
             // If the section is dragged, the dragged instance will be ignored,
             // hence why the index is 1 less than nondragged section.
