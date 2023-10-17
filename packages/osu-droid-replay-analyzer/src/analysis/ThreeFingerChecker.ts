@@ -824,11 +824,21 @@ export class ThreeFingerChecker {
             cursorVectorTimes.sort((a, b) => a.time - b.time);
 
             for (const cursorVectorTime of cursorVectorTimes) {
-                const pressIndex: number = similarPresses.findIndex(
-                    (v) =>
-                        v.vector.getDistance(cursorVectorTime.vector) <=
-                        this.cursorDistancingDistanceThreshold,
-                );
+                let pressIndex: number = -1;
+                let closestDistance: number =
+                    this.cursorDistancingDistanceThreshold;
+
+                for (let i = 0; i < similarPresses.length; ++i) {
+                    const press = similarPresses[i];
+                    const distance: number = press.vector.getDistance(
+                        cursorVectorTime.vector,
+                    );
+
+                    if (distance < closestDistance) {
+                        pressIndex = i;
+                        closestDistance = distance;
+                    }
+                }
 
                 if (pressIndex !== -1) {
                     if (
@@ -836,6 +846,8 @@ export class ThreeFingerChecker {
                             similarPresses[pressIndex].lastTime >=
                         this.cursorDistancingTimeThreshold
                     ) {
+                        // If the previous press is too late, remove it from the
+                        // list and register the current press as a new press.
                         similarPresses.splice(pressIndex, 1);
                         similarPresses.push({
                             vector: cursorVectorTime.vector,
@@ -844,6 +856,7 @@ export class ThreeFingerChecker {
                         });
                         continue;
                     }
+
                     similarPresses[pressIndex].vector = cursorVectorTime.vector;
                     similarPresses[pressIndex].lastTime = cursorVectorTime.time;
                     ++similarPresses[pressIndex].count;
