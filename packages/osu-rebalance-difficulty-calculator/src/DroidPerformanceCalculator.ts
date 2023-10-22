@@ -329,10 +329,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Scale the tap value with tap deviation.
         tapValue *=
             1.1 *
-            Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
-                0.625,
-            );
+            Math.exp(1 - Math.pow(Math.cosh(adjustedDeviation / 30), 1.025));
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
