@@ -700,99 +700,38 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             this.difficultyAttributes.overallDifficulty,
         ).hitWindowFor300();
 
-        // Obtain the 50 and 100 hit window for droid.
-        const isPrecise: boolean = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        );
-        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
-            DroidHitWindow.hitWindow300ToOD(
-                hitWindow300 * this.difficultyAttributes.clockRate,
-                isPrecise,
-            ),
-        );
+        const { n100, n50, nmiss } = this.computedAccuracy;
 
-        const hitWindow50: number =
-            droidHitWindow.hitWindowFor50(isPrecise) /
-            this.difficultyAttributes.clockRate;
-        const hitWindow100: number =
-            droidHitWindow.hitWindowFor100(isPrecise) /
-            this.difficultyAttributes.clockRate;
+        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
+        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
+        const speedNoteRatio: number =
+            this.difficultyAttributes.speedNoteCount / this.totalHits;
 
-        const { n300, n100, n50, nmiss } = this.computedAccuracy;
-
-        // Calculate accuracy assuming the worst case scenario.
-        const relevantTotalDiff: number =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
+        const nonGreatCount: number = n100 + n50 + nmiss;
+        const nonGreatRatio: number =
+            1 -
+            (Math.pow(
+                Math.exp(Math.sqrt(hitWindow300)) + 1,
+                1 - speedNoteRatio,
+            ) -
+                1) /
+                Math.exp(Math.sqrt(hitWindow300));
         const relevantCountGreat: number = Math.max(
             0,
-            n300 - relevantTotalDiff,
-        );
-        const relevantCountOk: number = Math.max(
-            0,
-            n100 - Math.max(0, relevantTotalDiff - n300),
-        );
-        const relevantCountMeh: number = Math.max(
-            0,
-            n50 - Math.max(0, relevantTotalDiff - n300 - n100),
-        );
-        const relevantCountMiss: number = Math.max(
-            0,
-            nmiss - Math.max(0, relevantTotalDiff - n300 - n100 - n50),
+            this.difficultyAttributes.speedNoteCount -
+                nonGreatCount * nonGreatRatio,
         );
 
-        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
-        // compute the deviation on circles.
-        if (relevantCountGreat > 0) {
-            // The probability that a player hits a circle is unknown, but we can estimate it to be
-            // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction.
-            const greatProbabilityCircle: number =
-                relevantCountGreat /
-                (this.difficultyAttributes.speedNoteCount -
-                    relevantCountMiss -
-                    relevantCountMeh +
-                    1);
-
-            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-            // Begin with the normal distribution first.
-            let deviationOnCircles: number =
-                hitWindow300 /
-                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-
-            deviationOnCircles *= Math.sqrt(
-                1 -
-                    (Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(
-                            -0.5 *
-                                Math.pow(hitWindow100 / deviationOnCircles, 2),
-                        )) /
-                        (deviationOnCircles *
-                            ErrorFunction.erf(
-                                hitWindow100 /
-                                    (Math.SQRT2 * deviationOnCircles),
-                            )),
-            );
-
-            // Then compute the variance for 50s.
-            const mehVariance: number =
-                (hitWindow50 * hitWindow50 +
-                    hitWindow100 * hitWindow50 +
-                    hitWindow100 * hitWindow100) /
-                3;
-
-            // Find the total deviation.
-            deviationOnCircles = Math.sqrt(
-                ((relevantCountGreat + relevantCountOk) *
-                    Math.pow(deviationOnCircles, 2) +
-                    relevantCountMeh * mehVariance) /
-                    (relevantCountGreat + relevantCountOk + relevantCountMeh),
-            );
-
-            return deviationOnCircles;
+        if (relevantCountGreat === 0) {
+            return Number.POSITIVE_INFINITY;
         }
 
-        return Number.POSITIVE_INFINITY;
+        const greatProbability: number =
+            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
+
+        return (
+            hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
+        );
     }
 
     override toString(): string {
