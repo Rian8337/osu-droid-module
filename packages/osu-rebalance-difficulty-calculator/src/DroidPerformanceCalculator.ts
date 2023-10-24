@@ -322,7 +322,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
                 1 /
                     (1 +
                         Math.exp(
-                            -(normalizedDeviation - 7500 / averageBPM) /
+                            -(this.tapDeviation - 7500 / averageBPM) /
                                 ((2 * 300) / averageBPM),
                         )));
 
