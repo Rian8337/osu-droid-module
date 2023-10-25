@@ -316,18 +316,23 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Using this expectation, we penalize scores with deviation above 25.
         const averageBPM: number =
             60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-        const adjustedDeviation: number =
-            normalizedDeviation *
-            (1 +
-                1 /
-                    (1 +
-                        Math.exp(
-                            -(this.tapDeviation - 7500 / averageBPM) /
-                                ((2 * 300) / averageBPM),
-                        )));
 
         // Scale the tap value with tap deviation.
-        tapValue *= 1.1 * Math.exp(1 - Math.cosh(adjustedDeviation / 30));
+        tapValue *=
+            1.1 *
+            Math.pow(
+                ErrorFunction.erf(20 / (Math.SQRT2 * normalizedDeviation)),
+                0.75,
+            );
+
+        // Scale the tap value with doubletap deviation threshold.
+        tapValue *=
+            1 /
+            (1 +
+                Math.exp(
+                    (this.tapDeviation - 7500 / averageBPM) /
+                        ((4 * 300) / averageBPM),
+                ));
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
