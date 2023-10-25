@@ -322,7 +322,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
             1.1 *
             Math.pow(
                 ErrorFunction.erf(20 / (Math.SQRT2 * normalizedDeviation)),
-                0.75,
+                0.625,
             );
 
         // Scale the tap value with doubletap deviation threshold.
