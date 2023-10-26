@@ -208,17 +208,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
         const visualSkillWithoutSliders = <DroidVisual>skills[8];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
-
         this.postCalculateTap(tapSkillCheese);
-        this.calculateTapAttributes();
-
         this.postCalculateRhythm(rhythmSkill);
-
         this.postCalculateFlashlight(
             flashlightSkill,
             flashlightSkillWithoutSliders,
         );
-
         this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
 
         this.calculateTotal();
