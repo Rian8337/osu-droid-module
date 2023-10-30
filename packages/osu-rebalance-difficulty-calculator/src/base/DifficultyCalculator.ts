@@ -5,11 +5,15 @@ import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
 import { Skill } from "./Skill";
+import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 
 /**
  * The base of a difficulty calculator.
  */
-export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
+export abstract class DifficultyCalculator<
+    THitObject extends DifficultyHitObject,
+    TAttributes extends DifficultyAttributes,
+> {
     /**
      * The calculated beatmap.
      */
@@ -18,7 +22,7 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
     /**
      * The difficulty objects of the beatmap.
      */
-    readonly objects: T[] = [];
+    readonly objects: THitObject[] = [];
 
     /**
      * The modifications applied.
@@ -46,9 +50,14 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
     };
 
     /**
-     * Holds data that can be used to calculate performance points.
+     * The difficulty attributes that can be used to calculate performance points.
      */
-    abstract readonly attributes: DifficultyAttributes;
+    abstract readonly attributes: TAttributes;
+
+    /**
+     * The difficulty attributes that can be cached. It can also be used to calculate performance points.
+     */
+    abstract get cacheableAttributes(): CacheableDifficultyAttributes<TAttributes>;
 
     protected abstract readonly difficultyMultiplier: number;
     protected abstract readonly mode: Modes;
@@ -113,7 +122,7 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),
-            }) as T[]),
+            }) as THitObject[]),
         );
     }
 

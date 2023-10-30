@@ -9,17 +9,23 @@ import {
     Modes,
     CircleSizeCalculator,
     HitObjectStackEvaluator,
+    ModUtil,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 import { HighStrainSection } from "./structures/HighStrainSection";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
+import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
+import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
  */
-export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficultyHitObject> {
+export class DroidDifficultyCalculator extends DifficultyCalculator<
+    DroidDifficultyHitObject,
+    DroidDifficultyAttributes
+> {
     /**
      * The aim star rating of the beatmap.
      */
@@ -80,6 +86,34 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<DroidDifficu
         difficultSliders: [],
         averageSpeedDeltaTime: 0,
     };
+
+    override get cacheableAttributes(): CacheableDifficultyAttributes<DroidDifficultyAttributes> {
+        return {
+            tapDifficulty: this.tap,
+            rhythmDifficulty: this.rhythm,
+            visualDifficulty: this.visual,
+            mods: ModUtil.modsToOsuString(this.attributes.mods),
+            starRating: this.total,
+            maxCombo: this.attributes.maxCombo,
+            aimDifficulty: this.aim,
+            flashlightDifficulty: this.flashlight,
+            speedNoteCount: this.attributes.speedNoteCount,
+            sliderFactor: this.attributes.sliderFactor,
+            clockRate: this.attributes.clockRate,
+            approachRate: this.attributes.approachRate,
+            overallDifficulty: this.attributes.overallDifficulty,
+            hitCircleCount: this.attributes.hitCircleCount,
+            sliderCount: this.attributes.sliderCount,
+            spinnerCount: this.attributes.spinnerCount,
+            aimDifficultStrainCount: this.attributes.aimDifficultStrainCount,
+            tapDifficultStrainCount: this.attributes.tapDifficultStrainCount,
+            flashlightDifficultStrainCount:
+                this.attributes.flashlightDifficultStrainCount,
+            visualDifficultStrainCount:
+                this.attributes.visualDifficultStrainCount,
+            averageSpeedDeltaTime: this.attributes.averageSpeedDeltaTime,
+        };
+    }
 
     protected override readonly difficultyMultiplier: number = 0.18;
     protected override readonly mode: Modes = Modes.droid;

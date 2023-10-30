@@ -5,14 +5,17 @@ import {
     ModRelax,
     MathUtils,
     Modes,
+    ModUtil,
+    Utils,
 } from "@rian8337/osu-base";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
+import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 
 /**
  * The base class of performance calculators.
  */
-export abstract class PerformanceCalculator {
+export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     /**
      * The overall performance value.
      */
@@ -26,7 +29,7 @@ export abstract class PerformanceCalculator {
     /**
      * The difficulty attributes that is being calculated.
      */
-    abstract readonly difficultyAttributes: DifficultyAttributes;
+    readonly difficultyAttributes: T;
 
     /**
      * Penalty for combo breaks.
@@ -54,6 +57,20 @@ export abstract class PerformanceCalculator {
      * Nerf factor used for nerfing beatmaps with very likely dropped sliderends.
      */
     protected sliderNerfFactor: number = 1;
+
+    /**
+     * @param difficultyAttributes The difficulty attributes to calculate.
+     */
+    constructor(difficultyAttributes: T | CacheableDifficultyAttributes<T>) {
+        if (this.isCacheableAttribute(difficultyAttributes)) {
+            this.difficultyAttributes = <T>{
+                ...difficultyAttributes,
+                mods: ModUtil.pcStringToMods(difficultyAttributes.mods),
+            };
+        } else {
+            this.difficultyAttributes = Utils.deepCopy(difficultyAttributes);
+        }
+    }
 
     /**
      * Calculates the performance points of the beatmap.
@@ -269,5 +286,17 @@ export abstract class PerformanceCalculator {
         }
 
         return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
+    }
+
+    /**
+     * Determines whether an attribute is a cacheable attribute.
+     *
+     * @param attributes The attributes to check.
+     * @returns Whether the attributes are cacheable.
+     */
+    private isCacheableAttribute(
+        attributes: T | CacheableDifficultyAttributes<T>,
+    ): attributes is CacheableDifficultyAttributes<T> {
+        return typeof attributes.mods === "string";
     }
 }

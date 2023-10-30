@@ -2,7 +2,6 @@ import {
     ModRelax,
     ModFlashlight,
     Modes,
-    Utils,
     OsuHitWindow,
     DroidHitWindow,
     ModPrecise,
@@ -16,7 +15,7 @@ import { PerformanceCalculationOptions } from "./structures/PerformanceCalculati
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
-export class DroidPerformanceCalculator extends PerformanceCalculator {
+export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDifficultyAttributes> {
     /**
      * The aim performance value.
      */
@@ -92,7 +91,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         return this._visualSliderCheesePenalty;
     }
 
-    override readonly difficultyAttributes: DroidDifficultyAttributes;
     protected override finalMultiplier = 1.24;
     protected override readonly mode: Modes = Modes.droid;
 
@@ -103,15 +101,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private _tapPenalty: number = 1;
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
-
-    /**
-     * @param difficultyAttributes The difficulty attributes to calculate.
-     */
-    constructor(difficultyAttributes: DroidDifficultyAttributes) {
-        super();
-
-        this.difficultyAttributes = Utils.deepCopy(difficultyAttributes);
-    }
 
     /**
      * Applies a tap penalty value to this calculator.
