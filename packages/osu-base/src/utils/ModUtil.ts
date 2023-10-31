@@ -187,7 +187,7 @@ export abstract class ModUtil {
      * @param mods The mods to check for.
      * @returns Mods that have been filtered.
      */
-    static checkDuplicateMods(mods: Mod[]): Mod[] {
+    static checkDuplicateMods<T extends Mod>(mods: T[]): T[] {
         return Array.from(new Set(mods));
     }
 
@@ -197,9 +197,9 @@ export abstract class ModUtil {
      * @param mods The mods to check for.
      * @returns Mods that have been filtered.
      */
-    static checkIncompatibleMods(mods: Mod[]): Mod[] {
+    static checkIncompatibleMods<T extends Mod>(mods: T[]): T[] {
         for (const incompatibleMod of this.incompatibleMods) {
-            const fulfilledMods: Mod[] = mods.filter((m) =>
+            const fulfilledMods: T[] = mods.filter((m) =>
                 incompatibleMod.some((v) => m.acronym === v.acronym),
             );
 
@@ -221,7 +221,7 @@ export abstract class ModUtil {
      * @param mods The array of mods.
      * @returns A new array with speed changing mods filtered out.
      */
-    static removeSpeedChangingMods(mods: Mod[]): Mod[] {
+    static removeSpeedChangingMods<T extends Mod>(mods: T[]): T[] {
         return mods
             .slice()
             .filter(
@@ -239,10 +239,10 @@ export abstract class ModUtil {
      * @param options The options to process.
      * @returns The processed mods.
      */
-    private static processParsingOptions(
-        mods: Mod[],
+    private static processParsingOptions<T extends Mod>(
+        mods: T[],
         options?: ModParseOptions,
-    ): Mod[] {
+    ): T[] {
         if (options?.checkDuplicate !== false) {
             mods = this.checkDuplicateMods(mods);
         }
