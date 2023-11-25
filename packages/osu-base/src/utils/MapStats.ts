@@ -10,6 +10,7 @@ import { ModPrecise } from "../mods/ModPrecise";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModUtil } from "./ModUtil";
 import { CircleSizeCalculator } from "./CircleSizeCalculator";
+import { ModSpeedUp } from "../mods/ModSpeedUp";
 
 /**
  * A structure to initialize a `MapStats` instance.
@@ -194,6 +195,9 @@ export class MapStats implements MapStatsInit {
         }
         if (this.mods.some((m) => m instanceof ModNightCore)) {
             this.speedMultiplier *= 1.5;
+        }
+        if (this.mods.some((m) => m instanceof ModSpeedUp)) {
+            this.speedMultiplier *= 1.25;
         }
         if (this.mods.some((m) => m instanceof ModHardRock)) {
             statisticsMultiplier *= 1.4;
