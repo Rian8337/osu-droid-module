@@ -104,18 +104,46 @@ export interface ReplayInformation {
     convertedMods?: (Mod & IModApplicableToDroid)[];
 
     /**
-     * The speed modification of the replay.
+     * The speed multiplier of the replay.
      *
      * Only available in replay v4 or later. By default this is 1.
      */
-    speedModification?: number;
+    speedMultiplier?: number;
 
     /**
-     * The forced AR of the replay.
+     * The force CS of the replay.
+     *
+     * Only available in replay v5 or later.
+     */
+    forceCS?: number;
+
+    /**
+     * The force AR of the replay.
      *
      * Only available in replay v4 or later.
      */
-    forcedAR?: number;
+    forceAR?: number;
+
+    /**
+     * The force OD of the replay.
+     *
+     * Only available in replay v5 or later.
+     */
+    forceOD?: number;
+
+    /**
+     * The force HP of the replay.
+     *
+     * Only available in replay v5 or later.
+     */
+    forceHP?: number;
+
+    /**
+     * The follow delay set for the FL mod, in seconds.
+     *
+     * Only available in replay v5 orlater. By default this is 0.12.
+     */
+    flashlightFollowDelay?: number;
 
     /**
      * The cursor movement data of the replay.
@@ -153,8 +181,12 @@ export class ReplayData implements ReplayInformation {
     readonly convertedMods: (Mod & IModApplicableToDroid)[];
     readonly cursorMovement: CursorData[];
     readonly hitObjectData: ReplayObjectData[];
-    readonly speedModification: number;
-    readonly forcedAR?: number;
+    readonly speedMultiplier: number;
+    readonly forceCS?: number;
+    readonly forceAR?: number;
+    readonly forceOD?: number;
+    readonly forceHP?: number;
+    readonly flashlightFollowDelay?: number;
 
     constructor(values: ReplayInformation) {
         this.replayVersion = values.replayVersion;
@@ -174,7 +206,11 @@ export class ReplayData implements ReplayInformation {
         this.convertedMods = values.convertedMods || [];
         this.cursorMovement = values.cursorMovement;
         this.hitObjectData = values.hitObjectData;
-        this.speedModification = values.speedModification || 1;
-        this.forcedAR = values.forcedAR;
+        this.speedMultiplier = values.speedMultiplier || 1;
+        this.forceCS = values.forceCS;
+        this.forceAR = values.forceAR;
+        this.forceOD = values.forceOD;
+        this.forceHP = values.forceHP;
+        this.flashlightFollowDelay = values.flashlightFollowDelay;
     }
 }

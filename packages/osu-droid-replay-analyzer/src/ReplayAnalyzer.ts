@@ -281,7 +281,7 @@ export class ReplayAnalyzer {
                 resultObject.accuracy.nmiss;
             const isHidden: boolean =
                 resultObject.convertedMods?.some(
-                    (m) => m instanceof ModHidden || m instanceof ModFlashlight
+                    (m) => m instanceof ModHidden || m instanceof ModFlashlight,
                 ) ?? false;
 
             const hit300Ratio: number = resultObject.accuracy.n300 / totalHits;
@@ -321,7 +321,7 @@ export class ReplayAnalyzer {
 
         if (resultObject.replayVersion >= 3) {
             resultObject.time = new Date(
-                Number(rawObject[4].readBigUInt64BE(0))
+                Number(rawObject[4].readBigUInt64BE(0)),
             );
             resultObject.hit300k = rawObject[4].readInt32BE(8);
             resultObject.hit100k = rawObject[4].readInt32BE(16);
@@ -337,18 +337,41 @@ export class ReplayAnalyzer {
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = rawObject[6].elements;
             resultObject.convertedMods = ModUtil.droidStringToMods(
-                this.convertDroidMods(rawObject[6].elements)
+                this.convertDroidMods(rawObject[6].elements),
             );
 
             determineRank();
         }
 
         if (resultObject.replayVersion >= 4) {
-            const s: string[] = rawObject[7].split("|");
-            resultObject.speedModification =
-                parseFloat(s[0].replace("x", "")) || 1;
-            if (s.length > 1) {
-                resultObject.forcedAR = parseFloat(s[1].replace("AR", ""));
+            const str: string[] = rawObject[7].split("|");
+
+            for (const s of str) {
+                switch (true) {
+                    // Forced stats
+                    case s.startsWith("CS"):
+                        resultObject.forceCS = parseFloat(s.replace("CS", ""));
+                        break;
+                    case s.startsWith("AR"):
+                        resultObject.forceAR = parseFloat(s.replace("AR", ""));
+                        break;
+                    case s.startsWith("OD"):
+                        resultObject.forceOD = parseFloat(s.replace("OD", ""));
+                        break;
+                    case s.startsWith("HP"):
+                        resultObject.forceHP = parseFloat(s.replace("HP", ""));
+                        break;
+                    // FL follow delay
+                    case s.startsWith("FLD"):
+                        resultObject.flashlightFollowDelay =
+                            parseFloat(s.replace("FLD", "")) || 0.12;
+                        break;
+                    // Speed multiplier
+                    case s.startsWith("x"):
+                        resultObject.speedMultiplier =
+                            parseFloat(s.replace("x", "")) || 1;
+                        break;
+                }
             }
         }
 
@@ -418,7 +441,7 @@ export class ReplayAnalyzer {
                     x: x,
                     y: y,
                     id: id,
-                })
+                }),
             );
         }
 
@@ -452,7 +475,7 @@ export class ReplayAnalyzer {
                     replayObjectData.tickset.push(
                         (bytes[len - Math.trunc(j / 8) - 1] &
                             (1 << Math.trunc(j % 8))) !==
-                            0
+                            0,
                     );
                 }
             }
@@ -552,14 +575,14 @@ export class ReplayAnalyzer {
             mods: this.data.convertedMods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym
-                    )
+                        (v) => v.acronym === m.acronym,
+                    ),
             ),
         }).calculate();
         const hitWindow50: number = new DroidHitWindow(
-            stats.od!
+            stats.od!,
         ).hitWindowFor50(
-            this.data.convertedMods.some((m) => m instanceof ModPrecise)
+            this.data.convertedMods.some((m) => m instanceof ModPrecise),
         );
 
         // The accuracy of sliders is set to (50 hit window)ms + 13ms if their head was not hit:
@@ -657,7 +680,7 @@ export class ReplayAnalyzer {
                 ? this.beatmap
                 : this.beatmap.beatmap,
             this.data,
-            this.difficultyAttributes
+            this.difficultyAttributes,
         );
         const result: ThreeFingerInformation = threeFingerChecker.check();
 
@@ -684,7 +707,7 @@ export class ReplayAnalyzer {
 
         const twoHandChecker: TwoHandChecker = new TwoHandChecker(
             this.beatmap,
-            this.data
+            this.data,
         );
         const result: TwoHandInformation = twoHandChecker.check();
 
@@ -709,7 +732,7 @@ export class ReplayAnalyzer {
                     ? this.beatmap
                     : this.beatmap.beatmap,
                 this.data,
-                this.difficultyAttributes
+                this.difficultyAttributes,
             );
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
