@@ -88,15 +88,23 @@ export abstract class DifficultyCalculator<
      */
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
+        const { difficulty } = this.beatmap;
 
         this.stats = new MapStats({
-            cs: this.beatmap.difficulty.cs,
-            ar: this.beatmap.difficulty.ar,
-            od: this.beatmap.difficulty.od,
-            hp: this.beatmap.difficulty.hp,
+            ...options?.stats,
+            cs: options?.stats?.forceCS
+                ? options.stats.cs ?? difficulty.cs
+                : difficulty.cs,
+            ar: options?.stats?.forceAR
+                ? options.stats.ar ?? difficulty.ar
+                : difficulty.ar,
+            od: options?.stats?.forceOD
+                ? options.stats.od ?? difficulty.od
+                : difficulty.od,
+            hp: options?.stats?.forceHP
+                ? options.stats.hp ?? difficulty.hp
+                : difficulty.hp,
             mods: options?.mods,
-            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
-            oldStatistics: options?.stats?.oldStatistics ?? false,
         }).calculate({ mode: this.mode });
 
         this.preProcess();

@@ -24,11 +24,7 @@ export class MapStars {
      * @param options Options for the difficulty calculation.
      */
     constructor(beatmap: Beatmap, options?: DifficultyCalculationOptions) {
-        const stats: MapStats = new MapStats({
-            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
-            isForceAR: options?.stats?.isForceAR ?? false,
-            oldStatistics: options?.stats?.oldStatistics ?? false,
-        });
+        const stats: MapStats = new MapStats(options?.stats);
 
         this.droid = new DroidDifficultyCalculator(beatmap).calculate({
             ...options,
