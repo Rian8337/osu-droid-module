@@ -15,18 +15,18 @@ import { ModSpeedUp } from "../mods/ModSpeedUp";
 /**
  * A structure to initialize a `MapStats` instance.
  */
-export interface MapStatsInit {
+export type MapStatsInit = Partial<{
     /**
      * The circle size of the beatmap.
      *
      * In osu!droid gamemode, this is the value of the CS converted to osu!standard CS after calling `calculate()`.
      */
-    cs?: number;
+    cs: number;
 
     /**
      * The approach rate of the beatmap.
      */
-    ar?: number;
+    ar: number;
 
     /**
      * The overall difficulty of the beatmap.
@@ -34,12 +34,12 @@ export interface MapStatsInit {
      * In osu!droid gamemode, this is the value of the CS converted to osu!standard CS after calling `calculate()`,
      * provided that the `convertDroidOD` property was not set to `false`.
      */
-    od?: number;
+    od: number;
 
     /**
      * The health drain rate of the beatmap.
      */
-    hp?: number;
+    hp: number;
 
     /**
      * The enabled modifications.
@@ -84,7 +84,7 @@ export interface MapStatsInit {
      * Whether to calculate for old statistics for osu!droid gamemode (1.6.7 and older). Defaults to `false`.
      */
     oldStatistics: boolean;
-}
+}>;
 
 /**
  * Holds general beatmap statistics for further modifications.
@@ -120,7 +120,7 @@ export class MapStats implements MapStatsInit {
     static readonly AR_MS_STEP2: number =
         (MapStats.AR5_MS - MapStats.AR10_MS) / 5;
 
-    constructor(values?: Partial<MapStatsInit>) {
+    constructor(values?: MapStatsInit) {
         this.cs = values?.cs;
         this.ar = values?.ar;
         this.od = values?.od;
