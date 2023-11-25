@@ -137,9 +137,29 @@ export class Score {
     oldStatistics: boolean;
 
     /**
-     * The forced AR of the play.
+     * The force CS of the play.
      */
-    forcedAR?: number;
+    forceCS?: number;
+
+    /**
+     * The force AR of the play.
+     */
+    forceAR?: number;
+
+    /**
+     * The force OD of the play.
+     */
+    forceOD?: number;
+
+    /**
+     * The force HP of the play.
+     */
+    forceHP?: number;
+
+    /**
+     * The follow delay set for the FL mod, in seconds.
+     */
+    flashlightFollowDelay?: number;
 
     /**
      * The replay of the score.
@@ -154,18 +174,34 @@ export class Score {
             this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
         }`;
 
-        if (this.forcedAR !== undefined || this.speedMultiplier !== 1) {
-            finalString += " (";
-            if (this.forcedAR !== undefined) {
-                finalString += `AR${this.forcedAR}`;
-            }
-            if (this.speedMultiplier !== 1) {
-                if (this.forcedAR !== undefined) {
-                    finalString += ", ";
-                }
-                finalString += `${this.speedMultiplier}x`;
-            }
-            finalString += ")";
+        const customStats: string[] = [];
+
+        if (this.speedMultiplier !== 1) {
+            customStats.push(`${this.speedMultiplier}x`);
+        }
+
+        if (this.forceAR !== undefined) {
+            customStats.push(`AR${this.forceAR}`);
+        }
+
+        if (this.forceOD !== undefined) {
+            customStats.push(`OD${this.forceOD}`);
+        }
+
+        if (this.forceCS !== undefined) {
+            customStats.push(`CS${this.forceCS}`);
+        }
+
+        if (this.forceHP !== undefined) {
+            customStats.push(`HP${this.forceHP}`);
+        }
+
+        if (this.flashlightFollowDelay !== undefined) {
+            customStats.push(`FLD${this.flashlightFollowDelay}`);
+        }
+
+        if (customStats.length > 0) {
+            finalString += ` (${customStats.join(", ")})`;
         }
 
         return finalString;
@@ -183,26 +219,10 @@ export class Score {
         this.accuracy = values?.accuracy ?? new Accuracy({});
         this.hash = values?.hash ?? "";
 
-        const modstrings: string[] = (values?.mods ?? "").split("|");
-        let actualMods: string = "";
-        for (const str of modstrings) {
-            if (!str) {
-                continue;
-            }
+        this.mods = [];
+        this.oldStatistics = false;
 
-            if (str.startsWith("AR")) {
-                this.forcedAR = parseFloat(str.replace("AR", ""));
-            } else if (str.startsWith("x")) {
-                this.speedMultiplier = parseFloat(str.replace("x", ""));
-            } else {
-                actualMods += str;
-            }
-        }
-
-        this.mods = ModUtil.droidStringToMods(actualMods);
-        // The pipe was added in 1.6.8 first pre-release (https://github.com/osudroid/osu-droid/commit/c08c406f4b2e535ed1ec43607a72fd8f70f8e316),
-        // so we can use that information to infer whether the score was set on version 1.6.7 or lower.
-        this.oldStatistics = !(values?.mods ?? "").includes("|");
+        this.parseMods(values?.mods ?? "");
     }
 
     /**
@@ -255,24 +275,7 @@ export class Score {
         this.combo = parseInt(play[4]);
         this.rank = play[5];
 
-        const modstrings: string[] = play[6].split("|");
-        let actualMods: string = "";
-        for (const str of modstrings) {
-            if (!str) {
-                continue;
-            }
-
-            if (str.startsWith("AR")) {
-                this.forcedAR = parseFloat(str.replace("AR", ""));
-            } else if (str.startsWith("x")) {
-                this.speedMultiplier = parseFloat(str.replace("x", ""));
-            } else {
-                actualMods += str;
-            }
-        }
-
-        this.mods = ModUtil.droidStringToMods(actualMods);
-        this.oldStatistics = !play[6].includes("|");
+        this.parseMods(play[6]);
 
         this.accuracy = new Accuracy({
             n300: parseInt(play[8]),
@@ -323,5 +326,54 @@ export class Score {
      */
     toString(): string {
         return `Player: ${this.username}, uid: ${this.uid}, title: ${this.title}, score: ${this.score}, combo: ${this.combo}, rank: ${this.rank}, acc: ${this.accuracy}%, date: ${this.date}, mods: ${this.mods}, hash: ${this.hash}`;
+    }
+
+    /**
+     * Parses a modstring returned from the osu!droid API or replay.
+     *
+     * @param str The modstring.
+     */
+    private parseMods(str: string): void {
+        const modstrings: string[] = str.split("|");
+        let actualMods: string = "";
+
+        for (const str of modstrings) {
+            if (!str) {
+                continue;
+            }
+
+            switch (true) {
+                // Forced stats
+                case str.startsWith("CS"):
+                    this.forceCS = parseFloat(str.replace("CS", ""));
+                    break;
+                case str.startsWith("AR"):
+                    this.forceAR = parseFloat(str.replace("AR", ""));
+                    break;
+                case str.startsWith("OD"):
+                    this.forceOD = parseFloat(str.replace("OD", ""));
+                    break;
+                case str.startsWith("HP"):
+                    this.forceHP = parseFloat(str.replace("HP", ""));
+                    break;
+                // FL follow delay
+                case str.startsWith("FLD"):
+                    this.flashlightFollowDelay = parseFloat(
+                        str.replace("FLD", ""),
+                    );
+                    break;
+                // Speed multiplier
+                case str.startsWith("x"):
+                    this.speedMultiplier = parseFloat(str.replace("x", ""));
+                    break;
+                default:
+                    actualMods += str;
+            }
+        }
+
+        this.mods = ModUtil.droidStringToMods(actualMods);
+        // The pipe was added in 1.6.8 first pre-release (https://github.com/osudroid/osu-droid/commit/c08c406f4b2e535ed1ec43607a72fd8f70f8e316),
+        // so we can use that information to infer whether the score was set on version 1.6.7 or lower.
+        this.oldStatistics = !str.includes("|");
     }
 }
