@@ -18,4 +18,5 @@ export class ModHalfTime
     readonly pcScoreMultiplier: number = 0.3;
     readonly bitwise: number = 1 << 8;
     readonly droidString: string = "t";
+    readonly isDroidLegacyMod: boolean = false;
 }

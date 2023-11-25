@@ -13,4 +13,5 @@ export class ModSmallCircle extends Mod implements IModApplicableToDroid {
     readonly droidRanked: boolean = false;
     readonly droidScoreMultiplier: number = 1.06;
     readonly droidString: string = "m";
+    readonly isDroidLegacyMod: boolean = true;
 }

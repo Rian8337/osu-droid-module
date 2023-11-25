@@ -18,4 +18,5 @@ export class ModRelax
     readonly pcScoreMultiplier: number = 0;
     readonly bitwise: number = 1 << 7;
     readonly droidString: string = "x";
+    readonly isDroidLegacyMod: boolean = false;
 }

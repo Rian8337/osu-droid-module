@@ -18,4 +18,5 @@ export class ModPerfect
     readonly pcScoreMultiplier: number = 1;
     readonly bitwise: number = 1 << 14;
     readonly droidString: string = "f";
+    readonly isDroidLegacyMod: boolean = false;
 }

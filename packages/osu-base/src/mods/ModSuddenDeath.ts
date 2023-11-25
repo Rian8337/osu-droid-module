@@ -18,4 +18,5 @@ export class ModSuddenDeath
     readonly pcScoreMultiplier: number = 1;
     readonly bitwise: number = 1 << 5;
     readonly droidString: string = "u";
+    readonly isDroidLegacyMod: boolean = false;
 }

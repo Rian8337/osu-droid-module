@@ -18,4 +18,5 @@ export class ModEasy
     readonly pcScoreMultiplier: number = 0.5;
     readonly bitwise: number = 1 << 1;
     readonly droidString: string = "e";
+    readonly isDroidLegacyMod: boolean = false;
 }

@@ -18,4 +18,5 @@ export class ModScoreV2
     readonly pcScoreMultiplier: number = 1;
     readonly bitwise: number = 1 << 29;
     readonly droidString: string = "v";
+    readonly isDroidLegacyMod: boolean = false;
 }

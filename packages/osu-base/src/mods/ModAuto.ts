@@ -18,4 +18,5 @@ export class ModAuto
     readonly pcScoreMultiplier: number = 1;
     readonly bitwise: number = 1 << 11;
     readonly droidString: string = "a";
+    readonly isDroidLegacyMod: boolean = false;
 }
