@@ -6,7 +6,6 @@ import {
     RequestResponse,
     IModApplicableToDroid,
 } from "@rian8337/osu-base";
-import { ReplayAnalyzer } from "@rian8337/osu-droid-replay-analyzer";
 
 interface ScoreInformation {
     /**
@@ -162,11 +161,6 @@ export class Score {
     flashlightFollowDelay?: number;
 
     /**
-     * The replay of the score.
-     */
-    replay?: ReplayAnalyzer;
-
-    /**
      * The complete mod string of this score (mods, speed multiplier, and force AR combined).
      */
     get completeModString(): string {
@@ -306,19 +300,6 @@ export class Score {
             .replace(/_/g, " ");
         this.hash = play[14];
         return this;
-    }
-
-    /**
-     * Downloads the replay of this score.
-     */
-    async downloadReplay(): Promise<void> {
-        if (!this.scoreID || this.replay) {
-            return;
-        }
-
-        this.replay = await new ReplayAnalyzer({
-            scoreID: this.scoreID,
-        }).analyze();
     }
 
     /**
