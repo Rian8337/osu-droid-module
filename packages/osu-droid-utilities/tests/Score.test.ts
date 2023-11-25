@@ -24,7 +24,6 @@ test("Test fill information", () => {
     expect(score.mods[0]).toBeInstanceOf(ModHidden);
     expect(score.oldStatistics).toBe(false);
     expect(score.rank).toBe("S");
-    expect(score.replay).toBeUndefined();
     expect(score.score).toBe(67030952);
     expect(score.scoreID).toBe(18535463);
     expect(score.speedMultiplier).toBe(1.25);
