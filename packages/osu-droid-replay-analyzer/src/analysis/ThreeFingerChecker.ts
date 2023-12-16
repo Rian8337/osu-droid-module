@@ -348,14 +348,10 @@ export class ThreeFingerChecker {
         const lastObjectHitTime: number =
             this.hitObjects.at(-1)!.startTime + lastObjectHitWindow;
 
-        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            const cursorInstance: CursorData = this.data.cursorMovement[i];
+        for (const cursorInstance of this.data.cursorMovement) {
             const validOccurrences: CursorOccurrence[] = [];
 
-            for (let j = 0; j < cursorInstance.occurrenceGroups.length; ++j) {
-                const group: CursorOccurrenceGroup =
-                    cursorInstance.occurrenceGroups[j];
-
+            for (const group of cursorInstance.occurrenceGroups) {
                 if (group.startTime < firstObjectHitTime) {
                     continue;
                 }
