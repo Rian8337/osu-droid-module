@@ -460,9 +460,10 @@ export class ThreeFingerChecker {
         // to account for time difference between hit registration and object judgement.
         let minHitTime: number = object.startTime;
         let maxHitTime: number = object.startTime;
-        let hitWindowGap: number = hitWindow50;
 
         if (object instanceof Circle) {
+            let hitWindowGap: number = hitWindow50;
+
             switch (objectData.result) {
                 case HitResult.great:
                     hitWindowGap = this.hitWindow.hitWindowFor300(
@@ -475,10 +476,17 @@ export class ThreeFingerChecker {
                     );
                     break;
             }
-        }
 
-        minHitTime -= hitWindowGap;
-        maxHitTime += hitWindowGap;
+            minHitTime -= hitWindowGap;
+            maxHitTime += hitWindowGap;
+        } else if (object instanceof Slider) {
+            minHitTime -= hitWindow50;
+            maxHitTime += Math.min(
+                hitWindow50,
+                object.duration,
+                object.spanDuration,
+            );
+        }
 
         const hitTime: number = object.startTime + objectData.accuracy;
         let nearestCursorInstanceIndex: number | null = null;
