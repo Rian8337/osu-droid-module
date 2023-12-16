@@ -257,7 +257,7 @@ export class ThreeFingerChecker {
 
             if (
                 objectBefore instanceof Circle &&
-                objectBeforeData.accuracy !== 10000
+                objectBeforeData.result !== HitResult.miss
             ) {
                 timeBefore += objectBeforeData.accuracy;
             }
@@ -269,7 +269,7 @@ export class ThreeFingerChecker {
 
             if (
                 objectAfter instanceof Circle &&
-                objectAfterData.accuracy !== 10000
+                objectAfterData.result !== HitResult.miss
             ) {
                 timeAfter += objectAfterData.accuracy;
             }
