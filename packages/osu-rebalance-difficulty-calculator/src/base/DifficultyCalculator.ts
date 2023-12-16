@@ -5,11 +5,15 @@ import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
 import { Skill } from "./Skill";
+import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 
 /**
  * The base of a difficulty calculator.
  */
-export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
+export abstract class DifficultyCalculator<
+    THitObject extends DifficultyHitObject,
+    TAttributes extends DifficultyAttributes,
+> {
     /**
      * The calculated beatmap.
      */
@@ -18,7 +22,7 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
     /**
      * The difficulty objects of the beatmap.
      */
-    readonly objects: T[] = [];
+    readonly objects: THitObject[] = [];
 
     /**
      * The modifications applied.
@@ -46,9 +50,14 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
     };
 
     /**
-     * Holds data that can be used to calculate performance points.
+     * The difficulty attributes that can be used to calculate performance points.
      */
-    abstract readonly attributes: DifficultyAttributes;
+    abstract readonly attributes: TAttributes;
+
+    /**
+     * The difficulty attributes that can be cached. It can also be used to calculate performance points.
+     */
+    abstract get cacheableAttributes(): CacheableDifficultyAttributes<TAttributes>;
 
     protected abstract readonly difficultyMultiplier: number;
     protected abstract readonly mode: Modes;
@@ -79,15 +88,23 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
      */
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
+        const { difficulty } = this.beatmap;
 
         this.stats = new MapStats({
-            cs: this.beatmap.difficulty.cs,
-            ar: this.beatmap.difficulty.ar,
-            od: this.beatmap.difficulty.od,
-            hp: this.beatmap.difficulty.hp,
+            ...options?.stats,
+            cs: options?.stats?.forceCS
+                ? options.stats.cs ?? difficulty.cs
+                : difficulty.cs,
+            ar: options?.stats?.forceAR
+                ? options.stats.ar ?? difficulty.ar
+                : difficulty.ar,
+            od: options?.stats?.forceOD
+                ? options.stats.od ?? difficulty.od
+                : difficulty.od,
+            hp: options?.stats?.forceHP
+                ? options.stats.hp ?? difficulty.hp
+                : difficulty.hp,
             mods: options?.mods,
-            speedMultiplier: options?.stats?.speedMultiplier ?? 1,
-            oldStatistics: options?.stats?.oldStatistics ?? false,
         }).calculate({ mode: this.mode });
 
         this.preProcess();
@@ -108,12 +125,12 @@ export abstract class DifficultyCalculator<T extends DifficultyHitObject> {
         this.objects.push(
             ...(new DifficultyHitObjectCreator().generateDifficultyObjects({
                 objects: this.beatmap.hitObjects.objects,
-                circleSize: this.beatmap.difficulty.cs,
+                circleSize: this.stats.cs!,
                 mods: this.mods,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
                 preempt: MapStats.arToMS(this.stats.ar!),
-            }) as T[]),
+            }) as THitObject[]),
         );
     }
 

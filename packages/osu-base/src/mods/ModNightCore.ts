@@ -18,4 +18,5 @@ export class ModNightCore
     readonly pcScoreMultiplier: number = 1.12;
     readonly bitwise: number = 1 << 9;
     readonly droidString: string = "c";
+    readonly isDroidLegacyMod: boolean = false;
 }

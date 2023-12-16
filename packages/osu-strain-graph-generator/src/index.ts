@@ -1,9 +1,11 @@
 import { ModFlashlight, Vector2 } from "@rian8337/osu-base";
 import {
+    DifficultyAttributes,
     DifficultyCalculator,
     DifficultyHitObject,
 } from "@rian8337/osu-difficulty-calculator";
 import {
+    DifficultyAttributes as RebalanceDifficultyAttributes,
     DifficultyCalculator as RebalanceDifficultyCalculator,
     DifficultyHitObject as RebalanceDifficultyHitObject,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
@@ -19,8 +21,11 @@ import { Chart } from "./Chart";
  */
 export default async function getStrainChart(
     calculator:
-        | DifficultyCalculator<DifficultyHitObject>
-        | RebalanceDifficultyCalculator<RebalanceDifficultyHitObject>,
+        | DifficultyCalculator<DifficultyHitObject, DifficultyAttributes>
+        | RebalanceDifficultyCalculator<
+              RebalanceDifficultyHitObject,
+              RebalanceDifficultyAttributes
+          >,
     beatmapsetID?: number,
     color: string = "#000000",
 ): Promise<Buffer | null> {

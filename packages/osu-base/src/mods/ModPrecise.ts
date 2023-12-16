@@ -11,4 +11,5 @@ export class ModPrecise extends Mod implements IModApplicableToDroid {
     readonly droidRanked: boolean = true;
     readonly droidScoreMultiplier: number = 1.06;
     readonly droidString: string = "s";
+    readonly isDroidLegacyMod: boolean = false;
 }

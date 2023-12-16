@@ -16,4 +16,11 @@ export interface IModApplicableToDroid {
      * The droid enum of the mod.
      */
     readonly droidString: string;
+
+    /**
+     * Whether this mod is a legacy mod in osu!droid.
+     *
+     * A legacy mod was removed from the game, but may still exist in scores or replays.
+     */
+    readonly isDroidLegacyMod: boolean;
 }

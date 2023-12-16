@@ -3,6 +3,8 @@ import { Mod } from "./Mod";
 
 /**
  * Represents the SmallCircle mod.
+ *
+ * This is a legacy osu!droid mod that may still be exist when parsing replays.
  */
 export class ModSmallCircle extends Mod implements IModApplicableToDroid {
     override readonly acronym: string = "SC";
@@ -11,4 +13,5 @@ export class ModSmallCircle extends Mod implements IModApplicableToDroid {
     readonly droidRanked: boolean = false;
     readonly droidScoreMultiplier: number = 1.06;
     readonly droidString: string = "m";
+    readonly isDroidLegacyMod: boolean = true;
 }

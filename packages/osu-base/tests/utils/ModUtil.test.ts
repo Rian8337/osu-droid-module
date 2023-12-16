@@ -113,3 +113,43 @@ describe("Test PC string to mods conversion", () => {
         expect(mods[0]).toBeInstanceOf(ModHardRock);
     });
 });
+
+describe("Test mods array to osu!droid string conversion", () => {
+    test("NM", () => {
+        const mods = ModUtil.droidStringToMods("");
+
+        expect(ModUtil.modsToDroidString(mods)).toBe("");
+    });
+
+    test("HDHR", () => {
+        const mods = [new ModHidden(), new ModHardRock()];
+
+        expect(ModUtil.modsToDroidString(mods)).toBe("hr");
+    });
+
+    test("NFHTPR", () => {
+        const mods = [new ModNoFail(), new ModHalfTime(), new ModPrecise()];
+
+        expect(ModUtil.modsToDroidString(mods)).toBe("nts");
+    });
+});
+
+describe("Test mods array to osu!standard string conversion", () => {
+    test("NM", () => {
+        const mods = ModUtil.pcStringToMods("");
+
+        expect(ModUtil.modsToOsuString(mods)).toBe("");
+    });
+
+    test("HDHR", () => {
+        const mods = [new ModHidden(), new ModHardRock()];
+
+        expect(ModUtil.modsToOsuString(mods)).toBe("HDHR");
+    });
+
+    test("NFHTPR", () => {
+        const mods = [new ModNoFail(), new ModHalfTime(), new ModPrecise()];
+
+        expect(ModUtil.modsToOsuString(mods)).toBe("NFHTPR");
+    });
+});

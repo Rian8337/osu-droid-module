@@ -15,7 +15,7 @@ describe("Test AR conversion without speed multiplier", () => {
         ar: number;
         mode: Modes;
         mods?: Mod[];
-        isForceAR?: boolean;
+        forceAR?: boolean;
         oldStatistics?: boolean;
     }) => {
         return new MapStats(params).calculate({ mode: params.mode });
@@ -127,7 +127,7 @@ describe("Test AR conversion without speed multiplier", () => {
                 ar: 8,
                 mode: Modes.droid,
                 mods: [new ModHardRock()],
-                isForceAR: true,
+                forceAR: true,
             });
 
             expect(stats.ar).toBeCloseTo(8);
@@ -230,7 +230,7 @@ describe("Test AR conversion without speed multiplier", () => {
                 ar: 8,
                 mode: Modes.osu,
                 mods: [new ModHardRock()],
-                isForceAR: true,
+                forceAR: true,
             });
 
             expect(stats.ar).toBeCloseTo(8);
@@ -244,7 +244,7 @@ describe("Test AR conversion with speed multiplier", () => {
         mode: Modes;
         speedMultiplier: number;
         mods?: Mod[];
-        isForceAR?: boolean;
+        forceAR?: boolean;
         oldStatistics?: boolean;
     }) => {
         return new MapStats(params).calculate({ mode: params.mode });
@@ -356,7 +356,7 @@ describe("Test AR conversion with speed multiplier", () => {
                 mode: Modes.droid,
                 speedMultiplier: 1.65,
                 mods: [new ModHardRock()],
-                isForceAR: true,
+                forceAR: true,
             });
 
             expect(stats.ar).toBeCloseTo(8);
@@ -469,7 +469,7 @@ describe("Test AR conversion with speed multiplier", () => {
                 mode: Modes.osu,
                 speedMultiplier: 1.65,
                 mods: [new ModHardRock()],
-                isForceAR: true,
+                forceAR: true,
             });
 
             expect(stats.ar).toBeCloseTo(8);

@@ -18,6 +18,7 @@ describe("Test OD conversion without speed multiplier", () => {
         mods?: Mod[];
         oldStatistics?: boolean;
         convertDroidOD?: boolean;
+        forceOD?: boolean;
     }) => {
         return new MapStats(params).calculate({
             mode: params.mode,
@@ -136,6 +137,18 @@ describe("Test OD conversion without speed multiplier", () => {
 
                 expect(stats.od).toBeCloseTo(12.666666666666668);
             });
+
+            test("OD 9 with force OD, HR", () => {
+                const stats = createStats({
+                    od: 9,
+                    mode: Modes.droid,
+                    mods: [new ModHardRock()],
+                    convertDroidOD: false,
+                    forceOD: true,
+                });
+
+                expect(stats.od).toBeCloseTo(9);
+            });
         });
 
         describe("With conversion to osu!standard OD", () => {
@@ -237,6 +250,17 @@ describe("Test OD conversion without speed multiplier", () => {
                 });
 
                 expect(stats.od).toBeCloseTo(7.22);
+            });
+
+            test("OD 9 with force OD, HR", () => {
+                const stats = createStats({
+                    od: 9,
+                    mode: Modes.droid,
+                    mods: [new ModHardRock()],
+                    forceOD: true,
+                });
+
+                expect(stats.od).toBeCloseTo(4.17);
             });
         });
     });
@@ -341,6 +365,17 @@ describe("Test OD conversion without speed multiplier", () => {
 
             expect(stats.od).toBeCloseTo(10.44);
         });
+
+        test("OD 9 with force OD, HR", () => {
+            const stats = createStats({
+                od: 9,
+                mode: Modes.osu,
+                mods: [new ModHardRock()],
+                forceOD: true,
+            });
+
+            expect(stats.od).toBeCloseTo(9);
+        });
     });
 });
 
@@ -353,6 +388,7 @@ describe("Test OD conversion with speed multiplier", () => {
         isForceAR?: boolean;
         oldStatistics?: boolean;
         convertDroidOD?: boolean;
+        forceOD?: boolean;
     }) => {
         return new MapStats(params).calculate({
             mode: params.mode,
@@ -481,6 +517,19 @@ describe("Test OD conversion with speed multiplier", () => {
 
                 expect(stats.od).toBeCloseTo(13.015873015873016);
             });
+
+            test("OD 9 with force OD, HR", () => {
+                const stats = createStats({
+                    od: 9,
+                    mode: Modes.droid,
+                    mods: [new ModHardRock()],
+                    speedMultiplier: 1.25,
+                    convertDroidOD: false,
+                    forceOD: true,
+                });
+
+                expect(stats.od).toBeCloseTo(9);
+            });
         });
 
         describe("With conversion to osu!standard OD", () => {
@@ -592,6 +641,18 @@ describe("Test OD conversion with speed multiplier", () => {
                 });
 
                 expect(stats.od).toBeCloseTo(7.51);
+            });
+
+            test("OD 9 with force OD, HR", () => {
+                const stats = createStats({
+                    od: 9,
+                    mode: Modes.droid,
+                    mods: [new ModHardRock()],
+                    speedMultiplier: 1.25,
+                    forceOD: true,
+                });
+
+                expect(stats.od).toBeCloseTo(4.17);
             });
         });
     });
@@ -705,6 +766,18 @@ describe("Test OD conversion with speed multiplier", () => {
             });
 
             expect(stats.od).toBeCloseTo(10.58);
+        });
+
+        test("OD 9 with force OD, HR", () => {
+            const stats = createStats({
+                od: 9,
+                mode: Modes.osu,
+                mods: [new ModHardRock()],
+                speedMultiplier: 1.25,
+                forceOD: true,
+            });
+
+            expect(stats.od).toBeCloseTo(9);
         });
     });
 });

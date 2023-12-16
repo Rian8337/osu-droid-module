@@ -2,7 +2,6 @@ import {
     ModRelax,
     ModFlashlight,
     Modes,
-    Utils,
     OsuHitWindow,
     DroidHitWindow,
     ModPrecise,
@@ -16,7 +15,7 @@ import { PerformanceCalculationOptions } from "./structures/PerformanceCalculati
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
-export class DroidPerformanceCalculator extends PerformanceCalculator {
+export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDifficultyAttributes> {
     /**
      * The aim performance value.
      */
@@ -92,7 +91,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         return this._visualSliderCheesePenalty;
     }
 
-    override readonly difficultyAttributes: DroidDifficultyAttributes;
     protected override finalMultiplier = 1.24;
     protected override readonly mode: Modes = Modes.droid;
 
@@ -103,15 +101,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
     private _tapPenalty: number = 1;
     private _deviation: number = 0;
     private _tapDeviation: number = 0;
-
-    /**
-     * @param difficultyAttributes The difficulty attributes to calculate.
-     */
-    constructor(difficultyAttributes: DroidDifficultyAttributes) {
-        super();
-
-        this.difficultyAttributes = Utils.deepCopy(difficultyAttributes);
-    }
 
     /**
      * Applies a tap penalty value to this calculator.
@@ -316,23 +305,23 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         // Using this expectation, we penalize scores with deviation above 25.
         const averageBPM: number =
             60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-        const adjustedDeviation: number =
-            normalizedDeviation *
-            (1 +
-                1 /
-                    (1 +
-                        Math.exp(
-                            -(normalizedDeviation - 7500 / averageBPM) /
-                                ((2 * 300) / averageBPM),
-                        )));
 
         // Scale the tap value with tap deviation.
         tapValue *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * normalizedDeviation)),
                 0.625,
             );
+
+        // Scale the tap value with doubletap deviation threshold.
+        tapValue *=
+            1 /
+            (1 +
+                Math.exp(
+                    (this.tapDeviation - 7500 / averageBPM) /
+                        ((4 * 300) / averageBPM),
+                ));
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
@@ -621,44 +610,48 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         if (greatCountCircles > 0) {
             // The probability that a player hits a circle is unknown, but we can estimate it to be
             // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction / bayesian prior.
-            const greatProbabilityCircle: number = Math.max(
-                0,
-                greatCountCircles / (greatCountCircles + okCountCircles + 1),
-            );
+            // to the number of circles as a bias correction.
+            const greatProbabilityCircle: number =
+                greatCountCircles /
+                (circleCount - missCountCircles - mehCountCircles + 1);
 
             // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
             // Begin with the normal distribution first.
-            const deviationOnCircles: number =
+            let deviationOnCircles: number =
                 hitWindow300 /
                 (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
 
-            // Get the variance of the truncated variable.
-            const truncatedVariance: number =
-                Math.pow(deviationOnCircles, 2) -
-                (Math.sqrt(2 / Math.PI) *
-                    hitWindow100 *
-                    deviationOnCircles *
-                    Math.exp(
-                        -0.5 * Math.pow(hitWindow100 / deviationOnCircles, 2),
-                    )) /
-                    ErrorFunction.erf(
-                        hitWindow100 / (Math.SQRT2 * deviationOnCircles),
-                    );
+            deviationOnCircles *= Math.sqrt(
+                1 -
+                    (Math.sqrt(2 / Math.PI) *
+                        hitWindow100 *
+                        Math.exp(
+                            -0.5 *
+                                Math.pow(hitWindow100 / deviationOnCircles, 2),
+                        )) /
+                        (deviationOnCircles *
+                            ErrorFunction.erf(
+                                hitWindow100 /
+                                    (Math.SQRT2 * deviationOnCircles),
+                            )),
+            );
 
             // Then compute the variance for 50s.
             const mehVariance: number =
-                (Math.pow(hitWindow50, 2) +
+                (hitWindow50 * hitWindow50 +
                     hitWindow100 * hitWindow50 +
-                    Math.pow(hitWindow100, 2)) /
+                    hitWindow100 * hitWindow100) /
                 3;
 
             // Find the total deviation.
-            return Math.sqrt(
-                ((greatCountCircles + okCountCircles) * truncatedVariance +
+            deviationOnCircles = Math.sqrt(
+                ((greatCountCircles + okCountCircles) *
+                    Math.pow(deviationOnCircles, 2) +
                     mehCountCircles * mehVariance) /
                     (greatCountCircles + okCountCircles + mehCountCircles),
             );
+
+            return deviationOnCircles;
         }
 
         // If there are more non-300s than there are circles, compute the deviation on sliders instead.
@@ -700,10 +693,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator {
         const hitWindow300: number = new OsuHitWindow(
             this.difficultyAttributes.overallDifficulty,
         ).hitWindowFor300();
+
         const { n100, n50, nmiss } = this.computedAccuracy;
 
         // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
-        // Graph: https://www.desmos.com/calculator/31argjcxqc
+        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
         const speedNoteRatio: number =
             this.difficultyAttributes.speedNoteCount / this.totalHits;
 

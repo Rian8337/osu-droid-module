@@ -18,4 +18,5 @@ export class ModDoubleTime
     readonly pcScoreMultiplier: number = 1.12;
     readonly bitwise: number = 1 << 6;
     readonly droidString: string = "d";
+    readonly isDroidLegacyMod: boolean = false;
 }

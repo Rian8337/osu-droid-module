@@ -17,6 +17,7 @@ import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { ModSmallCircle } from "../mods/ModSmallCircle";
+import { ModSpeedUp } from "../mods/ModSpeedUp";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
@@ -44,7 +45,12 @@ export abstract class ModUtil {
      * Mods that are incompatible with each other.
      */
     static readonly incompatibleMods: Mod[][] = [
-        [new ModDoubleTime(), new ModNightCore(), new ModHalfTime()],
+        [
+            new ModDoubleTime(),
+            new ModNightCore(),
+            new ModHalfTime(),
+            new ModSpeedUp(),
+        ],
         [new ModNoFail(), new ModSuddenDeath(), new ModPerfect()],
         [new ModHardRock(), new ModEasy()],
         [new ModAuto(), new ModRelax(), new ModAutopilot()],
@@ -65,6 +71,7 @@ export abstract class ModUtil {
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),
+        new ModSpeedUp(),
         new ModFlashlight(),
         new ModSuddenDeath(),
         new ModPerfect(),
@@ -83,17 +90,18 @@ export abstract class ModUtil {
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),
+        new ModSpeedUp(),
     ];
 
     /**
      * Mods that change the way the map looks.
      */
-    static readonly mapChangingMods: Mod[] = [
-        ...this.speedChangingMods,
+    static readonly mapChangingMods: Mod[] = this.speedChangingMods.concat(
         new ModEasy(),
         new ModHardRock(),
+        new ModReallyEasy(),
         new ModSmallCircle(),
-    ];
+    );
 
     /**
      * Gets a list of mods from a droid mod string, such as "hd".
@@ -103,15 +111,15 @@ export abstract class ModUtil {
      */
     static droidStringToMods(
         str: string,
-        options?: ModParseOptions
+        options?: ModParseOptions,
     ): (Mod & IModApplicableToDroid)[] {
         return <(Mod & IModApplicableToDroid)[]>this.processParsingOptions(
             this.allMods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
-                    str.toLowerCase().includes(m.droidString)
+                    str.toLowerCase().includes(m.droidString),
             ),
-            options
+            options,
         );
     }
 
@@ -123,13 +131,13 @@ export abstract class ModUtil {
      */
     static pcModbitsToMods(
         modbits: number,
-        options?: ModParseOptions
+        options?: ModParseOptions,
     ): (Mod & IModApplicableToOsu)[] {
         return <(Mod & IModApplicableToOsu)[]>this.processParsingOptions(
             this.allMods.filter(
-                (m) => m.isApplicableToOsu() && m.bitwise & modbits
+                (m) => m.isApplicableToOsu() && m.bitwise & modbits,
             ),
-            options
+            options,
         );
     }
 
@@ -162,12 +170,32 @@ export abstract class ModUtil {
     }
 
     /**
+     * Converts an array of mods into its osu!droid string counterpart.
+     *
+     * @param mods The array of mods to convert.
+     * @returns The string representing the mods in osu!droid.
+     */
+    static modsToDroidString(mods: IModApplicableToDroid[]): string {
+        return mods.reduce((a, v) => a + v.droidString, "");
+    }
+
+    /**
+     * Converts an array of mods into its osu!standard string counterpart.
+     *
+     * @param mods The array of mods to convert.
+     * @returns The string representing the mods in osu!standard.
+     */
+    static modsToOsuString(mods: Mod[]): string {
+        return mods.reduce((a, v) => a + v.acronym, "");
+    }
+
+    /**
      * Checks for mods that are duplicated.
      *
      * @param mods The mods to check for.
      * @returns Mods that have been filtered.
      */
-    static checkDuplicateMods(mods: Mod[]): Mod[] {
+    static checkDuplicateMods<T extends Mod>(mods: T[]): T[] {
         return Array.from(new Set(mods));
     }
 
@@ -177,15 +205,15 @@ export abstract class ModUtil {
      * @param mods The mods to check for.
      * @returns Mods that have been filtered.
      */
-    static checkIncompatibleMods(mods: Mod[]): Mod[] {
+    static checkIncompatibleMods<T extends Mod>(mods: T[]): T[] {
         for (const incompatibleMod of this.incompatibleMods) {
-            const fulfilledMods: Mod[] = mods.filter((m) =>
-                incompatibleMod.some((v) => m.acronym === v.acronym)
+            const fulfilledMods: T[] = mods.filter((m) =>
+                incompatibleMod.some((v) => m.acronym === v.acronym),
             );
 
             if (fulfilledMods.length > 1) {
                 mods = mods.filter((m) =>
-                    incompatibleMod.every((v) => m.acronym !== v.acronym)
+                    incompatibleMod.every((v) => m.acronym !== v.acronym),
                 );
                 // Keep the first selected mod
                 mods.push(fulfilledMods[0]);
@@ -201,12 +229,14 @@ export abstract class ModUtil {
      * @param mods The array of mods.
      * @returns A new array with speed changing mods filtered out.
      */
-    static removeSpeedChangingMods(mods: Mod[]): Mod[] {
+    static removeSpeedChangingMods<T extends Mod>(mods: T[]): T[] {
         return mods
             .slice()
             .filter(
                 (m) =>
-                    !this.speedChangingMods.some((v) => m.acronym === v.acronym)
+                    !this.speedChangingMods.some(
+                        (v) => m.acronym === v.acronym,
+                    ),
             );
     }
 
@@ -217,10 +247,10 @@ export abstract class ModUtil {
      * @param options The options to process.
      * @returns The processed mods.
      */
-    private static processParsingOptions(
-        mods: Mod[],
-        options?: ModParseOptions
-    ): Mod[] {
+    private static processParsingOptions<T extends Mod>(
+        mods: T[],
+        options?: ModParseOptions,
+    ): T[] {
         if (options?.checkDuplicate !== false) {
             mods = this.checkDuplicateMods(mods);
         }

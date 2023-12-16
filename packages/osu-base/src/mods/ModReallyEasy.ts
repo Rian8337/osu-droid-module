@@ -11,4 +11,5 @@ export class ModReallyEasy extends Mod implements IModApplicableToDroid {
     readonly droidRanked: boolean = false;
     readonly droidScoreMultiplier: number = 0.4;
     readonly droidString: string = "l";
+    readonly isDroidLegacyMod: boolean = false;
 }

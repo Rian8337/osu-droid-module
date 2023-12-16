@@ -16,11 +16,15 @@ import {
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
+import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
  */
-export class OsuDifficultyCalculator extends DifficultyCalculator<OsuDifficultyHitObject> {
+export class OsuDifficultyCalculator extends DifficultyCalculator<
+    OsuDifficultyHitObject,
+    OsuDifficultyAttributes
+> {
     /**
      * The aim star rating of the beatmap.
      */
@@ -52,6 +56,13 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<OsuDifficultyH
         sliderCount: 0,
         spinnerCount: 0,
     };
+
+    override get cacheableAttributes(): CacheableDifficultyAttributes<OsuDifficultyAttributes> {
+        return {
+            ...this.attributes,
+            mods: ModUtil.modsToOsuString(this.attributes.mods),
+        };
+    }
 
     protected override readonly difficultyMultiplier: number = 0.0675;
     protected override readonly mode: Modes = Modes.osu;

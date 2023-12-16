@@ -18,4 +18,5 @@ export class ModHardRock
     readonly droidScoreMultiplier: number = 1.06;
     readonly pcScoreMultiplier: number = 1.06;
     readonly droidString: string = "r";
+    readonly isDroidLegacyMod: boolean = false;
 }

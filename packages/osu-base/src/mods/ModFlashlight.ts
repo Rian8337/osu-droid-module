@@ -18,4 +18,5 @@ export class ModFlashlight
     readonly pcScoreMultiplier: number = 1.12;
     readonly bitwise: number = 1 << 10;
     readonly droidString: string = "i";
+    readonly isDroidLegacyMod: boolean = false;
 }
