@@ -250,54 +250,29 @@ export class ThreeFingerChecker {
                 0,
                 this.hitObjects.length - 2,
             );
-            let timeBefore: number = this.hitObjects[beforeIndex].endTime;
+            const objectBefore: PlaceableHitObject =
+                this.hitObjects[beforeIndex];
+            const objectBeforeData: ReplayObjectData = objectData[beforeIndex];
+            let timeBefore: number = objectBefore.endTime;
 
-            // For sliders and spinners, automatically set hit window length to be as lenient as possible.
-            let beforeIndexHitWindowLength: number =
-                this.hitWindow.hitWindowFor50(this.isPrecise);
-            switch (objectData[beforeIndex].result) {
-                case HitResult.great:
-                    beforeIndexHitWindowLength = this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
-                    break;
-                case HitResult.good:
-                    beforeIndexHitWindowLength = this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
-                    break;
-                default:
-                    beforeIndexHitWindowLength = this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
+            if (
+                objectBefore instanceof Circle &&
+                objectBeforeData.accuracy !== 10000
+            ) {
+                timeBefore += objectBeforeData.accuracy;
             }
-
-            timeBefore += beforeIndexHitWindowLength;
 
             const afterIndex: number = beforeIndex + 1;
+            const objectAfter: PlaceableHitObject = this.hitObjects[afterIndex];
+            const objectAfterData: ReplayObjectData = objectData[afterIndex];
             let timeAfter: number = this.hitObjects[afterIndex].startTime;
 
-            // For sliders and spinners, automatically set hit window length to be as lenient as possible.
-            let afterIndexHitWindowLength: number =
-                this.hitWindow.hitWindowFor50(this.isPrecise);
-            switch (objectData[afterIndex].result) {
-                case HitResult.great:
-                    afterIndexHitWindowLength = this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
-                    break;
-                case HitResult.good:
-                    afterIndexHitWindowLength = this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
-                    break;
-                default:
-                    afterIndexHitWindowLength = this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
+            if (
+                objectAfter instanceof Circle &&
+                objectAfterData.accuracy !== 10000
+            ) {
+                timeAfter += objectAfterData.accuracy;
             }
-
-            timeAfter += afterIndexHitWindowLength;
 
             this.breakPointAccurateTimes.push(
                 new BreakPoint({
