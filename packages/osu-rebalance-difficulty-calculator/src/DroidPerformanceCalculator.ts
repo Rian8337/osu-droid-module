@@ -306,7 +306,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         tapValue *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * this.tapDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * this._tapDeviation)),
                 0.625,
             );
 
@@ -319,7 +319,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         tapValue /=
             1 +
             Math.exp(
-                (this.tapDeviation - 7500 / averageBPM) /
+                (this._tapDeviation - 7500 / averageBPM) /
                     ((4 * 300) / averageBPM),
             );
 
