@@ -257,7 +257,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
-        aimValue *= Math.max(
+        aimValue *= Math.min(
             this.calculateStrainBasedMissPenalty(
                 this.difficultyAttributes.aimDifficultStrainCount,
             ),
@@ -397,7 +397,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let flashlightValue: number =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        flashlightValue *= Math.max(
+        flashlightValue *= Math.min(
             this.calculateStrainBasedMissPenalty(
                 this.difficultyAttributes.flashlightDifficultStrainCount,
             ),
@@ -430,7 +430,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let visualValue: number =
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
-        visualValue *= Math.max(
+        visualValue *= Math.min(
             this.calculateStrainBasedMissPenalty(
                 this.difficultyAttributes.visualDifficultStrainCount,
             ),
