@@ -1,5 +1,6 @@
 import { Interpolation, MathUtils } from "@rian8337/osu-base";
 import { StrainSkill } from "../../base/StrainSkill";
+import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 /**
  * Used to processes strain values of difficulty hitobjects, keep track of strain levels caused by the processed objects
@@ -27,14 +28,14 @@ export abstract class DroidSkill extends StrainSkill {
                     Interpolation.lerp(
                         1,
                         10,
-                        MathUtils.clamp(i / this.reducedSectionCount, 0, 1)
-                    )
+                        MathUtils.clamp(i / this.reducedSectionCount, 0, 1),
+                    ),
                 );
 
                 strains[i] *= Interpolation.lerp(
                     this.reducedSectionBaseline,
                     1,
-                    scale
+                    scale,
                 );
             }
         }
@@ -49,7 +50,13 @@ export abstract class DroidSkill extends StrainSkill {
 
                 return a + Math.pow(v, 1 / Math.log2(this.starsPerDouble));
             }, 0),
-            Math.log2(this.starsPerDouble)
+            Math.log2(this.starsPerDouble),
         );
+    }
+
+    protected override calculateCurrentSectionStart(
+        current: DifficultyHitObject,
+    ): number {
+        return current.startTime;
     }
 }
