@@ -314,14 +314,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
                 0.625,
             );
 
-        // Scale the tap value with doubletap deviation threshold.
-        tapValue *=
-            1 /
-            (1 +
-                Math.exp(
-                    (this.tapDeviation - 7500 / averageBPM) /
-                        ((4 * 300) / averageBPM),
-                ));
+        // Higher BPMs require more precise tapping. When the deviation is too high,
+        // it can be assumed that the player taps invariant to rhythm.
+        // We punish for such scenario.
+        tapValue /=
+            1 +
+            Math.exp(
+                (this.tapDeviation - 7500 / averageBPM) /
+                    ((4 * 300) / averageBPM),
+            );
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
