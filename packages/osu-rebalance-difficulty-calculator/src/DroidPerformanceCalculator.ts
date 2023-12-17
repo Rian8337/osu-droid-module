@@ -257,7 +257,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
-        aimValue *= this.proportionalMissPenalty;
+        aimValue *= Math.max(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.aimDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Scale the aim value with estimated full combo deviation.
         aimValue *= this.calculateDeviationBasedLengthScaling();
@@ -392,7 +397,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let flashlightValue: number =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        flashlightValue *= this.proportionalMissPenalty;
+        flashlightValue *= Math.max(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.flashlightDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
         flashlightValue *=
@@ -420,7 +430,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let visualValue: number =
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
-        visualValue *= this.proportionalMissPenalty;
+        visualValue *= Math.max(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.visualDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Scale the visual value with estimated full combo deviation.
         // As visual is easily "bypassable" with memorization, punish for memorization.
