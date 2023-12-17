@@ -255,11 +255,12 @@ export class ThreeFingerChecker {
             const objectBeforeData: ReplayObjectData = objectData[beforeIndex];
             let timeBefore: number = objectBefore.endTime;
 
-            if (
-                objectBefore instanceof Circle &&
-                objectBeforeData.result !== HitResult.miss
-            ) {
-                timeBefore += objectBeforeData.accuracy;
+            if (objectBefore instanceof Circle) {
+                if (objectBeforeData.result !== HitResult.miss) {
+                    timeBefore += objectBeforeData.accuracy;
+                } else {
+                    timeBefore += this.hitWindow.hitWindowFor50(this.isPrecise);
+                }
             }
 
             const afterIndex: number = beforeIndex + 1;
