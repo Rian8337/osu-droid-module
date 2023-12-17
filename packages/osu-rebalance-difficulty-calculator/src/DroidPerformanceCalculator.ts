@@ -297,26 +297,20 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             this.totalHits / 1.45,
         );
 
-        // Normalize the deviation to 300 BPM.
-        const normalizedDeviation: number =
-            this.tapDeviation *
-            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
-        // We expect the player to get 7500/x deviation when doubletapping x BPM.
-        // Using this expectation, we penalize scores with deviation above 25.
-        const averageBPM: number =
-            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-
         // Scale the tap value with tap deviation.
         tapValue *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * normalizedDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * this.tapDeviation)),
                 0.625,
             );
 
         // Higher BPMs require more precise tapping. When the deviation is too high,
         // it can be assumed that the player taps invariant to rhythm.
         // We punish for such scenario.
+        const averageBPM: number =
+            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
+
         tapValue /=
             1 +
             Math.exp(
