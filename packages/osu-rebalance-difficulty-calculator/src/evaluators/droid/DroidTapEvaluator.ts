@@ -11,16 +11,19 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
      *
      * - time between pressing the previous and current object,
      * - distance between those objects,
-     * - and how easily they can be cheesed.
+     * - how easily they can be cheesed,
+     * - and how easily they can be vibroed.
      *
      * @param current The current object.
      * @param greatWindow The great hit window of the current object.
      * @param considerCheesability Whether to consider cheesability.
+     * @param considerVibroability Whether to consider vibroability.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         greatWindow: number,
         considerCheesability: boolean,
+        considerVibroability: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -54,19 +57,20 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
         }
 
+        const strainTime: number = considerVibroability
+            ? Math.max(50, current.strainTime)
+            : current.strainTime;
         let speedBonus: number = 1;
 
-        if (current.strainTime < this.minSpeedBonus) {
+        if (strainTime < this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
                 Math.pow(
-                    ErrorFunction.erf(
-                        (this.minSpeedBonus - current.strainTime) / 40,
-                    ),
+                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
                     2,
                 );
         }
 
-        return (speedBonus * Math.pow(doubletapness, 1.5)) / current.strainTime;
+        return (speedBonus * Math.pow(doubletapness, 1.5)) / strainTime;
     }
 }

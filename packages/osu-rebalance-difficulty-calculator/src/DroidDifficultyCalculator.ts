@@ -85,6 +85,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         possibleThreeFingeredSections: [],
         difficultSliders: [],
         averageSpeedDeltaTime: 0,
+        vibroFactor: 1,
     };
 
     override get cacheableAttributes(): CacheableDifficultyAttributes<DroidDifficultyAttributes> {
@@ -112,6 +113,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             visualDifficultStrainCount:
                 this.attributes.visualDifficultStrainCount,
             averageSpeedDeltaTime: this.attributes.averageSpeedDeltaTime,
+            vibroFactor: this.attributes.vibroFactor,
         };
     }
 
@@ -135,11 +137,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     calculateTap(): void {
         const od: number = this.stats.od!;
 
-        const tapSkillCheese: DroidTap = new DroidTap(this.mods, od, true);
-        const tapSkillNoCheese: DroidTap = new DroidTap(this.mods, od, false);
+        const tapSkillCheese: DroidTap = new DroidTap(
+            this.mods,
+            od,
+            true,
+            false,
+        );
+        const tapSkillNoCheese: DroidTap = new DroidTap(
+            this.mods,
+            od,
+            false,
+            false,
+        );
+        const tapSkillVibro: DroidTap = new DroidTap(this.mods, od, true, true);
 
-        this.calculateSkills(tapSkillCheese, tapSkillNoCheese);
-        this.postCalculateTap(tapSkillCheese);
+        this.calculateSkills(tapSkillCheese, tapSkillNoCheese, tapSkillVibro);
+        this.postCalculateTap(tapSkillCheese, tapSkillVibro);
     }
 
     /**
@@ -236,13 +249,14 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const aimSkillWithoutSliders = <DroidAim>skills[1];
         const rhythmSkill = <DroidRhythm>skills[2];
         const tapSkillCheese = <DroidTap>skills[3];
-        const flashlightSkill = <DroidFlashlight>skills[5];
-        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[6];
-        const visualSkill = <DroidVisual>skills[7];
-        const visualSkillWithoutSliders = <DroidVisual>skills[8];
+        const tapSkillVibro = <DroidTap>skills[5];
+        const flashlightSkill = <DroidFlashlight>skills[6];
+        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[7];
+        const visualSkill = <DroidVisual>skills[8];
+        const visualSkillWithoutSliders = <DroidVisual>skills[9];
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateTap(tapSkillCheese);
+        this.postCalculateTap(tapSkillCheese, tapSkillVibro);
         this.postCalculateRhythm(rhythmSkill);
         this.postCalculateFlashlight(
             flashlightSkill,
@@ -293,8 +307,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
             new DroidRhythm(this.mods, od),
-            new DroidTap(this.mods, od, true),
-            new DroidTap(this.mods, od, false),
+            // Cheesability tap
+            new DroidTap(this.mods, od, true, false),
+            // Non-cheesability tap
+            new DroidTap(this.mods, od, false, false),
+            // Vibro tap
+            new DroidTap(this.mods, od, true, true),
             new DroidFlashlight(this.mods, true),
             new DroidFlashlight(this.mods, false),
             new DroidVisual(this.mods, true),
@@ -401,8 +419,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Called after tap skill calculation.
      *
      * @param tapSkillCheese The tap skill that considers cheesing.
+     * @param tapSkillVibro The tap skill that considers vibro.
      */
-    private postCalculateTap(tapSkillCheese: DroidTap): void {
+    private postCalculateTap(
+        tapSkillCheese: DroidTap,
+        tapSkillVibro: DroidTap,
+    ): void {
         this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
@@ -412,6 +434,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.tap = this.attributes.tapDifficulty = this.starValue(
                 tapSkillCheese.difficultyValue(),
             );
+        }
+
+        if (this.tap) {
+            this.attributes.vibroFactor =
+                this.starValue(tapSkillVibro.difficultyValue()) / this.tap;
         }
 
         this.calculateTapAttributes();

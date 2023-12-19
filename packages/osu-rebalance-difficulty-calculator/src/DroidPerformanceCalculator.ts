@@ -316,12 +316,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         const averageBPM: number =
             60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
 
-        tapValue /=
-            1 +
-            Math.exp(
-                (this._tapDeviation - 7500 / averageBPM) /
-                    ((4 * 300) / averageBPM),
-            );
+        tapValue *=
+            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 3)) /
+                (1 +
+                    Math.exp(
+                        (this._tapDeviation - 6000 / averageBPM) /
+                            ((3 * 300) / averageBPM),
+                    )) +
+            Math.pow(this.difficultyAttributes.vibroFactor, 3);
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;

@@ -18,11 +18,13 @@ export class DroidTap extends DroidSkill {
     private readonly skillMultiplier: number = 1375;
     private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
+    private readonly considerVibroability: boolean;
 
     constructor(
         mods: Mod[],
         overallDifficulty: number,
         considerCheesability: boolean,
+        considerVibroability: boolean,
     ) {
         super(mods);
 
@@ -30,6 +32,7 @@ export class DroidTap extends DroidSkill {
             overallDifficulty,
         ).hitWindowFor300();
         this.considerCheesability = considerCheesability;
+        this.considerVibroability = considerVibroability;
     }
 
     protected override strainValueAt(
@@ -43,6 +46,7 @@ export class DroidTap extends DroidSkill {
                 current,
                 this.greatWindow,
                 this.considerCheesability,
+                this.considerVibroability,
             ) * this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
@@ -67,6 +71,10 @@ export class DroidTap extends DroidSkill {
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
+        if (this.considerVibroability) {
+            return;
+        }
+
         const strain: number =
             this.currentTapStrain * this.currentRhythmMultiplier;
 
