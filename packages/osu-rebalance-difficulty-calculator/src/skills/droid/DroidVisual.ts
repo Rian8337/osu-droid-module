@@ -53,6 +53,10 @@ export class DroidVisual extends DroidSkill {
         );
     }
 
+    protected override getObjectStrain(): number {
+        return this.currentVisualStrain * this.currentRhythmMultiplier;
+    }
+
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {

@@ -47,6 +47,10 @@ export class DroidRhythm extends DroidSkill {
         );
     }
 
+    protected override getObjectStrain(): number {
+        return this.currentRhythmStrain;
+    }
+
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {

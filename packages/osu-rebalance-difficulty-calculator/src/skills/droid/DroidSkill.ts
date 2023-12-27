@@ -12,6 +12,43 @@ export abstract class DroidSkill extends StrainSkill {
      */
     protected abstract readonly starsPerDouble: number;
 
+    protected readonly _objectStrains: number[] = [];
+
+    /**
+     * The strains of hitobjects.
+     */
+    get objectStrains(): readonly number[] {
+        return this._objectStrains;
+    }
+
+    /**
+     * Returns the number of strains weighed against the top strain.
+     *
+     * The result is scaled by clock rate as it affects the total number of strains.
+     */
+    countDifficultStrains(): number {
+        if (this._objectStrains.length === 0) {
+            return 0;
+        }
+
+        const maxStrain: number = Math.max(...this._objectStrains);
+
+        if (maxStrain === 0) {
+            return 0;
+        }
+
+        return this._objectStrains.reduce(
+            (total, next) => total + Math.pow(next / maxStrain, 4),
+            0,
+        );
+    }
+
+    override process(current: DifficultyHitObject): void {
+        super.process(current);
+
+        this._objectStrains.push(this.getObjectStrain(current));
+    }
+
     override difficultyValue(): number {
         const strains: number[] = this.strainPeaks.slice();
 
@@ -53,6 +90,14 @@ export abstract class DroidSkill extends StrainSkill {
             Math.log2(this.starsPerDouble),
         );
     }
+
+    /**
+     * Gets the strain of a hitobject.
+     *
+     * @param current The hitobject to get the strain from.
+     * @returns The strain of the hitobject.
+     */
+    protected abstract getObjectStrain(current: DifficultyHitObject): number;
 
     protected override calculateCurrentSectionStart(
         current: DifficultyHitObject,
