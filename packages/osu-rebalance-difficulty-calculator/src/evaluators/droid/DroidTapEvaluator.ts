@@ -12,18 +12,18 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
      * - time between pressing the previous and current object,
      * - distance between those objects,
      * - how easily they can be cheesed,
-     * - and how easily they can be vibroed.
+     * - and the strain time cap.
      *
      * @param current The current object.
      * @param greatWindow The great hit window of the current object.
      * @param considerCheesability Whether to consider cheesability.
-     * @param considerVibroability Whether to consider vibroability.
+     * @param strainTimeCap The strain time to cap the object's strain time to.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         greatWindow: number,
         considerCheesability: boolean,
-        considerVibroability: boolean,
+        strainTimeCap?: number,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -57,9 +57,11 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
         }
 
-        const strainTime: number = considerVibroability
-            ? Math.max(50, current.strainTime)
-            : current.strainTime;
+        const strainTime: number =
+            strainTimeCap !== undefined
+                ? // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
+                  Math.max(50, strainTimeCap, current.strainTime)
+                : current.strainTime;
         let speedBonus: number = 1;
 
         if (strainTime < this.minSpeedBonus) {

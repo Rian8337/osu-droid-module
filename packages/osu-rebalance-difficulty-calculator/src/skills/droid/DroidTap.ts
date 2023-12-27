@@ -18,7 +18,7 @@ export class DroidTap extends DroidSkill {
     private readonly skillMultiplier: number = 1375;
     private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
-    private readonly considerVibroability: boolean;
+    private readonly strainTimeCap?: number;
 
     private readonly _objectDeltaTimes: number[] = [];
 
@@ -33,7 +33,7 @@ export class DroidTap extends DroidSkill {
         mods: Mod[],
         overallDifficulty: number,
         considerCheesability: boolean,
-        considerVibroability: boolean,
+        strainTimeCap?: number,
     ) {
         super(mods);
 
@@ -41,7 +41,7 @@ export class DroidTap extends DroidSkill {
             overallDifficulty,
         ).hitWindowFor300();
         this.considerCheesability = considerCheesability;
-        this.considerVibroability = considerVibroability;
+        this.strainTimeCap = strainTimeCap;
     }
 
     /**
@@ -113,10 +113,12 @@ export class DroidTap extends DroidSkill {
                 current,
                 this.greatWindow,
                 this.considerCheesability,
-                this.considerVibroability,
+                this.strainTimeCap,
             ) * this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
+
+        this._objectDeltaTimes.push(current.deltaTime);
 
         return this.currentTapStrain * current.rhythmMultiplier;
     }
@@ -142,7 +144,7 @@ export class DroidTap extends DroidSkill {
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
-        if (this.considerVibroability) {
+        if (this.strainTimeCap !== undefined) {
             return;
         }
 
