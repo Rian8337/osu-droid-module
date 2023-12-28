@@ -302,28 +302,44 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             this.totalHits / 1.45,
         );
 
+        // Normalize the deviation to 300 BPM.
+        const normalizedDeviation: number =
+            this.tapDeviation *
+            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
+        // We expect the player to get 7500/x deviation when doubletapping x BPM.
+        // Using this expectation, we penalize scores with deviation above 25.
+        const averageBPM: number =
+            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
+        const adjustedDeviation: number =
+            normalizedDeviation *
+            (1 +
+                1 /
+                    (1 +
+                        Math.exp(
+                            -(normalizedDeviation - 7500 / averageBPM) /
+                                ((2 * 300) / averageBPM),
+                        )));
+
         // Scale the tap value with tap deviation.
         tapValue *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * this._tapDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
                 0.625,
             );
 
+        // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
         // Higher BPMs require more precise tapping. When the deviation is too high,
         // it can be assumed that the player taps invariant to rhythm.
-        // We punish for such scenario.
-        const averageBPM: number =
-            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-
+        // We harshen the punishment for such scenario.
         tapValue *=
-            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 5) / 1.5) /
+            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
                 (1 +
                     Math.exp(
-                        (this._tapDeviation - 6000 / averageBPM) /
-                            ((3 * 300) / averageBPM),
+                        (this._tapDeviation - 7500 / averageBPM) /
+                            ((2 * 300) / averageBPM),
                     )) +
-            Math.pow(this.difficultyAttributes.vibroFactor, 5) / 1.5;
+            Math.pow(this.difficultyAttributes.vibroFactor, 6);
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
