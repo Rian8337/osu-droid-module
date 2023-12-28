@@ -425,10 +425,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         if (this.tap) {
-            this.attributes.vibroFactor = Math.pow(
-                this.starValue(tapSkillVibro.difficultyValue()) / this.tap,
-                1.5,
-            );
+            this.attributes.vibroFactor =
+                this.starValue(tapSkillVibro.difficultyValue()) / this.tap;
         }
 
         this.attributes.speedNoteCount = tapSkillCheese.relevantNoteCount();
