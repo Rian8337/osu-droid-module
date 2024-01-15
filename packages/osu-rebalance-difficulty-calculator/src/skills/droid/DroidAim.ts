@@ -44,6 +44,10 @@ export class DroidAim extends DroidSkill {
         );
     }
 
+    protected override getObjectStrain(): number {
+        return this.currentAimStrain;
+    }
+
     /**
      * @param current The hitobject to save to.
      */

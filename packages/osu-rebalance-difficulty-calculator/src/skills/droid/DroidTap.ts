@@ -18,11 +18,22 @@ export class DroidTap extends DroidSkill {
     private readonly skillMultiplier: number = 1375;
     private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
+    private readonly strainTimeCap?: number;
+
+    private readonly _objectDeltaTimes: number[] = [];
+
+    /**
+     * The delta time of hitobjects.
+     */
+    get objectDeltaTimes(): readonly number[] {
+        return this._objectDeltaTimes;
+    }
 
     constructor(
         mods: Mod[],
         overallDifficulty: number,
         considerCheesability: boolean,
+        strainTimeCap?: number,
     ) {
         super(mods);
 
@@ -30,6 +41,65 @@ export class DroidTap extends DroidSkill {
             overallDifficulty,
         ).hitWindowFor300();
         this.considerCheesability = considerCheesability;
+        this.strainTimeCap = strainTimeCap;
+    }
+
+    /**
+     * The amount of notes that are relevant to the difficulty.
+     */
+    relevantNoteCount(): number {
+        if (this._objectStrains.length === 0) {
+            return 0;
+        }
+
+        const maxStrain: number = Math.max(...this._objectStrains);
+
+        if (maxStrain === 0) {
+            return 0;
+        }
+
+        return this._objectStrains.reduce(
+            (total, next) =>
+                total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+            0,
+        );
+    }
+
+    /**
+     * The delta time relevant to the difficulty.
+     */
+    relevantDeltaTime(): number {
+        if (this._objectStrains.length === 0) {
+            return 0;
+        }
+
+        const maxStrain: number = Math.max(...this._objectStrains);
+
+        if (maxStrain === 0) {
+            return 0;
+        }
+
+        return (
+            this._objectDeltaTimes.reduce(
+                (total, next, index) =>
+                    total +
+                    (next * 1) /
+                        (1 +
+                            Math.exp(
+                                -(
+                                    (this._objectStrains[index] / maxStrain) *
+                                        25 -
+                                    20
+                                ),
+                            )),
+                0,
+            ) /
+            this._objectStrains.reduce(
+                (total, next) =>
+                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 25 - 20))),
+                0,
+            )
+        );
     }
 
     protected override strainValueAt(
@@ -43,9 +113,12 @@ export class DroidTap extends DroidSkill {
                 current,
                 this.greatWindow,
                 this.considerCheesability,
+                this.strainTimeCap,
             ) * this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
+
+        this._objectDeltaTimes.push(current.deltaTime);
 
         return this.currentTapStrain * current.rhythmMultiplier;
     }
@@ -61,12 +134,20 @@ export class DroidTap extends DroidSkill {
         );
     }
 
+    protected override getObjectStrain(): number {
+        return this.currentTapStrain * this.currentRhythmMultiplier;
+    }
+
     /**
      * @param current The hitobject to save to.
      */
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
+        if (this.strainTimeCap !== undefined) {
+            return;
+        }
+
         const strain: number =
             this.currentTapStrain * this.currentRhythmMultiplier;
 

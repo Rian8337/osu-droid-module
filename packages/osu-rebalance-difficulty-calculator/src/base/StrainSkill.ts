@@ -37,9 +37,7 @@ export abstract class StrainSkill extends Skill {
     override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
         if (current.index === 0) {
-            this.currentSectionEnd =
-                Math.ceil(current.startTime / this.sectionLength) *
-                this.sectionLength;
+            this.currentSectionEnd = this.calculateCurrentSectionStart(current);
         }
 
         while (current.startTime > this.currentSectionEnd) {
@@ -78,6 +76,21 @@ export abstract class StrainSkill extends Skill {
      */
     protected strainDecay(ms: number): number {
         return Math.pow(this.strainDecayBase, ms / 1000);
+    }
+
+    /**
+     * Calculates the starting time of a strain section at an object.
+     *
+     * @param current The object at which the strain section starts.
+     * @returns The start time of the strain section.
+     */
+    protected calculateCurrentSectionStart(
+        current: DifficultyHitObject,
+    ): number {
+        return (
+            Math.ceil(current.startTime / this.sectionLength) *
+            this.sectionLength
+        );
     }
 
     /**

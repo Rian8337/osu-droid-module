@@ -257,7 +257,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
-        aimValue *= this.proportionalMissPenalty;
+        aimValue *= Math.min(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.aimDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Scale the aim value with estimated full combo deviation.
         aimValue *= this.calculateDeviationBasedLengthScaling();
@@ -305,23 +310,36 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         // Using this expectation, we penalize scores with deviation above 25.
         const averageBPM: number =
             60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
+        const adjustedDeviation: number =
+            normalizedDeviation *
+            (1 +
+                1 /
+                    (1 +
+                        Math.exp(
+                            -(normalizedDeviation - 7500 / averageBPM) /
+                                ((2 * 300) / averageBPM),
+                        )));
 
         // Scale the tap value with tap deviation.
         tapValue *=
             1.1 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * normalizedDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
                 0.625,
             );
 
-        // Scale the tap value with doubletap deviation threshold.
+        // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
+        // Higher BPMs require more precise tapping. When the deviation is too high,
+        // it can be assumed that the player taps invariant to rhythm.
+        // We harshen the punishment for such scenario.
         tapValue *=
-            1 /
-            (1 +
-                Math.exp(
-                    (this.tapDeviation - 7500 / averageBPM) /
-                        ((4 * 300) / averageBPM),
-                ));
+            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
+                (1 +
+                    Math.exp(
+                        (this._tapDeviation - 7500 / averageBPM) /
+                            ((2 * 300) / averageBPM),
+                    )) +
+            Math.pow(this.difficultyAttributes.vibroFactor, 6);
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
@@ -397,7 +415,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let flashlightValue: number =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        flashlightValue *= this.proportionalMissPenalty;
+        flashlightValue *= Math.min(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.flashlightDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
         flashlightValue *=
@@ -425,7 +448,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         let visualValue: number =
             Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
 
-        visualValue *= this.proportionalMissPenalty;
+        visualValue *= Math.min(
+            this.calculateStrainBasedMissPenalty(
+                this.difficultyAttributes.visualDifficultStrainCount,
+            ),
+            this.proportionalMissPenalty,
+        );
 
         // Scale the visual value with estimated full combo deviation.
         // As visual is easily "bypassable" with memorization, punish for memorization.
@@ -690,16 +718,34 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             return Number.POSITIVE_INFINITY;
         }
 
+        const { speedNoteCount, clockRate, overallDifficulty } =
+            this.difficultyAttributes;
+
         const hitWindow300: number = new OsuHitWindow(
-            this.difficultyAttributes.overallDifficulty,
+            overallDifficulty,
         ).hitWindowFor300();
+
+        // Obtain the 50 and 100 hit window for droid.
+        const isPrecise: boolean = this.difficultyAttributes.mods.some(
+            (m) => m instanceof ModPrecise,
+        );
+        const droidHitWindow: DroidHitWindow = new DroidHitWindow(
+            DroidHitWindow.hitWindow300ToOD(
+                hitWindow300 * clockRate,
+                isPrecise,
+            ),
+        );
+
+        const hitWindow50: number =
+            droidHitWindow.hitWindowFor50(isPrecise) / clockRate;
+        const hitWindow100: number =
+            droidHitWindow.hitWindowFor100(isPrecise) / clockRate;
 
         const { n100, n50, nmiss } = this.computedAccuracy;
 
         // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
         // Graph: https://www.desmos.com/calculator/iskvgjkxr4
-        const speedNoteRatio: number =
-            this.difficultyAttributes.speedNoteCount / this.totalHits;
+        const speedNoteRatio: number = speedNoteCount / this.totalHits;
 
         const nonGreatCount: number = n100 + n50 + nmiss;
         const nonGreatRatio: number =
@@ -710,22 +756,65 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             ) -
                 1) /
                 Math.exp(Math.sqrt(hitWindow300));
+
         const relevantCountGreat: number = Math.max(
             0,
-            this.difficultyAttributes.speedNoteCount -
-                nonGreatCount * nonGreatRatio,
+            speedNoteCount - nonGreatCount * nonGreatRatio,
         );
+        const relevantCountOk: number = n100 * nonGreatRatio;
+        const relevantCountMeh: number = n50 * nonGreatRatio;
+        const relevantCountMiss: number = nmiss * nonGreatRatio;
 
-        if (relevantCountGreat === 0) {
-            return Number.POSITIVE_INFINITY;
+        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
+        // compute the deviation on circles.
+        if (relevantCountGreat > 0) {
+            // The probability that a player hits a circle is unknown, but we can estimate it to be
+            // the number of greats on circles divided by the number of circles, and then add one
+            // to the number of circles as a bias correction.
+            const greatProbabilityCircle: number =
+                relevantCountGreat /
+                (speedNoteCount - relevantCountMiss - relevantCountMeh + 1);
+
+            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
+            // Begin with the normal distribution first.
+            let deviationOnCircles: number =
+                hitWindow300 /
+                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
+
+            deviationOnCircles *= Math.sqrt(
+                1 -
+                    (Math.sqrt(2 / Math.PI) *
+                        hitWindow100 *
+                        Math.exp(
+                            -0.5 *
+                                Math.pow(hitWindow100 / deviationOnCircles, 2),
+                        )) /
+                        (deviationOnCircles *
+                            ErrorFunction.erf(
+                                hitWindow100 /
+                                    (Math.SQRT2 * deviationOnCircles),
+                            )),
+            );
+
+            // Then compute the variance for 50s.
+            const mehVariance: number =
+                (hitWindow50 * hitWindow50 +
+                    hitWindow100 * hitWindow50 +
+                    hitWindow100 * hitWindow100) /
+                3;
+
+            // Find the total deviation.
+            deviationOnCircles = Math.sqrt(
+                ((relevantCountGreat + relevantCountOk) *
+                    Math.pow(deviationOnCircles, 2) +
+                    relevantCountMeh * mehVariance) /
+                    (relevantCountGreat + relevantCountOk + relevantCountMeh),
+            );
+
+            return deviationOnCircles;
         }
 
-        const greatProbability: number =
-            relevantCountGreat / (this.difficultyAttributes.speedNoteCount + 1);
-
-        return (
-            hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(greatProbability))
-        );
+        return Number.POSITIVE_INFINITY;
     }
 
     override toString(): string {

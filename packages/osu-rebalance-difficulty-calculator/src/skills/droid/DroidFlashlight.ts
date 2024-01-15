@@ -49,6 +49,10 @@ export class DroidFlashlight extends DroidSkill {
         );
     }
 
+    protected override getObjectStrain(): number {
+        return this.currentFlashlightStrain;
+    }
+
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
