@@ -13,8 +13,8 @@ export abstract class RawTouchSkill {
     protected readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
     private readonly maxObjectsHistory = 3;
 
+    protected lastHand = TouchHand.right as TouchHand.left | TouchHand.right;
     private _currentStrain = 0;
-    private lastHand = TouchHand.right as TouchHand.left | TouchHand.right;
 
     get currentStrain() {
         return this._currentStrain;

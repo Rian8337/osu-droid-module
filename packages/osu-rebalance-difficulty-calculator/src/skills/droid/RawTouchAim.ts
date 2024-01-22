@@ -29,6 +29,8 @@ export class RawTouchAim extends RawTouchSkill {
             this.withSliders,
         );
 
+        skill.lastHand = this.lastHand;
+
         for (let i = 0; i < this.lastObjects.length; ++i) {
             skill.lastObjects[i] = this.lastObjects[i].slice();
         }
