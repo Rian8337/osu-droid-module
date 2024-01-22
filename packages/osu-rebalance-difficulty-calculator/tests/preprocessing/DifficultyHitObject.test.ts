@@ -36,7 +36,6 @@ const createDifficultyHitObjects = () => {
 
     return new DifficultyHitObjectCreator().generateDifficultyObjects({
         objects: objects,
-        circleSize: 5.5,
         mods: [],
         speedMultiplier: 1,
         mode: Modes.osu,
@@ -85,7 +84,7 @@ describe("Test object opacity", () => {
                 expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
                 expect(object.opacityAt(800, true)).toBe(1);
                 expect(object.opacityAt(900, true)).toBeCloseTo(
-                    0.4444444444444444
+                    0.4444444444444444,
                 );
                 expect(object.opacityAt(1000, true)).toBeCloseTo(0);
                 expect(object.opacityAt(1100, true)).toBe(0);
