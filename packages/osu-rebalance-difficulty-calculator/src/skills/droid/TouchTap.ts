@@ -104,7 +104,7 @@ export class TouchTap extends TouchSkill {
                 this.greatWindow,
             );
 
-        this.currentTapStrain = this.probablityStrainValueAt(current);
+        this.currentTapStrain = this.probabilityStrainValueAt(current);
 
         this._objectDeltaTimes.push(current.deltaTime);
 

@@ -28,7 +28,7 @@ export class TouchAim extends TouchSkill {
     }
 
     protected override strainValueAt(current: DroidDifficultyHitObject) {
-        this.currentAimStrain = this.probablityStrainValueAt(current);
+        this.currentAimStrain = this.probabilityStrainValueAt(current);
 
         return this.currentAimStrain;
     }

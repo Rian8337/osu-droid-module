@@ -18,7 +18,7 @@ export abstract class TouchSkill extends DroidSkill {
         this.greatWindow = greatWindow;
     }
 
-    protected probablityStrainValueAt(current: DroidDifficultyHitObject) {
+    protected probabilityStrainValueAt(current: DroidDifficultyHitObject) {
         if (this.probabilites.length === 0) {
             this.probabilites.push(
                 new TouchProbability(
