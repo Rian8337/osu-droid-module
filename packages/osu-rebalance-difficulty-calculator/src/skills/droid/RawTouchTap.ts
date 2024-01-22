@@ -33,6 +33,7 @@ export class RawTouchTap extends RawTouchSkill {
             this.considerCheesability,
         );
 
+        skill._currentStrain = this._currentStrain;
         skill.lastHand = this.lastHand;
 
         for (let i = 0; i < this.lastObjects.length; ++i) {

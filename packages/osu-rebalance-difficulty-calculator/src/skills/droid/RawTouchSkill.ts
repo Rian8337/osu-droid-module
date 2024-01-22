@@ -14,7 +14,7 @@ export abstract class RawTouchSkill {
     private readonly maxObjectsHistory = 3;
 
     protected lastHand = TouchHand.right as TouchHand.left | TouchHand.right;
-    private _currentStrain = 0;
+    protected _currentStrain = 0;
 
     get currentStrain() {
         return this._currentStrain;
