@@ -117,12 +117,7 @@ export abstract class RawTouchSkill {
 
     private otherHand(currentHand: TouchHand.left): TouchHand.right;
     private otherHand(currentHand: TouchHand.right): TouchHand.left;
-    private otherHand(
-        currentHand: TouchHand.drag,
-    ): TouchHand.left | TouchHand.right;
-    private otherHand(
-        currentHand: TouchHand.left | TouchHand.right,
-    ): TouchHand.left | TouchHand.right;
+    private otherHand(currentHand: TouchHand): TouchHand.left | TouchHand.right;
     private otherHand(currentHand: TouchHand) {
         switch (currentHand) {
             case TouchHand.left:
