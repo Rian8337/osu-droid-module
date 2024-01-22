@@ -49,7 +49,6 @@ export class DifficultyHitObjectCreator {
      */
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
-        circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
         mode: Modes.droid;
@@ -61,7 +60,6 @@ export class DifficultyHitObjectCreator {
      */
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
-        circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
         mode: Modes.osu;
@@ -73,7 +71,6 @@ export class DifficultyHitObjectCreator {
      */
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
-        circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
         mode: Modes;
@@ -82,7 +79,6 @@ export class DifficultyHitObjectCreator {
 
     generateDifficultyObjects(params: {
         objects: readonly HitObject[];
-        circleSize: number;
         mods: Mod[];
         speedMultiplier: number;
         mode: Modes;

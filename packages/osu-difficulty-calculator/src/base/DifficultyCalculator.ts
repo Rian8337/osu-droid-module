@@ -125,7 +125,6 @@ export abstract class DifficultyCalculator<
         this.objects.push(
             ...(new DifficultyHitObjectCreator().generateDifficultyObjects({
                 objects: this.beatmap.hitObjects.objects,
-                circleSize: this.beatmap.difficulty.cs,
                 mods: this.mods,
                 speedMultiplier: this.stats.speedMultiplier,
                 mode: this.mode,
