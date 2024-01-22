@@ -64,8 +64,7 @@ export class RawTouchAim extends RawTouchSkill {
 
             if (angle !== null) {
                 obstructionBonus +=
-                    1.5 /
-                    (1 + Math.pow(Math.E, -(angle - (3 * Math.PI) / 5) / 9));
+                    1.5 / (1 + Math.exp(-(angle - (3 * Math.PI) / 5) / 9));
             }
         }
 
