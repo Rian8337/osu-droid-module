@@ -29,7 +29,6 @@ test("Test extremely fast sliders", () => {
                 }),
             }),
         ],
-        circleSize: 4,
         mods: [],
         mode: Modes.droid,
         speedMultiplier: 1,
@@ -39,6 +38,6 @@ test("Test extremely fast sliders", () => {
 
     expect(object.startTime).toBeCloseTo(object.endTime);
     expect(object.object.getStackedPosition(Modes.droid)).toEqual(
-        (<Slider>object.object).lazyEndPosition
+        (<Slider>object.object).lazyEndPosition,
     );
 });
