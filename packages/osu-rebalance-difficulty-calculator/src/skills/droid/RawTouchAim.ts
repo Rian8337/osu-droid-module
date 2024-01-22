@@ -30,11 +30,7 @@ export class RawTouchAim extends RawTouchSkill {
         );
 
         for (let i = 0; i < this.lastObjects.length; ++i) {
-            const lastObjects = this.lastObjects[i];
-
-            for (let j = 0; j < lastObjects.length; ++j) {
-                skill.lastObjects[i].push(lastObjects[j]);
-            }
+            skill.lastObjects[i] = this.lastObjects[i].slice();
         }
 
         return skill;
