@@ -13,7 +13,7 @@ export abstract class RawTouchSkill {
     protected readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
     private readonly maxObjectsHistory = 3;
 
-    protected lastHand = TouchHand.right as TouchHand.left | TouchHand.right;
+    protected lastHand: TouchHand.left | TouchHand.right;
     protected _currentStrain = 0;
 
     get currentStrain() {
@@ -32,6 +32,7 @@ export abstract class RawTouchSkill {
         // Automatically assume the first note of a beatmap is hit with the left hand and the second note is hit with the right.
         this.lastObjects[TouchHand.left].push(firstObject.previous(0)!.object);
         this.lastObjects[TouchHand.right].push(firstObject.object);
+        this.lastHand = TouchHand.right;
     }
 
     process(current: DroidDifficultyHitObject, currentHand: TouchHand) {
