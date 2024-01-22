@@ -6,32 +6,51 @@ import { TouchHand } from "../../structures/TouchHand";
 export abstract class RawTouchSkill {
     protected abstract readonly strainDecayBase: number;
 
-    protected readonly mods: Mod[];
-    protected readonly clockRate: number;
-    protected readonly firstObject: DroidDifficultyHitObject;
-
-    protected readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
+    private readonly mods: Mod[];
+    private readonly clockRate: number;
+    private readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
     private readonly maxObjectsHistory = 3;
 
-    protected lastHand: TouchHand.left | TouchHand.right;
-    protected _currentStrain = 0;
+    private lastHand: TouchHand.left | TouchHand.right;
+    private _currentStrain = 0;
 
     get currentStrain() {
         return this._currentStrain;
     }
 
+    constructor(copy: RawTouchSkill);
     constructor(
         mods: Mod[],
         clockRate: number,
         firstObject: DroidDifficultyHitObject,
+    );
+    constructor(
+        modsOrCopy: Mod[] | RawTouchSkill,
+        clockRate?: number,
+        firstObject?: DroidDifficultyHitObject,
     ) {
-        this.mods = mods;
-        this.clockRate = clockRate;
-        this.firstObject = firstObject;
+        if (modsOrCopy instanceof RawTouchSkill) {
+            this.mods = modsOrCopy.mods.slice();
+            this.clockRate = modsOrCopy.clockRate;
+
+            this._currentStrain = modsOrCopy._currentStrain;
+            this.lastHand = modsOrCopy.lastHand;
+
+            for (let i = 0; i < this.lastObjects.length; ++i) {
+                this.lastObjects[i] = modsOrCopy.lastObjects[i].slice();
+            }
+
+            return;
+        }
+
+        this.mods = modsOrCopy;
+
+        // These are safe to non-null (see constructor overloads).
+        this.clockRate = clockRate!;
 
         // Automatically assume the first note of a beatmap is hit with the left hand and the second note is hit with the right.
-        this.lastObjects[TouchHand.left].push(firstObject.previous(0)!.object);
-        this.lastObjects[TouchHand.right].push(firstObject.object);
+        this.lastObjects[TouchHand.left].push(firstObject!.previous(0)!.object);
+        this.lastObjects[TouchHand.right].push(firstObject!.object);
         this.lastHand = TouchHand.right;
     }
 
@@ -58,8 +77,6 @@ export abstract class RawTouchSkill {
 
         this.lastHand = relevantHand;
     }
-
-    abstract clone(): RawTouchSkill;
 
     protected abstract strainValueOf(current: DroidDifficultyHitObject): number;
 

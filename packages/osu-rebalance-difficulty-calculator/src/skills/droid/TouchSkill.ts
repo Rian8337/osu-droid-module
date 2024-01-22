@@ -35,9 +35,9 @@ export abstract class TouchSkill extends DroidSkill {
         const newProbabilities: TouchProbability[] = [];
 
         for (const probability of this.probabilites) {
-            const leftProbability = probability.clone();
-            const rightProbability = probability.clone();
-            const dragProbability = probability.clone();
+            const leftProbability = new TouchProbability(probability);
+            const rightProbability = new TouchProbability(probability);
+            const dragProbability = new TouchProbability(probability);
 
             leftProbability.process(current, TouchHand.left);
             rightProbability.process(current, TouchHand.right);

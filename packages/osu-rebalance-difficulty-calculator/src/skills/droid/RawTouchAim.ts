@@ -10,33 +10,31 @@ export class RawTouchAim extends RawTouchSkill {
     private readonly skillMultiplier = 24.55;
     private readonly withSliders: boolean;
 
+    constructor(copy: RawTouchAim);
     constructor(
         mods: Mod[],
         clockRate: number,
         firstObject: DroidDifficultyHitObject,
         withSliders: boolean,
+    );
+    constructor(
+        modsOrCopy: Mod[] | RawTouchAim,
+        clockRate?: number,
+        firstObject?: DroidDifficultyHitObject,
+        withSliders?: boolean,
     ) {
-        super(mods, clockRate, firstObject);
+        if (modsOrCopy instanceof RawTouchAim) {
+            super(modsOrCopy);
 
-        this.withSliders = withSliders;
-    }
+            this.withSliders = modsOrCopy.withSliders;
 
-    override clone() {
-        const skill = new RawTouchAim(
-            this.mods,
-            this.clockRate,
-            this.firstObject,
-            this.withSliders,
-        );
-
-        skill._currentStrain = this._currentStrain;
-        skill.lastHand = this.lastHand;
-
-        for (let i = 0; i < this.lastObjects.length; ++i) {
-            skill.lastObjects[i] = this.lastObjects[i].slice();
+            return;
         }
 
-        return skill;
+        // These are safe to non-null (see constructor overloads).
+        super(modsOrCopy, clockRate!, firstObject!);
+
+        this.withSliders = withSliders!;
     }
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {

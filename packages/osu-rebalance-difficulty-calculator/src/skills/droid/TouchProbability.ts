@@ -9,42 +9,64 @@ export class TouchProbability {
     probability = 1;
     readonly skills: RawTouchSkills;
 
-    private readonly mods: Mod[];
-    private readonly clockRate: number;
-    private readonly greatWindow: number;
-    private readonly firstObject: DroidDifficultyHitObject;
-
+    constructor(copy: TouchProbability);
     constructor(
         mods: Mod[],
         clockRate: number,
         greatWindow: number,
         firstObject: DroidDifficultyHitObject,
+    );
+    constructor(
+        modsOrCopy: Mod[] | TouchProbability,
+        clockRate?: number,
+        greatWindow?: number,
+        firstObject?: DroidDifficultyHitObject,
     ) {
-        this.mods = mods;
-        this.clockRate = clockRate;
-        this.greatWindow = greatWindow;
-        this.firstObject = firstObject;
+        if (modsOrCopy instanceof TouchProbability) {
+            this.skills = {
+                aimWithSliders: new RawTouchAim(
+                    modsOrCopy.skills.aimWithSliders,
+                ),
+                aimWithoutSliders: new RawTouchAim(
+                    modsOrCopy.skills.aimWithoutSliders,
+                ),
+                tapWithCheesability: new RawTouchTap(
+                    modsOrCopy.skills.tapWithCheesability,
+                ),
+                tapWithoutCheesability: new RawTouchTap(
+                    modsOrCopy.skills.tapWithoutCheesability,
+                ),
+            };
 
+            return;
+        }
+
+        // These are safe to non-null (see constructor overloads).
         this.skills = {
-            aimWithSliders: new RawTouchAim(mods, clockRate, firstObject, true),
+            aimWithSliders: new RawTouchAim(
+                modsOrCopy,
+                clockRate!,
+                firstObject!,
+                true,
+            ),
             aimWithoutSliders: new RawTouchAim(
-                mods,
-                clockRate,
-                firstObject,
+                modsOrCopy,
+                clockRate!,
+                firstObject!,
                 false,
             ),
             tapWithCheesability: new RawTouchTap(
-                mods,
-                clockRate,
-                firstObject,
-                greatWindow,
+                modsOrCopy,
+                clockRate!,
+                firstObject!,
+                greatWindow!,
                 true,
             ),
             tapWithoutCheesability: new RawTouchTap(
-                mods,
-                clockRate,
-                firstObject,
-                greatWindow,
+                modsOrCopy,
+                clockRate!,
+                firstObject!,
+                greatWindow!,
                 false,
             ),
         };
@@ -54,25 +76,5 @@ export class TouchProbability {
         for (const skill of Object.values(this.skills)) {
             skill.process(current, currentHand);
         }
-    }
-
-    clone() {
-        const probability = new TouchProbability(
-            this.mods,
-            this.clockRate,
-            this.greatWindow,
-            this.firstObject,
-        );
-
-        probability.probability = this.probability;
-        probability.skills.aimWithSliders = this.skills.aimWithSliders.clone();
-        probability.skills.aimWithoutSliders =
-            this.skills.aimWithoutSliders.clone();
-        probability.skills.tapWithCheesability =
-            this.skills.tapWithCheesability.clone();
-        probability.skills.tapWithoutCheesability =
-            this.skills.tapWithoutCheesability.clone();
-
-        return probability;
     }
 }
