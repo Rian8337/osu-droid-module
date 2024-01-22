@@ -64,6 +64,7 @@ export class TouchProbability {
             this.firstObject,
         );
 
+        probability.probability = this.probability;
         probability.skills.aimWithSliders = this.skills.aimWithSliders.clone();
         probability.skills.aimWithoutSliders =
             this.skills.aimWithoutSliders.clone();
