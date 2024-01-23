@@ -28,12 +28,14 @@ export class TouchTap extends TouchSkill {
         mods: Mod[],
         clockRate: number,
         overallDifficulty: number,
+        isForceAR: boolean,
         considerCheesability: boolean,
     ) {
         super(
             mods,
             clockRate,
             new OsuHitWindow(overallDifficulty).hitWindowFor300(),
+            isForceAR,
         );
 
         this.considerCheesability = considerCheesability;

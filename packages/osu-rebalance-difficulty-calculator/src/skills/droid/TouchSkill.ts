@@ -10,12 +10,19 @@ export abstract class TouchSkill extends DroidSkill {
 
     protected readonly clockRate: number;
     protected readonly greatWindow: number;
+    protected readonly isForceAR: boolean;
 
-    constructor(mods: Mod[], clockRate: number, greatWindow: number) {
+    constructor(
+        mods: Mod[],
+        clockRate: number,
+        greatWindow: number,
+        isForceAR: boolean,
+    ) {
         super(mods);
 
         this.clockRate = clockRate;
         this.greatWindow = greatWindow;
+        this.isForceAR = isForceAR;
     }
 
     protected override strainValueAt(current: DroidDifficultyHitObject) {
@@ -26,6 +33,7 @@ export abstract class TouchSkill extends DroidSkill {
                     this.clockRate,
                     this.greatWindow,
                     current,
+                    this.isForceAR,
                 ),
             );
 

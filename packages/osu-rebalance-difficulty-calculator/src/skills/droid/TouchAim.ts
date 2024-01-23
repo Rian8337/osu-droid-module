@@ -16,12 +16,14 @@ export class TouchAim extends TouchSkill {
         mods: Mod[],
         clockRate: number,
         overallDifficulty: number,
+        isForceAR: boolean,
         withSliders: boolean,
     ) {
         super(
             mods,
             clockRate,
             new OsuHitWindow(overallDifficulty).hitWindowFor300(),
+            isForceAR,
         );
 
         this.withSliders = withSliders;

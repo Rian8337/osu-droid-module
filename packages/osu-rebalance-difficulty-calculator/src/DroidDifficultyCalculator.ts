@@ -129,11 +129,18 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const od = this.stats.od!;
         const clockRate = this.stats.speedMultiplier;
 
-        const aimSkill = new TouchAim(this.mods, clockRate, od, true);
+        const aimSkill = new TouchAim(
+            this.mods,
+            clockRate,
+            od,
+            this.stats.forceAR,
+            true,
+        );
         const aimSkillWithoutSliders = new TouchAim(
             this.mods,
             clockRate,
             od,
+            this.stats.forceAR,
             false,
         );
 
@@ -148,8 +155,20 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const od = this.stats.od!;
         const clockRate = this.stats.speedMultiplier;
 
-        const tapSkillCheese = new TouchTap(this.mods, clockRate, od, true);
-        const tapSkillNoCheese = new TouchTap(this.mods, clockRate, od, false);
+        const tapSkillCheese = new TouchTap(
+            this.mods,
+            clockRate,
+            od,
+            this.stats.forceAR,
+            true,
+        );
+        const tapSkillNoCheese = new TouchTap(
+            this.mods,
+            clockRate,
+            od,
+            this.stats.forceAR,
+            false,
+        );
         const tapSkillNoVibro = new DroidTap(this.mods, od, true);
         this.calculateSkills(tapSkillCheese, tapSkillNoCheese, tapSkillNoVibro);
 
@@ -348,12 +367,36 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const od: number = this.stats.od!;
 
         return [
-            new TouchAim(this.mods, this.stats.speedMultiplier, od, true),
-            new TouchAim(this.mods, this.stats.speedMultiplier, od, false),
+            new TouchAim(
+                this.mods,
+                this.stats.speedMultiplier,
+                od,
+                this.stats.forceAR,
+                true,
+            ),
+            new TouchAim(
+                this.mods,
+                this.stats.speedMultiplier,
+                od,
+                this.stats.forceAR,
+                false,
+            ),
             // Cheesability tap
-            new TouchTap(this.mods, this.stats.speedMultiplier, od, true),
+            new TouchTap(
+                this.mods,
+                this.stats.speedMultiplier,
+                od,
+                this.stats.forceAR,
+                true,
+            ),
             // Non-cheesability tap
-            new TouchTap(this.mods, this.stats.speedMultiplier, od, false),
+            new TouchTap(
+                this.mods,
+                this.stats.speedMultiplier,
+                od,
+                this.stats.forceAR,
+                false,
+            ),
             // Non-vibro tap
             new DroidTap(this.mods, od, true),
             new DroidRhythm(this.mods, od),

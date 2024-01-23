@@ -15,12 +15,14 @@ export class TouchProbability {
         clockRate: number,
         greatWindow: number,
         firstObject: DroidDifficultyHitObject,
+        isForceAR: boolean,
     );
     constructor(
         modsOrCopy: Mod[] | TouchProbability,
         clockRate?: number,
         greatWindow?: number,
         firstObject?: DroidDifficultyHitObject,
+        isForceAR?: boolean,
     ) {
         if (modsOrCopy instanceof TouchProbability) {
             this.skills = {
@@ -47,18 +49,21 @@ export class TouchProbability {
                 modsOrCopy,
                 clockRate!,
                 firstObject!,
+                isForceAR!,
                 true,
             ),
             aimWithoutSliders: new RawTouchAim(
                 modsOrCopy,
                 clockRate!,
                 firstObject!,
+                isForceAR!,
                 false,
             ),
             tapWithCheesability: new RawTouchTap(
                 modsOrCopy,
                 clockRate!,
                 firstObject!,
+                isForceAR!,
                 greatWindow!,
                 true,
             ),
@@ -66,6 +71,7 @@ export class TouchProbability {
                 modsOrCopy,
                 clockRate!,
                 firstObject!,
+                isForceAR!,
                 greatWindow!,
                 false,
             ),
