@@ -10,6 +10,7 @@ import {
     CircleSizeCalculator,
     HitObjectStackEvaluator,
     ModUtil,
+    MapStats,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -283,6 +284,30 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.beatmap.hitObjects.objects,
             this.beatmap.general.stackLeniency,
         );
+    }
+
+    protected override generateDifficultyHitObjects() {
+        const difficultyObjects: DroidDifficultyHitObject[] = [];
+        const { objects } = this.beatmap.hitObjects;
+
+        for (const object of objects) {
+            const difficultyObject = new DroidDifficultyHitObject(
+                object,
+                difficultyObjects,
+                this.stats.speedMultiplier,
+                MapStats.arToMS(this.stats.ar!),
+                this.stats.forceAR,
+            );
+
+            difficultyObject.computeProperties(
+                this.stats.speedMultiplier,
+                objects,
+            );
+
+            difficultyObjects.push(difficultyObject);
+        }
+
+        return difficultyObjects;
     }
 
     protected override createSkills(): DroidSkill[] {

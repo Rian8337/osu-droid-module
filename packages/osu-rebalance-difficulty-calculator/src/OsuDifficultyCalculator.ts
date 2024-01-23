@@ -188,6 +188,30 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
+    protected override generateDifficultyHitObjects() {
+        const difficultyObjects: OsuDifficultyHitObject[] = [];
+        const { objects } = this.beatmap.hitObjects;
+
+        for (const object of objects) {
+            const difficultyObject = new OsuDifficultyHitObject(
+                object,
+                difficultyObjects,
+                this.stats.speedMultiplier,
+                MapStats.arToMS(this.stats.ar!),
+                this.stats.forceAR,
+            );
+
+            difficultyObject.computeProperties(
+                this.stats.speedMultiplier,
+                objects,
+            );
+
+            difficultyObjects.push(difficultyObject);
+        }
+
+        return difficultyObjects;
+    }
+
     protected override createSkills(): OsuSkill[] {
         return [
             new OsuAim(this.mods, true),
