@@ -322,9 +322,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: DroidDifficultyHitObject[] = [];
         const { objects } = this.beatmap.hitObjects;
 
-        for (const object of objects) {
+        for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
-                object,
+                objects[i],
+                objects[i - 1] ?? null,
+                objects[i - 2] ?? null,
                 difficultyObjects,
                 this.stats.speedMultiplier,
                 MapStats.arToMS(this.stats.ar!),

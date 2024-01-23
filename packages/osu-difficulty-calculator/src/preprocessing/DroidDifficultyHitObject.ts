@@ -77,6 +77,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue.).
      *
      * @param object The underlying hitobject.
+     * @param lastObject The hitobject before this hitobject.
+     * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param hitObjects All hitobjects in the beatmap.
      * @param clockRate The clock rate of the beatmap.
@@ -85,12 +87,22 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      */
     constructor(
         object: PlaceableHitObject,
+        lastObject: PlaceableHitObject | null,
+        lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
         timePreempt: number,
         isForceAR: boolean,
     ) {
-        super(object, difficultyHitObjects, clockRate, timePreempt, isForceAR);
+        super(
+            object,
+            lastObject,
+            lastLastObject,
+            difficultyHitObjects,
+            clockRate,
+            timePreempt,
+            isForceAR,
+        );
     }
 
     override computeProperties(
