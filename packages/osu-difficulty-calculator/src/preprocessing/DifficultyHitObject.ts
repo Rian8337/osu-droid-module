@@ -131,11 +131,16 @@ export abstract class DifficultyHitObject {
     protected readonly assumedSliderRadius = this.normalizedRadius * 1.8;
     protected readonly minDeltaTime = 25;
 
+    private readonly lastObject: PlaceableHitObject | null;
+    private readonly lastLastObject: PlaceableHitObject | null;
+
     /**
      * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
      * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue.).
      *
      * @param object The underlying hitobject.
+     * @param lastObject The hitobject before this hitobject.
+     * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
      * @param timePreempt The time preempt with clock rate.
@@ -144,12 +149,16 @@ export abstract class DifficultyHitObject {
      */
     protected constructor(
         object: PlaceableHitObject,
+        lastObject: PlaceableHitObject | null,
+        lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
         timePreempt: number,
         isForceAR: boolean,
     ) {
         this.object = object;
+        this.lastObject = lastObject;
+        this.lastLastObject = lastLastObject;
         this.hitObjects = difficultyHitObjects;
 
         this.index = difficultyHitObjects.length - 1;
@@ -170,9 +179,8 @@ export abstract class DifficultyHitObject {
         this.startTime = object.startTime / clockRate;
         this.endTime = object.endTime / clockRate;
 
-        const lastObject = difficultyHitObjects.at(-1);
         if (lastObject) {
-            this.deltaTime = this.startTime - lastObject.startTime;
+            this.deltaTime = this.startTime - lastObject.startTime / clockRate;
             this.strainTime = Math.max(this.deltaTime, this.minDeltaTime);
         } else {
             this.deltaTime = 0;
@@ -293,14 +301,11 @@ export abstract class DifficultyHitObject {
             );
         }
 
-        const lastObject = this.hitObjects.at(-1);
-        const lastLastObject = this.hitObjects.at(-2);
-
         // We don't need to calculate either angle or distance when one of the last->curr objects is a spinner.
         if (
-            !lastObject ||
+            !this.lastObject ||
             this.object instanceof Spinner ||
-            lastObject.object instanceof Spinner
+            this.lastObject instanceof Spinner
         ) {
             return;
         }
@@ -308,7 +313,7 @@ export abstract class DifficultyHitObject {
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
         const { scalingFactor } = this;
 
-        const lastCursorPosition = this.getEndCursorPosition(lastObject.object);
+        const lastCursorPosition = this.getEndCursorPosition(this.lastObject);
 
         this.lazyJumpDistance = this.object
             .getStackedPosition(this.mode)
@@ -317,9 +322,9 @@ export abstract class DifficultyHitObject {
         this.minimumJumpTime = this.strainTime;
         this.minimumJumpDistance = this.lazyJumpDistance;
 
-        if (lastObject.object instanceof Slider) {
+        if (this.lastObject instanceof Slider) {
             this.minimumJumpTime = Math.max(
-                this.strainTime - lastObject.travelTime,
+                this.strainTime - this.lastObject.lazyTravelTime / clockRate,
                 this.minDeltaTime,
             );
 
@@ -343,7 +348,7 @@ export abstract class DifficultyHitObject {
             //
             // Thus, the player is assumed to jump the minimum of these two distances in all cases.
             const tailJumpDistance =
-                lastObject.object.tail
+                this.lastObject.tail
                     .getStackedPosition(this.mode)
                     .subtract(this.object.getStackedPosition(this.mode))
                     .length * scalingFactor;
@@ -358,13 +363,13 @@ export abstract class DifficultyHitObject {
             );
         }
 
-        if (lastLastObject && !(lastLastObject.object instanceof Spinner)) {
+        if (this.lastLastObject && !(this.lastLastObject instanceof Spinner)) {
             const lastLastCursorPosition = this.getEndCursorPosition(
-                lastLastObject.object,
+                this.lastLastObject,
             );
 
             const v1 = lastLastCursorPosition.subtract(
-                lastObject.object.getStackedPosition(this.mode),
+                this.lastObject.getStackedPosition(this.mode),
             );
             const v2 = this.object
                 .getStackedPosition(this.mode)

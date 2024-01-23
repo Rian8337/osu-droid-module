@@ -209,9 +209,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: OsuDifficultyHitObject[] = [];
         const { objects } = this.beatmap.hitObjects;
 
-        for (const object of objects) {
+        for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
-                object,
+                objects[i],
+                objects[i - 1] ?? null,
+                objects[i - 2] ?? null,
                 difficultyObjects,
                 this.stats.speedMultiplier,
                 MapStats.arToMS(this.stats.ar!),
