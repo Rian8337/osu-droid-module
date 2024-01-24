@@ -52,7 +52,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         withSliders: boolean,
     ): number {
         if (
-            current.index <= 1 ||
+            current.index < 1 ||
             current.previous(0)?.object instanceof Spinner
         ) {
             return 0;
