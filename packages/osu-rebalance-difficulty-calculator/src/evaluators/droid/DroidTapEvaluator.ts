@@ -64,6 +64,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             : current.strainTime;
 
         if (strainTimeCap !== undefined) {
+            // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
             effectiveStrainTime = Math.max(
                 50,
                 strainTimeCap,

@@ -7,7 +7,7 @@ import { RawTouchSkill } from "./RawTouchSkill";
 export class RawTouchTap extends RawTouchSkill {
     protected override readonly strainDecayBase = 0.3;
 
-    private readonly skillMultiplier: number = 1375;
+    private readonly skillMultiplier = 1375;
     private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
 
@@ -71,7 +71,7 @@ export class RawTouchTap extends RawTouchSkill {
             DroidTapEvaluator.evaluateDifficultyOf(
                 this.getSimulatedObject(current, currentHand),
                 this.greatWindow,
-                true,
+                this.considerCheesability,
                 true,
             ) *
             this.skillMultiplier *

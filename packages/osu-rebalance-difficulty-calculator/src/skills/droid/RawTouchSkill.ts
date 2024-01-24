@@ -174,11 +174,6 @@ export abstract class RawTouchSkill {
             lastDifficultyObjects.shift();
         }
 
-        // Ensure that the index of difficulty hitobjects are updated.
-        for (let i = 0; i < lastDifficultyObjects.length; ++i) {
-            lastDifficultyObjects[i].index = i - 1;
-        }
-
         this.lastHand = relevantHand;
     }
 

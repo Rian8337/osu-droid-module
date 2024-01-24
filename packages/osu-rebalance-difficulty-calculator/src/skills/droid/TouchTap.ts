@@ -148,8 +148,7 @@ export class TouchTap extends TouchSkill {
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
-        const strain: number =
-            this.currentTapStrain * this.currentRhythmMultiplier;
+        const strain = this.currentTapStrain * this.currentRhythmMultiplier;
 
         if (this.considerCheesability) {
             current.tapStrain = strain;

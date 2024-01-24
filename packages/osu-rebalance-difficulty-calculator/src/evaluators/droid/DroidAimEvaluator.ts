@@ -25,33 +25,30 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      *
      * @param current The current object.
      * @param withSliders Whether to take slider difficulty into account.
+     * @param singletapped Whether the object was singletapped.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         withSliders: boolean,
-    ): number {
-        if (
-            current.object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(true)
-        ) {
-            return 0;
-        }
-
+        singletapped: boolean,
+    ) {
         return (
-            this.snapAimStrainOf(current, withSliders) +
-            this.flowAimStrainOf(current)
+            this.evaluateSnapDifficultyOf(current, withSliders) +
+            this.evaluateFlowDifficultyOf(current, singletapped)
         );
     }
 
     /**
      * Calculates the snap aim strain of a hitobject.
      */
-    private static snapAimStrainOf(
+    static evaluateSnapDifficultyOf(
         current: DroidDifficultyHitObject,
         withSliders: boolean,
-    ): number {
+    ) {
         if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            current.isOverlapping(true) ||
             current.index < 1 ||
             current.previous(0)?.object instanceof Spinner
         ) {
@@ -237,17 +234,31 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     /**
      * Calculates the flow aim strain of a hitobject.
      */
-    private static flowAimStrainOf(current: DroidDifficultyHitObject): number {
-        let speedBonus: number = 1;
-
-        if (current.strainTime < this.minSpeedBonus) {
-            speedBonus +=
-                0.75 *
-                Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
+    static evaluateFlowDifficultyOf(
+        current: DroidDifficultyHitObject,
+        singletapped: boolean,
+    ) {
+        if (
+            current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            current.isOverlapping(true)
+        ) {
+            return 0;
         }
 
-        const travelDistance: number = current.previous(0)?.travelDistance ?? 0;
-        const shortDistancePenalty: number = Math.pow(
+        let speedBonus = 1;
+        const effectiveStrainTime = singletapped
+            ? current.strainTime / 2
+            : current.strainTime;
+
+        if (effectiveStrainTime < this.minSpeedBonus) {
+            speedBonus +=
+                0.75 *
+                Math.pow((this.minSpeedBonus - effectiveStrainTime) / 40, 2);
+        }
+
+        const travelDistance = current.previous(0)?.travelDistance ?? 0;
+        const shortDistancePenalty = Math.pow(
             Math.min(
                 this.singleSpacingThreshold,
                 travelDistance + current.minimumJumpDistance,
@@ -255,6 +266,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             3.5,
         );
 
-        return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
+        return (70 * speedBonus * shortDistancePenalty) / effectiveStrainTime;
     }
 }
