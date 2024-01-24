@@ -113,6 +113,7 @@ export class DroidTap extends DroidSkill {
                 current,
                 this.greatWindow,
                 this.considerCheesability,
+                false,
                 this.strainTimeCap,
             ) * this.skillMultiplier;
 

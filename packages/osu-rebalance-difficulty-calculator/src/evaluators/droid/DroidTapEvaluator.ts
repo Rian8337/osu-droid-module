@@ -17,12 +17,14 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
      * @param current The current object.
      * @param greatWindow The great hit window of the current object.
      * @param considerCheesability Whether to consider cheesability.
+     * @param singletapped Whether to assume that the object was singletapped.
      * @param strainTimeCap The strain time to cap the object's strain time to.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         greatWindow: number,
         considerCheesability: boolean,
+        singletapped: boolean,
         strainTimeCap?: number,
     ): number {
         if (
@@ -57,22 +59,33 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
         }
 
-        const strainTime: number =
-            strainTimeCap !== undefined
-                ? // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
-                  Math.max(50, strainTimeCap, current.strainTime)
-                : current.strainTime;
+        let effectiveStrainTime = singletapped
+            ? current.strainTime / 2
+            : current.strainTime;
+
+        if (strainTimeCap !== undefined) {
+            effectiveStrainTime = Math.max(
+                50,
+                strainTimeCap,
+                effectiveStrainTime,
+            );
+        }
+
         let speedBonus: number = 1;
 
-        if (strainTime < this.minSpeedBonus) {
+        if (effectiveStrainTime < this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
                 Math.pow(
-                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
+                    ErrorFunction.erf(
+                        (this.minSpeedBonus - effectiveStrainTime) / 40,
+                    ),
                     2,
                 );
         }
 
-        return (speedBonus * Math.pow(doubletapness, 1.5)) / strainTime;
+        return (
+            (speedBonus * Math.pow(doubletapness, 1.5)) / effectiveStrainTime
+        );
     }
 }

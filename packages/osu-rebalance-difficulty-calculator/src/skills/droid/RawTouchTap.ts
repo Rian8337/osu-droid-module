@@ -50,6 +50,7 @@ export class RawTouchTap extends RawTouchSkill {
                 current,
                 this.greatWindow,
                 this.considerCheesability,
+                false,
             ) * this.skillMultiplier
         );
     }
@@ -71,7 +72,7 @@ export class RawTouchTap extends RawTouchSkill {
                 this.getSimulatedObject(current, currentHand),
                 this.greatWindow,
                 true,
-                current.strainTime / 2,
+                true,
             ) *
             this.skillMultiplier *
             singletapMultiplier
