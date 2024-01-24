@@ -80,7 +80,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * @param lastObject The hitobject before this hitobject.
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
-     * @param hitObjects All hitobjects in the beatmap.
      * @param clockRate The clock rate of the beatmap.
      * @param timePreempt The time preempt with clock rate.
      * @param isForceAR Whether force AR is enabled.
