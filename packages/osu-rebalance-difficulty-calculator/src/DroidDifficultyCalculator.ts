@@ -20,6 +20,7 @@ import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyA
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 import { TouchTap } from "./skills/droid/TouchTap";
 import { TouchAim } from "./skills/droid/TouchAim";
+import { DroidAim } from "./skills/droid/DroidAim";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -188,10 +189,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        const rhythmSkill: DroidRhythm = new DroidRhythm(
-            this.mods,
-            this.stats.od!,
-        );
+        const rhythmSkill = new DroidRhythm(this.mods, this.stats.od!);
 
         this.calculateSkills(rhythmSkill);
         this.postCalculateRhythm(rhythmSkill);
@@ -201,17 +199,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill: DroidFlashlight = new DroidFlashlight(
+        const flashlightSkill = new DroidFlashlight(this.mods, true);
+        const flashlightSkillWithoutSliders = new DroidFlashlight(
             this.mods,
-            true,
+            false,
         );
-        const flashlightSkillWithoutSliders: DroidFlashlight =
-            new DroidFlashlight(this.mods, false);
+        const aimSkillWithSliders = new DroidAim(this.mods, true);
 
-        this.calculateSkills(flashlightSkill, flashlightSkillWithoutSliders);
+        this.calculateSkills(
+            flashlightSkill,
+            flashlightSkillWithoutSliders,
+            aimSkillWithSliders,
+        );
         this.postCalculateFlashlight(
             flashlightSkill,
             flashlightSkillWithoutSliders,
+            aimSkillWithSliders,
         );
     }
 
@@ -274,31 +277,37 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const skills: DroidSkill[] = this.createSkills();
         this.calculateSkills(...skills);
 
-        const aimSkill = <TouchAim>skills[0];
-        const aimSkillWithoutSliders = <TouchAim>skills[1];
-        const tapSkillCheese = <TouchTap>skills[2];
-        const tapSkillNoVibro = <DroidTap>skills[4];
-        const rhythmSkill = <DroidRhythm>skills[5];
-        const flashlightSkill = <DroidFlashlight>skills[6];
-        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[7];
-        const visualSkill = <DroidVisual>skills[8];
-        const visualSkillWithoutSliders = <DroidVisual>skills[9];
+        const touchAimSkill = <TouchAim>skills[0];
+        const touchAimSkillWithoutSliders = <TouchAim>skills[1];
+        const aimSkillWithSliders = <DroidAim>skills[2];
+        const touchTapSkillCheese = <TouchTap>skills[3];
+        const tapSkillNoVibro = <DroidTap>skills[5];
+        const rhythmSkill = <DroidRhythm>skills[6];
+        const flashlightSkill = <DroidFlashlight>skills[7];
+        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[8];
+        const visualSkill = <DroidVisual>skills[9];
+        const visualSkillWithoutSliders = <DroidVisual>skills[10];
 
         const tapSkillVibro = new DroidTap(
             this.mods,
             this.stats.od!,
             true,
-            tapSkillCheese.relevantDeltaTime(),
+            touchTapSkillCheese.relevantDeltaTime(),
         );
 
         this.calculateSkills(tapSkillVibro);
 
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateTap(tapSkillCheese, tapSkillNoVibro, tapSkillVibro);
+        this.postCalculateAim(touchAimSkill, touchAimSkillWithoutSliders);
+        this.postCalculateTap(
+            touchTapSkillCheese,
+            tapSkillNoVibro,
+            tapSkillVibro,
+        );
         this.postCalculateRhythm(rhythmSkill);
         this.postCalculateFlashlight(
             flashlightSkill,
             flashlightSkillWithoutSliders,
+            aimSkillWithSliders,
         );
         this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
 
@@ -367,6 +376,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const od: number = this.stats.od!;
 
         return [
+            // Touch aim with sliders
             new TouchAim(
                 this.mods,
                 this.stats.speedMultiplier,
@@ -374,6 +384,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 this.stats.forceAR,
                 true,
             ),
+            // Touch aim without sliders
             new TouchAim(
                 this.mods,
                 this.stats.speedMultiplier,
@@ -381,6 +392,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 this.stats.forceAR,
                 false,
             ),
+            // Normal aim with sliders, for flashlight rating
+            new DroidAim(this.mods, true),
             // Cheesability tap
             new TouchTap(
                 this.mods,
@@ -673,10 +686,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      *
      * @param flashlightSkill The flashlight skill that considers sliders.
      * @param flashlightSkillWithoutSliders The flashlight skill that doesn't consider sliders.
+     * @param aimSkillWithSliders The aim skill that considers sliders.
      */
     private postCalculateFlashlight(
         flashlightSkill: DroidFlashlight,
         flashlightSkillWithoutSliders: DroidFlashlight,
+        aimSkillWithSliders: DroidAim,
     ): void {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
@@ -691,6 +706,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.flashlight *= 0.7;
+        }
+
+        const aimRating = this.starValue(aimSkillWithSliders.difficultyValue());
+        if (aimRating > 0) {
+            // TODO: this is buggy if touch aim rating is not calculated yet.
+            this.flashlight *= this.aim / aimRating;
         }
 
         this.attributes.flashlightDifficulty = this.flashlight;
