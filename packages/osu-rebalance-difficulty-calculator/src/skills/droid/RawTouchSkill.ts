@@ -50,6 +50,11 @@ export abstract class RawTouchSkill {
                 this.lastObjects[i] = modsOrCopy.lastObjects[i].slice();
             }
 
+            for (let i = 0; i < this.lastDifficultyObjects.length; ++i) {
+                this.lastDifficultyObjects[i] =
+                    modsOrCopy.lastDifficultyObjects[i].slice();
+            }
+
             return;
         }
 
