@@ -179,6 +179,13 @@ export abstract class RawTouchSkill {
             this.lastObjects[relevantHand].shift();
         }
 
+        while (
+            this.lastDifficultyObjects[relevantHand].length >
+            this.maxDifficultyObjectsHistory
+        ) {
+            this.lastDifficultyObjects[relevantHand].shift();
+        }
+
         this.lastHand = relevantHand;
     }
 
