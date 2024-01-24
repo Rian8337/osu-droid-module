@@ -254,7 +254,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     private calculateAimValue(): number {
         let aimValue: number = this.baseValue(
-            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
+            this.difficultyAttributes.aimDifficulty,
         );
 
         aimValue *= Math.min(
@@ -413,7 +413,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         }
 
         let flashlightValue: number =
-            Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
+            Math.pow(this.difficultyAttributes.flashlightDifficulty, 2) * 25;
 
         flashlightValue *= Math.min(
             this.calculateStrainBasedMissPenalty(

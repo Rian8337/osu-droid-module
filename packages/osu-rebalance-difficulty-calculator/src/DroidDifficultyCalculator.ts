@@ -239,14 +239,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     override calculateTotal(): void {
-        const aimPerformanceValue: number = this.basePerformanceValue(
-            Math.pow(this.aim, 0.8),
-        );
+        const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
         const tapPerformanceValue: number = this.basePerformanceValue(this.tap);
         const flashlightPerformanceValue: number = this.mods.some(
             (m) => m instanceof ModFlashlight,
         )
-            ? Math.pow(this.flashlight, 1.6) * 25
+            ? Math.pow(this.flashlight, 2) * 25
             : 0;
         const visualPerformanceValue: number =
             Math.pow(this.visual, 1.6) * 22.5;
