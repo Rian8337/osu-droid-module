@@ -10,13 +10,13 @@ export abstract class RawTouchSkill {
     private readonly isForceAR: boolean;
 
     private readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
-    protected readonly maxObjectsHistory = 2;
+    protected readonly maxObjectsHistory: number = 2;
 
     private readonly lastDifficultyObjects: [
         DroidDifficultyHitObject[],
         DroidDifficultyHitObject[],
     ] = [[], []];
-    protected readonly maxDifficultyObjectsHistory = 3;
+    protected readonly maxDifficultyObjectsHistory: number = 3;
 
     private lastHand: TouchHand.left | TouchHand.right;
     private _currentStrain = 0;
@@ -132,24 +132,6 @@ export abstract class RawTouchSkill {
         return difficultyObject;
     }
 
-    private getRelevantHand(currentHand: TouchHand) {
-        return currentHand === TouchHand.drag ? this.lastHand : currentHand;
-    }
-
-    private otherHand(currentHand: TouchHand.left): TouchHand.right;
-    private otherHand(currentHand: TouchHand.right): TouchHand.left;
-    private otherHand(currentHand: TouchHand): TouchHand.left | TouchHand.right;
-    private otherHand(currentHand: TouchHand) {
-        switch (currentHand) {
-            case TouchHand.left:
-                return TouchHand.right;
-            case TouchHand.right:
-                return TouchHand.left;
-            case TouchHand.drag:
-                return this.otherHand(this.lastHand);
-        }
-    }
-
     private updateStrainValue(
         current: DroidDifficultyHitObject,
         currentHand: TouchHand,
@@ -172,23 +154,29 @@ export abstract class RawTouchSkill {
         currentHand: TouchHand,
     ) {
         const relevantHand = this.getRelevantHand(currentHand);
+        const lastObjects = this.lastObjects[relevantHand];
+        const lastDifficultyObjects = this.lastDifficultyObjects[relevantHand];
 
-        this.lastObjects[relevantHand].push(current.object);
-        this.lastDifficultyObjects[relevantHand].push(
+        lastObjects.push(current.object);
+        lastDifficultyObjects.push(
             currentHand === TouchHand.drag
                 ? current
                 : this.getSimulatedObject(current, currentHand),
         );
 
-        while (this.lastObjects[relevantHand].length > this.maxObjectsHistory) {
-            this.lastObjects[relevantHand].shift();
+        while (lastObjects.length > this.maxObjectsHistory) {
+            lastObjects.shift();
         }
 
         while (
-            this.lastDifficultyObjects[relevantHand].length >
-            this.maxDifficultyObjectsHistory
+            lastDifficultyObjects.length > this.maxDifficultyObjectsHistory
         ) {
-            this.lastDifficultyObjects[relevantHand].shift();
+            lastDifficultyObjects.shift();
+        }
+
+        // Ensure that the index of difficulty hitobjects are updated.
+        for (let i = 0; i < lastDifficultyObjects.length; ++i) {
+            lastDifficultyObjects[i].index = i - 1;
         }
 
         this.lastHand = relevantHand;
@@ -196,5 +184,23 @@ export abstract class RawTouchSkill {
 
     private strainDecay(ms: number) {
         return Math.pow(this.strainDecayBase, ms / 1000);
+    }
+
+    private getRelevantHand(currentHand: TouchHand) {
+        return currentHand === TouchHand.drag ? this.lastHand : currentHand;
+    }
+
+    private otherHand(currentHand: TouchHand.left): TouchHand.right;
+    private otherHand(currentHand: TouchHand.right): TouchHand.left;
+    private otherHand(currentHand: TouchHand): TouchHand.left | TouchHand.right;
+    private otherHand(currentHand: TouchHand) {
+        switch (currentHand) {
+            case TouchHand.left:
+                return TouchHand.right;
+            case TouchHand.right:
+                return TouchHand.left;
+            case TouchHand.drag:
+                return this.otherHand(this.lastHand);
+        }
     }
 }

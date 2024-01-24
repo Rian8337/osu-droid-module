@@ -23,7 +23,7 @@ export abstract class DifficultyHitObject {
      *
      * This is one less than the actual index of the hitobject in the beatmap.
      */
-    readonly index: number = 0;
+    index = 0;
 
     /**
      * The preempt time of the hitobject.
