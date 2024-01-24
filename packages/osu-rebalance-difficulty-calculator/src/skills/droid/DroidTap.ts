@@ -2,6 +2,7 @@ import { OsuHitWindow, Mod } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -115,11 +116,15 @@ export class DroidTap extends DroidSkill {
                 this.strainTimeCap,
             ) * this.skillMultiplier;
 
-        this.currentRhythmMultiplier = current.rhythmMultiplier;
+        this.currentRhythmMultiplier =
+            DroidRhythmEvaluator.evaluateDifficultyOf(
+                current,
+                this.greatWindow,
+            );
 
         this._objectDeltaTimes.push(current.deltaTime);
 
-        return this.currentTapStrain * current.rhythmMultiplier;
+        return this.currentTapStrain * this.currentRhythmMultiplier;
     }
 
     protected override calculateInitialStrain(
