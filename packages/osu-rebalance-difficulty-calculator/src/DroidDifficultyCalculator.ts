@@ -290,7 +290,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.mods,
             this.stats.od!,
             true,
-            touchTapSkillCheese.relevantDeltaTime(),
+            tapSkillNoVibro.relevantDeltaTime(),
         );
 
         this.calculateSkills(tapSkillVibro);
