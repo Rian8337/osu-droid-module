@@ -105,9 +105,7 @@ export class DroidTap extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        const decay: number = this.strainDecay(current.strainTime);
-
-        this.currentTapStrain *= decay;
+        this.currentTapStrain *= this.strainDecay(current.strainTime);
         this.currentTapStrain +=
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
@@ -139,23 +137,16 @@ export class DroidTap extends DroidSkill {
         return this.currentTapStrain * this.currentRhythmMultiplier;
     }
 
-    /**
-     * @param current The hitobject to save to.
-     */
-    protected override saveToHitObject(
-        current: DroidDifficultyHitObject,
-    ): void {
-        if (this.strainTimeCap !== undefined) {
-            return;
-        }
-
-        const strain: number =
-            this.currentTapStrain * this.currentRhythmMultiplier;
-
-        if (this.considerCheesability) {
-            current.tapStrain = strain;
-        } else {
-            current.originalTapStrain = strain;
-        }
+    protected override saveToHitObject(): void {
+        // if (this.strainTimeCap !== undefined) {
+        //     return;
+        // }
+        // const strain: number =
+        //     this.currentTapStrain * this.currentRhythmMultiplier;
+        // if (this.considerCheesability) {
+        //     current.tapStrain = strain;
+        // } else {
+        //     current.originalTapStrain = strain;
+        // }
     }
 }
