@@ -41,11 +41,8 @@ export class RawTouchAim extends RawTouchSkill {
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {
         return (
-            DroidAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-                false,
-            ) * this.skillMultiplier
+            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
+            this.skillMultiplier
         );
     }
 
@@ -73,13 +70,6 @@ export class RawTouchAim extends RawTouchSkill {
             }
         }
 
-        let singletapMultiplier = 1;
-
-        // Reduction in flow aim value for singletapping consecutive notes.
-        if (currentHand === lastHand) {
-            singletapMultiplier = 0.93;
-        }
-
         const simulatedObject = this.getSimulatedObject(current, currentHand);
         const snapAimStrain =
             DroidAimEvaluator.evaluateSnapDifficultyOf(
@@ -87,8 +77,7 @@ export class RawTouchAim extends RawTouchSkill {
                 this.withSliders,
             ) * obstructionBonus;
         const flowAimStrain =
-            DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject, true) *
-            singletapMultiplier;
+            DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject);
 
         return (snapAimStrain + flowAimStrain) * this.skillMultiplier;
     }
