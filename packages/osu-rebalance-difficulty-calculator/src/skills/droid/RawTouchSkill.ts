@@ -89,8 +89,8 @@ export abstract class RawTouchSkill {
     ) {
         // A simulated difficulty object is created for angle calculation.
         const lastObjects = this.lastObjects[currentHand];
-        const lastLast = lastObjects.length > 1 ? lastObjects.at(-2) : null;
-        const last = lastObjects.length > 0 ? lastObjects.at(-1) : null;
+        const lastLast = lastObjects.at(-2);
+        const last = lastObjects.at(-1);
 
         const difficultyObject = new DroidDifficultyHitObject(
             current.object,
