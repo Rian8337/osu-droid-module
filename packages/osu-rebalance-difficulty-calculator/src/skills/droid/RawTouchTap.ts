@@ -60,11 +60,14 @@ export class RawTouchTap extends RawTouchSkill {
         currentHand: TouchHand.left | TouchHand.right,
         lastHand: TouchHand.left | TouchHand.right,
     ) {
-        let singletapMultiplier = 1;
+        let handMultiplier = 1;
 
-        // Reduction in speed value for singletapping consecutive notes.
         if (currentHand === lastHand) {
-            singletapMultiplier = 0.93;
+            // Reduction in speed value for singletapping consecutive notes.
+            handMultiplier *= 0.93;
+        } else {
+            // Increase in speed value for hand coordination.
+            handMultiplier *= 1.4;
         }
 
         return (
@@ -75,7 +78,7 @@ export class RawTouchTap extends RawTouchSkill {
                 true,
             ) *
             this.skillMultiplier *
-            singletapMultiplier
+            handMultiplier
         );
     }
 }

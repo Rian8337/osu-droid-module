@@ -258,6 +258,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             3.5,
         );
 
-        return (70 * speedBonus * shortDistancePenalty) / current.strainTime;
+        return (100 * speedBonus * shortDistancePenalty) / current.strainTime;
     }
 }

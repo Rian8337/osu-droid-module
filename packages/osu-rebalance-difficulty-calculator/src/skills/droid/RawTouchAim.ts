@@ -7,7 +7,8 @@ import { RawTouchSkill } from "./RawTouchSkill";
 export class RawTouchAim extends RawTouchSkill {
     protected override readonly strainDecayBase = 0.15;
 
-    private readonly skillMultiplier = 24.55;
+    private readonly snapSkillMultiplier = 19.64;
+    private readonly flowSkillMultiplier = 24.55;
     private readonly withSliders: boolean;
 
     constructor(copy: RawTouchAim);
@@ -41,8 +42,13 @@ export class RawTouchAim extends RawTouchSkill {
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {
         return (
-            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
-            this.skillMultiplier
+            DroidAimEvaluator.evaluateSnapDifficultyOf(
+                current,
+                this.withSliders,
+            ) *
+                this.snapSkillMultiplier +
+            DroidAimEvaluator.evaluateFlowDifficultyOf(current) *
+                this.flowSkillMultiplier
         );
     }
 
@@ -71,14 +77,19 @@ export class RawTouchAim extends RawTouchSkill {
         }
 
         const simulatedObject = this.getSimulatedObject(current, currentHand);
+
         const snapAimStrain =
             DroidAimEvaluator.evaluateSnapDifficultyOf(
                 simulatedObject,
                 this.withSliders,
-            ) * obstructionBonus;
-        const flowAimStrain =
-            DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject);
+            ) *
+            obstructionBonus *
+            this.snapSkillMultiplier;
 
-        return (snapAimStrain + flowAimStrain) * this.skillMultiplier;
+        const flowAimStrain =
+            DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject) *
+            this.flowSkillMultiplier;
+
+        return snapAimStrain + flowAimStrain;
     }
 }
