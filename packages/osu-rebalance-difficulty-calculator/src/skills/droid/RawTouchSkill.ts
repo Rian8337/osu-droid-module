@@ -1,4 +1,4 @@
-import { HitObject, Mod } from "@rian8337/osu-base";
+import { Mod, PlaceableHitObject } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchHand } from "../../structures/TouchHand";
 
@@ -9,7 +9,8 @@ export abstract class RawTouchSkill {
     private readonly clockRate: number;
     private readonly isForceAR: boolean;
 
-    private readonly lastObjects: [HitObject[], HitObject[]] = [[], []];
+    private readonly lastObjects: [PlaceableHitObject[], PlaceableHitObject[]] =
+        [[], []];
     protected readonly maxObjectsHistory: number = 2;
 
     private readonly lastDifficultyObjects: [
@@ -67,6 +68,11 @@ export abstract class RawTouchSkill {
         // Automatically assume the first note of a beatmap is hit with the left hand and the second note is hit with the right.
         this.lastObjects[TouchHand.left].push(firstObject!.previous(0)!.object);
         this.lastObjects[TouchHand.right].push(firstObject!.object);
+        this.lastDifficultyObjects[TouchHand.left].push(
+            firstObject!.previous(0)!,
+        );
+        this.lastDifficultyObjects[TouchHand.right].push(firstObject!);
+
         this.lastHand = TouchHand.right;
     }
 
@@ -153,26 +159,33 @@ export abstract class RawTouchSkill {
         current: DroidDifficultyHitObject,
         currentHand: TouchHand,
     ) {
-        const relevantHand = this.getRelevantHand(currentHand);
-        const lastObjects = this.lastObjects[relevantHand];
-        const lastDifficultyObjects = this.lastDifficultyObjects[relevantHand];
+        const updateHistory = <T>(
+            objects: T[],
+            object: T,
+            maxLength: number,
+        ) => {
+            objects.push(object);
 
-        lastObjects.push(current.object);
-        lastDifficultyObjects.push(
+            while (objects.length > maxLength) {
+                objects.shift();
+            }
+        };
+
+        const relevantHand = this.getRelevantHand(currentHand);
+
+        updateHistory(
+            this.lastDifficultyObjects[relevantHand],
             currentHand === TouchHand.drag
                 ? current
                 : this.getSimulatedObject(current, currentHand),
+            this.maxDifficultyObjectsHistory,
         );
 
-        while (lastObjects.length > this.maxObjectsHistory) {
-            lastObjects.shift();
-        }
-
-        while (
-            lastDifficultyObjects.length > this.maxDifficultyObjectsHistory
-        ) {
-            lastDifficultyObjects.shift();
-        }
+        updateHistory(
+            this.lastObjects[relevantHand],
+            current.object,
+            this.maxObjectsHistory,
+        );
 
         this.lastHand = relevantHand;
     }
