@@ -28,8 +28,11 @@ export class DroidAim extends DroidSkill {
     ): number {
         this.currentAimStrain *= this.strainDecay(current.deltaTime);
         this.currentAimStrain +=
-            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
-            this.skillMultiplier;
+            DroidAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+                false,
+            ) * this.skillMultiplier;
 
         return this.currentAimStrain;
     }

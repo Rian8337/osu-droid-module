@@ -25,14 +25,16 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      *
      * @param current The current object.
      * @param withSliders Whether to take slider difficulty into account.
+     * @param singletapped Whether the object was singletapped.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         withSliders: boolean,
+        singletapped: boolean,
     ) {
         return (
             this.evaluateSnapDifficultyOf(current, withSliders) +
-            this.evaluateFlowDifficultyOf(current)
+            this.evaluateFlowDifficultyOf(current, singletapped)
         );
     }
 
@@ -232,7 +234,10 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
     /**
      * Calculates the flow aim strain of a hitobject.
      */
-    static evaluateFlowDifficultyOf(current: DroidDifficultyHitObject) {
+    static evaluateFlowDifficultyOf(
+        current: DroidDifficultyHitObject,
+        singletapped: boolean,
+    ) {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
@@ -242,11 +247,14 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         }
 
         let speedBonus = 1;
+        const effectiveStrainTime = singletapped
+            ? current.strainTime / 2
+            : current.strainTime;
 
-        if (current.strainTime < this.minSpeedBonus) {
+        if (effectiveStrainTime < this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
-                Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
+                Math.pow((this.minSpeedBonus - effectiveStrainTime) / 40, 2);
         }
 
         const travelDistance = current.previous(0)?.travelDistance ?? 0;
@@ -258,6 +266,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             3.5,
         );
 
-        return (100 * speedBonus * shortDistancePenalty) / current.strainTime;
+        return (125 * speedBonus * shortDistancePenalty) / effectiveStrainTime;
     }
 }
