@@ -25,6 +25,8 @@ export class TouchProbability {
         isForceAR?: boolean,
     ) {
         if (modsOrCopy instanceof TouchProbability) {
+            this.probability = modsOrCopy.probability;
+
             this.skills = {
                 aimWithSliders: new RawTouchAim(
                     modsOrCopy.skills.aimWithSliders,
