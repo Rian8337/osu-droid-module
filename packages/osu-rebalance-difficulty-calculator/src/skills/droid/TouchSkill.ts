@@ -5,7 +5,7 @@ import { TouchProbability } from "./TouchProbability";
 import { TouchHand } from "../../structures/TouchHand";
 
 export abstract class TouchSkill extends DroidSkill {
-    private readonly probabilites: TouchProbability[] = [];
+    private readonly probabilities: TouchProbability[] = [];
     private readonly maxProbabilities = 15;
 
     protected readonly clockRate: number;
@@ -26,8 +26,8 @@ export abstract class TouchSkill extends DroidSkill {
     }
 
     protected override strainValueAt(current: DroidDifficultyHitObject) {
-        if (this.probabilites.length === 0) {
-            this.probabilites.push(
+        if (this.probabilities.length === 0) {
+            this.probabilities.push(
                 new TouchProbability(
                     this.mods,
                     this.clockRate,
@@ -42,7 +42,7 @@ export abstract class TouchSkill extends DroidSkill {
 
         const newProbabilities: TouchProbability[] = [];
 
-        for (const probability of this.probabilites) {
+        for (const probability of this.probabilities) {
             const leftProbability = new TouchProbability(probability);
             const rightProbability = new TouchProbability(probability);
             const dragProbability = new TouchProbability(probability);
@@ -76,7 +76,7 @@ export abstract class TouchSkill extends DroidSkill {
         }
 
         // Only keep the most probable possibilities.
-        this.probabilites.length = 0;
+        this.probabilities.length = 0;
         newProbabilities.sort((a, b) => b.probability - a.probability);
 
         const totalProbabilities = Math.min(
@@ -87,18 +87,18 @@ export abstract class TouchSkill extends DroidSkill {
 
         for (let i = 0; i < totalProbabilities; ++i) {
             totalMostProbable += newProbabilities[i].probability;
-            this.probabilites.push(newProbabilities[i]);
+            this.probabilities.push(newProbabilities[i]);
         }
 
         // Make sure total probability sums up to 1.
-        for (const p of this.probabilites) {
+        for (const p of this.probabilities) {
             p.probability =
                 totalMostProbable > 0
                     ? p.probability / totalMostProbable
                     : 1 / totalProbabilities;
         }
 
-        return this.probabilites.reduce(
+        return this.probabilities.reduce(
             (a, v) => a + this.getProbabilityStrain(v) * v.probability,
             0,
         );
