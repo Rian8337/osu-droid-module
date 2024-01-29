@@ -57,8 +57,8 @@ export class RawTouchAim extends RawTouchSkill {
         currentHand: TouchHand.left | TouchHand.right,
         lastHand: TouchHand.left | TouchHand.right,
     ) {
-        let obstructionBonus = 1;
-        let singletapMultiplier = 1;
+        let snapAimMultiplier = 1;
+        let flowAimMultiplier = 1;
         const simulatedObject = this.getSimulatedObject(current, currentHand);
 
         // Add a bonus for the hand co-ordination required to aim with both hands.
@@ -79,13 +79,13 @@ export class RawTouchAim extends RawTouchSkill {
             // Decay by strain time.
             bonus /= 1 + simulatedObject.strainTime / 1000;
 
-            obstructionBonus += bonus;
+            snapAimMultiplier += bonus;
 
-            // Reduction in flow aim value for not dragging objects.
-            singletapMultiplier *= 0.8;
+            // Massive reduction in flow aim value for not dragging objects.
+            flowAimMultiplier *= 0.325;
         } else {
             // Reduction in flow aim value for singletapping consecutive notes.
-            singletapMultiplier *= 0.93;
+            flowAimMultiplier *= 0.93;
         }
 
         const snapAimStrain =
@@ -93,13 +93,13 @@ export class RawTouchAim extends RawTouchSkill {
                 simulatedObject,
                 this.withSliders,
             ) *
-            obstructionBonus *
+            snapAimMultiplier *
             this.snapSkillMultiplier;
 
         const flowAimStrain =
             DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject, true) *
-            obstructionBonus *
-            singletapMultiplier *
+            snapAimMultiplier *
+            flowAimMultiplier *
             this.flowSkillMultiplier;
 
         return snapAimStrain + flowAimStrain;

@@ -6,14 +6,14 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator extends AimEvaluator {
-    protected static override readonly wideAngleMultiplier: number = 1.65;
-    protected static override readonly sliderMultiplier: number = 1.5;
-    protected static override readonly velocityChangeMultiplier: number = 0.85;
+    protected static override readonly wideAngleMultiplier = 1.65;
+    protected static override readonly sliderMultiplier = 1.5;
+    protected static override readonly velocityChangeMultiplier = 0.85;
 
-    private static readonly singleSpacingThreshold: number = 100;
+    private static readonly singleSpacingThreshold = 100;
 
     // 200 1/4 BPM delta time
-    private static readonly minSpeedBonus: number = 75;
+    private static readonly minSpeedBonus = 75;
 
     /**
      * Evaluates the difficulty of aiming the current object, based on:
@@ -266,6 +266,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             3.5,
         );
 
-        return (125 * speedBonus * shortDistancePenalty) / effectiveStrainTime;
+        return (200 * speedBonus * shortDistancePenalty) / effectiveStrainTime;
     }
 }
