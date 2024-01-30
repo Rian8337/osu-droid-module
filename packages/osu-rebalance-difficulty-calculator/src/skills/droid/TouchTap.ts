@@ -3,6 +3,8 @@ import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluato
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchProbability } from "./TouchProbability";
 import { TouchSkill } from "./TouchSkill";
+import { RawTouchAim } from "./RawTouchAim";
+import { RawTouchTap } from "./RawTouchTap";
 
 export class TouchTap extends TouchSkill {
     protected override readonly reducedSectionCount = 10;
@@ -13,6 +15,9 @@ export class TouchTap extends TouchSkill {
     private currentTapStrain = 0;
     private currentRhythmMultiplier = 0;
 
+    private readonly clockRate: number;
+    private readonly greatWindow: number;
+    private readonly isForceAR: boolean;
     private readonly considerCheesability: boolean;
 
     private readonly _objectDeltaTimes: number[] = [];
@@ -31,13 +36,13 @@ export class TouchTap extends TouchSkill {
         isForceAR: boolean,
         considerCheesability: boolean,
     ) {
-        super(
-            mods,
-            clockRate,
-            new OsuHitWindow(overallDifficulty).hitWindowFor300(),
-            isForceAR,
-        );
+        super(mods);
 
+        this.clockRate = clockRate;
+        this.greatWindow = new OsuHitWindow(
+            overallDifficulty,
+        ).hitWindowFor300();
+        this.isForceAR = isForceAR;
         this.considerCheesability = considerCheesability;
     }
 
@@ -113,19 +118,28 @@ export class TouchTap extends TouchSkill {
         return this.currentTapStrain * this.currentRhythmMultiplier;
     }
 
+    protected override getRawSkills() {
+        return [
+            new RawTouchAim(this.mods, this.clockRate, this.isForceAR, true),
+            new RawTouchTap(
+                this.mods,
+                this.clockRate,
+                this.isForceAR,
+                this.greatWindow,
+                this.considerCheesability,
+            ),
+        ];
+    }
+
     protected override getProbabilityStrain(probability: TouchProbability) {
-        if (this.considerCheesability) {
-            return probability.skills.tapWithCheesability.currentStrain;
-        } else {
-            return probability.skills.tapWithoutCheesability.currentStrain;
-        }
+        return probability.skills[1].currentStrain;
     }
 
     protected override getProbabilityTotalStrain(
         probability: TouchProbability,
     ) {
         return this.calculateTotalStrain(
-            probability.skills.aimWithSliders.currentStrain,
+            probability.skills[0].currentStrain,
             this.getProbabilityStrain(probability),
         );
     }

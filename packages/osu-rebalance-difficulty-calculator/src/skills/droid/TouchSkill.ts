@@ -1,41 +1,21 @@
-import { Mod } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 import { TouchProbability } from "./TouchProbability";
 import { TouchHand } from "../../structures/TouchHand";
+import { RawTouchSkill } from "./RawTouchSkill";
 
 export abstract class TouchSkill extends DroidSkill {
     private readonly probabilities: TouchProbability[] = [];
     private readonly maxProbabilities = 15;
 
-    protected readonly clockRate: number;
-    protected readonly greatWindow: number;
-    protected readonly isForceAR: boolean;
-
-    constructor(
-        mods: Mod[],
-        clockRate: number,
-        greatWindow: number,
-        isForceAR: boolean,
-    ) {
-        super(mods);
-
-        this.clockRate = clockRate;
-        this.greatWindow = greatWindow;
-        this.isForceAR = isForceAR;
-    }
-
     protected override strainValueAt(current: DroidDifficultyHitObject) {
-        if (this.probabilities.length === 0) {
-            this.probabilities.push(
-                new TouchProbability(
-                    this.mods,
-                    this.clockRate,
-                    this.greatWindow,
-                    current,
-                    this.isForceAR,
-                ),
-            );
+        if (current.index === 0) {
+            const probability = new TouchProbability(this.getRawSkills());
+
+            // Process the first object to add to history.
+            probability.process(current, TouchHand.drag);
+
+            this.probabilities.push(probability);
 
             return 0;
         }
@@ -110,6 +90,8 @@ export abstract class TouchSkill extends DroidSkill {
             2 / 3,
         );
     }
+
+    protected abstract getRawSkills(): RawTouchSkill[];
 
     protected abstract getProbabilityStrain(
         probability: TouchProbability,

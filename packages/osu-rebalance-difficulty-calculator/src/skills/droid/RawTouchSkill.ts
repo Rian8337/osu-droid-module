@@ -27,16 +27,10 @@ export abstract class RawTouchSkill {
     }
 
     constructor(copy: RawTouchSkill);
-    constructor(
-        mods: Mod[],
-        clockRate: number,
-        firstObject: DroidDifficultyHitObject,
-        isForceAR: boolean,
-    );
+    constructor(mods: Mod[], clockRate: number, isForceAR: boolean);
     constructor(
         modsOrCopy: Mod[] | RawTouchSkill,
         clockRate?: number,
-        firstObject?: DroidDifficultyHitObject,
         isForceAR?: boolean,
     ) {
         if (modsOrCopy instanceof RawTouchSkill) {
@@ -65,21 +59,29 @@ export abstract class RawTouchSkill {
         this.clockRate = clockRate!;
         this.isForceAR = isForceAR!;
 
-        // Automatically assume the first note of a beatmap is hit with the left hand and the second note is hit with the right.
-        this.lastObjects[TouchHand.left].push(firstObject!.previous(0)!.object);
-        this.lastObjects[TouchHand.right].push(firstObject!.object);
-        this.lastDifficultyObjects[TouchHand.left].push(
-            firstObject!.previous(0)!,
-        );
-        this.lastDifficultyObjects[TouchHand.right].push(firstObject!);
-
         this.lastHand = TouchHand.right;
     }
 
     process(current: DroidDifficultyHitObject, currentHand: TouchHand) {
+        if (current.index === 0) {
+            const previous = current.previous(0)!;
+
+            // Automatically assume the first note of a beatmap is hit with
+            // the left hand and the second note is hit with the right.
+            this.lastObjects[TouchHand.left].push(previous.object);
+            this.lastObjects[TouchHand.right].push(current.object);
+
+            this.lastDifficultyObjects[TouchHand.left].push(previous);
+            this.lastDifficultyObjects[TouchHand.right].push(current);
+
+            return;
+        }
+
         this.updateStrainValue(current, currentHand);
         this.updateHistory(current, currentHand);
     }
+
+    abstract clone(): RawTouchSkill;
 
     protected abstract strainValueOf(current: DroidDifficultyHitObject): number;
 

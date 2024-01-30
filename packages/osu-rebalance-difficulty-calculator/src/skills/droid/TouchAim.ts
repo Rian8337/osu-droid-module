@@ -2,6 +2,8 @@ import { Mod, OsuHitWindow } from "@rian8337/osu-base";
 import { TouchProbability } from "./TouchProbability";
 import { TouchSkill } from "./TouchSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { RawTouchAim } from "./RawTouchAim";
+import { RawTouchTap } from "./RawTouchTap";
 
 export class TouchAim extends TouchSkill {
     protected override readonly strainDecayBase = 0.15;
@@ -9,7 +11,11 @@ export class TouchAim extends TouchSkill {
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly starsPerDouble = 1.05;
 
+    private readonly clockRate: number;
+    private readonly greatWindow: number;
+    private readonly isForceAR: boolean;
     private readonly withSliders: boolean;
+
     private currentAimStrain = 0;
 
     constructor(
@@ -19,12 +25,13 @@ export class TouchAim extends TouchSkill {
         isForceAR: boolean,
         withSliders: boolean,
     ) {
-        super(
-            mods,
-            clockRate,
-            new OsuHitWindow(overallDifficulty).hitWindowFor300(),
-            isForceAR,
-        );
+        super(mods);
+
+        this.clockRate = clockRate;
+        this.greatWindow = new OsuHitWindow(
+            overallDifficulty,
+        ).hitWindowFor300();
+        this.isForceAR = isForceAR;
 
         this.withSliders = withSliders;
     }
@@ -35,12 +42,26 @@ export class TouchAim extends TouchSkill {
         return this.currentAimStrain;
     }
 
+    protected override getRawSkills() {
+        return [
+            new RawTouchAim(
+                this.mods,
+                this.clockRate,
+                this.isForceAR,
+                this.withSliders,
+            ),
+            new RawTouchTap(
+                this.mods,
+                this.clockRate,
+                this.isForceAR,
+                this.greatWindow,
+                true,
+            ),
+        ];
+    }
+
     protected override getProbabilityStrain(probability: TouchProbability) {
-        if (this.withSliders) {
-            return probability.skills.aimWithSliders.currentStrain;
-        } else {
-            return probability.skills.aimWithoutSliders.currentStrain;
-        }
+        return probability.skills[0].currentStrain;
     }
 
     protected override getProbabilityTotalStrain(
@@ -48,7 +69,7 @@ export class TouchAim extends TouchSkill {
     ) {
         return this.calculateTotalStrain(
             this.getProbabilityStrain(probability),
-            probability.skills.tapWithCheesability.currentStrain,
+            probability.skills[1].currentStrain,
         );
     }
 

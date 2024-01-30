@@ -15,14 +15,12 @@ export class RawTouchAim extends RawTouchSkill {
     constructor(
         mods: Mod[],
         clockRate: number,
-        firstObject: DroidDifficultyHitObject,
         isForceAR: boolean,
         withSliders: boolean,
     );
     constructor(
         modsOrCopy: Mod[] | RawTouchAim,
         clockRate?: number,
-        firstObject?: DroidDifficultyHitObject,
         isForceAR?: boolean,
         withSliders?: boolean,
     ) {
@@ -35,9 +33,13 @@ export class RawTouchAim extends RawTouchSkill {
         }
 
         // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, firstObject!, isForceAR!);
+        super(modsOrCopy, clockRate!, isForceAR!);
 
         this.withSliders = withSliders!;
+    }
+
+    override clone(): RawTouchAim {
+        return new RawTouchAim(this);
     }
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {

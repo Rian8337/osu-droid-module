@@ -15,7 +15,6 @@ export class RawTouchTap extends RawTouchSkill {
     constructor(
         mods: Mod[],
         clockRate: number,
-        firstObject: DroidDifficultyHitObject,
         isForceAR: boolean,
         greatWindow: number,
         considerCheesability: boolean,
@@ -23,7 +22,6 @@ export class RawTouchTap extends RawTouchSkill {
     constructor(
         modsOrCopy: Mod[] | RawTouchTap,
         clockRate?: number,
-        firstObject?: DroidDifficultyHitObject,
         isForceAR?: boolean,
         greatWindow?: number,
         considerCheesability?: boolean,
@@ -38,10 +36,14 @@ export class RawTouchTap extends RawTouchSkill {
         }
 
         // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, firstObject!, isForceAR!);
+        super(modsOrCopy, clockRate!, isForceAR!);
 
         this.greatWindow = greatWindow!;
         this.considerCheesability = considerCheesability!;
+    }
+
+    override clone(): RawTouchTap {
+        return new RawTouchTap(this);
     }
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {
