@@ -1,5 +1,4 @@
 import { Mod, OsuHitWindow } from "@rian8337/osu-base";
-import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchProbability } from "./TouchProbability";
 import { TouchSkill } from "./TouchSkill";
@@ -105,11 +104,7 @@ export class TouchTap extends TouchSkill {
     }
 
     protected override strainValueAt(current: DroidDifficultyHitObject) {
-        this.currentRhythmMultiplier =
-            DroidRhythmEvaluator.evaluateDifficultyOf(
-                current,
-                this.greatWindow,
-            );
+        this.currentRhythmMultiplier = current.rhythmMultiplier;
 
         this.currentTapStrain = super.strainValueAt(current);
 

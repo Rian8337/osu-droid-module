@@ -275,12 +275,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const skills: DroidSkill[] = this.createSkills();
         this.calculateSkills(...skills);
 
-        const touchAimSkill = <TouchAim>skills[0];
-        const touchAimSkillWithoutSliders = <TouchAim>skills[1];
-        const aimSkillWithSliders = <DroidAim>skills[2];
-        const touchTapSkillCheese = <TouchTap>skills[3];
-        const tapSkillNoVibro = <DroidTap>skills[5];
-        const rhythmSkill = <DroidRhythm>skills[6];
+        const rhythmSkill = <DroidRhythm>skills[0];
+        const touchAimSkill = <TouchAim>skills[1];
+        const touchAimSkillWithoutSliders = <TouchAim>skills[2];
+        const aimSkillWithSliders = <DroidAim>skills[3];
+        const touchTapSkillCheese = <TouchTap>skills[4];
+        const tapSkillNoVibro = <DroidTap>skills[6];
         const flashlightSkill = <DroidFlashlight>skills[7];
         const flashlightSkillWithoutSliders = <DroidFlashlight>skills[8];
         const visualSkill = <DroidVisual>skills[9];
@@ -374,6 +374,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const od: number = this.stats.od!;
 
         return [
+            // Rhythm is very dependent, so we put it first
+            new DroidRhythm(this.mods, od),
             // Touch aim with sliders
             new TouchAim(
                 this.mods,
@@ -410,7 +412,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             ),
             // Non-vibro tap
             new DroidTap(this.mods, od, true),
-            new DroidRhythm(this.mods, od),
             new DroidFlashlight(this.mods, true),
             new DroidFlashlight(this.mods, false),
             new DroidVisual(this.mods, true),
