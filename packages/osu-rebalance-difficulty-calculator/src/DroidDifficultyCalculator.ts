@@ -32,34 +32,44 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     /**
      * The aim star rating of the beatmap.
      */
-    aim: number = 0;
+    get aim(): number {
+        return this.attributes.aimDifficulty;
+    }
 
     /**
      * The tap star rating of the beatmap.
      */
-    tap: number = 0;
+    get tap(): number {
+        return this.attributes.tapDifficulty;
+    }
 
     /**
      * The rhythm star rating of the beatmap.
      */
-    rhythm: number = 0;
+    get rhythm(): number {
+        return this.attributes.rhythmDifficulty;
+    }
 
     /**
      * The flashlight star rating of the beatmap.
      */
-    flashlight: number = 0;
+    get flashlight(): number {
+        return this.attributes.flashlightDifficulty;
+    }
 
     /**
      * The visual star rating of the beatmap.
      */
-    visual: number = 0;
+    get visual(): number {
+        return this.attributes.visualDifficulty;
+    }
 
     /**
      * The strain threshold to start detecting for possible three-fingered section.
      *
      * Increasing this number will result in less sections being flagged.
      */
-    static readonly threeFingerStrainThreshold: number = 175;
+    static readonly threeFingerStrainThreshold = 175;
 
     override readonly attributes: ExtendedDroidDifficultyAttributes = {
         tapDifficulty: 0,
@@ -120,8 +130,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         };
     }
 
-    protected override readonly difficultyMultiplier: number = 0.18;
-    protected override readonly mode: Modes = Modes.droid;
+    protected override readonly difficultyMultiplier = 0.18;
+    protected override readonly mode = Modes.droid;
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
@@ -223,7 +233,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      */
     calculateVisual(): void {
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.visual = this.attributes.visualDifficulty = 0;
+            this.attributes.visualDifficulty = 0;
 
             return;
         }
@@ -433,7 +443,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.strainPeaks.aimWithoutSliders =
             touchAimSkillWithoutSliders.strainPeaks;
 
-        this.aim = this.starValue(touchAimSkill.difficultyValue());
+        this.attributes.aimDifficulty = this.starValue(
+            touchAimSkill.difficultyValue(),
+        );
 
         if (this.aim) {
             this.attributes.sliderFactor =
@@ -442,10 +454,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.aim *= 0.9;
+            this.attributes.aimDifficulty *= 0.9;
         }
 
-        this.attributes.aimDifficulty = this.aim;
         this.attributes.aimDifficultStrainCount =
             touchAimSkill.countDifficultStrains();
 
@@ -460,7 +471,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         for (let i = 0; i < this.objects.length; ++i) {
             const object = this.objects[i];
-            const velocity: number = object.travelDistance / object.travelTime;
+            const velocity = object.travelDistance / object.travelTime;
             if (velocity > 0) {
                 topDifficultSliders.push({
                     index: i,
@@ -469,13 +480,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             }
         }
 
-        const velocitySum: number = topDifficultSliders.reduce(
+        const velocitySum = topDifficultSliders.reduce(
             (a, v) => a + v.velocity,
             0,
         );
 
         for (const slider of topDifficultSliders) {
-            const difficultyRating: number = slider.velocity / velocitySum;
+            const difficultyRating = slider.velocity / velocitySum;
 
             // Only consider sliders that are fast enough.
             if (difficultyRating > 0.02) {
@@ -514,10 +525,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.strainPeaks.speed = touchTapSkillCheese.strainPeaks;
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.tap = this.attributes.tapDifficulty = 0;
+            this.attributes.tapDifficulty = 0;
             this.attributes.possibleThreeFingeredSections = [];
         } else {
-            this.tap = this.attributes.tapDifficulty = this.starValue(
+            this.attributes.tapDifficulty = this.starValue(
                 touchTapSkillCheese.difficultyValue(),
             );
         }
@@ -544,15 +555,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     private calculateTapAttributes(): void {
         this.attributes.possibleThreeFingeredSections = [];
         const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
-        const maxSectionDeltaTime: number = 2000;
-        const minSectionObjectCount: number = 5;
-        let firstObjectIndex: number = 0;
+        const maxSectionDeltaTime = 2000;
+        const minSectionObjectCount = 5;
+        let firstObjectIndex = 0;
 
         for (let i = 0; i < this.objects.length - 1; ++i) {
             const current = this.objects[i];
             const next = this.objects[i + 1];
 
-            const realDeltaTime: number =
+            const realDeltaTime =
                 next.object.startTime - current.object.endTime;
 
             if (realDeltaTime >= maxSectionDeltaTime) {
@@ -582,7 +593,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         // Refilter with tap strain in mind.
         const { threeFingerStrainThreshold } = DroidDifficultyCalculator;
         for (const section of tempSections) {
-            let inSpeedSection: boolean = false;
+            let inSpeedSection = false;
             let newFirstObjectIndex = section.firstObjectIndex;
 
             for (
@@ -673,7 +684,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * @param rhythmSkill The rhythm skill.
      */
     private postCalculateRhythm(rhythmSkill: DroidRhythm): void {
-        this.rhythm = this.attributes.rhythmDifficulty = this.mods.some(
+        this.attributes.rhythmDifficulty = this.mods.some(
             (m) => m instanceof ModRelax,
         )
             ? 0
@@ -694,7 +705,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ): void {
         this.strainPeaks.flashlight = flashlightSkill.strainPeaks;
 
-        this.flashlight = this.starValue(flashlightSkill.difficultyValue());
+        this.attributes.flashlightDifficulty = this.starValue(
+            flashlightSkill.difficultyValue(),
+        );
 
         if (this.flashlight) {
             this.attributes.flashlightSliderFactor =
@@ -704,16 +717,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.flashlight *= 0.7;
+            this.attributes.flashlightDifficulty *= 0.7;
         }
 
         const aimRating = this.starValue(aimSkillWithSliders.difficultyValue());
         if (aimRating > 0) {
             // TODO: this is buggy if touch aim rating is not calculated yet.
-            this.flashlight *= this.aim / aimRating;
+            this.attributes.flashlightDifficulty *= this.aim / aimRating;
         }
 
-        this.attributes.flashlightDifficulty = this.flashlight;
         this.attributes.flashlightDifficultStrainCount =
             flashlightSkill.countDifficultStrains();
     }
@@ -728,7 +740,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         visualSkillWithSliders: DroidVisual,
         visualSkillWithoutSliders: DroidVisual,
     ): void {
-        this.visual = this.attributes.visualDifficulty = this.mods.some(
+        this.attributes.visualDifficulty = this.mods.some(
             (m) => m instanceof ModRelax,
         )
             ? 0
