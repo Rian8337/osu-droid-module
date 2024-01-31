@@ -58,7 +58,7 @@ export class RawTouchTap extends RawTouchSkill {
     }
 
     protected override strainValueIf(
-        current: DroidDifficultyHitObject,
+        simulated: DroidDifficultyHitObject,
         currentHand: TouchHand.left | TouchHand.right,
         lastHand: TouchHand.left | TouchHand.right,
     ) {
@@ -71,7 +71,7 @@ export class RawTouchTap extends RawTouchSkill {
 
         return (
             DroidTapEvaluator.evaluateDifficultyOf(
-                this.getSimulatedObject(current, currentHand),
+                simulated,
                 this.greatWindow,
                 this.considerCheesability,
                 true,

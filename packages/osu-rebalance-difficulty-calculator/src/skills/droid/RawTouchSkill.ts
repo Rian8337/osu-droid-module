@@ -77,8 +77,13 @@ export abstract class RawTouchSkill {
             return;
         }
 
-        this.updateStrainValue(current, currentHand);
-        this.updateHistory(current, currentHand);
+        const simulatedObject =
+            currentHand === TouchHand.drag
+                ? current
+                : this.getSimulatedObject(current, currentHand);
+
+        this.updateStrainValue(current, simulatedObject, currentHand);
+        this.updateHistory(simulatedObject, currentHand);
     }
 
     abstract clone(): RawTouchSkill;
@@ -86,7 +91,7 @@ export abstract class RawTouchSkill {
     protected abstract strainValueOf(current: DroidDifficultyHitObject): number;
 
     protected abstract strainValueIf(
-        current: DroidDifficultyHitObject,
+        simulated: DroidDifficultyHitObject,
         currentHand: TouchHand.left | TouchHand.right,
         lastHand: TouchHand.left | TouchHand.right,
     ): number;
@@ -142,15 +147,16 @@ export abstract class RawTouchSkill {
 
     private updateStrainValue(
         current: DroidDifficultyHitObject,
+        simulated: DroidDifficultyHitObject,
         currentHand: TouchHand,
     ) {
         this._currentStrain *= this.strainDecay(current.strainTime);
 
         if (currentHand === TouchHand.drag) {
-            this._currentStrain += this.strainValueOf(current);
+            this._currentStrain += this.strainValueOf(simulated);
         } else {
             this._currentStrain += this.strainValueIf(
-                current,
+                simulated,
                 currentHand,
                 this.lastHand,
             );
@@ -177,9 +183,7 @@ export abstract class RawTouchSkill {
 
         updateHistory(
             this.lastDifficultyObjects[relevantHand],
-            currentHand === TouchHand.drag
-                ? current
-                : this.getSimulatedObject(current, currentHand),
+            current,
             this.maxDifficultyObjectsHistory,
         );
 

@@ -55,13 +55,12 @@ export class RawTouchAim extends RawTouchSkill {
     }
 
     protected override strainValueIf(
-        current: DroidDifficultyHitObject,
+        simulated: DroidDifficultyHitObject,
         currentHand: TouchHand.left | TouchHand.right,
         lastHand: TouchHand.left | TouchHand.right,
     ) {
         let obstructionBonus = 1;
         let flowAimMultiplier = 1;
-        const simulatedObject = this.getSimulatedObject(current, currentHand);
 
         // Add a bonus for the hand co-ordination required to aim with both hands.
         if (currentHand !== lastHand) {
@@ -69,7 +68,7 @@ export class RawTouchAim extends RawTouchSkill {
 
             // Add an obstrution bonus if the most recent instance of the "other hand" is in between the current object and the previous object with the actual hand
             const simulatedSwap = this.getSimulatedSwapObject(
-                current,
+                simulated,
                 currentHand,
             );
             const angle = simulatedSwap.angle;
@@ -79,7 +78,7 @@ export class RawTouchAim extends RawTouchSkill {
             }
 
             // Decay by strain time.
-            bonus /= 1 + simulatedObject.strainTime / 1000;
+            bonus /= 1 + simulated.strainTime / 1000;
 
             obstructionBonus += bonus;
 
@@ -92,14 +91,14 @@ export class RawTouchAim extends RawTouchSkill {
 
         const snapAimStrain =
             DroidAimEvaluator.evaluateSnapDifficultyOf(
-                simulatedObject,
+                simulated,
                 this.withSliders,
             ) *
             obstructionBonus *
             this.snapSkillMultiplier;
 
         const flowAimStrain =
-            DroidAimEvaluator.evaluateFlowDifficultyOf(simulatedObject, true) *
+            DroidAimEvaluator.evaluateFlowDifficultyOf(simulated, true) *
             obstructionBonus *
             flowAimMultiplier *
             this.flowSkillMultiplier;
