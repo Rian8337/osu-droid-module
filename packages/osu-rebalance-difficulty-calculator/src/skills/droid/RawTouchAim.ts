@@ -67,7 +67,7 @@ export class RawTouchAim extends RawTouchSkill {
             let bonus = 1.1;
 
             // Add an obstrution bonus if the most recent instance of the "other hand" is in between the current object and the previous object with the actual hand
-            const simulatedSwap = this.getSimulatedSwapObject(
+            const simulatedSwap = this.createSimulatedSwapObject(
                 simulated,
                 currentHand,
             );

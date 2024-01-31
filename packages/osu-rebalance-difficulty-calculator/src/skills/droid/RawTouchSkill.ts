@@ -80,7 +80,7 @@ export abstract class RawTouchSkill {
         const simulatedObject =
             currentHand === TouchHand.drag
                 ? current
-                : this.getSimulatedObject(current, currentHand);
+                : this.createSimulatedObject(current, currentHand);
 
         this.updateStrainValue(current, simulatedObject, currentHand);
         this.updateHistory(simulatedObject, currentHand);
@@ -96,53 +96,29 @@ export abstract class RawTouchSkill {
         lastHand: TouchHand.left | TouchHand.right,
     ): number;
 
-    protected getSimulatedObject(
+    protected createSimulatedObject(
         current: DroidDifficultyHitObject,
         currentHand: TouchHand.left | TouchHand.right,
     ) {
-        // A simulated difficulty object is created for angle calculation.
-        const lastObjects = this.lastObjects[currentHand];
-        const lastLast = lastObjects.at(-2);
-        const last = lastObjects.at(-1);
-
-        const difficultyObject = new DroidDifficultyHitObject(
-            current.object,
-            last ?? null,
-            lastLast ?? null,
-            this.lastDifficultyObjects[currentHand],
-            this.clockRate,
-            current.timePreempt,
-            this.isForceAR,
+        // A simulated difficulty object is created for hand-specific difficulty properties.
+        return this.createDifficultyHitObject(
+            current,
+            this.lastObjects[currentHand].at(-1) ?? null,
+            this.lastObjects[currentHand].at(-2) ?? null,
+            currentHand,
         );
-
-        difficultyObject.computeProperties(this.clockRate, lastObjects);
-
-        return difficultyObject;
     }
 
-    protected getSimulatedSwapObject(
+    protected createSimulatedSwapObject(
         current: DroidDifficultyHitObject,
         currentHand: TouchHand.left | TouchHand.right,
     ) {
-        const last = this.lastObjects[this.otherHand(currentHand)].at(-1);
-        const lastLast = this.lastObjects[currentHand].at(-1);
-
-        const difficultyObject = new DroidDifficultyHitObject(
-            current.object,
-            last ?? null,
-            lastLast ?? null,
-            this.lastDifficultyObjects[currentHand],
-            this.clockRate,
-            current.timePreempt,
-            this.isForceAR,
+        return this.createDifficultyHitObject(
+            current,
+            this.lastObjects[this.otherHand(currentHand)].at(-1) ?? null,
+            this.lastObjects[currentHand].at(-1) ?? null,
+            currentHand,
         );
-
-        difficultyObject.computeProperties(
-            this.clockRate,
-            this.lastObjects[currentHand],
-        );
-
-        return difficultyObject;
     }
 
     private updateStrainValue(
@@ -194,6 +170,30 @@ export abstract class RawTouchSkill {
         );
 
         this.lastHand = relevantHand;
+    }
+
+    private createDifficultyHitObject(
+        current: DroidDifficultyHitObject,
+        last: PlaceableHitObject | null,
+        lastLast: PlaceableHitObject | null,
+        currentHand: TouchHand.left | TouchHand.right,
+    ) {
+        const difficultyObject = new DroidDifficultyHitObject(
+            current.object,
+            last,
+            lastLast,
+            this.lastDifficultyObjects[currentHand],
+            this.clockRate,
+            current.timePreempt,
+            this.isForceAR,
+        );
+
+        difficultyObject.computeProperties(
+            this.clockRate,
+            this.lastObjects[currentHand],
+        );
+
+        return difficultyObject;
     }
 
     private strainDecay(ms: number) {
