@@ -145,13 +145,13 @@ export abstract class DifficultyHitObject {
      * @param clockRate The clock rate of the beatmap.
      * @param timePreempt The time preempt with clock rate.
      * @param isForceAR Whether force AR is enabled.
-     * @param mode The gamemode to compute properties for.
      */
-    protected constructor(
+    constructor(
         object: PlaceableHitObject,
         lastObject: PlaceableHitObject | null,
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
+        index: number,
         clockRate: number,
         timePreempt: number,
         isForceAR: boolean,
@@ -161,7 +161,7 @@ export abstract class DifficultyHitObject {
         this.lastLastObject = lastLastObject;
         this.hitObjects = difficultyHitObjects;
 
-        this.index = difficultyHitObjects.length - 1;
+        this.index = index;
         this.baseTimePreempt = timePreempt;
         this.timePreempt = timePreempt;
 

@@ -189,15 +189,15 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override generateDifficultyHitObjects() {
-        const difficultyObjects: OsuDifficultyHitObject[] = [];
-        const { objects } = this.beatmap.hitObjects;
+        const { objects: hitObjects } = this.beatmap.hitObjects;
 
-        for (let i = 0; i < objects.length; ++i) {
+        for (let i = 0; i < hitObjects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
-                objects[i],
-                objects[i - 1] ?? null,
-                objects[i - 2] ?? null,
-                difficultyObjects,
+                hitObjects[i],
+                hitObjects[i - 1] ?? null,
+                hitObjects[i - 2] ?? null,
+                this.objects,
+                i - 1,
                 this.stats.speedMultiplier,
                 MapStats.arToMS(this.stats.ar!),
                 this.stats.forceAR,
@@ -205,13 +205,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
             difficultyObject.computeProperties(
                 this.stats.speedMultiplier,
-                objects,
+                hitObjects,
             );
 
-            difficultyObjects.push(difficultyObject);
+            this.objects[i] = difficultyObject;
         }
-
-        return difficultyObjects;
     }
 
     protected override createSkills(): OsuSkill[] {

@@ -238,28 +238,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
-        const visualSkill: DroidVisual = new DroidVisual(this.mods, true);
-        const visualSkillWithoutSliders: DroidVisual = new DroidVisual(
-            this.mods,
-            false,
-        );
+        const visualSkill = new DroidVisual(this.mods, true);
+        const visualSkillWithoutSliders = new DroidVisual(this.mods, false);
 
         this.calculateSkills(visualSkill, visualSkillWithoutSliders);
         this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
     }
 
     override calculateTotal(): void {
-        const aimPerformanceValue: number = this.basePerformanceValue(this.aim);
-        const tapPerformanceValue: number = this.basePerformanceValue(this.tap);
-        const flashlightPerformanceValue: number = this.mods.some(
+        const aimPerformanceValue = this.basePerformanceValue(this.aim);
+        const tapPerformanceValue = this.basePerformanceValue(this.tap);
+        const flashlightPerformanceValue = this.mods.some(
             (m) => m instanceof ModFlashlight,
         )
             ? Math.pow(this.flashlight, 2) * 25
             : 0;
-        const visualPerformanceValue: number =
-            Math.pow(this.visual, 1.6) * 22.5;
+        const visualPerformanceValue = Math.pow(this.visual, 1.6) * 22.5;
 
-        const basePerformanceValue: number = Math.pow(
+        const basePerformanceValue = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
                 Math.pow(tapPerformanceValue, 1.1) +
                 Math.pow(flashlightPerformanceValue, 1.1) +
@@ -282,7 +278,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     override calculateAll(): void {
-        const skills: DroidSkill[] = this.createSkills();
+        const skills = this.createSkills();
         this.calculateSkills(...skills);
 
         const rhythmSkill = <DroidRhythm>skills[0];
@@ -340,7 +336,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override preProcess(): void {
-        const scale: number = CircleSizeCalculator.standardCSToStandardScale(
+        const scale = CircleSizeCalculator.standardCSToStandardScale(
             this.stats.cs!,
         );
 
@@ -355,15 +351,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override generateDifficultyHitObjects() {
-        const difficultyObjects: DroidDifficultyHitObject[] = [];
-        const { objects } = this.beatmap.hitObjects;
+        const { objects: hitObjects } = this.beatmap.hitObjects;
 
-        for (let i = 0; i < objects.length; ++i) {
+        for (let i = 0; i < hitObjects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
-                objects[i],
-                objects[i - 1] ?? null,
-                objects[i - 2] ?? null,
-                difficultyObjects,
+                hitObjects[i],
+                hitObjects[i - 1] ?? null,
+                hitObjects[i - 2] ?? null,
+                this.objects,
+                i - 1,
                 this.stats.speedMultiplier,
                 MapStats.arToMS(this.stats.ar!),
                 this.stats.forceAR,
@@ -371,17 +367,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             difficultyObject.computeProperties(
                 this.stats.speedMultiplier,
-                objects,
+                hitObjects,
             );
 
-            difficultyObjects.push(difficultyObject);
+            this.objects[i] = difficultyObject;
         }
-
-        return difficultyObjects;
     }
 
     protected override createSkills(): DroidSkill[] {
-        const od: number = this.stats.od!;
+        const od = this.stats.od!;
 
         return [
             // Rhythm is very dependent, so we put it first
@@ -554,6 +548,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      */
     private calculateTapAttributes(): void {
         this.attributes.possibleThreeFingeredSections = [];
+
         const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
         const maxSectionDeltaTime = 2000;
         const minSectionObjectCount = 5;

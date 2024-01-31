@@ -183,6 +183,7 @@ export abstract class RawTouchSkill {
             last,
             lastLast,
             this.lastDifficultyObjects[currentHand],
+            this.lastDifficultyObjects[currentHand].length - 1,
             this.clockRate,
             current.timePreempt,
             this.isForceAR,

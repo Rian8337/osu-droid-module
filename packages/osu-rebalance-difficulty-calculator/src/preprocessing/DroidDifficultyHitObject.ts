@@ -72,38 +72,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         return scalingFactor;
     }
 
-    /**
-     * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
-     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue.).
-     *
-     * @param object The underlying hitobject.
-     * @param lastObject The hitobject before this hitobject.
-     * @param lastLastObject The hitobject before the last hitobject.
-     * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
-     * @param clockRate The clock rate of the beatmap.
-     * @param timePreempt The time preempt with clock rate.
-     * @param isForceAR Whether force AR is enabled.
-     */
-    constructor(
-        object: PlaceableHitObject,
-        lastObject: PlaceableHitObject | null,
-        lastLastObject: PlaceableHitObject | null,
-        difficultyHitObjects: readonly DifficultyHitObject[],
-        clockRate: number,
-        timePreempt: number,
-        isForceAR: boolean,
-    ) {
-        super(
-            object,
-            lastObject,
-            lastLastObject,
-            difficultyHitObjects,
-            clockRate,
-            timePreempt,
-            isForceAR,
-        );
-    }
-
     override computeProperties(
         clockRate: number,
         hitObjects: readonly PlaceableHitObject[],

@@ -21,7 +21,7 @@ export abstract class DifficultyCalculator<
     /**
      * The difficulty objects of the beatmap.
      */
-    readonly objects: THitObject[] = [];
+    readonly objects: THitObject[];
 
     /**
      * The modifications applied.
@@ -68,6 +68,7 @@ export abstract class DifficultyCalculator<
      */
     constructor(beatmap: Beatmap) {
         this.beatmap = Utils.deepCopy(beatmap);
+        this.objects = new Array(this.beatmap.hitObjects.objects.length);
     }
 
     /**
@@ -110,7 +111,7 @@ export abstract class DifficultyCalculator<
 
         this.populateDifficultyAttributes();
 
-        this.objects.push(...this.generateDifficultyHitObjects());
+        this.generateDifficultyHitObjects();
 
         this.calculateAll();
 
@@ -120,7 +121,7 @@ export abstract class DifficultyCalculator<
     /**
      * Generates difficulty hitobjects for this calculator.
      */
-    protected abstract generateDifficultyHitObjects(): THitObject[];
+    protected abstract generateDifficultyHitObjects(): void;
 
     /**
      * Performs some pre-processing before proceeding with difficulty calculation.
