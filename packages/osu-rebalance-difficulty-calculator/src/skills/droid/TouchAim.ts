@@ -21,13 +21,14 @@ export class TouchAim extends TouchSkill {
 
     constructor(
         mods: Mod[],
+        objectCount: number,
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         clockRate: number,
         overallDifficulty: number,
         isForceAR: boolean,
         withSliders: boolean,
     ) {
-        super(mods, objectCache);
+        super(mods, objectCount, objectCache);
 
         this.clockRate = clockRate;
         this.greatWindow = new OsuHitWindow(

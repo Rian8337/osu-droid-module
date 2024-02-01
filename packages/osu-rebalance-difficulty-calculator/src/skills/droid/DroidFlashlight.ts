@@ -8,18 +8,18 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class DroidFlashlight extends DroidSkill {
-    protected override readonly strainDecayBase: number = 0.15;
-    protected override readonly reducedSectionCount: number = 0;
-    protected override readonly reducedSectionBaseline: number = 1;
-    protected override readonly starsPerDouble: number = 1.06;
+    protected override readonly strainDecayBase = 0.15;
+    protected override readonly reducedSectionCount = 0;
+    protected override readonly reducedSectionBaseline = 1;
+    protected override readonly starsPerDouble = 1.06;
 
-    private readonly skillMultiplier: number = 0.052;
+    private readonly skillMultiplier = 0.052;
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
-    private currentFlashlightStrain: number = 0;
+    private currentFlashlightStrain = 0;
 
-    constructor(mods: Mod[], withSliders: boolean) {
-        super(mods);
+    constructor(mods: Mod[], objectCount: number, withSliders: boolean) {
+        super(mods, objectCount);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
         this.withSliders = withSliders;

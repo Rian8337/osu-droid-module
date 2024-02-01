@@ -7,20 +7,20 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * Represents the skill required to read every object in the map.
  */
 export class DroidVisual extends DroidSkill {
-    protected override readonly starsPerDouble: number = 1.025;
-    protected override readonly reducedSectionCount: number = 10;
-    protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly strainDecayBase: number = 0.1;
+    protected override readonly starsPerDouble = 1.025;
+    protected override readonly reducedSectionCount = 10;
+    protected override readonly reducedSectionBaseline = 0.75;
+    protected override readonly strainDecayBase = 0.1;
 
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
 
-    private currentVisualStrain: number = 0;
-    private currentRhythmMultiplier: number = 1;
-    private readonly skillMultiplier: number = 10;
+    private currentVisualStrain = 0;
+    private currentRhythmMultiplier = 1;
+    private readonly skillMultiplier = 10;
 
-    constructor(mods: Mod[], withSliders: boolean) {
-        super(mods);
+    constructor(mods: Mod[], objectCount: number, withSliders: boolean) {
+        super(mods, objectCount);
 
         this.isHidden = mods.some((m) => m instanceof ModHidden);
         this.withSliders = withSliders;

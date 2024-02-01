@@ -20,7 +20,7 @@ export class TouchTap extends TouchSkill {
     private readonly isForceAR: boolean;
     private readonly considerCheesability: boolean;
 
-    private readonly _objectDeltaTimes: number[] = [];
+    private readonly _objectDeltaTimes: number[];
 
     /**
      * The delta time of hitobjects.
@@ -31,13 +31,14 @@ export class TouchTap extends TouchSkill {
 
     constructor(
         mods: Mod[],
+        objectCount: number,
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         clockRate: number,
         overallDifficulty: number,
         isForceAR: boolean,
         considerCheesability: boolean,
     ) {
-        super(mods, objectCache);
+        super(mods, objectCount, objectCache);
 
         this.clockRate = clockRate;
         this.greatWindow = new OsuHitWindow(
@@ -45,6 +46,8 @@ export class TouchTap extends TouchSkill {
         ).hitWindowFor300();
         this.isForceAR = isForceAR;
         this.considerCheesability = considerCheesability;
+
+        this._objectDeltaTimes = new Array(objectCount);
     }
 
     /**
@@ -55,7 +58,7 @@ export class TouchTap extends TouchSkill {
             return 0;
         }
 
-        const maxStrain: number = Math.max(...this._objectStrains);
+        const maxStrain = Math.max(...this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;
@@ -76,7 +79,7 @@ export class TouchTap extends TouchSkill {
             return 0;
         }
 
-        const maxStrain: number = Math.max(...this._objectStrains);
+        const maxStrain = Math.max(...this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;
@@ -110,7 +113,7 @@ export class TouchTap extends TouchSkill {
 
         this.currentTapStrain = super.strainValueAt(current);
 
-        this._objectDeltaTimes.push(current.deltaTime);
+        this._objectDeltaTimes[current.index] = current.deltaTime;
 
         return this.currentTapStrain * this.currentRhythmMultiplier;
     }

@@ -14,12 +14,14 @@ export class DroidRhythm extends DroidSkill {
 
     private currentRhythmStrain: number = 0;
     private currentRhythmMultiplier: number = 1;
-    private readonly hitWindow: OsuHitWindow;
+    private readonly greatWindow: number;
 
-    constructor(mods: Mod[], overallDifficulty: number) {
-        super(mods);
+    constructor(mods: Mod[], objectCount: number, overallDifficulty: number) {
+        super(mods, objectCount);
 
-        this.hitWindow = new OsuHitWindow(overallDifficulty);
+        this.greatWindow = new OsuHitWindow(
+            overallDifficulty,
+        ).hitWindowFor300();
     }
 
     protected override strainValueAt(
@@ -28,7 +30,7 @@ export class DroidRhythm extends DroidSkill {
         this.currentRhythmMultiplier =
             DroidRhythmEvaluator.evaluateDifficultyOf(
                 current,
-                this.hitWindow.hitWindowFor300(),
+                this.greatWindow,
             );
 
         this.currentRhythmStrain *= this.strainDecay(current.deltaTime);

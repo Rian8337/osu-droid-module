@@ -146,6 +146,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const aimSkill = new TouchAim(
             this.mods,
+            this.objects.length - 1,
             this.objectCache,
             clockRate,
             od,
@@ -154,6 +155,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
         const aimSkillWithoutSliders = new TouchAim(
             this.mods,
+            this.objects.length - 1,
             this.objectCache,
             clockRate,
             od,
@@ -174,6 +176,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const tapSkillCheese = new TouchTap(
             this.mods,
+            this.objects.length - 1,
             this.objectCache,
             clockRate,
             od,
@@ -182,17 +185,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
         const tapSkillNoCheese = new TouchTap(
             this.mods,
+            this.objects.length - 1,
             this.objectCache,
             clockRate,
             od,
             this.stats.forceAR,
             false,
         );
-        const tapSkillNoVibro = new DroidTap(this.mods, od, true);
+        const tapSkillNoVibro = new DroidTap(
+            this.mods,
+            this.objects.length - 1,
+            od,
+            true,
+        );
         this.calculateSkills(tapSkillCheese, tapSkillNoCheese, tapSkillNoVibro);
 
         const tapSkillVibro = new DroidTap(
             this.mods,
+            this.objects.length - 1,
             od,
             true,
             tapSkillCheese.relevantDeltaTime(),
@@ -207,7 +217,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        const rhythmSkill = new DroidRhythm(this.mods, this.stats.od!);
+        const rhythmSkill = new DroidRhythm(
+            this.mods,
+            this.objects.length - 1,
+            this.stats.od!,
+        );
 
         this.calculateSkills(rhythmSkill);
         this.postCalculateRhythm(rhythmSkill);
@@ -217,12 +231,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
-        const flashlightSkill = new DroidFlashlight(this.mods, true);
+        const flashlightSkill = new DroidFlashlight(
+            this.mods,
+            this.objects.length - 1,
+            true,
+        );
         const flashlightSkillWithoutSliders = new DroidFlashlight(
             this.mods,
+            this.objects.length - 1,
             false,
         );
-        const aimSkillWithSliders = new DroidAim(this.mods, true);
+        const aimSkillWithSliders = new DroidAim(
+            this.mods,
+            this.objects.length - 1,
+            true,
+        );
 
         this.calculateSkills(
             flashlightSkill,
@@ -246,8 +269,16 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
-        const visualSkill = new DroidVisual(this.mods, true);
-        const visualSkillWithoutSliders = new DroidVisual(this.mods, false);
+        const visualSkill = new DroidVisual(
+            this.mods,
+            this.objects.length - 1,
+            true,
+        );
+        const visualSkillWithoutSliders = new DroidVisual(
+            this.mods,
+            this.objects.length - 1,
+            false,
+        );
 
         this.calculateSkills(visualSkill, visualSkillWithoutSliders);
         this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
@@ -302,6 +333,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const tapSkillVibro = new DroidTap(
             this.mods,
+            this.objects.length - 1,
             this.stats.od!,
             true,
             tapSkillNoVibro.relevantDeltaTime(),
@@ -395,10 +427,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         return [
             // Rhythm is very dependent, so we put it first
-            new DroidRhythm(this.mods, od),
+            new DroidRhythm(this.mods, this.objects.length - 1, od),
             // Touch aim with sliders
             new TouchAim(
                 this.mods,
+                this.objects.length - 1,
                 this.objectCache,
                 this.stats.speedMultiplier,
                 od,
@@ -408,6 +441,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Touch aim without sliders
             new TouchAim(
                 this.mods,
+                this.objects.length - 1,
                 this.objectCache,
                 this.stats.speedMultiplier,
                 od,
@@ -415,10 +449,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 false,
             ),
             // Normal aim with sliders, for flashlight rating
-            new DroidAim(this.mods, true),
+            new DroidAim(this.mods, this.objects.length - 1, true),
             // Cheesability tap
             new TouchTap(
                 this.mods,
+                this.objects.length - 1,
                 this.objectCache,
                 this.stats.speedMultiplier,
                 od,
@@ -428,6 +463,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Non-cheesability tap
             new TouchTap(
                 this.mods,
+                this.objects.length - 1,
                 this.objectCache,
                 this.stats.speedMultiplier,
                 od,
@@ -435,11 +471,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 false,
             ),
             // Non-vibro tap
-            new DroidTap(this.mods, od, true),
-            new DroidFlashlight(this.mods, true),
-            new DroidFlashlight(this.mods, false),
-            new DroidVisual(this.mods, true),
-            new DroidVisual(this.mods, false),
+            new DroidTap(this.mods, this.objects.length - 1, od, true),
+            new DroidFlashlight(this.mods, this.objects.length - 1, true),
+            new DroidFlashlight(this.mods, this.objects.length - 1, false),
+            new DroidVisual(this.mods, this.objects.length - 1, true),
+            new DroidVisual(this.mods, this.objects.length - 1, false),
         ];
     }
 

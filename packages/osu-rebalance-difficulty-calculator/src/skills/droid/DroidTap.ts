@@ -20,7 +20,7 @@ export class DroidTap extends DroidSkill {
     private readonly considerCheesability: boolean;
     private readonly strainTimeCap?: number;
 
-    private readonly _objectDeltaTimes: number[] = [];
+    private readonly _objectDeltaTimes: number[];
 
     /**
      * The delta time of hitobjects.
@@ -31,17 +31,20 @@ export class DroidTap extends DroidSkill {
 
     constructor(
         mods: Mod[],
+        objectCount: number,
         overallDifficulty: number,
         considerCheesability: boolean,
         strainTimeCap?: number,
     ) {
-        super(mods);
+        super(mods, objectCount);
 
         this.greatWindow = new OsuHitWindow(
             overallDifficulty,
         ).hitWindowFor300();
         this.considerCheesability = considerCheesability;
         this.strainTimeCap = strainTimeCap;
+
+        this._objectDeltaTimes = new Array(objectCount);
     }
 
     /**
@@ -117,7 +120,7 @@ export class DroidTap extends DroidSkill {
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
 
-        this._objectDeltaTimes.push(current.deltaTime);
+        this._objectDeltaTimes[current.index] = current.deltaTime;
 
         return this.currentTapStrain * this.currentRhythmMultiplier;
     }

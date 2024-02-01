@@ -18,9 +18,10 @@ export abstract class TouchSkill extends DroidSkill {
 
     constructor(
         mods: Mod[],
+        objectCount: number,
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
     ) {
-        super(mods);
+        super(mods, objectCount);
 
         this.objectCache = objectCache;
     }

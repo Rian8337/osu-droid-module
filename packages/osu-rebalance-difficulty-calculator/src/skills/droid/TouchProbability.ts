@@ -11,10 +11,10 @@ export class TouchProbability {
     constructor(skillsOrCopy: RawTouchSkill[] | TouchProbability) {
         if (skillsOrCopy instanceof TouchProbability) {
             this.probability = skillsOrCopy.probability;
-            this.skills = [];
+            this.skills = new Array(skillsOrCopy.skills.length);
 
-            for (const skill of skillsOrCopy.skills) {
-                this.skills.push(skill.clone());
+            for (let i = 0; i < skillsOrCopy.skills.length; ++i) {
+                this.skills[i] = skillsOrCopy.skills[i].clone();
             }
 
             return;

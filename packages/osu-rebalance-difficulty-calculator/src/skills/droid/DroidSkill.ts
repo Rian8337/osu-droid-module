@@ -1,4 +1,4 @@
-import { Interpolation, MathUtils } from "@rian8337/osu-base";
+import { Interpolation, MathUtils, Mod } from "@rian8337/osu-base";
 import { StrainSkill } from "../../base/StrainSkill";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
@@ -12,13 +12,19 @@ export abstract class DroidSkill extends StrainSkill {
      */
     protected abstract readonly starsPerDouble: number;
 
-    protected readonly _objectStrains: number[] = [];
+    protected readonly _objectStrains: number[];
 
     /**
      * The strains of hitobjects.
      */
     get objectStrains(): readonly number[] {
         return this._objectStrains;
+    }
+
+    constructor(mods: Mod[], objectCount: number) {
+        super(mods);
+
+        this._objectStrains = new Array(objectCount);
     }
 
     /**
@@ -31,7 +37,7 @@ export abstract class DroidSkill extends StrainSkill {
             return 0;
         }
 
-        const maxStrain: number = Math.max(...this._objectStrains);
+        const maxStrain = Math.max(...this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;
@@ -46,11 +52,11 @@ export abstract class DroidSkill extends StrainSkill {
     override process(current: DifficultyHitObject): void {
         super.process(current);
 
-        this._objectStrains.push(this.getObjectStrain(current));
+        this._objectStrains[current.index] = this.getObjectStrain(current);
     }
 
     override difficultyValue(): number {
-        const strains: number[] = this.strainPeaks.slice();
+        const strains = this.strainPeaks.slice();
 
         if (this.reducedSectionCount > 0) {
             strains.sort((a, b) => b - a);
@@ -61,7 +67,7 @@ export abstract class DroidSkill extends StrainSkill {
                 i < Math.min(strains.length, this.reducedSectionCount);
                 ++i
             ) {
-                const scale: number = Math.log10(
+                const scale = Math.log10(
                     Interpolation.lerp(
                         1,
                         10,
