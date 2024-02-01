@@ -7,37 +7,33 @@ import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
  * This cache is minimal by design as it is only used for touch star rating assessments.
  */
 export class DifficultyHitObjectCache<T extends DifficultyHitObject> {
-    private readonly cache = new Set<T>();
+    private readonly cache: T[] = [];
 
     /**
-     * Adds a {@link T} to this cache.
+     * Adds a {@link DifficultyHitObject} to this cache.
      *
-     * @param object The {@link T} to add.
-     * @returns Whether the {@link T} was added.
+     * @param object The {@link DifficultyHitObject} to add.
+     * @returns Whether the {@link DifficultyHitObject} was added.
      */
     add(object: T): boolean {
-        if (this.cache.has(object)) {
-            return false;
-        }
-
         for (const o of this.cache) {
             if (o.equals(object)) {
                 return false;
             }
         }
 
-        this.cache.add(object);
+        this.cache.push(object);
 
         return true;
     }
 
     /**
-     * Gets a {@link T} from this cache.
+     * Gets a {@link DifficultyHitObject} from this cache.
      *
      * @param current The {@link PlaceableHitObject} to get for.
      * @param last The last {@link PlaceableHitObject}.
      * @param lastLast The object before the last {@link PlaceableHitObject}.
-     * @returns The {@link T}, `null` if not found.
+     * @returns The {@link DifficultyHitObject}, `null` if not found.
      */
     get(
         current: PlaceableHitObject,
@@ -57,6 +53,6 @@ export class DifficultyHitObjectCache<T extends DifficultyHitObject> {
      * Clears this cache.
      */
     clear() {
-        this.cache.clear();
+        this.cache.length = 0;
     }
 }
