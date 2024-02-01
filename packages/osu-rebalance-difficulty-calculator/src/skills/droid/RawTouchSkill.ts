@@ -1,6 +1,7 @@
 import { Mod, PlaceableHitObject } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchHand } from "../../structures/TouchHand";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 
 export abstract class RawTouchSkill {
     protected abstract readonly strainDecayBase: number;
@@ -8,6 +9,7 @@ export abstract class RawTouchSkill {
     private readonly mods: Mod[];
     private readonly clockRate: number;
     private readonly isForceAR: boolean;
+    private readonly objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>;
 
     private readonly lastObjects: [PlaceableHitObject[], PlaceableHitObject[]] =
         [[], []];
@@ -27,16 +29,23 @@ export abstract class RawTouchSkill {
     }
 
     constructor(copy: RawTouchSkill);
-    constructor(mods: Mod[], clockRate: number, isForceAR: boolean);
+    constructor(
+        mods: Mod[],
+        clockRate: number,
+        isForceAR: boolean,
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
+    );
     constructor(
         modsOrCopy: Mod[] | RawTouchSkill,
         clockRate?: number,
         isForceAR?: boolean,
+        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
     ) {
         if (modsOrCopy instanceof RawTouchSkill) {
             this.mods = modsOrCopy.mods.slice();
             this.clockRate = modsOrCopy.clockRate;
             this.isForceAR = modsOrCopy.isForceAR;
+            this.objectCache = modsOrCopy.objectCache;
 
             this._currentStrain = modsOrCopy._currentStrain;
             this.lastHand = modsOrCopy.lastHand;
@@ -58,6 +67,7 @@ export abstract class RawTouchSkill {
         // These are safe to non-null (see constructor overloads).
         this.clockRate = clockRate!;
         this.isForceAR = isForceAR!;
+        this.objectCache = objectCache!;
 
         this.lastHand = TouchHand.right;
     }
@@ -178,6 +188,16 @@ export abstract class RawTouchSkill {
         lastLast: PlaceableHitObject | null,
         currentHand: TouchHand.left | TouchHand.right,
     ) {
+        const cachedObject = this.objectCache.get(
+            current.object,
+            last,
+            lastLast,
+        );
+
+        if (cachedObject) {
+            return cachedObject.with(this.lastDifficultyObjects[currentHand]);
+        }
+
         const difficultyObject = new DroidDifficultyHitObject(
             current.object,
             last,
@@ -189,10 +209,9 @@ export abstract class RawTouchSkill {
             this.isForceAR,
         );
 
-        difficultyObject.computeProperties(
-            this.clockRate,
-            this.lastObjects[currentHand],
-        );
+        difficultyObject.computeProperties(this.lastObjects[currentHand]);
+
+        this.objectCache.add(difficultyObject);
 
         return difficultyObject;
     }

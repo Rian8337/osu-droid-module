@@ -4,6 +4,7 @@ import { TouchSkill } from "./TouchSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { RawTouchAim } from "./RawTouchAim";
 import { RawTouchTap } from "./RawTouchTap";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 
 export class TouchAim extends TouchSkill {
     protected override readonly strainDecayBase = 0.15;
@@ -20,12 +21,13 @@ export class TouchAim extends TouchSkill {
 
     constructor(
         mods: Mod[],
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         clockRate: number,
         overallDifficulty: number,
         isForceAR: boolean,
         withSliders: boolean,
     ) {
-        super(mods);
+        super(mods, objectCache);
 
         this.clockRate = clockRate;
         this.greatWindow = new OsuHitWindow(
@@ -48,12 +50,14 @@ export class TouchAim extends TouchSkill {
                 this.mods,
                 this.clockRate,
                 this.isForceAR,
+                this.objectCache,
                 this.withSliders,
             ),
             new RawTouchTap(
                 this.mods,
                 this.clockRate,
                 this.isForceAR,
+                this.objectCache,
                 this.greatWindow,
                 true,
             ),

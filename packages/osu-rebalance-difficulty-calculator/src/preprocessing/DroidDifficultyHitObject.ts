@@ -73,12 +73,37 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     }
 
     override computeProperties(
-        clockRate: number,
         hitObjects: readonly PlaceableHitObject[],
     ): void {
-        super.computeProperties(clockRate, hitObjects);
+        super.computeProperties(hitObjects);
 
-        this.setVisuals(clockRate, hitObjects);
+        this.setVisuals(hitObjects);
+    }
+
+    override with(
+        hitObjects: readonly DifficultyHitObject[],
+    ): DroidDifficultyHitObject {
+        const difficultyObject = new DroidDifficultyHitObject(
+            this.object,
+            this.lastObject,
+            this.lastLastObject,
+            hitObjects,
+            hitObjects.length - 1,
+            this.clockRate,
+            this.timePreempt,
+            this.isForceAR,
+        );
+
+        difficultyObject.angle = this.angle;
+        difficultyObject.lazyJumpDistance = this.lazyJumpDistance;
+        difficultyObject.minimumJumpDistance = this.minimumJumpDistance;
+        difficultyObject.minimumJumpTime = this.minimumJumpTime;
+        difficultyObject.noteDensity = this.noteDensity;
+        difficultyObject.overlappingFactor = this.overlappingFactor;
+        difficultyObject.travelDistance = this.travelDistance;
+        difficultyObject.travelTime = this.travelTime;
+
+        return difficultyObject;
     }
 
     /**
@@ -128,10 +153,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         return true;
     }
 
-    private setVisuals(
-        clockRate: number,
-        hitObjects: readonly PlaceableHitObject[],
-    ) {
+    private setVisuals(hitObjects: readonly PlaceableHitObject[]) {
         // We'll have two visible object arrays. The first array contains objects before the current object starts in a reversed order,
         // while the second array contains objects after the current object ends.
         // For overlapping factor, we also need to consider previous visible objects.
@@ -145,7 +167,10 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
                 continue;
             }
 
-            if (o.startTime / clockRate > this.endTime + this.timePreempt) {
+            if (
+                o.startTime / this.clockRate >
+                this.endTime + this.timePreempt
+            ) {
                 break;
             }
 
@@ -174,7 +199,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             const distance = this.object
                 .getStackedPosition(this.mode)
                 .getDistance(hitObject.getStackedEndPosition(this.mode));
-            const deltaTime = this.startTime - hitObject.endTime / clockRate;
+            const deltaTime =
+                this.startTime - hitObject.endTime / this.clockRate;
 
             this.applyToOverlappingFactor(distance, deltaTime);
         }
@@ -183,7 +209,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             const distance = hitObject
                 .getStackedPosition(this.mode)
                 .getDistance(this.object.getStackedEndPosition(this.mode));
-            const deltaTime = hitObject.startTime / clockRate - this.endTime;
+            const deltaTime =
+                hitObject.startTime / this.clockRate - this.endTime;
 
             if (deltaTime >= 0) {
                 this.noteDensity += 1 - deltaTime / this.timePreempt;

@@ -203,10 +203,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 this.stats.forceAR,
             );
 
-            difficultyObject.computeProperties(
-                this.stats.speedMultiplier,
-                hitObjects,
-            );
+            difficultyObject.computeProperties(hitObjects);
 
             this.objects[i] = difficultyObject;
         }

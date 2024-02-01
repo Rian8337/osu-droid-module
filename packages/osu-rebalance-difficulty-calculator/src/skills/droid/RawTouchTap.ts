@@ -3,6 +3,7 @@ import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchHand } from "../../structures/TouchHand";
 import { RawTouchSkill } from "./RawTouchSkill";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 
 export class RawTouchTap extends RawTouchSkill {
     protected override readonly strainDecayBase = 0.3;
@@ -16,6 +17,7 @@ export class RawTouchTap extends RawTouchSkill {
         mods: Mod[],
         clockRate: number,
         isForceAR: boolean,
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         greatWindow: number,
         considerCheesability: boolean,
     );
@@ -23,6 +25,7 @@ export class RawTouchTap extends RawTouchSkill {
         modsOrCopy: Mod[] | RawTouchTap,
         clockRate?: number,
         isForceAR?: boolean,
+        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         greatWindow?: number,
         considerCheesability?: boolean,
     ) {
@@ -36,7 +39,7 @@ export class RawTouchTap extends RawTouchSkill {
         }
 
         // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, isForceAR!);
+        super(modsOrCopy, clockRate!, isForceAR!, objectCache!);
 
         this.greatWindow = greatWindow!;
         this.considerCheesability = considerCheesability!;

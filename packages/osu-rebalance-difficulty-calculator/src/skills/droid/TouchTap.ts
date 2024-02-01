@@ -4,6 +4,7 @@ import { TouchProbability } from "./TouchProbability";
 import { TouchSkill } from "./TouchSkill";
 import { RawTouchAim } from "./RawTouchAim";
 import { RawTouchTap } from "./RawTouchTap";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 
 export class TouchTap extends TouchSkill {
     protected override readonly reducedSectionCount = 10;
@@ -30,12 +31,13 @@ export class TouchTap extends TouchSkill {
 
     constructor(
         mods: Mod[],
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         clockRate: number,
         overallDifficulty: number,
         isForceAR: boolean,
         considerCheesability: boolean,
     ) {
-        super(mods);
+        super(mods, objectCache);
 
         this.clockRate = clockRate;
         this.greatWindow = new OsuHitWindow(
@@ -115,11 +117,18 @@ export class TouchTap extends TouchSkill {
 
     protected override getRawSkills() {
         return [
-            new RawTouchAim(this.mods, this.clockRate, this.isForceAR, true),
+            new RawTouchAim(
+                this.mods,
+                this.clockRate,
+                this.isForceAR,
+                this.objectCache,
+                true,
+            ),
             new RawTouchTap(
                 this.mods,
                 this.clockRate,
                 this.isForceAR,
+                this.objectCache,
                 this.greatWindow,
                 this.considerCheesability,
             ),

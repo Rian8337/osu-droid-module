@@ -3,6 +3,7 @@ import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { TouchHand } from "../../structures/TouchHand";
 import { RawTouchSkill } from "./RawTouchSkill";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 
 export class RawTouchAim extends RawTouchSkill {
     protected override readonly strainDecayBase = 0.15;
@@ -16,12 +17,14 @@ export class RawTouchAim extends RawTouchSkill {
         mods: Mod[],
         clockRate: number,
         isForceAR: boolean,
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         withSliders: boolean,
     );
     constructor(
         modsOrCopy: Mod[] | RawTouchAim,
         clockRate?: number,
         isForceAR?: boolean,
+        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         withSliders?: boolean,
     ) {
         if (modsOrCopy instanceof RawTouchAim) {
@@ -33,7 +36,7 @@ export class RawTouchAim extends RawTouchSkill {
         }
 
         // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, isForceAR!);
+        super(modsOrCopy, clockRate!, isForceAR!, objectCache!);
 
         this.withSliders = withSliders!;
     }

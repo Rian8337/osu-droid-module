@@ -3,10 +3,23 @@ import { DroidSkill } from "./DroidSkill";
 import { TouchProbability } from "./TouchProbability";
 import { TouchHand } from "../../structures/TouchHand";
 import { RawTouchSkill } from "./RawTouchSkill";
+import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
+import { Mod } from "@rian8337/osu-base";
 
 export abstract class TouchSkill extends DroidSkill {
+    protected readonly objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>;
+
     private readonly probabilities: TouchProbability[] = [];
     private readonly maxProbabilities = 15;
+
+    constructor(
+        mods: Mod[],
+        objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
+    ) {
+        super(mods);
+
+        this.objectCache = objectCache;
+    }
 
     protected override strainValueAt(current: DroidDifficultyHitObject) {
         if (current.index === 0) {

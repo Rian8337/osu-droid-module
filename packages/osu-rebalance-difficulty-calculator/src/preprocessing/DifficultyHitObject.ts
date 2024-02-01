@@ -131,8 +131,10 @@ export abstract class DifficultyHitObject {
     protected readonly assumedSliderRadius = this.normalizedRadius * 1.8;
     protected readonly minDeltaTime = 25;
 
-    private readonly lastObject: PlaceableHitObject | null;
-    private readonly lastLastObject: PlaceableHitObject | null;
+    protected readonly lastObject: PlaceableHitObject | null;
+    protected readonly lastLastObject: PlaceableHitObject | null;
+    protected readonly clockRate: number;
+    protected readonly isForceAR: boolean;
 
     /**
      * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
@@ -160,6 +162,8 @@ export abstract class DifficultyHitObject {
         this.lastObject = lastObject;
         this.lastLastObject = lastLastObject;
         this.hitObjects = difficultyHitObjects;
+        this.clockRate = clockRate;
+        this.isForceAR = isForceAR;
 
         this.index = index;
         this.baseTimePreempt = timePreempt;
@@ -190,17 +194,14 @@ export abstract class DifficultyHitObject {
 
     /**
      * Computes the properties of this hitobject.
-     *
-     * @param clockRate The clock rate of the beatmap.
      * @param hitObjects The hitobjects in the beatmap.
      */
     computeProperties(
-        clockRate: number,
         // Required for `DroidDifficultyHitObject` override.
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hitObjects: readonly PlaceableHitObject[],
     ) {
-        this.setDistances(clockRate);
+        this.setDistances();
     }
 
     /**
@@ -275,9 +276,58 @@ export abstract class DifficultyHitObject {
         return MathUtils.clamp((time - fadeInStartTime) / fadeInDuration, 0, 1);
     }
 
+    /**
+     * Constructs a {@link DifficultyHitObject} with the properties of this {@link DifficultyHitObject}, but
+     * with a given an array of {@link DifficultyHitObject} history rather than the one used for this
+     * {@link DifficultyHitObject}.
+     *
+     * @param hitObjects The array of {@link DifficultyHitObject}s.
+     * @returns A new {@link DifficultyHitObject} with its history set to the given {@link DifficultyHitObject}s.
+     */
+    abstract with(
+        hitObjects: readonly DifficultyHitObject[],
+    ): DifficultyHitObject;
+
+    /**
+     * Checks if the object this {@link DifficultyHitObject} wraps, its last object, and its "last last" object
+     * (the object before the last object) are equal in reference.
+     *
+     * @param current The object.
+     * @param last The last object.
+     * @param lastLast The object before the last object.
+     * @returns Whether the three objects are equal in reference.
+     */
+    objectEquals(
+        current: PlaceableHitObject,
+        last: PlaceableHitObject | null,
+        lastLast: PlaceableHitObject | null,
+    ): boolean {
+        return (
+            this.object === current &&
+            this.lastObject === last &&
+            this.lastLastObject === lastLast
+        );
+    }
+
+    /**
+     * Checks if this {@link DifficultyHitObject} is equal to another {@link DifficultyHitObject}.
+     * That is, the object that this {@link DifficultyHitObject} wraps, its last object, and its
+     * "last last" object (the object before the last object) are equal in reference.
+     *
+     * @param other The other {@link DifficultyHitObject}.
+     * @returns Whether the three objects are equal in reference.
+     */
+    equals(other: DifficultyHitObject): boolean {
+        return (
+            this.object === other.object &&
+            this.lastObject === other.lastObject &&
+            this.lastLastObject === other.lastLastObject
+        );
+    }
+
     protected abstract get scalingFactor(): number;
 
-    protected setDistances(clockRate: number) {
+    protected setDistances() {
         if (this.object instanceof Slider) {
             this.calculateSliderCursorPosition(this.object);
 
@@ -296,7 +346,7 @@ export abstract class DifficultyHitObject {
             }
 
             this.travelTime = Math.max(
-                this.object.lazyTravelTime / clockRate,
+                this.object.lazyTravelTime / this.clockRate,
                 this.minDeltaTime,
             );
         }
@@ -324,7 +374,8 @@ export abstract class DifficultyHitObject {
 
         if (this.lastObject instanceof Slider) {
             this.minimumJumpTime = Math.max(
-                this.strainTime - this.lastObject.lazyTravelTime / clockRate,
+                this.strainTime -
+                    this.lastObject.lazyTravelTime / this.clockRate,
                 this.minDeltaTime,
             );
 

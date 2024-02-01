@@ -21,6 +21,7 @@ import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttribute
 import { TouchTap } from "./skills/droid/TouchTap";
 import { TouchAim } from "./skills/droid/TouchAim";
 import { DroidAim } from "./skills/droid/DroidAim";
+import { DifficultyHitObjectCache } from "./utils/DifficultyHitObjectCache";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -133,6 +134,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
 
+    private readonly objectCache =
+        new DifficultyHitObjectCache<DroidDifficultyHitObject>();
+
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
@@ -142,6 +146,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const aimSkill = new TouchAim(
             this.mods,
+            this.objectCache,
             clockRate,
             od,
             this.stats.forceAR,
@@ -149,6 +154,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
         const aimSkillWithoutSliders = new TouchAim(
             this.mods,
+            this.objectCache,
             clockRate,
             od,
             this.stats.forceAR,
@@ -168,6 +174,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const tapSkillCheese = new TouchTap(
             this.mods,
+            this.objectCache,
             clockRate,
             od,
             this.stats.forceAR,
@@ -175,6 +182,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
         const tapSkillNoCheese = new TouchTap(
             this.mods,
+            this.objectCache,
             clockRate,
             od,
             this.stats.forceAR,
@@ -350,6 +358,17 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
+    protected override calculateSkills(...skills: DroidSkill[]): void {
+        // The first object doesn't generate a strain, so we begin calculating from the second object.
+        for (const object of this.objects.slice(1)) {
+            this.objectCache.clear();
+
+            for (const skill of skills) {
+                skill.process(object);
+            }
+        }
+    }
+
     protected override generateDifficultyHitObjects() {
         const { objects: hitObjects } = this.beatmap.hitObjects;
 
@@ -365,10 +384,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 this.stats.forceAR,
             );
 
-            difficultyObject.computeProperties(
-                this.stats.speedMultiplier,
-                hitObjects,
-            );
+            difficultyObject.computeProperties(hitObjects);
 
             this.objects[i] = difficultyObject;
         }
@@ -383,6 +399,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Touch aim with sliders
             new TouchAim(
                 this.mods,
+                this.objectCache,
                 this.stats.speedMultiplier,
                 od,
                 this.stats.forceAR,
@@ -391,6 +408,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Touch aim without sliders
             new TouchAim(
                 this.mods,
+                this.objectCache,
                 this.stats.speedMultiplier,
                 od,
                 this.stats.forceAR,
@@ -401,6 +419,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Cheesability tap
             new TouchTap(
                 this.mods,
+                this.objectCache,
                 this.stats.speedMultiplier,
                 od,
                 this.stats.forceAR,
@@ -409,6 +428,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             // Non-cheesability tap
             new TouchTap(
                 this.mods,
+                this.objectCache,
                 this.stats.speedMultiplier,
                 od,
                 this.stats.forceAR,

@@ -32,4 +32,28 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
         return scalingFactor;
     }
+
+    override with(
+        hitObjects: readonly DifficultyHitObject[],
+    ): OsuDifficultyHitObject {
+        const difficultyObject = new OsuDifficultyHitObject(
+            this.object,
+            this.lastObject,
+            this.lastLastObject,
+            hitObjects,
+            hitObjects.length - 1,
+            this.clockRate,
+            this.timePreempt,
+            this.isForceAR,
+        );
+
+        difficultyObject.angle = this.angle;
+        difficultyObject.lazyJumpDistance = this.lazyJumpDistance;
+        difficultyObject.minimumJumpDistance = this.minimumJumpDistance;
+        difficultyObject.minimumJumpTime = this.minimumJumpTime;
+        difficultyObject.travelDistance = this.travelDistance;
+        difficultyObject.travelTime = this.travelTime;
+
+        return difficultyObject;
+    }
 }
