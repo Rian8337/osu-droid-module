@@ -9,8 +9,12 @@ import { Mod } from "@rian8337/osu-base";
 export abstract class TouchSkill extends DroidSkill {
     protected readonly objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>;
 
-    private readonly probabilities: TouchProbability[] = [];
-    private readonly maxProbabilities = 15;
+    private readonly probabilities = new Array<TouchProbability>(15);
+
+    // I know it is VERY weird to store the number of probabilities in the array here
+    // rather than just using Array.length, but this is a very performance crucial
+    // task. As such, this is used for optimizations.
+    private numProbabilities = 0;
 
     constructor(
         mods: Mod[],
@@ -28,14 +32,20 @@ export abstract class TouchSkill extends DroidSkill {
             // Process the first object to add to history.
             probability.process(current, TouchHand.drag);
 
-            this.probabilities.push(probability);
+            this.probabilities[0] = probability;
+            this.numProbabilities = 1;
 
             return 0;
         }
 
-        const newProbabilities: TouchProbability[] = [];
+        const newProbabilities = new Array<TouchProbability>(
+            this.numProbabilities * 3,
+        );
 
-        for (const probability of this.probabilities) {
+        // Using a manual loop here for optimizations.
+        for (let i = 0; i < this.numProbabilities; ++i) {
+            const probability = this.probabilities[i];
+
             const leftProbability = new TouchProbability(probability);
             const rightProbability = new TouchProbability(probability);
             const dragProbability = new TouchProbability(probability);
@@ -61,40 +71,40 @@ export abstract class TouchSkill extends DroidSkill {
             dragProbability.probability *=
                 sumWeight > 0 ? dragWeight / sumWeight : 1 / 3;
 
-            newProbabilities.push(
-                leftProbability,
-                rightProbability,
-                dragProbability,
-            );
+            newProbabilities[i * 3] = leftProbability;
+            newProbabilities[i * 3 + 1] = rightProbability;
+            newProbabilities[i * 3 + 2] = dragProbability;
         }
 
         // Only keep the most probable possibilities.
-        this.probabilities.length = 0;
         newProbabilities.sort((a, b) => b.probability - a.probability);
 
-        const totalProbabilities = Math.min(
+        this.numProbabilities = Math.min(
             newProbabilities.length,
-            this.maxProbabilities,
+            this.probabilities.length,
         );
         let totalMostProbable = 0;
 
-        for (let i = 0; i < totalProbabilities; ++i) {
+        for (let i = 0; i < this.numProbabilities; ++i) {
             totalMostProbable += newProbabilities[i].probability;
-            this.probabilities.push(newProbabilities[i]);
+            this.probabilities[i] = newProbabilities[i];
         }
 
-        // Make sure total probability sums up to 1.
-        for (const p of this.probabilities) {
+        let strain = 0;
+
+        for (let i = 0; i < this.numProbabilities; ++i) {
+            const p = this.probabilities[i];
+
+            // Make sure total probability sums up to 1.
             p.probability =
                 totalMostProbable > 0
                     ? p.probability / totalMostProbable
-                    : 1 / totalProbabilities;
+                    : 1 / this.numProbabilities;
+
+            strain += this.getProbabilityStrain(p) * p.probability;
         }
 
-        return this.probabilities.reduce(
-            (a, v) => a + this.getProbabilityStrain(v) * v.probability,
-            0,
-        );
+        return strain;
     }
 
     protected calculateTotalStrain(aimStrain: number, tapStrain: number) {
