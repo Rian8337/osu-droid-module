@@ -521,10 +521,6 @@ export abstract class ErrorFunction {
      * - `Number.NEGATIVE_INFINITY` if `z >= -2`.
      */
     static erfcInv(z: number): number {
-        if (Number.isNaN(z)) {
-            return Number.NaN;
-        }
-
         if (z <= 0) {
             return Number.POSITIVE_INFINITY;
         }
