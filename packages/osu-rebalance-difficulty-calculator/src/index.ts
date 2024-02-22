@@ -5,7 +5,6 @@ export * from "./structures/DifficultyAttributes";
 export * from "./structures/DifficultyCalculationOptions";
 export * from "./base/DifficultyCalculator";
 export * from "./preprocessing/DifficultyHitObject";
-export * from "./preprocessing/DifficultyHitObjectCreator";
 export * from "./structures/DifficultSlider";
 export * from "./skills/droid/DroidAim";
 export * from "./evaluators/droid/DroidAimEvaluator";

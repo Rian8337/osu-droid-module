@@ -1,13 +1,12 @@
 import {
     Circle,
-    Modes,
     ObjectTypes,
     PathType,
     Slider,
     SliderPath,
     Vector2,
 } from "@rian8337/osu-base";
-import { DifficultyHitObjectCreator } from "../../src";
+import { OsuDifficultyHitObject } from "../../src";
 
 const createDifficultyHitObjects = () => {
     const objects = [
@@ -34,13 +33,23 @@ const createDifficultyHitObjects = () => {
         }),
     ];
 
-    return new DifficultyHitObjectCreator().generateDifficultyObjects({
-        objects: objects,
-        circleSize: 5.5,
-        mods: [],
-        speedMultiplier: 1,
-        mode: Modes.osu,
-    });
+    const difficultyObjects: OsuDifficultyHitObject[] = [];
+
+    for (const object of objects) {
+        const difficultyObject = new OsuDifficultyHitObject(
+            object,
+            difficultyObjects,
+            1,
+            600,
+            false,
+        );
+
+        difficultyObject.computeProperties(1, objects);
+
+        difficultyObjects.push(difficultyObject);
+    }
+
+    return difficultyObjects;
 };
 
 test("Test previous index", () => {
@@ -58,46 +67,22 @@ test("Test next index", () => {
 });
 
 describe("Test object opacity", () => {
-    const difficultyHitObjects = createDifficultyHitObjects();
-
-    const object = difficultyHitObjects[0];
+    const object = createDifficultyHitObjects()[0];
 
     describe("Before and during hit time", () => {
-        describe("Without Hidden mod", () => {
-            test("osu!droid", () => {
-                expect(object.opacityAt(400, false)).toBe(0);
-                expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
-                expect(object.opacityAt(800, false)).toBe(1);
-                expect(object.opacityAt(1000, false)).toBe(1);
-            });
-
-            test("osu!standard", () => {
-                expect(object.opacityAt(400, false)).toBe(0);
-                expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
-                expect(object.opacityAt(800, false)).toBe(1);
-                expect(object.opacityAt(1000, false)).toBe(1);
-            });
+        test("Without Hidden mod", () => {
+            expect(object.opacityAt(400, false)).toBe(0);
+            expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, false)).toBe(1);
+            expect(object.opacityAt(1000, false)).toBe(1);
         });
 
-        describe("With Hidden mod", () => {
-            test("osu!droid", () => {
-                expect(object.opacityAt(400, true)).toBe(0);
-                expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
-                expect(object.opacityAt(800, true)).toBe(1);
-                expect(object.opacityAt(900, true)).toBeCloseTo(
-                    0.4444444444444444
-                );
-                expect(object.opacityAt(1000, true)).toBeCloseTo(0);
-                expect(object.opacityAt(1100, true)).toBe(0);
-            });
-
-            test("osu!standard", () => {
-                expect(object.opacityAt(400, true)).toBe(0);
-                expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
-                expect(object.opacityAt(800, true)).toBe(1);
-                expect(object.opacityAt(900, true)).toBeCloseTo(0.44);
-                expect(object.opacityAt(1000, true)).toBe(0);
-            });
+        test("With Hidden mod", () => {
+            expect(object.opacityAt(400, true)).toBe(0);
+            expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, true)).toBe(1);
+            expect(object.opacityAt(900, true)).toBeCloseTo(0.44);
+            expect(object.opacityAt(1000, true)).toBe(0);
         });
     });
 

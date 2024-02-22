@@ -1,6 +1,5 @@
 import { Beatmap, Mod, MapStats, Utils, Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
-import { DifficultyHitObjectCreator } from "../preprocessing/DifficultyHitObjectCreator";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
@@ -110,7 +109,8 @@ export abstract class DifficultyCalculator<
         this.preProcess();
 
         this.populateDifficultyAttributes();
-        this.generateDifficultyHitObjects();
+
+        this.objects.push(...this.generateDifficultyHitObjects());
 
         this.calculateAll();
 
@@ -120,19 +120,7 @@ export abstract class DifficultyCalculator<
     /**
      * Generates difficulty hitobjects for this calculator.
      */
-    generateDifficultyHitObjects(): void {
-        this.objects.length = 0;
-        this.objects.push(
-            ...(new DifficultyHitObjectCreator().generateDifficultyObjects({
-                objects: this.beatmap.hitObjects.objects,
-                circleSize: this.beatmap.difficulty.cs,
-                mods: this.mods,
-                speedMultiplier: this.stats.speedMultiplier,
-                mode: this.mode,
-                preempt: MapStats.arToMS(this.stats.ar!),
-            }) as THitObject[]),
-        );
-    }
+    protected abstract generateDifficultyHitObjects(): THitObject[];
 
     /**
      * Performs some pre-processing before proceeding with difficulty calculation.
