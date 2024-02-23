@@ -35,9 +35,11 @@ const createDifficultyHitObjects = () => {
 
     const difficultyObjects: OsuDifficultyHitObject[] = [];
 
-    for (const object of objects) {
+    for (let i = 0; i < objects.length; ++i) {
         const difficultyObject = new OsuDifficultyHitObject(
-            object,
+            objects[i],
+            objects[i - 1] ?? null,
+            objects[i - 2] ?? null,
             difficultyObjects,
             1,
             600,
