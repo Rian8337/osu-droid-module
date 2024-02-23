@@ -389,8 +389,8 @@ export abstract class DifficultyHitObject {
         // osu!droid doesn't have a legacy slider tail. Since beatmap parser defaults slider tail
         // to legacy slider tail, it needs to be changed to real slider tail first.
         if (this.mode === Modes.droid) {
-            slider.tail.startTime = slider.startTime + slider.duration;
-            slider.tail.endTime = slider.startTime + slider.duration;
+            slider.tail.startTime = slider.endTime;
+            slider.tail.endTime = slider.endTime;
 
             slider.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
 
