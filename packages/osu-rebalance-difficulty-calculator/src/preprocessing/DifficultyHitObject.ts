@@ -323,8 +323,13 @@ export abstract class DifficultyHitObject {
         this.minimumJumpDistance = this.lazyJumpDistance;
 
         if (this.lastObject instanceof Slider) {
+            const lastTravelTime = Math.max(
+                this.lastObject.lazyTravelTime / clockRate,
+                this.minDeltaTime,
+            );
+
             this.minimumJumpTime = Math.max(
-                this.strainTime - this.lastObject.lazyTravelTime / clockRate,
+                this.strainTime - lastTravelTime,
                 this.minDeltaTime,
             );
 
