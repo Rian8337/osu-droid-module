@@ -46,7 +46,7 @@ export abstract class DroidVisualEvaluator {
 
         // Bonus based on how visible the object is.
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const previous: DroidDifficultyHitObject = current.previous(i)!;
+            const previous = current.previous(i)!;
 
             if (
                 previous.object instanceof Spinner ||
@@ -70,23 +70,21 @@ export abstract class DroidVisualEvaluator {
                 4;
         }
 
-        // Scale the value with overlapping factor.
-        strain /= 10 * (1 + current.overlappingFactor);
-
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
             strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
         }
 
+        // Scale the value with overlapping factor.
+        strain /= 10 * (1 + current.overlappingFactor);
+
         if (current.object instanceof Slider && withSliders) {
-            const scalingFactor: number =
-                50 / current.object.getRadius(Modes.droid);
+            const scalingFactor = 50 / current.object.getRadius(Modes.droid);
 
             // Invert the scaling factor to determine the true travel distance independent of circle size.
-            const pixelTravelDistance: number =
+            const pixelTravelDistance =
                 current.object.lazyTravelDistance / scalingFactor;
-            const currentVelocity: number =
-                pixelTravelDistance / current.travelTime;
+            const currentVelocity = pixelTravelDistance / current.travelTime;
 
             strain +=
                 // Reward sliders based on velocity, while also avoiding overbuffing extremely fast sliders.
@@ -94,11 +92,11 @@ export abstract class DroidVisualEvaluator {
                 // Longer sliders require more reading.
                 (pixelTravelDistance / 100);
 
-            let cumulativeStrainTime: number = 0;
+            let cumulativeStrainTime = 0;
 
             // Reward for velocity changes based on last few sliders.
             for (let i = 0; i < Math.min(current.index, 4); ++i) {
-                const last: DroidDifficultyHitObject = current.previous(i)!;
+                const last = current.previous(i)!;
 
                 cumulativeStrainTime += last.strainTime;
 
@@ -111,10 +109,9 @@ export abstract class DroidVisualEvaluator {
                 }
 
                 // Invert the scaling factor to determine the true travel distance independent of circle size.
-                const pixelTravelDistance: number =
+                const pixelTravelDistance =
                     last.object.lazyTravelDistance / scalingFactor;
-                const lastVelocity: number =
-                    pixelTravelDistance / last.travelTime;
+                const lastVelocity = pixelTravelDistance / last.travelTime;
 
                 strain +=
                     // Reward past sliders based on velocity changes, while also
