@@ -9,6 +9,11 @@ import { HighStrainSection } from "./HighStrainSection";
 export interface ExtendedDroidDifficultyAttributes
     extends DroidDifficultyAttributes {
     /**
+     * The mode of the difficulty calculation.
+     */
+    mode: "live";
+
+    /**
      * Possible sections at which the player can use three fingers on.
      */
     possibleThreeFingeredSections: HighStrainSection[];

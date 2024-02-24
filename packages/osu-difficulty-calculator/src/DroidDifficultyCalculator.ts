@@ -60,6 +60,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     static readonly threeFingerStrainThreshold: number = 175;
 
     override readonly attributes: ExtendedDroidDifficultyAttributes = {
+        mode: "live",
         tapDifficulty: 0,
         rhythmDifficulty: 0,
         visualDifficulty: 0,
