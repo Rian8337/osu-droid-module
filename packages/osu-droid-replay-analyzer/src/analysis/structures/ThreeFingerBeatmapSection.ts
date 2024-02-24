@@ -1,20 +1,16 @@
 import { HighStrainSection } from "@rian8337/osu-difficulty-calculator";
-import { HighStrainSection as RebalanceHighStrainSection } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { ThreeFingerObject } from "./ThreeFingerObject";
 
 /**
  * An extended strain section for assigning dragged sections in three-finger detection.
  */
-export interface ThreeFingerBeatmapSection
-    extends HighStrainSection,
-        RebalanceHighStrainSection {
+export interface ThreeFingerBeatmapSection extends HighStrainSection {
     /**
-     * The objects in this section with three-finger data.
+     * Whether or not this beatmap section is dragged.
      */
-    readonly objects: ThreeFingerObject[];
+    isDragged: boolean;
 
     /**
      * The index of the cursor that is dragging this section.
      */
-    readonly dragFingerIndex: number;
+    dragFingerIndex: number;
 }
