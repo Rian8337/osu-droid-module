@@ -667,15 +667,15 @@ export class ReplayAnalyzer {
         }
 
         const threeFingerChecker =
-            this.difficultyAttributes.mode === "live"
-                ? new ThreeFingerChecker(
+            this.difficultyAttributes.mode === "rebalance"
+                ? new RebalanceThreeFingerChecker(
                       this.beatmap instanceof Beatmap
                           ? this.beatmap
                           : this.beatmap.beatmap,
                       this.data,
                       this.difficultyAttributes,
                   )
-                : new RebalanceThreeFingerChecker(
+                : new ThreeFingerChecker(
                       this.beatmap instanceof Beatmap
                           ? this.beatmap
                           : this.beatmap.beatmap,
