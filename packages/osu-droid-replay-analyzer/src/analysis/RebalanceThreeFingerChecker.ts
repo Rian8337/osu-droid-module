@@ -786,20 +786,11 @@ export class RebalanceThreeFingerChecker {
             cursorVectorTimes.sort((a, b) => a.time - b.time);
 
             for (const cursorVectorTime of cursorVectorTimes) {
-                let pressIndex = -1;
-                let closestDistance = this.cursorDistancingDistanceThreshold;
-
-                for (let i = 0; i < similarPresses.length; ++i) {
-                    const press = similarPresses[i];
-                    const distance = press.vector.getDistance(
-                        cursorVectorTime.vector,
-                    );
-
-                    if (distance < closestDistance) {
-                        pressIndex = i;
-                        closestDistance = distance;
-                    }
-                }
+                const pressIndex = similarPresses.findIndex(
+                    (v) =>
+                        v.vector.getDistance(cursorVectorTime.vector) <=
+                        this.cursorDistancingDistanceThreshold,
+                );
 
                 if (pressIndex !== -1) {
                     if (
@@ -900,18 +891,15 @@ export class RebalanceThreeFingerChecker {
      * Calculates the final penalty.
      */
     private calculateFinalPenalty(): number {
-        return (
-            1 +
-            this.nerfFactors.reduce(
-                (a, n) =>
-                    a +
-                    0.015 *
-                        Math.pow(
-                            n.strainFactor * n.fingerFactor * n.lengthFactor,
-                            1.05,
-                        ),
-                0,
-            )
+        return this.nerfFactors.reduce(
+            (a, n) =>
+                a +
+                0.015 *
+                    Math.pow(
+                        n.strainFactor * n.fingerFactor * n.lengthFactor,
+                        1.05,
+                    ),
+            1,
         );
     }
 }
