@@ -9,25 +9,15 @@ import {
     Modes,
     ModPrecise,
     ModUtil,
-    PlaceableHitObject,
     Slider,
     Spinner,
     // Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import {
-    DifficultyHitObject,
-    DroidDifficultyCalculator,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    DifficultyHitObject as RebalanceDifficultyHitObject,
-    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
-} from "@rian8337/osu-rebalance-difficulty-calculator";
+import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
+import { DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
-import { CursorData } from "../data/CursorData";
-import { CursorOccurrence } from "../data/CursorOccurrence";
-import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { IndexedHitObject } from "./objects/IndexedHitObject";
@@ -97,25 +87,25 @@ export class TwoHandChecker {
         calculator:
             | DroidDifficultyCalculator
             | RebalanceDroidDifficultyCalculator,
-        data: ReplayData
+        data: ReplayData,
     ) {
         this.calculator = calculator;
         this.data = data;
 
-        const stats: MapStats = new MapStats({
+        const stats = new MapStats({
             od: this.calculator.beatmap.difficulty.od,
             mods: this.calculator.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym
-                    )
+                        (v) => v.acronym === m.acronym,
+                    ),
             ),
         }).calculate({ mode: Modes.droid, convertDroidOD: false });
 
         this.hitWindow = new DroidHitWindow(stats.od!);
         this.hitWindow50 = this.hitWindow.hitWindowFor50(
-            calculator.mods.some((m) => m instanceof ModPrecise)
+            calculator.mods.some((m) => m instanceof ModPrecise),
         );
         // this.csvString = `Mods,${
         //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
@@ -134,7 +124,7 @@ export class TwoHandChecker {
     check(): TwoHandInformation {
         if (
             this.data.cursorMovement.filter(
-                (v) => v.occurrenceGroups.length > 0
+                (v) => v.occurrenceGroups.length > 0,
             ).length <= 1
         ) {
             return { is2Hand: false, twoHandedNoteCount: 0 };
@@ -189,9 +179,9 @@ export class TwoHandChecker {
         //     this.csvString
         // );
 
-        let twoHandedNoteCount: number = 0;
-        const maxStrain: number = Math.max(
-            ...this.calculator.objects.map((v) => v.aimStrainWithSliders)
+        let twoHandedNoteCount = 0;
+        const maxStrain = Math.max(
+            ...this.calculator.objects.map((v) => v.aimStrainWithSliders),
         );
 
         if (maxStrain) {
@@ -211,11 +201,11 @@ export class TwoHandChecker {
                                             maxStrain) *
                                             12 -
                                         6
-                                    )
+                                    ),
                                 ))
                     );
                 },
-                0
+                0,
             );
         }
 
@@ -238,16 +228,15 @@ export class TwoHandChecker {
             i <
             Math.min(
                 this.data.hitObjectData.length,
-                this.calculator.objects.length
+                this.calculator.objects.length,
             );
             ++i
         ) {
-            const indexedHitObject: IndexedHitObject =
-                this.getIndexedHitObject(i);
+            const indexedHitObject = this.getIndexedHitObject(i);
 
             indexedHitObject.sliderCheesed = this.checkSliderCheesing(
                 indexedHitObject,
-                this.data.hitObjectData[i]
+                this.data.hitObjectData[i],
             );
 
             indexes.push(indexedHitObject.cursorIndex);
@@ -312,8 +301,7 @@ export class TwoHandChecker {
      * @returns The cursor index that hits the given object, -1 if the index is not found, the object is a spinner, or the object was missed.
      */
     private getIndexedHitObject(objectIndex: number): IndexedHitObject {
-        const diffObject: DifficultyHitObject | RebalanceDifficultyHitObject =
-            this.calculator.objects[objectIndex];
+        const diffObject = this.calculator.objects[objectIndex];
         const { object } = diffObject;
 
         // We don't care about the first object and spinners.
@@ -326,10 +314,9 @@ export class TwoHandChecker {
         //     return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
         // }
 
-        const prevObject: PlaceableHitObject =
+        const prevObject =
             this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
-        const prevObjectData: ReplayObjectData =
-            this.data.hitObjectData[objectIndex - 1];
+        const prevObjectData = this.data.hitObjectData[objectIndex - 1];
 
         if (
             prevObject instanceof Spinner ||
@@ -338,20 +325,18 @@ export class TwoHandChecker {
             return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
         }
 
-        const objectStartPosition: Vector2 = object.getStackedPosition(
-            Modes.droid
-        );
-        let prevObjectEndPosition: Vector2 = prevObject.getStackedEndPosition(
-            Modes.droid
+        const objectStartPosition = object.getStackedPosition(Modes.droid);
+        let prevObjectEndPosition = prevObject.getStackedEndPosition(
+            Modes.droid,
         );
 
         if (prevObject instanceof Slider) {
             if (prevObject.lazyTravelDistance > 0) {
-                const lazyEndMovement: Vector2 = objectStartPosition.subtract(
-                    prevObject.lazyEndPosition!
+                const lazyEndMovement = objectStartPosition.subtract(
+                    prevObject.lazyEndPosition!,
                 );
-                const actualEndMovement: Vector2 = objectStartPosition.subtract(
-                    prevObjectEndPosition
+                const actualEndMovement = objectStartPosition.subtract(
+                    prevObjectEndPosition,
                 );
 
                 if (lazyEndMovement.length < actualEndMovement.length) {
@@ -359,18 +344,17 @@ export class TwoHandChecker {
                 }
             } else {
                 prevObjectEndPosition = prevObject.getStackedPosition(
-                    Modes.droid
+                    Modes.droid,
                 );
             }
         }
 
-        const prevToCurrentMovement: Vector2 = object
+        const prevToCurrentMovement = object
             .getStackedPosition(Modes.droid)
             .subtract(prevObjectEndPosition);
-        const radius: number = object.getRadius(Modes.droid);
 
         // Don't consider objects that are too close to each other.
-        if (prevToCurrentMovement.length <= radius) {
+        if (prevToCurrentMovement.length <= object.radius) {
             return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
         }
 
@@ -389,10 +373,11 @@ export class TwoHandChecker {
         // previous object's end time to the current object's start time and the "air velocity", which is the
         // velocity from the previous object's cursor release time to the next object's cursor press time. If the velocity
         // during the held tap is significantly less than the estimated velocity, it's considered two hand.
-        const objectInformation: CursorPositionInformation =
+        const objectInformation =
             this.getCursorPositionForObjectStart(objectIndex);
-        const prevObjectInformation: CursorPositionInformation =
-            this.getCursorPositionForObjectEnd(objectIndex - 1);
+        const prevObjectInformation = this.getCursorPositionForObjectEnd(
+            objectIndex - 1,
+        );
 
         this.indexedHitObjects[objectIndex - 1].endCursorPosition =
             prevObjectInformation.position;
@@ -412,31 +397,32 @@ export class TwoHandChecker {
                 objectInformation.groupIndex,
                 prevObjectInformation.occurrenceIndex,
                 0,
-                false
+                false,
             );
         }
 
-        const cursorData: CursorData =
+        const cursorData =
             this.data.cursorMovement[prevObjectInformation.cursorIndex];
 
         // There can be multiple angles to which the cursor moves towards the next object.
         // For this, we take the smallest angle.
-        let finalAngle: number = Number.POSITIVE_INFINITY;
+        let finalAngle = Number.POSITIVE_INFINITY;
 
-        const cursorGroup: CursorOccurrenceGroup =
+        const cursorGroup =
             cursorData.occurrenceGroups[prevObjectInformation.groupIndex];
-        const cursors: CursorOccurrence[] = cursorGroup.allOccurrences;
+        const cursors = cursorGroup.allOccurrences;
 
-        const prevToCurrentCursorMovement: Vector2 =
-            objectInformation.position.subtract(prevObjectInformation.position);
+        const prevToCurrentCursorMovement = objectInformation.position.subtract(
+            prevObjectInformation.position,
+        );
 
         for (
             let i = prevObjectInformation.occurrenceIndex + 1;
             i < cursors.length;
             ++i
         ) {
-            const cursor: CursorOccurrence = cursors[i];
-            const prevCursor: CursorOccurrence = cursors[i - 1];
+            const cursor = cursors[i];
+            const prevCursor = cursors[i - 1];
 
             if (cursor.position.equals(prevCursor.position)) {
                 continue;
@@ -446,20 +432,19 @@ export class TwoHandChecker {
                 break;
             }
 
-            const currentMovement: Vector2 = cursor.position.subtract(
-                prevCursor.position
+            const currentMovement = cursor.position.subtract(
+                prevCursor.position,
             );
-            const dot: number =
-                prevToCurrentCursorMovement.dot(currentMovement);
-            const det: number =
+            const dot = prevToCurrentCursorMovement.dot(currentMovement);
+            const det =
                 prevToCurrentCursorMovement.x * currentMovement.y -
                 prevToCurrentCursorMovement.y * currentMovement.x;
 
-            const movementAngle: number = Math.abs(Math.atan2(det, dot));
+            const movementAngle = Math.abs(Math.atan2(det, dot));
             finalAngle = Math.min(finalAngle, movementAngle);
         }
 
-        const is2Handed: boolean = finalAngle >= Math.PI / 6;
+        const is2Handed = finalAngle >= Math.PI / 6;
         // if (is2Handed) {
         //     // If angle isn't fulfilled, check for cursor velocity.
         //     let deltaTime: number = Math.max(
@@ -532,7 +517,7 @@ export class TwoHandChecker {
             prevObjectInformation.groupIndex,
             prevObjectInformation.occurrenceIndex,
             finalAngle,
-            is2Handed
+            is2Handed,
         );
     }
 
@@ -543,12 +528,11 @@ export class TwoHandChecker {
      * @returns The position of the cursor that presses the object.
      */
     private getCursorPositionForObjectStart(
-        objectIndex: number
+        objectIndex: number,
     ): CursorPositionInformation {
-        const object: PlaceableHitObject =
-            this.calculator.beatmap.hitObjects.objects[objectIndex];
-        const data: ReplayObjectData = this.data.hitObjectData[objectIndex];
-        const objectPosition: Vector2 = object.getStackedPosition(Modes.droid);
+        const object = this.calculator.beatmap.hitObjects.objects[objectIndex];
+        const data = this.data.hitObjectData[objectIndex];
+        const objectPosition = object.getStackedPosition(Modes.droid);
 
         if (object instanceof Spinner) {
             return {
@@ -560,11 +544,9 @@ export class TwoHandChecker {
             };
         }
 
-        const radius: number = object.getRadius(Modes.droid);
-
-        let hitWindow: number = this.hitWindow50;
-        const isPrecise: boolean = this.data.convertedMods.some(
-            (m) => m instanceof ModPrecise
+        let hitWindow = this.hitWindow50;
+        const isPrecise = this.data.convertedMods.some(
+            (m) => m instanceof ModPrecise,
         );
         // For sliders, set the hit window to as lenient as possible.
         if (object instanceof Circle) {
@@ -579,32 +561,30 @@ export class TwoHandChecker {
         }
 
         // TODO: what to do for head sliderbreaks?
-        let nearestPosition: Vector2 = new Vector2(
-            Number.POSITIVE_INFINITY,
-            Number.POSITIVE_INFINITY
-        );
-        let nearestCursorIndex: number = 0;
-        let nearestGroupIndex: number = 0;
-        let nearestCursorGroupIndex: number = 0;
-        let nearestCursorTime: number = 0;
+        let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);
+        let nearestCursorIndex = 0;
+        let nearestGroupIndex = 0;
+        let nearestCursorGroupIndex = 0;
+        let nearestCursorTime = 0;
 
-        const minimumActiveTime: number = object.startTime - hitWindow;
-        const maximumActiveTime: number = object.startTime + hitWindow;
+        const minimumActiveTime = object.startTime - hitWindow;
+        const maximumActiveTime = object.startTime + hitWindow;
 
         for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            if (nearestPosition.getDistance(objectPosition) <= radius) {
+            if (nearestPosition.getDistance(objectPosition) <= object.radius) {
                 break;
             }
 
-            const cursorData: CursorData = this.data.cursorMovement[i];
+            const cursorData = this.data.cursorMovement[i];
 
             for (let j = 0; j < cursorData.occurrenceGroups.length; ++j) {
-                if (nearestPosition.getDistance(objectPosition) <= radius) {
+                if (
+                    nearestPosition.getDistance(objectPosition) <= object.radius
+                ) {
                     break;
                 }
 
-                const cursorGroup: CursorOccurrenceGroup =
-                    cursorData.occurrenceGroups[j];
+                const cursorGroup = cursorData.occurrenceGroups[j];
 
                 if (cursorGroup.endTime < minimumActiveTime) {
                     continue;
@@ -617,11 +597,12 @@ export class TwoHandChecker {
                 // Validate the down press first.
                 const { down } = cursorGroup;
                 if (
-                    down.position.getDistance(objectPosition) <= radius &&
+                    down.position.getDistance(objectPosition) <=
+                        object.radius &&
                     Math.abs(down.time - object.startTime) <= hitWindow
                 ) {
                     if (objectIndex > 0) {
-                        const prevObject: PlaceableHitObject =
+                        const prevObject =
                             this.calculator.beatmap.hitObjects.objects[
                                 objectIndex - 1
                             ];
@@ -646,11 +627,11 @@ export class TwoHandChecker {
                     }
                 }
 
-                const cursors: CursorOccurrence[] = cursorGroup.allOccurrences;
+                const cursors = cursorGroup.allOccurrences;
 
                 for (let k = 1; k < cursors.length; ++k) {
-                    const cursor: CursorOccurrence = cursors[k];
-                    const prevCursor: CursorOccurrence = cursors[k - 1];
+                    const cursor = cursors[k];
+                    const prevCursor = cursors[k - 1];
 
                     if (cursor.time < minimumActiveTime) {
                         continue;
@@ -664,7 +645,7 @@ export class TwoHandChecker {
                     if (cursor.id === MovementType.up) {
                         cursorPosition = prevCursor.position;
 
-                        const distance: number =
+                        const distance =
                             cursorPosition.getDistance(objectPosition);
                         if (
                             distance <
@@ -688,37 +669,35 @@ export class TwoHandChecker {
                                 continue;
                             }
 
-                            const cursorGroup:
-                                | CursorOccurrenceGroup
-                                | undefined = this.data.cursorMovement[
+                            const cursorGroup = this.data.cursorMovement[
                                 k
                             ].occurrenceGroups.find(
                                 (v) =>
                                     v.down.time >= prevCursor.time &&
-                                    v.down.time <= cursor.time
+                                    v.down.time <= cursor.time,
                             );
 
                             if (!cursorGroup) {
                                 continue;
                             }
 
-                            const t: number =
+                            const t =
                                 (cursorGroup.down.time - prevCursor.time) /
                                 (cursor.time - prevCursor.time);
                             cursorPosition = new Vector2(
                                 Interpolation.lerp(
                                     prevCursor.position.x,
                                     cursor.position.x,
-                                    t
+                                    t,
                                 ),
                                 Interpolation.lerp(
                                     prevCursor.position.y,
                                     cursor.position.y,
-                                    t
-                                )
+                                    t,
+                                ),
                             );
 
-                            const distance: number =
+                            const distance =
                                 cursorPosition.getDistance(objectPosition);
                             if (
                                 distance <
@@ -731,13 +710,16 @@ export class TwoHandChecker {
                                 nearestCursorTime = cursorGroup.down.time;
                             }
 
-                            if (distance <= radius) {
+                            if (distance <= object.radius) {
                                 break;
                             }
                         }
                     }
 
-                    if (nearestPosition.getDistance(objectPosition) <= radius) {
+                    if (
+                        nearestPosition.getDistance(objectPosition) <=
+                        object.radius
+                    ) {
                         break;
                     }
                 }
@@ -773,30 +755,27 @@ export class TwoHandChecker {
      * @returns The position of the cursor at the object's end position.
      */
     private getCursorPositionForObjectEnd(
-        objectIndex: number
+        objectIndex: number,
     ): CursorPositionInformation {
-        const object: PlaceableHitObject =
-            this.calculator.beatmap.hitObjects.objects[objectIndex];
+        const object = this.calculator.beatmap.hitObjects.objects[objectIndex];
 
         if (!(object instanceof Slider)) {
             return this.getCursorPositionForObjectStart(objectIndex);
         }
 
-        const nextObject: PlaceableHitObject =
+        const nextObject =
             this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
-        let objectEndPosition: Vector2 = object.getStackedEndPosition(
-            Modes.droid
-        );
+        let objectEndPosition = object.getStackedEndPosition(Modes.droid);
 
         if (object.lazyTravelDistance > 0 && nextObject) {
-            const nextStartPosition: Vector2 = nextObject.getStackedPosition(
-                Modes.droid
+            const nextStartPosition = nextObject.getStackedPosition(
+                Modes.droid,
             );
 
-            const lazyEndMovement: Vector2 = nextStartPosition.subtract(
-                object.lazyEndPosition!
+            const lazyEndMovement = nextStartPosition.subtract(
+                object.lazyEndPosition!,
             );
-            const actualEndMovement: Vector2 =
+            const actualEndMovement =
                 nextStartPosition.subtract(objectEndPosition);
 
             if (lazyEndMovement.length < actualEndMovement.length) {
@@ -806,21 +785,17 @@ export class TwoHandChecker {
             objectEndPosition = object.getStackedPosition(Modes.droid);
         }
 
-        let nearestPosition: Vector2 = new Vector2(
-            Number.POSITIVE_INFINITY,
-            Number.POSITIVE_INFINITY
-        );
-        let nearestCursorIndex: number = 0;
-        let nearestGroupIndex: number = 0;
-        let nearestCursorGroupIndex: number = 0;
-        let nearestCursorTime: number = 0;
+        let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);
+        let nearestCursorIndex = 0;
+        let nearestGroupIndex = 0;
+        let nearestCursorGroupIndex = 0;
+        let nearestCursorTime = 0;
 
         for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            const cursorData: CursorData = this.data.cursorMovement[i];
+            const cursorData = this.data.cursorMovement[i];
 
             for (let j = 0; j < cursorData.occurrenceGroups.length; ++j) {
-                const cursorGroup: CursorOccurrenceGroup =
-                    cursorData.occurrenceGroups[j];
+                const cursorGroup = cursorData.occurrenceGroups[j];
                 if (cursorGroup.endTime < object.startTime) {
                     continue;
                 }
@@ -829,9 +804,9 @@ export class TwoHandChecker {
                     break;
                 }
 
-                const cursors: CursorOccurrence[] = cursorGroup.allOccurrences;
+                const cursors = cursorGroup.allOccurrences;
                 for (let k = 0; k < cursors.length; ++k) {
-                    const cursor: CursorOccurrence = cursors[k];
+                    const cursor = cursors[k];
 
                     let cursorPosition: Vector2;
                     switch (cursor.id) {
@@ -839,30 +814,30 @@ export class TwoHandChecker {
                             cursorPosition = cursor.position;
                             break;
                         case MovementType.up: {
-                            const prevCursor: CursorOccurrence = cursors[k - 1];
+                            const prevCursor = cursors[k - 1];
                             cursorPosition = prevCursor.position;
                             break;
                         }
                         case MovementType.move: {
-                            const prevCursor: CursorOccurrence = cursors[k - 1];
-                            const t: number = MathUtils.clamp(
+                            const prevCursor = cursors[k - 1];
+                            const t = MathUtils.clamp(
                                 (object.endTime - prevCursor.time) /
                                     (cursor.time - prevCursor.time),
                                 0,
-                                1
+                                1,
                             );
 
                             cursorPosition = new Vector2(
                                 Interpolation.lerp(
                                     prevCursor.position.x,
                                     cursor.position.x,
-                                    t
+                                    t,
                                 ),
                                 Interpolation.lerp(
                                     prevCursor.position.y,
                                     cursor.position.y,
-                                    t
-                                )
+                                    t,
+                                ),
                             );
                             break;
                         }
@@ -928,7 +903,7 @@ export class TwoHandChecker {
      */
     private checkSliderCheesing(
         indexedHitObject: IndexedHitObject,
-        hitData: ReplayObjectData
+        hitData: ReplayObjectData,
     ): boolean {
         if (
             !(indexedHitObject.object.object instanceof Slider) ||

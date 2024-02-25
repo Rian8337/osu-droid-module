@@ -13,8 +13,6 @@ import {
     BreakPoint,
     PlaceableHitObject,
     Utils,
-    CircleSizeCalculator,
-    HitObjectStackEvaluator,
     Interpolation,
 } from "@rian8337/osu-base";
 import {
@@ -164,24 +162,7 @@ export class RebalanceThreeFingerChecker {
                 (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,
                 0,
             );
-
-        const scale = CircleSizeCalculator.standardCSToStandardScale(stats.cs!);
-
-        if (scale !== beatmap.hitObjects.objects[0].droidScale) {
-            // Deep-copy objects to avoid modifying the global beatmap instance.
-            this.hitObjects = Utils.deepCopy(beatmap.hitObjects.objects);
-
-            for (const object of this.hitObjects) {
-                object.droidScale = scale;
-            }
-
-            HitObjectStackEvaluator.applyDroidStacking(
-                this.hitObjects,
-                beatmap.general.stackLeniency,
-            );
-        } else {
-            this.hitObjects = beatmap.hitObjects.objects;
-        }
+        this.hitObjects = beatmap.hitObjects.objects;
     }
 
     /**
@@ -684,7 +665,7 @@ export class RebalanceThreeFingerChecker {
                                 isInObject =
                                     prevCursor.position.getDistance(
                                         objectPosition,
-                                    ) <= object.getRadius(Modes.droid);
+                                    ) <= object.radius;
                                 break;
                             case MovementType.move: {
                                 // Interpolate movement.
@@ -707,7 +688,7 @@ export class RebalanceThreeFingerChecker {
                                 isInObject =
                                     objectPosition.getDistance(
                                         cursorPosition,
-                                    ) <= object.getRadius(Modes.droid);
+                                    ) <= object.radius;
                             }
                         }
 

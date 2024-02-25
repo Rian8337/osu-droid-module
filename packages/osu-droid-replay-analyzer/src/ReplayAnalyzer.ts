@@ -1,6 +1,7 @@
 import {
     Accuracy,
     Beatmap,
+    BeatmapConverter,
     DroidAPIRequestBuilder,
     DroidHitWindow,
     MapStats,
@@ -9,6 +10,7 @@ import {
     ModHidden,
     ModPrecise,
     ModUtil,
+    Modes,
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
@@ -131,6 +133,8 @@ export class ReplayAnalyzer {
      * The amount of two-handed objects.
      */
     twoHandedNoteCount = 0;
+
+    private convertedBeatmap?: Beatmap;
 
     // Sizes of primitive data types in Java (in bytes)
     private readonly BYTE_LENGTH = 1;
@@ -666,19 +670,25 @@ export class ReplayAnalyzer {
             return;
         }
 
+        this.convertedBeatmap ??= new BeatmapConverter(
+            this.beatmap instanceof Beatmap
+                ? this.beatmap
+                : this.beatmap.beatmap,
+        ).convert({
+            mode: Modes.droid,
+            mods: this.data.convertedMods,
+            customSpeedMultiplier: this.data.speedMultiplier,
+        });
+
         const threeFingerChecker =
             this.difficultyAttributes.mode === "rebalance"
                 ? new RebalanceThreeFingerChecker(
-                      this.beatmap instanceof Beatmap
-                          ? this.beatmap
-                          : this.beatmap.beatmap,
+                      this.convertedBeatmap,
                       this.data,
                       this.difficultyAttributes,
                   )
                 : new ThreeFingerChecker(
-                      this.beatmap instanceof Beatmap
-                          ? this.beatmap
-                          : this.beatmap.beatmap,
+                      this.convertedBeatmap,
                       this.data,
                       this.difficultyAttributes,
                   );
@@ -724,10 +734,18 @@ export class ReplayAnalyzer {
             return;
         }
 
-        const sliderCheeseChecker = new SliderCheeseChecker(
+        this.convertedBeatmap ??= new BeatmapConverter(
             this.beatmap instanceof Beatmap
                 ? this.beatmap
                 : this.beatmap.beatmap,
+        ).convert({
+            mode: Modes.droid,
+            mods: this.data.convertedMods,
+            customSpeedMultiplier: this.data.speedMultiplier,
+        });
+
+        const sliderCheeseChecker = new SliderCheeseChecker(
+            this.convertedBeatmap,
             this.data,
             this.difficultyAttributes,
         );
