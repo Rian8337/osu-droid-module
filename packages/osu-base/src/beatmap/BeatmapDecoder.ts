@@ -1,6 +1,4 @@
 import { Beatmap } from "./Beatmap";
-import { MapStats } from "../utils/MapStats";
-import { Mod } from "../mods/Mod";
 import { BeatmapHitObjectsDecoder } from "./decoder/beatmap/BeatmapHitObjectsDecoder";
 import { BeatmapGeneralDecoder } from "./decoder/beatmap/BeatmapGeneralDecoder";
 import { BeatmapEditorDecoder } from "./decoder/beatmap/BeatmapEditorDecoder";
@@ -14,76 +12,54 @@ import { Decoder } from "./Decoder";
 import { SectionDecoder } from "./decoder/SectionDecoder";
 import { StoryboardDecoder } from "./StoryboardDecoder";
 import { Modes } from "../constants/Modes";
-import { HitObjectStackEvaluator } from "../utils/HitObjectStackEvaluator";
-import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
+import { BeatmapProcessor } from "./BeatmapProcessor";
 
 /**
  * A beatmap decoder.
  */
 export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
-    protected finalResult: Beatmap = new Beatmap();
+    protected finalResult = new Beatmap();
     protected override decoders: Partial<
         Record<BeatmapSection, SectionDecoder<Beatmap>>
     > = {};
 
-    private previousSection: BeatmapSection = BeatmapSection.general;
+    private previousSection = BeatmapSection.general;
 
     /**
      * @param str The string to decode.
-     * @param mods The mods to decode for.
+     * @param mode The mode to parse the beatmap as. Defaults to osu!standard.
      * @param parseStoryboard Whether to parse the beatmap's storyboard.
      */
     override decode(
         str: string,
-        mods: Mod[] = [],
-        parseStoryboard: boolean = true
+        mode: Modes = Modes.osu,
+        parseStoryboard: boolean = true,
     ): this {
         super.decode(str);
 
         if (parseStoryboard) {
-            const eventsDecoder: BeatmapEventsDecoder = <BeatmapEventsDecoder>(
+            const eventsDecoder = <BeatmapEventsDecoder>(
                 this.decoders[BeatmapSection.events]
             );
 
             if (eventsDecoder.storyboardLines.length > 0) {
                 this.finalResult.events.storyboard = new StoryboardDecoder(
-                    this.finalResult.formatVersion
+                    this.finalResult.formatVersion,
                 ).decode(eventsDecoder.storyboardLines.join("\n")).result;
             }
         }
 
-        const droidCircleSize: number = new MapStats({
-            cs: this.finalResult.difficulty.cs,
-            mods,
-        }).calculate({ mode: Modes.droid }).cs!;
-        const droidScale: number =
-            CircleSizeCalculator.standardCSToStandardScale(droidCircleSize);
-
-        const osuCircleSize: number = new MapStats({
-            cs: this.finalResult.difficulty.cs,
-            mods,
-        }).calculate({ mode: Modes.osu }).cs!;
-        const osuScale: number =
-            CircleSizeCalculator.standardCSToStandardScale(osuCircleSize);
-
         this.finalResult.hitObjects.objects.forEach((h) => {
-            h.droidScale = droidScale;
-            h.osuScale = osuScale;
+            h.applyDefaults(
+                this.finalResult.controlPoints,
+                this.finalResult.difficulty,
+                mode,
+            );
+
+            h.applySamples(this.finalResult.controlPoints);
         });
 
-        HitObjectStackEvaluator.applyDroidStacking(
-            this.finalResult.hitObjects.objects,
-            this.finalResult.general.stackLeniency
-        );
-
-        HitObjectStackEvaluator.applyStandardStacking(
-            this.formatVersion,
-            this.finalResult.hitObjects.objects,
-            this.finalResult.difficulty.ar!,
-            this.finalResult.general.stackLeniency,
-            0,
-            this.finalResult.hitObjects.objects.length - 1
-        );
+        new BeatmapProcessor(this.finalResult).postProcess(mode);
 
         return this;
     }

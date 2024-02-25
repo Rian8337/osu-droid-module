@@ -1,6 +1,12 @@
 import { Modes } from "../../constants/Modes";
 import { ObjectTypes } from "../../constants/ObjectTypes";
+import { SampleBank } from "../../constants/SampleBank";
 import { Vector2 } from "../../mathutil/Vector2";
+import { CircleSizeCalculator } from "../../utils/CircleSizeCalculator";
+import { MapStats } from "../../utils/MapStats";
+import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
+import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
+import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitSampleInfo } from "./HitSampleInfo";
 
 /**
@@ -10,7 +16,12 @@ export abstract class HitObject {
     /**
      * The base radius of all hitobjects.
      */
-    static readonly baseRadius: number = 64;
+    static readonly baseRadius = 64;
+
+    /**
+     * A small adjustment to the start time of control points to account for rounding/precision errors.
+     */
+    protected static readonly controlPointLeniency = 1;
 
     /**
      * The start time of the hitobject in milliseconds.
@@ -25,12 +36,12 @@ export abstract class HitObject {
     /**
      * The position of the hitobject in osu!pixels.
      */
-    readonly position: Vector2;
+    position: Vector2;
 
     /**
      * The end position of the hitobject in osu!pixels.
      */
-    readonly endPosition: Vector2;
+    endPosition: Vector2;
 
     /**
      * The end time of the hitobject.
@@ -45,98 +56,75 @@ export abstract class HitObject {
     }
 
     /**
-     * Whether this hit object represents a new combo.
+     * Whether this hitobject represents a new combo.
      */
     readonly isNewCombo: boolean;
 
     /**
-     * How many combo colors to skip, if this object starts a new combo.
+     * How many combo colors to skip, if this hitobject starts a new combo.
      */
     readonly comboOffset: number;
 
     /**
-     * The samples to be played when this hit object is hit.
+     * The samples to be played when this hitobject is hit.
      *
      * In the case of sliders, this is the sample of the curve body
-     * and can be treated as the default samples for the hit object.
+     * and can be treated as the default samples for the hitobject.
      */
     samples: HitSampleInfo[] = [];
 
     /**
-     * The osu!droid stack height of the hitobject.
+     * Any samples which may be used by this hitobject that are non-standard.
      */
-    protected _droidStackHeight: number = 0;
+    auxiliarySamples: HitSampleInfo[] = [];
 
     /**
-     * The osu!droid stack height of the hitobject.
+     * The stack height of this hitobject.
      */
-    get droidStackHeight(): number {
-        return this._droidStackHeight;
+    protected _stackHeight = 0;
+
+    /**
+     * The stack height of this hitobject.
+     */
+    get stackHeight(): number {
+        return this._stackHeight;
     }
 
     /**
-     * The osu!standard stack height of the hitobject.
+     * The stack height of this hitobject.
      */
-    set droidStackHeight(value: number) {
-        this._droidStackHeight = value;
+    set stackHeight(value: number) {
+        this._stackHeight = value;
     }
 
     /**
-     * The osu!standard stack height of the hitobject.
+     * The osu!standard scale of this hitobject.
      */
-    protected _osuStackHeight: number = 0;
+    protected _scale = 1;
 
     /**
-     * The osu!standard stack height of the hitobject.
+     * The osu!standard scale of this hitobject.
      */
-    get osuStackHeight(): number {
-        return this._osuStackHeight;
+    get scale(): number {
+        return this._scale;
     }
 
     /**
-     * The osu!standard stack height of the hitobject.
+     * The osu!standard scale of this hitobject.
      */
-    set osuStackHeight(value: number) {
-        this._osuStackHeight = value;
+    set scale(value: number) {
+        this._scale = value;
     }
 
     /**
-     * The osu!droid scale used to calculate stacked position and radius.
+     * The time at which the approach circle of this hitobject should appear before this hitobject starts.
      */
-    protected _droidScale: number = 1;
+    timePreempt = 600;
 
     /**
-     * The osu!droid scale used to calculate stacked position and radius.
+     * The time at which this hitobject should fade after this hitobject appears with respect to its time preempt.
      */
-    get droidScale(): number {
-        return this._droidScale;
-    }
-
-    /**
-     * The osu!droid scale used to calculate stacked position and radius.
-     */
-    set droidScale(value: number) {
-        this._droidScale = value;
-    }
-
-    /**
-     * The osu!standard scale used to calculate stacked position and radius.
-     */
-    protected _osuScale: number = 1;
-
-    /**
-     * The osu!standard scale used to calculate stacked position and radius.
-     */
-    get osuScale(): number {
-        return this._osuScale;
-    }
-
-    /**
-     * The osu!standard scale used to calculate stacked position and radius.
-     */
-    set osuScale(value: number) {
-        this._osuScale = value;
-    }
+    timeFadeIn = 400;
 
     /**
      * The hitobject type (circle, slider, or spinner).
@@ -159,6 +147,13 @@ export abstract class HitObject {
         return res.substring(0, Math.max(0, res.length - 3));
     }
 
+    /**
+     * The radius of this hitobject,
+     */
+    get radius(): number {
+        return HitObject.baseRadius * this._scale;
+    }
+
     constructor(values: {
         startTime: number;
         position: Vector2;
@@ -178,20 +173,56 @@ export abstract class HitObject {
     }
 
     /**
-     * Evaluates the radius of the hitobject.
+     * Applies default values to this hitobject.
      *
-     * @param mode The gamemode to evaluate for.
-     * @returns The radius of the hitobject with respect to the gamemode.
+     * @param controlPoints The beatmap control points.
+     * @param difficulty The beatmap difficulty settings.
+     * @param mode The gamemode to apply defaults for.
      */
-    getRadius(mode: Modes): number {
+    applyDefaults(
+        controlPoints: BeatmapControlPoints,
+        difficulty: BeatmapDifficulty,
+        mode: Modes,
+    ) {
+        this.timePreempt = MapStats.arToMS(difficulty.ar ?? difficulty.od);
+
+        // Preempt time can go below 450ms. Normally, this is achieved via the DT mod which uniformly speeds up all animations game wide regardless of AR.
+        // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods) feel good by extending the upper linear function above.
+        // Note that this doesn't exactly match the AR>10 visuals as they're classically known, but it feels good.
+        // This adjustment is necessary for AR>10, otherwise timePreempt can become smaller leading to hit circles not fully fading in.
+        this.timeFadeIn =
+            400 * Math.min(1, this.timePreempt / MapStats.AR10_MS);
+
         switch (mode) {
-            case Modes.droid:
-                return HitObject.baseRadius * this._droidScale;
+            case Modes.droid: {
+                const stats = new MapStats({ cs: difficulty.cs }).calculate({
+                    mode: mode,
+                });
+
+                this._scale = CircleSizeCalculator.standardCSToStandardScale(
+                    stats.cs!,
+                );
                 break;
+            }
             case Modes.osu:
-                return HitObject.baseRadius * this._osuScale;
+                this._scale = CircleSizeCalculator.standardCSToStandardScale(
+                    difficulty.cs,
+                );
                 break;
         }
+    }
+
+    /**
+     * Applies samples to this hitobject.
+     *
+     * @param controlPoints The beatmap control points.
+     */
+    applySamples(controlPoints: BeatmapControlPoints) {
+        const sampleControlPoint = controlPoints.sample.controlPointAt(
+            this.endTime + HitObject.controlPointLeniency,
+        );
+
+        this.samples = this.samples.map((v) => sampleControlPoint.applyTo(v));
     }
 
     /**
@@ -203,18 +234,13 @@ export abstract class HitObject {
      * @returns The stack offset with respect to the gamemode.
      */
     getStackOffset(mode: Modes): Vector2 {
-        let coordinate: number;
-
         switch (mode) {
             case Modes.droid:
-                coordinate = this._droidStackHeight * this._droidScale * 4;
-                break;
+                return new Vector2(this._stackHeight * this._scale * 4);
             case Modes.osu:
-                coordinate = this._osuStackHeight * this._osuScale * -6.4;
+                return new Vector2(this._stackHeight * this._scale * -6.4);
                 break;
         }
-
-        return new Vector2(coordinate, coordinate);
     }
 
     /**
@@ -235,6 +261,34 @@ export abstract class HitObject {
      */
     getStackedEndPosition(mode: Modes): Vector2 {
         return this.evaluateStackedPosition(this.endPosition, mode);
+    }
+
+    /**
+     * Creates a hit sample info based on the sample setting of the first `BankHitSampleInfo.HIT_NORMAL` sample in the `samples` array.
+     * If no sample is available, sane default settings will be used instead.
+     *
+     * In the case an existing sample exists, all settings apart from the sample name will be inherited. This includes volume and bank.
+     *
+     * @param sampleName The name of the sample.
+     * @returns The created hit sample info.
+     */
+    protected createHitSampleInfo(sampleName: string): BankHitSampleInfo {
+        const sample = this.samples.find(
+            (s) =>
+                s instanceof BankHitSampleInfo &&
+                s.name === BankHitSampleInfo.HIT_NORMAL,
+        ) as BankHitSampleInfo | undefined;
+
+        if (sample) {
+            return new BankHitSampleInfo(
+                sampleName,
+                sample.bank,
+                sample.customSampleBank,
+                sample.volume,
+            );
+        }
+
+        return new BankHitSampleInfo(sampleName, SampleBank.none);
     }
 
     /**

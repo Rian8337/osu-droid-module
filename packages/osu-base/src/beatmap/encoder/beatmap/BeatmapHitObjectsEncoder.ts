@@ -1,6 +1,8 @@
 import { HitSoundType } from "../../../constants/HitSoundType";
 import { SampleBank } from "../../../constants/SampleBank";
 import { Vector2 } from "../../../mathutil/Vector2";
+import { BankHitSampleInfo } from "../../hitobjects/BankHitSampleInfo";
+import { FileHitSampleInfo } from "../../hitobjects/FileHitSampleInfo";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";
 import { PlaceableHitObject } from "../../hitobjects/PlaceableHitObject";
 import { Slider } from "../../hitobjects/Slider";
@@ -43,19 +45,21 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
     }
 
     private samplesToHitSoundType(samples: HitSampleInfo[]): HitSoundType {
-        let type: HitSoundType = HitSoundType.none;
+        let type = HitSoundType.none;
 
         for (const sample of samples) {
-            switch (sample.name) {
-                case HitSampleInfo.HIT_WHISTLE:
-                    type |= HitSoundType.whistle;
-                    break;
-                case HitSampleInfo.HIT_FINISH:
-                    type |= HitSoundType.finish;
-                    break;
-                case HitSampleInfo.HIT_CLAP:
-                    type |= HitSoundType.clap;
-                    break;
+            if (sample instanceof BankHitSampleInfo) {
+                switch (sample.name) {
+                    case BankHitSampleInfo.HIT_WHISTLE:
+                        type |= HitSoundType.whistle;
+                        break;
+                    case BankHitSampleInfo.HIT_FINISH:
+                        type |= HitSoundType.finish;
+                        break;
+                    case BankHitSampleInfo.HIT_CLAP:
+                        type |= HitSoundType.clap;
+                        break;
+                }
             }
         }
 
@@ -72,20 +76,20 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         // start position of the slider.
         for (let i = 1; i < slider.path.controlPoints.length; ++i) {
             const realPosition: Vector2 = slider.path.controlPoints[i].add(
-                slider.position
+                slider.position,
             );
 
             this.write(`${realPosition.x}:${realPosition.y}`);
             this.write(i != slider.path.controlPoints.length - 1 ? "|" : ",");
         }
 
-        this.write(`${slider.repeats + 1},`);
+        this.write(`${slider.repeatCount + 1},`);
         this.write(`${slider.path.expectedDistance},`);
 
         // edgeSamples
         for (let i = 0; i < slider.nodeSamples.length; ++i) {
             this.write(
-                this.samplesToHitSoundType(slider.nodeSamples[i]).toString()
+                this.samplesToHitSoundType(slider.nodeSamples[i]).toString(),
             );
             this.write(i != slider.nodeSamples.length - 1 ? "|" : ",");
         }
@@ -99,36 +103,44 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
 
     private getSampleBank(
         samples: HitSampleInfo[],
-        banksOnly: boolean = false
+        banksOnly: boolean = false,
     ): string {
-        const normalBank: SampleBank =
-            samples.find((s) => s.name === HitSampleInfo.HIT_NORMAL)?.bank ??
-            SampleBank.none;
-        const addBank: SampleBank =
-            samples.find((s) => s.name && s.name !== HitSampleInfo.HIT_NORMAL)
-                ?.bank ?? SampleBank.none;
+        const normalBank =
+            (
+                samples.find(
+                    (s) =>
+                        s instanceof BankHitSampleInfo &&
+                        s.name === BankHitSampleInfo.HIT_NORMAL,
+                ) as BankHitSampleInfo | undefined
+            )?.bank ?? SampleBank.none;
 
-        let sampleBankString: string = `${normalBank}:${addBank}`;
+        const addBank =
+            (
+                samples.find(
+                    (s) =>
+                        s instanceof BankHitSampleInfo &&
+                        s.name &&
+                        s.name !== BankHitSampleInfo.HIT_NORMAL,
+                ) as BankHitSampleInfo | undefined
+            )?.bank ?? SampleBank.none;
+
+        let sampleBankString = `${normalBank}:${addBank}`;
 
         if (!banksOnly) {
-            const firstSample: HitSampleInfo = samples[0];
+            const firstSample = samples[0];
 
             sampleBankString += ":";
-            sampleBankString += `${firstSample?.customSampleBank ?? 0}:`;
+            sampleBankString += `${
+                firstSample instanceof BankHitSampleInfo
+                    ? firstSample.customSampleBank
+                    : 0
+            }:`;
             sampleBankString += `${firstSample?.volume ?? 100}:`;
 
-            let sampleFilename: string = "";
-
-            if (firstSample?.isCustom) {
-                sampleFilename += `${this.sampleBankToString(
-                    firstSample.bank ?? SampleBank.none
-                )}-${firstSample.name}`;
-
-                if (firstSample.customSampleBank > 0) {
-                    sampleFilename += firstSample.customSampleBank.toString();
-                }
-
-                sampleBankString += sampleFilename;
+            if (firstSample instanceof FileHitSampleInfo) {
+                sampleBankString += `${this.sampleBankToString(
+                    SampleBank.none,
+                )}-${firstSample.filename}`;
             }
         }
 

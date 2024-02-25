@@ -4,8 +4,10 @@ import {
     MapStats,
     ModHidden,
     ModRelax,
+    Modes,
     ObjectTypes,
     PathType,
+    PlaceableHitObject,
     Slider,
     SliderPath,
     Spinner,
@@ -16,12 +18,11 @@ import {
 const createGlobalSliderValues = () => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
 
-    // Will generate 1 slider tick by default
     return {
         startTime: 1000,
         type: ObjectTypes.slider,
         position: new Vector2(100, 192),
-        repetitions: 1,
+        repeatCount: 0,
         nodeSamples: [],
         path: new SliderPath({
             pathType: PathType.Linear,
@@ -30,10 +31,6 @@ const createGlobalSliderValues = () => {
                 .at(-1)!
                 .getDistance(controlPoints[0]),
         }),
-        speedMultiplier: 1,
-        msPerBeat: 1000,
-        mapSliderVelocity: 1,
-        mapTickRate: 1,
         tickDistanceMultiplier: 1,
     };
 };
@@ -69,7 +66,7 @@ describe("Test most common beat length getter", () => {
                 time: 1000,
                 msPerBeat: 1000,
                 timeSignature: 4,
-            })
+            }),
         );
 
         expect(beatmap.mostCommonBeatLength).toBe(1000);
@@ -84,7 +81,7 @@ describe("Test most common beat length getter", () => {
                     time: 1000,
                     msPerBeat: 1000,
                     timeSignature: 4,
-                })
+                }),
             );
 
             beatmap.controlPoints.timing.add(
@@ -92,14 +89,14 @@ describe("Test most common beat length getter", () => {
                     time: 1500,
                     msPerBeat: 800,
                     timeSignature: 4,
-                })
+                }),
             );
 
             beatmap.hitObjects.add(
                 new Circle({
                     startTime: 0,
                     position: new Vector2(0, 0),
-                })
+                }),
             );
 
             expect(beatmap.mostCommonBeatLength).toBe(1000);
@@ -113,7 +110,7 @@ describe("Test most common beat length getter", () => {
                     time: 1000,
                     msPerBeat: 1000,
                     timeSignature: 4,
-                })
+                }),
             );
 
             beatmap.controlPoints.timing.add(
@@ -121,14 +118,14 @@ describe("Test most common beat length getter", () => {
                     time: 1500,
                     msPerBeat: 800,
                     timeSignature: 4,
-                })
+                }),
             );
 
             beatmap.hitObjects.add(
                 new Circle({
                     startTime: 2000,
                     position: new Vector2(0, 0),
-                })
+                }),
             );
 
             expect(beatmap.mostCommonBeatLength).toBe(1000);
@@ -139,35 +136,41 @@ describe("Test most common beat length getter", () => {
 test("Test slider ticks getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.hitObjects.add(new Slider(createGlobalSliderValues()));
+    const addSlider = (slider: Slider) => {
+        slider.applyDefaults(
+            beatmap.controlPoints,
+            beatmap.difficulty,
+            Modes.osu,
+        );
 
+        beatmap.hitObjects.add(slider);
+    };
+
+    addSlider(new Slider(createGlobalSliderValues()));
     expect(beatmap.hitObjects.sliderTicks).toBe(1);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 2,
-        })
+            repeatCount: 1,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderTicks).toBe(3);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 4,
-        })
+            repeatCount: 3,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderTicks).toBe(7);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 8,
-        })
+            repeatCount: 7,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderTicks).toBe(15);
 });
 
@@ -195,64 +198,77 @@ test("Test slider ends getter", () => {
 test("Test slider repeat points getter", () => {
     const beatmap = new Beatmap();
 
-    beatmap.hitObjects.add(new Slider(createGlobalSliderValues()));
+    const addSlider = (slider: Slider) => {
+        slider.applyDefaults(
+            beatmap.controlPoints,
+            beatmap.difficulty,
+            Modes.osu,
+        );
 
+        beatmap.hitObjects.add(slider);
+    };
+
+    addSlider(new Slider(createGlobalSliderValues()));
     expect(beatmap.hitObjects.sliderRepeatPoints).toBe(0);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 2,
-        })
+            repeatCount: 1,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderRepeatPoints).toBe(1);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 4,
-        })
+            repeatCount: 3,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderRepeatPoints).toBe(4);
 
-    beatmap.hitObjects.add(
+    addSlider(
         new Slider({
             ...createGlobalSliderValues(),
-            repetitions: 8,
-        })
+            repeatCount: 7,
+        }),
     );
-
     expect(beatmap.hitObjects.sliderRepeatPoints).toBe(11);
 });
 
 test("Test max combo getter", () => {
     const beatmap = new Beatmap();
 
+    const addObject = (object: PlaceableHitObject) => {
+        object.applyDefaults(
+            beatmap.controlPoints,
+            beatmap.difficulty,
+            Modes.osu,
+        );
+
+        beatmap.hitObjects.add(object);
+    };
+
     expect(beatmap.maxCombo).toBe(0);
 
-    beatmap.hitObjects.add(
+    addObject(
         new Circle({
             startTime: 1000,
             position: new Vector2(0, 0),
-        })
+        }),
     );
-
     expect(beatmap.maxCombo).toBe(1);
 
-    beatmap.hitObjects.add(new Slider(createGlobalSliderValues()));
-
+    addObject(new Slider(createGlobalSliderValues()));
     expect(beatmap.maxCombo).toBe(4);
 
-    beatmap.hitObjects.add(
+    addObject(
         new Spinner({
             startTime: 1000,
             type: ObjectTypes.spinner,
             endTime: 1100,
-        })
+        }),
     );
-
     expect(beatmap.maxCombo).toBe(5);
 });
 
@@ -267,8 +283,16 @@ describe("Test osu!droid max score calculation", () => {
         new Slider({
             ...createGlobalSliderValues(),
             startTime: 1500,
-        })
+        }),
     );
+
+    for (const object of beatmap.hitObjects.objects) {
+        object.applyDefaults(
+            beatmap.controlPoints,
+            beatmap.difficulty,
+            Modes.droid,
+        );
+    }
 
     test("Without mods and speed multiplier", () => {
         const stats = new MapStats();
@@ -312,13 +336,18 @@ describe("Test osu!droid max score calculation", () => {
 describe("Test osu!standard max score calculation", () => {
     const constructBeatmap = () => {
         const beatmap = new Beatmap();
+        const circle = new Circle({
+            startTime: 1000,
+            position: new Vector2(0, 0),
+        });
 
-        beatmap.hitObjects.add(
-            new Circle({
-                startTime: 1000,
-                position: new Vector2(0, 0),
-            })
+        circle.applyDefaults(
+            beatmap.controlPoints,
+            beatmap.difficulty,
+            Modes.osu,
         );
+
+        beatmap.hitObjects.add(circle);
 
         return beatmap;
     };
@@ -394,7 +423,7 @@ describe("Test string concatenation", () => {
 
     test("Without title unicode", () => {
         expect(constructBeatmap().toString()).toBe(
-            "A - B [D] mapped by C\n\nAR5 OD5 CS5 HP5\n0 circles, 0 sliders, 0 spinners\n0 max combo"
+            "A - B [D] mapped by C\n\nAR5 OD5 CS5 HP5\n0 circles, 0 sliders, 0 spinners\n0 max combo",
         );
     });
 
@@ -405,7 +434,7 @@ describe("Test string concatenation", () => {
         beatmap.metadata.titleUnicode = "F";
 
         expect(beatmap.toString()).toBe(
-            "A - B [(E - F)D] mapped by C\n\nAR5 OD5 CS5 HP5\n0 circles, 0 sliders, 0 spinners\n0 max combo"
+            "A - B [(E - F)D] mapped by C\n\nAR5 OD5 CS5 HP5\n0 circles, 0 sliders, 0 spinners\n0 max combo",
         );
     });
 });

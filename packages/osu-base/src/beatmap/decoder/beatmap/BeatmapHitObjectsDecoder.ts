@@ -3,65 +3,63 @@ import { ObjectTypes } from "../../../constants/ObjectTypes";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { PathType } from "../../../constants/PathType";
 import { SampleBank } from "../../../constants/SampleBank";
-import { MathUtils } from "../../../mathutil/MathUtils";
 import { Vector2 } from "../../../mathutil/Vector2";
 import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
 import { Beatmap } from "../../Beatmap";
+import { BankHitSampleInfo } from "../../hitobjects/BankHitSampleInfo";
 import { Circle } from "../../hitobjects/Circle";
+import { FileHitSampleInfo } from "../../hitobjects/FileHitSampleInfo";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";
 import { PlaceableHitObject } from "../../hitobjects/PlaceableHitObject";
 import { SampleBankInfo } from "../../hitobjects/SampleBankInfo";
 import { Slider } from "../../hitobjects/Slider";
 import { Spinner } from "../../hitobjects/Spinner";
-import { DifficultyControlPoint } from "../../timings/DifficultyControlPoint";
-import { TimingControlPoint } from "../../timings/TimingControlPoint";
 import { SectionDecoder } from "../SectionDecoder";
 
 /**
  * A decoder for decoding a beatmap's hitobjects section.
  */
 export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
-    private extraComboOffset: number = 0;
-    private forceNewCombo: boolean = false;
+    private extraComboOffset = 0;
+    private forceNewCombo = false;
 
     protected override decodeInternal(line: string): void {
-        const s: string[] = line.split(",");
+        const s = line.split(",");
 
         if (s.length < 4) {
             throw new Error("Ignoring malformed hitobject");
         }
 
-        const time: number = this.target.getOffsetTime(
-            this.tryParseFloat(this.setPosition(s[2]))
+        const time = this.target.getOffsetTime(
+            this.tryParseFloat(this.setPosition(s[2])),
         );
 
-        const type: number = this.tryParseInt(this.setPosition(s[3]));
+        const type = this.tryParseInt(this.setPosition(s[3]));
 
-        let tempType: number = type;
+        let tempType = type;
 
-        let comboOffset: number = (tempType & ObjectTypes.comboOffset) >> 4;
+        let comboOffset = (tempType & ObjectTypes.comboOffset) >> 4;
         tempType &= ~ObjectTypes.comboOffset;
 
-        let newCombo: boolean = !!(type & ObjectTypes.newCombo);
+        let newCombo = !!(type & ObjectTypes.newCombo);
         tempType &= ~ObjectTypes.newCombo;
 
-        const position: Vector2 = new Vector2(
+        const position = new Vector2(
             this.tryParseFloat(
                 this.setPosition(s[0]),
                 -ParserConstants.MAX_COORDINATE_VALUE,
-                ParserConstants.MAX_COORDINATE_VALUE
+                ParserConstants.MAX_COORDINATE_VALUE,
             ),
             this.tryParseFloat(
                 this.setPosition(s[1]),
                 -ParserConstants.MAX_COORDINATE_VALUE,
-                ParserConstants.MAX_COORDINATE_VALUE
-            )
+                ParserConstants.MAX_COORDINATE_VALUE,
+            ),
         );
 
-        const soundType: HitSoundType = <HitSoundType>this.tryParseInt(s[4]);
-
-        const bankInfo: SampleBankInfo = new SampleBankInfo();
+        const soundType = <HitSoundType>this.tryParseInt(s[4]);
+        const bankInfo = new SampleBankInfo();
 
         let object: PlaceableHitObject | null = null;
 
@@ -88,42 +86,43 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 throw new Error("Ignoring malformed slider");
             }
 
-            const repetitions: number = Math.max(
+            const repeatCount = Math.max(
                 0,
+                // osu!stable treated the first span of the slider as a repeat, but no repeats are happening
                 this.tryParseInt(
                     this.setPosition(s[6]),
                     -ParserConstants.MAX_PARSE_VALUE,
-                    ParserConstants.MAX_REPETITIONS_VALUE
-                )
+                    ParserConstants.MAX_REPETITIONS_VALUE,
+                ) - 1,
             );
 
-            const distance: number = Math.max(
+            const distance = Math.max(
                 0,
-                this.tryParseFloat(this.setPosition(s[7]))
+                this.tryParseFloat(this.setPosition(s[7])),
             );
 
-            const difficultyControlPoint: DifficultyControlPoint =
+            const difficultyControlPoint =
                 this.target.controlPoints.difficulty.controlPointAt(time);
-            const timingControlPoint: TimingControlPoint =
+            const timingControlPoint =
                 this.target.controlPoints.timing.controlPointAt(time);
 
-            const points: Vector2[] = [new Vector2(0, 0)];
-            const pointSplit: string[] = this.setPosition(s[5]).split("|");
-            let pathType: PathType = <PathType>pointSplit.shift()!;
+            const points = [new Vector2(0, 0)];
+            const pointSplit = this.setPosition(s[5]).split("|");
+            let pathType = <PathType>pointSplit.shift()!;
 
             for (const point of pointSplit) {
-                const temp: string[] = point.split(":");
-                const vec: Vector2 = new Vector2(
+                const temp = point.split(":");
+                const vec = new Vector2(
                     this.tryParseFloat(
                         temp[0],
                         -ParserConstants.MAX_COORDINATE_VALUE,
-                        ParserConstants.MAX_COORDINATE_VALUE
+                        ParserConstants.MAX_COORDINATE_VALUE,
                     ),
                     this.tryParseFloat(
                         temp[1],
                         -ParserConstants.MAX_COORDINATE_VALUE,
-                        ParserConstants.MAX_COORDINATE_VALUE
-                    )
+                        ParserConstants.MAX_COORDINATE_VALUE,
+                    ),
                 );
 
                 points.push(vec.subtract(position));
@@ -145,7 +144,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                         (points[1].y - points[0].y) *
                             (points[2].x - points[0].x) -
                             (points[1].x - points[0].x) *
-                                (points[2].y - points[0].y)
+                                (points[2].y - points[0].y),
                     )
                 ) {
                     // osu-stable special-cased colinear perfect curves to a linear path
@@ -153,7 +152,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 }
             }
 
-            const path: SliderPath = new SliderPath({
+            const path = new SliderPath({
                 pathType: pathType,
                 controlPoints: points,
                 expectedDistance: distance,
@@ -164,7 +163,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             }
 
             // One node for each repeat + the start and end nodes
-            const nodes: number = repetitions + 1;
+            const nodes = repeatCount + 2;
 
             // Populate node sample bank infos with the default hit object sample bank
             const nodeBankInfos: SampleBankInfo[] = [];
@@ -174,7 +173,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
             // Read any per-node sample banks
             if (s.length > 9 && s[9]) {
-                const sets: string[] = s[9].split("|");
+                const sets = s[9].split("|");
 
                 for (let i = 0; i < Math.min(sets.length, nodes); ++i) {
                     this.readCustomSampleBanks(nodeBankInfos[i], sets[i]);
@@ -189,7 +188,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
             // Read any per-node sound types
             if (s.length > 8 && s[8]) {
-                const adds: string[] = s[8].split("|");
+                const adds = s[8].split("|");
 
                 for (let i = 0; i < Math.min(adds.length, nodes); ++i) {
                     nodeSoundTypes[i] = <HitSoundType>parseInt(adds[i]);
@@ -200,7 +199,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             const nodeSamples: HitSampleInfo[][] = [];
             for (let i = 0; i < nodes; ++i) {
                 nodeSamples.push(
-                    this.convertSoundType(nodeSoundTypes[i], nodeBankInfos[i])
+                    this.convertSoundType(nodeSoundTypes[i], nodeBankInfos[i]),
                 );
             }
 
@@ -210,14 +209,14 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             this.forceNewCombo = false;
             this.extraComboOffset = 0;
 
-            let tickDistanceMultiplier: number = Number.POSITIVE_INFINITY;
+            let tickDistanceMultiplier = Number.POSITIVE_INFINITY;
 
             if (difficultyControlPoint.generateTicks) {
                 if (
                     this.isNumberValid(
                         timingControlPoint.msPerBeat,
                         ParserConstants.MIN_MSPERBEAT_VALUE,
-                        ParserConstants.MAX_MSPERBEAT_VALUE
+                        ParserConstants.MAX_MSPERBEAT_VALUE,
                     )
                 ) {
                     // Prior to v8, speed multipliers don't adjust for how many ticks are generated over the same distance.
@@ -230,7 +229,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                             ? 1 / difficultyControlPoint.speedMultiplier
                             : 1;
                 } else {
-                    tickDistanceMultiplier = 0;
+                    tickDistanceMultiplier = 1;
                 }
             }
 
@@ -241,16 +240,8 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 newCombo: newCombo,
                 comboOffset: comboOffset,
                 nodeSamples: nodeSamples,
-                repetitions: repetitions,
+                repeatCount: repeatCount,
                 path: path,
-                speedMultiplier: MathUtils.clamp(
-                    difficultyControlPoint.speedMultiplier,
-                    ParserConstants.MIN_SPEEDMULTIPLIER_VALUE,
-                    ParserConstants.MAX_SPEEDMULTIPLIER_VALUE
-                ),
-                msPerBeat: timingControlPoint.msPerBeat,
-                mapSliderVelocity: this.target.difficulty.sliderMultiplier,
-                mapTickRate: this.target.difficulty.sliderTickRate,
                 tickDistanceMultiplier: tickDistanceMultiplier,
             });
         } else if (type & ObjectTypes.spinner) {
@@ -263,7 +254,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 startTime: time,
                 type: type,
                 endTime: this.target.getOffsetTime(
-                    this.tryParseInt(this.setPosition(s[5]))
+                    this.tryParseInt(this.setPosition(s[5])),
                 ),
             });
 
@@ -276,7 +267,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             throw new Error("Ignoring malformed hitobject");
         }
 
-        object.samples = this.convertSoundType(soundType, bankInfo);
+        if (object.samples.length === 0) {
+            object.samples = this.convertSoundType(soundType, bankInfo);
+        }
 
         this.target.hitObjects.add(object);
     }
@@ -289,62 +282,49 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
      */
     private convertSoundType(
         type: HitSoundType,
-        bankInfo: SampleBankInfo
+        bankInfo: SampleBankInfo,
     ): HitSampleInfo[] {
+        const soundTypes: HitSampleInfo[] = [];
+
         if (bankInfo.filename) {
-            return [
-                new HitSampleInfo(
-                    bankInfo.filename,
-                    undefined,
+            soundTypes.push(
+                new FileHitSampleInfo(bankInfo.filename, bankInfo.volume),
+            );
+        } else {
+            soundTypes.push(
+                new BankHitSampleInfo(
+                    BankHitSampleInfo.HIT_NORMAL,
+                    bankInfo.normal,
                     bankInfo.customSampleBank,
-                    bankInfo.volume
+                    bankInfo.volume,
+                    // If the sound type doesn't have the Normal flag set, attach it anyway as a layered sample.
+                    // None also counts as a normal non-layered sample: https://osu.ppy.sh/help/wiki/osu!_File_Formats/Osu_(file_format)#hitsounds
+                    type !== HitSoundType.none && !(type & HitSoundType.normal),
                 ),
-            ];
+            );
         }
 
-        const soundTypes: HitSampleInfo[] = [
-            new HitSampleInfo(
-                HitSampleInfo.HIT_NORMAL,
-                bankInfo.normal,
-                bankInfo.customSampleBank,
-                bankInfo.volume,
-                // If the sound type doesn't have the Normal flag set, attach it anyway as a layered sample.
-                // None also counts as a normal non-layered sample: https://osu.ppy.sh/help/wiki/osu!_File_Formats/Osu_(file_format)#hitsounds
-                type !== HitSoundType.none && !(type & HitSoundType.normal)
-            ),
-        ];
-
-        if (type & HitSoundType.finish) {
+        const addBankSample = (name: string) => {
             soundTypes.push(
-                new HitSampleInfo(
-                    HitSampleInfo.HIT_FINISH,
+                new BankHitSampleInfo(
+                    name,
                     bankInfo.add,
                     bankInfo.customSampleBank,
-                    bankInfo.volume
-                )
+                    bankInfo.volume,
+                ),
             );
+        };
+
+        if (type & HitSoundType.finish) {
+            addBankSample(BankHitSampleInfo.HIT_FINISH);
         }
 
         if (type & HitSoundType.whistle) {
-            soundTypes.push(
-                new HitSampleInfo(
-                    HitSampleInfo.HIT_WHISTLE,
-                    bankInfo.add,
-                    bankInfo.customSampleBank,
-                    bankInfo.volume
-                )
-            );
+            addBankSample(BankHitSampleInfo.HIT_WHISTLE);
         }
 
         if (type & HitSoundType.clap) {
-            soundTypes.push(
-                new HitSampleInfo(
-                    HitSampleInfo.HIT_CLAP,
-                    bankInfo.add,
-                    bankInfo.customSampleBank,
-                    bankInfo.volume
-                )
-            );
+            addBankSample(BankHitSampleInfo.HIT_CLAP);
         }
 
         return soundTypes;
@@ -361,11 +341,11 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             return;
         }
 
-        const s: string[] = str.split(":");
+        const s = str.split(":");
 
         bankInfo.normal = <SampleBank>parseInt(s[0]);
 
-        const addBank: SampleBank = <SampleBank>parseInt(s[1]);
+        const addBank = <SampleBank>parseInt(s[1]);
         bankInfo.add = addBank === SampleBank.none ? bankInfo.normal : addBank;
 
         if (s.length > 2) {

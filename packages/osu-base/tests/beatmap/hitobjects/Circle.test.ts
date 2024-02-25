@@ -1,4 +1,4 @@
-import { Circle, Modes, ObjectTypes, Vector2 } from "../../../src";
+import { Circle, HitObject, Modes, ObjectTypes, Vector2 } from "../../../src";
 
 const createCircle = (newCombo?: boolean) => {
     return new Circle({
@@ -21,10 +21,10 @@ describe("Test circle position", () => {
             const circle = createCircle();
 
             expect(circle.getStackedPosition(Modes.droid)).toEqual(
-                circle.position
+                circle.position,
             );
             expect(circle.getStackedPosition(Modes.osu)).toEqual(
-                circle.position
+                circle.position,
             );
         });
 
@@ -32,14 +32,8 @@ describe("Test circle position", () => {
             const executeTest = (mode: Modes) => {
                 const circle = createCircle();
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 1;
-                } else {
-                    circle.osuStackHeight = 1;
-                }
+                circle.stackHeight = 1;
 
-                const scale =
-                    mode === Modes.droid ? circle.droidScale : circle.osuScale;
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = circle
@@ -47,68 +41,36 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 2;
-                } else {
-                    circle.osuStackHeight = 2;
-                }
+                circle.stackHeight = 2;
 
                 positionOffset = circle
                     .getStackedPosition(mode)
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 4;
-                } else {
-                    circle.osuStackHeight = 4;
-                }
+                circle.stackHeight = 4;
 
                 positionOffset = circle
                     .getStackedPosition(mode)
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
             };
 
@@ -122,10 +84,10 @@ describe("Test circle position", () => {
             const circle = createCircle();
 
             expect(circle.getStackedEndPosition(Modes.droid)).toEqual(
-                circle.position
+                circle.position,
             );
             expect(circle.getStackedEndPosition(Modes.osu)).toEqual(
-                circle.position
+                circle.position,
             );
         });
 
@@ -133,83 +95,45 @@ describe("Test circle position", () => {
             const executeTest = (mode: Modes) => {
                 const circle = createCircle();
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 1;
-                } else {
-                    circle.osuStackHeight = 1;
-                }
+                circle.stackHeight = 1;
 
-                const scale =
-                    mode === Modes.droid ? circle.droidScale : circle.osuScale;
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedEndPosition(mode)
-                    .subtract(circle.position);
+                    .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 2;
-                } else {
-                    circle.osuStackHeight = 2;
-                }
+                circle.stackHeight = 2;
 
                 positionOffset = circle
                     .getStackedEndPosition(mode)
-                    .subtract(circle.position);
+                    .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    circle.droidStackHeight = 4;
-                } else {
-                    circle.osuStackHeight = 4;
-                }
+                circle.stackHeight = 4;
 
                 positionOffset = circle
                     .getStackedEndPosition(mode)
-                    .subtract(circle.position);
+                    .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? circle.droidStackHeight
-                            : circle.osuStackHeight) *
-                        stackMultiplier
+                    circle.scale * circle.stackHeight * stackMultiplier,
                 );
             };
 
@@ -231,36 +155,18 @@ test("Test new combo", () => {
     expect(circle.isNewCombo).toBe(true);
 });
 
-describe("Test circle radius", () => {
-    const baseRadius = 64;
+test("Test circle radius", () => {
+    const circle = createCircle();
 
-    test("osu!droid gamemode", () => {
-        const circle = createCircle();
+    expect(circle.radius).toEqual(HitObject.baseRadius);
 
-        expect(circle.getRadius(Modes.droid)).toEqual(baseRadius);
+    circle.scale = 0.5;
 
-        circle.droidScale = 0.5;
+    expect(circle.radius).toBeCloseTo(HitObject.baseRadius / 2);
 
-        expect(circle.getRadius(Modes.droid)).toBeCloseTo(baseRadius / 2);
+    circle.scale = 2;
 
-        circle.droidScale = 2;
-
-        expect(circle.getRadius(Modes.droid)).toBeCloseTo(baseRadius * 2);
-    });
-
-    test("osu!standard gamemode", () => {
-        const circle = createCircle();
-
-        expect(circle.getRadius(Modes.osu)).toEqual(baseRadius);
-
-        circle.osuScale = 0.5;
-
-        expect(circle.getRadius(Modes.osu)).toBeCloseTo(baseRadius / 2);
-
-        circle.osuScale = 2;
-
-        expect(circle.getRadius(Modes.osu)).toBeCloseTo(baseRadius * 2);
-    });
+    expect(circle.radius).toBeCloseTo(HitObject.baseRadius * 2);
 });
 
 test("Test type string", () => {

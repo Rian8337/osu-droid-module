@@ -1,4 +1,5 @@
 import { Vector2 } from "../../mathutil/Vector2";
+import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
 
 /**
@@ -13,6 +14,32 @@ export class Spinner extends HitObject {
             ...values,
             position: new Vector2(256, 192),
         });
+
+        const bankSample = this.samples.find(
+            (v) => v instanceof BankHitSampleInfo,
+        ) as BankHitSampleInfo | undefined;
+
+        if (bankSample) {
+            this.auxiliarySamples.push(
+                new BankHitSampleInfo(
+                    "spinnerspin",
+                    bankSample.bank,
+                    bankSample.customSampleBank,
+                    bankSample.volume,
+                    bankSample.isLayered,
+                ),
+            );
+        }
+
+        this.auxiliarySamples.push(this.createHitSampleInfo("spinnerbonus"));
+    }
+
+    override getStackedPosition(): Vector2 {
+        return this.position;
+    }
+
+    override getStackedEndPosition(): Vector2 {
+        return this.position;
     }
 
     override toString(): string {

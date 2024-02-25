@@ -107,11 +107,11 @@ export class MapStats implements MapStatsInit {
      */
     private calculated: boolean = false;
 
-    static readonly OD0_MS: number = 80;
-    static readonly OD10_MS: number = 20;
-    static readonly AR0_MS: number = 1800;
-    static readonly AR5_MS: number = 1200;
-    static readonly AR10_MS: number = 450;
+    static readonly OD0_MS = 80;
+    static readonly OD10_MS = 20;
+    static readonly AR0_MS = 1800;
+    static readonly AR5_MS = 1200;
+    static readonly AR10_MS = 450;
 
     static readonly OD_MS_STEP: number =
         (MapStats.OD0_MS - MapStats.OD10_MS) / 10;
