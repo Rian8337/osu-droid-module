@@ -1,4 +1,4 @@
-import { Spinner, Slider, Modes } from "@rian8337/osu-base";
+import { Spinner, Slider } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -59,7 +59,7 @@ export abstract class DroidVisualEvaluator {
             // Do not consider objects that don't fall under time preempt.
             if (
                 current.object.startTime - previous.object.endTime >
-                current.baseTimePreempt
+                current.object.timePreempt
             ) {
                 break;
             }
@@ -79,7 +79,7 @@ export abstract class DroidVisualEvaluator {
         strain /= 10 * (1 + current.overlappingFactor);
 
         if (current.object instanceof Slider && withSliders) {
-            const scalingFactor = 50 / current.object.getRadius(Modes.droid);
+            const scalingFactor = 50 / current.object.radius;
 
             // Invert the scaling factor to determine the true travel distance independent of circle size.
             const pixelTravelDistance =

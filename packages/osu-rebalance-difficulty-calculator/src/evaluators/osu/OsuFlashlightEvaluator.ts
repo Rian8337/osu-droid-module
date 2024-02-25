@@ -26,18 +26,18 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             return 0;
         }
 
-        const scalingFactor: number = 52 / current.object.getRadius(Modes.osu);
-        let smallDistNerf: number = 1;
-        let cumulativeStrainTime: number = 0;
-        let result: number = 0;
-        let last: OsuDifficultyHitObject = current;
-        let angleRepeatCount: number = 0;
+        const scalingFactor = 52 / current.object.radius;
+        let smallDistNerf = 1;
+        let cumulativeStrainTime = 0;
+        let result = 0;
+        let last = current;
+        let angleRepeatCount = 0;
 
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
-            const currentObject: OsuDifficultyHitObject = current.previous(i)!;
+            const currentObject = current.previous(i)!;
 
             if (!(currentObject.object instanceof Spinner)) {
-                const jumpDistance: number = current.object
+                const jumpDistance = current.object
                     .getStackedPosition(Modes.osu)
                     .subtract(
                         currentObject.object.getStackedEndPosition(Modes.osu),
@@ -51,13 +51,13 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
                 }
 
                 // We also want to nerf stacks so that only the first object of the stack is accounted for.
-                const stackNerf: number = Math.min(
+                const stackNerf = Math.min(
                     1,
                     currentObject.lazyJumpDistance / scalingFactor / 25,
                 );
 
                 // Bonus based on how visible the object is.
-                const opacityBonus: number =
+                const opacityBonus =
                     1 +
                     this.maxOpacityBonus *
                         (1 -
@@ -93,11 +93,11 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             this.minAngleMultiplier +
             (1 - this.minAngleMultiplier) / (angleRepeatCount + 1);
 
-        let sliderBonus: number = 0;
+        let sliderBonus = 0;
 
         if (current.object instanceof Slider) {
             // Invert the scaling factor to determine the true travel distance independent of circle size.
-            const pixelTravelDistance: number =
+            const pixelTravelDistance =
                 current.object.lazyTravelDistance / scalingFactor;
 
             // Reward sliders based on velocity.
@@ -113,8 +113,8 @@ export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
             sliderBonus *= pixelTravelDistance;
 
             // Nerf sliders with repeats, as less memorization is required.
-            if (current.object.repeats > 0)
-                sliderBonus /= current.object.repeats + 1;
+            if (current.object.repeatCount > 0)
+                sliderBonus /= current.object.repeatCount + 1;
         }
 
         result += sliderBonus * this.sliderMultiplier;

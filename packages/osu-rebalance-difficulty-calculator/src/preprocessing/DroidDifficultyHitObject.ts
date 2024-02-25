@@ -53,12 +53,17 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      */
     overlappingFactor: number = 0;
 
+    /**
+     * Adjusted preempt time of the hitobject, taking speed multiplier into account.
+     */
+    readonly timePreempt: number;
+
     private readonly radiusBuffThreshold = 70;
 
     protected override readonly mode = Modes.droid;
     protected override readonly maximumSliderRadius = this.normalizedRadius * 2;
     protected override get scalingFactor() {
-        const radius = this.object.getRadius(this.mode);
+        const radius = this.object.radius;
 
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
         let scalingFactor = this.normalizedRadius / radius;
@@ -81,7 +86,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
-     * @param timePreempt The time preempt with clock rate.
      * @param isForceAR Whether force AR is enabled.
      */
     constructor(
@@ -90,7 +94,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
-        timePreempt: number,
         isForceAR: boolean,
     ) {
         super(
@@ -99,9 +102,13 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             lastLastObject,
             difficultyHitObjects,
             clockRate,
-            timePreempt,
-            isForceAR,
         );
+
+        this.timePreempt = this.object.timePreempt;
+
+        if (!isForceAR) {
+            this.timePreempt /= clockRate;
+        }
     }
 
     override computeProperties(
@@ -154,7 +161,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
                 );
             }
 
-            return distance <= 2 * this.object.getRadius(Modes.droid);
+            return distance <= 2 * this.object.radius;
         }
 
         return true;
@@ -229,7 +236,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         // Penalize objects that are too close to the object in both distance
         // and delta time to prevent stream maps from being overweighted.
         this.overlappingFactor +=
-            Math.max(0, 1 - distance / (3 * this.object.getRadius(this.mode))) *
+            Math.max(0, 1 - distance / (3 * this.object.radius)) *
             (7.5 /
                 (1 +
                     Math.exp(

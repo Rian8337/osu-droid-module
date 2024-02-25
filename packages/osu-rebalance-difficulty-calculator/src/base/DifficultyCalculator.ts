@@ -1,4 +1,10 @@
-import { Beatmap, Mod, MapStats, Utils, Modes } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    MapStats,
+    Modes,
+    BeatmapConverter,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
@@ -31,12 +37,14 @@ export abstract class DifficultyCalculator<
     /**
      * The total star rating of the beatmap.
      */
-    total: number = 0;
+    get total(): number {
+        return this.attributes.starRating;
+    }
 
     /**
      * The map statistics of the beatmap after modifications are applied.
      */
-    stats: MapStats = new MapStats();
+    stats = new MapStats();
 
     /**
      * The strain peaks of various calculated difficulties.
@@ -67,7 +75,7 @@ export abstract class DifficultyCalculator<
      * @param beatmap The beatmap to calculate. This beatmap will be deep-cloned to prevent reference changes.
      */
     constructor(beatmap: Beatmap) {
-        this.beatmap = Utils.deepCopy(beatmap);
+        this.beatmap = beatmap;
     }
 
     /**
@@ -87,7 +95,14 @@ export abstract class DifficultyCalculator<
      */
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
-        const { difficulty } = this.beatmap;
+
+        const converted = new BeatmapConverter(this.beatmap).convert({
+            mode: this.mode,
+            mods: this.mods,
+            customSpeedMultiplier: options?.stats?.speedMultiplier,
+        });
+
+        const { difficulty } = converted;
 
         this.stats = new MapStats({
             ...options?.stats,
@@ -106,11 +121,9 @@ export abstract class DifficultyCalculator<
             mods: options?.mods,
         }).calculate({ mode: this.mode });
 
-        this.preProcess();
-
         this.populateDifficultyAttributes();
 
-        this.objects.push(...this.generateDifficultyHitObjects());
+        this.objects.push(...this.generateDifficultyHitObjects(converted));
 
         this.calculateAll();
 
@@ -119,15 +132,12 @@ export abstract class DifficultyCalculator<
 
     /**
      * Generates difficulty hitobjects for this calculator.
+     *
+     * @param beatmap The beatmap to generate difficulty hitobjects from.
      */
-    protected abstract generateDifficultyHitObjects(): THitObject[];
-
-    /**
-     * Performs some pre-processing before proceeding with difficulty calculation.
-     */
-    protected preProcess(): void {
-        void 0;
-    }
+    protected abstract generateDifficultyHitObjects(
+        beatmap: Beatmap,
+    ): THitObject[];
 
     /**
      * Calculates the skills provided.

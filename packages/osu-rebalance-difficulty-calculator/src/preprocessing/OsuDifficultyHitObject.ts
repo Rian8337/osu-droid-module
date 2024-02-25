@@ -19,7 +19,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
     protected override readonly mode = Modes.osu;
     protected override get scalingFactor() {
-        const radius = this.object.getRadius(this.mode);
+        const radius = this.object.radius;
 
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
         let scalingFactor = this.normalizedRadius / radius;
@@ -42,8 +42,6 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
-     * @param timePreempt The time preempt with clock rate.
-     * @param isForceAR Whether force AR is enabled.
      */
     constructor(
         object: PlaceableHitObject,
@@ -51,8 +49,6 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
-        timePreempt: number,
-        isForceAR: boolean,
     ) {
         super(
             object,
@@ -60,8 +56,6 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
             lastLastObject,
             difficultyHitObjects,
             clockRate,
-            timePreempt,
-            isForceAR,
         );
     }
 }
