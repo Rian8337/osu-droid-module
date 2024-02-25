@@ -33,7 +33,7 @@ export class ModReallyEasy
         ) as ModDifficultyAdjust | undefined;
 
         if (
-            difficultyAdjustMod?.ar !== undefined &&
+            difficultyAdjustMod?.ar === undefined &&
             difficulty.ar !== undefined
         ) {
             if (mods.some((m) => m instanceof ModHardRock)) {
@@ -45,7 +45,7 @@ export class ModReallyEasy
             difficulty.ar -= customSpeedMultiplier - 1;
         }
 
-        if (difficultyAdjustMod?.cs !== undefined) {
+        if (difficultyAdjustMod?.cs === undefined) {
             switch (mode) {
                 case Modes.droid: {
                     const scale = CircleSizeCalculator.droidCSToDroidScale(
@@ -60,14 +60,15 @@ export class ModReallyEasy
                 }
                 case Modes.osu:
                     difficulty.cs /= 2;
+                    break;
             }
         }
 
-        if (difficultyAdjustMod?.od !== undefined) {
+        if (difficultyAdjustMod?.od === undefined) {
             difficulty.od /= 2;
         }
 
-        if (difficultyAdjustMod?.hp !== undefined) {
+        if (difficultyAdjustMod?.hp === undefined) {
             difficulty.hp /= 2;
         }
     }
