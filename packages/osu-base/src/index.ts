@@ -7,6 +7,7 @@ export * from "./beatmap/events/BeatmapBackground";
 export * from "./beatmap/sections/BeatmapColor";
 export * from "./beatmap/sections/BeatmapControlPoints";
 export * from "./beatmap/BeatmapConverter";
+export * from "./beatmap/BeatmapConverterOptions";
 export * from "./constants/BeatmapCountdown";
 export * from "./beatmap/sections/BeatmapDifficulty";
 export * from "./beatmap/BeatmapDecoder";

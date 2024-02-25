@@ -1,4 +1,7 @@
+import { Modes } from "../constants/Modes";
 import { Beatmap } from "./Beatmap";
+import { BeatmapConverterOptions } from "./BeatmapConverterOptions";
+import { BeatmapProcessor } from "./BeatmapProcessor";
 import { Circle } from "./hitobjects/Circle";
 import { PlaceableHitObject } from "./hitobjects/PlaceableHitObject";
 import { Slider } from "./hitobjects/Slider";
@@ -19,16 +22,67 @@ export class BeatmapConverter {
     /**
      * Converts the beatmap.
      *
+     * @param options The options to use for conversion.
      * @returns The converted beatmap.
      */
-    convert(): Beatmap {
-        const beatmap = new Beatmap(this.beatmap);
+    convert(options?: BeatmapConverterOptions): Beatmap {
+        const mods = options?.mods ?? [];
+        const mode = options?.mode ?? Modes.osu;
+        const customSpeedMultiplier = options?.customSpeedMultiplier ?? 1;
+
+        // Convert
+        const converted = new Beatmap(this.beatmap);
 
         // Shallow clone isn't enough to ensure we don't mutate some beatmap properties unexpectedly.
-        beatmap.difficulty = new BeatmapDifficulty(this.beatmap.difficulty);
-        beatmap.hitObjects = this.convertHitObjects();
+        converted.difficulty = new BeatmapDifficulty(this.beatmap.difficulty);
+        converted.hitObjects = this.convertHitObjects();
 
-        return beatmap;
+        // Apply difficulty mods
+        mods.forEach((mod) => {
+            if (mod.isApplicableToDifficulty()) {
+                mod.applyToDifficulty(mode, converted.difficulty);
+            }
+        });
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToDifficultyWithSettings()) {
+                mod.applyToDifficultyWithSettings(
+                    mode,
+                    converted.difficulty,
+                    mods,
+                    customSpeedMultiplier,
+                );
+            }
+        });
+
+        const processor = new BeatmapProcessor(converted);
+
+        // Compute default values for hit objects, including creating nested hit objects in-case they're needed.
+        converted.hitObjects.objects.forEach((hitObject) =>
+            hitObject.applyDefaults(
+                converted.controlPoints,
+                converted.difficulty,
+                mode,
+            ),
+        );
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToHitObject()) {
+                for (const hitObject of converted.hitObjects.objects) {
+                    mod.applyToHitObject(mode, hitObject);
+                }
+            }
+        });
+
+        processor.postProcess(mode);
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToBeatmap()) {
+                mod.applyToBeatmap(converted);
+            }
+        });
+
+        return converted;
     }
 
     private convertHitObjects(): BeatmapHitObjects {
