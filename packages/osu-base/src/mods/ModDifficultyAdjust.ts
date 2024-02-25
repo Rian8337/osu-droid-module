@@ -49,7 +49,7 @@ export class ModDifficultyAdjust
      */
     hp?: number;
 
-    constructor(values: {
+    constructor(values?: {
         cs?: number;
         ar?: number;
         od?: number;
@@ -57,10 +57,10 @@ export class ModDifficultyAdjust
     }) {
         super();
 
-        this.cs = values.cs;
-        this.ar = values.ar;
-        this.od = values.od;
-        this.hp = values.hp;
+        this.cs = values?.cs;
+        this.ar = values?.ar;
+        this.od = values?.od;
+        this.hp = values?.hp;
     }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
