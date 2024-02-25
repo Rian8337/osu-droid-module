@@ -9,14 +9,15 @@ export class ModHalfTime
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "HT";
-    override readonly name: string = "HalfTime";
+    override readonly acronym = "HT";
+    override readonly name = "HalfTime";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 0.3;
-    readonly pcScoreMultiplier: number = 0.3;
-    readonly bitwise: number = 1 << 8;
-    readonly droidString: string = "t";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 0.3;
+    readonly droidString = "t";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 0.3;
+    readonly bitwise = 1 << 8;
 }

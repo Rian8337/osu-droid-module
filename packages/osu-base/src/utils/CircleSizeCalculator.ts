@@ -1,15 +1,17 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
+import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
+import { Modes } from "../constants/Modes";
 import { Mod } from "../mods/Mod";
-import { ModEasy } from "../mods/ModEasy";
-import { ModHardRock } from "../mods/ModHardRock";
-import { ModReallyEasy } from "../mods/ModReallyEasy";
-import { ModSmallCircle } from "../mods/ModSmallCircle";
 
 /**
  * A utility class for calculating circle sizes across all modes (rimu! and osu!standard).
  */
 export abstract class CircleSizeCalculator {
-    private static readonly assumedDroidHeight: number = 681;
+    /**
+     * NOTE: This is not the real height that is used in the game, but rather an
+     * assumption so that we can treat circle sizes similarly across all devices.
+     */
+    static readonly assumedDroidHeight = 681;
 
     /**
      * Converts osu!droid CS to osu!droid scale.
@@ -19,24 +21,51 @@ export abstract class CircleSizeCalculator {
      * @returns The calculated osu!droid scale.
      */
     static droidCSToDroidScale(cs: number, mods: Mod[] = []): number {
-        let scale: number =
+        // Create a dummy beatmap difficulty for circle size calculation.
+        const difficulty = new BeatmapDifficulty();
+        difficulty.cs = cs;
+
+        for (const mod of mods) {
+            if (mod.isApplicableToDifficulty()) {
+                mod.applyToDifficulty(Modes.droid, difficulty);
+            }
+        }
+
+        for (const mod of mods) {
+            if (mod.isApplicableToDifficultyWithSettings()) {
+                mod.applyToDifficultyWithSettings(
+                    Modes.droid,
+                    difficulty,
+                    mods,
+                    1,
+                );
+            }
+        }
+
+        return Math.max(
             ((this.assumedDroidHeight / 480) * (54.42 - cs * 4.48) * 2) / 128 +
-            (0.5 * (11 - 5.2450170716245195)) / 5;
+                (0.5 * (11 - 5.2450170716245195)) / 5,
+            1e-3,
+        );
+    }
 
-        if (mods.some((m) => m instanceof ModHardRock)) {
-            scale -= 0.125;
-        }
-        if (mods.some((m) => m instanceof ModEasy)) {
-            scale += 0.125;
-        }
-        if (mods.some((m) => m instanceof ModReallyEasy)) {
-            scale += 0.125;
-        }
-        if (mods.some((m) => m instanceof ModSmallCircle)) {
-            scale -= ((this.assumedDroidHeight / 480) * (4 * 4.48) * 2) / 128;
-        }
-
-        return Math.max(scale, 1e-3);
+    /**
+     * Converts osu!droid scale to osu!droid circle size.
+     *
+     * @param scale The osu!droid scale to convert.
+     * @returns The calculated osu!droid circle size.
+     */
+    static droidScaleToDroidCS(scale: number): number {
+        return (
+            (54.42 -
+                ((((Math.max(1e-3, scale) -
+                    (0.5 * (11 - 5.2450170716245195)) / 5) *
+                    128) /
+                    2) *
+                    480) /
+                    this.assumedDroidHeight) /
+            4.48
+        );
     }
 
     /**
@@ -103,7 +132,7 @@ export abstract class CircleSizeCalculator {
      */
     static standardCSToDroidScale(cs: number): number {
         return this.standardScaleToDroidScale(
-            this.standardCSToStandardScale(cs)
+            this.standardCSToStandardScale(cs),
         );
     }
 }

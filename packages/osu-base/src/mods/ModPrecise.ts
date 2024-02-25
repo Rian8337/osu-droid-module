@@ -5,11 +5,11 @@ import { Mod } from "./Mod";
  * Represents the Precise mod.
  */
 export class ModPrecise extends Mod implements IModApplicableToDroid {
-    override readonly acronym: string = "PR";
-    override readonly name: string = "Precise";
+    override readonly acronym = "PR";
+    override readonly name = "Precise";
 
-    readonly droidRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 1.06;
-    readonly droidString: string = "s";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 1.06;
+    readonly droidString = "s";
+    readonly isDroidLegacyMod = false;
 }

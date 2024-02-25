@@ -9,14 +9,15 @@ export class ModAutopilot
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "AP";
-    override readonly name: string = "Autopilot";
+    override readonly acronym = "AP";
+    override readonly name = "Autopilot";
 
-    readonly droidRanked: boolean = false;
-    readonly pcRanked: boolean = false;
-    readonly droidScoreMultiplier: number = 0.001;
-    readonly pcScoreMultiplier: number = 0;
-    readonly bitwise: number = 1 << 13;
-    readonly droidString: string = "p";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = false;
+    readonly droidScoreMultiplier = 0.001;
+    readonly droidString = "p";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = false;
+    readonly pcScoreMultiplier = 0;
+    readonly bitwise = 1 << 13;
 }

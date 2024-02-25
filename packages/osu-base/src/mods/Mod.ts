@@ -1,4 +1,8 @@
+import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
+import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
+import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 
 /**
@@ -27,5 +31,34 @@ export abstract class Mod {
      */
     isApplicableToOsu(): this is this & IModApplicableToOsu {
         return "pcRanked" in this;
+    }
+
+    /**
+     * Whether this mod can be applied to a beatmap.
+     */
+    isApplicableToBeatmap(): this is this & IModApplicableToBeatmap {
+        return "applyToBeatmap" in this;
+    }
+
+    /**
+     * Whether this mod can be applied to a beatmap difficulty.
+     */
+    isApplicableToDifficulty(): this is this & IModApplicableToDifficulty {
+        return "applyToDifficulty" in this;
+    }
+
+    /**
+     * Whether this mod can be applied to a beatmap difficulty relative to other mods and settings.
+     */
+    isApplicableToDifficultyWithSettings(): this is this &
+        IModApplicableToDifficultyWithSettings {
+        return "applyToDifficultyWithSettings" in this;
+    }
+
+    /**
+     * Whether this mod can be applied to a hitobject.
+     */
+    isApplicableToHitObject(): this is this & IModApplicableToHitObject {
+        return "applyToHitObject" in this;
     }
 }

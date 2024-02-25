@@ -9,14 +9,15 @@ export class ModFlashlight
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "FL";
-    override readonly name: string = "Flashlight";
+    override readonly acronym = "FL";
+    override readonly name = "Flashlight";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 1.12;
-    readonly pcScoreMultiplier: number = 1.12;
-    readonly bitwise: number = 1 << 10;
-    readonly droidString: string = "i";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 1.12;
+    readonly droidString = "i";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 1.12;
+    readonly bitwise = 1 << 10;
 }

@@ -9,14 +9,15 @@ export class ModSuddenDeath
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "SD";
-    override readonly name: string = "Sudden Death";
+    override readonly acronym = "SD";
+    override readonly name = "Sudden Death";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 1;
-    readonly pcScoreMultiplier: number = 1;
-    readonly bitwise: number = 1 << 5;
-    readonly droidString: string = "u";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 1;
+    readonly droidString = "u";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 1;
+    readonly bitwise = 1 << 5;
 }
