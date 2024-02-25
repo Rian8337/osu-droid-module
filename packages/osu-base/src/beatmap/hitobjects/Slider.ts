@@ -263,10 +263,25 @@ export class Slider extends HitObject {
             this.startTime,
         );
 
-        const scoringDistance =
-            100 * difficulty.sliderMultiplier * difficultyPoint.speedMultiplier;
+        const sliderVelocityAsBeatLength =
+            -100 / difficultyPoint.speedMultiplier;
+        const bpmMultiplier =
+            sliderVelocityAsBeatLength < 0
+                ? MathUtils.clamp(
+                      Math.fround(-sliderVelocityAsBeatLength),
+                      10,
+                      1000,
+                  ) / 100
+                : 1;
 
-        this._velocity = scoringDistance / timingPoint.msPerBeat;
+        this._velocity =
+            (100 * difficulty.sliderMultiplier) /
+            (timingPoint.msPerBeat * bpmMultiplier);
+
+        // WARNING: this is intentionally not computed as `BASE_SCORING_DISTANCE * difficulty.sliderMultiplier`
+        // for backwards compatibility reasons (intentionally introducing floating point errors to match osu!stable).
+        const scoringDistance = this._velocity * timingPoint.msPerBeat;
+
         this.generateTicks = difficultyPoint.generateTicks;
         this._tickDistance = this.generateTicks
             ? (scoringDistance / difficulty.sliderTickRate) *
