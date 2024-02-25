@@ -43,7 +43,10 @@ export abstract class CircleSizeCalculator {
         }
 
         return Math.max(
-            ((this.assumedDroidHeight / 480) * (54.42 - cs * 4.48) * 2) / 128 +
+            ((this.assumedDroidHeight / 480) *
+                (54.42 - difficulty.cs * 4.48) *
+                2) /
+                128 +
                 (0.5 * (11 - 5.2450170716245195)) / 5,
             1e-3,
         );
