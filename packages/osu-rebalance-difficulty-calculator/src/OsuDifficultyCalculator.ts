@@ -5,6 +5,7 @@ import {
     ModTouchDevice,
     Modes,
     ModUtil,
+    Beatmap,
 } from "@rian8337/osu-base";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
@@ -167,9 +168,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects() {
+    protected override generateDifficultyHitObjects(beatmap: Beatmap) {
         const difficultyObjects: OsuDifficultyHitObject[] = [];
-        const { objects } = this.beatmap.hitObjects;
+        const { objects } = beatmap.hitObjects;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(

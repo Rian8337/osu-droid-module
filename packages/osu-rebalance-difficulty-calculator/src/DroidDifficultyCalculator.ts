@@ -3,7 +3,13 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
-import { ModRelax, ModFlashlight, Modes, ModUtil } from "@rian8337/osu-base";
+import {
+    ModRelax,
+    ModFlashlight,
+    Modes,
+    ModUtil,
+    Beatmap,
+} from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
@@ -285,9 +291,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects() {
+    protected override generateDifficultyHitObjects(beatmap: Beatmap) {
         const difficultyObjects: DroidDifficultyHitObject[] = [];
-        const { objects } = this.beatmap.hitObjects;
+        const { objects } = beatmap.hitObjects;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
