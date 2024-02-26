@@ -6,6 +6,7 @@ import {
     DroidHitWindow,
     MapStats,
     MathUtils,
+    ModDifficultyAdjust,
     ModFlashlight,
     ModHidden,
     ModPrecise,
@@ -670,15 +671,37 @@ export class ReplayAnalyzer {
             return;
         }
 
-        this.convertedBeatmap ??= new BeatmapConverter(
-            this.beatmap instanceof Beatmap
-                ? this.beatmap
-                : this.beatmap.beatmap,
-        ).convert({
-            mode: Modes.droid,
-            mods: this.data.convertedMods,
-            customSpeedMultiplier: this.data.speedMultiplier,
-        });
+        if (!this.convertedBeatmap) {
+            const mods = this.data.convertedMods.slice();
+
+            if (
+                [
+                    this.data.forceCS,
+                    this.data.forceAR,
+                    this.data.forceOD,
+                    this.data.forceHP,
+                ].some((v) => v !== undefined)
+            ) {
+                mods.push(
+                    new ModDifficultyAdjust({
+                        cs: this.data.forceCS,
+                        ar: this.data.forceAR,
+                        od: this.data.forceOD,
+                        hp: this.data.forceHP,
+                    }),
+                );
+            }
+
+            this.convertedBeatmap ??= new BeatmapConverter(
+                this.beatmap instanceof Beatmap
+                    ? this.beatmap
+                    : this.beatmap.beatmap,
+            ).convert({
+                mode: Modes.droid,
+                mods: mods,
+                customSpeedMultiplier: this.data.speedMultiplier,
+            });
+        }
 
         const threeFingerChecker =
             this.difficultyAttributes.mode === "rebalance"
@@ -734,15 +757,37 @@ export class ReplayAnalyzer {
             return;
         }
 
-        this.convertedBeatmap ??= new BeatmapConverter(
-            this.beatmap instanceof Beatmap
-                ? this.beatmap
-                : this.beatmap.beatmap,
-        ).convert({
-            mode: Modes.droid,
-            mods: this.data.convertedMods,
-            customSpeedMultiplier: this.data.speedMultiplier,
-        });
+        if (!this.convertedBeatmap) {
+            const mods = this.data.convertedMods.slice();
+
+            if (
+                [
+                    this.data.forceCS,
+                    this.data.forceAR,
+                    this.data.forceOD,
+                    this.data.forceHP,
+                ].some((v) => v !== undefined)
+            ) {
+                mods.push(
+                    new ModDifficultyAdjust({
+                        cs: this.data.forceCS,
+                        ar: this.data.forceAR,
+                        od: this.data.forceOD,
+                        hp: this.data.forceHP,
+                    }),
+                );
+            }
+
+            this.convertedBeatmap ??= new BeatmapConverter(
+                this.beatmap instanceof Beatmap
+                    ? this.beatmap
+                    : this.beatmap.beatmap,
+            ).convert({
+                mode: Modes.droid,
+                mods: mods,
+                customSpeedMultiplier: this.data.speedMultiplier,
+            });
+        }
 
         const sliderCheeseChecker = new SliderCheeseChecker(
             this.convertedBeatmap,
