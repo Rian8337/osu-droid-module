@@ -54,88 +54,167 @@ test("Test beatmap conversion without options", () => {
 });
 
 describe("Test beatmap conversion with options", () => {
-    const getConvertedFirstObject = (options: BeatmapConverterOptions) => {
-        const converted = new BeatmapConverter(beatmap).convert(options);
+    describe("osu!droid game mode", () => {
+        const getConvertedFirstObject = (
+            options?: Omit<BeatmapConverterOptions, "mode">,
+        ) => {
+            const converted = new BeatmapConverter(beatmap).convert({
+                ...options,
+                mode: Modes.droid,
+            });
 
-        return converted.hitObjects.objects[0];
-    };
+            return converted.hitObjects.objects[0];
+        };
 
-    test("osu!droid game mode", () => {
-        const firstObject = getConvertedFirstObject({ mode: Modes.droid });
+        test("No options", () => {
+            const firstObject = getConvertedFirstObject({});
 
-        expect(firstObject.scale).toBeCloseTo(0.8526588830433072);
-        expect(firstObject.timePreempt).toBe(1200);
-    });
-
-    test("osu!standard game mode", () => {
-        const firstObject = getConvertedFirstObject({ mode: Modes.osu });
-
-        expect(firstObject.scale).toBeCloseTo(0.5);
-        expect(firstObject.timePreempt).toBeCloseTo(1200);
-    });
-
-    test("osu!droid game mode, Hard Rock", () => {
-        const firstObject = getConvertedFirstObject({
-            mode: Modes.droid,
-            mods: [new ModHardRock()],
+            expect(firstObject.scale).toBeCloseTo(0.8526588830433072);
+            expect(firstObject.timePreempt).toBe(1200);
         });
 
-        expect(firstObject.scale).toBeCloseTo(0.769735845987075);
-        expect(firstObject.timePreempt).toBeCloseTo(900);
-    });
+        test("Hard Rock", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModHardRock()],
+            });
 
-    test("Hidden", () => {
-        const firstObject = getConvertedFirstObject({
-            mods: [new ModHidden()],
+            expect(firstObject.scale).toBeCloseTo(0.769735845987075);
         });
 
-        expect(firstObject.timePreempt).toBeCloseTo(1200);
-        expect(firstObject.timeFadeIn).toBeCloseTo(480);
-    });
+        test("Hidden", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModHidden()],
+            });
 
-    test("Custom speed multiplier", () => {
-        const firstObject = getConvertedFirstObject({
-            customSpeedMultiplier: 2,
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
+            expect(firstObject.timeFadeIn).toBeCloseTo(480);
         });
 
-        expect(firstObject.startTime).toBe(1000);
-        expect(firstObject.timePreempt).toBeCloseTo(1200);
-    });
+        test("Custom speed multiplier", () => {
+            const firstObject = getConvertedFirstObject({
+                customSpeedMultiplier: 2,
+            });
 
-    test("Custom speed multiplier, Really Easy", () => {
-        const firstObject = getConvertedFirstObject({
-            mods: [new ModReallyEasy()],
-            customSpeedMultiplier: 1.25,
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
         });
 
-        expect(firstObject.startTime).toBe(1000);
-        expect(firstObject.scale).toBeCloseTo(0.675);
-        expect(firstObject.timePreempt).toBeCloseTo(1500);
-    });
+        test("Custom speed multiplier, Really Easy", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModReallyEasy()],
+                customSpeedMultiplier: 1.25,
+            });
 
-    test("Custom speed multiplier, Really Easy, Difficulty Adjust (no override)", () => {
-        const firstObject = getConvertedFirstObject({
-            mods: [new ModReallyEasy(), new ModDifficultyAdjust()],
-            customSpeedMultiplier: 1.25,
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
+            expect(firstObject.timePreempt).toBeCloseTo(1500);
         });
 
-        expect(firstObject.startTime).toBe(1000);
-        expect(firstObject.scale).toBeCloseTo(0.675);
-        expect(firstObject.timePreempt).toBeCloseTo(1500);
-    });
+        test("Custom speed multiplier, Really Easy, Difficulty Adjust (no override)", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModReallyEasy(), new ModDifficultyAdjust()],
+                customSpeedMultiplier: 1.25,
+            });
 
-    test("Custom speed multiplier, Really Easy, Difficulty Adjust (CS override), Hard Rock", () => {
-        const firstObject = getConvertedFirstObject({
-            mods: [
-                new ModReallyEasy(),
-                new ModDifficultyAdjust({ cs: 4 }),
-                new ModHardRock(),
-            ],
-            customSpeedMultiplier: 1.25,
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
+            expect(firstObject.timePreempt).toBeCloseTo(1500);
         });
 
-        expect(firstObject.startTime).toBe(1000);
-        expect(firstObject.scale).toBeCloseTo(0.486);
-        expect(firstObject.timePreempt).toBeCloseTo(1380);
+        test("Custom speed multiplier, Really Easy, Difficulty Adjust (CS override), Hard Rock", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [
+                    new ModReallyEasy(),
+                    new ModDifficultyAdjust({ cs: 4 }),
+                    new ModHardRock(),
+                ],
+                customSpeedMultiplier: 1.25,
+            });
+
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.8352757358765421);
+            expect(firstObject.timePreempt).toBeCloseTo(1380);
+        });
+    });
+
+    describe("osu!standard game mode", () => {
+        const getConvertedFirstObject = (
+            options?: Omit<BeatmapConverterOptions, "mode">,
+        ) => {
+            const converted = new BeatmapConverter(beatmap).convert(options);
+
+            return converted.hitObjects.objects[0];
+        };
+
+        test("No options", () => {
+            const firstObject = getConvertedFirstObject();
+
+            expect(firstObject.scale).toBeCloseTo(0.500205);
+            expect(firstObject.timePreempt).toBe(1200);
+        });
+
+        test("Hard Rock", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModHardRock()],
+            });
+
+            expect(firstObject.scale).toBeCloseTo(0.39516195000000004);
+            expect(firstObject.timePreempt).toBeCloseTo(900);
+        });
+
+        test("Hidden", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModHidden()],
+            });
+
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
+            expect(firstObject.timeFadeIn).toBeCloseTo(480);
+        });
+
+        test("Custom speed multiplier", () => {
+            const firstObject = getConvertedFirstObject({
+                customSpeedMultiplier: 2,
+            });
+
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
+        });
+
+        test("Custom speed multiplier, Really Easy", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModReallyEasy()],
+                customSpeedMultiplier: 1.25,
+            });
+
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.500205);
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
+        });
+
+        test("Custom speed multiplier, Really Easy, Difficulty Adjust (no override)", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [new ModReallyEasy(), new ModDifficultyAdjust()],
+                customSpeedMultiplier: 1.25,
+            });
+
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.500205);
+            expect(firstObject.timePreempt).toBeCloseTo(1200);
+        });
+
+        test("Custom speed multiplier, Really Easy, Difficulty Adjust (CS override), Hard Rock", () => {
+            const firstObject = getConvertedFirstObject({
+                mods: [
+                    new ModReallyEasy(),
+                    new ModDifficultyAdjust({ cs: 4 }),
+                    new ModHardRock(),
+                ],
+                customSpeedMultiplier: 1.25,
+            });
+
+            expect(firstObject.startTime).toBe(1000);
+            expect(firstObject.scale).toBeCloseTo(0.486);
+            expect(firstObject.timePreempt).toBeCloseTo(900);
+        });
     });
 });

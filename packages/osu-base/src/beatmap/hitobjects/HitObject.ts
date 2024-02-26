@@ -3,7 +3,11 @@ import { ObjectTypes } from "../../constants/ObjectTypes";
 import { SampleBank } from "../../constants/SampleBank";
 import { Vector2 } from "../../math/Vector2";
 import { CircleSizeCalculator } from "../../utils/CircleSizeCalculator";
-import { MapStats } from "../../utils/MapStats";
+import {
+    AR10_MS,
+    calculateDroidDifficultyStatistics,
+    convertApproachRateToMilliseconds,
+} from "../../utils/DifficultyStatisticsCalculator";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
@@ -184,24 +188,24 @@ export abstract class HitObject {
         difficulty: BeatmapDifficulty,
         mode: Modes,
     ) {
-        this.timePreempt = MapStats.arToMS(difficulty.ar ?? difficulty.od);
+        this.timePreempt = convertApproachRateToMilliseconds(
+            difficulty.ar ?? difficulty.od,
+        );
 
         // Preempt time can go below 450ms. Normally, this is achieved via the DT mod which uniformly speeds up all animations game wide regardless of AR.
         // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods) feel good by extending the upper linear function above.
         // Note that this doesn't exactly match the AR>10 visuals as they're classically known, but it feels good.
         // This adjustment is necessary for AR>10, otherwise timePreempt can become smaller leading to hit circles not fully fading in.
-        this.timeFadeIn =
-            400 * Math.min(1, this.timePreempt / MapStats.AR10_MS);
+        this.timeFadeIn = 400 * Math.min(1, this.timePreempt / AR10_MS);
 
         switch (mode) {
             case Modes.droid: {
-                const stats = new MapStats({ cs: difficulty.cs }).calculate({
-                    mode: mode,
-                });
+                const cs = calculateDroidDifficultyStatistics({
+                    circleSize: difficulty.cs,
+                }).circleSize;
 
-                this._scale = CircleSizeCalculator.standardCSToStandardScale(
-                    stats.cs!,
-                );
+                this._scale =
+                    CircleSizeCalculator.standardCSToStandardScale(cs);
                 break;
             }
             case Modes.osu:

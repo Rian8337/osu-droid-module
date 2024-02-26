@@ -1,7 +1,6 @@
 import {
     Beatmap,
     Circle,
-    MapStats,
     ModHidden,
     ModRelax,
     Modes,
@@ -295,41 +294,23 @@ describe("Test osu!droid max score calculation", () => {
     }
 
     test("Without mods and speed multiplier", () => {
-        const stats = new MapStats();
-
-        expect(beatmap.maxDroidScore(stats)).toBe(730);
+        expect(beatmap.maxDroidScore()).toBe(730);
     });
 
     test("With mods", () => {
-        const stats = new MapStats({
-            mods: [new ModHidden()],
-        });
-
-        expect(beatmap.maxDroidScore(stats)).toBe(773);
+        expect(beatmap.maxDroidScore([new ModHidden()])).toBe(773);
     });
 
     test("With speed multiplier > 1", () => {
-        const stats = new MapStats({
-            speedMultiplier: 1.25,
-        });
-
-        expect(beatmap.maxDroidScore(stats)).toBe(773);
+        expect(beatmap.maxDroidScore(undefined, 1.25)).toBe(773);
     });
 
     test("With speed multiplier < 1", () => {
-        const stats = new MapStats({
-            speedMultiplier: 0.75,
-        });
-
-        expect(beatmap.maxDroidScore(stats)).toBe(219);
+        expect(beatmap.maxDroidScore(undefined, 0.75)).toBe(219);
     });
 
     test("With unranked mods", () => {
-        const stats = new MapStats({
-            mods: [new ModRelax()],
-        });
-
-        expect(beatmap.maxDroidScore(stats)).toBe(0);
+        expect(beatmap.maxDroidScore([new ModRelax()])).toBe(0);
     });
 });
 

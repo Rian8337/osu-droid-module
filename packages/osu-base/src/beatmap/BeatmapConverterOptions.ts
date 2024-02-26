@@ -6,17 +6,17 @@ import { Mod } from "../mods/Mod";
  */
 export interface BeatmapConverterOptions {
     /**
-     * The game mode to convert to.
+     * The game mode to convert to. Defaults to osu!standard.
      */
     readonly mode?: Modes;
 
     /**
-     * The mods to apply.
+     * The mods to apply. Defaults to No Mod.
      */
     readonly mods?: Mod[];
 
     /**
-     * The custom speed multiplier to apply.
+     * The custom speed multiplier to apply. Defaults to 1.
      *
      * This will not directly affect the values of beatmap and hitobject properties,
      * but rather the application of mods to the beatmap.
