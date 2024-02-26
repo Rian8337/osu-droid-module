@@ -1,4 +1,4 @@
-import { Interpolation } from "../../src/mathutil/Interpolation";
+import { Interpolation } from "../../src";
 
 test("Test linear interpolation", () => {
     expect(Interpolation.lerp(4, 5, 2)).toBe(6);

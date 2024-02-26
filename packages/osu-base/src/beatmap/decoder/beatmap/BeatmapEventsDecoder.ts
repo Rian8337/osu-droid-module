@@ -1,4 +1,4 @@
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { Beatmap } from "../../Beatmap";
 import { BeatmapBackground } from "../../events/BeatmapBackground";
 import { BeatmapVideo } from "../../events/BeatmapVideo";
@@ -35,8 +35,8 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
             this.setPosition(s[2]).replace(/"/g, ""),
             new Vector2(
                 this.tryParseFloat(this.setPosition(s[3] ?? "0")),
-                this.tryParseFloat(this.setPosition(s[4] ?? "0"))
-            )
+                this.tryParseFloat(this.setPosition(s[4] ?? "0")),
+            ),
         );
     }
 
@@ -46,8 +46,8 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
             this.setPosition(s[2]).replace(/"/g, ""),
             new Vector2(
                 this.tryParseFloat(this.setPosition(s[3] ?? "0")),
-                this.tryParseFloat(this.setPosition(s[4] ?? "0"))
-            )
+                this.tryParseFloat(this.setPosition(s[4] ?? "0")),
+            ),
         );
     }
 
@@ -55,12 +55,12 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
         this.target.events.breaks.push(
             new BreakPoint({
                 startTime: this.target.getOffsetTime(
-                    this.tryParseInt(this.setPosition(s[1]))
+                    this.tryParseInt(this.setPosition(s[1])),
                 ),
                 endTime: this.target.getOffsetTime(
-                    this.tryParseInt(this.setPosition(s[2]))
+                    this.tryParseInt(this.setPosition(s[2])),
                 ),
-            })
+            }),
         );
     }
 }

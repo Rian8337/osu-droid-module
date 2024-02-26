@@ -1,6 +1,6 @@
 import { HitSoundType } from "../../../constants/HitSoundType";
 import { SampleBank } from "../../../constants/SampleBank";
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { BankHitSampleInfo } from "../../hitobjects/BankHitSampleInfo";
 import { FileHitSampleInfo } from "../../hitobjects/FileHitSampleInfo";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";

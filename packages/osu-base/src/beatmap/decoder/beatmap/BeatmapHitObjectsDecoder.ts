@@ -3,7 +3,7 @@ import { ObjectTypes } from "../../../constants/ObjectTypes";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { PathType } from "../../../constants/PathType";
 import { SampleBank } from "../../../constants/SampleBank";
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
 import { Beatmap } from "../../Beatmap";

@@ -1,7 +1,7 @@
 import { Modes } from "../../constants/Modes";
 import { ObjectTypes } from "../../constants/ObjectTypes";
 import { SampleBank } from "../../constants/SampleBank";
-import { Vector2 } from "../../mathutil/Vector2";
+import { Vector2 } from "../../math/Vector2";
 import { CircleSizeCalculator } from "../../utils/CircleSizeCalculator";
 import { MapStats } from "../../utils/MapStats";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";

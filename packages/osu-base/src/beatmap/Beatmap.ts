@@ -9,7 +9,7 @@ import { BeatmapEvents } from "./sections/BeatmapEvents";
 import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
 import { BeatmapColor } from "./sections/BeatmapColor";
 import { BeatmapHitObjects } from "./sections/BeatmapHitObjects";
-import { MathUtils } from "../mathutil/MathUtils";
+import { MathUtils } from "../math/MathUtils";
 
 /**
  * Represents a beatmap with advanced information.

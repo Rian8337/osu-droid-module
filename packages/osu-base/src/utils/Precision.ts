@@ -1,4 +1,4 @@
-import { Vector2 } from "../mathutil/Vector2";
+import { Vector2 } from "../math/Vector2";
 
 /**
  * Precision utilities.
@@ -16,7 +16,7 @@ export abstract class Precision {
     static almostEqualsNumber(
         value1: number,
         value2: number,
-        acceptableDifference: number = this.FLOAT_EPSILON
+        acceptableDifference: number = this.FLOAT_EPSILON,
     ): boolean {
         return Math.abs(value1 - value2) <= acceptableDifference;
     }
@@ -31,7 +31,7 @@ export abstract class Precision {
     static almostEqualsVector(
         vec1: Vector2,
         vec2: Vector2,
-        acceptableDifference: number = this.FLOAT_EPSILON
+        acceptableDifference: number = this.FLOAT_EPSILON,
     ): boolean {
         return (
             this.almostEqualsNumber(vec1.x, vec2.x, acceptableDifference) &&
@@ -50,7 +50,7 @@ export abstract class Precision {
     static almostEqualRelative(
         a: number,
         b: number,
-        maximumError: number = 10 * Math.pow(2, -53)
+        maximumError: number = 10 * Math.pow(2, -53),
     ): boolean {
         return this.almostEqualNormRelative(a, b, a - b, maximumError);
     }
@@ -68,7 +68,7 @@ export abstract class Precision {
         a: number,
         b: number,
         diff: number,
-        maximumError: number
+        maximumError: number,
     ): boolean {
         // If A or B are infinity (positive or negative) then
         // only return true if they are exactly equal to each other -

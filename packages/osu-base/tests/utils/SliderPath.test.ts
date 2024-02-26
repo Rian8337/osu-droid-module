@@ -1,6 +1,4 @@
-import { PathType } from "../../src/constants/PathType";
-import { Vector2 } from "../../src/mathutil/Vector2";
-import { SliderPath } from "../../src/utils/SliderPath";
+import { PathType, Vector2, SliderPath } from "../../src";
 
 const parseSlider = (str: string) => {
     const parts = str.split(",");

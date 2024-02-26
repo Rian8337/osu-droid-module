@@ -1,5 +1,5 @@
 import { SliderPath } from "../../utils/SliderPath";
-import { Vector2 } from "../../mathutil/Vector2";
+import { Vector2 } from "../../math/Vector2";
 import { HitObject } from "./HitObject";
 import { SliderHead } from "./sliderObjects/SliderHead";
 import { SliderRepeat } from "./sliderObjects/SliderRepeat";
@@ -11,7 +11,7 @@ import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { Modes } from "../../constants/Modes";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
-import { MathUtils } from "../../mathutil/MathUtils";
+import { MathUtils } from "../../math/MathUtils";
 
 /**
  * Represents a slider in a beatmap.
