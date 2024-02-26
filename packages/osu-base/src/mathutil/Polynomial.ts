@@ -5,23 +5,23 @@
  */
 export abstract class Polynomial {
     /**
-     * Evaluates a polynomial at point z.
+     * Evaluates a polynomial at point `z`.
      *
-     * Coefficients are ordered ascending by power with power k at index k.
+     * Coefficients are ordered ascending by power with power `k` at index `k`.
      * For example, coefficients `[3, -1, 2]` represent `y = 2x^2 - x + 3`.
      *
      * @param z The location where to evaluate the polynomial at.
-     * @param coefficients The coefficients of the polynomial, coefficient for power k at index k.
-     * @returns The polynomial at z.
+     * @param coefficients The coefficients of the polynomial, coefficient for power `k` at index `k`.
+     * @returns The polynomial at `z`.
      */
-    static evaluate(z: number, coefficients: number[]): number {
+    static evaluate(z: number, coefficients: readonly number[]): number {
         // Zero polynomials need explicit handling, otherwise we
         // will attempt to peek coefficients at negative indices.
         if (coefficients.length === 0) {
             return 0;
         }
 
-        let sum: number = coefficients.at(-1)!;
+        let sum = coefficients.at(-1)!;
 
         for (let i = coefficients.length - 2; i >= 0; --i) {
             sum *= z;
