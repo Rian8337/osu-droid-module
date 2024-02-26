@@ -5,7 +5,7 @@ import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDiffic
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
-import { ModHardRock } from "./ModHardRock";
+import { ModEasy } from "./ModEasy";
 
 /**
  * Represents the ReallyEasy mod.
@@ -28,6 +28,10 @@ export class ModReallyEasy
         mods: Mod[],
         customSpeedMultiplier: number,
     ): void {
+        if (mode !== Modes.droid) {
+            return;
+        }
+
         const difficultyAdjustMod = mods.find(
             (m) => m instanceof ModDifficultyAdjust,
         ) as ModDifficultyAdjust | undefined;
@@ -36,7 +40,7 @@ export class ModReallyEasy
             difficultyAdjustMod?.ar === undefined &&
             difficulty.ar !== undefined
         ) {
-            if (mods.some((m) => m instanceof ModHardRock)) {
+            if (mods.some((m) => m instanceof ModEasy)) {
                 difficulty.ar *= 2;
                 difficulty.ar -= 0.5;
             }
@@ -46,22 +50,13 @@ export class ModReallyEasy
         }
 
         if (difficultyAdjustMod?.cs === undefined) {
-            switch (mode) {
-                case Modes.droid: {
-                    const scale = CircleSizeCalculator.droidCSToDroidScale(
-                        difficulty.cs,
-                    );
+            const scale = CircleSizeCalculator.droidCSToDroidScale(
+                difficulty.cs,
+            );
 
-                    difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
-                        scale + 0.125,
-                    );
-
-                    break;
-                }
-                case Modes.osu:
-                    difficulty.cs /= 2;
-                    break;
-            }
+            difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
+                scale + 0.125,
+            );
         }
 
         if (difficultyAdjustMod?.od === undefined) {
