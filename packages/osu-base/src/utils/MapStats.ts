@@ -105,7 +105,7 @@ export class MapStats implements MapStatsInit {
     /**
      * Whether this map statistics have been calculated.
      */
-    private calculated: boolean = false;
+    private calculated = false;
 
     static readonly OD0_MS = 80;
     static readonly OD10_MS = 20;
@@ -113,12 +113,9 @@ export class MapStats implements MapStatsInit {
     static readonly AR5_MS = 1200;
     static readonly AR10_MS = 450;
 
-    static readonly OD_MS_STEP: number =
-        (MapStats.OD0_MS - MapStats.OD10_MS) / 10;
-    static readonly AR_MS_STEP1: number =
-        (MapStats.AR0_MS - MapStats.AR5_MS) / 5;
-    static readonly AR_MS_STEP2: number =
-        (MapStats.AR5_MS - MapStats.AR10_MS) / 5;
+    static readonly OD_MS_STEP = (MapStats.OD0_MS - MapStats.OD10_MS) / 10;
+    static readonly AR_MS_STEP1 = (MapStats.AR0_MS - MapStats.AR5_MS) / 5;
+    static readonly AR_MS_STEP2 = (MapStats.AR5_MS - MapStats.AR10_MS) / 5;
 
     constructor(values?: MapStatsInit) {
         this.cs = values?.cs;
@@ -221,7 +218,7 @@ export class MapStats implements MapStatsInit {
                 // and statistics multiplier.
                 if (this.od !== undefined) {
                     let droidToMS: number;
-                    const isPrecise: boolean = this.mods.some(
+                    const isPrecise = this.mods.some(
                         (m) => m instanceof ModPrecise,
                     );
 
@@ -265,29 +262,31 @@ export class MapStats implements MapStatsInit {
                 // calculation.
                 if (this.cs !== undefined) {
                     if (this.forceCS) {
-                        const scale: number =
-                            CircleSizeCalculator.droidCSToDroidScale(this.cs);
-                        const radius: number =
+                        const scale = CircleSizeCalculator.droidCSToDroidScale(
+                            this.cs,
+                        );
+                        const radius =
                             CircleSizeCalculator.droidScaleToStandardRadius(
                                 scale,
                             );
                         this.cs =
                             CircleSizeCalculator.standardRadiusToStandardCS(
                                 radius,
+                                true,
                             );
                     } else {
-                        const scale: number =
-                            CircleSizeCalculator.droidCSToDroidScale(
-                                this.cs,
-                                this.mods,
-                            );
-                        const radius: number =
+                        const scale = CircleSizeCalculator.droidCSToDroidScale(
+                            this.cs,
+                            this.mods,
+                        );
+                        const radius =
                             CircleSizeCalculator.droidScaleToStandardRadius(
                                 scale,
                             );
                         this.cs = Math.min(
                             CircleSizeCalculator.standardRadiusToStandardCS(
                                 radius,
+                                true,
                             ),
                             10,
                         );

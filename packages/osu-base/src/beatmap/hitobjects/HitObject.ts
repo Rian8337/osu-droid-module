@@ -207,6 +207,7 @@ export abstract class HitObject {
             case Modes.osu:
                 this._scale = CircleSizeCalculator.standardCSToStandardScale(
                     difficulty.cs,
+                    true,
                 );
                 break;
         }

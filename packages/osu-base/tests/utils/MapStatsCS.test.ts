@@ -25,7 +25,7 @@ describe("Test osu!droid CS conversion", () => {
     test("CS 4 without mods", () => {
         const stats = createStats(4, Modes.droid);
 
-        expect(stats.cs).toBeCloseTo(-0.98);
+        expect(stats.cs).toBeCloseTo(-0.9737826917318708);
     });
 
     test("CS 4 with HR", () => {
@@ -52,7 +52,7 @@ describe("Test osu!droid CS conversion", () => {
             new ModReallyEasy(),
         ]);
 
-        expect(stats.cs).toBeCloseTo(-1.92);
+        expect(stats.cs).toBeCloseTo(-1.9145734381140915);
     });
 
     test("CS 4 with SC", () => {
@@ -64,7 +64,7 @@ describe("Test osu!droid CS conversion", () => {
     test("CS 4 with force CS, HR", () => {
         const stats = createStats(4, Modes.droid, [new ModHardRock()], true);
 
-        expect(stats.cs).toBeCloseTo(-0.98);
+        expect(stats.cs).toBeCloseTo(-0.9737826917318708);
     });
 });
 
