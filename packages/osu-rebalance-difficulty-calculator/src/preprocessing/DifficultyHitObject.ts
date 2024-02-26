@@ -3,7 +3,6 @@ import {
     Modes,
     ModHidden,
     PlaceableHitObject,
-    Precision,
     Slider,
     SliderRepeat,
     Spinner,
@@ -356,30 +355,6 @@ export abstract class DifficultyHitObject {
     private calculateSliderCursorPosition(slider: Slider) {
         if (slider.lazyEndPosition) {
             return;
-        }
-
-        // osu!droid doesn't have a legacy slider tail. Since beatmap parser defaults slider tail
-        // to legacy slider tail, it needs to be changed to real slider tail first.
-        if (this.mode === Modes.droid) {
-            slider.tail.startTime = slider.endTime;
-            slider.tail.endTime = slider.endTime;
-
-            slider.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
-
-            // Temporary lazy end position until a real result can be derived.
-            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
-
-            // Stop here if the slider has too short duration due to float number limitation.
-            // Incredibly close start and end time fluctuates travel distance and lazy
-            // end position heavily, which we do not want to happen.
-            //
-            // In the real game, this shouldn't happen. Perhaps we need to reinvestigate this
-            // in the future.
-            if (
-                Precision.almostEqualsNumber(slider.startTime, slider.endTime)
-            ) {
-                return;
-            }
         }
 
         // Not using slider.endTime due to legacy last tick offset.
