@@ -1,9 +1,13 @@
 import {
+    BeatmapControlPoints,
+    BeatmapDifficulty,
     Circle,
+    Modes,
     ObjectTypes,
     PathType,
     Slider,
     SliderPath,
+    TimingControlPoint,
     Vector2,
 } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../src";
@@ -17,14 +21,10 @@ const createDifficultyHitObjects = () => {
         new Slider({
             startTime: 1500,
             position: new Vector2(150, 100),
-            mapSliderVelocity: 1,
-            mapTickRate: 1,
-            msPerBeat: 300,
             nodeSamples: [],
-            speedMultiplier: 1,
             tickDistanceMultiplier: 1,
             type: ObjectTypes.slider,
-            repetitions: 1,
+            repeatCount: 0,
             path: new SliderPath({
                 pathType: PathType.Linear,
                 controlPoints: [new Vector2(250, 100)],
@@ -32,6 +32,18 @@ const createDifficultyHitObjects = () => {
             }),
         }),
     ];
+
+    const controlPoints = new BeatmapControlPoints();
+    controlPoints.timing.add(
+        new TimingControlPoint({ time: 0, msPerBeat: 300, timeSignature: 4 }),
+    );
+
+    const difficulty = new BeatmapDifficulty();
+    difficulty.ar = 9;
+
+    for (const object of objects) {
+        object.applyDefaults(controlPoints, difficulty, Modes.osu);
+    }
 
     const difficultyObjects: OsuDifficultyHitObject[] = [];
 
@@ -42,8 +54,6 @@ const createDifficultyHitObjects = () => {
             objects[i - 2] ?? null,
             difficultyObjects,
             1,
-            600,
-            false,
         );
 
         difficultyObject.computeProperties(1, objects);
