@@ -2,10 +2,10 @@
  * Results output by the difficulty statistics calculator.
  */
 export interface DifficultyStatisticsCalculatorResult<
-    TCircleSize extends number | undefined = undefined,
-    TApproachRate extends number | undefined = undefined,
-    TOverallDifficulty extends number | undefined = undefined,
-    THealthDrain extends number | undefined = undefined,
+    TCircleSize extends number | undefined = number | undefined,
+    TApproachRate extends number | undefined = number | undefined,
+    TOverallDifficulty extends number | undefined = number | undefined,
+    THealthDrain extends number | undefined = number | undefined,
 > {
     /**
      * The circle size of the beatmap.

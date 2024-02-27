@@ -4,12 +4,12 @@ import { Mod } from "../mods/Mod";
  * Options for the difficulty statistics calculator.
  */
 export interface DifficultyStatisticsCalculatorOptions<
-    TCircleSize extends number | undefined = undefined,
-    TApproachRate extends number | undefined = undefined,
-    TOverallDifficulty extends number | undefined = undefined,
-    THealthDrain extends number | undefined = undefined,
-    TMods extends Mod[] | undefined = undefined,
-    TCustomSpeedMultiplier extends number | undefined = undefined,
+    TCircleSize extends number | undefined = number | undefined,
+    TApproachRate extends number | undefined = number | undefined,
+    TOverallDifficulty extends number | undefined = number | undefined,
+    THealthDrain extends number | undefined = number | undefined,
+    TMods extends Mod[] | undefined = Mod[] | undefined,
+    TCustomSpeedMultiplier extends number | undefined = number | undefined,
 > {
     /**
      * The circle size of the beatmap.

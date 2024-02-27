@@ -4,6 +4,6 @@
 export type OmitType<TObject extends object, TType> = Omit<
     TObject,
     {
-        [K in keyof TObject]-?: TObject[K] extends TType ? K : never;
+        [K in keyof TObject]-?: [TType] extends [TObject[K]] ? K : never;
     }[keyof TObject]
 >;

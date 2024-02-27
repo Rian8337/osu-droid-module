@@ -23,12 +23,12 @@ import { OmitType } from "./OmitType";
  * @returns The difficulty statistics of the beatmap.
  */
 export function calculateDroidDifficultyStatistics<
-    TCircleSize extends number | undefined = undefined,
-    TApproachRate extends number | undefined = undefined,
-    TOverallDifficulty extends number | undefined = undefined,
-    THealthDrain extends number | undefined = undefined,
-    TMods extends Mod[] | undefined = undefined,
-    TCustomSpeedMultiplier extends number | undefined = undefined,
+    TCircleSize extends number | undefined = number | undefined,
+    TApproachRate extends number | undefined = number | undefined,
+    TOverallDifficulty extends number | undefined = number | undefined,
+    THealthDrain extends number | undefined = number | undefined,
+    TMods extends Mod[] | undefined = Mod[] | undefined,
+    TCustomSpeedMultiplier extends number | undefined = number | undefined,
 >(
     options: Partial<
         DroidDifficultyStatisticsCalculatorOptions<
@@ -165,12 +165,12 @@ export function calculateDroidDifficultyStatistics<
  * @returns The difficulty statistics of the beatmap.
  */
 export function calculateOsuDifficultyStatistics<
-    TCircleSize extends number | undefined = undefined,
-    TApproachRate extends number | undefined = undefined,
-    TOverallDifficulty extends number | undefined = undefined,
-    THealthDrain extends number | undefined = undefined,
-    TMods extends Mod[] | undefined = undefined,
-    TCustomSpeedMultiplier extends number | undefined = undefined,
+    TCircleSize extends number | undefined = number | undefined,
+    TApproachRate extends number | undefined = number | undefined,
+    TOverallDifficulty extends number | undefined = number | undefined,
+    THealthDrain extends number | undefined = number | undefined,
+    TMods extends Mod[] | undefined = Mod[] | undefined,
+    TCustomSpeedMultiplier extends number | undefined = number | undefined,
 >(
     options: Partial<
         DifficultyStatisticsCalculatorOptions<
