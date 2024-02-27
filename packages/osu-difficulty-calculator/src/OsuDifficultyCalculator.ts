@@ -5,15 +5,17 @@ import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
     ModRelax,
-    OsuHitWindow,
     ModFlashlight,
     ModTouchDevice,
     Modes,
     ModUtil,
+    DifficultyStatisticsCalculatorResult,
+    calculateOsuDifficultyStatistics,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
+import { DifficultyCalculationOptions } from "./structures/DifficultyCalculationOptions";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
@@ -93,7 +95,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         const speedSkill = new OsuSpeed(
             this.mods,
-            new OsuHitWindow(this.stats.od!).hitWindowFor300(),
+            this.difficultyStatistics.overallDifficulty,
         );
 
         this.calculateSkills(speedSkill);
@@ -192,11 +194,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 1] ?? null,
                 objects[i - 2] ?? null,
                 difficultyObjects,
-                this.stats.speedMultiplier,
+                this.difficultyStatistics.overallSpeedMultiplier,
             );
 
             difficultyObject.computeProperties(
-                this.stats.speedMultiplier,
+                this.difficultyStatistics.overallSpeedMultiplier,
                 objects,
             );
 
@@ -206,13 +208,28 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         return difficultyObjects;
     }
 
+    protected override computeDifficultyStatistics(
+        options?: DifficultyCalculationOptions,
+    ): DifficultyStatisticsCalculatorResult<number, number, number, number> {
+        const { difficulty } = this.beatmap;
+
+        return calculateOsuDifficultyStatistics({
+            circleSize: difficulty.cs,
+            approachRate: difficulty.ar ?? difficulty.od,
+            overallDifficulty: difficulty.od,
+            healthDrain: difficulty.hp,
+            mods: options?.mods,
+            customSpeedMultiplier: options?.customSpeedMultiplier,
+        });
+    }
+
     protected override createSkills(): OsuSkill[] {
         return [
             new OsuAim(this.mods, true),
             new OsuAim(this.mods, false),
             new OsuSpeed(
                 this.mods,
-                new OsuHitWindow(this.stats.od!).hitWindowFor300(),
+                this.difficultyStatistics.overallDifficulty,
             ),
             new OsuFlashlight(this.mods),
         ];

@@ -9,6 +9,9 @@ import {
     Modes,
     ModUtil,
     Beatmap,
+    DifficultyStatisticsCalculatorResult,
+    calculateDroidDifficultyStatistics,
+    ModDifficultyAdjust,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -17,6 +20,7 @@ import { HighStrainSection } from "./structures/HighStrainSection";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
+import { DroidDifficultyCalculationOptions } from "./structures/DroidDifficultyCalculationOptions";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -128,6 +132,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
 
+    override calculate(options?: DroidDifficultyCalculationOptions): this {
+        return super.calculate(options);
+    }
+
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
@@ -143,7 +151,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the tap star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
-        const od: number = this.stats.od!;
+        const od = this.difficultyStatistics.overallDifficulty;
 
         const tapSkillCheese = new DroidTap(this.mods, od, true);
         const tapSkillNoCheese = new DroidTap(this.mods, od, false);
@@ -156,7 +164,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        const rhythmSkill = new DroidRhythm(this.mods, this.stats.od!);
+        const rhythmSkill = new DroidRhythm(
+            this.mods,
+            this.difficultyStatistics.overallDifficulty,
+        );
 
         this.calculateSkills(rhythmSkill);
         this.postCalculateRhythm(rhythmSkill);
@@ -276,18 +287,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: DroidDifficultyHitObject[] = [];
         const { objects } = beatmap.hitObjects;
 
+        const difficultyAdjustMod = this.mods.find(
+            (m) => m instanceof ModDifficultyAdjust,
+        ) as ModDifficultyAdjust | undefined;
+
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
                 objects[i - 1] ?? null,
                 objects[i - 2] ?? null,
                 difficultyObjects,
-                this.stats.speedMultiplier,
-                this.stats.forceAR,
+                this.difficultyStatistics.overallSpeedMultiplier,
+                difficultyAdjustMod?.ar !== undefined,
             );
 
             difficultyObject.computeProperties(
-                this.stats.speedMultiplier,
+                this.difficultyStatistics.overallSpeedMultiplier,
                 objects,
             );
 
@@ -297,8 +312,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         return difficultyObjects;
     }
 
+    protected override computeDifficultyStatistics(
+        options?: DroidDifficultyCalculationOptions,
+    ): DifficultyStatisticsCalculatorResult<number, number, number, number> {
+        const { difficulty } = this.beatmap;
+
+        return calculateDroidDifficultyStatistics({
+            circleSize: difficulty.cs,
+            approachRate: difficulty.ar ?? difficulty.od,
+            overallDifficulty: difficulty.od,
+            healthDrain: difficulty.hp,
+            mods: this.mods,
+            customSpeedMultiplier: options?.customSpeedMultiplier,
+            oldStatistics: options?.oldStatistics,
+        });
+    }
+
     protected override createSkills(): DroidSkill[] {
-        const od = this.stats.od!;
+        const od = this.difficultyStatistics.overallDifficulty;
 
         return [
             new DroidAim(this.mods, true),
