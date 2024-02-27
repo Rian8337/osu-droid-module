@@ -71,6 +71,9 @@ export function calculateDroidDifficultyStatistics<
         }
     });
 
+    // Special handling for difficulty adjust mod where difficulty statistics are forced.
+    difficultyAdjustMod?.applyToDifficulty(Modes.droid, difficulty);
+
     options.mods?.forEach((mod, _, arr) => {
         if (mod.isApplicableToDifficultyWithSettings()) {
             mod.applyToDifficultyWithSettings(
@@ -207,6 +210,9 @@ export function calculateOsuDifficultyStatistics<
             mod.applyToDifficulty(Modes.osu, difficulty);
         }
     });
+
+    // Special handling for difficulty adjust mod where difficulty statistics are forced.
+    difficultyAdjustMod?.applyToDifficulty(Modes.osu, difficulty);
 
     options.mods?.forEach((mod, _, arr) => {
         if (mod.isApplicableToDifficultyWithSettings()) {

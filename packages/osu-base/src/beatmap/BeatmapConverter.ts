@@ -1,4 +1,5 @@
 import { Modes } from "../constants/Modes";
+import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { Beatmap } from "./Beatmap";
 import { BeatmapConverterOptions } from "./BeatmapConverterOptions";
 import { BeatmapProcessor } from "./BeatmapProcessor";
@@ -43,6 +44,12 @@ export class BeatmapConverter {
                 mod.applyToDifficulty(mode, converted.difficulty);
             }
         });
+
+        // Special handling for difficulty adjust mod where difficulty statistics are forced.
+        const difficultyAdjustMod = mods.find(
+            (m) => m instanceof ModDifficultyAdjust,
+        ) as ModDifficultyAdjust | undefined;
+        difficultyAdjustMod?.applyToDifficulty(mode, converted.difficulty);
 
         mods.forEach((mod) => {
             if (mod.isApplicableToDifficultyWithSettings()) {
