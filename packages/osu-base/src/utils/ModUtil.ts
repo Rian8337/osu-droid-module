@@ -3,6 +3,7 @@ import { IModApplicableToOsu } from "../mods/IModApplicableToOsu";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
+import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModEasy } from "../mods/ModEasy";
 import { ModFlashlight } from "../mods/ModFlashlight";
@@ -186,7 +187,13 @@ export abstract class ModUtil {
      * @returns The string representing the mods in osu!standard.
      */
     static modsToOsuString(mods: Mod[]): string {
-        return mods.reduce((a, v) => a + v.acronym, "");
+        return mods.reduce((a, v) => {
+            if (v instanceof ModDifficultyAdjust) {
+                return a;
+            }
+
+            return a + v.acronym;
+        }, "");
     }
 
     /**

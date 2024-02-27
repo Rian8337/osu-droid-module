@@ -1,4 +1,5 @@
 import {
+    ModDifficultyAdjust,
     ModDoubleTime,
     ModHalfTime,
     ModHardRock,
@@ -151,5 +152,15 @@ describe("Test mods array to osu!standard string conversion", () => {
         const mods = [new ModNoFail(), new ModHalfTime(), new ModPrecise()];
 
         expect(ModUtil.modsToOsuString(mods)).toBe("NFHTPR");
+    });
+
+    test("NFDTDA", () => {
+        const mods = [
+            new ModNoFail(),
+            new ModDoubleTime(),
+            new ModDifficultyAdjust(),
+        ];
+
+        expect(ModUtil.modsToOsuString(mods)).toBe("NFDT");
     });
 });
