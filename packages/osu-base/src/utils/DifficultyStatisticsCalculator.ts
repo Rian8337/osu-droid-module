@@ -12,6 +12,7 @@ import { DifficultyStatisticsCalculatorOptions } from "./DifficultyStatisticsCal
 import { DifficultyStatisticsCalculatorResult } from "./DifficultyStatisticsCalculatorResult";
 import { DroidDifficultyStatisticsCalculatorOptions } from "./DroidDifficultyStatisticsCalculatorOptions";
 import { DroidHitWindow, OsuHitWindow } from "./HitWindow";
+import { OmitType } from "./OmitType";
 
 /**
  * Calculates the osu!droid difficulty statistics of a beatmap.
@@ -39,11 +40,14 @@ export function calculateDroidDifficultyStatistics<
             TCustomSpeedMultiplier
         >
     >,
-): DifficultyStatisticsCalculatorResult<
-    TCircleSize,
-    TApproachRate,
-    TOverallDifficulty,
-    THealthDrain
+): OmitType<
+    DifficultyStatisticsCalculatorResult<
+        TCircleSize,
+        TApproachRate,
+        TOverallDifficulty,
+        THealthDrain
+    >,
+    undefined
 > {
     const overallSpeedMultiplier =
         calculateSpeedMultiplierFromMods(
@@ -138,7 +142,15 @@ export function calculateDroidDifficultyStatistics<
             ? difficulty.hp
             : undefined) as THealthDrain,
         overallSpeedMultiplier: overallSpeedMultiplier,
-    };
+    } as OmitType<
+        DifficultyStatisticsCalculatorResult<
+            TCircleSize,
+            TApproachRate,
+            TOverallDifficulty,
+            THealthDrain
+        >,
+        undefined
+    >;
 }
 
 /**
@@ -167,11 +179,14 @@ export function calculateOsuDifficultyStatistics<
             TCustomSpeedMultiplier
         >
     >,
-): DifficultyStatisticsCalculatorResult<
-    TCircleSize,
-    TApproachRate,
-    TOverallDifficulty,
-    THealthDrain
+): OmitType<
+    DifficultyStatisticsCalculatorResult<
+        TCircleSize,
+        TApproachRate,
+        TOverallDifficulty,
+        THealthDrain
+    >,
+    undefined
 > {
     const overallSpeedMultiplier =
         calculateSpeedMultiplierFromMods(options.mods ?? []) *
@@ -243,7 +258,15 @@ export function calculateOsuDifficultyStatistics<
             ? difficulty.hp
             : undefined) as THealthDrain,
         overallSpeedMultiplier: overallSpeedMultiplier,
-    };
+    } as OmitType<
+        DifficultyStatisticsCalculatorResult<
+            TCircleSize,
+            TApproachRate,
+            TOverallDifficulty,
+            THealthDrain
+        >,
+        undefined
+    >;
 }
 
 /**

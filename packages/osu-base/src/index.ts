@@ -89,6 +89,7 @@ export * from "./utils/ModUtil";
 export * from "./constants/Modes";
 export * from "./math/NormalDistribution";
 export * from "./constants/ObjectTypes";
+export * from "./utils/OmitType";
 export * from "./online/OsuAPIRequestBuilder";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
