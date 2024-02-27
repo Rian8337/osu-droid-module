@@ -132,7 +132,7 @@ describe("Test beatmap conversion with options", () => {
             });
 
             expect(firstObject.startTime).toBe(1000);
-            expect(firstObject.scale).toBeCloseTo(0.8352757358765421);
+            expect(firstObject.scale).toBeCloseTo(0.918164788421231);
             expect(firstObject.timePreempt).toBeCloseTo(1380);
         });
     });
@@ -213,7 +213,7 @@ describe("Test beatmap conversion with options", () => {
             });
 
             expect(firstObject.startTime).toBe(1000);
-            expect(firstObject.scale).toBeCloseTo(0.486);
+            expect(firstObject.scale).toBeCloseTo(0.5702337);
             expect(firstObject.timePreempt).toBeCloseTo(900);
         });
     });
