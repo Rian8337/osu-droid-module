@@ -1,7 +1,6 @@
 import {
     Vector2,
     DroidHitWindow,
-    MapStats,
     ModUtil,
     ModPrecise,
     MathUtils,
@@ -14,6 +13,7 @@ import {
     PlaceableHitObject,
     Utils,
     Interpolation,
+    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
 import {
     ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
@@ -141,9 +141,8 @@ export class RebalanceThreeFingerChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        const stats = new MapStats({
-            cs: beatmap.difficulty.cs,
-            od: beatmap.difficulty.od,
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: beatmap.difficulty.od,
             mods: this.difficultyAttributes.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
@@ -151,12 +150,13 @@ export class RebalanceThreeFingerChecker {
                         (v) => v.acronym === m.acronym,
                     ),
             ),
-        }).calculate({ mode: Modes.droid, convertDroidOD: false });
+            convertOverallDifficulty: false,
+        }).overallDifficulty;
 
         this.isPrecise = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise,
         );
-        this.hitWindow = new DroidHitWindow(stats.od!);
+        this.hitWindow = new DroidHitWindow(od);
         this.strainNoteCount =
             this.difficultyAttributes.possibleThreeFingeredSections.reduce(
                 (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,

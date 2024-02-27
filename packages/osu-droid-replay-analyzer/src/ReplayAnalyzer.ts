@@ -4,7 +4,6 @@ import {
     BeatmapConverter,
     DroidAPIRequestBuilder,
     DroidHitWindow,
-    MapStats,
     MathUtils,
     ModDifficultyAdjust,
     ModFlashlight,
@@ -14,6 +13,7 @@ import {
     Modes,
     Slider,
     Spinner,
+    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -566,18 +566,19 @@ export class ReplayAnalyzer {
             this.beatmap instanceof RebalanceDroidDifficultyCalculator
                 ? this.beatmap.beatmap
                 : this.beatmap;
-        const objects = beatmap.hitObjects.objects;
+        const { objects } = beatmap.hitObjects;
 
-        const stats = new MapStats({
-            od: beatmap.difficulty.od,
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: beatmap.difficulty.od,
             mods: this.data.convertedMods.filter(
                 (m) =>
                     !ModUtil.speedChangingMods.some(
                         (v) => v.acronym === m.acronym,
                     ),
             ),
-        }).calculate();
-        const hitWindow50 = new DroidHitWindow(stats.od!).hitWindowFor50(
+        }).overallDifficulty;
+
+        const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
             this.data.convertedMods.some((m) => m instanceof ModPrecise),
         );
 

@@ -1,7 +1,6 @@
 import {
     Vector2,
     DroidHitWindow,
-    MapStats,
     ModUtil,
     ModPrecise,
     MathUtils,
@@ -13,6 +12,7 @@ import {
     Beatmap,
     BreakPoint,
     PlaceableHitObject,
+    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
@@ -138,8 +138,8 @@ export class ThreeFingerChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        const stats = new MapStats({
-            od: this.beatmap.difficulty.od,
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: beatmap.difficulty.od,
             mods: this.difficultyAttributes.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
@@ -147,12 +147,13 @@ export class ThreeFingerChecker {
                         (v) => v.acronym === m.acronym,
                     ),
             ),
-        }).calculate({ mode: Modes.droid, convertDroidOD: false });
+            convertOverallDifficulty: false,
+        }).overallDifficulty;
 
         this.isPrecise = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise,
         );
-        this.hitWindow = new DroidHitWindow(stats.od!);
+        this.hitWindow = new DroidHitWindow(od);
         this.strainNoteCount =
             this.difficultyAttributes.possibleThreeFingeredSections.reduce(
                 (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,

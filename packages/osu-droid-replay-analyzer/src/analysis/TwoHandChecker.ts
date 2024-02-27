@@ -1,10 +1,10 @@
 // import { writeFileSync } from "fs";
 import {
+    calculateDroidDifficultyStatistics,
     // Beatmap,
     Circle,
     DroidHitWindow,
     Interpolation,
-    MapStats,
     MathUtils,
     Modes,
     ModPrecise,
@@ -92,18 +92,19 @@ export class TwoHandChecker {
         this.calculator = calculator;
         this.data = data;
 
-        const stats = new MapStats({
-            od: this.calculator.beatmap.difficulty.od,
-            mods: this.calculator.mods.filter(
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: calculator.beatmap.difficulty.od,
+            mods: calculator.mods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
                     !ModUtil.speedChangingMods.some(
                         (v) => v.acronym === m.acronym,
                     ),
             ),
-        }).calculate({ mode: Modes.droid, convertDroidOD: false });
+            convertOverallDifficulty: false,
+        }).overallDifficulty;
 
-        this.hitWindow = new DroidHitWindow(stats.od!);
+        this.hitWindow = new DroidHitWindow(od);
         this.hitWindow50 = this.hitWindow.hitWindowFor50(
             calculator.mods.some((m) => m instanceof ModPrecise),
         );
