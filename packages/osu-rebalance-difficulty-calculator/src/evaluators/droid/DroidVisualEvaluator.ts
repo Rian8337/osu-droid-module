@@ -2,7 +2,7 @@ import { Spinner, Slider } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
- * An evaluator for calculating osu!droid Visual skill.
+ * An evaluator for calculating osu!droid visual skill.
  */
 export abstract class DroidVisualEvaluator {
     /**
@@ -72,7 +72,7 @@ export abstract class DroidVisualEvaluator {
 
         if (current.timePreempt < 400) {
             // Give bonus for AR higher than 10.33.
-            strain += Math.pow(400 - current.timePreempt, 1.3) / 100;
+            strain += Math.pow(400 - current.timePreempt, 1.35) / 100;
         }
 
         // Scale the value with overlapping factor.
