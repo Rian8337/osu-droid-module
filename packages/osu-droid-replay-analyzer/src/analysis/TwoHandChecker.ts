@@ -94,13 +94,7 @@ export class TwoHandChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: calculator.beatmap.difficulty.od,
-            mods: calculator.mods.filter(
-                (m) =>
-                    m.isApplicableToDroid() &&
-                    !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym,
-                    ),
-            ),
+            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 

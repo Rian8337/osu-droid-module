@@ -140,13 +140,7 @@ export class ThreeFingerChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: this.difficultyAttributes.mods.filter(
-                (m) =>
-                    m.isApplicableToDroid() &&
-                    !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym,
-                    ),
-            ),
+            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 

@@ -570,12 +570,7 @@ export class ReplayAnalyzer {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: this.data.convertedMods.filter(
-                (m) =>
-                    !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym,
-                    ),
-            ),
+            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
         }).overallDifficulty;
 
         const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
