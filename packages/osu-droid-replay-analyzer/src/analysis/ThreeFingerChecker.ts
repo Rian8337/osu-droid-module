@@ -702,10 +702,7 @@ export class ThreeFingerChecker {
                     : this.hitWindow.hitWindowFor50(this.isPrecise));
 
             const cursorAmounts: number[] = [];
-            const cursorVectorTimes: {
-                readonly vector: Vector2;
-                readonly time: number;
-            }[] = [];
+            const sectionCursors: CursorOccurrence[] = [];
             for (let i = 0; i < this.downCursorInstances.length; ++i) {
                 // Do not include drag cursor instance.
                 if (i === dragIndex) {
@@ -719,17 +716,13 @@ export class ThreeFingerChecker {
                         cursors[j].time <= endTime
                     ) {
                         ++amount;
-                        cursorVectorTimes.push({
-                            vector: new Vector2(
-                                cursors[j].position.x,
-                                cursors[j].position.y,
-                            ),
-                            time: cursors[j].time,
-                        });
+                        sectionCursors.push(cursors[j]);
                     }
                 }
                 cursorAmounts.push(amount);
             }
+
+            sectionCursors.sort((a, b) => a.time - b.time);
 
             // This index will be used to detect if a section is 3-fingered.
             // If the section is dragged, the dragged instance will be ignored,
@@ -747,37 +740,37 @@ export class ThreeFingerChecker {
                     .reduce((acc, value) => acc + value, 0);
 
             const similarPresses: CursorVectorSimilarity[] = [];
-            cursorVectorTimes.sort((a, b) => a.time - b.time);
 
-            for (const cursorVectorTime of cursorVectorTimes) {
+            for (const sectionCursor of sectionCursors) {
                 const pressIndex = similarPresses.findIndex(
                     (v) =>
-                        v.vector.getDistance(cursorVectorTime.vector) <=
+                        v.lastPosition.getDistance(sectionCursor.position) <=
                         this.cursorDistancingDistanceThreshold,
                 );
 
                 if (pressIndex !== -1) {
                     if (
-                        cursorVectorTime.time -
+                        sectionCursor.time -
                             similarPresses[pressIndex].lastTime >=
                         this.cursorDistancingTimeThreshold
                     ) {
                         similarPresses.splice(pressIndex, 1);
                         similarPresses.push({
-                            vector: cursorVectorTime.vector,
+                            lastPosition: sectionCursor.position,
                             count: 1,
-                            lastTime: cursorVectorTime.time,
+                            lastTime: sectionCursor.time,
                         });
                         continue;
                     }
-                    similarPresses[pressIndex].vector = cursorVectorTime.vector;
-                    similarPresses[pressIndex].lastTime = cursorVectorTime.time;
+                    similarPresses[pressIndex].lastPosition =
+                        sectionCursor.position;
+                    similarPresses[pressIndex].lastTime = sectionCursor.time;
                     ++similarPresses[pressIndex].count;
                 } else {
                     similarPresses.push({
-                        vector: cursorVectorTime.vector,
+                        lastPosition: sectionCursor.position,
                         count: 1,
-                        lastTime: cursorVectorTime.time,
+                        lastTime: sectionCursor.time,
                     });
                 }
             }
