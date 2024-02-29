@@ -16,8 +16,8 @@
         "node": ">=18"
     },
     "files": [
-        "dist/**",
-        "typings/**"
+        "dist/index.js",
+        "typings/index.d.ts"
     ],
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",
