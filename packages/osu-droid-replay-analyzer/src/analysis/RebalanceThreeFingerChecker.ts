@@ -80,11 +80,6 @@ export class RebalanceThreeFingerChecker {
     private readonly cursorDistancingTimeThreshold = 1000;
 
     /**
-     * The amount of notes that has a tap strain exceeding `strainThreshold`.
-     */
-    private readonly strainNoteCount: number;
-
-    /**
      * The ratio threshold between non-3 finger cursors and 3-finger cursors.
      *
      * Increasing this number will increase detection accuracy, however
@@ -151,11 +146,6 @@ export class RebalanceThreeFingerChecker {
             (m) => m instanceof ModPrecise,
         );
         this.hitWindow = new DroidHitWindow(od);
-        this.strainNoteCount =
-            this.difficultyAttributes.possibleThreeFingeredSections.reduce(
-                (a, v) => a + v.lastObjectIndex - v.firstObjectIndex + 1,
-                0,
-            );
         this.hitObjects = beatmap.hitObjects.objects;
     }
 
@@ -183,7 +173,9 @@ export class RebalanceThreeFingerChecker {
      * nerf factor, taking beatmap difficulty into account.
      */
     check(): ThreeFingerInformation {
-        if (this.strainNoteCount === 0) {
+        if (
+            this.difficultyAttributes.possibleThreeFingeredSections.length === 0
+        ) {
             return { is3Finger: false, penalty: 1 };
         }
 
@@ -712,6 +704,7 @@ export class RebalanceThreeFingerChecker {
                 readonly vector: Vector2;
                 readonly time: number;
             }[] = [];
+
             for (const object of beatmapSection.objects) {
                 if (
                     object.pressingCursorIndex === -1 ||
@@ -806,10 +799,23 @@ export class RebalanceThreeFingerChecker {
                 threeFingerRatio > this.threeFingerRatioThreshold ||
                 threeFingerPresses.length > 0
             ) {
-                const objectCount =
+                const threeFingeredObjectCount =
+                    threeFingerRatio > this.threeFingerRatioThreshold
+                        ? cursorAmounts
+                              .slice(fingerSplitIndex)
+                              .reduce((acc, value) => acc + value, 0)
+                        : threeFingerPresses.reduce(
+                              (acc, value) => acc + value.count,
+                              0,
+                          );
+
+                const sectionObjectCount =
                     beatmapSection.lastObjectIndex -
                     beatmapSection.firstObjectIndex +
                     1;
+
+                const threeFingeredObjectRatio =
+                    threeFingeredObjectCount / sectionObjectCount;
 
                 // We can ignore the first 3 (2 for drag) filled cursor instances
                 // since they are guaranteed not 3 finger.
@@ -824,8 +830,9 @@ export class RebalanceThreeFingerChecker {
                               (acc, value, index) =>
                                   acc +
                                   Math.pow(
-                                      ((index + 1) * value * objectCount) /
-                                          this.strainNoteCount,
+                                      (index + 1) *
+                                          value *
+                                          threeFingeredObjectRatio,
                                       0.9,
                                   ),
                               1,
@@ -835,13 +842,12 @@ export class RebalanceThreeFingerChecker {
                                   (acc, value, index) =>
                                       acc +
                                       Math.pow(
-                                          ((index + 1) *
+                                          (index + 1) *
                                               (value.count /
                                                   (this
                                                       .cursorDistancingCountThreshold *
                                                       2)) *
-                                              objectCount) /
-                                              this.strainNoteCount,
+                                              threeFingeredObjectRatio,
                                           0.2,
                                       ),
                                   1,
@@ -851,12 +857,13 @@ export class RebalanceThreeFingerChecker {
 
                 // Length factor applies more penalty if there are more 3-fingered object.
                 const lengthFactor =
-                    1 + Math.pow(objectCount / this.strainNoteCount, 1.2);
+                    1 + Math.pow(threeFingeredObjectRatio, 1.2);
 
                 this.nerfFactors.push({
-                    strainFactor: Math.max(1, beatmapSection.sumStrain),
-                    fingerFactor,
-                    lengthFactor,
+                    strainFactor:
+                        beatmapSection.sumStrain * threeFingeredObjectRatio,
+                    fingerFactor: fingerFactor,
+                    lengthFactor: lengthFactor,
                 });
             }
         }
