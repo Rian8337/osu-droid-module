@@ -23,7 +23,6 @@ import { HitResult } from "../constants/HitResult";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
-import { CursorVectorSimilarity } from "./structures/CursorVectorSimilarity";
 import { NerfFactor } from "./structures/NerfFactor";
 import { RebalanceThreeFingerBeatmapSection } from "./structures/RebalanceThreeFingerBeatmapSection";
 import { ThreeFingerInformation } from "./structures/ThreeFingerInformation";
@@ -56,28 +55,6 @@ export class RebalanceThreeFingerChecker {
      * This is being maintained separately due to possible change in object scale.
      */
     private readonly hitObjects: readonly PlaceableHitObject[];
-
-    /**
-     * The distance threshold between cursors to assume that two cursors are
-     * actually pressed with 1 finger in osu!pixels.
-     *
-     * This is used to prevent cases where a player would lift their finger
-     * too fast to the point where the 4th cursor instance or beyond is recorded
-     * as 1st, 2nd, or 3rd cursor instance.
-     */
-    private readonly cursorDistancingDistanceThreshold = 60;
-
-    /**
-     * The threshold for the amount of cursors that are assumed to be pressed
-     * by a single finger.
-     */
-    private readonly cursorDistancingCountThreshold = 10;
-
-    /**
-     * The threshold for the time difference of cursors that are assumed to be pressed
-     * by a single finger, in milliseconds.
-     */
-    private readonly cursorDistancingTimeThreshold = 1000;
 
     /**
      * The ratio threshold between non-3 finger cursors and 3-finger cursors.
@@ -181,7 +158,17 @@ export class RebalanceThreeFingerChecker {
 
         this.getAccurateBreakPoints();
         this.filterCursorInstances();
+
+        if (this.downCursorInstances.filter((v) => v.length > 0).length <= 3) {
+            return { is3Finger: false, penalty: 1 };
+        }
+
         this.getBeatmapSections();
+
+        if (this.downCursorInstances.filter((v) => v.length > 0).length <= 3) {
+            return { is3Finger: false, penalty: 1 };
+        }
+
         this.calculateNerfFactors();
 
         const finalPenalty = this.calculateFinalPenalty();
@@ -696,14 +683,10 @@ export class RebalanceThreeFingerChecker {
      */
     private calculateNerfFactors(): void {
         for (const beatmapSection of this.beatmapSections) {
-            const cursorAmounts = Utils.initializeArray(
+            const cursorCounts = Utils.initializeArray(
                 this.downCursorInstances.length,
                 0,
             );
-            const cursorVectorTimes: {
-                readonly vector: Vector2;
-                readonly time: number;
-            }[] = [];
 
             for (const object of beatmapSection.objects) {
                 if (
@@ -714,21 +697,12 @@ export class RebalanceThreeFingerChecker {
                     continue;
                 }
 
-                ++cursorAmounts[object.pressingCursorInstanceIndex];
-
-                const cursor =
-                    this.downCursorInstances[
-                        object.pressingCursorInstanceIndex
-                    ][object.pressingCursorIndex];
-                cursorVectorTimes.push({
-                    vector: new Vector2(cursor.position.x, cursor.position.y),
-                    time: cursor.time,
-                });
+                ++cursorCounts[object.pressingCursorInstanceIndex];
             }
 
             if (beatmapSection.dragFingerIndex !== -1) {
                 // Remove the drag index to prevent it from being picked up into the detection.
-                cursorAmounts.splice(beatmapSection.dragFingerIndex, 1);
+                cursorCounts.splice(beatmapSection.dragFingerIndex, 1);
             }
 
             // This index will be used to detect if a section is 3-fingered.
@@ -740,74 +714,20 @@ export class RebalanceThreeFingerChecker {
             // Divide >=4th (3rd for drag) cursor instances with 1st + 2nd (+ 3rd for nondrag)
             // to check if the section is 3-fingered.
             const threeFingerRatio =
-                cursorAmounts
+                cursorCounts
                     .slice(fingerSplitIndex)
                     .reduce((acc, value) => acc + value, 0) /
                 Math.max(
-                    cursorAmounts
+                    cursorCounts
                         .slice(0, fingerSplitIndex)
                         .reduce((acc, value) => acc + value, 0),
                     1,
                 );
 
-            const similarPresses: CursorVectorSimilarity[] = [];
-            cursorVectorTimes.sort((a, b) => a.time - b.time);
-
-            for (const cursorVectorTime of cursorVectorTimes) {
-                const pressIndex = similarPresses.findIndex(
-                    (v) =>
-                        v.vector.getDistance(cursorVectorTime.vector) <=
-                        this.cursorDistancingDistanceThreshold,
-                );
-
-                if (pressIndex !== -1) {
-                    if (
-                        cursorVectorTime.time -
-                            similarPresses[pressIndex].lastTime >=
-                        this.cursorDistancingTimeThreshold
-                    ) {
-                        // If the previous press is too late, remove it from the
-                        // list and register the current press as a new press.
-                        similarPresses.splice(pressIndex, 1);
-                        similarPresses.push({
-                            vector: cursorVectorTime.vector,
-                            count: 1,
-                            lastTime: cursorVectorTime.time,
-                        });
-                        continue;
-                    }
-
-                    similarPresses[pressIndex].vector = cursorVectorTime.vector;
-                    similarPresses[pressIndex].lastTime = cursorVectorTime.time;
-                    ++similarPresses[pressIndex].count;
-                } else {
-                    similarPresses.push({
-                        vector: cursorVectorTime.vector,
-                        count: 1,
-                        lastTime: cursorVectorTime.time,
-                    });
-                }
-            }
-
-            // Sort by highest count; assume the order is 3rd, 4th, 5th, ... finger
-            const threeFingerPresses = similarPresses
-                .filter((v) => v.count >= this.cursorDistancingCountThreshold)
-                .sort((a, b) => b.count - a.count)
-                .slice(fingerSplitIndex);
-
-            if (
-                threeFingerRatio > this.threeFingerRatioThreshold ||
-                threeFingerPresses.length > 0
-            ) {
-                const threeFingeredObjectCount =
-                    threeFingerRatio > this.threeFingerRatioThreshold
-                        ? cursorAmounts
-                              .slice(fingerSplitIndex)
-                              .reduce((acc, value) => acc + value, 0)
-                        : threeFingerPresses.reduce(
-                              (acc, value) => acc + value.count,
-                              0,
-                          );
+            if (threeFingerRatio > this.threeFingerRatioThreshold) {
+                const threeFingeredObjectCount = cursorCounts
+                    .slice(fingerSplitIndex)
+                    .reduce((acc, value) => acc + value, 0);
 
                 const sectionObjectCount =
                     beatmapSection.lastObjectIndex -
@@ -819,41 +739,20 @@ export class RebalanceThreeFingerChecker {
 
                 // We can ignore the first 3 (2 for drag) filled cursor instances
                 // since they are guaranteed not 3 finger.
-                const threeFingerCursorAmounts = cursorAmounts
+                const threeFingerCursorCounts = cursorCounts
                     .slice(fingerSplitIndex)
                     .filter((amount) => amount > 0);
 
                 // Finger factor applies more penalty if more fingers were used.
-                const fingerFactor =
-                    threeFingerRatio > this.threeFingerRatioThreshold
-                        ? threeFingerCursorAmounts.reduce(
-                              (acc, value, index) =>
-                                  acc +
-                                  Math.pow(
-                                      (index + 1) *
-                                          value *
-                                          threeFingeredObjectRatio,
-                                      0.9,
-                                  ),
-                              1,
-                          )
-                        : Math.pow(
-                              threeFingerPresses.reduce(
-                                  (acc, value, index) =>
-                                      acc +
-                                      Math.pow(
-                                          (index + 1) *
-                                              (value.count /
-                                                  (this
-                                                      .cursorDistancingCountThreshold *
-                                                      2)) *
-                                              threeFingeredObjectRatio,
-                                          0.2,
-                                      ),
-                                  1,
-                              ),
-                              0.2,
-                          );
+                const fingerFactor = threeFingerCursorCounts.reduce(
+                    (acc, count, index) =>
+                        acc +
+                        Math.pow(
+                            (index + 1) * count * threeFingeredObjectRatio,
+                            0.9,
+                        ),
+                    1,
+                );
 
                 // Length factor applies more penalty if there are more 3-fingered object.
                 const lengthFactor =
