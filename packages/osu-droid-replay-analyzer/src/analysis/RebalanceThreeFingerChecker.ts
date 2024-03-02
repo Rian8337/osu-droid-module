@@ -164,11 +164,6 @@ export class RebalanceThreeFingerChecker {
         }
 
         this.getBeatmapSections();
-
-        if (this.downCursorInstances.filter((v) => v.length > 0).length <= 3) {
-            return { is3Finger: false, penalty: 1 };
-        }
-
         this.calculateNerfFactors();
 
         const finalPenalty = this.calculateFinalPenalty();
