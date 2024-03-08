@@ -7,13 +7,13 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
 export class DroidRhythm extends DroidSkill {
-    protected override readonly reducedSectionCount: number = 5;
-    protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly starsPerDouble: number = 1.75;
+    protected override readonly reducedSectionCount = 5;
+    protected override readonly reducedSectionBaseline = 0.75;
+    protected override readonly strainDecayBase = 0.3;
+    protected override readonly starsPerDouble = 1.75;
 
-    private currentRhythmStrain: number = 0;
-    private currentRhythmMultiplier: number = 1;
+    private currentRhythmStrain = 0;
+    private currentRhythmMultiplier = 1;
     private readonly hitWindow: OsuHitWindow;
 
     constructor(mods: Mod[], overallDifficulty: number) {

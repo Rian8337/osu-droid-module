@@ -31,7 +31,7 @@ export abstract class DroidSkill extends StrainSkill {
             return 0;
         }
 
-        const maxStrain: number = Math.max(...this._objectStrains);
+        const maxStrain = Math.max(...this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;
@@ -50,7 +50,7 @@ export abstract class DroidSkill extends StrainSkill {
     }
 
     override difficultyValue(): number {
-        const strains: number[] = this.strainPeaks.slice();
+        const strains = this.strainPeaks.slice();
 
         if (this.reducedSectionCount > 0) {
             strains.sort((a, b) => b - a);

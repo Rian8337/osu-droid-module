@@ -29,10 +29,10 @@ export abstract class StrainSkill extends Skill {
      */
     protected abstract readonly strainDecayBase: number;
 
-    private readonly sectionLength: number = 400;
-    private currentStrain: number = 0;
-    private currentSectionPeak: number = 0;
-    private currentSectionEnd: number = 0;
+    private readonly sectionLength = 400;
+    private currentStrain = 0;
+    private currentSectionPeak = 0;
+    private currentSectionEnd = 0;
 
     override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end

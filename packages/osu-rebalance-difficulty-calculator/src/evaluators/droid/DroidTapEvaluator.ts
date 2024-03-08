@@ -33,23 +33,23 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             return 0;
         }
 
-        let doubletapness: number = 1;
+        let doubletapness = 1;
 
         if (considerCheesability) {
             // Nerf doubletappable doubles.
-            const next: DroidDifficultyHitObject | null = current.next(0);
+            const next = current.next(0);
 
             if (next) {
-                const greatWindowFull: number = greatWindow * 2;
-                const currentDeltaTime: number = Math.max(1, current.deltaTime);
-                const nextDeltaTime: number = Math.max(1, next.deltaTime);
-                const deltaDifference: number = Math.abs(
+                const greatWindowFull = greatWindow * 2;
+                const currentDeltaTime = Math.max(1, current.deltaTime);
+                const nextDeltaTime = Math.max(1, next.deltaTime);
+                const deltaDifference = Math.abs(
                     nextDeltaTime - currentDeltaTime,
                 );
-                const speedRatio: number =
+                const speedRatio =
                     currentDeltaTime /
                     Math.max(currentDeltaTime, deltaDifference);
-                const windowRatio: number = Math.pow(
+                const windowRatio = Math.pow(
                     Math.min(1, currentDeltaTime / greatWindowFull),
                     2,
                 );
@@ -57,12 +57,12 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             }
         }
 
-        const strainTime: number =
+        const strainTime =
             strainTimeCap !== undefined
                 ? // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
                   Math.max(50, strainTimeCap, current.strainTime)
                 : current.strainTime;
-        let speedBonus: number = 1;
+        let speedBonus = 1;
 
         if (strainTime < this.minSpeedBonus) {
             speedBonus +=

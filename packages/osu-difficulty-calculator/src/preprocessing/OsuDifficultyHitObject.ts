@@ -35,7 +35,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
     /**
      * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
-     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue.).
+     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue).
      *
      * @param object The underlying hitobject.
      * @param lastObject The hitobject before this hitobject.

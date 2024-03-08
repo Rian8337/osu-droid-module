@@ -7,15 +7,15 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class DroidAim extends DroidSkill {
-    protected override readonly strainDecayBase: number = 0.15;
-    protected override readonly reducedSectionCount: number = 10;
-    protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly starsPerDouble: number = 1.05;
+    protected override readonly strainDecayBase = 0.15;
+    protected override readonly reducedSectionCount = 10;
+    protected override readonly reducedSectionBaseline = 0.75;
+    protected override readonly starsPerDouble = 1.05;
 
-    private readonly skillMultiplier: number = 24.55;
+    private readonly skillMultiplier = 24.55;
 
     private readonly withSliders: boolean;
-    private currentAimStrain: number = 0;
+    private currentAimStrain = 0;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
@@ -42,6 +42,10 @@ export class DroidAim extends DroidSkill {
             this.currentAimStrain *
             this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
         );
+    }
+
+    protected override getObjectStrain(): number {
+        return this.currentAimStrain;
     }
 
     /**

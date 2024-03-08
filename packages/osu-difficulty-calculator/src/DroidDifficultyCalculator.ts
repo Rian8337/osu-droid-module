@@ -16,10 +16,9 @@ import {
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
-import { HighStrainSection } from "./structures/HighStrainSection";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
-import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
+import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
 import { DroidDifficultyCalculationOptions } from "./structures/DroidDifficultyCalculationOptions";
 
 /**
@@ -99,6 +98,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         possibleThreeFingeredSections: [],
         difficultSliders: [],
         averageSpeedDeltaTime: 0,
+        vibroFactor: 1,
     };
 
     override get cacheableAttributes(): CacheableDifficultyAttributes<DroidDifficultyAttributes> {
@@ -126,15 +126,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             visualDifficultStrainCount:
                 this.attributes.visualDifficultStrainCount,
             averageSpeedDeltaTime: this.attributes.averageSpeedDeltaTime,
+            vibroFactor: this.attributes.vibroFactor,
         };
     }
 
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
-
-    override calculate(options?: DroidDifficultyCalculationOptions): this {
-        return super.calculate(options);
-    }
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
@@ -155,9 +152,18 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const tapSkillCheese = new DroidTap(this.mods, od, true);
         const tapSkillNoCheese = new DroidTap(this.mods, od, false);
-
         this.calculateSkills(tapSkillCheese, tapSkillNoCheese);
-        this.postCalculateTap(tapSkillCheese);
+
+        const tapSkillVibro = new DroidTap(
+            this.mods,
+            od,
+            true,
+            tapSkillCheese.relevantDeltaTime(),
+        );
+
+        this.calculateSkills(tapSkillVibro);
+
+        this.postCalculateTap(tapSkillCheese, tapSkillVibro);
     }
 
     /**
@@ -254,8 +260,17 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const visualSkill = <DroidVisual>skills[7];
         const visualSkillWithoutSliders = <DroidVisual>skills[8];
 
+        const tapSkillVibro = new DroidTap(
+            this.mods,
+            this.difficultyStatistics.overallDifficulty,
+            true,
+            tapSkillCheese.relevantDeltaTime(),
+        );
+
+        this.calculateSkills(tapSkillVibro);
+
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateTap(tapSkillCheese);
+        this.postCalculateTap(tapSkillCheese, tapSkillVibro);
         this.postCalculateRhythm(rhythmSkill);
         this.postCalculateFlashlight(
             flashlightSkill,
@@ -336,7 +351,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
             new DroidRhythm(this.mods, od),
+            // Cheesability tap
             new DroidTap(this.mods, od, true),
+            // Non-cheesability tap
             new DroidTap(this.mods, od, false),
             new DroidFlashlight(this.mods, true),
             new DroidFlashlight(this.mods, false),
@@ -372,6 +389,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.attributes.aimDifficulty *= 0.9;
         }
 
+        this.attributes.aimDifficultStrainCount =
+            aimSkill.countDifficultStrains();
+
         this.calculateAimAttributes();
     }
 
@@ -379,16 +399,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates aim-related attributes.
      */
     private calculateAimAttributes(): void {
-        const objectStrains: number[] = [];
-        let maxStrain = 0;
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
         for (let i = 0; i < this.objects.length; ++i) {
             const object = this.objects[i];
-
-            objectStrains.push(object.aimStrainWithSliders);
-            maxStrain = Math.max(maxStrain, object.aimStrainWithSliders);
-
             const velocity = object.travelDistance / object.travelTime;
             if (velocity > 0) {
                 topDifficultSliders.push({
@@ -396,18 +410,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                     velocity: velocity,
                 });
             }
-        }
-
-        if (maxStrain) {
-            this.attributes.aimNoteCount = objectStrains.reduce(
-                (total, next) =>
-                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0,
-            );
-            this.attributes.aimDifficultStrainCount = objectStrains.reduce(
-                (total, next) => total + Math.pow(next / maxStrain, 4),
-                0,
-            );
         }
 
         const velocitySum = topDifficultSliders.reduce(
@@ -444,18 +446,30 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Called after tap skill calculation.
      *
      * @param tapSkillCheese The tap skill that considers cheesing.
+     * @param tapSkillVibro The tap skill that considers vibro.
      */
-    private postCalculateTap(tapSkillCheese: DroidTap): void {
+    private postCalculateTap(
+        tapSkillCheese: DroidTap,
+        tapSkillVibro: DroidTap,
+    ): void {
         this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
-        if (this.mods.some((m) => m instanceof ModRelax)) {
-            this.attributes.tapDifficulty = 0;
-            this.attributes.possibleThreeFingeredSections = [];
-        } else {
-            this.attributes.tapDifficulty = this.starValue(
-                tapSkillCheese.difficultyValue(),
-            );
+        this.attributes.tapDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax,
+        )
+            ? 0
+            : this.starValue(tapSkillCheese.difficultyValue());
+
+        if (this.tap) {
+            this.attributes.vibroFactor =
+                this.starValue(tapSkillVibro.difficultyValue()) / this.tap;
         }
+
+        this.attributes.speedNoteCount = tapSkillCheese.relevantNoteCount();
+        this.attributes.averageSpeedDeltaTime =
+            tapSkillCheese.relevantDeltaTime();
+        this.attributes.tapDifficultStrainCount =
+            tapSkillCheese.countDifficultStrains();
 
         this.calculateTapAttributes();
     }
@@ -465,177 +479,70 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      */
     private calculateTapAttributes(): void {
         this.attributes.possibleThreeFingeredSections = [];
-        const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
-
-        const objectStrains: number[] = [];
-        const objectDeltaTimes: number[] = [];
-        let maxStrain = 0;
-
-        const maxSectionDeltaTime = 2000;
-        const minSectionObjectCount = 5;
-        let firstObjectIndex = 0;
-
-        for (let i = 0; i < this.objects.length - 1; ++i) {
-            const current = this.objects[i];
-            const next = this.objects[i + 1];
-
-            if (i === 0) {
-                objectStrains.push(current.tapStrain);
-                objectDeltaTimes.push(current.deltaTime);
-            }
-
-            objectStrains.push(next.tapStrain);
-            objectDeltaTimes.push(next.deltaTime);
-            maxStrain = Math.max(current.tapStrain, maxStrain);
-
-            const realDeltaTime =
-                next.object.startTime - current.object.endTime;
-
-            if (realDeltaTime >= maxSectionDeltaTime) {
-                // Ignore sections that don't meet object count requirement.
-                if (i - firstObjectIndex < minSectionObjectCount) {
-                    firstObjectIndex = i + 1;
-                    continue;
-                }
-
-                tempSections.push({
-                    firstObjectIndex,
-                    lastObjectIndex: i,
-                });
-
-                firstObjectIndex = i + 1;
-            }
-        }
-
-        // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-        if (this.objects.length - firstObjectIndex > minSectionObjectCount) {
-            tempSections.push({
-                firstObjectIndex,
-                lastObjectIndex: this.objects.length - 1,
-            });
-        }
-
-        // Refilter with tap strain in mind.
         const { threeFingerStrainThreshold } = DroidDifficultyCalculator;
-        for (const section of tempSections) {
-            let inSpeedSection = false;
-            let newFirstObjectIndex = section.firstObjectIndex;
+        const minSectionObjectCount = 5;
 
-            for (
-                let i = section.firstObjectIndex;
-                i <= section.lastObjectIndex;
-                ++i
+        let inSpeedSection = false;
+        let firstSpeedObjectIndex = 0;
+
+        for (let i = 2; i < this.objects.length; ++i) {
+            const current = this.objects[i];
+            const prev = this.objects[i - 1];
+
+            if (
+                !inSpeedSection &&
+                current.originalTapStrain >= threeFingerStrainThreshold
             ) {
-                const current = this.objects[i];
-
-                if (
-                    !inSpeedSection &&
-                    current.originalTapStrain >= threeFingerStrainThreshold
-                ) {
-                    inSpeedSection = true;
-                    newFirstObjectIndex = i;
-                    continue;
-                }
-
-                if (
-                    inSpeedSection &&
-                    current.originalTapStrain < threeFingerStrainThreshold
-                ) {
-                    inSpeedSection = false;
-
-                    // Ignore sections that don't meet object count requirement.
-                    if (i - newFirstObjectIndex < minSectionObjectCount) {
-                        continue;
-                    }
-
-                    this.attributes.possibleThreeFingeredSections.push({
-                        firstObjectIndex: newFirstObjectIndex,
-                        lastObjectIndex: i,
-                        sumStrain: this.calculateThreeFingerSummedStrain(
-                            newFirstObjectIndex,
-                            i,
-                        ),
-                    });
-                }
+                inSpeedSection = true;
+                firstSpeedObjectIndex = i;
+                continue;
             }
 
-            // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
-            // Ignore sections that don't meet object count requirement.
+            const currentDelta = current.deltaTime;
+            const prevDelta = prev.deltaTime;
+
+            const deltaRatio =
+                Math.min(prevDelta, currentDelta) /
+                Math.max(prevDelta, currentDelta);
+
             if (
                 inSpeedSection &&
-                section.lastObjectIndex - newFirstObjectIndex >=
-                    minSectionObjectCount
+                (current.originalTapStrain < threeFingerStrainThreshold ||
+                    // Stop speed section on slowing down 1/2 rhythm change or anything slower.
+                    (prevDelta < currentDelta && deltaRatio <= 0.5) ||
+                    // Don't forget to manually add the last section, which would otherwise be ignored.
+                    i === this.objects.length - 1)
             ) {
+                const lastSpeedObjectIndex =
+                    i - (i === this.objects.length - 1 ? 0 : 1);
+                inSpeedSection = false;
+
+                // Ignore sections that don't meet object count requirement.
+                if (i - firstSpeedObjectIndex < minSectionObjectCount) {
+                    continue;
+                }
+
                 this.attributes.possibleThreeFingeredSections.push({
-                    firstObjectIndex: newFirstObjectIndex,
-                    lastObjectIndex: section.lastObjectIndex,
-                    sumStrain: this.calculateThreeFingerSummedStrain(
-                        newFirstObjectIndex,
-                        section.lastObjectIndex,
+                    firstObjectIndex: firstSpeedObjectIndex,
+                    lastObjectIndex: lastSpeedObjectIndex,
+                    sumStrain: Math.pow(
+                        this.objects
+                            .slice(
+                                firstSpeedObjectIndex,
+                                lastSpeedObjectIndex + 1,
+                            )
+                            .reduce(
+                                (a, v) =>
+                                    a +
+                                    v.originalTapStrain /
+                                        threeFingerStrainThreshold,
+                                0,
+                            ),
+                        0.75,
                     ),
                 });
             }
         }
-
-        if (maxStrain) {
-            this.attributes.speedNoteCount = objectStrains.reduce(
-                (total, next) =>
-                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
-                0,
-            );
-
-            this.attributes.averageSpeedDeltaTime =
-                objectDeltaTimes.reduce(
-                    (total, next, index) =>
-                        total +
-                        (next * 1) /
-                            (1 +
-                                Math.exp(
-                                    -(
-                                        (objectStrains[index] / maxStrain) *
-                                            25 -
-                                        20
-                                    ),
-                                )),
-                    0,
-                ) /
-                objectStrains.reduce(
-                    (total, next) =>
-                        total +
-                        1 / (1 + Math.exp(-((next / maxStrain) * 25 - 20))),
-                    0,
-                );
-
-            this.attributes.tapDifficultStrainCount = objectStrains.reduce(
-                (total, next) => total + Math.pow(next / maxStrain, 4),
-                0,
-            );
-        }
-    }
-
-    /**
-     * Calculates the sum of strains for possible three-fingered sections.
-     *
-     * @param firstObjectIndex The index of the first object in the section.
-     * @param lastObjectIndex The index of the last object in the section.
-     * @returns The summed strain of the section.
-     */
-    private calculateThreeFingerSummedStrain(
-        firstObjectIndex: number,
-        lastObjectIndex: number,
-    ): number {
-        return Math.pow(
-            this.objects
-                .slice(firstObjectIndex, lastObjectIndex)
-                .reduce(
-                    (a, v) =>
-                        a +
-                        v.originalTapStrain /
-                            DroidDifficultyCalculator.threeFingerStrainThreshold,
-                    0,
-                ),
-            0.75,
-        );
     }
 
     /**
@@ -678,18 +585,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.attributes.flashlightDifficulty *= 0.7;
         }
 
-        const objectStrains = this.objects.map(
-            (v) => v.flashlightStrainWithSliders,
-        );
-        const maxStrain = Math.max(...objectStrains);
-
-        if (maxStrain) {
-            this.attributes.flashlightDifficultStrainCount =
-                objectStrains.reduce(
-                    (total, next) => total + Math.pow(next / maxStrain, 4),
-                    0,
-                );
-        }
+        this.attributes.flashlightDifficulty = this.flashlight;
+        this.attributes.flashlightDifficultStrainCount =
+            flashlightSkill.countDifficultStrains();
     }
 
     /**
@@ -714,16 +612,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 this.visual;
         }
 
-        const objectStrains = this.objects.map(
-            (v) => v.flashlightStrainWithSliders,
-        );
-        const maxStrain = Math.max(...objectStrains);
-
-        if (maxStrain) {
-            this.attributes.visualDifficultStrainCount = objectStrains.reduce(
-                (total, next) => total + Math.pow(next / maxStrain, 4),
-                0,
-            );
-        }
+        this.attributes.visualDifficultStrainCount =
+            visualSkillWithSliders.countDifficultStrains();
     }
 }
