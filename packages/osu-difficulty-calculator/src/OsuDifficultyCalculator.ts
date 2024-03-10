@@ -11,6 +11,7 @@ import {
     ModUtil,
     DifficultyStatisticsCalculatorResult,
     calculateOsuDifficultyStatistics,
+    Beatmap,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
@@ -184,9 +185,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects() {
+    protected override generateDifficultyHitObjects(beatmap: Beatmap) {
         const difficultyObjects: OsuDifficultyHitObject[] = [];
-        const { objects } = this.beatmap.hitObjects;
+        const { objects } = beatmap.hitObjects;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
