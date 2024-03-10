@@ -131,10 +131,10 @@ export abstract class DifficultyCalculator<
     /**
      * Generates difficulty hitobjects for this calculator.
      *
-     * @param beatmap The beatmap to generate difficulty hitobjects from.
+     * @param convertedBeatmap The beatmap to generate difficulty hitobjects from.
      */
     protected abstract generateDifficultyHitObjects(
-        beatmap: Beatmap,
+        convertedBeatmap: Beatmap,
     ): THitObject[];
 
     /**

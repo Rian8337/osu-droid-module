@@ -185,9 +185,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects(beatmap: Beatmap) {
+    protected override generateDifficultyHitObjects(convertedBeatmap: Beatmap) {
         const difficultyObjects: OsuDifficultyHitObject[] = [];
-        const { objects } = beatmap.hitObjects;
+        const { objects } = convertedBeatmap.hitObjects;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(

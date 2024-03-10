@@ -298,9 +298,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects(beatmap: Beatmap) {
+    protected override generateDifficultyHitObjects(convertedBeatmap: Beatmap) {
         const difficultyObjects: DroidDifficultyHitObject[] = [];
-        const { objects } = beatmap.hitObjects;
+        const { objects } = convertedBeatmap.hitObjects;
 
         const difficultyAdjustMod = this.mods.find(
             (m) => m instanceof ModDifficultyAdjust,
