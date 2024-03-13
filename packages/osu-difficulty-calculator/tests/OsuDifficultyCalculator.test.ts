@@ -251,3 +251,20 @@ describe("Test difficulty calculation sample beatmap 6", () => {
         },
     });
 });
+
+describe("Test difficulty calculation sample beatmap 7", () => {
+    testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
+        noMod: {
+            aim: 5.8802524420894535,
+            speed: 2.838100886150211,
+            flashlight: 4.004691799976666,
+            total: 10.233215948476014,
+        },
+        doubleTime: {
+            aim: 7.323620278789302,
+            speed: 4.175026798653464,
+            flashlight: 5.334676210648524,
+            total: 12.968617943014612,
+        },
+    });
+});
