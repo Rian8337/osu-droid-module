@@ -309,7 +309,7 @@ export class Beatmap {
             "\n" +
             "\n" +
             "AR" +
-            MathUtils.round(this.difficulty.ar!, 2) +
+            MathUtils.round(this.difficulty.ar, 2) +
             " " +
             "OD" +
             MathUtils.round(this.difficulty.od, 2) +

@@ -188,9 +188,7 @@ export abstract class HitObject {
         difficulty: BeatmapDifficulty,
         mode: Modes,
     ) {
-        this.timePreempt = convertApproachRateToMilliseconds(
-            difficulty.ar ?? difficulty.od,
-        );
+        this.timePreempt = convertApproachRateToMilliseconds(difficulty.ar);
 
         // Preempt time can go below 450ms. Normally, this is achieved via the DT mod which uniformly speeds up all animations game wide regardless of AR.
         // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods) feel good by extending the upper linear function above.

@@ -36,10 +36,7 @@ export class ModReallyEasy
             (m) => m instanceof ModDifficultyAdjust,
         ) as ModDifficultyAdjust | undefined;
 
-        if (
-            difficultyAdjustMod?.ar === undefined &&
-            difficulty.ar !== undefined
-        ) {
+        if (difficultyAdjustMod?.ar === undefined) {
             if (mods.some((m) => m instanceof ModEasy)) {
                 difficulty.ar *= 2;
                 difficulty.ar -= 0.5;

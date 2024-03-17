@@ -23,8 +23,6 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
         Record<BeatmapSection, SectionDecoder<Beatmap>>
     > = {};
 
-    private previousSection = BeatmapSection.general;
-
     /**
      * @param str The string to decode.
      * @param mode The mode to parse the beatmap as. Defaults to osu!standard.
@@ -67,18 +65,6 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
     protected override decodeLine(line: string): void {
         if (this.finalResult.formatVersion !== this.formatVersion) {
             this.finalResult.formatVersion = this.formatVersion;
-        }
-
-        // We need to track the previous section in case AR isn't specified in the beatmap file.
-        if (this.previousSection !== this.section) {
-            if (
-                this.previousSection === BeatmapSection.difficulty &&
-                this.finalResult.difficulty.ar === undefined
-            ) {
-                this.finalResult.difficulty.ar = this.finalResult.difficulty.od;
-            }
-
-            this.previousSection = this.section;
         }
 
         super.decodeLine(line);

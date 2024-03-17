@@ -45,10 +45,7 @@ export class ModEasy
                 difficulty.cs /= 2;
         }
 
-        if (difficulty.ar !== undefined) {
-            difficulty.ar /= 2;
-        }
-
+        difficulty.ar /= 2;
         difficulty.od /= 2;
         difficulty.hp /= 2;
     }

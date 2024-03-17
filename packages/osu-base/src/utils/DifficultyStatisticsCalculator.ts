@@ -57,7 +57,7 @@ export function calculateDroidDifficultyStatistics<
 
     const difficulty = new BeatmapDifficulty();
     difficulty.cs = options.circleSize ?? difficulty.cs;
-    difficulty.ar = options.approachRate ?? difficulty.ar ?? difficulty.od;
+    difficulty.ar = options.approachRate ?? difficulty.ar;
     difficulty.od = options.overallDifficulty ?? difficulty.od;
     difficulty.hp = options.healthDrain ?? difficulty.hp;
 
@@ -197,7 +197,7 @@ export function calculateOsuDifficultyStatistics<
 
     const difficulty = new BeatmapDifficulty();
     difficulty.cs = options.circleSize ?? difficulty.cs;
-    difficulty.ar = options.approachRate ?? difficulty.ar ?? difficulty.od;
+    difficulty.ar = options.approachRate ?? difficulty.ar;
     difficulty.od = options.overallDifficulty ?? difficulty.od;
     difficulty.hp = options.healthDrain ?? difficulty.hp;
 

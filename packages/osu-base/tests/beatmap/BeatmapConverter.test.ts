@@ -107,7 +107,7 @@ describe("Test beatmap conversion with options", () => {
 
             expect(firstObject.startTime).toBe(1000);
             expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
-            expect(firstObject.timePreempt).toBeCloseTo(1500);
+            expect(firstObject.timePreempt).toBeCloseTo(1290);
         });
 
         test("Custom speed multiplier, Really Easy, Difficulty Adjust (no override)", () => {
@@ -118,7 +118,7 @@ describe("Test beatmap conversion with options", () => {
 
             expect(firstObject.startTime).toBe(1000);
             expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
-            expect(firstObject.timePreempt).toBeCloseTo(1500);
+            expect(firstObject.timePreempt).toBeCloseTo(1290);
         });
 
         test("Custom speed multiplier, Really Easy, Difficulty Adjust (CS override), Hard Rock", () => {
@@ -133,7 +133,7 @@ describe("Test beatmap conversion with options", () => {
 
             expect(firstObject.startTime).toBe(1000);
             expect(firstObject.scale).toBeCloseTo(0.918164788421231);
-            expect(firstObject.timePreempt).toBeCloseTo(1380);
+            expect(firstObject.timePreempt).toBeCloseTo(1012.5);
         });
     });
 

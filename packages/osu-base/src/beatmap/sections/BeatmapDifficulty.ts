@@ -5,7 +5,21 @@ export class BeatmapDifficulty {
     /**
      * The approach rate of the beatmap.
      */
-    ar?: number;
+    private _ar?: number;
+
+    /**
+     * The approach rate of the beatmap.
+     */
+    get ar(): number {
+        return this._ar ?? this.od;
+    }
+
+    /**
+     * The approach rate of the beatmap.
+     */
+    set ar(value: number) {
+        this._ar = value;
+    }
 
     /**
      * The circle size of the beatmap.
@@ -37,7 +51,7 @@ export class BeatmapDifficulty {
             return;
         }
 
-        this.ar = shallowCopy.ar;
+        this._ar = shallowCopy._ar;
         this.cs = shallowCopy.cs;
         this.od = shallowCopy.od;
         this.hp = shallowCopy.hp;

@@ -47,10 +47,7 @@ export class ModHardRock
                 break;
         }
 
-        if (difficulty.ar !== undefined) {
-            difficulty.ar = this.applySetting(difficulty.ar);
-        }
-
+        difficulty.ar = this.applySetting(difficulty.ar);
         difficulty.od = this.applySetting(difficulty.od);
         difficulty.hp = this.applySetting(difficulty.hp);
     }
