@@ -202,8 +202,10 @@ export abstract class HitObject {
                     circleSize: difficulty.cs,
                 }).circleSize;
 
-                this._scale =
-                    CircleSizeCalculator.standardCSToStandardScale(cs);
+                this._scale = CircleSizeCalculator.standardCSToStandardScale(
+                    cs,
+                    true,
+                );
                 break;
             }
             case Modes.osu:
