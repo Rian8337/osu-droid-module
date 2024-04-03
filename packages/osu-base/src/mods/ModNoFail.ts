@@ -9,14 +9,15 @@ export class ModNoFail
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "NF";
-    override readonly name: string = "NoFail";
+    override readonly acronym = "NF";
+    override readonly name = "NoFail";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 0.5;
-    readonly pcScoreMultiplier: number = 0.5;
-    readonly bitwise: number = 1 << 0;
-    readonly droidString: string = "n";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 0.5;
+    readonly droidString = "n";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 0.5;
+    readonly bitwise = 1 << 0;
 }

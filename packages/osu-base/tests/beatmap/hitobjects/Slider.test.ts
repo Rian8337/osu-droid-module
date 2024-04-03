@@ -9,17 +9,19 @@ import {
     SliderTail,
     Vector2,
     Modes,
+    BeatmapControlPoints,
+    BeatmapDifficulty,
+    DifficultyControlPoint,
 } from "../../../src";
 
 const createGlobalSliderValues = (newCombo?: boolean) => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
 
-    // Will generate 1 slider tick by default
     return {
         startTime: 1000,
         type: ObjectTypes.slider,
         position: new Vector2(100, 192),
-        repetitions: 1,
+        repeatCount: 0,
         nodeSamples: [],
         newCombo: newCombo,
         path: new SliderPath({
@@ -29,10 +31,6 @@ const createGlobalSliderValues = (newCombo?: boolean) => {
                 .at(-1)!
                 .getDistance(controlPoints[0]),
         }),
-        speedMultiplier: 1,
-        msPerBeat: 1000,
-        mapSliderVelocity: 1,
-        mapTickRate: 1,
         tickDistanceMultiplier: 1,
     };
 };
@@ -55,10 +53,10 @@ describe("Test slider position", () => {
             const slider = new Slider(createGlobalSliderValues());
 
             expect(slider.getStackedPosition(Modes.droid)).toEqual(
-                slider.position
+                slider.position,
             );
             expect(slider.getStackedPosition(Modes.osu)).toEqual(
-                slider.position
+                slider.position,
             );
         });
 
@@ -66,14 +64,8 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 1;
-                } else {
-                    slider.osuStackHeight = 1;
-                }
+                slider.stackHeight = 1;
 
-                const scale =
-                    mode === Modes.droid ? slider.droidScale : slider.osuScale;
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
@@ -81,68 +73,36 @@ describe("Test slider position", () => {
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 2;
-                } else {
-                    slider.osuStackHeight = 2;
-                }
+                slider.stackHeight = 2;
 
                 positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 0.5;
-                } else {
-                    slider.osuStackHeight = 0.5;
-                }
+                slider.stackHeight = 0.5;
 
                 positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
             };
 
@@ -156,10 +116,10 @@ describe("Test slider position", () => {
             const slider = new Slider(createGlobalSliderValues());
 
             expect(slider.getStackedEndPosition(Modes.droid)).toEqual(
-                slider.endPosition
+                slider.endPosition,
             );
             expect(slider.getStackedEndPosition(Modes.osu)).toEqual(
-                slider.endPosition
+                slider.endPosition,
             );
         });
 
@@ -167,14 +127,8 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 1;
-                } else {
-                    slider.osuStackHeight = 1;
-                }
+                slider.stackHeight = 1;
 
-                const scale =
-                    mode === Modes.droid ? slider.droidScale : slider.osuScale;
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = slider
@@ -182,68 +136,36 @@ describe("Test slider position", () => {
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 2;
-                } else {
-                    slider.osuStackHeight = 2;
-                }
+                slider.stackHeight = 2;
 
                 positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
 
-                if (mode === Modes.droid) {
-                    slider.droidStackHeight = 0.5;
-                } else {
-                    slider.osuStackHeight = 0.5;
-                }
+                slider.stackHeight = 0.5;
 
                 positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    scale *
-                        (mode === Modes.droid
-                            ? slider.droidStackHeight
-                            : slider.osuStackHeight) *
-                        stackMultiplier
+                    slider.scale * slider.stackHeight * stackMultiplier,
                 );
             };
 
@@ -256,9 +178,12 @@ describe("Test slider position", () => {
 describe("Test slider without slider ticks", () => {
     const sliderValues = createGlobalSliderValues();
 
-    sliderValues.mapSliderVelocity = 2;
-
     const slider = new Slider(sliderValues);
+
+    const difficulty = new BeatmapDifficulty();
+    difficulty.sliderMultiplier = 2;
+
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.osu);
 
     test("Slider nested hit objects count", () => {
         expect(slider.nestedHitObjects.length).toBe(2);
@@ -286,7 +211,7 @@ describe("Test slider without slider ticks", () => {
         expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset
+            slider.endTime - Slider.legacyLastTickOffset,
         );
 
         expect(tail.position.x).toBeCloseTo(300);
@@ -296,6 +221,12 @@ describe("Test slider without slider ticks", () => {
 
 describe("Test slider with 1 slider tick", () => {
     const slider = new Slider(createGlobalSliderValues());
+
+    slider.applyDefaults(
+        new BeatmapControlPoints(),
+        new BeatmapDifficulty(),
+        Modes.osu,
+    );
 
     test("Slider nested hit objects count", () => {
         expect(slider.nestedHitObjects.length).toBe(3);
@@ -334,7 +265,7 @@ describe("Test slider with 1 slider tick", () => {
         expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset
+            slider.endTime - Slider.legacyLastTickOffset,
         );
 
         expect(tail.position.x).toBeCloseTo(300);
@@ -345,9 +276,12 @@ describe("Test slider with 1 slider tick", () => {
 describe("Test slider with 3 slider ticks", () => {
     const sliderValues = createGlobalSliderValues();
 
-    sliderValues.mapTickRate = 2;
-
     const slider = new Slider(sliderValues);
+
+    const difficulty = new BeatmapDifficulty();
+    difficulty.sliderTickRate = 2;
+
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.osu);
 
     test("Slider nested hit objects count", () => {
         expect(slider.nestedHitObjects.length).toBe(5);
@@ -369,7 +303,7 @@ describe("Test slider with 3 slider ticks", () => {
 
     test("Slider ticks", () => {
         const ticks = slider.nestedHitObjects.filter(
-            (v) => v instanceof SliderTick
+            (v) => v instanceof SliderTick,
         );
 
         expect(ticks.length).toBe(3);
@@ -392,7 +326,7 @@ describe("Test slider with 3 slider ticks", () => {
         expect(tail).toEqual(slider.tail);
 
         expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset
+            slider.endTime - Slider.legacyLastTickOffset,
         );
 
         expect(tail.position.x).toBeCloseTo(300);
@@ -404,17 +338,29 @@ describe("Test slider repeat points", () => {
     test("Slider with no repeat points", () => {
         const slider = new Slider(createGlobalSliderValues());
 
-        expect(slider.repeats).toBe(0);
+        slider.applyDefaults(
+            new BeatmapControlPoints(),
+            new BeatmapDifficulty(),
+            Modes.osu,
+        );
+
+        expect(slider.repeatCount).toBe(0);
     });
 
     test("Slider with 1 repeat point", () => {
         const sliderValues = createGlobalSliderValues();
 
-        sliderValues.repetitions = 2;
+        sliderValues.repeatCount = 1;
 
         const slider = new Slider(sliderValues);
 
-        expect(slider.repeats).toBe(1);
+        slider.applyDefaults(
+            new BeatmapControlPoints(),
+            new BeatmapDifficulty(),
+            Modes.osu,
+        );
+
+        expect(slider.repeatCount).toBe(1);
 
         const repeatPoint = slider.nestedHitObjects[2];
 
@@ -430,7 +376,7 @@ describe("Test slider repeat points", () => {
         expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
         expect(repeatPoint.endPosition).toEqual(position);
         expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
-            position
+            position,
         );
         expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(position);
 
@@ -440,12 +386,18 @@ describe("Test slider repeat points", () => {
     test("Slider with 3 repeat points", () => {
         const sliderValues = createGlobalSliderValues();
 
-        sliderValues.repetitions = 4;
+        sliderValues.repeatCount = 3;
 
         const slider = new Slider(sliderValues);
 
+        slider.applyDefaults(
+            new BeatmapControlPoints(),
+            new BeatmapDifficulty(),
+            Modes.osu,
+        );
+
         const repeatPoints = slider.nestedHitObjects.filter(
-            (v) => v instanceof SliderRepeat
+            (v) => v instanceof SliderRepeat,
         );
 
         expect(repeatPoints.length).toBe(3);
@@ -462,15 +414,15 @@ describe("Test slider repeat points", () => {
 
             expect(repeatPoint.position).toEqual(position);
             expect(repeatPoint.getStackedPosition(Modes.droid)).toEqual(
-                position
+                position,
             );
             expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
             expect(repeatPoint.endPosition).toEqual(position);
             expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
-                position
+                position,
             );
             expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(
-                position
+                position,
             );
         }
 
@@ -482,12 +434,18 @@ test("Test slider velocity", () => {
     const sliderValues = createGlobalSliderValues();
 
     const slider = new Slider(sliderValues);
+    const controlPoints = new BeatmapControlPoints();
+    const difficulty = new BeatmapDifficulty();
+
+    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
 
     const scoringDistance =
-        100 * sliderValues.mapSliderVelocity * sliderValues.speedMultiplier;
+        100 *
+        difficulty.sliderMultiplier *
+        controlPoints.difficulty.defaultControlPoint.speedMultiplier;
 
     expect(slider.velocity).toBeCloseTo(
-        scoringDistance / sliderValues.msPerBeat
+        scoringDistance / controlPoints.timing.defaultControlPoint.msPerBeat,
     );
 });
 
@@ -496,35 +454,60 @@ test("Test slider tick distance", () => {
 
     const slider = new Slider(sliderValues);
 
+    const controlPoints = new BeatmapControlPoints();
+    const difficultyPoint = new DifficultyControlPoint({
+        time: 0,
+        speedMultiplier: 1,
+        generateTicks: true,
+    });
+
+    controlPoints.difficulty.add(difficultyPoint);
+
+    const difficulty = new BeatmapDifficulty();
+
+    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+
     const scoringDistance =
-        100 * sliderValues.mapSliderVelocity * sliderValues.speedMultiplier;
+        100 * difficulty.sliderMultiplier * difficultyPoint.speedMultiplier;
 
     expect(slider.tickDistance).toBeCloseTo(
         (scoringDistance * sliderValues.tickDistanceMultiplier) /
-            sliderValues.mapTickRate
+            difficulty.sliderTickRate,
     );
 });
 
 test("Test slider span duration", () => {
     const slider = new Slider(createGlobalSliderValues());
 
+    slider.applyDefaults(
+        new BeatmapControlPoints(),
+        new BeatmapDifficulty(),
+        Modes.osu,
+    );
+
     expect(slider.spanDuration).toBeCloseTo(2000);
 });
 
 test("Test slider duration", () => {
     const sliderValues = createGlobalSliderValues();
+    const controlPoints = new BeatmapControlPoints();
+    const difficulty = new BeatmapDifficulty();
 
-    sliderValues.repetitions = 2;
+    sliderValues.repeatCount = 1;
 
     let slider = new Slider(sliderValues);
 
+    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+
     expect(slider.duration).toBeCloseTo(4000);
 
-    sliderValues.repetitions = 4;
+    sliderValues.repeatCount = 4;
 
     slider = new Slider(sliderValues);
 
-    expect(slider.duration).toBeCloseTo(8000);
+    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+
+    expect(slider.duration).toBeCloseTo(10000);
 });
 
 test("Test new combo", () => {
@@ -546,7 +529,20 @@ test("Test type string", () => {
 test("Test string concatenation", () => {
     const slider = new Slider(createGlobalSliderValues());
 
+    const controlPoints = new BeatmapControlPoints();
+    const difficultyPoint = new DifficultyControlPoint({
+        time: 0,
+        speedMultiplier: 1,
+        generateTicks: true,
+    });
+
+    controlPoints.difficulty.add(difficultyPoint);
+
+    const difficulty = new BeatmapDifficulty();
+
+    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+
     expect(slider.toString()).toBe(
-        "Position: [100, 192], distance: 200, repetitions: 1, slider ticks: 1"
+        "Position: [100, 192], distance: 200, repeat count: 0, slider ticks: 1",
     );
 });

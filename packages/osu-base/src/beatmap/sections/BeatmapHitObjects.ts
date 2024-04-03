@@ -1,8 +1,6 @@
 import { Circle } from "../hitobjects/Circle";
 import { PlaceableHitObject } from "../hitobjects/PlaceableHitObject";
 import { Slider } from "../hitobjects/Slider";
-import { SliderRepeat } from "../hitobjects/sliderObjects/SliderRepeat";
-import { SliderTick } from "../hitobjects/sliderObjects/SliderTick";
 import { Spinner } from "../hitobjects/Spinner";
 
 /**
@@ -18,7 +16,7 @@ export class BeatmapHitObjects {
         return this._objects;
     }
 
-    private _circles: number = 0;
+    private _circles = 0;
 
     /**
      * The amount of circles in the beatmap.
@@ -27,7 +25,7 @@ export class BeatmapHitObjects {
         return this._circles;
     }
 
-    private _sliders: number = 0;
+    private _sliders = 0;
 
     /**
      * The amount of sliders in the beatmap.
@@ -36,7 +34,7 @@ export class BeatmapHitObjects {
         return this._sliders;
     }
 
-    private _spinners: number = 0;
+    private _spinners = 0;
 
     /**
      * The amount of spinners in the beatmap.
@@ -45,13 +43,17 @@ export class BeatmapHitObjects {
         return this._spinners;
     }
 
-    private _sliderTicks: number = 0;
-
     /**
      * The amount of slider ticks in the beatmap.
+     *
+     * This iterates through all objects and should be stored locally or used sparingly.
      */
     get sliderTicks(): number {
-        return this._sliderTicks;
+        return this.objects.reduce(
+            (acc, cur) => (cur instanceof Slider ? acc + cur.ticks : acc),
+
+            0,
+        );
     }
 
     /**
@@ -61,13 +63,17 @@ export class BeatmapHitObjects {
         return this.sliders;
     }
 
-    private _sliderRepeatPoints: number = 0;
-
     /**
      * The amount of slider repeat points in the beatmap.
+     *
+     * This iterates through all objects and should be stored locally or used sparingly.
      */
     get sliderRepeatPoints(): number {
-        return this._sliderRepeatPoints;
+        return this.objects.reduce(
+            (acc, cur) => (cur instanceof Slider ? acc + cur.repeatCount : acc),
+
+            0,
+        );
     }
 
     /**
@@ -85,21 +91,13 @@ export class BeatmapHitObjects {
             this._objects.splice(
                 this.findInsertionIndex(object.startTime),
                 0,
-                object
+                object,
             );
 
             if (object instanceof Circle) {
                 ++this._circles;
             } else if (object instanceof Slider) {
                 ++this._sliders;
-
-                for (const nestedHitObject of object.nestedHitObjects) {
-                    if (nestedHitObject instanceof SliderTick) {
-                        ++this._sliderTicks;
-                    } else if (nestedHitObject instanceof SliderRepeat) {
-                        ++this._sliderRepeatPoints;
-                    }
-                }
             } else {
                 ++this._spinners;
             }
@@ -110,23 +108,15 @@ export class BeatmapHitObjects {
      * Removes a hitobject at an index.
      *
      * @param index The index of the hitobject to remove.
-     * @returns The hitobject that was removed.
+     * @returns The hitobject that was removed, `null` if no hitobject was removed.
      */
-    removeAt(index: number): PlaceableHitObject {
-        const object: PlaceableHitObject = this._objects.splice(index, 1)[0];
+    removeAt(index: number): PlaceableHitObject | null {
+        const object = this._objects.splice(index, 1)[0] ?? null;
 
         if (object instanceof Circle) {
             --this._circles;
         } else if (object instanceof Slider) {
             --this._sliders;
-
-            for (const nestedHitObject of object.nestedHitObjects) {
-                if (nestedHitObject instanceof SliderTick) {
-                    --this._sliderTicks;
-                } else if (nestedHitObject instanceof SliderRepeat) {
-                    --this._sliderRepeatPoints;
-                }
-            }
         } else if (object instanceof Spinner) {
             --this._spinners;
         }
@@ -142,8 +132,6 @@ export class BeatmapHitObjects {
         this._circles = 0;
         this._sliders = 0;
         this._spinners = 0;
-        this._sliderTicks = 0;
-        this._sliderRepeatPoints = 0;
     }
 
     /**
@@ -163,11 +151,11 @@ export class BeatmapHitObjects {
             return this._objects.length;
         }
 
-        let l: number = 0;
-        let r: number = this._objects.length - 2;
+        let l = 0;
+        let r = this._objects.length - 2;
 
         while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
+            const pivot = l + ((r - l) >> 1);
 
             if (this._objects[pivot].startTime < startTime) {
                 l = pivot + 1;

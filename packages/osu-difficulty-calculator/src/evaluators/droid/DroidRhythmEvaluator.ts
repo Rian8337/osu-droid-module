@@ -25,24 +25,22 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             return 1;
         }
 
-        let previousIslandSize: number = 0;
-        let rhythmComplexitySum: number = 0;
-        let islandSize: number = 1;
+        let previousIslandSize = 0;
+        let rhythmComplexitySum = 0;
+        let islandSize = 1;
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
-        let startRatio: number = 0;
+        let startRatio = 0;
+        let firstDeltaSwitch = false;
+        let rhythmStart = 0;
 
-        let firstDeltaSwitch: boolean = false;
-
-        let rhythmStart: number = 0;
-
-        const historicalNoteCount: number = Math.min(current.index, 32);
+        const historicalNoteCount = Math.min(current.index, 32);
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DroidDifficultyHitObject[] = [];
 
         for (let i = 0; i < historicalNoteCount; ++i) {
-            const object: DroidDifficultyHitObject | null = current.previous(i);
+            const object = current.previous(i);
 
             if (!object) {
                 break;
@@ -63,7 +61,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
         for (let i = rhythmStart; i > 0; --i) {
             // Scale note 0 to 1 from history to now.
-            let currentHistoricalDecay: number =
+            let currentHistoricalDecay =
                 (this.historyTimeMax -
                     (current.startTime - validPrevious[i - 1].startTime)) /
                 this.historyTimeMax;
@@ -74,11 +72,11 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 (validPrevious.length - i) / validPrevious.length,
             );
 
-            const currentDelta: number = validPrevious[i - 1].strainTime;
-            const prevDelta: number = validPrevious[i].strainTime;
-            const lastDelta: number = validPrevious[i + 1].strainTime;
+            const currentDelta = validPrevious[i - 1].strainTime;
+            const prevDelta = validPrevious[i].strainTime;
+            const lastDelta = validPrevious[i + 1].strainTime;
 
-            const currentRatio: number =
+            const currentRatio =
                 1 +
                 6 *
                     Math.min(
@@ -93,7 +91,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         ),
                     );
 
-            const windowPenalty: number = Math.min(
+            const windowPenalty = Math.min(
                 1,
                 Math.max(
                     0,
@@ -102,7 +100,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                     (greatWindow * 0.6),
             );
 
-            let effectiveRatio: number = windowPenalty * currentRatio;
+            let effectiveRatio = windowPenalty * currentRatio;
 
             if (firstDeltaSwitch) {
                 if (
@@ -173,18 +171,16 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         }
 
         // Nerf doubles that can be tapped at the same time to get Great hit results.
-        const next: DroidDifficultyHitObject | null = current.next(0);
-        let doubletapness: number = 1;
+        const next = current.next(0);
+        let doubletapness = 1;
 
         if (next) {
-            const currentDeltaTime: number = Math.max(1, current.deltaTime);
-            const nextDeltaTime: number = Math.max(1, next.deltaTime);
-            const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime,
-            );
-            const speedRatio: number =
+            const currentDeltaTime = Math.max(1, current.deltaTime);
+            const nextDeltaTime = Math.max(1, next.deltaTime);
+            const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
+            const speedRatio =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
-            const windowRatio: number = Math.pow(
+            const windowRatio = Math.pow(
                 Math.min(1, currentDeltaTime / (greatWindow * 2)),
                 2,
             );

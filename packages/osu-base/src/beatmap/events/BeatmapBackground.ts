@@ -1,4 +1,4 @@
-import { Vector2 } from "../../mathutil/Vector2";
+import { Vector2 } from "../../math/Vector2";
 
 /**
  * Represents a beatmap's background.

@@ -6,14 +6,14 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator extends AimEvaluator {
-    protected static override readonly wideAngleMultiplier: number = 1.65;
-    protected static override readonly sliderMultiplier: number = 1.5;
-    protected static override readonly velocityChangeMultiplier: number = 0.85;
+    protected static override readonly wideAngleMultiplier = 1.65;
+    protected static override readonly sliderMultiplier = 1.5;
+    protected static override readonly velocityChangeMultiplier = 0.85;
 
-    private static readonly singleSpacingThreshold: number = 100;
+    private static readonly singleSpacingThreshold = 100;
 
     // 200 1/4 BPM delta time
-    private static readonly minSpeedBonus: number = 75;
+    private static readonly minSpeedBonus = 75;
 
     /**
      * Evaluates the difficulty of aiming the current object, based on:
@@ -58,21 +58,19 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             return 0;
         }
 
-        const last: DroidDifficultyHitObject = current.previous(0)!;
-        const lastLast: DroidDifficultyHitObject = current.previous(1)!;
+        const last = current.previous(0)!;
+        const lastLast = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
-        let currentVelocity: number =
-            current.lazyJumpDistance / current.strainTime;
+        let currentVelocity = current.lazyJumpDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (last.object instanceof Slider && withSliders) {
             // Calculate the slider velocity from slider head to slider end.
-            const travelVelocity: number =
-                last.travelDistance / last.travelTime;
+            const travelVelocity = last.travelDistance / last.travelTime;
 
             // Calculate the movement velocity from slider end to current object.
-            const movementVelocity: number =
+            const movementVelocity =
                 current.minimumJumpTime !== 0
                     ? current.minimumJumpDistance / current.minimumJumpTime
                     : 0;
@@ -85,13 +83,13 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         }
 
         // As above, do the same for the previous hitobject.
-        let prevVelocity: number = last.lazyJumpDistance / last.strainTime;
+        let prevVelocity = last.lazyJumpDistance / last.strainTime;
 
         if (lastLast.object instanceof Slider && withSliders) {
-            const travelVelocity: number =
+            const travelVelocity =
                 lastLast.travelDistance / lastLast.travelTime;
 
-            const movementVelocity: number =
+            const movementVelocity =
                 last.minimumJumpTime !== 0
                     ? last.minimumJumpDistance / last.minimumJumpTime
                     : 0;
@@ -102,13 +100,13 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             );
         }
 
-        let wideAngleBonus: number = 0;
-        let acuteAngleBonus: number = 0;
-        let sliderBonus: number = 0;
-        let velocityChangeBonus: number = 0;
+        let wideAngleBonus = 0;
+        let acuteAngleBonus = 0;
+        let sliderBonus = 0;
+        let velocityChangeBonus = 0;
 
         // Start strain with regular velocity.
-        let strain: number = currentVelocity;
+        let strain = currentVelocity;
 
         if (
             // If rhythms are the same.
@@ -119,7 +117,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             lastLast.angle !== null
         ) {
             // Rewarding angles, take the smaller velocity as base.
-            const angleBonus: number = Math.min(currentVelocity, prevVelocity);
+            const angleBonus = Math.min(currentVelocity, prevVelocity);
 
             wideAngleBonus = this.calculateWideAngleBonus(current.angle);
             acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
@@ -189,7 +187,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 current.strainTime;
 
             // Scale with ratio of difference compared to half the max distance.
-            const distanceRatio: number = Math.pow(
+            const distanceRatio = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
                         Math.max(prevVelocity, currentVelocity),
@@ -198,7 +196,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             );
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
-            const overlapVelocityBuff: number = Math.min(
+            const overlapVelocityBuff = Math.min(
                 125 / Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
@@ -238,7 +236,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
      * Calculates the flow aim strain of a hitobject.
      */
     private static flowAimStrainOf(current: DroidDifficultyHitObject): number {
-        let speedBonus: number = 1;
+        let speedBonus = 1;
 
         if (current.strainTime < this.minSpeedBonus) {
             speedBonus +=
@@ -246,8 +244,8 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
         }
 
-        const travelDistance: number = current.previous(0)?.travelDistance ?? 0;
-        const shortDistancePenalty: number = Math.pow(
+        const travelDistance = current.previous(0)?.travelDistance ?? 0;
+        const shortDistancePenalty = Math.pow(
             Math.min(
                 this.singleSpacingThreshold,
                 travelDistance + current.minimumJumpDistance,

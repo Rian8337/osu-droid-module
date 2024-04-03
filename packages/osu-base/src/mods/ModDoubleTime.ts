@@ -9,14 +9,15 @@ export class ModDoubleTime
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "DT";
-    override readonly name: string = "DoubleTime";
+    override readonly acronym = "DT";
+    override readonly name = "DoubleTime";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 1.12;
-    readonly pcScoreMultiplier: number = 1.12;
-    readonly bitwise: number = 1 << 6;
-    readonly droidString: string = "d";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 1.12;
+    readonly droidString = "d";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 1.12;
+    readonly bitwise = 1 << 6;
 }

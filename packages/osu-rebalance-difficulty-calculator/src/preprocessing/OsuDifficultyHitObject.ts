@@ -1,4 +1,4 @@
-import { Modes } from "@rian8337/osu-base";
+import { Modes, PlaceableHitObject } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -19,7 +19,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
     protected override readonly mode = Modes.osu;
     protected override get scalingFactor() {
-        const radius = this.object.getRadius(this.mode);
+        const radius = this.object.radius;
 
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
         let scalingFactor = this.normalizedRadius / radius;
@@ -33,6 +33,32 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
         return scalingFactor;
     }
 
+    /**
+     * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
+     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue).
+     *
+     * @param object The underlying hitobject.
+     * @param lastObject The hitobject before this hitobject.
+     * @param lastLastObject The hitobject before the last hitobject.
+     * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
+     * @param clockRate The clock rate of the beatmap.
+     */
+    constructor(
+        object: PlaceableHitObject,
+        lastObject: PlaceableHitObject | null,
+        lastLastObject: PlaceableHitObject | null,
+        difficultyHitObjects: readonly DifficultyHitObject[],
+        clockRate: number,
+    ) {
+        super(
+            object,
+            lastObject,
+            lastLastObject,
+            difficultyHitObjects,
+            clockRate,
+        );
+    }
+
     override with(
         hitObjects: readonly DifficultyHitObject[],
     ): OsuDifficultyHitObject {
@@ -41,10 +67,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
             this.lastObject,
             this.lastLastObject,
             hitObjects,
-            hitObjects.length - 1,
             this.clockRate,
-            this.timePreempt,
-            this.isForceAR,
         );
 
         difficultyObject.angle = this.angle;

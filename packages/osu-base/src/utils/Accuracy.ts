@@ -1,4 +1,4 @@
-import { MathUtils } from "../mathutil/MathUtils";
+import { MathUtils } from "../math/MathUtils";
 
 interface AccuracyInformation {
     /**
@@ -66,7 +66,7 @@ export class Accuracy implements AccuracyInformation {
             if (n300 < 0) {
                 n300 = Math.max(
                     0,
-                    nobjects - this.n100 - this.n50 - this.nmiss
+                    nobjects - this.n100 - this.n50 - this.nmiss,
                 );
             }
 
@@ -100,7 +100,7 @@ export class Accuracy implements AccuracyInformation {
         if (values.percent) {
             if (!values.nobjects) {
                 throw new TypeError(
-                    "nobjects is required when specifying percent"
+                    "nobjects is required when specifying percent",
                 );
             }
             nobjects = values.nobjects;
@@ -121,7 +121,7 @@ export class Accuracy implements AccuracyInformation {
             // just some black magic maths from wolfram alpha
 
             this.n100 = Math.round(
-                -3 * ((acc_percent * 0.01 - 1) * nobjects + this.nmiss) * 0.5
+                -3 * ((acc_percent * 0.01 - 1) * nobjects + this.nmiss) * 0.5,
             );
 
             if (this.n100 > max300) {
@@ -130,7 +130,7 @@ export class Accuracy implements AccuracyInformation {
                 this.n50 = Math.round(
                     -6 *
                         ((acc_percent * 0.01 - 1) * nobjects + this.nmiss) *
-                        0.5
+                        0.5,
                 );
                 this.n50 = Math.min(max300, this.n50);
             }
@@ -149,7 +149,7 @@ export class Accuracy implements AccuracyInformation {
         if (n300 < 0) {
             if (!nobjects) {
                 throw new TypeError(
-                    "Either n300 or nobjects must be specified"
+                    "Either n300 or nobjects must be specified",
                 );
             }
             n300 = nobjects - this.n100 - this.n50 - this.nmiss;

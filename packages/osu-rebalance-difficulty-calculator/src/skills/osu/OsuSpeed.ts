@@ -1,5 +1,5 @@
 import { OsuSkill } from "./OsuSkill";
-import { Mod } from "@rian8337/osu-base";
+import { Mod, OsuHitWindow } from "@rian8337/osu-base";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
@@ -8,22 +8,24 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
  */
 export class OsuSpeed extends OsuSkill {
-    protected override readonly strainDecayBase: number = 0.3;
-    protected override readonly reducedSectionCount: number = 5;
-    protected override readonly reducedSectionBaseline: number = 0.75;
-    protected override readonly difficultyMultiplier: number = 1.04;
-    protected override readonly decayWeight: number = 0.9;
+    protected override readonly strainDecayBase = 0.3;
+    protected override readonly reducedSectionCount = 5;
+    protected override readonly reducedSectionBaseline = 0.75;
+    protected override readonly difficultyMultiplier = 1.04;
+    protected override readonly decayWeight = 0.9;
 
-    private currentSpeedStrain: number = 0;
-    private currentRhythm: number = 0;
+    private currentSpeedStrain = 0;
+    private currentRhythm = 0;
 
-    private readonly skillMultiplier: number = 1375;
+    private readonly skillMultiplier = 1375;
     private readonly greatWindow: number;
 
-    constructor(mods: Mod[], greatWindow: number) {
+    constructor(mods: Mod[], overallDifficulty: number) {
         super(mods);
 
-        this.greatWindow = greatWindow;
+        this.greatWindow = new OsuHitWindow(
+            overallDifficulty,
+        ).hitWindowFor300();
     }
 
     /**

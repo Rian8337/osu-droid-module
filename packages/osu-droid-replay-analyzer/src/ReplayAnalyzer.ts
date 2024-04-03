@@ -1,18 +1,19 @@
 import {
     Accuracy,
     Beatmap,
+    BeatmapConverter,
     DroidAPIRequestBuilder,
     DroidHitWindow,
-    MapStats,
     MathUtils,
+    ModDifficultyAdjust,
     ModFlashlight,
     ModHidden,
     ModPrecise,
     ModUtil,
-    PlaceableHitObject,
-    RequestResponse,
+    Modes,
     Slider,
     Spinner,
+    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -29,12 +30,12 @@ import { ReplayData, ReplayInformation } from "./data/ReplayData";
 import { CursorData } from "./data/CursorData";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
-import { TwoHandChecker, TwoHandInformation } from "./analysis/TwoHandChecker";
+import { TwoHandChecker } from "./analysis/TwoHandChecker";
 import { MovementType } from "./constants/MovementType";
 import { HitResult } from "./constants/HitResult";
 import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
-import { ThreeFingerInformation } from "./analysis/structures/ThreeFingerInformation";
 import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
+import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -98,12 +99,12 @@ export class ReplayAnalyzer {
     /**
      * Penalty value used to penalize dpp for 2-hand.
      */
-    aimPenalty: number = 1;
+    aimPenalty = 1;
 
     /**
      * Penalty value used to penalize dpp for 3 finger abuse.
      */
-    tapPenalty: number = 1;
+    tapPenalty = 1;
 
     /**
      * Penalty values used to penalize dpp for slider cheesing.
@@ -117,29 +118,31 @@ export class ReplayAnalyzer {
     /**
      * Whether this replay has been checked against 3 finger usage.
      */
-    hasBeenCheckedFor3Finger: boolean = false;
+    hasBeenCheckedFor3Finger = false;
 
     /**
      * Whether this replay has been checked against 2 hand usage.
      */
-    hasBeenCheckedFor2Hand: boolean = false;
+    hasBeenCheckedFor2Hand = false;
 
     /**
-     * Whether this repla has been checked against slider cheesing.
+     * Whether this replay has been checked against slider cheesing.
      */
-    hasBeenCheckedForSliderCheesing: boolean = false;
+    hasBeenCheckedForSliderCheesing = false;
 
     /**
      * The amount of two-handed objects.
      */
-    twoHandedNoteCount: number = 0;
+    twoHandedNoteCount = 0;
+
+    private convertedBeatmap?: Beatmap;
 
     // Sizes of primitive data types in Java (in bytes)
-    private readonly BYTE_LENGTH: number = 1;
-    private readonly SHORT_LENGTH: number = 2;
-    private readonly INT_LENGTH: number = 4;
-    private readonly FLOAT_LENGTH: number = 4;
-    private readonly LONG_LENGTH: number = 8;
+    private readonly BYTE_LENGTH = 1;
+    private readonly SHORT_LENGTH = 2;
+    private readonly INT_LENGTH = 4;
+    private readonly FLOAT_LENGTH = 4;
+    private readonly LONG_LENGTH = 8;
 
     constructor(values: {
         /**
@@ -203,13 +206,12 @@ export class ReplayAnalyzer {
      * Downloads the given score ID's replay.
      */
     private async downloadReplay(): Promise<Buffer | null> {
-        const apiRequestBuilder: DroidAPIRequestBuilder =
-            new DroidAPIRequestBuilder()
-                .setRequireAPIkey(false)
-                .setEndpoint("upload")
-                .addParameter("", `${this.scoreID}.odr`);
+        const apiRequestBuilder = new DroidAPIRequestBuilder()
+            .setRequireAPIkey(false)
+            .setEndpoint("upload")
+            .addParameter("", `${this.scoreID}.odr`);
 
-        const result: RequestResponse = await apiRequestBuilder.sendRequest();
+        const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
             return null;
@@ -225,7 +227,7 @@ export class ReplayAnalyzer {
      */
     private decompress(): Promise<Buffer> {
         return new Promise((resolve, reject) => {
-            const stream: Readable = new Readable();
+            const stream = new Readable();
             stream.push(this.originalODR);
             stream.push(null);
             stream
@@ -274,17 +276,17 @@ export class ReplayAnalyzer {
         };
 
         const determineRank = () => {
-            const totalHits: number =
+            const totalHits =
                 resultObject.accuracy.n300 +
                 resultObject.accuracy.n100 +
                 resultObject.accuracy.n50 +
                 resultObject.accuracy.nmiss;
-            const isHidden: boolean =
+            const isHidden =
                 resultObject.convertedMods?.some(
                     (m) => m instanceof ModHidden || m instanceof ModFlashlight,
                 ) ?? false;
 
-            const hit300Ratio: number = resultObject.accuracy.n300 / totalHits;
+            const hit300Ratio = resultObject.accuracy.n300 / totalHits;
 
             switch (true) {
                 case resultObject.accuracy.value() === 1:
@@ -397,16 +399,15 @@ export class ReplayAnalyzer {
         }
 
         // Merge all cursor movement and hit object data section into one for better control when parsing
-        const replayDataBuffer: Buffer = Buffer.concat(replayDataBufferArray);
-        let bufferCounter: number = 0;
+        const replayDataBuffer = Buffer.concat(replayDataBufferArray);
+        let bufferCounter = 0;
 
-        const size: number = replayDataBuffer.readInt32BE(bufferCounter);
+        const size = replayDataBuffer.readInt32BE(bufferCounter);
         bufferCounter += this.INT_LENGTH;
 
         // Parse movement data
         for (let x = 0; x < size; x++) {
-            const moveSize: number =
-                replayDataBuffer.readInt32BE(bufferCounter);
+            const moveSize = replayDataBuffer.readInt32BE(bufferCounter);
             bufferCounter += this.INT_LENGTH;
             const time: number[] = [];
             const x: number[] = [];
@@ -445,8 +446,7 @@ export class ReplayAnalyzer {
             );
         }
 
-        const replayObjectLength: number =
-            replayDataBuffer.readInt32BE(bufferCounter);
+        const replayObjectLength = replayDataBuffer.readInt32BE(bufferCounter);
         bufferCounter += this.INT_LENGTH;
 
         // Parse result data
@@ -491,20 +491,19 @@ export class ReplayAnalyzer {
 
         // Parse max combo, hit results, and accuracy in old replay version
         if (resultObject.replayVersion < 3) {
-            const objects: readonly PlaceableHitObject[] | undefined = (
+            const objects = (
                 this.beatmap instanceof DroidDifficultyCalculator ||
                 this.beatmap instanceof RebalanceDroidDifficultyCalculator
                     ? this.beatmap.beatmap
                     : this.beatmap
             )?.hitObjects.objects;
 
-            let grantsGekiOrKatu: boolean = true;
+            let grantsGekiOrKatu = true;
 
             for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
                 // Hit result
-                const hitObjectData: ReplayObjectData =
-                    resultObject.hitObjectData[i];
-                const isNextNewCombo: boolean = objects
+                const hitObjectData = resultObject.hitObjectData[i];
+                const isNextNewCombo = objects
                     ? i + 1 !== objects.length
                         ? objects[i + 1].isNewCombo
                         : true
@@ -556,32 +555,25 @@ export class ReplayAnalyzer {
             return null;
         }
 
-        const hitObjectData: ReplayObjectData[] = this.data.hitObjectData;
-        let positiveCount: number = 0;
-        let negativeCount: number = 0;
-        let positiveTotal: number = 0;
-        let negativeTotal: number = 0;
+        const hitObjectData = this.data.hitObjectData;
+        let positiveCount = 0;
+        let negativeCount = 0;
+        let positiveTotal = 0;
+        let negativeTotal = 0;
 
-        const beatmap: Beatmap =
+        const beatmap =
             this.beatmap instanceof DroidDifficultyCalculator ||
             this.beatmap instanceof RebalanceDroidDifficultyCalculator
                 ? this.beatmap.beatmap
                 : this.beatmap;
-        const objects: readonly PlaceableHitObject[] =
-            beatmap.hitObjects.objects;
+        const { objects } = beatmap.hitObjects;
 
-        const stats: MapStats = new MapStats({
-            od: beatmap.difficulty.od,
-            mods: this.data.convertedMods.filter(
-                (m) =>
-                    !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym,
-                    ),
-            ),
-        }).calculate();
-        const hitWindow50: number = new DroidHitWindow(
-            stats.od!,
-        ).hitWindowFor50(
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: beatmap.difficulty.od,
+            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+        }).overallDifficulty;
+
+        const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
             this.data.convertedMods.some((m) => m instanceof ModPrecise),
         );
 
@@ -589,21 +581,21 @@ export class ReplayAnalyzer {
         // https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821
         //
         // In such cases, the slider is skipped.
-        const sliderbreakHitOffset: number = Math.floor(hitWindow50) + 13;
+        const sliderbreakHitOffset = Math.floor(hitWindow50) + 13;
         const accuracies: number[] = [];
 
         for (let i = 0; i < hitObjectData.length; ++i) {
-            const v: ReplayObjectData = hitObjectData[i];
-            const o: PlaceableHitObject = objects[i];
+            const v = hitObjectData[i];
+            const o = objects[i];
 
             if (o instanceof Spinner || v.result === HitResult.miss) {
                 accuracies.push(0);
                 continue;
             }
 
-            const accuracy: number = v.accuracy;
+            const { accuracy } = v;
 
-            if (o instanceof Slider && v.accuracy === sliderbreakHitOffset) {
+            if (o instanceof Slider && accuracy === sliderbreakHitOffset) {
                 accuracies.push(0);
                 continue;
             }
@@ -648,7 +640,7 @@ export class ReplayAnalyzer {
             MOD_FLASHLIGHT: "i",
         };
 
-        let modString: string = "";
+        let modString = "";
         for (const mod of replayMods) {
             for (const property in replayModsConstants) {
                 if (!mod.includes(property)) {
@@ -675,14 +667,52 @@ export class ReplayAnalyzer {
             return;
         }
 
-        const threeFingerChecker: ThreeFingerChecker = new ThreeFingerChecker(
-            this.beatmap instanceof Beatmap
-                ? this.beatmap
-                : this.beatmap.beatmap,
-            this.data,
-            this.difficultyAttributes,
-        );
-        const result: ThreeFingerInformation = threeFingerChecker.check();
+        if (!this.convertedBeatmap) {
+            const mods = this.data.convertedMods.slice();
+
+            if (
+                [
+                    this.data.forceCS,
+                    this.data.forceAR,
+                    this.data.forceOD,
+                    this.data.forceHP,
+                ].some((v) => v !== undefined)
+            ) {
+                mods.push(
+                    new ModDifficultyAdjust({
+                        cs: this.data.forceCS,
+                        ar: this.data.forceAR,
+                        od: this.data.forceOD,
+                        hp: this.data.forceHP,
+                    }),
+                );
+            }
+
+            this.convertedBeatmap ??= new BeatmapConverter(
+                this.beatmap instanceof Beatmap
+                    ? this.beatmap
+                    : this.beatmap.beatmap,
+            ).convert({
+                mode: Modes.droid,
+                mods: mods,
+                customSpeedMultiplier: this.data.speedMultiplier,
+            });
+        }
+
+        const threeFingerChecker =
+            this.difficultyAttributes.mode === "rebalance"
+                ? new RebalanceThreeFingerChecker(
+                      this.convertedBeatmap,
+                      this.data,
+                      this.difficultyAttributes,
+                  )
+                : new ThreeFingerChecker(
+                      this.convertedBeatmap,
+                      this.data,
+                      this.difficultyAttributes,
+                  );
+
+        const result = threeFingerChecker.check();
 
         this.is3Finger = result.is3Finger;
         this.tapPenalty = result.penalty;
@@ -705,11 +735,8 @@ export class ReplayAnalyzer {
             return;
         }
 
-        const twoHandChecker: TwoHandChecker = new TwoHandChecker(
-            this.beatmap,
-            this.data,
-        );
-        const result: TwoHandInformation = twoHandChecker.check();
+        const twoHandChecker = new TwoHandChecker(this.beatmap, this.data);
+        const result = twoHandChecker.check();
 
         this.is2Hand = result.is2Hand;
         this.twoHandedNoteCount = result.twoHandedNoteCount;
@@ -726,14 +753,43 @@ export class ReplayAnalyzer {
             return;
         }
 
-        const sliderCheeseChecker: SliderCheeseChecker =
-            new SliderCheeseChecker(
+        if (!this.convertedBeatmap) {
+            const mods = this.data.convertedMods.slice();
+
+            if (
+                [
+                    this.data.forceCS,
+                    this.data.forceAR,
+                    this.data.forceOD,
+                    this.data.forceHP,
+                ].some((v) => v !== undefined)
+            ) {
+                mods.push(
+                    new ModDifficultyAdjust({
+                        cs: this.data.forceCS,
+                        ar: this.data.forceAR,
+                        od: this.data.forceOD,
+                        hp: this.data.forceHP,
+                    }),
+                );
+            }
+
+            this.convertedBeatmap ??= new BeatmapConverter(
                 this.beatmap instanceof Beatmap
                     ? this.beatmap
                     : this.beatmap.beatmap,
-                this.data,
-                this.difficultyAttributes,
-            );
+            ).convert({
+                mode: Modes.droid,
+                mods: mods,
+                customSpeedMultiplier: this.data.speedMultiplier,
+            });
+        }
+
+        const sliderCheeseChecker = new SliderCheeseChecker(
+            this.convertedBeatmap,
+            this.data,
+            this.difficultyAttributes,
+        );
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;

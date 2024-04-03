@@ -1,5 +1,5 @@
 import { Anchor } from "../../../constants/Anchor";
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { Command } from "../commands/Command";
 import { CommandLoop } from "../commands/CommandLoop";
 import { CommandTimelineGroup } from "../commands/CommandTimelineGroup";
@@ -66,7 +66,7 @@ export class StoryboardSprite extends StoryboardElement {
 
         if (alphaCommands.length > 0) {
             const firstAlpha = alphaCommands.sort(
-                (a, b) => a.startTime - b.startTime
+                (a, b) => a.startTime - b.startTime,
             )[0];
 
             if (firstAlpha.isZeroStartValue) {
@@ -95,7 +95,7 @@ export class StoryboardSprite extends StoryboardElement {
     override get endTime(): number {
         return Math.max(
             this.timelineGroup.endTime,
-            ...this.loops.map((l) => l.endTime)
+            ...this.loops.map((l) => l.endTime),
         );
     }
 
@@ -144,13 +144,13 @@ export class StoryboardSprite extends StoryboardElement {
         triggerName: string,
         startTime: number,
         endTime: number,
-        groupNumber: number
+        groupNumber: number,
     ): CommandTrigger {
         const trigger: CommandTrigger = new CommandTrigger(
             triggerName,
             startTime,
             endTime,
-            groupNumber
+            groupNumber,
         );
 
         this.triggers.push(trigger);

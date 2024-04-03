@@ -9,14 +9,15 @@ export class ModRelax
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "RX";
-    override readonly name: string = "Relax";
+    override readonly acronym = "RX";
+    override readonly name = "Relax";
 
-    readonly droidRanked: boolean = false;
-    readonly pcRanked: boolean = false;
-    readonly droidScoreMultiplier: number = 0.001;
-    readonly pcScoreMultiplier: number = 0;
-    readonly bitwise: number = 1 << 7;
-    readonly droidString: string = "x";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = false;
+    readonly droidScoreMultiplier = 0.001;
+    readonly droidString = "x";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = false;
+    readonly pcScoreMultiplier = 0;
+    readonly bitwise = 1 << 7;
 }

@@ -1,5 +1,5 @@
 import { Anchor } from "../../../constants/Anchor";
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { AnimationLoopType } from "../enums/AnimationLoopType";
 import { StoryboardSprite } from "./StoryboardSprite";
 
@@ -28,7 +28,7 @@ export class StoryboardAnimation extends StoryboardSprite {
         initialPosition: Vector2,
         frameCount: number,
         frameDelay: number,
-        loopType: AnimationLoopType
+        loopType: AnimationLoopType,
     ) {
         super(path, origin, initialPosition);
 

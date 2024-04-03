@@ -12,8 +12,17 @@ export class Vector2 {
      */
     y: number;
 
-    constructor(x: number, y: number) {
-        this.x = x;
+    constructor(value: number);
+    constructor(x: number, y: number);
+    constructor(valueOrX: number, y?: number) {
+        if (y === undefined) {
+            this.x = valueOrX;
+            this.y = valueOrX;
+
+            return;
+        }
+
+        this.x = valueOrX;
         this.y = y;
     }
 

@@ -11,7 +11,7 @@ describe("Test osu!droid circle size to osu!droid scale conversion", () => {
     const expectScale = (cs: number, scale: number, mods: Mod[] = []) => {
         expect(CircleSizeCalculator.droidCSToDroidScale(cs, mods)).toBeCloseTo(
             scale,
-            7
+            7,
         );
     };
 
@@ -70,7 +70,7 @@ describe("Test osu!droid circle size to osu!droid scale conversion", () => {
 test("Test osu!droid scale to osu!standard radius conversion", () => {
     const expectRadius = (scale: number, radius: number) => {
         expect(
-            CircleSizeCalculator.droidScaleToStandardRadius(scale)
+            CircleSizeCalculator.droidScaleToStandardRadius(scale),
         ).toBeCloseTo(radius, 7);
     };
 
@@ -98,10 +98,30 @@ test("Test osu!droid scale to osu!standard radius conversion", () => {
     expectRadius(0.001, 0.042456594972790876);
 });
 
+test("Test osu!standard radius to osu!droid scale conversion", () => {
+    const expectScale = (radius: number, scale: number) => {
+        expect(
+            CircleSizeCalculator.standardRadiusToDroidScale(radius),
+        ).toBeCloseTo(scale, 7);
+    };
+
+    expectScale(75.65252145594813, 1.7818791522125481);
+    expectScale(67.21958027947754, 1.583254152212548);
+    expectScale(58.786639103006955, 1.384629152212548);
+    expectScale(50.35369792653637, 1.186004152212548);
+    expectScale(41.920756750065785, 0.987379152212548);
+    expectScale(33.48781557359519, 0.788754152212548);
+    expectScale(25.054874397124607, 0.590129152212548);
+    expectScale(16.621933220654018, 0.391504152212548);
+    expectScale(8.188992044183431, 0.19287915221254798);
+    expectScale(3.9725214559481308, 0.09356665221254784);
+    expectScale(0.042456594972790876, 0.001);
+});
+
 test("Test osu!standard radius to osu!standard CS conversion", () => {
     const expectCS = (radius: number, cs: number) => {
         expect(
-            CircleSizeCalculator.standardRadiusToStandardCS(radius)
+            CircleSizeCalculator.standardRadiusToStandardCS(radius),
         ).toBeCloseTo(cs, 7);
     };
 
@@ -118,18 +138,99 @@ test("Test osu!standard radius to osu!standard CS conversion", () => {
     expectCS(5, 11.026785714285715);
 });
 
-test("Test osu!standard CS to osu!standard scale conversion", () => {
-    const expectScale = (cs: number, scale: number) => {
-        expect(CircleSizeCalculator.standardCSToStandardScale(cs)).toBeCloseTo(
-            scale,
-            7
-        );
+describe("Test osu!standard CS to osu!standard scale conversion", () => {
+    const expectScale = (cs: number, scale: number, applyFudge: boolean) => {
+        expect(
+            CircleSizeCalculator.standardCSToStandardScale(cs, applyFudge),
+        ).toBeCloseTo(scale, 7);
     };
 
-    expectScale(0, 0.85);
-    expectScale(2, 0.71);
-    expectScale(4, 0.57);
-    expectScale(6, 0.43);
-    expectScale(8, 0.29);
-    expectScale(10, 0.15);
+    test("Without fudge", () => {
+        expectScale(0, 0.85, false);
+        expectScale(2, 0.71, false);
+        expectScale(4, 0.57, false);
+        expectScale(6, 0.43, false);
+        expectScale(8, 0.29, false);
+        expectScale(10, 0.15, false);
+    });
+
+    test("With fudge", () => {
+        expectScale(0, 0.8503485, true);
+        expectScale(2, 0.7102911, true);
+        expectScale(4, 0.5702337, true);
+        expectScale(6, 0.4301763, true);
+        expectScale(8, 0.2901189, true);
+        expectScale(10, 0.1500615, true);
+    });
+});
+
+describe("Test osu!standard scale to osu!standard CS conversion", () => {
+    const expectCS = (scale: number, cs: number, applyFudge: boolean) => {
+        expect(
+            CircleSizeCalculator.standardScaleToStandardCS(scale, applyFudge),
+        ).toBeCloseTo(cs, 7);
+    };
+
+    test("Without fudge", () => {
+        expectCS(0.85, 0, false);
+        expectCS(0.71, 2, false);
+        expectCS(0.57, 4, false);
+        expectCS(0.43, 6, false);
+        expectCS(0.29, 8, false);
+        expectCS(0.15, 10, false);
+    });
+
+    test("With fudge", () => {
+        expectCS(0.8503485, 0, true);
+        expectCS(0.7102911, 2, true);
+        expectCS(0.5702337, 4, true);
+        expectCS(0.4301763, 6, true);
+        expectCS(0.2901189, 8, true);
+        expectCS(0.1500615, 10, true);
+    });
+});
+
+describe("Test osu!standard scale to osu!droid scale conversion", () => {
+    const expectScale = (
+        standardScale: number,
+        droidScale: number,
+        applyFudge: boolean,
+    ) => {
+        expect(
+            CircleSizeCalculator.standardScaleToDroidScale(
+                standardScale,
+                applyFudge,
+            ),
+        ).toBeCloseTo(droidScale, 7);
+    };
+
+    test("Without fudge", () => {
+        // CS 0 osu!standard
+        expectScale(0.85, 1.2813085937500002, false);
+        // CS 2 osu!standard
+        expectScale(0.71, 1.0702695312500001, false);
+        // CS 4 osu!standard
+        expectScale(0.57, 0.85923046875, false);
+        // CS 6 osu!standard
+        expectScale(0.43, 0.64819140625, false);
+        // CS 8 osu!standard
+        expectScale(0.29, 0.43715234375, false);
+        // CS 10 osu!standard
+        expectScale(0.15, 0.22611328125000002, false);
+    });
+
+    test("With fudge", () => {
+        // CS 0 osu!standard
+        expectScale(0.8503485, 1.2813085937500002, true);
+        // CS 2 osu!standard
+        expectScale(0.7102911, 1.0702695312500001, true);
+        // CS 4 osu!standard
+        expectScale(0.5702337, 0.85923046875, true);
+        // CS 6 osu!standard
+        expectScale(0.4301763, 0.64819140625, true);
+        // CS 8 osu!standard
+        expectScale(0.2901189, 0.43715234375, true);
+        // CS 10 osu!standard
+        expectScale(0.1500615, 0.22611328125000002, true);
+    });
 });

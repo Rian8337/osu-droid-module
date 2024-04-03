@@ -1,5 +1,4 @@
 import { Slider } from "./hitobjects/Slider";
-import { MapStats } from "../utils/MapStats";
 import { Mod } from "../mods/Mod";
 import { BeatmapGeneral } from "./sections/BeatmapGeneral";
 import { BeatmapEditor } from "./sections/BeatmapEditor";
@@ -9,7 +8,7 @@ import { BeatmapEvents } from "./sections/BeatmapEvents";
 import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
 import { BeatmapColor } from "./sections/BeatmapColor";
 import { BeatmapHitObjects } from "./sections/BeatmapHitObjects";
-import { MathUtils } from "../mathutil/MathUtils";
+import { MathUtils } from "../math/MathUtils";
 
 /**
  * Represents a beatmap with advanced information.
@@ -18,47 +17,73 @@ export class Beatmap {
     /**
      * The format version of the beatmap.
      */
-    formatVersion: number = 1;
+    formatVersion: number;
 
     /**
      * General information about the beatmap.
      */
-    readonly general: BeatmapGeneral = new BeatmapGeneral();
+    readonly general: BeatmapGeneral;
 
     /**
      * Saved settings for the beatmap editor.
      */
-    readonly editor: BeatmapEditor = new BeatmapEditor();
+    readonly editor: BeatmapEditor;
 
     /**
      * Information used to identify the beatmap.
      */
-    readonly metadata: BeatmapMetadata = new BeatmapMetadata();
+    readonly metadata: BeatmapMetadata;
 
     /**
      * Difficulty settings of the beatmap.
      */
-    readonly difficulty: BeatmapDifficulty = new BeatmapDifficulty();
+    difficulty: BeatmapDifficulty;
 
     /**
      * Events of the beatmap.
      */
-    readonly events: BeatmapEvents = new BeatmapEvents();
+    readonly events: BeatmapEvents;
 
     /**
      * Timing and control points of the beatmap.
      */
-    readonly controlPoints: BeatmapControlPoints = new BeatmapControlPoints();
+    readonly controlPoints: BeatmapControlPoints;
 
     /**
      * Combo and skin colors of the beatmap.
      */
-    readonly colors: BeatmapColor = new BeatmapColor();
+    readonly colors: BeatmapColor;
 
     /**
      * The objects of the beatmap.
      */
-    readonly hitObjects: BeatmapHitObjects = new BeatmapHitObjects();
+    hitObjects: BeatmapHitObjects;
+
+    constructor(shallowCopy?: Beatmap) {
+        if (shallowCopy) {
+            this.formatVersion = shallowCopy.formatVersion;
+            this.general = shallowCopy.general;
+            this.editor = shallowCopy.editor;
+            this.metadata = shallowCopy.metadata;
+            this.difficulty = shallowCopy.difficulty;
+            this.events = shallowCopy.events;
+            this.controlPoints = shallowCopy.controlPoints;
+            this.colors = shallowCopy.colors;
+            this.hitObjects = shallowCopy.hitObjects;
+
+            return;
+        }
+
+        this.formatVersion = 1;
+        this.general = new BeatmapGeneral();
+        this.editor = new BeatmapEditor();
+        this.metadata = new BeatmapMetadata();
+        this.difficulty = new BeatmapDifficulty();
+        this.events = new BeatmapEvents();
+        this.controlPoints = new BeatmapControlPoints();
+        this.colors = new BeatmapColor();
+        this.hitObjects = new BeatmapHitObjects();
+    }
 
     /**
      * The maximum combo of the beatmap.
@@ -80,7 +105,7 @@ export class Beatmap {
     get mostCommonBeatLength(): number {
         // The last playable time in the beatmap - the last timing point extends to this time.
         // Note: This is more accurate and may present different results because osu-stable didn't have the ability to calculate slider durations in this context.
-        const lastTime: number =
+        const lastTime =
             this.hitObjects.objects[this.hitObjects.objects.length - 1]
                 ?.endTime ??
             this.controlPoints.timing.points[
@@ -126,38 +151,40 @@ export class Beatmap {
     /**
      * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
      *
-     * @param stats The statistics used for calculation.
+     * @param mods The modifications to calculate for. Defaults to No Mod.
+     * @param customSpeedMultiplier The custom speed multiplier of the beatmap. Defaults to 1.
      */
-    maxDroidScore(stats: MapStats): number {
-        let scoreMultiplier: number = 1;
+    maxDroidScore(
+        mods: readonly Mod[] = [],
+        customSpeedMultiplier: number = 1,
+    ): number {
+        let scoreMultiplier = 1;
 
-        for (const mod of stats.mods) {
+        for (const mod of mods) {
             if (mod.isApplicableToDroid()) {
                 scoreMultiplier *= mod.droidScoreMultiplier;
             }
         }
 
-        const { speedMultiplier } = stats;
-
-        if (speedMultiplier >= 1) {
-            scoreMultiplier *= 1 + (speedMultiplier - 1) * 0.24;
+        if (customSpeedMultiplier >= 1) {
+            scoreMultiplier *= 1 + (customSpeedMultiplier - 1) * 0.24;
         } else {
-            scoreMultiplier *= Math.pow(0.3, (1 - speedMultiplier) * 4);
+            scoreMultiplier *= Math.pow(0.3, (1 - customSpeedMultiplier) * 4);
         }
 
-        const difficultyMultiplier: number =
+        const difficultyMultiplier =
             1 +
             this.difficulty.od / 10 +
             this.difficulty.hp / 10 +
             (this.difficulty.cs - 3) / 4;
 
-        let combo: number = 0;
-        let score: number = 0;
+        let combo = 0;
+        let score = 0;
 
         for (const object of this.hitObjects.objects) {
             if (!(object instanceof Slider)) {
                 score += Math.floor(
-                    300 + (300 * combo * difficultyMultiplier) / 25
+                    300 + (300 * combo * difficultyMultiplier) / 25,
                 );
                 ++combo;
                 continue;
@@ -170,8 +197,8 @@ export class Beatmap {
             ++combo;
 
             // Apply slider repeats.
-            score += 30 * object.repeats;
-            combo += object.repeats;
+            score += 30 * object.repeatCount;
+            combo += object.repeatCount;
 
             // Apply slider ticks.
             score += 10 * ticks;
@@ -179,7 +206,7 @@ export class Beatmap {
 
             // Apply slider end.
             score += Math.floor(
-                300 + (300 * combo * difficultyMultiplier) / 25
+                300 + (300 * combo * difficultyMultiplier) / 25,
             );
             ++combo;
         }
@@ -193,11 +220,11 @@ export class Beatmap {
      * @param mods The modifications to calculate for. Defaults to No Mod.
      */
     maxOsuScore(mods: Mod[] = []): number {
-        const accumulatedDiffPoints: number =
+        const accumulatedDiffPoints =
             this.difficulty.cs + this.difficulty.hp + this.difficulty.od;
 
-        let difficultyMultiplier: number = 2;
-        let scoreMultiplier: number = 1;
+        let difficultyMultiplier = 2;
+        let scoreMultiplier = 1;
 
         for (const mod of mods) {
             if (mod.isApplicableToOsu()) {
@@ -223,15 +250,15 @@ export class Beatmap {
                 break;
         }
 
-        let combo: number = 0;
-        let score: number = 0;
+        let combo = 0;
+        let score = 0;
 
         for (const object of this.hitObjects.objects) {
             if (!(object instanceof Slider)) {
                 score += Math.floor(
                     300 +
                         (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                            25
+                            25,
                 );
                 ++combo;
                 continue;
@@ -244,8 +271,8 @@ export class Beatmap {
             ++combo;
 
             // Apply slider repeats.
-            score += 30 * object.repeats;
-            combo += object.repeats;
+            score += 30 * object.repeatCount;
+            combo += object.repeatCount;
 
             // Apply slider ticks.
             score += 10 * ticks;
@@ -254,7 +281,7 @@ export class Beatmap {
             // Apply slider end.
             score += Math.floor(
                 300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25
+                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25,
             );
             ++combo;
         }
@@ -282,7 +309,7 @@ export class Beatmap {
             "\n" +
             "\n" +
             "AR" +
-            MathUtils.round(this.difficulty.ar!, 2) +
+            MathUtils.round(this.difficulty.ar, 2) +
             " " +
             "OD" +
             MathUtils.round(this.difficulty.od, 2) +

@@ -1,6 +1,9 @@
 import {
+    BeatmapControlPoints,
+    BeatmapDifficulty,
     BeatmapHitObjects,
     Circle,
+    Modes,
     ObjectTypes,
     PathType,
     Slider,
@@ -9,21 +12,29 @@ import {
     Vector2,
 } from "../../../src";
 
-const createCircle = (startTime: number = 1000) =>
-    new Circle({
+const beatmapControlPoints = new BeatmapControlPoints();
+const difficulty = new BeatmapDifficulty();
+
+const createCircle = (startTime: number = 1000) => {
+    const circle = new Circle({
         startTime: startTime,
         position: new Vector2(0, 0),
     });
+
+    circle.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+
+    return circle;
+};
 
 const createSlider = (startTime: number = 1000) => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
 
     // Will generate 1 slider tick and repetitions by default
-    return new Slider({
+    const slider = new Slider({
         startTime: startTime,
         type: ObjectTypes.slider,
         position: new Vector2(100, 192),
-        repetitions: 2,
+        repeatCount: 1,
         nodeSamples: [],
         path: new SliderPath({
             pathType: PathType.Linear,
@@ -32,20 +43,25 @@ const createSlider = (startTime: number = 1000) => {
                 .at(-1)!
                 .getDistance(controlPoints[0]),
         }),
-        speedMultiplier: 1,
-        msPerBeat: 1000,
-        mapSliderVelocity: 1,
-        mapTickRate: 1,
         tickDistanceMultiplier: 1,
     });
+
+    slider.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+
+    return slider;
 };
 
-const createSpinner = (startTime: number = 1000) =>
-    new Spinner({
+const createSpinner = (startTime = 1000) => {
+    const spinner = new Spinner({
         startTime: startTime,
         type: ObjectTypes.spinner,
         endTime: startTime + 100,
     });
+
+    spinner.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+
+    return spinner;
+};
 
 describe("Test adding hitobjects", () => {
     test("Without existing hitobjects", () => {
@@ -121,7 +137,7 @@ describe("Test removing hitobjects", () => {
     test("Without existing hitobjects", () => {
         const hitObjects = new BeatmapHitObjects();
 
-        expect(hitObjects.removeAt(0)).toBeUndefined();
+        expect(hitObjects.removeAt(0)).toBeNull();
     });
 
     describe("With 2 hitobjects", () => {

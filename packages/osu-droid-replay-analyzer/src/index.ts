@@ -4,6 +4,7 @@ export * from "./data/CursorOccurrenceGroup";
 export * from "./data/ExportedReplayJSON";
 export * from "./constants/HitResult";
 export * from "./constants/MovementType";
+export * from "./analysis/RebalanceThreeFingerChecker";
 export * from "./ReplayAnalyzer";
 export * from "./data/ReplayData";
 export * from "./data/ReplayObjectData";

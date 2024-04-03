@@ -109,6 +109,7 @@ export class DroidTap extends DroidSkill {
         current: DroidDifficultyHitObject,
     ): number {
         this.currentTapStrain *= this.strainDecay(current.strainTime);
+        this.currentTapStrain *= this.strainDecay(current.strainTime);
         this.currentTapStrain +=
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,

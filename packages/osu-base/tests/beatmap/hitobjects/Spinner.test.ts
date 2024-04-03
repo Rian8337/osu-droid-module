@@ -1,4 +1,4 @@
-import { Modes, ObjectTypes, Spinner, Vector2 } from "../../../src";
+import { ObjectTypes, Spinner, Vector2 } from "../../../src";
 
 const createSpinner = (duration: number = 100) => {
     return new Spinner({
@@ -27,46 +27,23 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.droidStackHeight = 1;
-            spinner.osuStackHeight = 1;
+            spinner.stackHeight = 1;
 
-            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
 
-            spinner.droidStackHeight = 2;
-            spinner.osuStackHeight = 2;
+            spinner.stackHeight = 2;
 
-            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
 
-            spinner.droidStackHeight = 4;
-            spinner.osuStackHeight = 4;
+            spinner.stackHeight = 4;
 
-            expect(spinner.getStackedPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
         });
     });
 
@@ -74,46 +51,23 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.droidStackHeight = 1;
-            spinner.osuStackHeight = 1;
+            spinner.stackHeight = 1;
 
-            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
 
-            spinner.droidStackHeight = 2;
-            spinner.osuStackHeight = 2;
+            spinner.stackHeight = 2;
 
-            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
 
-            spinner.droidStackHeight = 4;
-            spinner.osuStackHeight = 4;
+            spinner.stackHeight = 4;
 
-            expect(spinner.getStackedEndPosition(Modes.droid)).toEqual(
-                playfieldCenter
-            );
-            expect(spinner.getStackedEndPosition(Modes.osu)).toEqual(
-                playfieldCenter
-            );
+            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
         });
     });
 });

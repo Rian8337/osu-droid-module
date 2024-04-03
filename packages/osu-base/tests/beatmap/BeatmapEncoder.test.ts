@@ -1,6 +1,12 @@
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { Beatmap, BeatmapDecoder, BeatmapEncoder, Slider } from "../../src";
+import {
+    BankHitSampleInfo,
+    Beatmap,
+    BeatmapDecoder,
+    BeatmapEncoder,
+    Slider,
+} from "../../src";
 
 let originalBeatmap = new Beatmap();
 let parsedBeatmap = new Beatmap();
@@ -12,15 +18,15 @@ beforeAll(async () => {
             "tests",
             "files",
             "beatmaps",
-            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu"
+            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu",
         ),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
     );
 
     originalBeatmap = new BeatmapDecoder().decode(data).result;
 
     parsedBeatmap = new BeatmapDecoder().decode(
-        new BeatmapEncoder(originalBeatmap).encode().result
+        new BeatmapEncoder(originalBeatmap).encode().result,
     ).result;
 });
 
@@ -42,7 +48,7 @@ test("Test control points section", () => {
     const { controlPoints: parsed } = parsedBeatmap;
 
     expect(parsed.difficulty.points.length).toBe(
-        original.difficulty.points.length
+        original.difficulty.points.length,
     );
     expect(parsed.effect.points.length).toBe(original.effect.points.length);
     expect(parsed.timing.points.length).toBe(original.timing.points.length);
@@ -103,7 +109,7 @@ test("Test general section", () => {
     expect(parsed.sampleBank).toBe(original.sampleBank);
     expect(parsed.sampleVolume).toBe(original.sampleVolume);
     expect(parsed.samplesMatchPlaybackRate).toBe(
-        original.samplesMatchPlaybackRate
+        original.samplesMatchPlaybackRate,
     );
     expect(parsed.skinPreference).toBe(original.skinPreference);
     expect(parsed.stackLeniency).toBe(original.stackLeniency);
@@ -127,26 +133,26 @@ test("Test hit object samples", () => {
     const originalSlider = <Slider>originalBeatmap.hitObjects.objects[1];
     const parsedSlider = <Slider>parsedBeatmap.hitObjects.objects[1];
 
-    const [originalFirstBank, originalSecondBank] = originalSlider.samples;
-    const [parsedFirstBank, parsedSecondBank] = parsedSlider.samples;
+    const [originalFirstBank, originalSecondBank] =
+        originalSlider.samples as BankHitSampleInfo[];
+    const [parsedFirstBank, parsedSecondBank] =
+        parsedSlider.samples as BankHitSampleInfo[];
 
     expect(parsedSlider.samples.length).toBe(originalSlider.samples.length);
     expect(parsedFirstBank.name).toBe(originalFirstBank.name);
     expect(parsedFirstBank.bank).toBe(originalFirstBank.bank);
     expect(parsedFirstBank.customSampleBank).toBe(
-        originalFirstBank.customSampleBank
+        originalFirstBank.customSampleBank,
     );
     expect(parsedFirstBank.volume).toBe(originalFirstBank.volume);
     expect(parsedFirstBank.isLayered).toBe(originalFirstBank.isLayered);
-    expect(parsedFirstBank.isCustom).toBe(originalFirstBank.isCustom);
     expect(parsedSecondBank.name).toBe(originalSecondBank.name);
     expect(parsedSecondBank.bank).toBe(originalSecondBank.bank);
     expect(parsedSecondBank.customSampleBank).toBe(
-        originalSecondBank.customSampleBank
+        originalSecondBank.customSampleBank,
     );
     expect(parsedSecondBank.volume).toBe(originalSecondBank.volume);
     expect(parsedSecondBank.isLayered).toBe(originalSecondBank.isLayered);
-    expect(parsedSecondBank.isCustom).toBe(originalSecondBank.isCustom);
 });
 
 test("Test hit object per-node samples", () => {
@@ -154,32 +160,31 @@ test("Test hit object per-node samples", () => {
     const parsedSlider = <Slider>parsedBeatmap.hitObjects.objects[1];
 
     expect(parsedSlider.nodeSamples.length).toBe(
-        originalSlider.nodeSamples.length
+        originalSlider.nodeSamples.length,
     );
 
     for (let i = 0; i < parsedSlider.nodeSamples.length; ++i) {
-        const [originalFirstSample, originalLastSample] =
-            originalSlider.nodeSamples[i];
-        const [parsedFirstSample, parsedLastSample] =
-            parsedSlider.nodeSamples[i];
+        const [originalFirstSample, originalLastSample] = originalSlider
+            .nodeSamples[i] as BankHitSampleInfo[];
+        const [parsedFirstSample, parsedLastSample] = parsedSlider.nodeSamples[
+            i
+        ] as BankHitSampleInfo[];
 
         expect(parsedFirstSample.name).toBe(originalFirstSample.name);
         expect(parsedFirstSample.bank).toBe(originalFirstSample.bank);
         expect(parsedFirstSample.customSampleBank).toBe(
-            originalFirstSample.customSampleBank
+            originalFirstSample.customSampleBank,
         );
         expect(parsedFirstSample.volume).toBe(originalFirstSample.volume);
         expect(parsedFirstSample.isLayered).toBe(originalFirstSample.isLayered);
-        expect(parsedFirstSample.isCustom).toBe(originalFirstSample.isCustom);
 
         expect(parsedLastSample.name).toBe(originalLastSample.name);
         expect(parsedLastSample.bank).toBe(originalLastSample.bank);
         expect(parsedLastSample.customSampleBank).toBe(
-            originalLastSample.customSampleBank
+            originalLastSample.customSampleBank,
         );
         expect(parsedLastSample.volume).toBe(originalLastSample.volume);
         expect(parsedLastSample.isLayered).toBe(originalLastSample.isLayered);
-        expect(parsedLastSample.isCustom).toBe(originalLastSample.isCustom);
     }
 });
 

@@ -1,4 +1,4 @@
-import { MathUtils } from "../mathutil/MathUtils";
+import { MathUtils } from "../math/MathUtils";
 
 /**
  * Represents an RGB color.

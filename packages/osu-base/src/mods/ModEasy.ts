@@ -1,3 +1,7 @@
+import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
+import { Modes } from "../constants/Modes";
+import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
+import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
@@ -7,16 +11,42 @@ import { Mod } from "./Mod";
  */
 export class ModEasy
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
+    implements
+        IModApplicableToDroid,
+        IModApplicableToOsu,
+        IModApplicableToDifficulty
 {
-    override readonly acronym: string = "EZ";
-    override readonly name: string = "Easy";
+    override readonly acronym = "EZ";
+    override readonly name = "Easy";
 
-    readonly droidRanked: boolean = true;
-    readonly pcRanked: boolean = true;
-    readonly droidScoreMultiplier: number = 0.5;
-    readonly pcScoreMultiplier: number = 0.5;
-    readonly bitwise: number = 1 << 1;
-    readonly droidString: string = "e";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = true;
+    readonly droidScoreMultiplier = 0.5;
+    readonly droidString = "e";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = true;
+    readonly pcScoreMultiplier = 0.5;
+    readonly bitwise = 1 << 1;
+
+    applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
+        switch (mode) {
+            case Modes.droid: {
+                const scale = CircleSizeCalculator.droidCSToDroidScale(
+                    difficulty.cs,
+                );
+
+                difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
+                    scale + 0.125,
+                );
+
+                break;
+            }
+            case Modes.osu:
+                difficulty.cs /= 2;
+        }
+
+        difficulty.ar /= 2;
+        difficulty.od /= 2;
+        difficulty.hp /= 2;
+    }
 }

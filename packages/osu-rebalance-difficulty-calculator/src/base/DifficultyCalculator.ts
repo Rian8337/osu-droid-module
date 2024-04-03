@@ -1,4 +1,10 @@
-import { Beatmap, Mod, MapStats, Utils, Modes } from "@rian8337/osu-base";
+import {
+    Beatmap,
+    Mod,
+    Modes,
+    BeatmapConverter,
+    DifficultyStatisticsCalculatorResult,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
@@ -31,12 +37,19 @@ export abstract class DifficultyCalculator<
     /**
      * The total star rating of the beatmap.
      */
-    total: number = 0;
+    get total(): number {
+        return this.attributes.starRating;
+    }
 
     /**
-     * The map statistics of the beatmap after modifications are applied.
+     * The difficulty statistics of the beatmap after modifications are applied.
      */
-    stats: MapStats = new MapStats();
+    difficultyStatistics: DifficultyStatisticsCalculatorResult<
+        number,
+        number,
+        number,
+        number
+    >;
 
     /**
      * The strain peaks of various calculated difficulties.
@@ -67,7 +80,16 @@ export abstract class DifficultyCalculator<
      * @param beatmap The beatmap to calculate. This beatmap will be deep-cloned to prevent reference changes.
      */
     constructor(beatmap: Beatmap) {
-        this.beatmap = Utils.deepCopy(beatmap);
+        this.beatmap = beatmap;
+
+        this.difficultyStatistics = {
+            circleSize: beatmap.difficulty.cs,
+            approachRate: beatmap.difficulty.ar ?? beatmap.difficulty.od,
+            overallDifficulty: beatmap.difficulty.od,
+            healthDrain: beatmap.difficulty.hp,
+            overallSpeedMultiplier: 1,
+        };
+
         this.objects = new Array(this.beatmap.hitObjects.objects.length);
     }
 
@@ -88,30 +110,20 @@ export abstract class DifficultyCalculator<
      */
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
-        const { difficulty } = this.beatmap;
 
-        this.stats = new MapStats({
-            ...options?.stats,
-            cs: options?.stats?.forceCS
-                ? options.stats.cs ?? difficulty.cs
-                : difficulty.cs,
-            ar: options?.stats?.forceAR
-                ? options.stats.ar ?? difficulty.ar
-                : difficulty.ar,
-            od: options?.stats?.forceOD
-                ? options.stats.od ?? difficulty.od
-                : difficulty.od,
-            hp: options?.stats?.forceHP
-                ? options.stats.hp ?? difficulty.hp
-                : difficulty.hp,
-            mods: options?.mods,
-        }).calculate({ mode: this.mode });
+        const converted = new BeatmapConverter(this.beatmap).convert({
+            mode: this.mode,
+            mods: this.mods,
+            customSpeedMultiplier: options?.customSpeedMultiplier,
+        });
 
-        this.preProcess();
+        this.difficultyStatistics = Object.seal(
+            this.computeDifficultyStatistics(options),
+        );
 
         this.populateDifficultyAttributes();
 
-        this.generateDifficultyHitObjects();
+        this.generateDifficultyHitObjects(converted);
 
         this.calculateAll();
 
@@ -120,15 +132,22 @@ export abstract class DifficultyCalculator<
 
     /**
      * Generates difficulty hitobjects for this calculator.
+     *
+     * @param convertedBeatmap The beatmap to generate difficulty hitobjects from.
      */
-    protected abstract generateDifficultyHitObjects(): void;
+    protected abstract generateDifficultyHitObjects(
+        convertedBeatmap: Beatmap,
+    ): void;
 
     /**
-     * Performs some pre-processing before proceeding with difficulty calculation.
+     * Computes the difficulty statistics of the original beatmap with respect to the used options.
+     *
+     * @param options The options to use for the difficulty statistics calculation.
+     * @returns The computed difficulty statistics.
      */
-    protected preProcess(): void {
-        void 0;
-    }
+    protected abstract computeDifficultyStatistics(
+        options?: DifficultyCalculationOptions,
+    ): DifficultyStatisticsCalculatorResult<number, number, number, number>;
 
     /**
      * Calculates the skills provided.
@@ -168,14 +187,16 @@ export abstract class DifficultyCalculator<
      * Populates the stored difficulty attributes with necessary data.
      */
     protected populateDifficultyAttributes(): void {
-        this.attributes.approachRate = this.stats.ar!;
+        this.attributes.approachRate = this.difficultyStatistics.approachRate;
         this.attributes.hitCircleCount = this.beatmap.hitObjects.circles;
         this.attributes.maxCombo = this.beatmap.maxCombo;
         this.attributes.mods = this.mods.slice();
-        this.attributes.overallDifficulty = this.stats.od!;
+        this.attributes.overallDifficulty =
+            this.difficultyStatistics.overallDifficulty;
         this.attributes.sliderCount = this.beatmap.hitObjects.sliders;
         this.attributes.spinnerCount = this.beatmap.hitObjects.spinners;
-        this.attributes.clockRate = this.stats.speedMultiplier;
+        this.attributes.clockRate =
+            this.difficultyStatistics.overallSpeedMultiplier;
     }
 
     /**

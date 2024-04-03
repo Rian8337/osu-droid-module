@@ -1,6 +1,6 @@
 {
     "name": "@rian8337/osu-droid-utilities",
-    "version": "4.0.0-beta.15",
+    "version": "4.0.0-beta.19",
     "description": "A module containing utilities for osu!droid.",
     "keywords": [
         "osu",
@@ -16,8 +16,8 @@
         "node": ">=18"
     },
     "files": [
-        "dist/**",
-        "typings/**"
+        "dist/index.js",
+        "typings/index.d.ts"
     ],
     "repository": {
         "type": "git",
@@ -33,7 +33,7 @@
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "^4.0.0-beta.15"
+        "@rian8337/osu-base": "^4.0.0-beta.19"
     },
     "publishConfig": {
         "access": "public"

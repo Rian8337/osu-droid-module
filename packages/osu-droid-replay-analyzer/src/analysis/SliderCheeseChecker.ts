@@ -1,15 +1,12 @@
 import {
     Beatmap,
-    CircleSizeCalculator,
+    calculateDroidDifficultyStatistics,
     DroidHitWindow,
     Interpolation,
-    MapStats,
     Modes,
     ModPrecise,
     ModUtil,
     Slider,
-    SliderNestedHitObject,
-    SliderTail,
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
@@ -17,10 +14,7 @@ import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calc
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
-import { CursorOccurrence } from "../data/CursorOccurrence";
-import { CursorOccurrenceGroup } from "../data/CursorOccurrenceGroup";
 import { ReplayData } from "../data/ReplayData";
-import { ReplayObjectData } from "../data/ReplayObjectData";
 import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
 
 /**
@@ -59,25 +53,20 @@ export class SliderCheeseChecker {
         data: ReplayData,
         difficultyAttributes:
             | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes
+            | RebalanceExtendedDroidDifficultyAttributes,
     ) {
         this.beatmap = beatmap;
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        const stats: MapStats = new MapStats({
-            od: this.beatmap.difficulty.od,
-            mods: this.difficultyAttributes.mods.filter(
-                (m) =>
-                    m.isApplicableToDroid() &&
-                    !ModUtil.speedChangingMods.some(
-                        (v) => v.acronym === m.acronym
-                    )
-            ),
-        }).calculate({ mode: Modes.droid, convertDroidOD: false });
+        const od = calculateDroidDifficultyStatistics({
+            overallDifficulty: beatmap.difficulty.od,
+            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+            convertOverallDifficulty: false,
+        }).overallDifficulty;
 
-        this.hitWindow50 = new DroidHitWindow(stats.od!).hitWindowFor50(
-            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise)
+        this.hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
+            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise),
         );
     }
 
@@ -98,7 +87,8 @@ export class SliderCheeseChecker {
             };
         }
 
-        const cheesedDifficultyRatings: number[] = this.checkSliderCheesing();
+        const cheesedDifficultyRatings = this.checkSliderCheesing();
+
         return this.calculateSliderCheesePenalty(cheesedDifficultyRatings);
     }
 
@@ -110,15 +100,8 @@ export class SliderCheeseChecker {
         const cheesedDifficultyRatings: number[] = [];
 
         // Current loop indices are stored for efficiency.
-        const cursorLoopIndices: number[] = Utils.initializeArray(10, 0);
-        const circleSize: number = new MapStats({
-            cs: this.beatmap.difficulty.cs,
-            mods: this.difficultyAttributes.mods,
-        }).calculate({ mode: Modes.droid }).cs!;
-
-        const scale: number =
-            CircleSizeCalculator.standardCSToStandardScale(circleSize);
-        const acceptableRadius: number = 64 * scale * 2.4;
+        const cursorLoopIndices = Utils.initializeArray(10, 0);
+        const acceptableRadius = objects[0].radius * 2;
 
         // Sort difficult sliders by index so that cursor loop indices work properly.
         for (const difficultSlider of this.difficultyAttributes.difficultSliders
@@ -128,8 +111,7 @@ export class SliderCheeseChecker {
                 continue;
             }
 
-            const objectData: ReplayObjectData =
-                this.data.hitObjectData[difficultSlider.index];
+            const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.
             if (
@@ -139,39 +121,31 @@ export class SliderCheeseChecker {
                 continue;
             }
 
-            let object = <Slider>objects[difficultSlider.index];
-            if (object.droidScale !== scale) {
-                // Deep clone the object so that we can assign scale properly.
-                object = Utils.deepCopy(object);
-                object.droidScale = scale;
-            }
-
-            const objectStartPosition: Vector2 = object.getStackedPosition(
-                Modes.droid
-            );
+            const object = <Slider>objects[difficultSlider.index];
+            const objectStartPosition = object.getStackedPosition(Modes.droid);
 
             // These time boundaries should consider the delta time between the previous and next
             // object as well as their hit accuracy. However, they are somewhat complicated to
             // compute and the accuracy gain is small. As such, let's settle with 50 hit window.
-            const minTimeLimit: number = object.startTime - this.hitWindow50;
-            const maxTimeLimit: number = object.startTime + this.hitWindow50;
+            const minTimeLimit = object.startTime - this.hitWindow50;
+            const maxTimeLimit = object.startTime + this.hitWindow50;
 
             // Get the closest tap distance across all cursors.
             const closestDistances: number[] = [];
             const closestGroupIndices: number[] = [];
 
             for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-                const cursorGroups: CursorOccurrenceGroup[] =
+                const cursorGroups =
                     this.data.cursorMovement[i].occurrenceGroups;
-                let closestDistance: number = Number.POSITIVE_INFINITY;
-                let closestIndex: number = cursorGroups.length;
+                let closestDistance = Number.POSITIVE_INFINITY;
+                let closestIndex = cursorGroups.length;
 
                 for (
                     let j = cursorLoopIndices[i];
                     j < cursorGroups.length;
                     j = ++cursorLoopIndices[i]
                 ) {
-                    const group: CursorOccurrenceGroup = cursorGroups[j];
+                    const group = cursorGroups[j];
 
                     if (group.endTime < minTimeLimit) {
                         continue;
@@ -182,9 +156,9 @@ export class SliderCheeseChecker {
                     }
 
                     if (group.startTime >= minTimeLimit) {
-                        const distance: number =
+                        const distance =
                             group.down.position.getDistance(
-                                objectStartPosition
+                                objectStartPosition,
                             );
 
                         if (closestDistance > distance) {
@@ -203,49 +177,48 @@ export class SliderCheeseChecker {
                     const { allOccurrences } = group;
 
                     for (let k = 1; k < allOccurrences.length; ++k) {
-                        const occurrence: CursorOccurrence = allOccurrences[k];
-                        const prevOccurrence: CursorOccurrence =
-                            allOccurrences[k - 1];
+                        const occurrence = allOccurrences[k];
+                        const prevOccurrence = allOccurrences[k - 1];
 
-                        let distance: number = Number.POSITIVE_INFINITY;
+                        let distance = Number.POSITIVE_INFINITY;
 
                         switch (occurrence.id) {
                             case MovementType.up:
                                 distance =
                                     prevOccurrence.position.getDistance(
-                                        objectStartPosition
+                                        objectStartPosition,
                                     );
                                 break;
                             case MovementType.move:
                                 for (
                                     let mSecPassed = Math.max(
                                         prevOccurrence.time,
-                                        minTimeLimit
+                                        minTimeLimit,
                                     );
                                     mSecPassed <=
                                     Math.min(occurrence.time, maxTimeLimit);
                                     ++mSecPassed
                                 ) {
-                                    const t: number =
+                                    const t =
                                         (mSecPassed - prevOccurrence.time) /
                                         (occurrence.time - prevOccurrence.time);
 
-                                    const cursorPosition: Vector2 = new Vector2(
+                                    const cursorPosition = new Vector2(
                                         Interpolation.lerp(
                                             prevOccurrence.position.x,
                                             occurrence.position.x,
-                                            t
+                                            t,
                                         ),
                                         Interpolation.lerp(
                                             prevOccurrence.position.y,
                                             occurrence.position.y,
-                                            t
-                                        )
+                                            t,
+                                        ),
                                     );
 
                                     distance =
                                         cursorPosition.getDistance(
-                                            objectStartPosition
+                                            objectStartPosition,
                                         );
 
                                     if (closestDistance > distance) {
@@ -282,24 +255,24 @@ export class SliderCheeseChecker {
                 }
             }
 
-            const cursorIndex: number = closestDistances.indexOf(
-                Math.min(...closestDistances)
+            const cursorIndex = closestDistances.indexOf(
+                Math.min(...closestDistances),
             );
-            const closestDistance: number = closestDistances[cursorIndex];
+            const closestDistance = closestDistances[cursorIndex];
 
             if (closestDistance > acceptableRadius / 2) {
                 cheesedDifficultyRatings.push(difficultSlider.difficultyRating);
                 continue;
             }
 
-            const group: CursorOccurrenceGroup =
+            const group =
                 this.data.cursorMovement[cursorIndex].occurrenceGroups[
                     closestGroupIndices[cursorIndex]
                 ];
 
-            let isCheesed: boolean = false;
+            let isCheesed = false;
             // Track cursor movement to see if it lands on every tick.
-            let occurrenceLoopIndex: number = 1;
+            let occurrenceLoopIndex = 1;
             const { allOccurrences } = group;
 
             for (let i = 1; i < object.nestedHitObjects.length; ++i) {
@@ -307,25 +280,14 @@ export class SliderCheeseChecker {
                     break;
                 }
 
-                const tickWasHit: boolean = objectData.tickset[i - 1];
+                const tickWasHit = objectData.tickset[i - 1];
                 if (!tickWasHit) {
                     continue;
                 }
 
-                const nestedObject: SliderNestedHitObject =
-                    object.nestedHitObjects[i];
-                nestedObject.droidScale = scale;
-
-                // Special treatment for slider tail where its treated as a "legacy tail" in osu!standard.
-                // In that case, its time is assumed to be 36ms behind the slider's end time. However, that
-                // is not the case for osu!droid.
-                if (nestedObject instanceof SliderTail) {
-                    nestedObject.startTime = object.endTime;
-                    nestedObject.endTime = object.endTime;
-                }
-
-                const nestedPosition: Vector2 = nestedObject.getStackedPosition(
-                    Modes.droid
+                const nestedObject = object.nestedHitObjects[i];
+                const nestedPosition = nestedObject.getStackedPosition(
+                    Modes.droid,
                 );
 
                 while (
@@ -340,32 +302,30 @@ export class SliderCheeseChecker {
                     continue;
                 }
 
-                const occurrence: CursorOccurrence =
-                    allOccurrences[occurrenceLoopIndex];
-                const prevOccurrence: CursorOccurrence =
-                    allOccurrences[occurrenceLoopIndex - 1];
+                const occurrence = allOccurrences[occurrenceLoopIndex];
+                const prevOccurrence = allOccurrences[occurrenceLoopIndex - 1];
 
                 switch (occurrence.id) {
                     case MovementType.move: {
                         // Interpolate cursor position during nested object time.
-                        const t: number =
+                        const t =
                             (nestedObject.startTime - prevOccurrence.time) /
                             (occurrence.time - prevOccurrence.time);
 
-                        const cursorPosition: Vector2 = new Vector2(
+                        const cursorPosition = new Vector2(
                             Interpolation.lerp(
                                 prevOccurrence.position.x,
                                 occurrence.position.x,
-                                t
+                                t,
                             ),
                             Interpolation.lerp(
                                 prevOccurrence.position.y,
                                 occurrence.position.y,
-                                t
-                            )
+                                t,
+                            ),
                         );
 
-                        const distance: number =
+                        const distance =
                             cursorPosition.getDistance(nestedPosition);
 
                         isCheesed = distance > acceptableRadius;
@@ -374,7 +334,7 @@ export class SliderCheeseChecker {
                     case MovementType.up:
                         isCheesed =
                             prevOccurrence.position.getDistance(
-                                nestedPosition
+                                nestedPosition,
                             ) > acceptableRadius;
                 }
             }
@@ -391,11 +351,11 @@ export class SliderCheeseChecker {
      * Calculates the slider cheese penalty.
      */
     private calculateSliderCheesePenalty(
-        cheesedDifficultyRatings: number[]
+        cheesedDifficultyRatings: number[],
     ): SliderCheeseInformation {
-        const summedDifficultyRating: number = Math.min(
+        const summedDifficultyRating = Math.min(
             1,
-            cheesedDifficultyRatings.reduce((a, v) => a + v, 0)
+            cheesedDifficultyRatings.reduce((a, v) => a + v, 0),
         );
 
         return {
@@ -405,8 +365,8 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.sliderFactor,
-                    2
-                )
+                    2,
+                ),
             ),
             flashlightPenalty: Math.max(
                 this.difficultyAttributes.flashlightSliderFactor,
@@ -414,8 +374,8 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.flashlightSliderFactor,
-                    2
-                )
+                    2,
+                ),
             ),
             visualPenalty: Math.max(
                 this.difficultyAttributes.visualSliderFactor,
@@ -423,8 +383,8 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.visualSliderFactor,
-                    2
-                )
+                    2,
+                ),
             ),
         };
     }

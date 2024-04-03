@@ -1,6 +1,6 @@
 {
     "name": "@rian8337/osu-base",
-    "version": "4.0.0-beta.15",
+    "version": "4.0.0-beta.19",
     "description": "Base module for all osu! related modules.",
     "keywords": [
         "osu",
@@ -16,8 +16,8 @@
         "node": ">=18"
     },
     "files": [
-        "dist/**",
-        "typings/**"
+        "dist/index.js",
+        "typings/index.d.ts"
     ],
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",

@@ -1,5 +1,6 @@
 import {
     Anchor,
+    BankHitSampleInfo,
     Beatmap,
     BeatmapCountdown,
     BeatmapDecoder,
@@ -29,9 +30,9 @@ beforeAll(async () => {
             "tests",
             "files",
             "beatmaps",
-            "Kenji Ninuma - DISCOPRINCE (peppy) [Normal].osu"
+            "Kenji Ninuma - DISCOPRINCE (peppy) [Normal].osu",
         ),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
     );
 
     const v14Data = await readFile(
@@ -40,9 +41,9 @@ beforeAll(async () => {
             "tests",
             "files",
             "beatmaps",
-            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu"
+            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.].osu",
         ),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
     );
 
     const beatmapWithStoryboardData = await readFile(
@@ -51,9 +52,9 @@ beforeAll(async () => {
             "tests",
             "files",
             "beatmaps",
-            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu"
+            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu",
         ),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
     );
 
     const nanBeatmapData = await readFile(
@@ -62,15 +63,15 @@ beforeAll(async () => {
             "tests",
             "files",
             "beatmaps",
-            "nan-control-points.osu"
+            "nan-control-points.osu",
         ),
-        { encoding: "utf-8" }
+        { encoding: "utf-8" },
     );
 
-    v3Beatmap = new BeatmapDecoder().decode(v3Data, [], false).result;
-    v14Beatmap = new BeatmapDecoder().decode(v14Data, [], false).result;
+    v3Beatmap = new BeatmapDecoder().decode(v3Data, undefined, false).result;
+    v14Beatmap = new BeatmapDecoder().decode(v14Data, undefined, false).result;
     beatmapWithStoryboard = new BeatmapDecoder().decode(
-        beatmapWithStoryboardData
+        beatmapWithStoryboardData,
     ).result;
     nanBeatmap = new BeatmapDecoder().decode(nanBeatmapData).result;
 });
@@ -266,36 +267,36 @@ describe("Test hit object samples", () => {
     test("v3 file format", () => {
         const circle = <Circle>v3Beatmap.hitObjects.objects[0];
 
-        const [firstSample, lastSample] = circle.samples;
+        const [firstSample, lastSample] = circle.samples as BankHitSampleInfo[];
 
         expect(circle.samples.length).toBe(2);
         expect(firstSample.name).toBe("hitnormal");
-        expect(firstSample.bank).toBe(SampleBank.none);
+        expect(firstSample.bank).toBe(SampleBank.normal);
         expect(firstSample.customSampleBank).toBe(0);
-        expect(firstSample.volume).toBe(0);
+        expect(firstSample.volume).toBe(100);
         expect(firstSample.isLayered).toBe(true);
         expect(lastSample.name).toBe("hitfinish");
-        expect(lastSample.bank).toBe(SampleBank.none);
+        expect(lastSample.bank).toBe(SampleBank.normal);
         expect(lastSample.customSampleBank).toBe(0);
-        expect(lastSample.volume).toBe(0);
+        expect(lastSample.volume).toBe(100);
         expect(lastSample.isLayered).toBe(false);
     });
 
     test("v14 file format", () => {
         const slider = <Slider>v14Beatmap.hitObjects.objects[1];
 
-        const [firstSample, lastSample] = slider.samples;
+        const [firstSample, lastSample] = slider.samples as BankHitSampleInfo[];
 
         expect(slider.samples.length).toBe(2);
         expect(firstSample.name).toBe("hitnormal");
         expect(firstSample.bank).toBe(SampleBank.soft);
-        expect(firstSample.customSampleBank).toBe(0);
-        expect(firstSample.volume).toBe(0);
+        expect(firstSample.customSampleBank).toBe(1);
+        expect(firstSample.volume).toBe(40);
         expect(firstSample.isLayered).toBe(true);
         expect(lastSample.name).toBe("hitclap");
         expect(lastSample.bank).toBe(SampleBank.drum);
-        expect(lastSample.customSampleBank).toBe(0);
-        expect(lastSample.volume).toBe(0);
+        expect(lastSample.customSampleBank).toBe(1);
+        expect(lastSample.volume).toBe(40);
         expect(lastSample.isLayered).toBe(false);
     });
 });
@@ -305,14 +306,13 @@ describe("Test hit object per-node samples", () => {
         const slider = <Slider>v3Beatmap.hitObjects.objects[19];
 
         for (const nodeSample of slider.nodeSamples) {
-            const [firstSample] = nodeSample;
+            const [firstSample] = nodeSample as BankHitSampleInfo[];
 
             expect(firstSample.name).toBe("hitnormal");
-            expect(firstSample.bank).toBe(SampleBank.none);
+            expect(firstSample.bank).toBe(SampleBank.normal);
             expect(firstSample.customSampleBank).toBe(0);
-            expect(firstSample.volume).toBe(0);
+            expect(firstSample.volume).toBe(100);
             expect(firstSample.isLayered).toBe(false);
-            expect(firstSample.isCustom).toBe(false);
         }
     });
 
@@ -320,21 +320,19 @@ describe("Test hit object per-node samples", () => {
         const slider = <Slider>v14Beatmap.hitObjects.objects[1];
 
         for (const nodeSample of slider.nodeSamples) {
-            const [firstSample, lastSample] = nodeSample;
+            const [firstSample, lastSample] = nodeSample as BankHitSampleInfo[];
 
             expect(firstSample.name).toBe("hitnormal");
             expect(firstSample.bank).toBe(SampleBank.soft);
-            expect(firstSample.customSampleBank).toBe(0);
-            expect(firstSample.volume).toBe(0);
+            expect(firstSample.customSampleBank).toBe(1);
+            expect(firstSample.volume).toBe(40);
             expect(firstSample.isLayered).toBe(true);
-            expect(firstSample.isCustom).toBe(false);
 
             expect(lastSample.name).toBe("hitclap");
             expect(lastSample.bank).toBe(SampleBank.drum);
-            expect(lastSample.customSampleBank).toBe(0);
-            expect(lastSample.volume).toBe(0);
+            expect(lastSample.customSampleBank).toBe(1);
+            expect(lastSample.volume).toBe(40);
             expect(lastSample.isLayered).toBe(false);
-            expect(lastSample.isCustom).toBe(false);
         }
     });
 });
@@ -364,10 +362,10 @@ describe("Test metadata section", () => {
         expect(metadata.source).toBe("");
         expect(metadata.tags.length).toBe(0);
         expect(metadata.fullTitle).toBe(
-            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]"
+            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]",
         );
         expect(metadata.fullUnicodeTitle).toBe(
-            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]"
+            "Kenji Ninuma - DISCO★PRINCE (peppy) [Normal]",
         );
     });
 
@@ -385,10 +383,10 @@ describe("Test metadata section", () => {
         expect(metadata.source).toBe("");
         expect(metadata.tags.length).toBe(27);
         expect(metadata.fullTitle).toBe(
-            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]"
+            "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         );
         expect(metadata.fullUnicodeTitle).toBe(
-            "YOASOBI - ラブレター (ohm002) [Please accept my overflowing emotions.]"
+            "YOASOBI - ラブレター (ohm002) [Please accept my overflowing emotions.]",
         );
     });
 });
@@ -396,7 +394,7 @@ describe("Test metadata section", () => {
 test("Test storyboard decoding", () => {
     expect(beatmapWithStoryboard.events.storyboard).toBeDefined();
     expect(beatmapWithStoryboard.events.storyboardReplacesBackground).toBe(
-        false
+        false,
     );
 
     // Add an arbitrary background for testing.
@@ -406,12 +404,12 @@ test("Test storyboard decoding", () => {
             new StoryboardSprite(
                 beatmapWithStoryboard.events.background!.filename,
                 Anchor.bottomCenter,
-                new Vector2(0, 0)
-            )
+                new Vector2(0, 0),
+            ),
         );
 
     expect(beatmapWithStoryboard.events.storyboardReplacesBackground).toBe(
-        true
+        true,
     );
 });
 
@@ -420,20 +418,22 @@ test("Test NaN control points", () => {
     expect(nanBeatmap.controlPoints.difficulty.points.length).toBe(2);
 
     expect(nanBeatmap.controlPoints.timing.controlPointAt(1000).msPerBeat).toBe(
-        500
+        500,
     );
 
     expect(
-        nanBeatmap.controlPoints.difficulty.controlPointAt(2000).speedMultiplier
+        nanBeatmap.controlPoints.difficulty.controlPointAt(2000)
+            .speedMultiplier,
     ).toBe(1);
     expect(
-        nanBeatmap.controlPoints.difficulty.controlPointAt(3000).speedMultiplier
+        nanBeatmap.controlPoints.difficulty.controlPointAt(3000)
+            .speedMultiplier,
     ).toBe(1);
 
     expect(
-        nanBeatmap.controlPoints.difficulty.controlPointAt(2000).generateTicks
+        nanBeatmap.controlPoints.difficulty.controlPointAt(2000).generateTicks,
     ).toBe(false);
     expect(
-        nanBeatmap.controlPoints.difficulty.controlPointAt(3000).generateTicks
+        nanBeatmap.controlPoints.difficulty.controlPointAt(3000).generateTicks,
     ).toBe(true);
 });

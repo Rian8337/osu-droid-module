@@ -1,5 +1,4 @@
-import { Vector2 } from "../../src/mathutil/Vector2";
-import { PathApproximator } from "../../src/utils/PathApproximator";
+import { PathApproximator, Vector2 } from "../../src";
 
 const testControlPointsValidity = (controlPoints: Vector2[]): void => {
     for (const controlPoint of controlPoints) {
@@ -51,7 +50,7 @@ describe("Test perfect curve approximation", () => {
                 new Vector2(0, 0),
                 new Vector2(1e-5, 0),
                 new Vector2(0, 1e-5),
-            ])
+            ]),
         );
     });
 
@@ -61,7 +60,7 @@ describe("Test perfect curve approximation", () => {
                 new Vector2(0, 0),
                 new Vector2(0.05, 0),
                 new Vector2(0, 0.05),
-            ])
+            ]),
         );
     });
 
@@ -71,7 +70,7 @@ describe("Test perfect curve approximation", () => {
                 new Vector2(0, 0),
                 new Vector2(-25, 25),
                 new Vector2(58, 39),
-            ])
+            ]),
         );
     });
 });
@@ -88,7 +87,7 @@ describe("Test bezier curve approximation", () => {
                 new Vector2(-125, 44),
                 new Vector2(-88, -88),
                 new Vector2(-234, -6),
-            ])
+            ]),
         );
     });
 });

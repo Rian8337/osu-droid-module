@@ -9,14 +9,15 @@ export class ModScoreV2
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym: string = "V2";
-    override readonly name: string = "ScoreV2";
+    override readonly acronym = "V2";
+    override readonly name = "ScoreV2";
 
-    readonly droidRanked: boolean = false;
-    readonly pcRanked: boolean = false;
-    readonly droidScoreMultiplier: number = 1;
-    readonly pcScoreMultiplier: number = 1;
-    readonly bitwise: number = 1 << 29;
-    readonly droidString: string = "v";
-    readonly isDroidLegacyMod: boolean = false;
+    readonly droidRanked = false;
+    readonly droidScoreMultiplier = 1;
+    readonly droidString = "v";
+    readonly isDroidLegacyMod = false;
+
+    readonly pcRanked = false;
+    readonly pcScoreMultiplier = 1;
+    readonly bitwise = 1 << 29;
 }

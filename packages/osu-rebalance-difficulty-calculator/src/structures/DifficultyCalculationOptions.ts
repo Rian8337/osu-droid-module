@@ -1,12 +1,16 @@
 import { Mod } from "@rian8337/osu-base";
-import { CalculationOptions } from "./CalculationOptions";
 
 /**
  * Represents options for difficulty calculation.
  */
-export interface DifficultyCalculationOptions extends CalculationOptions {
+export interface DifficultyCalculationOptions {
     /**
      * The modifications to apply.
      */
-    mods?: Mod[];
+    readonly mods?: Mod[];
+
+    /**
+     * The custom speed multiplier to apply. Defaults to 1.
+     */
+    readonly customSpeedMultiplier?: number;
 }

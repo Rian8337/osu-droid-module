@@ -1,4 +1,4 @@
-import { Vector2 } from "../../../mathutil/Vector2";
+import { Vector2 } from "../../../math/Vector2";
 import { RGBColor } from "../../../utils/RGBColor";
 import { Command } from "../../storyboard/commands/Command";
 import { CommandLoop } from "../../storyboard/commands/CommandLoop";
@@ -13,7 +13,7 @@ import { StoryboardEventType } from "../../storyboard/enums/StoryboardEventType"
 import { StoryboardCommandType } from "../../storyboard/enums/StoryboardCommandType";
 import { StoryboardLayerType } from "../../storyboard/enums/StoryboardLayerType";
 import { StoryboardBaseEncoder } from "./StoryboardBaseEncoder";
-import { MathUtils } from "../../../mathutil/MathUtils";
+import { MathUtils } from "../../../math/MathUtils";
 
 /**
  * An encoder for encoding a storyboard's events section.
@@ -55,7 +55,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         for (const key in this.storyboard.variables) {
             str = str.replace(
                 new RegExp(this.storyboard.variables[key], "g"),
-                key
+                key,
             );
         }
 
@@ -65,7 +65,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     private encodeLayer(layerType: StoryboardLayerType): void {
         const layer: StoryboardLayer | null = this.storyboard.getLayer(
             layerType,
-            false
+            false,
         );
 
         for (const element of layer?.elements ?? []) {
@@ -155,7 +155,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         this.write(`${command.easing},`);
         this.write(`${command.startTime},`);
         this.write(
-            command.startTime !== command.endTime ? `${command.endTime}` : ""
+            command.startTime !== command.endTime ? `${command.endTime}` : "",
         );
         this.write(",");
 
@@ -191,7 +191,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
             // Move X, move Y, scale, fade, and rotation commands
             if (command.type === StoryboardCommandType.rotation) {
                 this.write(
-                    MathUtils.degreesToRadians(command.startValue).toString()
+                    MathUtils.degreesToRadians(command.startValue).toString(),
                 );
             } else {
                 this.write(command.startValue.toString());
@@ -202,7 +202,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
 
                 if (command.type === StoryboardCommandType.rotation) {
                     this.write(
-                        MathUtils.degreesToRadians(command.endValue).toString()
+                        MathUtils.degreesToRadians(command.endValue).toString(),
                     );
                 } else {
                     this.write(command.endValue.toString());

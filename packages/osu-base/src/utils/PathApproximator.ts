@@ -1,4 +1,4 @@
-import { Vector2 } from "../mathutil/Vector2";
+import { Vector2 } from "../math/Vector2";
 import { Precision } from "./Precision";
 import { Utils } from "./Utils";
 
@@ -56,7 +56,7 @@ export abstract class PathApproximator {
                     output,
                     subdivisionBuffer1,
                     subdivisionBuffer2,
-                    count + 1
+                    count + 1,
                 );
                 freeBuffers.push(parent);
                 continue;
@@ -74,7 +74,7 @@ export abstract class PathApproximator {
                 leftChild,
                 rightChild,
                 subdivisionBuffer1,
-                count + 1
+                count + 1,
             );
 
             // We re-use the buffer of the parent for one of the children, so that we save one allocation per iteration.
@@ -116,8 +116,8 @@ export abstract class PathApproximator {
                         v2,
                         v3,
                         v4,
-                        c / this.catmullDetail
-                    )
+                        c / this.catmullDetail,
+                    ),
                 );
                 result.push(
                     this.catmullFindPoint(
@@ -125,8 +125,8 @@ export abstract class PathApproximator {
                         v2,
                         v3,
                         v4,
-                        (c + 1) / this.catmullDetail
-                    )
+                        (c + 1) / this.catmullDetail,
+                    ),
                 );
             }
         }
@@ -151,7 +151,7 @@ export abstract class PathApproximator {
         if (
             Precision.almostEqualsNumber(
                 0,
-                (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y)
+                (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y),
             )
         ) {
             return this.approximateBezier(controlPoints);
@@ -174,7 +174,7 @@ export abstract class PathApproximator {
                 cSq * a.subtract(b).y,
             aSq * c.subtract(b).x +
                 bSq * a.subtract(c).x +
-                cSq * b.subtract(a).x
+                cSq * b.subtract(a).x,
         ).divide(d);
 
         const dA: Vector2 = a.subtract(center);
@@ -213,8 +213,9 @@ export abstract class PathApproximator {
                       2,
                       Math.ceil(
                           thetaRange /
-                              (2 * Math.acos(1 - this.circularArcTolerance / r))
-                      )
+                              (2 *
+                                  Math.acos(1 - this.circularArcTolerance / r)),
+                      ),
                   );
 
         const output: Vector2[] = [];
@@ -224,7 +225,7 @@ export abstract class PathApproximator {
             const theta: number = thetaStart + dir * fract * thetaRange;
             const o: Vector2 = new Vector2(
                 Math.cos(theta),
-                Math.sin(theta)
+                Math.sin(theta),
             ).scale(r);
             output.push(center.add(o));
         }
@@ -291,7 +292,7 @@ export abstract class PathApproximator {
         output: Vector2[],
         subdivisionBuffer1: Vector2[],
         subdivisionBuffer2: Vector2[],
-        count: number
+        count: number,
     ): void {
         const l: Vector2[] = subdivisionBuffer2;
         const r: Vector2[] = subdivisionBuffer1;
@@ -330,7 +331,7 @@ export abstract class PathApproximator {
         l: Vector2[],
         r: Vector2[],
         subdivisionBuffer: Vector2[],
-        count: number
+        count: number,
     ): void {
         const midpoints: Vector2[] = subdivisionBuffer;
 
@@ -362,7 +363,7 @@ export abstract class PathApproximator {
         vec2: Vector2,
         vec3: Vector2,
         vec4: Vector2,
-        t: number
+        t: number,
     ): Vector2 {
         const t2: number = Math.pow(t, 2);
         const t3: number = Math.pow(t, 3);
@@ -377,7 +378,7 @@ export abstract class PathApproximator {
                 (2 * vec2.y +
                     (-vec1.y + vec3.y) * t +
                     (2 * vec1.y - 5 * vec2.y + 4 * vec3.y - vec4.y) * t2 +
-                    (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3)
+                    (-vec1.y + 3 * vec2.y - 3 * vec3.y + vec4.y) * t3),
         );
     }
 }

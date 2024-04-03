@@ -35,23 +35,23 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             return 0;
         }
 
-        let doubletapness: number = 1;
+        let doubletapness = 1;
 
         if (considerCheesability) {
             // Nerf doubletappable doubles.
-            const next: DroidDifficultyHitObject | null = current.next(0);
+            const next = current.next(0);
 
             if (next) {
-                const greatWindowFull: number = greatWindow * 2;
-                const currentDeltaTime: number = Math.max(1, current.deltaTime);
-                const nextDeltaTime: number = Math.max(1, next.deltaTime);
-                const deltaDifference: number = Math.abs(
+                const greatWindowFull = greatWindow * 2;
+                const currentDeltaTime = Math.max(1, current.deltaTime);
+                const nextDeltaTime = Math.max(1, next.deltaTime);
+                const deltaDifference = Math.abs(
                     nextDeltaTime - currentDeltaTime,
                 );
-                const speedRatio: number =
+                const speedRatio =
                     currentDeltaTime /
                     Math.max(currentDeltaTime, deltaDifference);
-                const windowRatio: number = Math.pow(
+                const windowRatio = Math.pow(
                     Math.min(1, currentDeltaTime / greatWindowFull),
                     2,
                 );

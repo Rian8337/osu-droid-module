@@ -1,6 +1,6 @@
 import { PathType } from "../constants/PathType";
 import { PathApproximator } from "../utils/PathApproximator";
-import { Vector2 } from "../mathutil/Vector2";
+import { Vector2 } from "../math/Vector2";
 import { Precision } from "./Precision";
 
 /**
