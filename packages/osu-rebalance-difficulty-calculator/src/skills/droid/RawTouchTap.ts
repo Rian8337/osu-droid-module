@@ -12,7 +12,6 @@ export class RawTouchTap extends RawTouchSkill {
     private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
 
-    constructor(copy: RawTouchTap);
     constructor(
         mods: Mod[],
         clockRate: number,
@@ -20,33 +19,36 @@ export class RawTouchTap extends RawTouchSkill {
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         greatWindow: number,
         considerCheesability: boolean,
-    );
-    constructor(
-        modsOrCopy: Mod[] | RawTouchTap,
-        clockRate?: number,
-        isForceAR?: boolean,
-        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
-        greatWindow?: number,
-        considerCheesability?: boolean,
     ) {
-        if (modsOrCopy instanceof RawTouchTap) {
-            super(modsOrCopy);
+        super(mods, clockRate, isForceAR, objectCache);
 
-            this.greatWindow = modsOrCopy.greatWindow;
-            this.considerCheesability = modsOrCopy.considerCheesability;
-
-            return;
-        }
-
-        // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, isForceAR!, objectCache!);
-
-        this.greatWindow = greatWindow!;
-        this.considerCheesability = considerCheesability!;
+        this.greatWindow = greatWindow;
+        this.considerCheesability = considerCheesability;
     }
 
     override clone(): RawTouchTap {
-        return new RawTouchTap(this);
+        const clone = new RawTouchTap(
+            this.mods,
+            this.clockRate,
+            this.isForceAR,
+            this.objectCache,
+            this.greatWindow,
+            this.considerCheesability,
+        );
+
+        clone._currentStrain = this._currentStrain;
+        clone.lastHand = this.lastHand;
+
+        for (let i = 0; i < this.lastObjects.length; ++i) {
+            clone.lastObjects[i] = this.lastObjects[i].slice();
+        }
+
+        for (let i = 0; i < this.lastDifficultyObjects.length; ++i) {
+            clone.lastDifficultyObjects[i] =
+                this.lastDifficultyObjects[i].slice();
+        }
+
+        return clone;
     }
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {

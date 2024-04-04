@@ -87,6 +87,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
      * @param isForceAR Whether force AR is enabled.
+     * @param index The index of the hitobject in the difficulty hitobjects array.
      */
     constructor(
         object: PlaceableHitObject,
@@ -95,6 +96,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
         isForceAR: boolean,
+        index = difficultyHitObjects.length - 1,
     ) {
         super(
             object,
@@ -102,6 +104,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             lastLastObject,
             difficultyHitObjects,
             clockRate,
+            index,
         );
 
         this.timePreempt = object.timePreempt;
@@ -131,6 +134,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             this.clockRate,
             // Purposefully set this to true so that time preempt would stay the same.
             true,
+            this.index,
         );
 
         difficultyObject.angle = this.angle;

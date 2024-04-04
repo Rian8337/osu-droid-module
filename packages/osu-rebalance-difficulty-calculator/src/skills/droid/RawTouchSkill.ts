@@ -6,68 +6,40 @@ import { DifficultyHitObjectCache } from "../../utils/DifficultyHitObjectCache";
 export abstract class RawTouchSkill {
     protected abstract readonly strainDecayBase: number;
 
-    private readonly mods: Mod[];
-    private readonly clockRate: number;
-    private readonly isForceAR: boolean;
-    private readonly objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>;
+    protected readonly mods: Mod[];
+    protected readonly clockRate: number;
+    protected readonly isForceAR: boolean;
+    protected readonly objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>;
 
-    private readonly lastObjects: [PlaceableHitObject[], PlaceableHitObject[]] =
-        [[], []];
+    protected readonly lastObjects: [
+        PlaceableHitObject[],
+        PlaceableHitObject[],
+    ] = [[], []];
     protected readonly maxObjectsHistory: number = 2;
 
-    private readonly lastDifficultyObjects: [
+    protected readonly lastDifficultyObjects: [
         DroidDifficultyHitObject[],
         DroidDifficultyHitObject[],
     ] = [[], []];
     protected readonly maxDifficultyObjectsHistory: number = 3;
 
-    private lastHand: TouchHand.left | TouchHand.right;
-    private _currentStrain = 0;
+    protected lastHand: TouchHand.left | TouchHand.right;
+    protected _currentStrain = 0;
 
     get currentStrain() {
         return this._currentStrain;
     }
 
-    constructor(copy: RawTouchSkill);
     constructor(
         mods: Mod[],
         clockRate: number,
         isForceAR: boolean,
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
-    );
-    constructor(
-        modsOrCopy: Mod[] | RawTouchSkill,
-        clockRate?: number,
-        isForceAR?: boolean,
-        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
     ) {
-        if (modsOrCopy instanceof RawTouchSkill) {
-            this.mods = modsOrCopy.mods.slice();
-            this.clockRate = modsOrCopy.clockRate;
-            this.isForceAR = modsOrCopy.isForceAR;
-            this.objectCache = modsOrCopy.objectCache;
-
-            this._currentStrain = modsOrCopy._currentStrain;
-            this.lastHand = modsOrCopy.lastHand;
-
-            for (let i = 0; i < this.lastObjects.length; ++i) {
-                this.lastObjects[i] = modsOrCopy.lastObjects[i].slice();
-            }
-
-            for (let i = 0; i < this.lastDifficultyObjects.length; ++i) {
-                this.lastDifficultyObjects[i] =
-                    modsOrCopy.lastDifficultyObjects[i].slice();
-            }
-
-            return;
-        }
-
-        this.mods = modsOrCopy;
-
-        // These are safe to non-null (see constructor overloads).
-        this.clockRate = clockRate!;
-        this.isForceAR = isForceAR!;
-        this.objectCache = objectCache!;
+        this.mods = mods;
+        this.clockRate = clockRate;
+        this.isForceAR = isForceAR;
+        this.objectCache = objectCache;
 
         this.lastHand = TouchHand.right;
     }

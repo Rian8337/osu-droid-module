@@ -129,13 +129,15 @@ export abstract class DifficultyHitObject {
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
+     * @param index The index of this hitobject in the list of all hitobjects.
      */
-    constructor(
+    protected constructor(
         object: PlaceableHitObject,
         lastObject: PlaceableHitObject | null,
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
+        index = difficultyHitObjects.length - 1,
     ) {
         this.object = object;
         this.lastObject = lastObject;
@@ -143,7 +145,7 @@ export abstract class DifficultyHitObject {
         this.hitObjects = difficultyHitObjects;
         this.clockRate = clockRate;
 
-        this.index = difficultyHitObjects.length - 1;
+        this.index = index;
 
         // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
         this.startTime = object.startTime / clockRate;

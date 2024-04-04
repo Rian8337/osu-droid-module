@@ -396,23 +396,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override generateDifficultyHitObjects(convertedBeatmap: Beatmap) {
-        const difficultyObjects: DroidDifficultyHitObject[] = [];
         const { objects } = convertedBeatmap.hitObjects;
 
         const difficultyAdjustMod = this.mods.find(
             (m) => m instanceof ModDifficultyAdjust,
         ) as ModDifficultyAdjust | undefined;
 
-        const { objects: hitObjects } = this.beatmap.hitObjects;
-
-        for (let i = 0; i < hitObjects.length; ++i) {
+        for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
                 objects[i - 1] ?? null,
                 objects[i - 2] ?? null,
-                difficultyObjects,
+                this.objects,
                 this.difficultyStatistics.overallSpeedMultiplier,
                 difficultyAdjustMod?.ar !== undefined,
+                i - 1,
             );
 
             difficultyObject.computeProperties(

@@ -12,37 +12,40 @@ export class RawTouchAim extends RawTouchSkill {
     private readonly flowSkillMultiplier = 24.55;
     private readonly withSliders: boolean;
 
-    constructor(copy: RawTouchAim);
     constructor(
         mods: Mod[],
         clockRate: number,
         isForceAR: boolean,
         objectCache: DifficultyHitObjectCache<DroidDifficultyHitObject>,
         withSliders: boolean,
-    );
-    constructor(
-        modsOrCopy: Mod[] | RawTouchAim,
-        clockRate?: number,
-        isForceAR?: boolean,
-        objectCache?: DifficultyHitObjectCache<DroidDifficultyHitObject>,
-        withSliders?: boolean,
     ) {
-        if (modsOrCopy instanceof RawTouchAim) {
-            super(modsOrCopy);
+        super(mods, clockRate, isForceAR, objectCache);
 
-            this.withSliders = modsOrCopy.withSliders;
-
-            return;
-        }
-
-        // These are safe to non-null (see constructor overloads).
-        super(modsOrCopy, clockRate!, isForceAR!, objectCache!);
-
-        this.withSliders = withSliders!;
+        this.withSliders = withSliders;
     }
 
     override clone(): RawTouchAim {
-        return new RawTouchAim(this);
+        const clone = new RawTouchAim(
+            this.mods,
+            this.clockRate,
+            this.isForceAR,
+            this.objectCache,
+            this.withSliders,
+        );
+
+        clone._currentStrain = this._currentStrain;
+        clone.lastHand = this.lastHand;
+
+        for (let i = 0; i < this.lastObjects.length; ++i) {
+            clone.lastObjects[i] = this.lastObjects[i].slice();
+        }
+
+        for (let i = 0; i < this.lastDifficultyObjects.length; ++i) {
+            clone.lastDifficultyObjects[i] =
+                this.lastDifficultyObjects[i].slice();
+        }
+
+        return clone;
     }
 
     protected override strainValueOf(current: DroidDifficultyHitObject) {
