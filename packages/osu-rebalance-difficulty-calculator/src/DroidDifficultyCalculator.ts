@@ -68,6 +68,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     /**
+     * The strain threshold to start detecting for possible two-handed section.
+     *
+     * Increasing this number will result in less sections being flagged.
+     */
+    static readonly twoHandStrainThreshold = 200;
+
+    /**
      * The strain threshold to start detecting for possible three-fingered section.
      *
      * Increasing this number will result in less sections being flagged.
@@ -99,6 +106,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         visualDifficultStrainCount: 0,
         flashlightSliderFactor: 0,
         visualSliderFactor: 0,
+        possibleTwoHandedSections: [],
         possibleThreeFingeredSections: [],
         difficultSliders: [],
         averageSpeedDeltaTime: 0,
@@ -150,7 +158,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (m) => m instanceof ModDifficultyAdjust,
         ) as ModDifficultyAdjust | undefined;
 
-        const aimSkill = new TouchAim(
+        const touchAimSkill = new TouchAim(
             this.mods,
             this.objects.length - 1,
             this.objectCache,
@@ -159,7 +167,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             difficultyAdjustMod?.ar !== undefined,
             true,
         );
-        const aimSkillWithoutSliders = new TouchAim(
+        const touchAimSkillWithoutSliders = new TouchAim(
             this.mods,
             this.objects.length - 1,
             this.objectCache,
@@ -168,9 +176,19 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             difficultyAdjustMod?.ar !== undefined,
             false,
         );
+        const aimSkillWithSliders = new DroidAim(
+            this.mods,
+            this.objects.length - 1,
+            true,
+        );
 
-        this.calculateSkills(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        this.calculateSkills(
+            touchAimSkill,
+            touchAimSkillWithoutSliders,
+            aimSkillWithSliders,
+        );
+
+        this.postCalculateAim(touchAimSkill, touchAimSkillWithoutSliders);
     }
 
     /**
@@ -469,7 +487,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 isForceAR,
                 false,
             ),
-            // Normal aim with sliders, for flashlight rating
+            // Normal aim with sliders, for two-hand sections and flashlight rating
             new DroidAim(this.mods, this.objects.length - 1, true),
             // Cheesability tap
             new TouchTap(
@@ -540,22 +558,121 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     private calculateAimAttributes(): void {
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
+        const tempSections: Omit<HighStrainSection, "sumStrain">[] = [];
+        const maxSectionDeltaTime = 2000;
+        const minSectionObjectCount = 5;
+        let firstObjectIndex = 0;
+
         for (let i = 0; i < this.objects.length; ++i) {
-            const object = this.objects[i];
-            const velocity = object.travelDistance / object.travelTime;
+            const current = this.objects[i];
+            const velocity = current.travelDistance / current.travelTime;
             if (velocity > 0) {
                 topDifficultSliders.push({
                     index: i,
                     velocity: velocity,
                 });
             }
+
+            if (i === this.objects.length - 1) {
+                break;
+            }
+
+            const next = this.objects[i + 1];
+
+            const realDeltaTime =
+                next.object.startTime - current.object.endTime;
+
+            if (realDeltaTime >= maxSectionDeltaTime) {
+                // Ignore sections that don't meet object count requirement.
+                if (i - firstObjectIndex < minSectionObjectCount) {
+                    firstObjectIndex = i + 1;
+                    continue;
+                }
+
+                tempSections.push({
+                    firstObjectIndex,
+                    lastObjectIndex: i,
+                });
+
+                firstObjectIndex = i + 1;
+            }
         }
 
+        // Don't forget to manually add the last beatmap section, which would otherwise be ignored.
+        if (this.objects.length - firstObjectIndex > minSectionObjectCount) {
+            tempSections.push({
+                firstObjectIndex,
+                lastObjectIndex: this.objects.length - 1,
+            });
+        }
+
+        // Refilter with tap strain in mind.
+        const { twoHandStrainThreshold } = DroidDifficultyCalculator;
+        let inAimSection = false;
+        let firstAimObjectIndex = 0;
+
+        for (let i = 2; i < this.objects.length; ++i) {
+            const current = this.objects[i];
+            const prev = this.objects[i - 1];
+
+            if (
+                !inAimSection &&
+                current.normalAimStrain >= twoHandStrainThreshold
+            ) {
+                inAimSection = true;
+                firstAimObjectIndex = i;
+                continue;
+            }
+
+            const currentDelta = current.deltaTime;
+            const prevDelta = prev.deltaTime;
+
+            const deltaRatio =
+                Math.min(prevDelta, currentDelta) /
+                Math.max(prevDelta, currentDelta);
+
+            if (
+                inAimSection &&
+                (current.normalAimStrain < twoHandStrainThreshold ||
+                    // Stop aim section on slowing down 1/2 rhythm change or anything slower.
+                    (prevDelta < currentDelta && deltaRatio <= 0.5) ||
+                    // Don't forget to manually add the last section, which would otherwise be ignored.
+                    i === this.objects.length - 1)
+            ) {
+                const lastAimObjectIndex =
+                    i - (i === this.objects.length - 1 ? 0 : 1);
+                inAimSection = false;
+
+                // Ignore sections that don't meet object count requirement.
+                if (i - firstAimObjectIndex < minSectionObjectCount) {
+                    continue;
+                }
+
+                this.attributes.possibleTwoHandedSections.push({
+                    firstObjectIndex: firstAimObjectIndex,
+                    lastObjectIndex: lastAimObjectIndex,
+                    sumStrain: Math.pow(
+                        this.objects
+                            .slice(firstAimObjectIndex, lastAimObjectIndex + 1)
+                            .reduce(
+                                (a, v) =>
+                                    a +
+                                    v.normalAimStrain / twoHandStrainThreshold,
+                                0,
+                            ),
+                        0.75,
+                    ),
+                });
+            }
+        }
+
+        // Sum the velocity of all sliders.
         const velocitySum = topDifficultSliders.reduce(
             (a, v) => a + v.velocity,
             0,
         );
 
+        // Filter based on velocity.
         for (const slider of topDifficultSliders) {
             const difficultyRating = slider.velocity / velocitySum;
 

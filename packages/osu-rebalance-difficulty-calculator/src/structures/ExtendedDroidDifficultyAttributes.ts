@@ -14,6 +14,11 @@ export interface ExtendedDroidDifficultyAttributes
     mode: "rebalance";
 
     /**
+     * Possible sections at which the player can aim with two hands.
+     */
+    possibleTwoHandedSections: HighStrainSection[];
+
+    /**
      * Possible sections at which the player can use three fingers on.
      */
     possibleThreeFingeredSections: HighStrainSection[];

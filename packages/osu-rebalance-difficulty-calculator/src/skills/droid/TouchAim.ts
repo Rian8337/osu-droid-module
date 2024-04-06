@@ -94,9 +94,9 @@ export class TouchAim extends TouchSkill {
 
     protected override saveToHitObject(current: DroidDifficultyHitObject) {
         if (this.withSliders) {
-            current.aimStrainWithSliders = this.currentAimStrain;
+            current.touchAimStrainWithSliders = this.currentAimStrain;
         } else {
-            current.aimStrainWithoutSliders = this.currentAimStrain;
+            current.touchAimStrainWithoutSliders = this.currentAimStrain;
         }
     }
 }
