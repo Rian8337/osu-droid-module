@@ -606,7 +606,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             });
         }
 
-        // Refilter with tap strain in mind.
+        // Refilter with aim strain in mind.
         const { twoHandStrainThreshold } = DroidDifficultyCalculator;
         let inAimSection = false;
         let firstAimObjectIndex = 0;
