@@ -611,9 +611,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         let inAimSection = false;
         let firstAimObjectIndex = 0;
 
-        for (let i = 2; i < this.objects.length; ++i) {
+        for (let i = 1; i < this.objects.length; ++i) {
             const current = this.objects[i];
-            const prev = this.objects[i - 1];
 
             if (
                 !inAimSection &&
@@ -624,18 +623,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 continue;
             }
 
-            const currentDelta = current.deltaTime;
-            const prevDelta = prev.deltaTime;
-
-            const deltaRatio =
-                Math.min(prevDelta, currentDelta) /
-                Math.max(prevDelta, currentDelta);
-
             if (
                 inAimSection &&
                 (current.normalAimStrain < twoHandStrainThreshold ||
-                    // Stop aim section on slowing down 1/2 rhythm change or anything slower.
-                    (prevDelta < currentDelta && deltaRatio <= 0.5) ||
                     // Don't forget to manually add the last section, which would otherwise be ignored.
                     i === this.objects.length - 1)
             ) {
