@@ -91,3 +91,39 @@ describe("Test bezier curve approximation", () => {
         );
     });
 });
+
+describe("Test Reumann-Witkam simplification", () => {
+    test("Empty control points", () => {
+        expect(
+            PathApproximator.simplifyPolylineReumannWitkam([], 10).length,
+        ).toBe(0);
+    });
+
+    test("With control points", () => {
+        const originalPoints = [
+            new Vector2(50, 50),
+            new Vector2(55, 80),
+            new Vector2(60, 100),
+            new Vector2(65, 115),
+            new Vector2(80, 120),
+            new Vector2(95, 117.5),
+            new Vector2(115, 105),
+            new Vector2(145, 80),
+            new Vector2(175, 50),
+        ];
+
+        const simplifiedPoints = PathApproximator.simplifyPolylineReumannWitkam(
+            originalPoints,
+            10,
+        );
+
+        expect(simplifiedPoints.length).toBe(4);
+
+        testControlPointsValidity(simplifiedPoints);
+
+        expect(simplifiedPoints[0]).toStrictEqual(originalPoints[0]);
+        expect(simplifiedPoints[1]).toStrictEqual(originalPoints[3]);
+        expect(simplifiedPoints[2]).toStrictEqual(originalPoints[5]);
+        expect(simplifiedPoints[3]).toStrictEqual(originalPoints[8]);
+    });
+});

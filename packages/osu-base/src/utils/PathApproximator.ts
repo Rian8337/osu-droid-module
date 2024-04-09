@@ -246,6 +246,88 @@ export abstract class PathApproximator {
     }
 
     /**
+     * Simplifies a polyline with the Reumann-Witkam algorithm.
+     *
+     * @param points The vertices of the polyline.
+     * @param distanceTolerance The maximum perpendicular distance between two vertices of the original polyline to the.
+     * @returns The vertices of the simplified polyline.
+     */
+    static simplifyPolylineReumannWitkam(
+        points: Vector2[],
+        distanceTolerance: number,
+    ): Vector2[] {
+        if (points.length <= 2) {
+            // Too few vertices to simplify.
+            return points;
+        }
+
+        // Start with the first and second vertex and work through the polyline.
+        const newPoints: Vector2[] = [points[0]];
+
+        // The first line is constructed between the first and second vertex in the original polyline.
+        let firstLineVertex = points[0];
+        let secondLineVertex = points[1];
+
+        // Iterate through the polyline. Along the way, we discard vertices that are within the
+        // specified distance tolerance. We do not include the last vertex in the iteration as
+        // it is the key vertex and will always remain in the simplified polyline.
+        for (let i = 2; i < points.length - 1; ++i) {
+            const currentVertex = points[i];
+
+            // Get the slope and y-intercept of the line that is constructed from both line vertices.
+            const slope =
+                (secondLineVertex.y - firstLineVertex.y) /
+                (secondLineVertex.x - firstLineVertex.x);
+            const yIntercept = firstLineVertex.y - slope * firstLineVertex.x;
+
+            // Construct a line that is perpendicular to the line that connects the two line vertices.
+            const perpendicularSlope = -1 / slope;
+            const perpendicularYIntercept =
+                currentVertex.y - perpendicularSlope * currentVertex.x;
+
+            // Find the intersection point of the two lines.
+            // Derivation:
+            // y = mx + c, where m is the slope and c is the y-intercept.
+            // slope * x + yIntercept = perpendicularSlope * x + perpendicularYIntercept
+            // slope * x - perpendicularSlope * x = perpendicularYIntercept - yIntercept
+            // (slope - perpendicularSlope) * x = perpendicularYIntercept - yIntercept
+            // x = (perpendicularYIntercept - yIntercept) / (slope - perpendicularSlope)
+            const intersectionX =
+                (perpendicularYIntercept - yIntercept) /
+                (slope - perpendicularSlope);
+
+            const intersectionPoint = new Vector2(
+                intersectionX,
+                slope * intersectionX + yIntercept,
+            );
+
+            // Get the distance between the current vertex and the intersection point.
+            // If this distance is larger than the tolerance, we include the previous
+            // vertex in the simplified polyline and start a new line from the previous
+            // and current vertices of this loop.
+            const distance = currentVertex.getDistance(intersectionPoint);
+
+            if (distance > distanceTolerance) {
+                newPoints.push(points[i - 1]);
+
+                // Start a new line with the added vertex above as the first vertex.
+                firstLineVertex = points[i - 1];
+                secondLineVertex = currentVertex;
+            }
+        }
+
+        if (newPoints.length === 0) {
+            // Algorithm failed, return the original polyline.
+            return points;
+        }
+
+        // Add the last vertex as the key.
+        newPoints.push(points[points.length - 1]);
+
+        return newPoints;
+    }
+
+    /**
      * Checks if a bezier slider is flat enough to be approximated.
      *
      * Make sure the 2nd order derivative (approximated using finite elements) is within tolerable bounds.
