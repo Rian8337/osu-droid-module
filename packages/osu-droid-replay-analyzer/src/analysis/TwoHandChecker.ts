@@ -1,49 +1,28 @@
-// import { writeFileSync } from "fs";
 import {
-    calculateDroidDifficultyStatistics,
-    // Beatmap,
+    Beatmap,
     Circle,
     DroidHitWindow,
-    Interpolation,
-    MathUtils,
-    Modes,
     ModPrecise,
     ModUtil,
+    Modes,
+    PlaceableHitObject,
     Slider,
     Spinner,
-    // Utils,
+    Utils,
     Vector2,
+    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
-import { DroidDifficultyCalculator } from "@rian8337/osu-difficulty-calculator";
-import { DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { ReplayData } from "../data/ReplayData";
+import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { TwoHandBeatmapSection } from "./structures/TwoHandBeatmapSection";
+import { ReplayObjectData } from "../data/ReplayObjectData";
+import { TwoHandObject } from "./structures/TwoHandObject";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
-import { ReplayData } from "../data/ReplayData";
-import { ReplayObjectData } from "../data/ReplayObjectData";
-import { IndexedHitObject } from "./objects/IndexedHitObject";
-// import { join } from "path";
 
-/**
- * Information about the result of a check.
- */
-export interface TwoHandInformation {
-    /**
-     * Whether or not the beatmap is 2-handed.
-     */
-    readonly is2Hand: boolean;
-
-    /**
-     * The amount of two-handed objects.
-     */
-    readonly twoHandedNoteCount: number;
-}
-
-interface CursorPositionInformation {
-    position: Vector2;
-    cursorIndex: number;
-    groupIndex: number;
-    occurrenceIndex: number;
-    cursorTime: number;
+enum Hand {
+    left,
+    right,
 }
 
 /**
@@ -51,11 +30,9 @@ interface CursorPositionInformation {
  */
 export class TwoHandChecker {
     /**
-     * The difficulty calculator that is being analyzed.
+     * The beatmap that is being analyzed.
      */
-    readonly calculator:
-        | DroidDifficultyCalculator
-        | RebalanceDroidDifficultyCalculator;
+    readonly beatmap: Beatmap;
 
     /**
      * The data of the replay.
@@ -63,9 +40,14 @@ export class TwoHandChecker {
     readonly data: ReplayData;
 
     /**
+     * The difficulty attributes of the beatmap.
+     */
+    readonly difficultyAttributes: ExtendedDroidDifficultyAttributes;
+
+    /**
      * The hitobjects of the beatmap that have been assigned with their respective cursor index.
      */
-    private readonly indexedHitObjects: IndexedHitObject[] = [];
+    private readonly beatmapSections: TwoHandBeatmapSection[] = [];
 
     /**
      * The osu!droid hitwindow of the analyzed beatmap.
@@ -73,946 +55,590 @@ export class TwoHandChecker {
     private readonly hitWindow: DroidHitWindow;
 
     /**
-     * The 50 osu!droid hit window of the analyzed beatmap.
+     * Whether this score uses the Precise mod.
      */
-    private readonly hitWindow50: number;
-
-    // private csvString: string;
+    private readonly isPrecise: boolean;
 
     /**
-     * @param calculator The difficulty calculator to analyze.
+     * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
+     * @param difficultyAttributes The difficulty attributes of the beatmap.
      */
     constructor(
-        calculator:
-            | DroidDifficultyCalculator
-            | RebalanceDroidDifficultyCalculator,
+        beatmap: Beatmap,
         data: ReplayData,
+        difficultyAttributes: ExtendedDroidDifficultyAttributes,
     ) {
-        this.calculator = calculator;
+        this.beatmap = beatmap;
         this.data = data;
+        this.difficultyAttributes = difficultyAttributes;
 
         const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: calculator.beatmap.difficulty.od,
+            overallDifficulty: beatmap.difficulty.od,
             mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 
-        this.hitWindow = new DroidHitWindow(od);
-        this.hitWindow50 = this.hitWindow.hitWindowFor50(
-            calculator.mods.some((m) => m instanceof ModPrecise),
-        );
-        // this.csvString = `Mods,${
-        //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
-        // }\nCombo,${data.maxCombo}\nAccuracy,"${(
-        //     data.accuracy.value() * 100
-        // ).toFixed(2)}% [${data.accuracy.n300}/${data.accuracy.n100}/${
-        //     data.accuracy.n50
-        // }/${
-        //     data.accuracy.nmiss
-        // }]"\n\nIndex,Type,StartTime,EndTime,DeltaTime,CursorIndex,GroupIndex,CursorDuration\n`;
-    }
-
-    /**
-     * Checks if a beatmap is two-handed.
-     */
-    check(): TwoHandInformation {
-        if (
-            this.data.cursorMovement.filter(
-                (v) => v.occurrenceGroups.length > 0,
-            ).length <= 1
-        ) {
-            return { is2Hand: false, twoHandedNoteCount: 0 };
-        }
-
-        this.indexHitObjects();
-        // this.applyPenalty();
-
-        // for (let i = 0; i < this.calculator.objects.length; ++i) {
-        //     const object: PlaceableHitObject =
-        //         this.calculator.objects[i].object;
-        //     if (object instanceof Spinner) {
-        //         continue;
-        //     }
-
-        //     let deltaTime: number = 0;
-        //     if (i > 0) {
-        //         const prevObject: PlaceableHitObject =
-        //             this.calculator.objects[i - 1].object;
-        //         deltaTime = Math.max(
-        //             object.startTime - prevObject.startTime,
-        //             25
-        //         );
-
-        //         if (prevObject instanceof Slider) {
-        //             deltaTime = Math.max(
-        //                 deltaTime - prevObject.lazyTravelTime,
-        //                 25
-        //             );
-        //         }
-        //     }
-
-        //     const objectInfo = this.getCursorPositionForObjectStart(i);
-
-        //     this.csvString += `${i},${object.typeStr()},${object.startTime},${
-        //         object instanceof Slider
-        //             ? object.startTime + object.lazyTravelTime
-        //             : object.endTime
-        //     },${deltaTime},${objectInfo.cursorIndex},${objectInfo.groupIndex},${
-        //         this.data.cursorMovement[objectInfo.cursorIndex]
-        //             ?.occurrenceGroups[objectInfo.groupIndex]?.duration ??
-        //         Number.POSITIVE_INFINITY
-        //     }\n`;
-        // }
-
-        // writeFileSync(
-        //     join(
-        //         process.cwd(),
-        //         "files",
-        //         `${this.data.playerName} - ${this.calculator.beatmap.metadata.fullTitle}.csv`
-        //     ),
-        //     this.csvString
-        // );
-
-        let twoHandedNoteCount = 0;
-        const maxStrain = Math.max(
-            ...this.calculator.objects.map((v) => v.aimStrainWithSliders),
-        );
-
-        if (maxStrain) {
-            twoHandedNoteCount = this.indexedHitObjects.reduce(
-                (total, object) => {
-                    if (!object.is2Handed) {
-                        return total;
-                    }
-
-                    return (
-                        total +
-                        1 /
-                            (1 +
-                                Math.exp(
-                                    -(
-                                        (object.object.aimStrainWithSliders /
-                                            maxStrain) *
-                                            12 -
-                                        6
-                                    ),
-                                ))
-                    );
-                },
-                0,
-            );
-        }
-
-        return {
-            is2Hand:
-                twoHandedNoteCount >
-                this.calculator.attributes.aimNoteCount * 0.15,
-            twoHandedNoteCount: twoHandedNoteCount,
-        };
-    }
-
-    /**
-     * Converts hitobjects into indexed hit objects.
-     */
-    private indexHitObjects(): void {
-        const indexes: number[] = [];
-
-        for (
-            let i = 0;
-            i <
-            Math.min(
-                this.data.hitObjectData.length,
-                this.calculator.objects.length,
-            );
-            ++i
-        ) {
-            const indexedHitObject = this.getIndexedHitObject(i);
-
-            indexedHitObject.sliderCheesed = this.checkSliderCheesing(
-                indexedHitObject,
-                this.data.hitObjectData[i],
-            );
-
-            indexes.push(indexedHitObject.cursorIndex);
-            this.indexedHitObjects.push(indexedHitObject);
-        }
-
-        // console.log("Aim note count:", this.calculator.attributes.aimNoteCount);
-        // console.log(
-        //     this.indexedHitObjects.filter((v) => v.cursorIndex !== -1).length +
-        //         1,
-        //     "indexes found,",
-        //     this.indexedHitObjects.filter((v) => v.cursorIndex === -1).length -
-        //         1,
-        //     "not found,",
-        //     this.indexedHitObjects.filter((v) => v.is2Handed).length,
-        //     "2 handed,",
-        //     this.indexedHitObjects.filter((v) => !v.is2Handed).length,
-        //     "not 2 handed"
-        // );
-
-        // for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-        //     console.log(
-        //         "Index",
-        //         i,
-        //         "count:",
-        //         this.indexedHitObjects.filter((v) => v.cursorIndex === i).length
-        //     );
-        // }
-
-        // TODO: solve -1 cursor indexes
-        // console.table(
-        //     this.indexedHitObjects
-        //         .filter(
-        //             (v) =>
-        //                 // v.cursorIndex === -1 &&
-        //                 // v.object.aimStrainWithSliders > 200 &&
-        //                 v.object.deltaTime > 75 && v.is2Handed
-        //         )
-        //         .map((v) => {
-        //             return {
-        //                 startTime: v.object.object.startTime,
-        //                 type: v.object.object.typeStr(),
-        //                 strain: v.object.aimStrainWithSliders,
-        //                 hitAngle:
-        //                     v.angle !== null
-        //                         ? MathUtils.radiansToDegrees(v.angle)
-        //                         : null,
-        //                 objectAngle:
-        //                     v.object.angle !== null
-        //                         ? MathUtils.radiansToDegrees(v.object.angle)
-        //                         : null,
-        //                 cursorIndex: v.cursorIndex,
-        //             };
-        //         })
-        // );
-    }
-
-    /**
-     * Gets the cursor index that hits the given object.
-     *
-     * @param objectIndex The index of the object to check.
-     * @returns The cursor index that hits the given object, -1 if the index is not found, the object is a spinner, or the object was missed.
-     */
-    private getIndexedHitObject(objectIndex: number): IndexedHitObject {
-        const diffObject = this.calculator.objects[objectIndex];
-        const { object } = diffObject;
-
-        // We don't care about the first object and spinners.
-        if (objectIndex === 0 || object instanceof Spinner) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
-
-        // We don't care if the aim strain is too low.
-        // if (diffObject.aimStrainWithSliders < 200) {
-        //     return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        // }
-
-        const prevObject =
-            this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
-        const prevObjectData = this.data.hitObjectData[objectIndex - 1];
-
-        if (
-            prevObject instanceof Spinner ||
-            prevObjectData.result === HitResult.miss
-        ) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
-
-        const objectStartPosition = object.getStackedPosition(Modes.droid);
-        let prevObjectEndPosition = prevObject.getStackedEndPosition(
-            Modes.droid,
-        );
-
-        if (prevObject instanceof Slider) {
-            if (prevObject.lazyTravelDistance > 0) {
-                const lazyEndMovement = objectStartPosition.subtract(
-                    prevObject.lazyEndPosition!,
-                );
-                const actualEndMovement = objectStartPosition.subtract(
-                    prevObjectEndPosition,
-                );
-
-                if (lazyEndMovement.length < actualEndMovement.length) {
-                    prevObjectEndPosition = prevObject.lazyEndPosition!;
-                }
-            } else {
-                prevObjectEndPosition = prevObject.getStackedPosition(
-                    Modes.droid,
-                );
-            }
-        }
-
-        const prevToCurrentMovement = object
-            .getStackedPosition(Modes.droid)
-            .subtract(prevObjectEndPosition);
-
-        // Don't consider objects that are too close to each other.
-        if (prevToCurrentMovement.length <= object.radius) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
-
-        // The case for a one-handed object is that there will be a slight movement in the cursor towards
-        // the next object in fast patterns. We should not be worried about slow patterns as they will only
-        // make a minimal difference and aim strain threshold should filter them out.
-
-        // In order to verify if the player does that, we check if the movement towards the current
-        // object is sufficient enough to be two-handed. This is done by first gathering info about two cursor positions:
-        // 1. The cursor position at the end of the previous object
-        // 2. The cursor position that presses the current object
-        // and then get the movement vector between both positions, then see if the cursor movement after the previous object
-        // was pressed produces an angle that is acute enough with respect to the aforementioned movement vector.
-
-        // If the angle isn't fulfilled, check for the "initial velocity", which is the movement velocity from the
-        // previous object's end time to the current object's start time and the "air velocity", which is the
-        // velocity from the previous object's cursor release time to the next object's cursor press time. If the velocity
-        // during the held tap is significantly less than the estimated velocity, it's considered two hand.
-        const objectInformation =
-            this.getCursorPositionForObjectStart(objectIndex);
-        const prevObjectInformation = this.getCursorPositionForObjectEnd(
-            objectIndex - 1,
-        );
-
-        this.indexedHitObjects[objectIndex - 1].endCursorPosition =
-            prevObjectInformation.position;
-
-        if (prevObjectInformation.position.x === Number.POSITIVE_INFINITY) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
-
-        if (
-            prevObjectInformation.cursorIndex ===
-                objectInformation.cursorIndex &&
-            prevObjectInformation.groupIndex === objectInformation.groupIndex
-        ) {
-            return new IndexedHitObject(
-                diffObject,
-                objectInformation.cursorIndex,
-                objectInformation.groupIndex,
-                prevObjectInformation.occurrenceIndex,
-                0,
-                false,
-            );
-        }
-
-        const cursorData =
-            this.data.cursorMovement[prevObjectInformation.cursorIndex];
-
-        // There can be multiple angles to which the cursor moves towards the next object.
-        // For this, we take the smallest angle.
-        let finalAngle = Number.POSITIVE_INFINITY;
-
-        const cursorGroup =
-            cursorData.occurrenceGroups[prevObjectInformation.groupIndex];
-        const cursors = cursorGroup.allOccurrences;
-
-        const prevToCurrentCursorMovement = objectInformation.position.subtract(
-            prevObjectInformation.position,
-        );
-
-        for (
-            let i = prevObjectInformation.occurrenceIndex + 1;
-            i < cursors.length;
-            ++i
-        ) {
-            const cursor = cursors[i];
-            const prevCursor = cursors[i - 1];
-
-            if (cursor.position.equals(prevCursor.position)) {
-                continue;
-            }
-
-            if (cursor.id === MovementType.up) {
-                break;
-            }
-
-            const currentMovement = cursor.position.subtract(
-                prevCursor.position,
-            );
-            const dot = prevToCurrentCursorMovement.dot(currentMovement);
-            const det =
-                prevToCurrentCursorMovement.x * currentMovement.y -
-                prevToCurrentCursorMovement.y * currentMovement.x;
-
-            const movementAngle = Math.abs(Math.atan2(det, dot));
-            finalAngle = Math.min(finalAngle, movementAngle);
-        }
-
-        const is2Handed = finalAngle >= Math.PI / 6;
-        // if (is2Handed) {
-        //     // If angle isn't fulfilled, check for cursor velocity.
-        //     let deltaTime: number = Math.max(
-        //         object.startTime - prevObject.startTime,
-        //         25
-        //     );
-        //     if (prevObject instanceof Slider) {
-        //         deltaTime = Math.max(deltaTime - prevObject.lazyTravelTime, 25);
-        //     }
-
-        //     // "Initial velocity" is the movement velocity from the previous object's end time to the current object's start time.
-        //     const initialVelocity: number =
-        //         objectStartPosition.getDistance(prevObjectEndPosition) /
-        //         deltaTime;
-
-        //     // const finalCursor: CursorOccurrence =
-        //     //     cursorGroup.moves.at(-1) ?? cursorGroup.down;
-        //     const currentCursorGroup: CursorOccurrenceGroup =
-        //         this.data.cursorMovement[objectInformation.cursorIndex]
-        //             .occurrenceGroups[objectInformation.groupIndex];
-
-        //     // const cursorDistance: number = currentCursorGroup.down.position.getDistance(
-        //     //     finalCursor.position
-        //     // );
-        //     const cursorDuration: number = Math.max(
-        //         0,
-        //         currentCursorGroup.startTime - cursorGroup.endTime
-        //     );
-
-        //     // "Air velocity" is the cursor velocity from the moment the previous cursor release action to the next cursor press action.
-        //     // const airVelocity: number = cursorDistance / cursorDuration;
-        //     is2Handed =
-        //         // airVelocity / initialVelocity < 0.8 &&
-        //         cursorDuration / deltaTime > 0.2;
-
-        //     for (
-        //         let i = prevObjectInformation.occurrenceIndex + 1;
-        //         i < cursors.length && is2Handed;
-        //         ++i
-        //     ) {
-        //         const cursor: CursorOccurrence = cursors[i];
-        //         const prevCursor: CursorOccurrence = cursors[i - 1];
-
-        //         if (
-        //             cursor.position.equals(prevCursor.position) ||
-        //             cursor.time === prevCursor.time
-        //         ) {
-        //             continue;
-        //         }
-
-        //         if (cursor.id === MovementType.up) {
-        //             break;
-        //         }
-
-        //         // "Cursor velocity" is the velocity from the previous object's cursor release time to the current object's press time.
-        //         const cursorVelocity: number =
-        //             cursor.position.getDistance(prevCursor.position) /
-        //             (cursor.time - prevCursor.time);
-        //         is2Handed = cursorVelocity / initialVelocity < 0.8;
-        //     }
-        // }
-
-        if (!Number.isFinite(finalAngle)) {
-            return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
-        }
-
-        return new IndexedHitObject(
-            diffObject,
-            prevObjectInformation.cursorIndex,
-            prevObjectInformation.groupIndex,
-            prevObjectInformation.occurrenceIndex,
-            finalAngle,
-            is2Handed,
-        );
-    }
-
-    /**
-     * Gets the position of the cursor that presses an object.
-     *
-     * @param objectIndex THe index of the object.
-     * @returns The position of the cursor that presses the object.
-     */
-    private getCursorPositionForObjectStart(
-        objectIndex: number,
-    ): CursorPositionInformation {
-        const object = this.calculator.beatmap.hitObjects.objects[objectIndex];
-        const data = this.data.hitObjectData[objectIndex];
-        const objectPosition = object.getStackedPosition(Modes.droid);
-
-        if (object instanceof Spinner) {
-            return {
-                position: objectPosition,
-                cursorIndex: 0,
-                groupIndex: Number.POSITIVE_INFINITY,
-                occurrenceIndex: Number.POSITIVE_INFINITY,
-                cursorTime: object.startTime,
-            };
-        }
-
-        let hitWindow = this.hitWindow50;
-        const isPrecise = this.data.convertedMods.some(
+        this.isPrecise = data.convertedMods.some(
             (m) => m instanceof ModPrecise,
         );
-        // For sliders, set the hit window to as lenient as possible.
-        if (object instanceof Circle) {
-            switch (data.result) {
-                case HitResult.great:
-                    hitWindow = this.hitWindow.hitWindowFor300(isPrecise);
-                    break;
-                case HitResult.good:
-                    hitWindow = this.hitWindow.hitWindowFor100(isPrecise);
-                    break;
-            }
-        }
-
-        // TODO: what to do for head sliderbreaks?
-        let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);
-        let nearestCursorIndex = 0;
-        let nearestGroupIndex = 0;
-        let nearestCursorGroupIndex = 0;
-        let nearestCursorTime = 0;
-
-        const minimumActiveTime = object.startTime - hitWindow;
-        const maximumActiveTime = object.startTime + hitWindow;
-
-        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            if (nearestPosition.getDistance(objectPosition) <= object.radius) {
-                break;
-            }
-
-            const cursorData = this.data.cursorMovement[i];
-
-            for (let j = 0; j < cursorData.occurrenceGroups.length; ++j) {
-                if (
-                    nearestPosition.getDistance(objectPosition) <= object.radius
-                ) {
-                    break;
-                }
-
-                const cursorGroup = cursorData.occurrenceGroups[j];
-
-                if (cursorGroup.endTime < minimumActiveTime) {
-                    continue;
-                }
-
-                if (cursorGroup.startTime > maximumActiveTime) {
-                    break;
-                }
-
-                // Validate the down press first.
-                const { down } = cursorGroup;
-                if (
-                    down.position.getDistance(objectPosition) <=
-                        object.radius &&
-                    Math.abs(down.time - object.startTime) <= hitWindow
-                ) {
-                    if (objectIndex > 0) {
-                        const prevObject =
-                            this.calculator.beatmap.hitObjects.objects[
-                                objectIndex - 1
-                            ];
-
-                        if (down.time > prevObject.endTime) {
-                            return {
-                                position: down.position,
-                                cursorIndex: i,
-                                groupIndex: j,
-                                occurrenceIndex: 0,
-                                cursorTime: down.time,
-                            };
-                        }
-                    } else {
-                        return {
-                            position: down.position,
-                            cursorIndex: i,
-                            groupIndex: j,
-                            occurrenceIndex: 0,
-                            cursorTime: down.time,
-                        };
-                    }
-                }
-
-                const cursors = cursorGroup.allOccurrences;
-
-                for (let k = 1; k < cursors.length; ++k) {
-                    const cursor = cursors[k];
-                    const prevCursor = cursors[k - 1];
-
-                    if (cursor.time < minimumActiveTime) {
-                        continue;
-                    }
-
-                    if (prevCursor.time > maximumActiveTime) {
-                        break;
-                    }
-
-                    let cursorPosition: Vector2;
-                    if (cursor.id === MovementType.up) {
-                        cursorPosition = prevCursor.position;
-
-                        const distance =
-                            cursorPosition.getDistance(objectPosition);
-                        if (
-                            distance <
-                            nearestPosition.getDistance(objectPosition)
-                        ) {
-                            nearestPosition = cursorPosition;
-                            nearestCursorIndex = i;
-                            nearestGroupIndex = j;
-                            nearestCursorGroupIndex = k;
-                            nearestCursorTime = prevCursor.time;
-                        }
-                    } else {
-                        // Check for cursor presses inbetween occurrences.
-                        for (
-                            let k = 0;
-                            k < this.data.cursorMovement.length;
-                            ++k
-                        ) {
-                            // Skip the current cursor index.
-                            if (k === i) {
-                                continue;
-                            }
-
-                            const cursorGroup = this.data.cursorMovement[
-                                k
-                            ].occurrenceGroups.find(
-                                (v) =>
-                                    v.down.time >= prevCursor.time &&
-                                    v.down.time <= cursor.time,
-                            );
-
-                            if (!cursorGroup) {
-                                continue;
-                            }
-
-                            const t =
-                                (cursorGroup.down.time - prevCursor.time) /
-                                (cursor.time - prevCursor.time);
-                            cursorPosition = new Vector2(
-                                Interpolation.lerp(
-                                    prevCursor.position.x,
-                                    cursor.position.x,
-                                    t,
-                                ),
-                                Interpolation.lerp(
-                                    prevCursor.position.y,
-                                    cursor.position.y,
-                                    t,
-                                ),
-                            );
-
-                            const distance =
-                                cursorPosition.getDistance(objectPosition);
-                            if (
-                                distance <
-                                nearestPosition.getDistance(objectPosition)
-                            ) {
-                                nearestPosition = cursorPosition;
-                                nearestCursorIndex = i;
-                                nearestGroupIndex = j;
-                                nearestCursorGroupIndex = k;
-                                nearestCursorTime = cursorGroup.down.time;
-                            }
-
-                            if (distance <= object.radius) {
-                                break;
-                            }
-                        }
-                    }
-
-                    if (
-                        nearestPosition.getDistance(objectPosition) <=
-                        object.radius
-                    ) {
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (
-            nearestPosition.getDistance(objectPosition) ===
-            Number.POSITIVE_INFINITY
-        ) {
-            return {
-                position: nearestPosition,
-                cursorIndex: Number.POSITIVE_INFINITY,
-                groupIndex: Number.POSITIVE_INFINITY,
-                occurrenceIndex: Number.POSITIVE_INFINITY,
-                cursorTime: object.startTime,
-            };
-        }
-
-        return {
-            position: nearestPosition,
-            cursorIndex: nearestCursorIndex,
-            groupIndex: nearestGroupIndex,
-            occurrenceIndex: nearestCursorGroupIndex,
-            cursorTime: nearestCursorTime,
-        };
+        this.hitWindow = new DroidHitWindow(od);
     }
 
     /**
-     * Gets the position of the cursor that at an object's end position.
+     * Checks whether a beatmap is eligible to be detected for two-hand.
      *
-     * @param objectIndex THe index of the object.
-     * @returns The position of the cursor at the object's end position.
+     * @param difficultyAttributes The difficulty attributes of the beatmap.
      */
-    private getCursorPositionForObjectEnd(
-        objectIndex: number,
-    ): CursorPositionInformation {
-        const object = this.calculator.beatmap.hitObjects.objects[objectIndex];
-
-        if (!(object instanceof Slider)) {
-            return this.getCursorPositionForObjectStart(objectIndex);
-        }
-
-        const nextObject =
-            this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
-        let objectEndPosition = object.getStackedEndPosition(Modes.droid);
-
-        if (object.lazyTravelDistance > 0 && nextObject) {
-            const nextStartPosition = nextObject.getStackedPosition(
-                Modes.droid,
-            );
-
-            const lazyEndMovement = nextStartPosition.subtract(
-                object.lazyEndPosition!,
-            );
-            const actualEndMovement =
-                nextStartPosition.subtract(objectEndPosition);
-
-            if (lazyEndMovement.length < actualEndMovement.length) {
-                objectEndPosition = object.lazyEndPosition!;
-            }
-        } else {
-            objectEndPosition = object.getStackedPosition(Modes.droid);
-        }
-
-        let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);
-        let nearestCursorIndex = 0;
-        let nearestGroupIndex = 0;
-        let nearestCursorGroupIndex = 0;
-        let nearestCursorTime = 0;
-
-        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
-            const cursorData = this.data.cursorMovement[i];
-
-            for (let j = 0; j < cursorData.occurrenceGroups.length; ++j) {
-                const cursorGroup = cursorData.occurrenceGroups[j];
-                if (cursorGroup.endTime < object.startTime) {
-                    continue;
-                }
-
-                if (cursorGroup.startTime > object.endTime) {
-                    break;
-                }
-
-                const cursors = cursorGroup.allOccurrences;
-                for (let k = 0; k < cursors.length; ++k) {
-                    const cursor = cursors[k];
-
-                    let cursorPosition: Vector2;
-                    switch (cursor.id) {
-                        case MovementType.down:
-                            cursorPosition = cursor.position;
-                            break;
-                        case MovementType.up: {
-                            const prevCursor = cursors[k - 1];
-                            cursorPosition = prevCursor.position;
-                            break;
-                        }
-                        case MovementType.move: {
-                            const prevCursor = cursors[k - 1];
-                            const t = MathUtils.clamp(
-                                (object.endTime - prevCursor.time) /
-                                    (cursor.time - prevCursor.time),
-                                0,
-                                1,
-                            );
-
-                            cursorPosition = new Vector2(
-                                Interpolation.lerp(
-                                    prevCursor.position.x,
-                                    cursor.position.x,
-                                    t,
-                                ),
-                                Interpolation.lerp(
-                                    prevCursor.position.y,
-                                    cursor.position.y,
-                                    t,
-                                ),
-                            );
-                            break;
-                        }
-                    }
-
-                    if (
-                        cursorPosition.getDistance(objectEndPosition) <
-                        nearestPosition.getDistance(objectEndPosition)
-                    ) {
-                        nearestPosition = cursorPosition;
-                        nearestCursorIndex = i;
-                        nearestGroupIndex = j;
-
-                        switch (cursor.id) {
-                            case MovementType.down:
-                                nearestCursorGroupIndex = k;
-                                nearestCursorTime = cursor.time;
-                                break;
-                            case MovementType.up:
-                                nearestCursorGroupIndex = k - 1;
-                                nearestCursorTime = cursors[k - 1].time;
-                                break;
-                            case MovementType.move:
-                                nearestCursorGroupIndex = k;
-                                nearestCursorTime = object.endTime;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
-
-        if (
-            nearestPosition.getDistance(objectEndPosition) ===
-            Number.POSITIVE_INFINITY
-        ) {
-            return {
-                position: nearestPosition,
-                cursorIndex: Number.POSITIVE_INFINITY,
-                groupIndex: Number.POSITIVE_INFINITY,
-                occurrenceIndex: Number.POSITIVE_INFINITY,
-                cursorTime: object.endTime,
-            };
-        }
-
-        return {
-            position: nearestPosition,
-            cursorIndex: nearestCursorIndex,
-            groupIndex: nearestGroupIndex,
-            occurrenceIndex: nearestCursorGroupIndex,
-            cursorTime: nearestCursorTime,
-        };
-    }
-
-    /**
-     * Checks whether a slider was cheesed.
-     *
-     * This is done by checking if a cursor follows a slider all the way to its end position.
-     *
-     * @param indexedHitObject The indexed slider.
-     * @param hitData The hit data of the slider.
-     * @returns Whether the slider was cheesed.
-     */
-    private checkSliderCheesing(
-        indexedHitObject: IndexedHitObject,
-        hitData: ReplayObjectData,
+    static isEligibleToDetect(
+        difficultyAttributes: ExtendedDroidDifficultyAttributes,
     ): boolean {
-        if (
-            !(indexedHitObject.object.object instanceof Slider) ||
-            hitData.result === HitResult.miss ||
-            indexedHitObject.cursorIndex === -1
-        ) {
+        return difficultyAttributes.possibleTwoHandedSections.length > 0;
+    }
+
+    /**
+     * Checks if the given beatmap is overall done two-handed.
+     *
+     * The beatmap will be separated into sections, where each section will be determined whether
+     * it was two-handed.
+     *
+     * After that, each section's strain will be weighted against other sections. The weighted
+     * strain of two-handed sections will be summed. This sum will be used to determine whether the beatmap
+     * was overall done by two-hand.
+     */
+    check(): boolean {
+        if (this.difficultyAttributes.possibleTwoHandedSections.length === 0) {
             return false;
         }
 
-        return false;
+        this.getBeatmapSections();
+
+        // Assess whether each section was overall done by two-hand. If it is, we add the
+        // strain ratio of the section to a sum that will be compared to determine whether
+        // the beatmap was overall done by two-hand.
+        let ratioSum = 0;
+
+        for (const section of this.beatmapSections) {
+            if (this.determineSectionTwoHand(section)) {
+                ratioSum += section.strainRatio;
+            }
+        }
+
+        console.log("Final ratio:", ratioSum);
+
+        // Assume the beatmap was overall done by two-hand if the sum of the strain ratios
+        // of the two-handed sections is greater than 50%, meaning that half of the aim
+        // difficulty was done by two-hand.
+        return ratioSum > 0.5;
     }
 
     /**
-     * Applies penalty to the original star rating instance.
+     * Divides the beatmap into sections based on those that can be potentially two-handed.
      */
-    // private applyPenalty(): void {
-    //     const beatmaps: [Beatmap, Beatmap] = [
-    //         Utils.deepCopy(this.calculator.beatmap),
-    //         Utils.deepCopy(this.calculator.beatmap),
-    //     ];
+    private getBeatmapSections() {
+        const cursorGroupLookupIndices = Utils.initializeArray(
+            this.data.cursorMovement.length,
+            0,
+        );
+        const cursorIndexLookupIndices = Utils.initializeArray(
+            this.data.cursorMovement.length,
+            0,
+        );
+        const sectionStrainSum =
+            this.difficultyAttributes.possibleTwoHandedSections.reduce(
+                (a, b) => a + b.sumStrain,
+                0,
+            );
 
-    //     for (const beatmap of beatmaps) {
-    //         beatmap.hitObjects.clear();
-    //     }
+        // Assign objects that are within the two-handed sections and insert them to two-handed sections.
+        for (const section of this.difficultyAttributes
+            .possibleTwoHandedSections) {
+            const sectionObjects = this.beatmap.hitObjects.objects.slice(
+                section.firstObjectIndex,
+                section.lastObjectIndex + 1,
+            );
+            const sectionObjectData = this.data.hitObjectData.slice(
+                section.firstObjectIndex,
+                section.lastObjectIndex + 1,
+            );
 
-    //     let addToSecondBeatmap: boolean = true;
-    //     this.indexedHitObjects.forEach((o) => {
-    //         if (!o.is2Handed) {
-    //             beatmaps[0].hitObjects.add(o.object.object);
-    //             addToSecondBeatmap = true;
-    //             return;
-    //         }
+            const twoHandObjects: TwoHandObject[] = [];
 
-    //         const beatmap: Beatmap = addToSecondBeatmap
-    //             ? beatmaps[1]
-    //             : beatmaps[0];
-    //         beatmap.hitObjects.add(o.object.object);
+            for (let i = 0; i < sectionObjects.length; ++i) {
+                const object = sectionObjects[i];
+                const objectData = sectionObjectData[i];
 
-    //         addToSecondBeatmap = !addToSecondBeatmap;
-    //     });
+                twoHandObjects.push({
+                    objectIndex: section.firstObjectIndex + i,
+                    ...this.getObjectPressCursorIndices(
+                        object,
+                        objectData,
+                        cursorGroupLookupIndices,
+                        cursorIndexLookupIndices,
+                    ),
+                });
+            }
 
-    //     // Preserve some values that aren't reasonable for them to be changed.
-    //     const preservedValues: {
-    //         noteDensity: number;
-    //         overlappingFactor: number;
-    //         rhythmStrain: number;
-    //         rhythmMultiplier: number;
-    //     }[] = this.calculator.objects.map((v) => {
-    //         return {
-    //             noteDensity: v.noteDensity,
-    //             overlappingFactor: v.overlappingFactor,
-    //             rhythmStrain: v.rhythmStrain,
-    //             rhythmMultiplier: v.rhythmMultiplier,
-    //         };
-    //     });
+            this.beatmapSections.push({
+                ...section,
+                objects: twoHandObjects,
+                strainRatio: section.sumStrain / sectionStrainSum,
+            });
+        }
+    }
 
-    //     this.calculator.objects.length = 0;
+    /**
+     * Obtains the index of the nearest cursor of which an object was pressed in terms of time and distance.
+     *
+     * @param object The hitobject.
+     * @param objectData The replay hit object data.
+     * @param cursorGroupLookupIndices The cursor group indices to start looking for the cursor from, to save computation time.
+     * @param cursorIndexLookupIndices The cursor index indices to start looking for the cursor from, to save computation time.
+     */
+    private getObjectPressCursorIndices(
+        object: PlaceableHitObject,
+        objectData: ReplayObjectData,
+        cursorGroupLookupIndices: number[],
+        cursorIndexLookupIndices: number[],
+    ): Omit<TwoHandObject, "objectIndex"> {
+        if (object instanceof Spinner || objectData.result === HitResult.miss) {
+            return {
+                nearestPressCursorInstanceIndex: -1,
+                nearestPressCursorGroupIndex: -1,
+                nearestPressCursorIndex: -1,
+                pressTime: -1,
+                nearestReleaseCursorInstanceIndex: -1,
+                nearestReleaseCursorGroupIndex: -1,
+                nearestReleaseCursorIndex: -1,
+                releaseTime: -1,
+            };
+        }
 
-    //     beatmaps.forEach((beatmap) => {
-    //         if (beatmap.hitObjects.objects.length === 0) {
-    //             return;
-    //         }
+        const hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
 
-    //         const difficultyCalculator:
-    //             | DroidDifficultyCalculator
-    //             | RebalanceDroidDifficultyCalculator = Object.assign(
-    //             Utils.deepCopy(this.calculator),
-    //             { beatmap: beatmap }
-    //         );
-    //         difficultyCalculator.generateDifficultyHitObjects();
-    //         difficultyCalculator.objects[0].deltaTime =
-    //             difficultyCalculator.objects[0].startTime -
-    //             this.indexedHitObjects[0].object.startTime;
-    //         difficultyCalculator.objects[0].strainTime = Math.max(
-    //             25,
-    //             difficultyCalculator.objects[0].deltaTime
-    //         );
-    //         (<(DifficultyHitObject | RebalanceDifficultyHitObject)[]>(
-    //             this.calculator.objects
-    //         )).push(...difficultyCalculator.objects);
-    //     });
+        // Check for sliderbreaks and treat them as misses.
+        if (
+            object instanceof Slider &&
+            objectData.accuracy === Math.floor(hitWindow50) + 13
+        ) {
+            return {
+                nearestPressCursorInstanceIndex: -1,
+                nearestPressCursorGroupIndex: -1,
+                nearestPressCursorIndex: -1,
+                pressTime: -1,
+                nearestReleaseCursorInstanceIndex: -1,
+                nearestReleaseCursorGroupIndex: -1,
+                nearestReleaseCursorIndex: -1,
+                releaseTime: -1,
+            };
+        }
 
-    //     this.calculator.objects.sort((a, b) => a.startTime - b.startTime);
+        const pressObjectPosition = object.getStackedPosition(Modes.droid);
+        const pressTime = object.startTime + objectData.accuracy;
 
-    //     // Reassign preserved values before calculating.
-    //     for (let i = 0; i < this.calculator.objects.length; ++i) {
-    //         const diffObject:
-    //             | DifficultyHitObject
-    //             | RebalanceDifficultyHitObject = this.calculator.objects[i];
-    //         const indexedHitObject: IndexedHitObject =
-    //             this.indexedHitObjects[i];
+        let pressPosition: Vector2 | undefined;
+        let nearestPressCursorInstanceIndex = -1;
+        let nearestPressCursorGroupIndex = -1;
+        let nearestPressCursorIndex = -1;
+        let nearestPressDistance = object.radius;
 
-    //         const preservedValue = preservedValues[i];
+        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
+            const cursorData = this.data.cursorMovement[i];
 
-    //         diffObject.index = i - 1;
-    //         diffObject.hitObjects.length = 0;
-    //         diffObject.hitObjects.push(...this.calculator.objects);
+            for (
+                let j = cursorGroupLookupIndices[i];
+                j < cursorData.occurrenceGroups.length;
+                cursorGroupLookupIndices[i] = ++j
+            ) {
+                const cursorGroup = cursorData.occurrenceGroups[j];
 
-    //         diffObject.noteDensity = preservedValue.noteDensity;
-    //         diffObject.overlappingFactor = preservedValue.overlappingFactor;
-    //         diffObject.rhythmStrain = preservedValue.rhythmStrain;
-    //         diffObject.rhythmMultiplier = preservedValue.rhythmMultiplier;
+                if (cursorGroup.endTime < pressTime) {
+                    // Reset the pointer to the beginning of the next cursor group.
+                    cursorIndexLookupIndices[i] = 0;
+                    continue;
+                }
 
-    //         // Set slider travel distance to 0 if the slider was cheesed.
-    //         if (indexedHitObject.sliderCheesed) {
-    //             diffObject.travelDistance = 0;
-    //         }
-    //     }
+                if (cursorGroup.startTime > pressTime) {
+                    // The previous cursor group may still be valid when the next object is hit,
+                    // for example when the object is dragged by the same cursor group.
+                    if (j > 0) {
+                        --cursorGroupLookupIndices[i];
+                    }
 
-    //     // Do not include rhythm skill.
-    //     this.calculator.calculateAim();
-    //     this.calculator.calculateTap();
-    //     this.calculator.calculateFlashlight();
-    //     this.calculator.calculateVisual();
-    //     this.calculator.calculateTotal();
-    // }
+                    break;
+                }
+
+                const cursors = cursorGroup.allOccurrences;
+
+                for (
+                    let k = cursorIndexLookupIndices[i];
+                    k < cursors.length - 1;
+                    cursorIndexLookupIndices[i] = ++k
+                ) {
+                    const cursor = cursors[k];
+                    const nextCursor = cursors[k + 1];
+
+                    if (nextCursor.time < pressTime) {
+                        continue;
+                    }
+
+                    if (cursor.time > pressTime) {
+                        // The previous cursor may still be valid when the next object is hit,
+                        // for example when the object is dragged by the same cursor.
+                        if (k > 0) {
+                            --cursorIndexLookupIndices[i];
+                        }
+
+                        break;
+                    }
+
+                    let cursorPosition: Vector2;
+
+                    // At this point, the cursor is within the time at which the object was hit.
+                    // Perform interpolation to determine the cursor's position at the time of the hit.
+                    if (nextCursor.id === MovementType.up) {
+                        cursorPosition = cursor.position;
+                    } else {
+                        const t =
+                            (pressTime - cursor.time) /
+                            (nextCursor.time - cursor.time);
+
+                        cursorPosition = cursor.position.add(
+                            nextCursor.position
+                                .subtract(cursor.position)
+                                .scale(t),
+                        );
+                    }
+
+                    const distance =
+                        pressObjectPosition.getDistance(cursorPosition);
+
+                    if (distance > nearestPressDistance) {
+                        continue;
+                    }
+
+                    pressPosition = cursorPosition;
+                    nearestPressCursorInstanceIndex = i;
+                    nearestPressCursorGroupIndex = j;
+                    nearestPressCursorIndex = k;
+                    nearestPressDistance = distance;
+                }
+
+                if (cursorIndexLookupIndices[i] === cursors.length) {
+                    // Reset the pointer to the beginning of the next cursor group.
+                    cursorIndexLookupIndices[i] = 0;
+                }
+            }
+        }
+
+        // For circles, the release indices and position is the same as the press indices and position respectively.
+        // As such, we do not need to perform further operations.
+        if (object instanceof Circle) {
+            return {
+                nearestPressCursorInstanceIndex:
+                    nearestPressCursorInstanceIndex,
+                nearestPressCursorGroupIndex: nearestPressCursorGroupIndex,
+                nearestPressCursorIndex: nearestPressCursorIndex,
+                pressTime: pressTime,
+                pressPosition: pressPosition,
+                nearestReleaseCursorInstanceIndex:
+                    nearestPressCursorInstanceIndex,
+                nearestReleaseCursorGroupIndex: nearestPressCursorGroupIndex,
+                nearestReleaseCursorIndex: nearestPressCursorIndex,
+                releaseTime: pressTime,
+                releasePosition: pressPosition,
+            };
+        }
+
+        // For sliders, the release position is different (on the last nested object hit rather than the head).
+        let latestTicksetIndex = object.nestedHitObjects.length - 2;
+        while (
+            latestTicksetIndex > 0 &&
+            !objectData.tickset[latestTicksetIndex]
+        ) {
+            --latestTicksetIndex;
+        }
+
+        const releaseObject =
+            object.nestedHitObjects[Math.max(latestTicksetIndex, 0)];
+        const releaseObjectPosition = releaseObject.getStackedPosition(
+            Modes.droid,
+        );
+
+        let releasePosition: Vector2 | undefined;
+        let nearestReleaseCursorInstanceIndex = -1;
+        let nearestReleaseCursorGroupIndex = -1;
+        let nearestReleaseCursorIndex = -1;
+
+        // Use slider ball radius for initial nearest release distance.
+        let nearestReleaseDistance = object.radius * 2;
+
+        for (let i = 0; i < this.data.cursorMovement.length; ++i) {
+            const cursorData = this.data.cursorMovement[i];
+
+            for (
+                let j = cursorGroupLookupIndices[i];
+                j < cursorData.occurrenceGroups.length;
+                cursorGroupLookupIndices[i] = ++j
+            ) {
+                const cursorGroup = cursorData.occurrenceGroups[j];
+
+                if (cursorGroup.endTime < releaseObject.startTime) {
+                    // Reset the pointer to the beginning of the next cursor group.
+                    cursorIndexLookupIndices[i] = 0;
+                    continue;
+                }
+
+                if (cursorGroup.startTime > releaseObject.startTime) {
+                    // The previous cursor group may still be valid when the next object is hit,
+                    // for example when the object is dragged by the same cursor group.
+                    if (j > 0) {
+                        --cursorGroupLookupIndices[i];
+                    }
+
+                    break;
+                }
+
+                const cursors = cursorGroup.allOccurrences;
+
+                for (
+                    let k = cursorIndexLookupIndices[i];
+                    k < cursors.length - 1;
+                    cursorIndexLookupIndices[i] = ++k
+                ) {
+                    const cursor = cursors[k];
+                    const nextCursor = cursors[k + 1];
+
+                    if (nextCursor.time < releaseObject.startTime) {
+                        continue;
+                    }
+
+                    if (cursor.time > releaseObject.startTime) {
+                        // The previous cursor may still be valid when the next object is hit,
+                        // for example when the object is dragged by the same cursor.
+                        if (k > 0) {
+                            --cursorIndexLookupIndices[i];
+                        }
+
+                        break;
+                    }
+
+                    let cursorPosition: Vector2;
+
+                    // At this point, the cursor is within the time at which the object was hit.
+                    // Perform interpolation to determine the cursor's position at the time of the hit.
+                    if (nextCursor.id === MovementType.up) {
+                        cursorPosition = cursor.position;
+                    } else {
+                        const t =
+                            (releaseObject.startTime - cursor.time) /
+                            (nextCursor.time - cursor.time);
+
+                        cursorPosition = cursor.position.add(
+                            nextCursor.position
+                                .subtract(cursor.position)
+                                .scale(t),
+                        );
+                    }
+
+                    const distance =
+                        releaseObjectPosition.getDistance(cursorPosition);
+
+                    if (distance > nearestReleaseDistance) {
+                        continue;
+                    }
+
+                    releasePosition = cursorPosition;
+                    nearestReleaseCursorInstanceIndex = i;
+                    nearestReleaseCursorGroupIndex = j;
+                    nearestReleaseCursorIndex = k;
+                    nearestReleaseDistance = distance;
+                }
+
+                if (cursorIndexLookupIndices[i] === cursors.length) {
+                    // Reset the pointer to the beginning of the next cursor group.
+                    cursorIndexLookupIndices[i] = 0;
+                }
+            }
+        }
+
+        return {
+            nearestPressCursorInstanceIndex: nearestPressCursorInstanceIndex,
+            nearestPressCursorGroupIndex: nearestPressCursorGroupIndex,
+            nearestPressCursorIndex: nearestPressCursorIndex,
+            pressTime: pressTime,
+            pressPosition: pressPosition,
+            nearestReleaseCursorInstanceIndex:
+                nearestReleaseCursorInstanceIndex,
+            nearestReleaseCursorGroupIndex: nearestReleaseCursorGroupIndex,
+            nearestReleaseCursorIndex: nearestReleaseCursorIndex,
+            releaseTime: releaseObject.startTime,
+            releasePosition: releasePosition,
+        };
+    }
+
+    /**
+     * Determines whether a section was overall done by two-hand.
+     *
+     * @param section The section.
+     * @returns Whether the section was overall done by two-hand.
+     */
+    private determineSectionTwoHand(section: TwoHandBeatmapSection): boolean {
+        // Start with right hand as the first hand.
+        let lastHand = Hand.right;
+        let leftHandCount = 0;
+        let rightHandCount = 1;
+        let notFoundCount = 0;
+
+        for (let i = 1; i < section.objects.length; ++i) {
+            const twoHandObject = section.objects[i];
+
+            if (
+                twoHandObject.nearestPressCursorInstanceIndex === -1 ||
+                twoHandObject.nearestPressCursorGroupIndex === -1 ||
+                twoHandObject.nearestPressCursorIndex === -1 ||
+                !twoHandObject.pressPosition
+            ) {
+                ++notFoundCount;
+                continue;
+            }
+
+            const prevTwoHandObject = section.objects[i - 1];
+
+            if (
+                // This object was pressed by the same cursor as the previous object,
+                // so we count it to the last hand.
+                (prevTwoHandObject.nearestReleaseCursorInstanceIndex ===
+                    twoHandObject.nearestPressCursorInstanceIndex &&
+                    prevTwoHandObject.nearestReleaseCursorGroupIndex ===
+                        twoHandObject.nearestPressCursorGroupIndex) ||
+                // It is unknown whether the previous object was two-handed or not.
+                // Count it to the last hand.
+                !prevTwoHandObject.releasePosition
+            ) {
+                if (lastHand === Hand.left) {
+                    ++leftHandCount;
+                } else {
+                    ++rightHandCount;
+                }
+
+                continue;
+            }
+
+            // This object was pressed by a different cursor, so we need to determine which hand
+            // pressed it. We can do so by checking the angle at which the cursor moves from the
+            // previous object to the current object after its release.
+
+            // Generate a polyline consisting of cursor positions from the current object's
+            // release position to the release of the cursor that pressed the current object.
+            const cursorPositions: Vector2[] = [
+                prevTwoHandObject.releasePosition,
+            ];
+
+            const releaseCursorGroup =
+                this.data.cursorMovement[
+                    prevTwoHandObject.nearestReleaseCursorInstanceIndex
+                ].occurrenceGroups[
+                    prevTwoHandObject.nearestReleaseCursorGroupIndex
+                ];
+
+            const releaseCursors = releaseCursorGroup.allOccurrences;
+
+            for (
+                let j = prevTwoHandObject.nearestReleaseCursorIndex;
+                j < releaseCursors.length;
+                ++j
+            ) {
+                const cursor = releaseCursors[j];
+
+                if (cursor.time < prevTwoHandObject.releaseTime) {
+                    continue;
+                }
+
+                if (cursor.id === MovementType.up) {
+                    break;
+                }
+
+                cursorPositions.push(cursor.position);
+            }
+
+            if (cursorPositions.length === 1) {
+                // The object was released immediately after being pressed.
+                // It's unlikely that the object was pressed by the same hand,
+                // so we count it as two-hand.
+                switch (lastHand) {
+                    case Hand.left:
+                        ++rightHandCount;
+                        lastHand = Hand.right;
+                        break;
+                    case Hand.right:
+                        ++leftHandCount;
+                        lastHand = Hand.left;
+                        break;
+                }
+
+                continue;
+            }
+
+            // TODO: need to assess a better way to detect the hand that pressed the object...
+            // Calculate the angle between the last two simplified cursor positions and
+            // the press position of the object.
+            const lastCursorPosition =
+                cursorPositions[cursorPositions.length - 1];
+            const lastLastCursorPosition =
+                cursorPositions[cursorPositions.length - 2];
+
+            const v1 = lastCursorPosition.subtract(lastLastCursorPosition);
+            const v2 = twoHandObject.pressPosition.subtract(
+                prevTwoHandObject.releasePosition,
+            );
+
+            const dot = v1.dot(v2);
+            const det = v1.x * v2.y - v1.y * v2.x;
+
+            const angle = Math.abs(Math.atan2(det, dot));
+
+            // If the angle is obtuse enough, we consider the object to be two-handed,
+            // as it likely means that the current hand did not move to the object.
+            if (angle >= Math.PI / 6) {
+                switch (lastHand) {
+                    case Hand.left:
+                        ++rightHandCount;
+                        lastHand = Hand.right;
+                        break;
+                    case Hand.right:
+                        ++leftHandCount;
+                        lastHand = Hand.left;
+                        break;
+                }
+            } else {
+                switch (lastHand) {
+                    case Hand.left:
+                        ++leftHandCount;
+                        break;
+                    case Hand.right:
+                        ++rightHandCount;
+                        break;
+                }
+            }
+        }
+
+        // Add not found objects to the hand that has the most amount of objects
+        // to avoid introducing bias towards two-handed sections.
+        if (leftHandCount > rightHandCount) {
+            leftHandCount += notFoundCount;
+        } else {
+            rightHandCount += notFoundCount;
+        }
+
+        console.log(leftHandCount, rightHandCount);
+
+        // Assume that the section was overall done by two-hand if the ratio between
+        // the amount of objects pressed by each hand and the total is less than half.
+        return (
+            Math.abs(leftHandCount - rightHandCount) /
+                (leftHandCount + rightHandCount) <
+            0.5
+        );
+    }
 }

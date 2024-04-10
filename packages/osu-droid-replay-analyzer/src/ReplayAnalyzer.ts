@@ -15,14 +15,8 @@ import {
     Spinner,
     calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
-import {
-    DroidDifficultyCalculator,
-    ExtendedDroidDifficultyAttributes,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
-    ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
-} from "@rian8337/osu-rebalance-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { Parse } from "unzipper";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
@@ -77,12 +71,9 @@ export class ReplayAnalyzer {
     is2Hand?: boolean;
 
     /**
-     * The beatmap that is being analyzed. `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
+     * The beatmap that is being analyzed.
      */
-    beatmap?:
-        | Beatmap
-        | DroidDifficultyCalculator
-        | RebalanceDroidDifficultyCalculator;
+    beatmap?: Beatmap;
 
     /**
      * The difficulty attributes of the beatmap.
@@ -130,11 +121,6 @@ export class ReplayAnalyzer {
      */
     hasBeenCheckedForSliderCheesing = false;
 
-    /**
-     * The amount of two-handed objects.
-     */
-    twoHandedNoteCount = 0;
-
     private convertedBeatmap?: Beatmap;
 
     // Sizes of primitive data types in Java (in bytes)
@@ -155,10 +141,7 @@ export class ReplayAnalyzer {
          *
          * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for two hand and slider cheese analyzing.
          */
-        map?:
-            | Beatmap
-            | DroidDifficultyCalculator
-            | RebalanceDroidDifficultyCalculator;
+        map?: Beatmap;
 
         /**
          * The difficulty attributes.
@@ -172,10 +155,6 @@ export class ReplayAnalyzer {
         this.scoreID = values.scoreID;
         this.beatmap = values.map;
         this.difficultyAttributes = values.difficultyAttributes;
-
-        if (this.beatmap && !(this.beatmap instanceof Beatmap)) {
-            this.difficultyAttributes = this.beatmap.attributes;
-        }
     }
 
     /**
@@ -490,13 +469,8 @@ export class ReplayAnalyzer {
         }
 
         // Parse max combo, hit results, and accuracy in old replay version
-        if (resultObject.replayVersion < 3) {
-            const objects = (
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-                    ? this.beatmap.beatmap
-                    : this.beatmap
-            )?.hitObjects.objects;
+        if (this.beatmap && resultObject.replayVersion < 3) {
+            const objects = this.beatmap.hitObjects.objects;
 
             let grantsGekiOrKatu = true;
 
@@ -561,15 +535,8 @@ export class ReplayAnalyzer {
         let positiveTotal = 0;
         let negativeTotal = 0;
 
-        const beatmap =
-            this.beatmap instanceof DroidDifficultyCalculator ||
-            this.beatmap instanceof RebalanceDroidDifficultyCalculator
-                ? this.beatmap.beatmap
-                : this.beatmap;
-        const { objects } = beatmap.hitObjects;
-
         const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: beatmap.difficulty.od,
+            overallDifficulty: this.beatmap.difficulty.od,
             mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
         }).overallDifficulty;
 
@@ -586,7 +553,7 @@ export class ReplayAnalyzer {
 
         for (let i = 0; i < hitObjectData.length; ++i) {
             const v = hitObjectData[i];
-            const o = objects[i];
+            const o = this.beatmap.hitObjects.objects[i];
 
             if (o instanceof Spinner || v.result === HitResult.miss) {
                 accuracies.push(0);
@@ -689,9 +656,7 @@ export class ReplayAnalyzer {
             }
 
             this.convertedBeatmap ??= new BeatmapConverter(
-                this.beatmap instanceof Beatmap
-                    ? this.beatmap
-                    : this.beatmap.beatmap,
+                this.beatmap,
             ).convert({
                 mode: Modes.droid,
                 mods: mods,
@@ -726,20 +691,50 @@ export class ReplayAnalyzer {
      */
     checkFor2Hand(): void {
         if (
-            !(
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-            ) ||
-            !this.data
+            !this.data ||
+            !this.beatmap ||
+            this.difficultyAttributes?.mode !== "rebalance"
         ) {
             return;
         }
 
-        const twoHandChecker = new TwoHandChecker(this.beatmap, this.data);
-        const result = twoHandChecker.check();
+        if (!this.convertedBeatmap) {
+            const mods = this.data.convertedMods.slice();
 
-        this.is2Hand = result.is2Hand;
-        this.twoHandedNoteCount = result.twoHandedNoteCount;
+            if (
+                [
+                    this.data.forceCS,
+                    this.data.forceAR,
+                    this.data.forceOD,
+                    this.data.forceHP,
+                ].some((v) => v !== undefined)
+            ) {
+                mods.push(
+                    new ModDifficultyAdjust({
+                        cs: this.data.forceCS,
+                        ar: this.data.forceAR,
+                        od: this.data.forceOD,
+                        hp: this.data.forceHP,
+                    }),
+                );
+            }
+
+            this.convertedBeatmap ??= new BeatmapConverter(
+                this.beatmap,
+            ).convert({
+                mode: Modes.droid,
+                mods: mods,
+                customSpeedMultiplier: this.data.speedMultiplier,
+            });
+        }
+
+        const twoHandChecker = new TwoHandChecker(
+            this.convertedBeatmap,
+            this.data,
+            this.difficultyAttributes,
+        );
+
+        this.is2Hand = twoHandChecker.check();
         this.hasBeenCheckedFor2Hand = true;
     }
 
@@ -775,9 +770,7 @@ export class ReplayAnalyzer {
             }
 
             this.convertedBeatmap ??= new BeatmapConverter(
-                this.beatmap instanceof Beatmap
-                    ? this.beatmap
-                    : this.beatmap.beatmap,
+                this.beatmap,
             ).convert({
                 mode: Modes.droid,
                 mods: mods,
