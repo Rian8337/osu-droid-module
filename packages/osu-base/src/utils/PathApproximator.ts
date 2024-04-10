@@ -269,9 +269,8 @@ export abstract class PathApproximator {
         let secondLineVertex = points[1];
 
         // Iterate through the polyline. Along the way, we discard vertices that are within the
-        // specified distance tolerance. We do not include the last vertex in the iteration as
-        // it is the key vertex and will always remain in the simplified polyline.
-        for (let i = 2; i < points.length - 1; ++i) {
+        // specified distance tolerance.
+        for (let i = 2; i < points.length; ++i) {
             const currentVertex = points[i];
 
             // Get the slope and y-intercept of the line that is constructed from both line vertices.
