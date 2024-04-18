@@ -43,6 +43,10 @@ export interface HitErrorInformation {
     unstableRate: number;
 }
 
+interface Counter {
+    counter: number;
+}
+
 /**
  * A replay analyzer that analyzes a replay from osu!droid.
  *
@@ -136,13 +140,6 @@ export class ReplayAnalyzer {
     twoHandedNoteCount = 0;
 
     private convertedBeatmap?: Beatmap;
-
-    // Sizes of primitive data types in Java (in bytes)
-    private readonly BYTE_LENGTH = 1;
-    private readonly SHORT_LENGTH = 2;
-    private readonly INT_LENGTH = 4;
-    private readonly FLOAT_LENGTH = 4;
-    private readonly LONG_LENGTH = 8;
 
     constructor(values: {
         /**
@@ -400,35 +397,28 @@ export class ReplayAnalyzer {
 
         // Merge all cursor movement and hit object data section into one for better control when parsing
         const replayDataBuffer = Buffer.concat(replayDataBufferArray);
-        let bufferCounter = 0;
+        const bufferCounter: Counter = { counter: 0 };
 
-        const size = replayDataBuffer.readInt32BE(bufferCounter);
-        bufferCounter += this.INT_LENGTH;
+        const size = this.readInt(replayDataBuffer, bufferCounter);
 
         // Parse movement data
         for (let x = 0; x < size; x++) {
-            const moveSize = replayDataBuffer.readInt32BE(bufferCounter);
-            bufferCounter += this.INT_LENGTH;
+            const moveSize = this.readInt(replayDataBuffer, bufferCounter);
             const time: number[] = [];
             const x: number[] = [];
             const y: number[] = [];
             const id: MovementType[] = [];
             for (let i = 0; i < moveSize; i++) {
-                time[i] = replayDataBuffer.readInt32BE(bufferCounter);
-                bufferCounter += this.INT_LENGTH;
+                time[i] = this.readInt(replayDataBuffer, bufferCounter);
                 id[i] = time[i] & 3;
                 time[i] >>= 2;
                 if (id[i] !== MovementType.up) {
                     if (resultObject.replayVersion >= 5) {
-                        x[i] = replayDataBuffer.readFloatBE(bufferCounter);
-                        bufferCounter += this.FLOAT_LENGTH;
-                        y[i] = replayDataBuffer.readFloatBE(bufferCounter);
-                        bufferCounter += this.FLOAT_LENGTH;
+                        x[i] = this.readFloat(replayDataBuffer, bufferCounter);
+                        y[i] = this.readFloat(replayDataBuffer, bufferCounter);
                     } else {
-                        x[i] = replayDataBuffer.readInt16BE(bufferCounter);
-                        bufferCounter += this.SHORT_LENGTH;
-                        y[i] = replayDataBuffer.readInt16BE(bufferCounter);
-                        bufferCounter += this.SHORT_LENGTH;
+                        x[i] = this.readShort(replayDataBuffer, bufferCounter);
+                        y[i] = this.readShort(replayDataBuffer, bufferCounter);
                     }
                 } else {
                     x[i] = -1;
@@ -446,8 +436,10 @@ export class ReplayAnalyzer {
             );
         }
 
-        const replayObjectLength = replayDataBuffer.readInt32BE(bufferCounter);
-        bufferCounter += this.INT_LENGTH;
+        const replayObjectLength = this.readInt(
+            replayDataBuffer,
+            bufferCounter,
+        );
 
         // Parse result data
         for (let i = 0; i < replayObjectLength; i++) {
@@ -457,18 +449,17 @@ export class ReplayAnalyzer {
                 result: HitResult.miss,
             };
 
-            replayObjectData.accuracy =
-                replayDataBuffer.readInt16BE(bufferCounter);
-            bufferCounter += this.SHORT_LENGTH;
-            const len = replayDataBuffer.readInt8(bufferCounter);
-            bufferCounter += this.BYTE_LENGTH;
+            replayObjectData.accuracy = this.readShort(
+                replayDataBuffer,
+                bufferCounter,
+            );
+            const len = this.readByte(replayDataBuffer, bufferCounter);
 
             if (len > 0) {
                 const bytes: number[] = [];
 
                 for (let j = 0; j < len; j++) {
-                    bytes.push(replayDataBuffer.readInt8(bufferCounter));
-                    bufferCounter += this.BYTE_LENGTH;
+                    bytes.push(this.readByte(replayDataBuffer, bufferCounter));
                 }
                 // Int/int division in Java; numbers must be truncated to get actual number
                 for (let j = 0; j < len * 8; j++) {
@@ -481,9 +472,10 @@ export class ReplayAnalyzer {
             }
 
             if (resultObject.replayVersion >= 1) {
-                replayObjectData.result =
-                    replayDataBuffer.readInt8(bufferCounter);
-                bufferCounter += this.BYTE_LENGTH;
+                replayObjectData.result = this.readByte(
+                    replayDataBuffer,
+                    bufferCounter,
+                );
             }
 
             resultObject.hitObjectData.push(replayObjectData);
@@ -793,5 +785,33 @@ export class ReplayAnalyzer {
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;
+    }
+
+    private readByte(buffer: Buffer, counter: Counter): number {
+        const num = buffer.readInt8(counter.counter);
+        counter.counter += 1;
+
+        return num;
+    }
+
+    private readShort(buffer: Buffer, counter: Counter): number {
+        const num = buffer.readInt16BE(counter.counter);
+        counter.counter += 2;
+
+        return num;
+    }
+
+    private readInt(buffer: Buffer, counter: Counter): number {
+        const num = buffer.readInt32BE(counter.counter);
+        counter.counter += 4;
+
+        return num;
+    }
+
+    private readFloat(buffer: Buffer, counter: Counter): number {
+        const num = buffer.readFloatBE(counter.counter);
+        counter.counter += 4;
+
+        return num;
     }
 }
