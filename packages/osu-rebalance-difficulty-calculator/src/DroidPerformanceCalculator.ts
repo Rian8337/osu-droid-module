@@ -495,8 +495,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         }
 
         return (
-            0.94 /
-            (this.effectiveMissCount / (2 * Math.sqrt(difficultStrainCount)) +
+            0.96 /
+            (this.effectiveMissCount /
+                (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
                 1)
         );
     }
