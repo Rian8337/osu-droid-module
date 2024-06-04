@@ -21,6 +21,8 @@ export abstract class DroidSkill extends StrainSkill {
         return this._objectStrains;
     }
 
+    private difficulty = 0;
+
     constructor(mods: Mod[], objectCount: number) {
         super(mods);
 
@@ -33,18 +35,18 @@ export abstract class DroidSkill extends StrainSkill {
      * The result is scaled by clock rate as it affects the total number of strains.
      */
     countDifficultStrains(): number {
-        if (this._objectStrains.length === 0) {
+        if (this.difficulty === 0) {
             return 0;
         }
 
-        const maxStrain = Math.max(...this._objectStrains);
+        // This is what the top strain is if all strain values were identical.
+        const consistentTopStrain = this.difficulty / 10;
 
-        if (maxStrain === 0) {
-            return 0;
-        }
-
+        // Use a weighted sum of all strains.
         return this._objectStrains.reduce(
-            (total, next) => total + Math.pow(next / maxStrain, 4),
+            (total, next) =>
+                total +
+                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
             0,
         );
     }
@@ -85,16 +87,16 @@ export abstract class DroidSkill extends StrainSkill {
 
         // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
         // This also applies to two sets of notes with equal difficulty.
-        return Math.pow(
-            strains.reduce((a, v) => {
-                if (v <= 0) {
-                    return a;
-                }
+        this.difficulty = 0;
 
-                return a + Math.pow(v, 1 / Math.log2(this.starsPerDouble));
-            }, 0),
-            Math.log2(this.starsPerDouble),
-        );
+        for (const strain of strains) {
+            this.difficulty += Math.pow(
+                strain,
+                1 / Math.log2(this.starsPerDouble),
+            );
+        }
+
+        return Math.pow(this.difficulty, Math.log2(this.starsPerDouble));
     }
 
     /**
