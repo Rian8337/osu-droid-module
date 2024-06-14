@@ -1,5 +1,4 @@
 import {
-    Vector2,
     DroidHitWindow,
     ModUtil,
     ModPrecise,
@@ -640,17 +639,10 @@ export class RebalanceThreeFingerChecker {
                                 const t =
                                     (hitTime - prevCursor.time) /
                                     (cursor.time - prevCursor.time);
-                                const cursorPosition = new Vector2(
-                                    Interpolation.lerp(
-                                        prevCursor.position.x,
-                                        cursor.position.x,
-                                        t,
-                                    ),
-                                    Interpolation.lerp(
-                                        prevCursor.position.y,
-                                        cursor.position.y,
-                                        t,
-                                    ),
+                                const cursorPosition = Interpolation.lerp(
+                                    prevCursor.position,
+                                    cursor.position,
+                                    t,
                                 );
 
                                 isInObject =
