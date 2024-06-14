@@ -99,6 +99,16 @@ export class RebalanceThreeFingerChecker {
     private readonly isPrecise: boolean;
 
     /**
+     * The maximum object radius that is acceptable when checking for cursor position in drag detection.
+     */
+    private objectRadiusThreshold: number;
+
+    /**
+     * The maximum value of object radius threshold.
+     */
+    private readonly maximumObjectRadiusThreshold: number;
+
+    /**
      * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
      * @param difficultyAttributes The difficulty attributes of the beatmap.
@@ -123,6 +133,11 @@ export class RebalanceThreeFingerChecker {
         );
         this.hitWindow = new DroidHitWindow(od);
         this.hitObjects = beatmap.hitObjects.objects;
+
+        this.objectRadiusThreshold = this.hitObjects[0].radius;
+
+        // Only allow object radius threshold to deviate slightly from actual object radius.
+        this.maximumObjectRadiusThreshold = this.objectRadiusThreshold * 1.05;
     }
 
     /**
@@ -479,62 +494,43 @@ export class RebalanceThreeFingerChecker {
      */
     private findDragIndex(section: RebalanceHighStrainSection): number {
         const objectData = this.data.hitObjectData;
+        const hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
 
         const firstObject = this.hitObjects[section.firstObjectIndex];
+        const firstObjectData = objectData[section.firstObjectIndex];
+
         const lastObject = this.hitObjects[section.lastObjectIndex];
+        const lastObjectData = objectData[section.lastObjectIndex];
 
-        let firstObjectMinHitTime = firstObject.startTime;
+        let firstObjectHitTime = firstObject.startTime;
+        let lastObjectHitTime = lastObject.startTime;
 
-        if (firstObject instanceof Circle) {
-            switch (objectData[section.firstObjectIndex].result) {
-                case HitResult.great:
-                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
-                    break;
-                case HitResult.good:
-                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
-                    break;
-                default:
-                    firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
-            }
-        } else if (firstObject instanceof Slider) {
-            firstObjectMinHitTime -= this.hitWindow.hitWindowFor50(
-                this.isPrecise,
-            );
+        // Check for slider breaks.
+        if (
+            firstObject instanceof Slider &&
+            firstObjectData.accuracy === Math.floor(hitWindow50) + 13
+        ) {
+            firstObjectHitTime -= hitWindow50;
+        } else {
+            firstObjectHitTime += firstObjectData.accuracy;
         }
 
-        let lastObjectMaxHitTime = lastObject.startTime;
-        if (lastObject instanceof Circle) {
-            switch (objectData[section.lastObjectIndex].result) {
-                case HitResult.great:
-                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
-                    break;
-                case HitResult.good:
-                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
-                    break;
-                default:
-                    lastObjectMaxHitTime += this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
-            }
-        } else if (lastObject instanceof Slider) {
-            lastObjectMaxHitTime += Math.min(
-                this.hitWindow.hitWindowFor50(this.isPrecise),
-                lastObject.spanDuration,
+        if (
+            lastObject instanceof Slider &&
+            lastObjectData.accuracy === Math.floor(hitWindow50) + 13
+        ) {
+            lastObjectHitTime += Math.min(
+                hitWindow50,
+                lastObject.nestedHitObjects[1].startTime - lastObject.startTime,
             );
+        } else {
+            lastObjectHitTime += lastObjectData.accuracy;
         }
 
         // Since there may be more than 1 cursor instance index,
         // we check which cursor instance follows hitobjects all over.
+        const cursorInstanceIndices: number[] = [];
+        const cursorGroupIndices: number[] = [];
         const cursorIndices: number[] = [];
 
         for (let i = 0; i < this.data.cursorMovement.length; ++i) {
@@ -549,8 +545,8 @@ export class RebalanceThreeFingerChecker {
             if (
                 c.occurrenceGroups.filter(
                     (v) =>
-                        v.startTime >= firstObjectMinHitTime &&
-                        v.endTime <= lastObjectMaxHitTime,
+                        v.startTime <= firstObjectHitTime &&
+                        v.endTime >= lastObjectHitTime,
                 ).length === 0
             ) {
                 continue;
@@ -564,7 +560,10 @@ export class RebalanceThreeFingerChecker {
                 continue;
             }
 
-            cursorIndices.push(i);
+            cursorInstanceIndices.push(i);
+            cursorGroupIndices.push(0);
+            // Start checking from the second cursor.
+            cursorIndices.push(1);
         }
 
         const sectionObjects = this.hitObjects.slice(
@@ -575,11 +574,11 @@ export class RebalanceThreeFingerChecker {
             section.firstObjectIndex,
             section.lastObjectIndex + 1,
         );
-        const hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
 
         for (
             let i = 0;
-            i < sectionObjects.length && cursorIndices.some((v) => v !== -1);
+            i < sectionObjects.length &&
+            cursorInstanceIndices.some((v) => v !== -1);
             ++i
         ) {
             const object = sectionObjects[i];
@@ -604,35 +603,58 @@ export class RebalanceThreeFingerChecker {
             const hitTime = object.startTime + objectData.accuracy;
 
             // Observe the cursor position at the object's hit time.
-            for (let j = 0; j < cursorIndices.length; ++j) {
-                if (cursorIndices[j] === -1) {
+            for (let j = 0; j < cursorInstanceIndices.length; ++j) {
+                if (cursorInstanceIndices[j] === -1) {
                     continue;
                 }
 
-                const cursorData = this.data.cursorMovement[cursorIndices[j]];
-                const cursorGroup = cursorData.occurrenceGroups.find((v) =>
-                    v.isActiveAt(hitTime),
-                );
+                const cursorData =
+                    this.data.cursorMovement[cursorInstanceIndices[j]];
 
-                if (!cursorGroup) {
-                    continue;
-                }
+                for (
+                    let k = cursorGroupIndices[j];
+                    k < cursorData.occurrenceGroups.length;
+                    cursorGroupIndices[j] = ++k
+                ) {
+                    const cursorGroup = cursorData.occurrenceGroups[k];
 
-                const cursors = cursorGroup.allOccurrences;
-                let isInObject = false;
+                    if (!cursorGroup.isActiveAt(hitTime)) {
+                        continue;
+                    }
 
-                for (let k = 1; k < cursors.length; ++k) {
-                    const cursor = cursors[k];
-                    const prevCursor = cursors[k - 1];
+                    const cursors = cursorGroup.allOccurrences;
 
-                    // Only consider cursor at interval prev.time <= hitTime <= current.time.
-                    if (prevCursor.time <= hitTime && cursor.time >= hitTime) {
+                    // We are maintaining the closest distance of cursors to the object.
+                    // This is because the radius that is calculated is using an estimation. As such,
+                    // it does not perfectly reflect the actual object radius in gameplay.
+                    let closestDistance = this.maximumObjectRadiusThreshold;
+
+                    for (
+                        let l = cursorIndices[j];
+                        l < cursors.length;
+                        cursorIndices[j] = ++l
+                    ) {
+                        const cursor = cursors[l];
+                        const prevCursor = cursors[k - 1];
+
+                        // Cursor is past the object's hit time.
+                        if (prevCursor.time > hitTime) {
+                            break;
+                        }
+
+                        // Cursor is before the object's hit time.
+                        if (hitTime > cursor.time) {
+                            continue;
+                        }
+
+                        let distance: number;
+
                         switch (cursor.id) {
                             case MovementType.up:
-                                isInObject =
+                                distance =
                                     prevCursor.position.getDistance(
                                         objectPosition,
-                                    ) <= object.radius;
+                                    );
                                 break;
                             case MovementType.move: {
                                 // Interpolate movement.
@@ -645,24 +667,40 @@ export class RebalanceThreeFingerChecker {
                                     t,
                                 );
 
-                                isInObject =
-                                    objectPosition.getDistance(
-                                        cursorPosition,
-                                    ) <= object.radius;
+                                distance =
+                                    objectPosition.getDistance(cursorPosition);
+                                break;
                             }
+                            case MovementType.down:
+                                continue;
                         }
 
-                        break;
+                        closestDistance = Math.min(closestDistance, distance);
                     }
+
+                    // At this point, the object is guaranteed to be hit, but the distance may not reach the threshold
+                    // due to radius estimation. In order to work around this, we store the farthest distance from all
+                    // processed cursors so far and use it as threshold rather than the actual object radius.
+                    if (
+                        closestDistance <= this.maximumObjectRadiusThreshold &&
+                        closestDistance > this.objectRadiusThreshold
+                    ) {
+                        this.objectRadiusThreshold = closestDistance;
+                    }
+
+                    if (closestDistance > this.objectRadiusThreshold) {
+                        cursorInstanceIndices[j] = -1;
+                    }
+
+                    break;
                 }
 
-                if (!isInObject) {
-                    cursorIndices[j] = -1;
-                }
+                // The previous object may still be hit with the same cursor group.
+                --cursorGroupIndices[j];
             }
         }
 
-        return cursorIndices.find((v) => v !== -1) ?? -1;
+        return cursorInstanceIndices.find((v) => v !== -1) ?? -1;
     }
 
     /**
