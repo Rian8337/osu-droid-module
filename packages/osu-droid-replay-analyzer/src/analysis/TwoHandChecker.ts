@@ -679,17 +679,10 @@ export class TwoHandChecker {
                             const t =
                                 (cursorGroup.down.time - prevCursor.time) /
                                 (cursor.time - prevCursor.time);
-                            cursorPosition = new Vector2(
-                                Interpolation.lerp(
-                                    prevCursor.position.x,
-                                    cursor.position.x,
-                                    t,
-                                ),
-                                Interpolation.lerp(
-                                    prevCursor.position.y,
-                                    cursor.position.y,
-                                    t,
-                                ),
+                            cursorPosition = Interpolation.lerp(
+                                prevCursor.position,
+                                cursor.position,
+                                t,
                             );
 
                             const distance =
@@ -822,18 +815,12 @@ export class TwoHandChecker {
                                 1,
                             );
 
-                            cursorPosition = new Vector2(
-                                Interpolation.lerp(
-                                    prevCursor.position.x,
-                                    cursor.position.x,
-                                    t,
-                                ),
-                                Interpolation.lerp(
-                                    prevCursor.position.y,
-                                    cursor.position.y,
-                                    t,
-                                ),
+                            cursorPosition = Interpolation.lerp(
+                                prevCursor.position,
+                                cursor.position,
+                                t,
                             );
+
                             break;
                         }
                     }
