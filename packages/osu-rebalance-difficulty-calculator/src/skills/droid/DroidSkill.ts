@@ -90,7 +90,12 @@ export abstract class DroidSkill extends StrainSkill {
             );
         }
 
-        return Math.pow(this.difficulty, Math.log2(this.starsPerDouble));
+        this.difficulty = Math.pow(
+            this.difficulty,
+            Math.log2(this.starsPerDouble),
+        );
+
+        return this.difficulty;
     }
 
     /**
