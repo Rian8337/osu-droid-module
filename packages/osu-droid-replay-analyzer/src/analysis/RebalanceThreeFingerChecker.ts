@@ -635,7 +635,7 @@ export class RebalanceThreeFingerChecker {
                         cursorIndices[j] = ++l
                     ) {
                         const cursor = cursors[l];
-                        const prevCursor = cursors[k - 1];
+                        const prevCursor = cursors[l - 1];
 
                         // Cursor is past the object's hit time.
                         if (prevCursor.time > hitTime) {
