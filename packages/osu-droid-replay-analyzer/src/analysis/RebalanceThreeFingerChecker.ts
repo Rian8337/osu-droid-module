@@ -695,8 +695,9 @@ export class RebalanceThreeFingerChecker {
                     break;
                 }
 
-                // The previous object may still be hit with the same cursor group.
-                --cursorGroupIndices[j];
+                // The previous object may still be hit with the same cursor group or cursor index.
+                cursorGroupIndices[j] = Math.max(0, cursorGroupIndices[j] - 1);
+                cursorIndices[j] = Math.max(1, cursorIndices[j] - 1);
             }
         }
 
