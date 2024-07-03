@@ -275,11 +275,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
 
         // Scale the aim value with deviation.
         aimValue *=
-            1.025 *
-            Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
-                0.475,
-            );
+            1.05 *
+            Math.sqrt(ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)));
 
         // OD 7 SS stays the same.
         aimValue *= 0.98 + Math.pow(7, 2) / 2500;
@@ -323,10 +320,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
 
         // Scale the tap value with tap deviation.
         tapValue *=
-            1.05 *
+            1.1 *
             Math.pow(
                 ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
-                0.6,
+                0.625,
             );
 
         // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
@@ -362,7 +359,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             return 0;
         }
 
-        let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
+        let accuracyValue = 800 * Math.exp(-0.1 * this._deviation);
 
         const ncircles = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModScoreV2,
@@ -468,10 +465,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
 
         // Scale the visual value with deviation.
         visualValue *=
-            1.05 *
+            1.065 *
             Math.pow(
                 ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
-                0.775,
+                0.8,
             );
 
         // OD 5 SS stays the same.
