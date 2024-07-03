@@ -21,26 +21,24 @@ export abstract class DroidSkill extends StrainSkill {
         return this._objectStrains;
     }
 
-    private difficulty = 0;
-
     /**
      * Returns the number of strains weighed against the top strain.
      *
      * The result is scaled by clock rate as it affects the total number of strains.
      */
     countDifficultStrains(): number {
-        if (this.difficulty === 0) {
+        if (this._objectStrains.length === 0) {
             return 0;
         }
 
-        // This is what the top strain is if all strain values were identical.
-        const consistentTopStrain = this.difficulty / 10;
+        const maxStrain = Math.max(...this._objectStrains);
 
-        // Use a weighted sum of all strains.
+        if (maxStrain === 0) {
+            return 0;
+        }
+
         return this._objectStrains.reduce(
-            (total, next) =>
-                total +
-                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
+            (total, next) => total + Math.pow(next / maxStrain, 4),
             0,
         );
     }
@@ -63,7 +61,7 @@ export abstract class DroidSkill extends StrainSkill {
                 i < Math.min(strains.length, this.reducedSectionCount);
                 ++i
             ) {
-                const scale = Math.log10(
+                const scale: number = Math.log10(
                     Interpolation.lerp(
                         1,
                         10,
@@ -81,21 +79,16 @@ export abstract class DroidSkill extends StrainSkill {
 
         // Math here preserves the property that two notes of equal difficulty x, we have their summed difficulty = x * starsPerDouble.
         // This also applies to two sets of notes with equal difficulty.
-        this.difficulty = 0;
+        return Math.pow(
+            strains.reduce((a, v) => {
+                if (v <= 0) {
+                    return a;
+                }
 
-        for (const strain of strains) {
-            this.difficulty += Math.pow(
-                strain,
-                1 / Math.log2(this.starsPerDouble),
-            );
-        }
-
-        this.difficulty = Math.pow(
-            this.difficulty,
+                return a + Math.pow(v, 1 / Math.log2(this.starsPerDouble));
+            }, 0),
             Math.log2(this.starsPerDouble),
         );
-
-        return this.difficulty;
     }
 
     /**
