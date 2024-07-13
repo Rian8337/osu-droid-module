@@ -106,13 +106,13 @@ export class Chart implements ChartInitializer {
     readonly yValueType?: AxisType;
     readonly pointRadius: number;
 
-    private readonly padding: number = 10;
-    private readonly tickSize: number = 10;
-    private readonly axisColor: string = "#555";
-    private readonly font: string = "12pt Calibri";
-    private readonly axisLabelFont: string = "bold 11pt Calibri";
-    private readonly fontHeight: number = 12;
-    private readonly baseLabelOffset: number = 15;
+    private readonly padding = 10;
+    private readonly tickSize = 10;
+    private readonly axisColor = "#424242";
+    private readonly font = "12pt Calibri";
+    private readonly axisLabelFont = "bold 11pt Calibri";
+    private readonly fontHeight = 12;
+    private readonly baseLabelOffset = 15;
 
     private readonly rangeX: number;
     private readonly rangeY: number;
@@ -178,7 +178,7 @@ export class Chart implements ChartInitializer {
      * @param width The width of the line.
      */
     drawLine(data: Vector2[], color: string, width: number): void {
-        const c: CanvasRenderingContext2D = this.context;
+        const c = this.context;
         c.save();
         this.transformContext();
         c.lineWidth = width;
@@ -187,7 +187,7 @@ export class Chart implements ChartInitializer {
         c.moveTo(data[0].x * this.scaleX, data[0].y * this.scaleY);
 
         for (let n = 0; n < data.length; ++n) {
-            const point: Vector2 = data[n];
+            const point = data[n];
 
             // Data segment
             c.lineTo(point.x * this.scaleX, point.y * this.scaleY);
@@ -222,7 +222,7 @@ export class Chart implements ChartInitializer {
      * @param color The color of the area.
      */
     drawArea(data: Vector2[], color: string): void {
-        const c: CanvasRenderingContext2D = this.context;
+        const c = this.context;
         c.save();
         this.transformContext();
         c.strokeStyle = c.fillStyle = color;
@@ -257,9 +257,9 @@ export class Chart implements ChartInitializer {
      * @param drawLabel Whether or not to draw the axis label.
      */
     private drawXAxis(drawLabel?: boolean): void {
-        const c: CanvasRenderingContext2D = this.context;
-        const labelOffset: number = this.xLabel ? this.baseLabelOffset : 0;
-        const yLabelOffset: number = this.yLabel ? this.baseLabelOffset : 0;
+        const c = this.context;
+        const labelOffset = this.xLabel ? this.baseLabelOffset : 0;
+        const yLabelOffset = this.yLabel ? this.baseLabelOffset : 0;
         c.save();
         if (this.xLabel && drawLabel) {
             c.textAlign = "center";
@@ -303,10 +303,8 @@ export class Chart implements ChartInitializer {
         c.textBaseline = "middle";
 
         for (let n = 0; n < this.numXTicks; ++n) {
-            const label: number = Math.round(
-                ((n + 1) * this.maxX) / this.numXTicks,
-            );
-            let stringLabel: string = label.toString();
+            const label = Math.round(((n + 1) * this.maxX) / this.numXTicks);
+            let stringLabel = label.toString();
             switch (this.xValueType) {
                 case "time":
                     stringLabel = this.timeString(label);
@@ -332,9 +330,9 @@ export class Chart implements ChartInitializer {
      * @param drawLabel Whether or not to draw the axis label.
      */
     private drawYAxis(drawLabel?: boolean): void {
-        const c: CanvasRenderingContext2D = this.context;
-        const labelOffset: number = this.yLabel ? this.baseLabelOffset : 0;
-        const xLabelOffset: number = this.xLabel ? this.baseLabelOffset : 0;
+        const c = this.context;
+        const labelOffset = this.yLabel ? this.baseLabelOffset : 0;
+        const xLabelOffset = this.xLabel ? this.baseLabelOffset : 0;
         c.save();
         if (this.yLabel && drawLabel) {
             c.textAlign = "center";
@@ -377,7 +375,7 @@ export class Chart implements ChartInitializer {
         c.textBaseline = "middle";
 
         for (let n = 0; n < this.numYTicks; ++n) {
-            const value: number = Math.round(
+            const value = Math.round(
                 this.maxY - (n * this.maxY) / this.numYTicks,
             );
             c.save();
@@ -396,7 +394,7 @@ export class Chart implements ChartInitializer {
      * Transforms the context and move it to the center of the graph.
      */
     private transformContext(): void {
-        const c: CanvasRenderingContext2D = this.context;
+        const c = this.context;
 
         // Move context to point (0, 0) in graph
         c.translate(
@@ -414,10 +412,10 @@ export class Chart implements ChartInitializer {
      */
     private getLongestValueWidth(): number {
         this.context.font = this.font;
-        let longestValueWidth: number = 0;
+        let longestValueWidth = 0;
         for (let n = 0; n < this.numYTicks; ++n) {
-            const value: number = this.maxY - n * this.unitsPerTickY;
-            let stringValue: string = value.toString();
+            const value = this.maxY - n * this.unitsPerTickY;
+            let stringValue = value.toString();
             switch (this.yValueType) {
                 case "time":
                     stringValue = this.timeString(value);
@@ -463,19 +461,16 @@ export class Chart implements ChartInitializer {
     private timeString(seconds: number): string {
         seconds = Math.trunc(seconds);
 
-        const days: number = Math.floor(seconds / 86400);
+        const days = Math.floor(seconds / 86400);
         seconds -= days * 86400;
 
-        const hours: number = Math.floor(seconds / 3600);
+        const hours = Math.floor(seconds / 3600);
         seconds -= hours * 3600;
 
-        const minutes: number = Math.floor(seconds / 60);
+        const minutes = Math.floor(seconds / 60);
         seconds -= minutes * 60;
 
-        const final: string[] = [
-            minutes.toString(),
-            seconds.toString().padStart(2, "0"),
-        ];
+        const final = [minutes.toString(), seconds.toString().padStart(2, "0")];
 
         if (hours > 0) {
             final.unshift(hours.toString());
