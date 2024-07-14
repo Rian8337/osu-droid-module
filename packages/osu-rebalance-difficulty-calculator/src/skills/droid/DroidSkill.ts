@@ -12,6 +12,11 @@ export abstract class DroidSkill extends StrainSkill {
      */
     protected abstract readonly starsPerDouble: number;
 
+    /**
+     * The minimum number of strains to judge when computing for retryability.
+     */
+    protected readonly minimumRetryabilityStrains: number = 500;
+
     protected readonly _objectStrains: number[] = [];
 
     /**
@@ -42,6 +47,48 @@ export abstract class DroidSkill extends StrainSkill {
                 total +
                 1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
             0,
+        );
+    }
+
+    /**
+     * Computes the retryability of the beatmap based on the strains of the hitobjects.
+     *
+     * Earlier difficult strains indicate higher retryability.
+     *
+     * The result is scaled by clock rate as it affects the total number of strains.
+     *
+     * @returns A number between 0 and 1. A higher value indicates higher retryability.
+     */
+    countRetryability(): number {
+        if (this._objectStrains.length === 0) {
+            return 0;
+        }
+
+        const maxStrain = Math.max(...this._objectStrains);
+
+        if (maxStrain === 0) {
+            return 0;
+        }
+
+        let weightedStrainSum = 0;
+
+        for (let i = 0; i < this._objectStrains.length; ++i) {
+            const strainRatio = this._objectStrains[i] / maxStrain;
+
+            // Give more weight to earlier strains.
+            const strainPositionWeight =
+                1 - Math.pow(i / this._objectStrains.length, 0.75) / 10;
+
+            weightedStrainSum += strainRatio * strainPositionWeight;
+        }
+
+        return (
+            1 -
+            weightedStrainSum /
+                Math.max(
+                    this._objectStrains.length,
+                    this.minimumRetryabilityStrains,
+                )
         );
     }
 
