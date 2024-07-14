@@ -375,13 +375,17 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
 
-        this.attributes.aimDifficulty = this.starValue(
-            aimSkill.difficultyValue(),
+        const retryabilityScaling = this.calculateRetryabilityScaling(
+            aimSkill.countRetryability(),
         );
+
+        this.attributes.aimDifficulty =
+            this.starValue(aimSkill.difficultyValue()) * retryabilityScaling;
 
         if (this.aim) {
             this.attributes.sliderFactor =
-                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
+                (this.starValue(aimSkillWithoutSliders.difficultyValue()) *
+                    retryabilityScaling) /
                 this.aim;
         }
 
@@ -454,15 +458,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ): void {
         this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
+        const retryabilityScaling = this.calculateRetryabilityScaling(
+            tapSkillCheese.countRetryability(),
+        );
+
         this.attributes.tapDifficulty = this.mods.some(
             (m) => m instanceof ModRelax,
         )
             ? 0
-            : this.starValue(tapSkillCheese.difficultyValue());
+            : this.starValue(tapSkillCheese.difficultyValue()) *
+              retryabilityScaling;
 
         if (this.tap) {
             this.attributes.vibroFactor =
-                this.starValue(tapSkillVibro.difficultyValue()) / this.tap;
+                (this.starValue(tapSkillVibro.difficultyValue()) *
+                    retryabilityScaling) /
+                this.tap;
         }
 
         this.attributes.speedNoteCount = tapSkillCheese.relevantNoteCount();
@@ -614,5 +625,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         this.attributes.visualDifficultStrainCount =
             visualSkillWithSliders.countDifficultStrains();
+    }
+
+    private calculateRetryabilityScaling(retryability: number) {
+        return 1 - Math.pow(retryability, 4) / 10;
     }
 }
