@@ -257,15 +257,41 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
         }
 
-        const travelDistance = current.previous(0)?.travelDistance ?? 0;
-        const shortDistancePenalty = Math.pow(
-            Math.min(
-                this.singleSpacingThreshold,
-                travelDistance + current.minimumJumpDistance,
-            ) / this.singleSpacingThreshold,
-            3.5,
+        const prev = current.previous(0);
+
+        // Punish low spacing as it is easier to aim.
+        const travelDistance = prev?.travelDistance ?? 0;
+        const distance = travelDistance + current.minimumJumpDistance;
+        const shortDistancePenalty = Math.min(
+            1,
+            Math.pow(distance / this.singleSpacingThreshold, 3.5),
         );
 
-        return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
+        let adjustedDistanceScale = 1;
+
+        // Reward for inconsistent angles while punishing consistent ones.
+        // Graph: https://www.desmos.com/calculator/soomupyfwp
+        if (
+            current.angle !== null &&
+            typeof prev?.angle === "number" &&
+            current.angle !== prev.angle
+        ) {
+            const angleDiff = Math.abs(current.angle - prev.angle);
+            const adjustedAngleDiff = Math.sin(angleDiff / 2) * 180;
+
+            const angularVelocity =
+                adjustedAngleDiff / (0.1 + current.strainTime);
+            const angularVelocityBonus = Math.max(
+                0,
+                Math.pow(angularVelocity, 0.4) - 1,
+            );
+
+            adjustedDistanceScale = 0.65 + angularVelocityBonus * 0.45;
+        }
+
+        return (
+            (200 * speedBonus * shortDistancePenalty * adjustedDistanceScale) /
+            current.strainTime
+        );
     }
 }
