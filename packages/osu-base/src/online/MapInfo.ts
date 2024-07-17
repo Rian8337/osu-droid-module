@@ -41,7 +41,7 @@ export interface OsuAPIResponse {
     readonly count_normal: string;
     readonly count_slider: string;
     readonly count_spinner: string;
-    readonly max_combo: string;
+    readonly max_combo: string | null;
     readonly storyboard: string;
     readonly video: string;
     readonly download_unavailable: string;
@@ -190,7 +190,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     /**
      * The maximum combo of the beatmap.
      */
-    maxCombo = 0;
+    maxCombo: number | null = null;
 
     /**
      * The circle size of the beatmap.
@@ -394,7 +394,8 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
         map.spinners = mapinfo.count_spinner
             ? parseInt(mapinfo.count_spinner)
             : 0;
-        map.maxCombo = parseInt(mapinfo.max_combo);
+        map.maxCombo =
+            mapinfo.max_combo !== null ? parseInt(mapinfo.max_combo) : null;
         map.cs = parseFloat(mapinfo.diff_size);
         map.ar = parseFloat(mapinfo.diff_approach);
         map.od = parseFloat(mapinfo.diff_overall);
@@ -476,7 +477,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
             count_normal: this.circles.toString(),
             count_slider: this.sliders.toString(),
             count_spinner: this.spinners.toString(),
-            max_combo: this.maxCombo.toString(),
+            max_combo: this.maxCombo?.toString() ?? null,
             storyboard: this.storyboardAvailable ? "1" : "0",
             video: this.videoAvailable ? "1" : "0",
             download_unavailable: this.downloadAvailable ? "0" : "1",
