@@ -3,7 +3,6 @@ import { RankedStatus } from "../constants/RankedStatus";
 import { BeatmapDecoder } from "../beatmap/BeatmapDecoder";
 import { If } from "../utils/If";
 import { OsuAPIRequestBuilder } from "./OsuAPIRequestBuilder";
-import { RequestResponse } from "./RequestResponse";
 import { BeatmapGenre } from "./BeatmapGenre";
 import { BeatmapLanguage } from "./BeatmapLanguage";
 
@@ -53,11 +52,11 @@ export interface OsuAPIResponse {
 /**
  * Represents a beatmap with general information.
  */
-export class MapInfo<HasBeatmap extends boolean = boolean> {
+export class MapInfo<THasBeatmap extends boolean = boolean> {
     /**
      * The title of the song of the beatmap.
      */
-    title: string = "";
+    title = "";
 
     /**
      * The full title of the beatmap, which is `Artist - Title (Creator) [Difficulty Name]`.
@@ -69,67 +68,67 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The artist of the song of the beatmap.
      */
-    artist: string = "";
+    artist = "";
 
     /**
      * The creator of the beatmap.
      */
-    creator: string = "";
+    creator = "";
 
     /**
      * The user ID of the creator of the beatmap.
      */
-    creatorId: number = 0;
+    creatorId = 0;
 
     /**
      * The difficulty name of the beatmap.
      */
-    version: string = "";
+    version = "";
 
     /**
      * The source of the song, if any.
      */
-    source: string = "";
+    source = "";
 
     /**
      * The ranking status of the beatmap.
      */
-    approved: RankedStatus = 0;
+    approved = RankedStatus.pending;
 
     /**
      * The ID of the beatmap.
      */
-    beatmapId: number = 0;
+    beatmapId = 0;
 
     /**
      * The ID of the beatmapset containing the beatmap.
      */
-    beatmapSetId: number = 0;
+    beatmapSetId = 0;
 
     /**
      * The amount of times the beatmap has been played.
      */
-    plays: number = 0;
+    plays = 0;
 
     /**
      * The amount of times this beatmap has been passed.
      */
-    passes: number = 0;
+    passes = 0;
 
     /**
      * The amount of times the beatmap has been favorited.
      */
-    favorites: number = 0;
+    favorites = 0;
 
     /**
      * The user rating of this beatmap.
      */
-    rating: number = 0;
+    rating = 0;
 
     /**
      * The date of which the beatmap was submitted.
      */
-    submitDate: Date = new Date(0);
+    submitDate = new Date(0);
 
     /**
      * The date of which this beatmap was approved.
@@ -139,47 +138,47 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The date of which the beatmap was last updated.
      */
-    lastUpdate: Date = new Date(0);
+    lastUpdate = new Date(0);
 
     /**
      * The duration of the beatmap not including breaks.
      */
-    hitLength: number = 0;
+    hitLength = 0;
 
     /**
      * The duration of the beatmap including breaks.
      */
-    totalLength: number = 0;
+    totalLength = 0;
 
     /**
      * The genre of this beatmap.
      */
-    genre: BeatmapGenre = BeatmapGenre.any;
+    genre = BeatmapGenre.any;
 
     /**
      * The language of this beatmap.
      */
-    language: BeatmapLanguage = BeatmapLanguage.any;
+    language = BeatmapLanguage.any;
 
     /**
      * The BPM of the beatmap.
      */
-    bpm: number = 0;
+    bpm = 0;
 
     /**
      * The amount of circles in the beatmap.
      */
-    circles: number = 0;
+    circles = 0;
 
     /**
      * The amount of sliders in the beatmap.
      */
-    sliders: number = 0;
+    sliders = 0;
 
     /**
      * The amount of spinners in the beatmap.
      */
-    spinners: number = 0;
+    spinners = 0;
 
     /**
      * The amount of objects in the beatmap.
@@ -191,27 +190,27 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The maximum combo of the beatmap.
      */
-    maxCombo: number = 0;
+    maxCombo = 0;
 
     /**
      * The circle size of the beatmap.
      */
-    cs: number = 0;
+    cs = 0;
 
     /**
      * The approach rate of the beatmap.
      */
-    ar: number = 0;
+    ar = 0;
 
     /**
      * The overall difficulty of the beatmap.
      */
-    od: number = 0;
+    od = 0;
 
     /**
      * The health drain rate of the beatmap.
      */
-    hp: number = 0;
+    hp = 0;
 
     /**
      * The beatmap packs that contain this beatmap, represented by their ID.
@@ -241,37 +240,37 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
     /**
      * The MD5 hash of the beatmap.
      */
-    hash: string = "";
+    hash = "";
 
     /**
      * Whether this beatmap has a storyboard.
      */
-    storyboardAvailable: boolean = false;
+    storyboardAvailable = false;
 
     /**
      * Whether this beatmap has a video.
      */
-    videoAvailable: boolean = false;
+    videoAvailable = false;
 
     /**
      * Whether the download for this beatmap is available.
      *
      * The download of a beatmap may not be available due to old beatmap, etc.
      */
-    downloadAvailable: boolean = true;
+    downloadAvailable = true;
 
     /**
      * Whether the audio of this beatmap is available.
      *
      * The audio of a beatmap may not be available due to DMCA takedown, etc.
      */
-    audioAvailable: boolean = true;
+    audioAvailable = true;
 
     /**
      * The decoded beatmap from beatmap decoder.
      */
-    get beatmap(): If<HasBeatmap, Beatmap> {
-        return <If<HasBeatmap, Beatmap>>this.cachedBeatmap;
+    get beatmap(): If<THasBeatmap, Beatmap> {
+        return <If<THasBeatmap, Beatmap>>this.cachedBeatmap;
     }
 
     /**
@@ -318,15 +317,14 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
         beatmapIdOrHash: string | number,
         downloadBeatmap?: boolean,
     ): Promise<MapInfo | null> {
-        const apiRequestBuilder: OsuAPIRequestBuilder =
-            new OsuAPIRequestBuilder()
-                .setEndpoint("get_beatmaps")
-                .addParameter(
-                    typeof beatmapIdOrHash === "string" ? "h" : "b",
-                    beatmapIdOrHash,
-                );
+        const apiRequestBuilder = new OsuAPIRequestBuilder()
+            .setEndpoint("get_beatmaps")
+            .addParameter(
+                typeof beatmapIdOrHash === "string" ? "h" : "b",
+                beatmapIdOrHash,
+            );
 
-        const result: RequestResponse = await apiRequestBuilder.sendRequest();
+        const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
             throw new Error("osu! API error");
@@ -363,7 +361,7 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
         const map = new MapInfo();
 
         const parseDate = (str: string): Date => {
-            const t: number[] = str.split(/[- :]/).map((e) => parseInt(e));
+            const t = str.split(/[- :]/).map((e) => parseInt(e));
 
             return new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4], t[5]));
         };
@@ -506,11 +504,11 @@ export class MapInfo<HasBeatmap extends boolean = boolean> {
             return;
         }
 
-        const url: string = `https://osu.ppy.sh/osu/${this.beatmapId}`;
+        const url = `https://osu.ppy.sh/osu/${this.beatmapId}`;
 
         return fetch(url)
             .then(async (res) => {
-                const text: string = await res.text();
+                const text = await res.text();
 
                 if (res.status >= 500) {
                     throw new Error(text);
