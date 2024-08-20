@@ -241,9 +241,16 @@ export abstract class HitObject {
     getStackOffset(mode: Modes): Vector2 {
         switch (mode) {
             case Modes.droid:
-                return new Vector2(this._stackHeight * this._scale * 4);
+                return new Vector2(
+                    this.stackHeight *
+                        CircleSizeCalculator.standardScaleToDroidScale(
+                            this.scale,
+                            true,
+                        ) *
+                        4,
+                );
             case Modes.osu:
-                return new Vector2(this._stackHeight * this._scale * -6.4);
+                return new Vector2(this.stackHeight * this.scale * -6.4);
                 break;
         }
     }
