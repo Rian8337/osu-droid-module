@@ -145,11 +145,10 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         }
 
         if (considerDistance) {
-            const endPosition = this.object.getStackedPosition(Modes.droid);
+            const endPosition = this.object.stackedPosition;
 
-            let distance = previous.object
-                .getStackedEndPosition(Modes.droid)
-                .getDistance(endPosition);
+            let distance =
+                previous.object.stackedEndPosition.getDistance(endPosition);
 
             if (
                 previous.object instanceof Slider &&
@@ -210,18 +209,18 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         }
 
         for (const hitObject of prevVisibleObjects) {
-            const distance = this.object
-                .getStackedPosition(this.mode)
-                .getDistance(hitObject.getStackedEndPosition(this.mode));
+            const distance = this.object.stackedPosition.getDistance(
+                hitObject.stackedEndPosition,
+            );
             const deltaTime = this.startTime - hitObject.endTime / clockRate;
 
             this.applyToOverlappingFactor(distance, deltaTime);
         }
 
         for (const hitObject of nextVisibleObjects) {
-            const distance = hitObject
-                .getStackedPosition(this.mode)
-                .getDistance(this.object.getStackedEndPosition(this.mode));
+            const distance = hitObject.stackedPosition.getDistance(
+                this.object.stackedEndPosition,
+            );
             const deltaTime = hitObject.startTime / clockRate - this.endTime;
 
             if (deltaTime >= 0) {

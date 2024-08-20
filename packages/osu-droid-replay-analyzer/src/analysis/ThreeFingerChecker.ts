@@ -7,7 +7,6 @@ import {
     Circle,
     Spinner,
     Interpolation,
-    Modes,
     Slider,
     Beatmap,
     BreakPoint,
@@ -601,7 +600,7 @@ export class ThreeFingerChecker {
                 continue;
             }
 
-            const objectPosition = object.getStackedPosition(Modes.droid);
+            const objectPosition = object.stackedPosition;
             const hitTime = object.startTime + objectData.accuracy;
 
             // Observe the cursor position at the object's hit time.

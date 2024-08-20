@@ -6,7 +6,6 @@ import {
     DroidHitWindow,
     Interpolation,
     MathUtils,
-    Modes,
     ModPrecise,
     ModUtil,
     Slider,
@@ -320,10 +319,8 @@ export class TwoHandChecker {
             return new IndexedHitObject(diffObject, -1, -1, -1, null, false);
         }
 
-        const objectStartPosition = object.getStackedPosition(Modes.droid);
-        let prevObjectEndPosition = prevObject.getStackedEndPosition(
-            Modes.droid,
-        );
+        const objectStartPosition = object.stackedPosition;
+        let prevObjectEndPosition = prevObject.stackedEndPosition;
 
         if (prevObject instanceof Slider) {
             if (prevObject.lazyTravelDistance > 0) {
@@ -338,15 +335,13 @@ export class TwoHandChecker {
                     prevObjectEndPosition = prevObject.lazyEndPosition!;
                 }
             } else {
-                prevObjectEndPosition = prevObject.getStackedPosition(
-                    Modes.droid,
-                );
+                prevObjectEndPosition = prevObject.stackedPosition;
             }
         }
 
-        const prevToCurrentMovement = object
-            .getStackedPosition(Modes.droid)
-            .subtract(prevObjectEndPosition);
+        const prevToCurrentMovement = object.stackedPosition.subtract(
+            prevObjectEndPosition,
+        );
 
         // Don't consider objects that are too close to each other.
         if (prevToCurrentMovement.length <= object.radius) {
@@ -527,7 +522,7 @@ export class TwoHandChecker {
     ): CursorPositionInformation {
         const object = this.calculator.beatmap.hitObjects.objects[objectIndex];
         const data = this.data.hitObjectData[objectIndex];
-        const objectPosition = object.getStackedPosition(Modes.droid);
+        const objectPosition = object.stackedPosition;
 
         if (object instanceof Spinner) {
             return {
@@ -753,12 +748,10 @@ export class TwoHandChecker {
 
         const nextObject =
             this.calculator.beatmap.hitObjects.objects[objectIndex - 1];
-        let objectEndPosition = object.getStackedEndPosition(Modes.droid);
+        let objectEndPosition = object.stackedEndPosition;
 
         if (object.lazyTravelDistance > 0 && nextObject) {
-            const nextStartPosition = nextObject.getStackedPosition(
-                Modes.droid,
-            );
+            const nextStartPosition = nextObject.stackedPosition;
 
             const lazyEndMovement = nextStartPosition.subtract(
                 object.lazyEndPosition!,
@@ -770,7 +763,7 @@ export class TwoHandChecker {
                 objectEndPosition = object.lazyEndPosition!;
             }
         } else {
-            objectEndPosition = object.getStackedPosition(Modes.droid);
+            objectEndPosition = object.stackedPosition;
         }
 
         let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);

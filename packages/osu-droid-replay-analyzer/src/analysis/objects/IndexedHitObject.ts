@@ -1,4 +1,4 @@
-import { Modes, Vector2 } from "@rian8337/osu-base";
+import { Vector2 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "@rian8337/osu-difficulty-calculator";
 import { DifficultyHitObject as RebalanceDifficultyHitObject } from "@rian8337/osu-rebalance-difficulty-calculator";
 
@@ -47,7 +47,7 @@ export class IndexedHitObject {
 
     /**
      * The position of the cursor at the end of this hitobject.
-     * 
+     *
      * Will be altered during detection.
      */
     endCursorPosition: Vector2;
@@ -70,7 +70,7 @@ export class IndexedHitObject {
         groupIndex: number,
         occurrenceIndex: number,
         angle: number | null,
-        is2Handed: boolean
+        is2Handed: boolean,
     ) {
         this.object = object;
         this.cursorIndex = cursorIndex;
@@ -78,6 +78,6 @@ export class IndexedHitObject {
         this.occurrenceIndex = occurrenceIndex;
         this.angle = angle;
         this.is2Handed = is2Handed;
-        this.endCursorPosition = this.object.object.getStackedEndPosition(Modes.droid);
+        this.endCursorPosition = this.object.object.stackedEndPosition;
     }
 }

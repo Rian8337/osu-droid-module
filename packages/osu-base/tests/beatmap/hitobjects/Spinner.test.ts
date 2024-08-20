@@ -11,6 +11,16 @@ const createSpinner = (duration: number = 100) => {
 describe("Test spinner position", () => {
     const playfieldCenter = new Vector2(256, 192);
 
+    const updateStacking = (spinner: Spinner, stackHeight: number) => {
+        spinner.stackHeight = stackHeight;
+        spinner._stackOffset = new Vector2(
+            spinner.stackHeight *
+                spinner.scale *
+                // Gamemode doesn't matter.
+                -6.4,
+        );
+    };
+
     test("Spinner position", () => {
         const spinner = createSpinner();
 
@@ -27,23 +37,20 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.stackHeight = 1;
+            updateStacking(spinner, 1);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
 
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            updateStacking(spinner, 2);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
 
-            spinner.stackHeight = 2;
-
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
-
-            spinner.stackHeight = 4;
-
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            updateStacking(spinner, 4);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
     });
 
@@ -51,23 +58,20 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
-            spinner.stackHeight = 1;
+            updateStacking(spinner, 1);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
 
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            updateStacking(spinner, 2);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
 
-            spinner.stackHeight = 2;
-
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
-
-            spinner.stackHeight = 4;
-
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            updateStacking(spinner, 4);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
     });
 });

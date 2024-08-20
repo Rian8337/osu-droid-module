@@ -3,7 +3,6 @@ import {
     calculateDroidDifficultyStatistics,
     DroidHitWindow,
     Interpolation,
-    Modes,
     ModPrecise,
     ModUtil,
     Slider,
@@ -122,7 +121,7 @@ export class SliderCheeseChecker {
             }
 
             const object = <Slider>objects[difficultSlider.index];
-            const objectStartPosition = object.getStackedPosition(Modes.droid);
+            const objectStartPosition = object.stackedPosition;
 
             // These time boundaries should consider the delta time between the previous and next
             // object as well as their hit accuracy. However, they are somewhat complicated to
@@ -286,9 +285,7 @@ export class SliderCheeseChecker {
                 }
 
                 const nestedObject = object.nestedHitObjects[i];
-                const nestedPosition = nestedObject.getStackedPosition(
-                    Modes.droid,
-                );
+                const nestedPosition = nestedObject.stackedPosition;
 
                 while (
                     occurrenceLoopIndex < allOccurrences.length &&
