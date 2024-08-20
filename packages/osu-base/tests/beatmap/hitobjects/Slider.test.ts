@@ -12,6 +12,7 @@ import {
     BeatmapControlPoints,
     BeatmapDifficulty,
     DifficultyControlPoint,
+    CircleSizeCalculator,
 } from "../../../src";
 
 const createGlobalSliderValues = (newCombo?: boolean) => {
@@ -64,19 +65,27 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                slider.stackHeight = 1;
+                const scale =
+                    mode === Modes.droid
+                        ? CircleSizeCalculator.standardScaleToDroidScale(
+                              slider.scale,
+                              true,
+                          )
+                        : slider.scale;
 
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+
+                slider.stackHeight = 1;
 
                 let positionOffset = slider
                     .getStackedPosition(mode)
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
 
                 slider.stackHeight = 2;
@@ -86,10 +95,10 @@ describe("Test slider position", () => {
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
 
                 slider.stackHeight = 0.5;
@@ -99,10 +108,10 @@ describe("Test slider position", () => {
                     .subtract(slider.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
             };
 
@@ -127,19 +136,27 @@ describe("Test slider position", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
 
-                slider.stackHeight = 1;
+                const scale =
+                    mode === Modes.droid
+                        ? CircleSizeCalculator.standardScaleToDroidScale(
+                              slider.scale,
+                              true,
+                          )
+                        : slider.scale;
 
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+
+                slider.stackHeight = 1;
 
                 let positionOffset = slider
                     .getStackedEndPosition(mode)
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
 
                 slider.stackHeight = 2;
@@ -149,10 +166,10 @@ describe("Test slider position", () => {
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
 
                 slider.stackHeight = 0.5;
@@ -162,10 +179,10 @@ describe("Test slider position", () => {
                     .subtract(slider.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    slider.scale * slider.stackHeight * stackMultiplier,
+                    scale * slider.stackHeight * stackMultiplier,
                 );
             };
 

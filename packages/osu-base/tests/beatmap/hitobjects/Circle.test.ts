@@ -1,4 +1,11 @@
-import { Circle, HitObject, Modes, ObjectTypes, Vector2 } from "../../../src";
+import {
+    Circle,
+    CircleSizeCalculator,
+    HitObject,
+    Modes,
+    ObjectTypes,
+    Vector2,
+} from "../../../src";
 
 const createCircle = (newCombo?: boolean) => {
     return new Circle({
@@ -32,19 +39,27 @@ describe("Test circle position", () => {
             const executeTest = (mode: Modes) => {
                 const circle = createCircle();
 
-                circle.stackHeight = 1;
+                const scale =
+                    mode === Modes.droid
+                        ? CircleSizeCalculator.standardScaleToDroidScale(
+                              circle.scale,
+                              true,
+                          )
+                        : circle.scale;
 
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+
+                circle.stackHeight = 1;
 
                 let positionOffset = circle
                     .getStackedPosition(mode)
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
 
                 circle.stackHeight = 2;
@@ -54,10 +69,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
 
                 circle.stackHeight = 4;
@@ -67,10 +82,10 @@ describe("Test circle position", () => {
                     .subtract(circle.position);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
             };
 
@@ -97,6 +112,14 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 1;
 
+                const scale =
+                    mode === Modes.droid
+                        ? CircleSizeCalculator.standardScaleToDroidScale(
+                              circle.scale,
+                              true,
+                          )
+                        : circle.scale;
+
                 const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
 
                 let positionOffset = circle
@@ -104,10 +127,10 @@ describe("Test circle position", () => {
                     .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
 
                 circle.stackHeight = 2;
@@ -117,10 +140,10 @@ describe("Test circle position", () => {
                     .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
 
                 circle.stackHeight = 4;
@@ -130,10 +153,10 @@ describe("Test circle position", () => {
                     .subtract(circle.endPosition);
 
                 expect(positionOffset.x).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
                 expect(positionOffset.y).toBeCloseTo(
-                    circle.scale * circle.stackHeight * stackMultiplier,
+                    scale * circle.stackHeight * stackMultiplier,
                 );
             };
 
