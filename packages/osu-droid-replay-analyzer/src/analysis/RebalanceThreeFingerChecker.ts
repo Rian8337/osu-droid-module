@@ -98,16 +98,6 @@ export class RebalanceThreeFingerChecker {
     private readonly isPrecise: boolean;
 
     /**
-     * The maximum object radius that is acceptable when checking for cursor position in drag detection.
-     */
-    private objectRadiusThreshold: number;
-
-    /**
-     * The maximum value of object radius threshold.
-     */
-    private readonly maximumObjectRadiusThreshold: number;
-
-    /**
      * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
      * @param difficultyAttributes The difficulty attributes of the beatmap.
@@ -132,11 +122,6 @@ export class RebalanceThreeFingerChecker {
         );
         this.hitWindow = new DroidHitWindow(od);
         this.hitObjects = beatmap.hitObjects.objects;
-
-        this.objectRadiusThreshold = this.hitObjects[0].radius;
-
-        // Only allow object radius threshold to deviate slightly from actual object radius.
-        this.maximumObjectRadiusThreshold = this.objectRadiusThreshold * 1.05;
     }
 
     /**
@@ -622,11 +607,7 @@ export class RebalanceThreeFingerChecker {
                     }
 
                     const cursors = cursorGroup.allOccurrences;
-
-                    // We are maintaining the closest distance of cursors to the object.
-                    // This is because the radius that is calculated is using an estimation. As such,
-                    // it does not perfectly reflect the actual object radius in gameplay.
-                    let closestDistance = this.maximumObjectRadiusThreshold;
+                    let isInObject = false;
 
                     for (
                         let l = cursorIndices[j];
@@ -646,14 +627,12 @@ export class RebalanceThreeFingerChecker {
                             continue;
                         }
 
-                        let distance: number;
-
                         switch (cursor.id) {
                             case MovementType.up:
-                                distance =
+                                isInObject =
                                     prevCursor.position.getDistance(
                                         objectPosition,
-                                    );
+                                    ) <= object.radius;
                                 break;
                             case MovementType.move: {
                                 // Interpolate movement.
@@ -666,28 +645,18 @@ export class RebalanceThreeFingerChecker {
                                     t,
                                 );
 
-                                distance =
-                                    objectPosition.getDistance(cursorPosition);
+                                isInObject =
+                                    objectPosition.getDistance(
+                                        cursorPosition,
+                                    ) <= object.radius;
                                 break;
                             }
-                            case MovementType.down:
-                                continue;
                         }
 
-                        closestDistance = Math.min(closestDistance, distance);
+                        break;
                     }
 
-                    // At this point, the object is guaranteed to be hit, but the distance may not reach the threshold
-                    // due to radius estimation. In order to work around this, we store the farthest distance from all
-                    // processed cursors so far and use it as threshold rather than the actual object radius.
-                    if (
-                        closestDistance <= this.maximumObjectRadiusThreshold &&
-                        closestDistance > this.objectRadiusThreshold
-                    ) {
-                        this.objectRadiusThreshold = closestDistance;
-                    }
-
-                    if (closestDistance > this.objectRadiusThreshold) {
+                    if (!isInObject) {
                         cursorInstanceIndices[j] = -1;
                     }
 
