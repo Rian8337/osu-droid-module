@@ -146,16 +146,16 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
             noMod: {
-                aim: 2.3831712269307364,
-                speed: 1.8524086519172178,
-                flashlight: 1.548663672373713,
-                total: 4.504975092692032,
+                aim: 2.38329754243596,
+                speed: 1.852444804914802,
+                flashlight: 1.5631284331567892,
+                total: 4.50516851110435,
             },
             doubleTime: {
-                aim: 3.2626224346673154,
-                speed: 2.643465024399173,
-                flashlight: 2.396326757852515,
-                total: 6.248047415050646,
+                aim: 3.2627995309721967,
+                speed: 2.643610266224992,
+                flashlight: 2.416117806994015,
+                total: 6.2483878561131405,
             },
         },
     );
@@ -164,16 +164,16 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 1.2904210446224906,
-            speed: 1.1740907231360738,
-            flashlight: 0.44584339420807667,
-            total: 2.581414614962865,
+            aim: 1.2905674764533197,
+            speed: 1.1738140594624356,
+            flashlight: 0.4548840702091824,
+            total: 2.581328909130559,
         },
         doubleTime: {
-            aim: 1.7350154357475098,
-            speed: 1.6788658439315995,
-            flashlight: 0.6523706596024608,
-            total: 3.5674356226804314,
+            aim: 1.735080364763565,
+            speed: 1.6776992711424359,
+            flashlight: 0.6658138602842196,
+            total: 3.5663359644015125,
         },
     });
 });
@@ -183,16 +183,16 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noMod: {
-                aim: 2.986717180507845,
+                aim: 2.998699808952236,
                 speed: 3.0163495021546853,
-                flashlight: 1.8872149430292529,
-                total: 6.271241451330611,
+                flashlight: 1.9487844086254231,
+                total: 6.28364808504362,
             },
             doubleTime: {
-                aim: 4.198884138559176,
-                speed: 4.543117656856761,
-                flashlight: 2.8231579152777524,
-                total: 9.148733097665335,
+                aim: 4.220274465297037,
+                speed: 4.543127503929168,
+                flashlight: 2.9067732997621683,
+                total: 9.169076094166597,
             },
         },
     );
@@ -220,16 +220,16 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 15.788590723339778,
-                speed: 11.001302727902472,
-                flashlight: 82.4788478356682,
-                total: 28.97765105330993,
+                aim: 16.04102965680953,
+                speed: 11.00140070367911,
+                flashlight: 249.1821066741133,
+                total: 29.334871129605816,
             },
             doubleTime: {
-                aim: 20.09747072556416,
-                speed: 13.198213598296716,
-                flashlight: 92.68470788110214,
-                total: 36.41710510035692,
+                aim: 20.38661513206168,
+                speed: 13.198324389756989,
+                flashlight: 270.8501512791027,
+                total: 36.83801094932713,
             },
         },
     );
@@ -241,13 +241,13 @@ describe("Test difficulty calculation sample beatmap 6", () => {
             aim: 0,
             speed: 0.06990556852804106,
             flashlight: 0,
-            total: 0.14377244283550372,
+            total: 0.1437742937317235,
         },
         doubleTime: {
             aim: 0,
             speed: 0.08561648653643154,
             flashlight: 0,
-            total: 0.16731867974000042,
+            total: 0.16732167597199432,
         },
     });
 });

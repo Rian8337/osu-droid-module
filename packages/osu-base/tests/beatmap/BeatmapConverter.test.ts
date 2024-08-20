@@ -69,7 +69,7 @@ describe("Test beatmap conversion with options", () => {
         test("No options", () => {
             const firstObject = getConvertedFirstObject({});
 
-            expect(firstObject.scale).toBeCloseTo(1.2853166522125479);
+            expect(firstObject.scale).toBeCloseTo(0.8526588830433072);
             expect(firstObject.timePreempt).toBe(1200);
         });
 
@@ -78,7 +78,7 @@ describe("Test beatmap conversion with options", () => {
                 mods: [new ModHardRock()],
             });
 
-            expect(firstObject.scale).toBeCloseTo(1.1603166522125479);
+            expect(firstObject.scale).toBeCloseTo(0.769735845987075);
         });
 
         test("Hidden", () => {
@@ -106,7 +106,7 @@ describe("Test beatmap conversion with options", () => {
             });
 
             expect(firstObject.startTime).toBe(1000);
-            expect(firstObject.scale).toBeCloseTo(1.4103166522125479);
+            expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
             expect(firstObject.timePreempt).toBeCloseTo(1290);
         });
 
@@ -117,7 +117,7 @@ describe("Test beatmap conversion with options", () => {
             });
 
             expect(firstObject.startTime).toBe(1000);
-            expect(firstObject.scale).toBeCloseTo(1.4103166522125479);
+            expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
             expect(firstObject.timePreempt).toBeCloseTo(1290);
         });
 
@@ -132,7 +132,7 @@ describe("Test beatmap conversion with options", () => {
             });
 
             expect(firstObject.startTime).toBe(1000);
-            expect(firstObject.scale).toBeCloseTo(1.384629152212548);
+            expect(firstObject.scale).toBeCloseTo(0.918164788421231);
             expect(firstObject.timePreempt).toBeCloseTo(1012.5);
         });
     });

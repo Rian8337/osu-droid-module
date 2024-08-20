@@ -282,7 +282,8 @@ export abstract class DifficultyHitObject {
 
         const lastCursorPosition = this.getEndCursorPosition(this.lastObject);
 
-        this.lazyJumpDistance = this.object.stackedPosition
+        this.lazyJumpDistance = this.object
+            .getStackedPosition(this.mode)
             .scale(scalingFactor)
             .subtract(lastCursorPosition.scale(scalingFactor)).length;
         this.minimumJumpTime = this.strainTime;
@@ -319,9 +320,10 @@ export abstract class DifficultyHitObject {
             //
             // Thus, the player is assumed to jump the minimum of these two distances in all cases.
             const tailJumpDistance =
-                this.lastObject.tail.stackedPosition.subtract(
-                    this.object.stackedPosition,
-                ).length * scalingFactor;
+                this.lastObject.tail
+                    .getStackedPosition(this.mode)
+                    .subtract(this.object.getStackedPosition(this.mode))
+                    .length * scalingFactor;
 
             this.minimumJumpDistance = Math.max(
                 0,
@@ -339,9 +341,11 @@ export abstract class DifficultyHitObject {
             );
 
             const v1 = lastLastCursorPosition.subtract(
-                this.lastObject.stackedPosition,
+                this.lastObject.getStackedPosition(this.mode),
             );
-            const v2 = this.object.stackedPosition.subtract(lastCursorPosition);
+            const v2 = this.object
+                .getStackedPosition(this.mode)
+                .subtract(lastCursorPosition);
             const dot = v1.dot(v2);
             const det = v1.x * v2.y - v1.y * v2.x;
 
@@ -356,7 +360,7 @@ export abstract class DifficultyHitObject {
 
         if (this.mode === Modes.droid) {
             // Temporary lazy end position until a real result can be derived.
-            slider.lazyEndPosition = slider.stackedPosition;
+            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
 
             // Stop here if the slider has too short duration, allowing the player to essentially
             // complete the slider without movement, making travel distance and time irrelevant.
@@ -379,20 +383,19 @@ export abstract class DifficultyHitObject {
         }
 
         // Temporary lazy end position until a real result can be derived.
-        slider.lazyEndPosition = slider.stackedPosition.add(
-            slider.path.positionAt(endTimeMin),
-        );
+        slider.lazyEndPosition = slider
+            .getStackedPosition(this.mode)
+            .add(slider.path.positionAt(endTimeMin));
 
-        let currentCursorPosition = slider.stackedPosition;
+        let currentCursorPosition = slider.getStackedPosition(this.mode);
         const scalingFactor = this.normalizedRadius / slider.radius;
 
         for (let i = 1; i < slider.nestedHitObjects.length; ++i) {
             const currentMovementObject = slider.nestedHitObjects[i];
 
-            let currentMovement =
-                currentMovementObject.stackedPosition.subtract(
-                    currentCursorPosition,
-                );
+            let currentMovement = currentMovementObject
+                .getStackedPosition(this.mode)
+                .subtract(currentCursorPosition);
             let currentMovementLength = scalingFactor * currentMovement.length;
 
             // The amount of movement required so that the cursor position needs to be updated.
@@ -439,7 +442,7 @@ export abstract class DifficultyHitObject {
     }
 
     private getEndCursorPosition(object: PlaceableHitObject) {
-        let pos = object.stackedPosition;
+        let pos = object.getStackedPosition(this.mode);
 
         if (object instanceof Slider) {
             this.calculateSliderCursorPosition(object);

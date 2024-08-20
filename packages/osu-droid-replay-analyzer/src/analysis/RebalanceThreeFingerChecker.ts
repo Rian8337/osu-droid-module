@@ -5,6 +5,7 @@ import {
     MathUtils,
     Circle,
     Spinner,
+    Modes,
     Slider,
     Beatmap,
     BreakPoint,
@@ -583,7 +584,7 @@ export class RebalanceThreeFingerChecker {
                 continue;
             }
 
-            const objectPosition = object.stackedPosition;
+            const objectPosition = object.getStackedPosition(Modes.droid);
             const hitTime = object.startTime + objectData.accuracy;
 
             // Observe the cursor position at the object's hit time.

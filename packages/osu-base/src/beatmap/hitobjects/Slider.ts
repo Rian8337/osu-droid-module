@@ -180,18 +180,6 @@ export class Slider extends HitObject {
         }
     }
 
-    override get stackOffset(): Vector2 {
-        return this._stackOffset;
-    }
-
-    override set stackOffset(value: Vector2) {
-        super.stackOffset = value;
-
-        for (const nestedObject of this.nestedHitObjects) {
-            nestedObject.stackOffset = value;
-        }
-    }
-
     static readonly legacyLastTickOffset = 36;
 
     constructor(values: {

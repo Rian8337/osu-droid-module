@@ -1,4 +1,5 @@
 import { Modes } from "../constants/Modes";
+import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { Beatmap } from "./Beatmap";
 import { Circle } from "./hitobjects/Circle";
 import { Slider } from "./hitobjects/Slider";
@@ -62,6 +63,10 @@ export class BeatmapProcessor {
             return;
         }
 
+        const convertedScale = CircleSizeCalculator.standardScaleToDroidScale(
+            objects[0].scale,
+        );
+
         for (let i = 0; i < objects.length - 1; ++i) {
             const current = objects[i];
             const next = objects[i + 1];
@@ -70,7 +75,7 @@ export class BeatmapProcessor {
                 next.startTime - current.startTime <
                     2000 * this.beatmap.general.stackLeniency &&
                 next.position.getDistance(current.position) <
-                    Math.sqrt(current.scale)
+                    Math.sqrt(convertedScale)
             ) {
                 next.stackHeight = current.stackHeight + 1;
             }

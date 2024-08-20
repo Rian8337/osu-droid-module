@@ -34,11 +34,11 @@ export class Spinner extends HitObject {
         this.auxiliarySamples.push(this.createHitSampleInfo("spinnerbonus"));
     }
 
-    override get stackedPosition(): Vector2 {
+    override getStackedPosition(): Vector2 {
         return this.position;
     }
 
-    override get stackedEndPosition(): Vector2 {
+    override getStackedEndPosition(): Vector2 {
         return this.position;
     }
 
