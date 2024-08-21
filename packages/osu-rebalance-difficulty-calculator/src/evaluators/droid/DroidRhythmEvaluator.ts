@@ -1,11 +1,67 @@
 import { Spinner, Slider } from "@rian8337/osu-base";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+
+class Island {
+    readonly deltas: number[] = [];
+
+    constructor();
+    constructor(firstDelta: number, epsilon: number);
+    constructor(firstDelta?: number, epsilon?: number) {
+        if (firstDelta !== undefined && epsilon !== undefined) {
+            this.addDelta(firstDelta, epsilon);
+        }
+    }
+
+    addDelta(delta: number, epsilon: number) {
+        const existingDelta = this.deltas.find(
+            (v) => Math.abs(v - delta) >= epsilon,
+        );
+
+        this.deltas.push(existingDelta ?? delta);
+    }
+
+    get averageDelta(): number {
+        return this.deltas.length > 0
+            ? Math.max(
+                  this.deltas.reduce((a, b) => a + b) / this.deltas.length,
+                  DifficultyHitObject.minDeltaTime,
+              )
+            : 0;
+    }
+
+    isSimilarPolarity(other: Island, epsilon: number): boolean {
+        // Consider islands to be of similar polarity only if they're having the same
+        // average delta (we don't want to consider 3 singletaps similar to a triple)
+        return (
+            Math.abs(this.averageDelta - other.averageDelta) < epsilon &&
+            this.deltas.length % 2 === other.deltas.length % 2
+        );
+    }
+
+    equals(other: Island): boolean {
+        if (this.deltas.length !== other.deltas.length) {
+            return false;
+        }
+
+        for (let i = 0; i < this.deltas.length; ++i) {
+            if (this.deltas[i] !== other.deltas[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
 
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
  */
 export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
+    protected static override readonly rhythmMultiplier = 1.05;
+    private static readonly maxIslandSize = 7;
+
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
      * with historic data of the current object.
@@ -25,9 +81,11 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             return 1;
         }
 
-        let previousIslandSize = 0;
         let rhythmComplexitySum = 0;
-        let islandSize = 1;
+
+        let island = new Island();
+        let previousIsland = new Island();
+        const islandCounts = new Map<Island, number>();
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
@@ -78,7 +136,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
             const currentRatio =
                 1 +
-                6 *
+                8 *
                     Math.min(
                         0.5,
                         Math.pow(
@@ -91,25 +149,28 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         ),
                     );
 
+            const deltaDifferenceEpsilon = greatWindow * 0.3;
+
             const windowPenalty = Math.min(
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
-                ) /
-                    (greatWindow * 0.6),
+                    Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon,
+                ) / deltaDifferenceEpsilon,
             );
 
             let effectiveRatio = windowPenalty * currentRatio;
 
             if (firstDeltaSwitch) {
                 if (
-                    prevDelta <= 1.25 * currentDelta &&
-                    prevDelta * 1.25 >= currentDelta
+                    Math.abs(prevDelta - currentDelta) <= deltaDifferenceEpsilon
                 ) {
-                    // Island is still progressing, count size.
-                    if (islandSize < 7) {
-                        ++islandSize;
+                    if (island.deltas.length < this.maxIslandSize) {
+                        // Island is still progressing.
+                        island.addDelta(
+                            Math.trunc(currentDelta),
+                            deltaDifferenceEpsilon,
+                        );
                     }
                 } else {
                     if (validPrevious[i - 1].object instanceof Slider) {
@@ -122,51 +183,85 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         effectiveRatio /= 4;
                     }
 
-                    if (previousIslandSize === islandSize) {
-                        // Repeated island size (ex: triplet -> triplet).
-                        effectiveRatio /= 4;
-                    }
-
-                    if (previousIslandSize % 2 === islandSize % 2) {
+                    if (
+                        island.isSimilarPolarity(
+                            previousIsland,
+                            deltaDifferenceEpsilon,
+                        )
+                    ) {
                         // Repeated island polarity (2 -> 4, 3 -> 5).
                         effectiveRatio /= 2;
                     }
 
                     if (
-                        lastDelta > prevDelta + 10 &&
-                        prevDelta > currentDelta + 10
+                        lastDelta > prevDelta + deltaDifferenceEpsilon &&
+                        prevDelta > currentDelta + deltaDifferenceEpsilon
                     ) {
                         // Previous increase happened a note ago.
                         // Albeit this is a 1/1 -> 1/2-1/4 type of transition, we don't want to buff this.
                         effectiveRatio /= 8;
                     }
 
+                    let islandFound = false;
+
+                    for (const [currentIsland, count] of islandCounts) {
+                        if (!island.equals(currentIsland)) {
+                            continue;
+                        }
+
+                        islandFound = true;
+
+                        const islandCount = count + 1;
+                        islandCounts.set(currentIsland, islandCount);
+
+                        // Repeated island (ex: triplet -> triplet).
+                        // Graph: https://www.desmos.com/calculator/pj7an56zwf
+                        effectiveRatio *= Math.min(
+                            1 / islandCount,
+                            Math.pow(
+                                1 / islandCount,
+                                4 /
+                                    (1 +
+                                        Math.exp(
+                                            10 - 0.165 * island.averageDelta,
+                                        )),
+                            ),
+                        );
+
+                        break;
+                    }
+
+                    if (!islandFound) {
+                        islandCounts.set(island, 1);
+                    }
+
                     rhythmComplexitySum +=
-                        (((Math.sqrt(effectiveRatio * startRatio) *
-                            currentHistoricalDecay *
-                            Math.sqrt(4 + islandSize)) /
-                            2) *
-                            Math.sqrt(4 + previousIslandSize)) /
-                        2;
+                        Math.sqrt(effectiveRatio * startRatio) *
+                        currentHistoricalDecay;
 
                     startRatio = effectiveRatio;
+                    previousIsland = island;
 
-                    previousIslandSize = islandSize;
-
-                    if (prevDelta * 1.25 < currentDelta) {
+                    if (prevDelta + deltaDifferenceEpsilon < currentDelta) {
                         // We're slowing down, stop counting.
                         // If we're speeding up, this stays as is and we keep counting island size.
                         firstDeltaSwitch = false;
                     }
 
-                    islandSize = 1;
+                    island = new Island(
+                        Math.trunc(currentDelta),
+                        deltaDifferenceEpsilon,
+                    );
                 }
-            } else if (prevDelta > 1.25 * currentDelta) {
+            } else if (prevDelta > deltaDifferenceEpsilon + currentDelta) {
                 // We want to be speeding up.
                 // Begin counting island until we change speed again.
                 firstDeltaSwitch = true;
                 startRatio = effectiveRatio;
-                islandSize = 1;
+                island = new Island(
+                    Math.trunc(currentDelta),
+                    deltaDifferenceEpsilon,
+                );
             }
         }
 
