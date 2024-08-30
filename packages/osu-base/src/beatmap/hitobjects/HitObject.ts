@@ -40,12 +40,28 @@ export abstract class HitObject {
     /**
      * The position of the hitobject in osu!pixels.
      */
-    position: Vector2;
+    protected _position: Vector2;
+
+    /**
+     * The position of the hitobject in osu!pixels.
+     */
+    get position(): Vector2 {
+        return this._position;
+    }
+
+    /**
+     * The position of the hitobject in osu!pixels.
+     */
+    set position(value: Vector2) {
+        this._position = value;
+    }
 
     /**
      * The end position of the hitobject in osu!pixels.
      */
-    endPosition: Vector2;
+    get endPosition(): Vector2 {
+        return this.position;
+    }
 
     /**
      * The end time of the hitobject.
@@ -170,8 +186,7 @@ export abstract class HitObject {
         this.startTime = values.startTime;
         this.endTime = values.endTime ?? values.startTime;
         this.type = values.type ?? ObjectTypes.circle;
-        this.position = values.position;
-        this.endPosition = values.endPosition ?? this.position;
+        this._position = values.position;
         this.isNewCombo = values.newCombo ?? false;
         this.comboOffset = values.comboOffset ?? 0;
     }

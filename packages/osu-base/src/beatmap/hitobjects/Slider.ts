@@ -12,11 +12,34 @@ import { Modes } from "../../constants/Modes";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { MathUtils } from "../../math/MathUtils";
+import { Cached } from "../../utils/Cached";
 
 /**
  * Represents a slider in a beatmap.
  */
 export class Slider extends HitObject {
+    override get position(): Vector2 {
+        return super.position;
+    }
+
+    override set position(value: Vector2) {
+        super.position = value;
+
+        this.updateNestedPositions();
+    }
+
+    private readonly endPositionCache: Cached<Vector2>;
+
+    override get endPosition(): Vector2 {
+        if (!this.endPositionCache.isValid) {
+            this.endPositionCache.value = this.position.add(
+                this.curvePositionAt(1),
+            );
+        }
+
+        return this.endPositionCache.value;
+    }
+
     /**
      * The nested hitobjects of the slider. Consists of headcircle (sliderhead), slider ticks, repeat points, and tailcircle (sliderend).
      */
@@ -25,7 +48,23 @@ export class Slider extends HitObject {
     /**
      * The slider's path.
      */
-    readonly path: SliderPath;
+    private _path: SliderPath;
+
+    /**
+     * The slider's path.
+     */
+    get path(): SliderPath {
+        return this._path;
+    }
+
+    /**
+     * The slider's path.
+     */
+    set path(value: SliderPath) {
+        this._path = value;
+
+        this.updateNestedPositions();
+    }
 
     /**
      * The slider's velocity.
@@ -127,12 +166,26 @@ export class Slider extends HitObject {
     /**
      * The slider's head.
      */
-    head: SliderHead;
+    private _head: SliderHead;
+
+    /**
+     * The slider's head.
+     */
+    get head(): SliderHead {
+        return this._head;
+    }
 
     /**
      * The slider's tail.
      */
-    tail: SliderTail;
+    private _tail: SliderTail;
+
+    /**
+     * The slider's tail.
+     */
+    get tail(): SliderTail {
+        return this._tail;
+    }
 
     /**
      * The samples to be played when each node of this slider is hit.
@@ -195,18 +248,20 @@ export class Slider extends HitObject {
     }) {
         super(values);
 
-        this.path = values.path;
+        this._path = values.path;
         this.nodeSamples = values.nodeSamples;
         this._repeatCount = values.repeatCount;
-        this.endPosition = this.position.add(this.curvePositionAt(1));
+        this.endPositionCache = new Cached(
+            this.position.add(this.curvePositionAt(1)),
+        );
         this.tickDistanceMultiplier = values.tickDistanceMultiplier;
 
-        this.head = new SliderHead({
-            position: this.position,
+        this._head = new SliderHead({
+            position: this._position,
             startTime: this.startTime,
         });
 
-        this.tail = new SliderTail({
+        this._tail = new SliderTail({
             position: this.endPosition,
             startTime: this.endTime,
             spanIndex: this.spanCount - 1,
@@ -280,7 +335,7 @@ export class Slider extends HitObject {
 
         // WARNING: this is intentionally not computed as `BASE_SCORING_DISTANCE * difficulty.sliderMultiplier`
         // for backwards compatibility reasons (intentionally introducing floating point errors to match osu!stable).
-        const scoringDistance = this._velocity * timingPoint.msPerBeat;
+        const scoringDistance = this.velocity * timingPoint.msPerBeat;
 
         this.generateTicks = difficultyPoint.generateTicks;
         this._tickDistance = this.generateTicks
@@ -290,7 +345,7 @@ export class Slider extends HitObject {
 
         this.endTime =
             this.startTime +
-            (this.spanCount * this.path.expectedDistance) / this._velocity;
+            (this.spanCount * this.path.expectedDistance) / this.velocity;
 
         this.createNestedHitObjects(mode);
 
@@ -355,7 +410,7 @@ export class Slider extends HitObject {
     private createNestedHitObjects(mode: Modes): void {
         this.nestedHitObjects.length = 0;
 
-        this.head = new SliderHead({
+        this._head = new SliderHead({
             position: this.position,
             startTime: this.startTime,
         });
@@ -366,10 +421,10 @@ export class Slider extends HitObject {
         // This exists for edge cases such as /b/1573664 where the beatmap has been edited by the user, and should never be reached in normal usage.
         const maxLength = 100000;
         const length = Math.min(maxLength, this.path.expectedDistance);
-        const tickDistance = MathUtils.clamp(this._tickDistance, 0, length);
+        const tickDistance = MathUtils.clamp(this.tickDistance, 0, length);
 
         if (tickDistance !== 0 && this.generateTicks) {
-            const minDistanceFromEnd = this._velocity * 10;
+            const minDistanceFromEnd = this.velocity * 10;
 
             for (let span = 0; span < this.spanCount; ++span) {
                 const spanStartTime = this.startTime + span * this.spanDuration;
@@ -425,7 +480,7 @@ export class Slider extends HitObject {
 
         switch (mode) {
             case Modes.droid:
-                this.tail = new SliderTail({
+                this._tail = new SliderTail({
                     position: this.endPosition,
                     startTime: this.endTime,
                     spanIndex: this.spanCount - 1,
@@ -451,7 +506,7 @@ export class Slider extends HitObject {
                         Slider.legacyLastTickOffset,
                 );
 
-                this.tail = new SliderTail({
+                this._tail = new SliderTail({
                     position: this.endPosition,
                     startTime: finalSpanEndTime,
                     spanIndex: this.spanCount - 1,
@@ -468,6 +523,8 @@ export class Slider extends HitObject {
     }
 
     private updateNestedPositions(): void {
+        this.endPositionCache.invalidate();
+
         this.head.position = this.position;
         this.tail.position = this.endPosition;
     }
