@@ -20,6 +20,6 @@ export class Circle extends HitObject {
     }
 
     override toString(): string {
-        return `Position: [${this.position.x}, ${this.position.y}]`;
+        return `Position: [${this._position.x}, ${this._position.y}]`;
     }
 }

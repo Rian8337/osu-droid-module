@@ -28,6 +28,6 @@ export abstract class SliderNestedHitObject extends HitObject {
     }
 
     override toString(): string {
-        return `Position: [${this.position.x}, ${this.position.y}], span index: ${this.spanIndex}, span start time: ${this.spanStartTime}`;
+        return `Position: [${this._position.x}, ${this._position.y}], span index: ${this.spanIndex}, span start time: ${this.spanStartTime}`;
     }
 }
