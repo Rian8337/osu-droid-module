@@ -83,6 +83,7 @@ export class BeatmapConverter {
         }
 
         object.samples = hitObject.samples;
+        object.auxiliarySamples = hitObject.auxiliarySamples;
 
         return object;
     }
