@@ -1,7 +1,6 @@
 import {
     Accuracy,
     Beatmap,
-    BeatmapConverter,
     DroidAPIRequestBuilder,
     DroidHitWindow,
     MathUtils,
@@ -154,7 +153,7 @@ export class ReplayAnalyzer {
      */
     twoHandedNoteCount = 0;
 
-    private convertedBeatmap?: Beatmap;
+    private playableBeatmap?: Beatmap;
 
     constructor(values: {
         /**
@@ -677,7 +676,7 @@ export class ReplayAnalyzer {
             return;
         }
 
-        if (!this.convertedBeatmap) {
+        if (!this.playableBeatmap) {
             const mods = this.data.convertedMods.slice();
 
             if (
@@ -698,11 +697,11 @@ export class ReplayAnalyzer {
                 );
             }
 
-            this.convertedBeatmap ??= new BeatmapConverter(
+            this.playableBeatmap ??= (
                 this.beatmap instanceof Beatmap
                     ? this.beatmap
-                    : this.beatmap.beatmap,
-            ).convert({
+                    : this.beatmap.beatmap
+            ).createPlayableBeatmap({
                 mode: Modes.droid,
                 mods: mods,
                 customSpeedMultiplier: this.data.speedMultiplier,
@@ -712,12 +711,12 @@ export class ReplayAnalyzer {
         const threeFingerChecker =
             this.difficultyAttributes.mode === "rebalance"
                 ? new RebalanceThreeFingerChecker(
-                      this.convertedBeatmap,
+                      this.playableBeatmap,
                       this.data,
                       this.difficultyAttributes,
                   )
                 : new ThreeFingerChecker(
-                      this.convertedBeatmap,
+                      this.playableBeatmap,
                       this.data,
                       this.difficultyAttributes,
                   );
@@ -763,7 +762,7 @@ export class ReplayAnalyzer {
             return;
         }
 
-        if (!this.convertedBeatmap) {
+        if (!this.playableBeatmap) {
             const mods = this.data.convertedMods.slice();
 
             if (
@@ -784,11 +783,11 @@ export class ReplayAnalyzer {
                 );
             }
 
-            this.convertedBeatmap ??= new BeatmapConverter(
+            this.playableBeatmap ??= (
                 this.beatmap instanceof Beatmap
                     ? this.beatmap
-                    : this.beatmap.beatmap,
-            ).convert({
+                    : this.beatmap.beatmap
+            ).createPlayableBeatmap({
                 mode: Modes.droid,
                 mods: mods,
                 customSpeedMultiplier: this.data.speedMultiplier,
@@ -796,7 +795,7 @@ export class ReplayAnalyzer {
         }
 
         const sliderCheeseChecker = new SliderCheeseChecker(
-            this.convertedBeatmap,
+            this.playableBeatmap,
             this.data,
             this.difficultyAttributes,
         );
