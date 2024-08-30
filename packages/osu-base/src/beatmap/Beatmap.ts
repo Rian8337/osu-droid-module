@@ -9,6 +9,11 @@ import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
 import { BeatmapColor } from "./sections/BeatmapColor";
 import { BeatmapHitObjects } from "./sections/BeatmapHitObjects";
 import { MathUtils } from "../math/MathUtils";
+import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
+import { Modes } from "../constants/Modes";
+import { BeatmapProcessor } from "./BeatmapProcessor";
+import { BeatmapConverter } from "./BeatmapConverter";
+import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 
 /**
  * Represents a beatmap with advanced information.
@@ -287,6 +292,75 @@ export class Beatmap {
         }
 
         return score;
+    }
+
+    /**
+     * Constructs a playable `Beatmap` from this `Beatmap`.
+     *
+     * The returned `Beatmap` is in a playable state - all `HitObject` and `BeatmapDifficulty` `Mod`s
+     * have been applied, and `HitObject`s have been fully constructed.
+     *
+     * @param options The options to use.
+     * @return The constructed `Beatmap`.
+     */
+    createPlayableBeatmap(options?: PlayableBeatmapOptions): Beatmap {
+        const mods = options?.mods ?? [];
+        const mode = options?.mode ?? Modes.osu;
+        const customSpeedMultiplier = options?.customSpeedMultiplier ?? 1;
+
+        // Convert
+        const converted = new BeatmapConverter(this).convert();
+
+        // Apply difficulty mods
+        mods.forEach((mod) => {
+            if (mod.isApplicableToDifficulty()) {
+                mod.applyToDifficulty(mode, converted.difficulty);
+            }
+        });
+
+        // Special handling for difficulty adjust mod where difficulty statistics are forced.
+        const difficultyAdjustMod = mods.find(
+            (m) => m instanceof ModDifficultyAdjust,
+        ) as ModDifficultyAdjust | undefined;
+        difficultyAdjustMod?.applyToDifficulty(mode, converted.difficulty);
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToDifficultyWithSettings()) {
+                mod.applyToDifficultyWithSettings(
+                    mode,
+                    converted.difficulty,
+                    mods,
+                    customSpeedMultiplier,
+                );
+            }
+        });
+
+        // Compute default values for hit objects, including creating nested hit objects in-case they're needed.
+        converted.hitObjects.objects.forEach((hitObject) =>
+            hitObject.applyDefaults(
+                converted.controlPoints,
+                converted.difficulty,
+                mode,
+            ),
+        );
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToHitObject()) {
+                for (const hitObject of converted.hitObjects.objects) {
+                    mod.applyToHitObject(mode, hitObject);
+                }
+            }
+        });
+
+        new BeatmapProcessor(converted).postProcess(mode);
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToBeatmap()) {
+                mod.applyToBeatmap(converted);
+            }
+        });
+
+        return converted;
     }
 
     /**

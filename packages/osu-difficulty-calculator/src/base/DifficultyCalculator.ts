@@ -2,7 +2,6 @@ import {
     Beatmap,
     Mod,
     Modes,
-    BeatmapConverter,
     DifficultyStatisticsCalculatorResult,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
@@ -109,7 +108,7 @@ export abstract class DifficultyCalculator<
     calculate(options?: DifficultyCalculationOptions): this {
         this.mods = options?.mods ?? [];
 
-        const converted = new BeatmapConverter(this.beatmap).convert({
+        const playableBeatmap = this.beatmap.createPlayableBeatmap({
             mode: this.mode,
             mods: this.mods,
             customSpeedMultiplier: options?.customSpeedMultiplier,
@@ -121,7 +120,9 @@ export abstract class DifficultyCalculator<
 
         this.populateDifficultyAttributes();
 
-        this.objects.push(...this.generateDifficultyHitObjects(converted));
+        this.objects.push(
+            ...this.generateDifficultyHitObjects(playableBeatmap),
+        );
 
         this.calculateAll();
 
