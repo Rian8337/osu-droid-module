@@ -1,4 +1,5 @@
 import { Vector2 } from "../../math/Vector2";
+import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
 
@@ -14,6 +15,12 @@ export class Spinner extends HitObject {
             ...values,
             position: new Vector2(256, 192),
         });
+    }
+
+    override applySamples(controlPoints: BeatmapControlPoints): void {
+        super.applySamples(controlPoints);
+
+        this.auxiliarySamples.length = 0;
 
         const bankSample = this.samples.find(
             (v) => v instanceof BankHitSampleInfo,

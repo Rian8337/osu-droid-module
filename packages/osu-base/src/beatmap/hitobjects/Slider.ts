@@ -267,43 +267,6 @@ export class Slider extends HitObject {
             spanIndex: this.spanCount - 1,
             spanStartTime: this.startTime + this.spanDuration * this.spanCount,
         });
-
-        // Create sliding samples
-        const bankSamples = this.samples.filter(
-            (v) => v instanceof BankHitSampleInfo,
-        ) as BankHitSampleInfo[];
-
-        const normalSample = bankSamples.find(
-            (v) => v.name === BankHitSampleInfo.HIT_NORMAL,
-        );
-
-        if (normalSample) {
-            this.auxiliarySamples.push(
-                new BankHitSampleInfo(
-                    "sliderslide",
-                    normalSample.bank,
-                    normalSample.customSampleBank,
-                    normalSample.volume,
-                    normalSample.isLayered,
-                ),
-            );
-        }
-
-        const whistleSample = bankSamples.find(
-            (v) => v.name === BankHitSampleInfo.HIT_WHISTLE,
-        );
-
-        if (whistleSample) {
-            this.auxiliarySamples.push(
-                new BankHitSampleInfo(
-                    "sliderwhistle",
-                    whistleSample.bank,
-                    whistleSample.customSampleBank,
-                    whistleSample.volume,
-                    whistleSample.isLayered,
-                ),
-            );
-        }
     }
 
     override applyDefaults(
@@ -356,6 +319,45 @@ export class Slider extends HitObject {
 
     override applySamples(controlPoints: BeatmapControlPoints): void {
         super.applySamples(controlPoints);
+
+        // Create sliding samples
+        this.auxiliarySamples.length = 0;
+
+        const bankSamples = this.samples.filter(
+            (v) => v instanceof BankHitSampleInfo,
+        ) as BankHitSampleInfo[];
+
+        const normalSample = bankSamples.find(
+            (v) => v.name === BankHitSampleInfo.HIT_NORMAL,
+        );
+
+        if (normalSample) {
+            this.auxiliarySamples.push(
+                new BankHitSampleInfo(
+                    "sliderslide",
+                    normalSample.bank,
+                    normalSample.customSampleBank,
+                    normalSample.volume,
+                    normalSample.isLayered,
+                ),
+            );
+        }
+
+        const whistleSample = bankSamples.find(
+            (v) => v.name === BankHitSampleInfo.HIT_WHISTLE,
+        );
+
+        if (whistleSample) {
+            this.auxiliarySamples.push(
+                new BankHitSampleInfo(
+                    "sliderwhistle",
+                    whistleSample.bank,
+                    whistleSample.customSampleBank,
+                    whistleSample.volume,
+                    whistleSample.isLayered,
+                ),
+            );
+        }
 
         this.nodeSamples.forEach((nodeSample, i) => {
             const time =
