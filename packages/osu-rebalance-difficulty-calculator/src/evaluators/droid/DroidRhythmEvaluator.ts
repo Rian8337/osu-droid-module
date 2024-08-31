@@ -1,22 +1,30 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 class Island {
+    private readonly deltaDifferenceEpsilon: number;
     readonly deltas: number[] = [];
 
-    constructor();
+    constructor(epsilon: number);
     constructor(firstDelta: number, epsilon: number);
-    constructor(firstDelta?: number, epsilon?: number) {
-        if (firstDelta !== undefined && epsilon !== undefined) {
-            this.addDelta(firstDelta, epsilon);
+    constructor(firstDelta: number, epsilon?: number) {
+        if (epsilon === undefined) {
+            this.deltaDifferenceEpsilon = firstDelta;
+            return;
         }
+
+        this.deltaDifferenceEpsilon = epsilon;
+        this.addDelta(firstDelta);
     }
 
-    addDelta(delta: number, epsilon: number) {
+    addDelta(delta: number) {
+        // Convert to integer
+        delta = Math.trunc(delta);
+
         const existingDelta = this.deltas.find(
-            (v) => Math.abs(v - delta) >= epsilon,
+            (v) => Math.abs(v - delta) >= this.deltaDifferenceEpsilon,
         );
 
         this.deltas.push(existingDelta ?? delta);
@@ -31,11 +39,12 @@ class Island {
             : 0;
     }
 
-    isSimilarPolarity(other: Island, epsilon: number): boolean {
+    isSimilarPolarity(other: Island): boolean {
         // Consider islands to be of similar polarity only if they're having the same
         // average delta (we don't want to consider 3 singletaps similar to a triple)
         return (
-            Math.abs(this.averageDelta - other.averageDelta) < epsilon &&
+            Math.abs(this.averageDelta - other.averageDelta) <
+                this.deltaDifferenceEpsilon &&
             this.deltas.length % 2 === other.deltas.length % 2
         );
     }
@@ -61,6 +70,7 @@ class Island {
 export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
     protected static override readonly rhythmMultiplier = 1.05;
     private static readonly maxIslandSize = 7;
+    private static readonly historyObjectsMax = 32;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -72,6 +82,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         greatWindow: number,
+        clockRate: number,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -81,18 +92,29 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             return 1;
         }
 
+        const deltaDifferenceEpsilon = greatWindow * 0.3;
         let rhythmComplexitySum = 0;
 
-        let island = new Island();
-        let previousIsland = new Island();
+        let island = new Island(deltaDifferenceEpsilon);
+        let previousIsland = new Island(deltaDifferenceEpsilon);
         const islandCounts = new Map<Island, number>();
+
+        const historyTimeMaxAdjusted = Math.ceil(
+            this.historyTimeMax / clockRate,
+        );
+        const historyObjectsMaxAdjusted = Math.ceil(
+            this.historyObjectsMax / clockRate,
+        );
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
         let firstDeltaSwitch = false;
         let rhythmStart = 0;
 
-        const historicalNoteCount = Math.min(current.index, 32);
+        const historicalNoteCount = Math.min(
+            current.index,
+            historyObjectsMaxAdjusted,
+        );
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DroidDifficultyHitObject[] = [];
@@ -112,7 +134,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         while (
             rhythmStart < validPrevious.length - 2 &&
             current.startTime - validPrevious[rhythmStart].startTime <
-                this.historyTimeMax
+                historyTimeMaxAdjusted
         ) {
             ++rhythmStart;
         }
@@ -120,9 +142,9 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         for (let i = rhythmStart; i > 0; --i) {
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay =
-                (this.historyTimeMax -
+                (historyTimeMaxAdjusted -
                     (current.startTime - validPrevious[i - 1].startTime)) /
-                this.historyTimeMax;
+                historyTimeMaxAdjusted;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(
@@ -130,13 +152,17 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 (validPrevious.length - i) / validPrevious.length,
             );
 
-            const currentDelta = validPrevious[i - 1].strainTime;
-            const prevDelta = validPrevious[i].strainTime;
-            const lastDelta = validPrevious[i + 1].strainTime;
+            const currentObject = validPrevious[i - 1];
+            const prevObject = validPrevious[i];
+            const lastObject = validPrevious[i + 1];
+
+            const currentDelta = currentObject.strainTime;
+            const prevDelta = prevObject.strainTime;
+            const lastDelta = lastObject.strainTime;
 
             const currentRatio =
                 1 +
-                8 *
+                5.8 *
                     Math.min(
                         0.5,
                         Math.pow(
@@ -149,14 +175,11 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         ),
                     );
 
-            const deltaDifferenceEpsilon = greatWindow * 0.3;
-
-            const windowPenalty = Math.min(
+            const windowPenalty = MathUtils.clamp(
+                (Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon) /
+                    deltaDifferenceEpsilon,
+                0,
                 1,
-                Math.max(
-                    0,
-                    Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon,
-                ) / deltaDifferenceEpsilon,
             );
 
             let effectiveRatio = windowPenalty * currentRatio;
@@ -167,38 +190,37 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 ) {
                     if (island.deltas.length < this.maxIslandSize) {
                         // Island is still progressing.
-                        island.addDelta(
-                            Math.trunc(currentDelta),
-                            deltaDifferenceEpsilon,
-                        );
+                        island.addDelta(currentDelta);
                     }
                 } else {
-                    if (validPrevious[i - 1].object instanceof Slider) {
-                        // BPM change is into slider, this is easy acc window.
+                    // BPM change is into slider, this is easy acc window.
+                    if (currentObject.object instanceof Slider) {
                         effectiveRatio /= 8;
                     }
 
-                    if (validPrevious[i].object instanceof Slider) {
-                        // BPM change was from a slider, this is typically easier than circle -> circle.
+                    // BPM change was from a slider, this is typically easier than circle -> circle.
+                    // Unintentional side effect is that bursts with kicksliders at the ends might
+                    // have lower difficulty than bursts without sliders. Therefore we're checking for
+                    // quick sliders and don't lower the difficulty for them since they don't really
+                    // make tapping easier (no time to adjust).
+                    if (
+                        prevObject.object instanceof Slider &&
+                        prevObject.travelTime > prevDelta * 1.5
+                    ) {
                         effectiveRatio /= 4;
                     }
 
-                    if (
-                        island.isSimilarPolarity(
-                            previousIsland,
-                            deltaDifferenceEpsilon,
-                        )
-                    ) {
-                        // Repeated island polarity (2 -> 4, 3 -> 5).
+                    // Repeated island polarity (2 -> 4, 3 -> 5).
+                    if (island.isSimilarPolarity(previousIsland)) {
                         effectiveRatio /= 2;
                     }
 
+                    // Previous increase happened a note ago.
+                    // Albeit this is a 1/1 -> 1/2-1/4 type of transition, we don't want to buff this.
                     if (
                         lastDelta > prevDelta + deltaDifferenceEpsilon &&
                         prevDelta > currentDelta + deltaDifferenceEpsilon
                     ) {
-                        // Previous increase happened a note ago.
-                        // Albeit this is a 1/1 -> 1/2-1/4 type of transition, we don't want to buff this.
                         effectiveRatio /= 8;
                     }
 
@@ -210,9 +232,13 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         }
 
                         islandFound = true;
+                        let islandCount = count;
 
-                        const islandCount = count + 1;
-                        islandCounts.set(currentIsland, islandCount);
+                        if (previousIsland.equals(island)) {
+                            // Only add island to island counts if they're going one after another.
+                            ++islandCount;
+                            islandCounts.set(currentIsland, islandCount);
+                        }
 
                         // Repeated island (ex: triplet -> triplet).
                         // Graph: https://www.desmos.com/calculator/pj7an56zwf

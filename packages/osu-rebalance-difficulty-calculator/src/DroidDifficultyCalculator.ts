@@ -173,6 +173,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const rhythmSkill = new DroidRhythm(
             this.mods,
             this.difficultyStatistics.overallDifficulty,
+            this.difficultyStatistics.overallSpeedMultiplier,
         );
 
         this.calculateSkills(rhythmSkill);
@@ -350,7 +351,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
-            new DroidRhythm(this.mods, od),
+            new DroidRhythm(
+                this.mods,
+                od,
+                this.difficultyStatistics.overallSpeedMultiplier,
+            ),
             // Cheesability tap
             new DroidTap(this.mods, od, true),
             // Non-cheesability tap
