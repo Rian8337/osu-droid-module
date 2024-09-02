@@ -83,7 +83,7 @@ export abstract class DifficultyCalculator<
 
         this.difficultyStatistics = {
             circleSize: beatmap.difficulty.cs,
-            approachRate: beatmap.difficulty.ar ?? beatmap.difficulty.od,
+            approachRate: beatmap.difficulty.ar,
             overallDifficulty: beatmap.difficulty.od,
             healthDrain: beatmap.difficulty.hp,
             overallSpeedMultiplier: 1,
