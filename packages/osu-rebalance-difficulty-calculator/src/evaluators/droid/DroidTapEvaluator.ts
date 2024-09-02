@@ -31,28 +31,9 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             return 0;
         }
 
-        let doubletapness = 1;
-
-        if (considerCheesability) {
-            // Nerf doubletappable doubles.
-            const next = current.next(0);
-
-            if (next) {
-                const currentDeltaTime = Math.max(1, current.deltaTime);
-                const nextDeltaTime = Math.max(1, next.deltaTime);
-                const deltaDifference = Math.abs(
-                    nextDeltaTime - currentDeltaTime,
-                );
-                const speedRatio =
-                    currentDeltaTime /
-                    Math.max(currentDeltaTime, deltaDifference);
-                const windowRatio = Math.pow(
-                    Math.min(1, currentDeltaTime / current.fullGreatWindow),
-                    2,
-                );
-                doubletapness = Math.pow(speedRatio, 1 - windowRatio);
-            }
-        }
+        const doubletapness = considerCheesability
+            ? 1 - current.doubletapness
+            : 1;
 
         const strainTime =
             strainTimeCap !== undefined
