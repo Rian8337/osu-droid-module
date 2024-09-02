@@ -207,7 +207,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         return calculateOsuDifficultyStatistics({
             circleSize: difficulty.cs,
-            approachRate: difficulty.ar ?? difficulty.od,
+            approachRate: difficulty.ar,
             overallDifficulty: difficulty.od,
             healthDrain: difficulty.hp,
             mods: options?.mods,

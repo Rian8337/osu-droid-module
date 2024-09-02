@@ -336,7 +336,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         return calculateDroidDifficultyStatistics({
             circleSize: difficulty.cs,
-            approachRate: difficulty.ar ?? difficulty.od,
+            approachRate: difficulty.ar,
             overallDifficulty: difficulty.od,
             healthDrain: difficulty.hp,
             mods: this.mods,
