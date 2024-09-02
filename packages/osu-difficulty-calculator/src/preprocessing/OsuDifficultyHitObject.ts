@@ -1,4 +1,4 @@
-import { Modes, PlaceableHitObject } from "@rian8337/osu-base";
+import { Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -31,31 +31,5 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
         }
 
         return scalingFactor;
-    }
-
-    /**
-     * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
-     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue).
-     *
-     * @param object The underlying hitobject.
-     * @param lastObject The hitobject before this hitobject.
-     * @param lastLastObject The hitobject before the last hitobject.
-     * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
-     * @param clockRate The clock rate of the beatmap.
-     */
-    constructor(
-        object: PlaceableHitObject,
-        lastObject: PlaceableHitObject | null,
-        lastLastObject: PlaceableHitObject | null,
-        difficultyHitObjects: readonly DifficultyHitObject[],
-        clockRate: number,
-    ) {
-        super(
-            object,
-            lastObject,
-            lastLastObject,
-            difficultyHitObjects,
-            clockRate,
-        );
     }
 }

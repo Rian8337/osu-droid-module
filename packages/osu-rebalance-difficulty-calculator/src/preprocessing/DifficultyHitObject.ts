@@ -133,7 +133,7 @@ export abstract class DifficultyHitObject {
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
      */
-    protected constructor(
+    constructor(
         object: PlaceableHitObject,
         lastObject: PlaceableHitObject | null,
         lastLastObject: PlaceableHitObject | null,
