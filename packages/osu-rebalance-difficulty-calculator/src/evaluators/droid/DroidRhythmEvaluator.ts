@@ -210,7 +210,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
                     // Repeated island polarity (2 -> 4, 3 -> 5).
                     if (island.isSimilarPolarity(previousIsland)) {
-                        effectiveRatio /= 2;
+                        effectiveRatio *= 0.3;
                     }
 
                     // Previous increase happened a note ago.
