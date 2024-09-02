@@ -171,7 +171,7 @@ export abstract class HitObject {
      * The radius of this hitobject in osu!pixels.
      */
     get radius(): number {
-        return HitObject.baseRadius * this._scale;
+        return HitObject.baseRadius * this.scale;
     }
 
     constructor(values: {
