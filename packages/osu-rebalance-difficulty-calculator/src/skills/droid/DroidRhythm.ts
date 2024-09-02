@@ -1,4 +1,4 @@
-import { Mod, OsuHitWindow } from "@rian8337/osu-base";
+import { Mod } from "@rian8337/osu-base";
 import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -14,13 +14,11 @@ export class DroidRhythm extends DroidSkill {
 
     private currentRhythmStrain = 0;
     private currentRhythmMultiplier = 1;
-    private readonly hitWindow: OsuHitWindow;
     private readonly clockRate: number;
 
-    constructor(mods: Mod[], overallDifficulty: number, clockRate: number) {
+    constructor(mods: Mod[], clockRate: number) {
         super(mods);
 
-        this.hitWindow = new OsuHitWindow(overallDifficulty);
         this.clockRate = clockRate;
     }
 
@@ -28,11 +26,7 @@ export class DroidRhythm extends DroidSkill {
         current: DroidDifficultyHitObject,
     ): number {
         this.currentRhythmMultiplier =
-            DroidRhythmEvaluator.evaluateDifficultyOf(
-                current,
-                this.hitWindow.hitWindowFor300(),
-                this.clockRate,
-            );
+            DroidRhythmEvaluator.evaluateDifficultyOf(current, this.clockRate);
 
         this.currentRhythmStrain *= this.strainDecay(current.deltaTime);
         this.currentRhythmStrain += this.currentRhythmMultiplier - 1;

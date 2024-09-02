@@ -77,11 +77,9 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      * with historic data of the current object.
      *
      * @param current The current object.
-     * @param greatWindow The great hit window of the current object.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        greatWindow: number,
         clockRate: number,
     ): number {
         if (
@@ -92,7 +90,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             return 1;
         }
 
-        const deltaDifferenceEpsilon = greatWindow * 0.3;
+        const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
         let rhythmComplexitySum = 0;
 
         let island = new Island(deltaDifferenceEpsilon);
@@ -302,7 +300,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             const speedRatio =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
             const windowRatio = Math.pow(
-                Math.min(1, currentDeltaTime / (greatWindow * 2)),
+                Math.min(1, currentDeltaTime / current.fullGreatWindow),
                 2,
             );
             doubletapness = Math.pow(speedRatio, 1 - windowRatio);
