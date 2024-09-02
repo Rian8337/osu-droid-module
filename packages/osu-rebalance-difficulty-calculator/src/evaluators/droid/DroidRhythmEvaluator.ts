@@ -259,6 +259,9 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         islandCounts.set(island, 1);
                     }
 
+                    // Scale down the difficulty if the object is doubletappable.
+                    effectiveRatio *= 1 - prevObject.doubletapness * 0.75;
+
                     rhythmComplexitySum +=
                         Math.sqrt(effectiveRatio * startRatio) *
                         currentHistoricalDecay;
@@ -289,13 +292,6 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             }
         }
 
-        // Nerf doubles that can be tapped at the same time to get Great hit results.
-        const doubletapness = 1 - current.doubletapness;
-
-        return (
-            Math.sqrt(
-                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness,
-            ) / 2
-        );
+        return Math.sqrt(4 + rhythmComplexitySum * this.rhythmMultiplier) / 2;
     }
 }
