@@ -1,4 +1,4 @@
-import { OsuHitWindow, Mod } from "@rian8337/osu-base";
+import { Mod } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -16,7 +16,6 @@ export class DroidTap extends DroidSkill {
     private currentRhythmMultiplier = 0;
 
     private readonly skillMultiplier = 1375;
-    private readonly greatWindow: number;
     private readonly considerCheesability: boolean;
     private readonly strainTimeCap?: number;
 
@@ -31,15 +30,11 @@ export class DroidTap extends DroidSkill {
 
     constructor(
         mods: Mod[],
-        overallDifficulty: number,
         considerCheesability: boolean,
         strainTimeCap?: number,
     ) {
         super(mods);
 
-        this.greatWindow = new OsuHitWindow(
-            overallDifficulty,
-        ).hitWindowFor300();
         this.considerCheesability = considerCheesability;
         this.strainTimeCap = strainTimeCap;
     }
@@ -109,7 +104,6 @@ export class DroidTap extends DroidSkill {
         this.currentTapStrain +=
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
-                this.greatWindow,
                 this.considerCheesability,
                 this.strainTimeCap,
             ) * this.skillMultiplier;
