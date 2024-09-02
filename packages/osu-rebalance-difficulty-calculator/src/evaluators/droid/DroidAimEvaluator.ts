@@ -270,11 +270,12 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         let adjustedDistanceScale = 1;
 
         // Reward for inconsistent angles while punishing consistent ones.
+        // Only apply the adjustment to patterns with the same delta time.
         // Graph: https://www.desmos.com/calculator/soomupyfwp
         if (
             current.angle !== null &&
             typeof prev?.angle === "number" &&
-            current.angle !== prev.angle
+            Math.abs(current.deltaTime - prev.deltaTime) < 10
         ) {
             const angleDiff = Math.abs(current.angle - prev.angle);
             const adjustedAngleDiff = Math.sin(angleDiff / 2) * 180;
