@@ -168,21 +168,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         }
 
         // Nerf doubles that can be tapped at the same time to get Great hit results.
-        const next = current.next(0);
-        let doubletapness = 1;
-
-        if (next) {
-            const currentDeltaTime = Math.max(1, current.deltaTime);
-            const nextDeltaTime = Math.max(1, next.deltaTime);
-            const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
-            const speedRatio =
-                currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
-            const windowRatio = Math.pow(
-                Math.min(1, currentDeltaTime / current.fullGreatWindow),
-                2,
-            );
-            doubletapness = Math.pow(speedRatio, 1 - windowRatio);
-        }
+        const doubletapness = 1 - current.doubletapness;
 
         return (
             Math.sqrt(

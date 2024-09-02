@@ -250,6 +250,32 @@ export abstract class DifficultyHitObject {
         return MathUtils.clamp((time - fadeInStartTime) / fadeInDuration, 0, 1);
     }
 
+    /**
+     * How possible is it to doubletap this object together with the next one and get perfect
+     * judgement in range from 0 to 1.
+     *
+     * A value closer to 1 indicates a higher possibility.
+     */
+    get doubletapness(): number {
+        const next = this.next(0);
+
+        if (!next) {
+            return 0;
+        }
+
+        const currentDeltaTime = Math.max(1, this.deltaTime);
+        const nextDeltaTime = Math.max(1, next.deltaTime);
+        const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
+        const speedRatio =
+            currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
+        const windowRatio = Math.pow(
+            Math.min(1, currentDeltaTime / this.fullGreatWindow),
+            2,
+        );
+
+        return 1 - Math.pow(speedRatio, 1 - windowRatio);
+    }
+
     protected abstract get scalingFactor(): number;
 
     protected setDistances(clockRate: number) {
