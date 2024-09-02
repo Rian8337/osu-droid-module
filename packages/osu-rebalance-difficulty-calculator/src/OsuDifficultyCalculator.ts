@@ -7,6 +7,7 @@ import {
     Beatmap,
     DifficultyStatisticsCalculatorResult,
     calculateOsuDifficultyStatistics,
+    OsuHitWindow,
 } from "@rian8337/osu-base";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
@@ -174,6 +175,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: OsuDifficultyHitObject[] = [];
         const { objects } = convertedBeatmap.hitObjects;
 
+        const greatWindow = new OsuHitWindow(
+            this.difficultyStatistics.overallDifficulty,
+        ).hitWindowFor300();
+
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
                 objects[i],
@@ -181,6 +186,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 2] ?? null,
                 difficultyObjects,
                 this.difficultyStatistics.overallSpeedMultiplier,
+                greatWindow,
             );
 
             difficultyObject.computeProperties(

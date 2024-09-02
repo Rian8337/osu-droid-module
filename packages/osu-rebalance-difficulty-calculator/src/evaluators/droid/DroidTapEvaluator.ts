@@ -15,13 +15,11 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
      * - and the strain time cap.
      *
      * @param current The current object.
-     * @param greatWindow The great hit window of the current object.
      * @param considerCheesability Whether to consider cheesability.
      * @param strainTimeCap The strain time to cap the object's strain time to.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        greatWindow: number,
         considerCheesability: boolean,
         strainTimeCap?: number,
     ): number {
@@ -40,7 +38,6 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
             const next = current.next(0);
 
             if (next) {
-                const greatWindowFull = greatWindow * 2;
                 const currentDeltaTime = Math.max(1, current.deltaTime);
                 const nextDeltaTime = Math.max(1, next.deltaTime);
                 const deltaDifference = Math.abs(
@@ -50,7 +47,7 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
                     currentDeltaTime /
                     Math.max(currentDeltaTime, deltaDifference);
                 const windowRatio = Math.pow(
-                    Math.min(1, currentDeltaTime / greatWindowFull),
+                    Math.min(1, currentDeltaTime / current.fullGreatWindow),
                     2,
                 );
                 doubletapness = Math.pow(speedRatio, 1 - windowRatio);

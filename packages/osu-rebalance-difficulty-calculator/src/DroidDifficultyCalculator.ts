@@ -12,6 +12,7 @@ import {
     DifficultyStatisticsCalculatorResult,
     calculateDroidDifficultyStatistics,
     ModDifficultyAdjust,
+    OsuHitWindow,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -148,15 +149,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the tap star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
-        const od = this.difficultyStatistics.overallDifficulty;
-
-        const tapSkillCheese = new DroidTap(this.mods, od, true);
-        const tapSkillNoCheese = new DroidTap(this.mods, od, false);
+        const tapSkillCheese = new DroidTap(this.mods, true);
+        const tapSkillNoCheese = new DroidTap(this.mods, false);
         this.calculateSkills(tapSkillCheese, tapSkillNoCheese);
 
         const tapSkillVibro = new DroidTap(
             this.mods,
-            od,
             true,
             tapSkillCheese.relevantDeltaTime(),
         );
@@ -170,10 +168,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        const rhythmSkill = new DroidRhythm(
-            this.mods,
-            this.difficultyStatistics.overallDifficulty,
-        );
+        const rhythmSkill = new DroidRhythm(this.mods);
 
         this.calculateSkills(rhythmSkill);
         this.postCalculateRhythm(rhythmSkill);
@@ -262,7 +257,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const tapSkillVibro = new DroidTap(
             this.mods,
-            this.difficultyStatistics.overallDifficulty,
             true,
             tapSkillCheese.relevantDeltaTime(),
         );
@@ -306,6 +300,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (m) => m instanceof ModDifficultyAdjust,
         ) as ModDifficultyAdjust | undefined;
 
+        const greatWindow = new OsuHitWindow(
+            this.difficultyStatistics.overallDifficulty,
+        ).hitWindowFor300();
+
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
@@ -313,6 +311,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 2] ?? null,
                 difficultyObjects,
                 this.difficultyStatistics.overallSpeedMultiplier,
+                greatWindow,
                 difficultyAdjustMod?.ar !== undefined,
             );
 
@@ -344,17 +343,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createSkills(): DroidSkill[] {
-        const od = this.difficultyStatistics.overallDifficulty;
-
         return [
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
-            new DroidRhythm(this.mods, od),
+            new DroidRhythm(this.mods),
             // Cheesability tap
-            new DroidTap(this.mods, od, true),
+            new DroidTap(this.mods, true),
             // Non-cheesability tap
-            new DroidTap(this.mods, od, false),
+            new DroidTap(this.mods, false),
             new DroidFlashlight(this.mods, true),
             new DroidFlashlight(this.mods, false),
             new DroidVisual(this.mods, true),

@@ -11,12 +11,8 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      * with historic data of the current object.
      *
      * @param current The current object.
-     * @param greatWindow The great hit window of the current object.
      */
-    static evaluateDifficultyOf(
-        current: DroidDifficultyHitObject,
-        greatWindow: number,
-    ): number {
+    static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
@@ -95,9 +91,10 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
+                    Math.abs(prevDelta - currentDelta) -
+                        current.fullGreatWindow * 0.3,
                 ) /
-                    (greatWindow * 0.6),
+                    (current.fullGreatWindow * 0.3),
             );
 
             let effectiveRatio = windowPenalty * currentRatio;
@@ -181,7 +178,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             const speedRatio =
                 currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
             const windowRatio = Math.pow(
-                Math.min(1, currentDeltaTime / (greatWindow * 2)),
+                Math.min(1, currentDeltaTime / current.fullGreatWindow),
                 2,
             );
             doubletapness = Math.pow(speedRatio, 1 - windowRatio);
