@@ -298,9 +298,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         );
 
         // Scale the tap value with estimated full combo deviation.
-        // Require more objects to be present as object count can rack up easily in tap-oriented beatmaps.
+        // Consider notes that are difficult to tap with respect to other notes, but
+        // also cap the note count to prevent buffing filler patterns.
         tapValue *= this.calculateDeviationBasedLengthScaling(
-            this.totalHits / 1.45,
+            Math.min(
+                this.difficultyAttributes.speedNoteCount,
+                this.totalHits / 1.45,
+            ),
         );
 
         // Normalize the deviation to 300 BPM.
