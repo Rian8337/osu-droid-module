@@ -85,12 +85,14 @@ export abstract class DroidVisualEvaluator {
             const pixelTravelDistance =
                 current.object.lazyTravelDistance / scalingFactor;
             const currentVelocity = pixelTravelDistance / current.travelTime;
+            const spanTravelDistance =
+                pixelTravelDistance / current.object.spanCount;
 
             strain +=
                 // Reward sliders based on velocity, while also avoiding overbuffing extremely fast sliders.
                 Math.min(6, currentVelocity * 1.5) *
                 // Longer sliders require more reading.
-                (pixelTravelDistance / 100);
+                (spanTravelDistance / 100);
 
             let cumulativeStrainTime = 0;
 
@@ -109,9 +111,11 @@ export abstract class DroidVisualEvaluator {
                 }
 
                 // Invert the scaling factor to determine the true travel distance independent of circle size.
-                const pixelTravelDistance =
+                const lastPixelTravelDistance =
                     last.object.lazyTravelDistance / scalingFactor;
-                const lastVelocity = pixelTravelDistance / last.travelTime;
+                const lastVelocity = lastPixelTravelDistance / last.travelTime;
+                const lastSpanTravelDistance =
+                    lastPixelTravelDistance / last.object.spanCount;
 
                 strain +=
                     // Reward past sliders based on velocity changes, while also
@@ -121,7 +125,7 @@ export abstract class DroidVisualEvaluator {
                         2.5 * Math.abs(currentVelocity - lastVelocity),
                     ) *
                     // Longer sliders require more reading.
-                    (pixelTravelDistance / 125) *
+                    (lastSpanTravelDistance / 125) *
                     // Avoid overbuffing past sliders.
                     Math.min(1, 300 / cumulativeStrainTime);
             }
