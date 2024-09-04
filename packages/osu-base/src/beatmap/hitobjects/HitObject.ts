@@ -217,14 +217,14 @@ export abstract class HitObject {
                     circleSize: difficulty.cs,
                 }).circleSize;
 
-                this._scale = CircleSizeCalculator.standardCSToStandardScale(
+                this.scale = CircleSizeCalculator.standardCSToStandardScale(
                     cs,
                     true,
                 );
                 break;
             }
             case Modes.osu:
-                this._scale = CircleSizeCalculator.standardCSToStandardScale(
+                this.scale = CircleSizeCalculator.standardCSToStandardScale(
                     difficulty.cs,
                     true,
                 );
@@ -256,10 +256,16 @@ export abstract class HitObject {
     getStackOffset(mode: Modes): Vector2 {
         switch (mode) {
             case Modes.droid:
-                return new Vector2(this._stackHeight * this._scale * 4);
+                return new Vector2(
+                    this.stackHeight *
+                        CircleSizeCalculator.standardScaleToDroidScale(
+                            this.scale,
+                            true,
+                        ) *
+                        4,
+                );
             case Modes.osu:
-                return new Vector2(this._stackHeight * this._scale * -6.4);
-                break;
+                return new Vector2(this.stackHeight * this.scale * -6.4);
         }
     }
 
