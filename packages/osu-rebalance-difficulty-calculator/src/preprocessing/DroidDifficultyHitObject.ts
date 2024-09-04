@@ -243,7 +243,12 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             (7.5 /
                 (1 +
                     Math.exp(
-                        0.15 * (Math.max(deltaTime, this.minDeltaTime) - 75),
+                        0.15 *
+                            (Math.max(
+                                deltaTime,
+                                DifficultyHitObject.minDeltaTime,
+                            ) -
+                                75),
                     )));
     }
 }
