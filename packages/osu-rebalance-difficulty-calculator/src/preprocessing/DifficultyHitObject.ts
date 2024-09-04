@@ -119,7 +119,11 @@ export abstract class DifficultyHitObject {
     protected readonly maximumSliderRadius: number =
         this.normalizedRadius * 2.4;
     protected readonly assumedSliderRadius = this.normalizedRadius * 1.8;
-    protected readonly minDeltaTime = 25;
+
+    /**
+     * The lowest possible delta time value.
+     */
+    static readonly minDeltaTime = 25;
 
     private readonly lastObject: PlaceableHitObject | null;
     private readonly lastLastObject: PlaceableHitObject | null;
@@ -157,7 +161,10 @@ export abstract class DifficultyHitObject {
 
         if (lastObject) {
             this.deltaTime = this.startTime - lastObject.startTime / clockRate;
-            this.strainTime = Math.max(this.deltaTime, this.minDeltaTime);
+            this.strainTime = Math.max(
+                this.deltaTime,
+                DifficultyHitObject.minDeltaTime,
+            );
         } else {
             this.deltaTime = 0;
             this.strainTime = 0;
@@ -298,7 +305,7 @@ export abstract class DifficultyHitObject {
 
             this.travelTime = Math.max(
                 this.object.lazyTravelTime / clockRate,
-                this.minDeltaTime,
+                DifficultyHitObject.minDeltaTime,
             );
         }
 
@@ -326,12 +333,12 @@ export abstract class DifficultyHitObject {
         if (this.lastObject instanceof Slider) {
             const lastTravelTime = Math.max(
                 this.lastObject.lazyTravelTime / clockRate,
-                this.minDeltaTime,
+                DifficultyHitObject.minDeltaTime,
             );
 
             this.minimumJumpTime = Math.max(
                 this.strainTime - lastTravelTime,
-                this.minDeltaTime,
+                DifficultyHitObject.minDeltaTime,
             );
 
             // There are two types of slider-to-object patterns to consider in order to better approximate the real movement a player will take to jump between the hitobjects.
