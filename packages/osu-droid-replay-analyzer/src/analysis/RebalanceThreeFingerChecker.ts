@@ -49,13 +49,6 @@ export class RebalanceThreeFingerChecker {
     readonly difficultyAttributes: RebalanceExtendedDroidDifficultyAttributes;
 
     /**
-     * The hitobjects to be analyzed.
-     *
-     * This is being maintained separately due to possible change in object scale.
-     */
-    private readonly hitObjects: readonly PlaceableHitObject[];
-
-    /**
      * The ratio threshold between non-3 finger cursors and 3-finger cursors.
      *
      * Increasing this number will increase detection accuracy, however
@@ -132,9 +125,8 @@ export class RebalanceThreeFingerChecker {
             (m) => m instanceof ModPrecise,
         );
         this.hitWindow = new DroidHitWindow(od);
-        this.hitObjects = beatmap.hitObjects.objects;
 
-        this.objectRadiusThreshold = this.hitObjects[0].radius;
+        this.objectRadiusThreshold = beatmap.hitObjects.objects[0].radius;
 
         // Only allow object radius threshold to deviate slightly from actual object radius.
         this.maximumObjectRadiusThreshold = this.objectRadiusThreshold * 1.05;
@@ -192,17 +184,16 @@ export class RebalanceThreeFingerChecker {
      * end of the hitobject before it and do not end right at the first hitobject after it.
      */
     private getAccurateBreakPoints(): void {
+        const objects = this.beatmap.hitObjects.objects;
         const objectData = this.data.hitObjectData;
 
         for (const breakPoint of this.beatmap.events.breaks) {
             const beforeIndex = MathUtils.clamp(
-                this.hitObjects.findIndex(
-                    (o) => o.endTime >= breakPoint.startTime,
-                ) - 1,
+                objects.findIndex((o) => o.endTime >= breakPoint.startTime) - 1,
                 0,
-                this.hitObjects.length - 2,
+                objects.length - 2,
             );
-            const objectBefore = this.hitObjects[beforeIndex];
+            const objectBefore = objects[beforeIndex];
             const objectBeforeData = objectData[beforeIndex];
             let timeBefore = objectBefore.endTime;
 
@@ -215,9 +206,9 @@ export class RebalanceThreeFingerChecker {
             }
 
             const afterIndex = beforeIndex + 1;
-            const objectAfter = this.hitObjects[afterIndex];
+            const objectAfter = objects[afterIndex];
             const objectAfterData = objectData[afterIndex];
-            let timeAfter = this.hitObjects[afterIndex].startTime;
+            let timeAfter = objectAfter.startTime;
 
             if (
                 objectAfter instanceof Circle &&
@@ -241,13 +232,14 @@ export class RebalanceThreeFingerChecker {
      * This also filters cursors that are in break period or happen before start/after end of the beatmap.
      */
     private filterCursorInstances(): void {
+        const objects = this.beatmap.hitObjects.objects;
         const objectData = this.data.hitObjectData;
 
         const firstObjectResult = objectData[0].result;
         const lastObjectResult = objectData.at(-1)!.result;
 
-        const firstObject = this.hitObjects[0];
-        const lastObject = this.hitObjects.at(-1)!;
+        const firstObject = objects[0];
+        const lastObject = objects.at(-1)!;
 
         // For sliders, automatically set hit window length to be as lenient as possible.
         let firstObjectHitWindow = this.hitWindow.hitWindowFor50(
@@ -340,6 +332,7 @@ export class RebalanceThreeFingerChecker {
      * detect dragged sections and improve detection speed.
      */
     private getBeatmapSections(): void {
+        const beatmapObjects = this.beatmap.hitObjects.objects;
         const cursorLookupIndices = Utils.initializeArray(
             this.downCursorInstances.length,
             0,
@@ -356,9 +349,9 @@ export class RebalanceThreeFingerChecker {
                 ++i
             ) {
                 objects.push({
-                    object: this.hitObjects[i],
+                    object: beatmapObjects[i],
                     ...this.getObjectPressIndex(
-                        this.hitObjects[i],
+                        beatmapObjects[i],
                         this.data.hitObjectData[i],
                         cursorLookupIndices,
                         dragFingerIndex,
@@ -493,13 +486,14 @@ export class RebalanceThreeFingerChecker {
      * @param section The section to check.
      */
     private findDragIndex(section: RebalanceHighStrainSection): number {
+        const objects = this.beatmap.hitObjects.objects;
         const objectData = this.data.hitObjectData;
         const hitWindow50 = this.hitWindow.hitWindowFor50(this.isPrecise);
 
-        const firstObject = this.hitObjects[section.firstObjectIndex];
+        const firstObject = objects[section.firstObjectIndex];
         const firstObjectData = objectData[section.firstObjectIndex];
 
-        const lastObject = this.hitObjects[section.lastObjectIndex];
+        const lastObject = objects[section.lastObjectIndex];
         const lastObjectData = objectData[section.lastObjectIndex];
 
         let firstObjectHitTime = firstObject.startTime;
@@ -566,7 +560,7 @@ export class RebalanceThreeFingerChecker {
             cursorIndices.push(1);
         }
 
-        const sectionObjects = this.hitObjects.slice(
+        const sectionObjects = objects.slice(
             section.firstObjectIndex,
             section.lastObjectIndex + 1,
         );
