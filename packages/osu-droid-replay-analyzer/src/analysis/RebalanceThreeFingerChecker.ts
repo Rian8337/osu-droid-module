@@ -658,6 +658,11 @@ export class RebalanceThreeFingerChecker {
                 const threeFingeredObjectRatio =
                     threeFingerCursorCount / sectionObjectCount;
 
+                const strainFactor = Math.max(
+                    1,
+                    beatmapSection.sumStrain * threeFingeredObjectRatio,
+                );
+
                 // Finger factor applies more penalty if more fingers were used.
                 const fingerFactor = threeFingerCursorCounts.reduce(
                     (acc, count, index) =>
@@ -674,8 +679,7 @@ export class RebalanceThreeFingerChecker {
                     1 + Math.pow(threeFingeredObjectRatio, 1.2);
 
                 this.nerfFactors.push({
-                    strainFactor:
-                        beatmapSection.sumStrain * threeFingeredObjectRatio,
+                    strainFactor: strainFactor,
                     fingerFactor: fingerFactor,
                     lengthFactor: lengthFactor,
                 });
