@@ -676,7 +676,7 @@ export class RebalanceThreeFingerChecker {
 
                 // Length factor applies more penalty if there are more 3-fingered object.
                 const lengthFactor =
-                    1 + Math.pow(threeFingeredObjectRatio, 1.2);
+                    1 + Math.pow(threeFingeredObjectRatio, 0.8);
 
                 this.nerfFactors.push({
                     strainFactor: strainFactor,
