@@ -28,6 +28,12 @@ export class Slider extends HitObject {
         this.updateNestedPositions();
     }
 
+    override get endTime(): number {
+        return (
+            this.startTime + (this.spanCount * this.distance) / this.velocity
+        );
+    }
+
     private readonly endPositionCache: Cached<Vector2>;
 
     override get endPosition(): Vector2 {
@@ -305,10 +311,6 @@ export class Slider extends HitObject {
             ? (scoringDistance / difficulty.sliderTickRate) *
               this.tickDistanceMultiplier
             : Number.POSITIVE_INFINITY;
-
-        this.endTime =
-            this.startTime +
-            (this.spanCount * this.path.expectedDistance) / this.velocity;
 
         this.createNestedHitObjects(mode);
 

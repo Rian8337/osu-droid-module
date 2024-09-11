@@ -66,7 +66,9 @@ export abstract class HitObject {
     /**
      * The end time of the hitobject.
      */
-    endTime: number;
+    get endTime(): number {
+        return this.startTime;
+    }
 
     /**
      * The duration of the hitobject.
@@ -180,11 +182,9 @@ export abstract class HitObject {
         newCombo?: boolean;
         comboOffset?: number;
         type?: number;
-        endTime?: number;
         endPosition?: Vector2;
     }) {
         this.startTime = values.startTime;
-        this.endTime = values.endTime ?? values.startTime;
         this.type = values.type ?? ObjectTypes.circle;
         this._position = values.position;
         this.isNewCombo = values.newCombo ?? false;

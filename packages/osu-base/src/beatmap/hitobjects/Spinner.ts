@@ -10,11 +10,19 @@ import { HitObject } from "./HitObject";
  * position of a spinner is always at 256x192.
  */
 export class Spinner extends HitObject {
+    private _endTime: number;
+
+    override get endTime(): number {
+        return this._endTime;
+    }
+
     constructor(values: { startTime: number; type: number; endTime: number }) {
         super({
             ...values,
             position: new Vector2(256, 192),
         });
+
+        this._endTime = values.endTime;
     }
 
     override applySamples(controlPoints: BeatmapControlPoints): void {
