@@ -422,6 +422,9 @@ export class RebalanceThreeFingerChecker {
                 const cursorGroup = cursorData.occurrenceGroups[j];
 
                 if (cursorGroup.endTime < hitTime) {
+                    // Reset cursor index pointer.
+                    cursorIndices[i] = 1;
+
                     continue;
                 }
 
@@ -479,6 +482,11 @@ export class RebalanceThreeFingerChecker {
                         closestDistance = distance;
                         nearestCursorIndex = i;
                     }
+                }
+
+                // Reset cursor index pointer on end of group.
+                if (cursorIndices[i] === cursors.length) {
+                    cursorIndices[i] = 1;
                 }
 
                 break;
