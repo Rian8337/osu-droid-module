@@ -668,7 +668,7 @@ export class RebalanceThreeFingerChecker {
                     (acc, count, index) =>
                         acc +
                         Math.pow(
-                            (index + 1) * count * threeFingeredObjectRatio,
+                            ((index + 1) * count) / sectionObjectCount,
                             0.9,
                         ),
                     1,
