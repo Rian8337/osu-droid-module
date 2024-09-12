@@ -609,10 +609,7 @@ export class RebalanceThreeFingerChecker {
             );
 
             for (const object of beatmapSection.objects) {
-                if (
-                    object.aimingCursorInstanceIndex === -1 ||
-                    object.pressingCursorInstanceIndex === -1
-                ) {
+                if (object.pressingCursorInstanceIndex === -1) {
                     continue;
                 }
 
