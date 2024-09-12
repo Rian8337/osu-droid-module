@@ -43,7 +43,7 @@ export class CursorData {
     /**
      * The occurrence groups of this cursor instance.
      */
-    occurrenceGroups: CursorOccurrenceGroup[] = [];
+    readonly occurrenceGroups: CursorOccurrenceGroup[] = [];
 
     /**
      * The time at which the first occurrence of this cursor instance occurs.
@@ -97,11 +97,11 @@ export class CursorData {
         let moveOccurrences: CursorOccurrence[] = [];
 
         for (let i = 0; i < values.size; ++i) {
-            const occurrence: CursorOccurrence = new CursorOccurrence(
+            const occurrence = new CursorOccurrence(
                 values.time[i],
                 values.x[i],
                 values.y[i],
-                values.id[i]
+                values.id[i],
             );
 
             switch (occurrence.id) {
@@ -117,8 +117,8 @@ export class CursorData {
                             new CursorOccurrenceGroup(
                                 downOccurrence,
                                 moveOccurrences,
-                                occurrence
-                            )
+                                occurrence,
+                            ),
                         );
 
                         downOccurrence = null;
@@ -131,7 +131,7 @@ export class CursorData {
         // Add the final cursor occurrence group as the loop may not catch it for special cases.
         if (downOccurrence && moveOccurrences.length > 0) {
             this.occurrenceGroups.push(
-                new CursorOccurrenceGroup(downOccurrence, moveOccurrences)
+                new CursorOccurrenceGroup(downOccurrence, moveOccurrences),
             );
         }
     }
