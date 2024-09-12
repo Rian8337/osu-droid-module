@@ -664,37 +664,7 @@ export class ReplayAnalyzer {
             return;
         }
 
-        if (!this.playableBeatmap) {
-            const mods = this.data.convertedMods.slice();
-
-            if (
-                [
-                    this.data.forceCS,
-                    this.data.forceAR,
-                    this.data.forceOD,
-                    this.data.forceHP,
-                ].some((v) => v !== undefined)
-            ) {
-                mods.push(
-                    new ModDifficultyAdjust({
-                        cs: this.data.forceCS,
-                        ar: this.data.forceAR,
-                        od: this.data.forceOD,
-                        hp: this.data.forceHP,
-                    }),
-                );
-            }
-
-            this.playableBeatmap ??= (
-                this.beatmap instanceof Beatmap
-                    ? this.beatmap
-                    : this.beatmap.beatmap
-            ).createPlayableBeatmap({
-                mode: Modes.droid,
-                mods: mods,
-                customSpeedMultiplier: this.data.speedMultiplier,
-            });
-        }
+        this.playableBeatmap ??= this.constructPlayableBeatmap();
 
         const threeFingerChecker =
             this.difficultyAttributes.mode === "rebalance"
@@ -750,37 +720,7 @@ export class ReplayAnalyzer {
             return;
         }
 
-        if (!this.playableBeatmap) {
-            const mods = this.data.convertedMods.slice();
-
-            if (
-                [
-                    this.data.forceCS,
-                    this.data.forceAR,
-                    this.data.forceOD,
-                    this.data.forceHP,
-                ].some((v) => v !== undefined)
-            ) {
-                mods.push(
-                    new ModDifficultyAdjust({
-                        cs: this.data.forceCS,
-                        ar: this.data.forceAR,
-                        od: this.data.forceOD,
-                        hp: this.data.forceHP,
-                    }),
-                );
-            }
-
-            this.playableBeatmap ??= (
-                this.beatmap instanceof Beatmap
-                    ? this.beatmap
-                    : this.beatmap.beatmap
-            ).createPlayableBeatmap({
-                mode: Modes.droid,
-                mods: mods,
-                customSpeedMultiplier: this.data.speedMultiplier,
-            });
-        }
+        this.playableBeatmap ??= this.constructPlayableBeatmap();
 
         const sliderCheeseChecker = new SliderCheeseChecker(
             this.playableBeatmap,
@@ -790,6 +730,42 @@ export class ReplayAnalyzer {
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;
+    }
+
+    private constructPlayableBeatmap(): Beatmap {
+        if (!this.beatmap || !this.data) {
+            throw new Error("Beatmap and replay data must be defined.");
+        }
+
+        const mods = this.data.convertedMods.slice();
+
+        if (
+            [
+                this.data.forceCS,
+                this.data.forceAR,
+                this.data.forceOD,
+                this.data.forceHP,
+            ].some((v) => v !== undefined)
+        ) {
+            mods.push(
+                new ModDifficultyAdjust({
+                    cs: this.data.forceCS,
+                    ar: this.data.forceAR,
+                    od: this.data.forceOD,
+                    hp: this.data.forceHP,
+                }),
+            );
+        }
+
+        return (
+            this.beatmap instanceof Beatmap
+                ? this.beatmap
+                : this.beatmap.beatmap
+        ).createPlayableBeatmap({
+            mode: Modes.droid,
+            mods: mods,
+            customSpeedMultiplier: this.data.speedMultiplier,
+        });
     }
 
     private readByte(buffer: Buffer): number {
