@@ -57,10 +57,6 @@ export interface HitErrorInformation {
     unstableRate: number;
 }
 
-interface Counter {
-    counter: number;
-}
-
 /**
  * A replay analyzer that analyzes a replay from osu!droid.
  *
@@ -154,6 +150,7 @@ export class ReplayAnalyzer {
     twoHandedNoteCount = 0;
 
     private playableBeatmap?: Beatmap;
+    private bufferOffset = 0;
 
     constructor(values: {
         /**
@@ -164,7 +161,7 @@ export class ReplayAnalyzer {
         /**
          * The beatmap to analyze.
          *
-         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for two hand and slider cheese analyzing.
+         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for two hand analyzing.
          */
         map?:
             | Beatmap
@@ -411,28 +408,28 @@ export class ReplayAnalyzer {
 
         // Merge all cursor movement and hit object data section into one for better control when parsing
         const replayDataBuffer = Buffer.concat(replayDataBufferArray);
-        const bufferCounter: Counter = { counter: 0 };
+        this.bufferOffset = 0;
 
-        const size = this.readInt(replayDataBuffer, bufferCounter);
+        const size = this.readInt(replayDataBuffer);
 
         // Parse movement data
         for (let x = 0; x < size; x++) {
-            const moveSize = this.readInt(replayDataBuffer, bufferCounter);
+            const moveSize = this.readInt(replayDataBuffer);
             const time: number[] = [];
             const x: number[] = [];
             const y: number[] = [];
             const id: MovementType[] = [];
             for (let i = 0; i < moveSize; i++) {
-                time[i] = this.readInt(replayDataBuffer, bufferCounter);
+                time[i] = this.readInt(replayDataBuffer);
                 id[i] = time[i] & 3;
                 time[i] >>= 2;
                 if (id[i] !== MovementType.up) {
                     if (resultObject.replayVersion >= 5) {
-                        x[i] = this.readFloat(replayDataBuffer, bufferCounter);
-                        y[i] = this.readFloat(replayDataBuffer, bufferCounter);
+                        x[i] = this.readFloat(replayDataBuffer);
+                        y[i] = this.readFloat(replayDataBuffer);
                     } else {
-                        x[i] = this.readShort(replayDataBuffer, bufferCounter);
-                        y[i] = this.readShort(replayDataBuffer, bufferCounter);
+                        x[i] = this.readShort(replayDataBuffer);
+                        y[i] = this.readShort(replayDataBuffer);
                     }
                 } else {
                     x[i] = -1;
@@ -450,10 +447,7 @@ export class ReplayAnalyzer {
             );
         }
 
-        const replayObjectLength = this.readInt(
-            replayDataBuffer,
-            bufferCounter,
-        );
+        const replayObjectLength = this.readInt(replayDataBuffer);
 
         // Parse result data
         for (let i = 0; i < replayObjectLength; i++) {
@@ -463,17 +457,14 @@ export class ReplayAnalyzer {
                 result: HitResult.miss,
             };
 
-            replayObjectData.accuracy = this.readShort(
-                replayDataBuffer,
-                bufferCounter,
-            );
-            const len = this.readByte(replayDataBuffer, bufferCounter);
+            replayObjectData.accuracy = this.readShort(replayDataBuffer);
+            const len = this.readByte(replayDataBuffer);
 
             if (len > 0) {
                 const bytes: number[] = [];
 
                 for (let j = 0; j < len; j++) {
-                    bytes.push(this.readByte(replayDataBuffer, bufferCounter));
+                    bytes.push(this.readByte(replayDataBuffer));
                 }
                 // Int/int division in Java; numbers must be truncated to get actual number
                 for (let j = 0; j < len * 8; j++) {
@@ -486,10 +477,7 @@ export class ReplayAnalyzer {
             }
 
             if (resultObject.replayVersion >= 1) {
-                replayObjectData.result = this.readByte(
-                    replayDataBuffer,
-                    bufferCounter,
-                );
+                replayObjectData.result = this.readByte(replayDataBuffer);
             }
 
             resultObject.hitObjectData.push(replayObjectData);
@@ -804,30 +792,30 @@ export class ReplayAnalyzer {
         this.hasBeenCheckedForSliderCheesing = true;
     }
 
-    private readByte(buffer: Buffer, counter: Counter): number {
-        const num = buffer.readInt8(counter.counter);
-        counter.counter += 1;
+    private readByte(buffer: Buffer): number {
+        const num = buffer.readInt8(this.bufferOffset);
+        this.bufferOffset += 1;
 
         return num;
     }
 
-    private readShort(buffer: Buffer, counter: Counter): number {
-        const num = buffer.readInt16BE(counter.counter);
-        counter.counter += 2;
+    private readShort(buffer: Buffer): number {
+        const num = buffer.readInt16BE(this.bufferOffset);
+        this.bufferOffset += 2;
 
         return num;
     }
 
-    private readInt(buffer: Buffer, counter: Counter): number {
-        const num = buffer.readInt32BE(counter.counter);
-        counter.counter += 4;
+    private readInt(buffer: Buffer): number {
+        const num = buffer.readInt32BE(this.bufferOffset);
+        this.bufferOffset += 4;
 
         return num;
     }
 
-    private readFloat(buffer: Buffer, counter: Counter): number {
-        const num = buffer.readFloatBE(counter.counter);
-        counter.counter += 4;
+    private readFloat(buffer: Buffer): number {
+        const num = buffer.readFloatBE(this.bufferOffset);
+        this.bufferOffset += 4;
 
         return num;
     }
