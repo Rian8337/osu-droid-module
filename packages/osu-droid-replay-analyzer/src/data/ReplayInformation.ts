@@ -39,7 +39,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      *
-     * If `beatmap` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
+     * If `map` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
     hit300k?: number;
 
@@ -48,7 +48,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      *
-     * If `beatmap` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
+     * If `map` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
     hit100k?: number;
 
@@ -98,7 +98,7 @@ export interface ReplayInformation {
     rank: Grade;
 
     /**
-     * Enabled modifications during the play in osu!standard format.
+     * Enabled modifications during the play that have been converted to their respective `Mod` instances.
      *
      * Only available in replay v3 or later.
      */
@@ -107,7 +107,7 @@ export interface ReplayInformation {
     /**
      * The speed multiplier of the replay.
      *
-     * Only available in replay v4 or later. By default this is 1.
+     * Only available in replay v4 or later.
      */
     speedMultiplier?: number;
 
@@ -142,7 +142,7 @@ export interface ReplayInformation {
     /**
      * The follow delay set for the FL mod, in seconds.
      *
-     * Only available in replay v4 or later. By default this is 0.12.
+     * Only available in replay v4 or later.
      */
     flashlightFollowDelay?: number;
 

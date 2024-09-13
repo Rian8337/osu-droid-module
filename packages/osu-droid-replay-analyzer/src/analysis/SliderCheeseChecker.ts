@@ -66,7 +66,7 @@ export class SliderCheeseChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(data.convertedMods),
+            mods: ModUtil.removeSpeedChangingMods(difficultyAttributes.mods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 

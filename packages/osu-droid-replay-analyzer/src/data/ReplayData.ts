@@ -16,20 +16,20 @@ export class ReplayData implements ReplayInformation {
     readonly folderName: string;
     readonly fileName: string;
     readonly hash: string;
-    readonly time: Date;
-    readonly hit300k: number;
-    readonly hit100k: number;
-    readonly score: number;
-    readonly maxCombo: number;
+    readonly time?: Date;
+    readonly hit300k?: number;
+    readonly hit100k?: number;
+    readonly score?: number;
+    readonly maxCombo?: number;
     readonly accuracy: Accuracy;
-    readonly isFullCombo: boolean;
-    readonly playerName: string;
-    readonly rawMods: string;
+    readonly isFullCombo?: boolean;
+    readonly playerName?: string;
+    readonly rawMods?: string;
     readonly rank: Grade;
-    readonly convertedMods: (Mod & IModApplicableToDroid)[];
+    readonly convertedMods?: (Mod & IModApplicableToDroid)[];
     readonly cursorMovement: CursorData[];
     readonly hitObjectData: ReplayObjectData[];
-    readonly speedMultiplier: number;
+    readonly speedMultiplier?: number;
     readonly forceCS?: number;
     readonly forceAR?: number;
     readonly forceOD?: number;
@@ -41,20 +41,24 @@ export class ReplayData implements ReplayInformation {
         this.folderName = values.folderName;
         this.fileName = values.fileName;
         this.hash = values.hash;
-        this.time = new Date(values.time || 0);
-        this.hit300k = values.hit300k || 0;
-        this.hit100k = values.hit100k || 0;
-        this.score = values.score || 0;
-        this.maxCombo = values.maxCombo || 0;
-        this.accuracy = values.accuracy || new Accuracy({});
-        this.isFullCombo = values.isFullCombo || false;
-        this.playerName = values.playerName || "";
-        this.rawMods = values.rawMods || "";
-        this.rank = values.rank || "";
-        this.convertedMods = values.convertedMods || [];
+
+        if (values.time !== undefined) {
+            this.time = new Date(values.time);
+        }
+
+        this.hit300k = values.hit300k;
+        this.hit100k = values.hit100k;
+        this.score = values.score;
+        this.maxCombo = values.maxCombo;
+        this.accuracy = values.accuracy;
+        this.isFullCombo = values.isFullCombo;
+        this.playerName = values.playerName;
+        this.rawMods = values.rawMods;
+        this.rank = values.rank;
+        this.convertedMods = values.convertedMods;
         this.cursorMovement = values.cursorMovement;
         this.hitObjectData = values.hitObjectData;
-        this.speedMultiplier = values.speedMultiplier || 1;
+        this.speedMultiplier = values.speedMultiplier;
         this.forceCS = values.forceCS;
         this.forceAR = values.forceAR;
         this.forceOD = values.forceOD;

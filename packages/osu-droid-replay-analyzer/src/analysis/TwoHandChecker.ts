@@ -99,7 +99,7 @@ export class TwoHandChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: calculator.beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+            mods: ModUtil.removeSpeedChangingMods(calculator.mods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 
@@ -547,7 +547,7 @@ export class TwoHandChecker {
         }
 
         let hitWindow = this.hitWindow50;
-        const isPrecise = this.data.convertedMods.some(
+        const isPrecise = this.calculator.mods.some(
             (m) => m instanceof ModPrecise,
         );
         // For sliders, set the hit window to as lenient as possible.

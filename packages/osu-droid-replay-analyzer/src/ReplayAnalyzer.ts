@@ -240,11 +240,13 @@ export class ReplayAnalyzer {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+            mods: ModUtil.removeSpeedChangingMods(
+                this.data.convertedMods ?? [],
+            ),
         }).overallDifficulty;
 
         const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
-            this.data.convertedMods.some((m) => m instanceof ModPrecise),
+            this.data.convertedMods?.some((m) => m instanceof ModPrecise),
         );
 
         // The accuracy of sliders is set to (50 hit window)ms + 13ms if their head was not hit:
@@ -770,7 +772,7 @@ export class ReplayAnalyzer {
             throw new Error("Beatmap and replay data must be defined.");
         }
 
-        const mods = this.data.convertedMods.slice();
+        const mods = this.data.convertedMods?.slice() ?? [];
 
         if (
             [
