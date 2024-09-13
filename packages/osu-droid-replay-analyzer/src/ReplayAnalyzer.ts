@@ -3,7 +3,9 @@ import {
     Beatmap,
     DroidAPIRequestBuilder,
     DroidHitWindow,
+    IModApplicableToDroid,
     MathUtils,
+    Mod,
     ModAuto,
     ModAutopilot,
     ModDifficultyAdjust,
@@ -351,6 +353,10 @@ export class ReplayAnalyzer {
             );
 
             determineRank();
+        } else {
+            resultObject.convertedMods = this.difficultyAttributes?.mods.filter(
+                (v) => v.isApplicableToDroid(),
+            ) as (Mod & IModApplicableToDroid)[];
         }
 
         if (resultObject.replayVersion >= 4) {
