@@ -3,9 +3,7 @@ import {
     Beatmap,
     DroidAPIRequestBuilder,
     DroidHitWindow,
-    IModApplicableToDroid,
     MathUtils,
-    Mod,
     ModAuto,
     ModAutopilot,
     ModDifficultyAdjust,
@@ -54,6 +52,9 @@ import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInfor
 import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
 import { Grade } from "./data/Grade";
 import { ReplayInformation } from "./data/ReplayInformation";
+import { ReplayV3Data } from "./data/ReplayV3Data";
+import { ReplayV4Data } from "./data/ReplayV4Data";
+import { ReplayV5Data } from "./data/ReplayV5Data";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -238,15 +239,19 @@ export class ReplayAnalyzer {
                 : this.beatmap;
         const { objects } = beatmap.hitObjects;
 
+        const mods = this.data.isReplayV3()
+            ? this.data.convertedMods
+            : this.difficultyAttributes?.mods.filter((m) =>
+                  m.isApplicableToDroid(),
+              ) ?? [];
+
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(
-                this.data.convertedMods ?? [],
-            ),
+            mods: ModUtil.removeSpeedChangingMods(mods),
         }).overallDifficulty;
 
         const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
-            this.data.convertedMods?.some((m) => m instanceof ModPrecise),
+            mods.some((m) => m instanceof ModPrecise),
         );
 
         // The accuracy of sliders is set to (50 hit window)ms + 13ms if their head was not hit:
@@ -439,6 +444,15 @@ export class ReplayAnalyzer {
             hitObjectData: [],
             accuracy: new Accuracy({ n300: 0 }),
             rank: "D",
+            convertedMods: [],
+            hit100k: 0,
+            hit300k: 0,
+            isFullCombo: false,
+            maxCombo: 0,
+            playerName: "",
+            rawMods: "",
+            score: 0,
+            time: new Date(0),
         };
 
         if (resultObject.replayVersion >= 3) {
@@ -462,10 +476,6 @@ export class ReplayAnalyzer {
                 this.convertDroidMods(rawObject[6].elements),
             );
             resultObject.rank = this.calculateRank(resultObject);
-        } else {
-            resultObject.convertedMods = this.difficultyAttributes?.mods.filter(
-                (v) => v.isApplicableToDroid(),
-            ) as (Mod & IModApplicableToDroid)[] | undefined;
         }
 
         if (resultObject.replayVersion >= 4) {
@@ -534,7 +544,22 @@ export class ReplayAnalyzer {
         this.parseHitObjectData(resultObject, replayDataBuffer);
         this.parseOldReplayInformation(resultObject);
 
-        this.data = new ReplayData(resultObject);
+        switch (resultObject.replayVersion) {
+            case 3:
+                this.data = new ReplayV3Data(resultObject);
+                break;
+
+            case 4:
+                this.data = new ReplayV4Data(resultObject);
+                break;
+
+            case 5:
+                this.data = new ReplayV5Data(resultObject);
+                break;
+
+            default:
+                this.data = new ReplayData(resultObject);
+        }
     }
 
     /**
@@ -772,9 +797,12 @@ export class ReplayAnalyzer {
             throw new Error("Beatmap and replay data must be defined.");
         }
 
-        const mods = this.data.convertedMods?.slice() ?? [];
+        const mods = this.data.isReplayV3()
+            ? this.data.convertedMods.slice()
+            : this.difficultyAttributes?.mods.slice() ?? [];
 
         if (
+            this.data.isReplayV5() &&
             [
                 this.data.forceCS,
                 this.data.forceAR,
@@ -799,7 +827,9 @@ export class ReplayAnalyzer {
         ).createPlayableBeatmap({
             mode: Modes.droid,
             mods: mods,
-            customSpeedMultiplier: this.data.speedMultiplier,
+            customSpeedMultiplier: this.data.isReplayV4()
+                ? this.data.speedMultiplier
+                : 1,
         });
     }
 

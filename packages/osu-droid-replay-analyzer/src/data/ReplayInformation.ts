@@ -32,7 +32,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    time?: Date;
+    time: Date;
 
     /**
      * The amount of geki and 300 katu achieved in the play. See {@link https://osu.ppy.sh/help/wiki/Score this} osu! wiki page for more information.
@@ -41,7 +41,7 @@ export interface ReplayInformation {
      *
      * If `map` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
-    hit300k?: number;
+    hit300k: number;
 
     /**
      * The amount of 100 katu achieved in the play. See {@link https://osu.ppy.sh/help/wiki/Score this} osu! wiki page for more information.
@@ -50,21 +50,21 @@ export interface ReplayInformation {
      *
      * If `map` is defined in analyzer (either in `Beatmap` or `DroidDifficultyCalculator` instance), this will be analyzed using beatmap hitobject information and replay hitobject data for replay v1 and v2.
      */
-    hit100k?: number;
+    hit100k: number;
 
     /**
      * The total score achieved in the play.
      *
      * Only available in replay v3 or later.
      */
-    score?: number;
+    score: number;
 
     /**
      * The maximum combo achieved in the play.
      *
      * Only available in replay v3 or later.
      */
-    maxCombo?: number;
+    maxCombo: number;
 
     /**
      * The accuracy achieved in the play.
@@ -76,21 +76,21 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    isFullCombo?: boolean;
+    isFullCombo: boolean;
 
     /**
      * The name of the player in the replay.
      *
      * Only available in replay v3 or later.
      */
-    playerName?: string;
+    playerName: string;
 
     /**
      * Enabled modifications during the play in raw Java object format.
      *
      * Only available in replay v3 or later.
      */
-    rawMods?: string;
+    rawMods: string;
 
     /**
      * The achieved rank in the play.
@@ -102,7 +102,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    convertedMods?: (Mod & IModApplicableToDroid)[];
+    convertedMods: (Mod & IModApplicableToDroid)[];
 
     /**
      * The speed multiplier of the replay.
