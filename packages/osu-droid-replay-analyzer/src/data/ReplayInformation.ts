@@ -142,7 +142,7 @@ export interface ReplayInformation {
     /**
      * The follow delay set for the FL mod, in seconds.
      *
-     * Only available in replay v5 orlater. By default this is 0.12.
+     * Only available in replay v4 or later. By default this is 0.12.
      */
     flashlightFollowDelay?: number;
 
