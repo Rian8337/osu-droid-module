@@ -27,7 +27,6 @@ import {
     ModSuddenDeath,
     ModUtil,
     Modes,
-    Playfield,
     Slider,
     Spinner,
     calculateDroidDifficultyStatistics,
@@ -585,9 +584,6 @@ export class ReplayAnalyzer {
         resultObject.cursorMovement.length = 0;
 
         const size = this.readInt(replayDataBuffer);
-        const isHardRock =
-            resultObject.convertedMods?.some((m) => m instanceof ModHardRock) ??
-            false;
 
         for (let i = 0; i < size; i++) {
             const moveSize = this.readInt(replayDataBuffer);
@@ -613,12 +609,6 @@ export class ReplayAnalyzer {
                             ? this.readFloat
                             : this.readShort
                     )(replayDataBuffer);
-
-                    if (isHardRock) {
-                        // The game records cursor movement without flipping the Y axis
-                        // if Hard Rock is used, so we do it here.
-                        y[j] = Playfield.baseSize.y - y[j];
-                    }
                 } else {
                     x[j] = -1;
                     y[j] = -1;
