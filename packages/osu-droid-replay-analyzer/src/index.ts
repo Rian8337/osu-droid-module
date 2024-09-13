@@ -2,6 +2,7 @@ export * from "./data/CursorData";
 export * from "./data/CursorOccurrence";
 export * from "./data/CursorOccurrenceGroup";
 export * from "./data/ExportedReplayJSON";
+export * from "./data/Grade";
 export * from "./constants/HitResult";
 export * from "./constants/MovementType";
 export * from "./analysis/RebalanceThreeFingerChecker";

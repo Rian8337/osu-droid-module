@@ -42,7 +42,7 @@ import {
 import { Parse } from "unzipper";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
-import { ReplayData, ReplayInformation } from "./data/ReplayData";
+import { ReplayData } from "./data/ReplayData";
 import { CursorData } from "./data/CursorData";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
@@ -52,6 +52,8 @@ import { HitResult } from "./constants/HitResult";
 import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
 import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
+import { Grade } from "./data/Grade";
+import { ReplayInformation } from "./data/ReplayInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -209,340 +211,8 @@ export class ReplayAnalyzer {
         }
 
         this.parseReplay();
+
         return this;
-    }
-
-    /**
-     * Downloads the given score ID's replay.
-     */
-    private async downloadReplay(): Promise<Buffer | null> {
-        const apiRequestBuilder = new DroidAPIRequestBuilder()
-            .setRequireAPIkey(false)
-            .setEndpoint("upload")
-            .addParameter("", `${this.scoreID}.odr`);
-
-        const result = await apiRequestBuilder.sendRequest();
-
-        if (result.statusCode !== 200) {
-            return null;
-        }
-
-        return result.data;
-    }
-
-    /**
-     * Decompresses a replay.
-     *
-     * The decompressed replay is in a form of Java object. This will be converted to a buffer and deserialized to read data from the replay.
-     */
-    private decompress(): Promise<Buffer> {
-        return new Promise((resolve, reject) => {
-            const stream = new Readable();
-            stream.push(this.originalODR);
-            stream.push(null);
-            stream
-                .pipe(Parse())
-                .on("entry", async (entry) => {
-                    const fileName: string = entry.path;
-                    if (fileName === "data") {
-                        return resolve(await entry.buffer());
-                    } else {
-                        entry.autodrain();
-                    }
-                })
-                .on("error", (e) => {
-                    setTimeout(() => reject(e), 2000);
-                });
-        });
-    }
-
-    /**
-     * Parses a replay after being downloaded and converted to a buffer.
-     */
-    private parseReplay(): void {
-        if (!this.fixedODR) {
-            return;
-        }
-
-        // javaDeserialization can only somewhat parse some string field
-        // the rest will be a buffer that we need to manually parse
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        let rawObject: any[];
-        try {
-            rawObject = javaDeserialization.parse(this.fixedODR);
-        } catch {
-            return;
-        }
-
-        const resultObject: ReplayInformation = {
-            replayVersion: rawObject[0].version,
-            folderName: rawObject[1],
-            fileName: rawObject[2],
-            hash: rawObject[3],
-            cursorMovement: [],
-            hitObjectData: [],
-            accuracy: new Accuracy({ n300: 0 }),
-            rank: "",
-        };
-
-        const determineRank = () => {
-            const totalHits =
-                resultObject.accuracy.n300 +
-                resultObject.accuracy.n100 +
-                resultObject.accuracy.n50 +
-                resultObject.accuracy.nmiss;
-            const isHidden =
-                resultObject.convertedMods?.some(
-                    (m) => m instanceof ModHidden || m instanceof ModFlashlight,
-                ) ?? false;
-
-            const hit300Ratio = resultObject.accuracy.n300 / totalHits;
-
-            switch (true) {
-                case resultObject.accuracy.value() === 1:
-                    if (isHidden) {
-                        resultObject.rank = "XH";
-                    } else {
-                        resultObject.rank = "X";
-                    }
-                    break;
-                case hit300Ratio > 0.9 &&
-                    resultObject.accuracy.n50 / totalHits < 0.01 &&
-                    !resultObject.accuracy.nmiss:
-                    if (isHidden) {
-                        resultObject.rank = "SH";
-                    } else {
-                        resultObject.rank = "S";
-                    }
-                    break;
-                case (hit300Ratio > 0.8 && !resultObject.accuracy.nmiss) ||
-                    hit300Ratio > 0.9:
-                    resultObject.rank = "A";
-                    break;
-                case (hit300Ratio > 0.7 && !resultObject.accuracy.nmiss) ||
-                    hit300Ratio > 0.8:
-                    resultObject.rank = "B";
-                    break;
-                case hit300Ratio > 0.6:
-                    resultObject.rank = "C";
-                    break;
-                default:
-                    resultObject.rank = "D";
-            }
-        };
-
-        if (resultObject.replayVersion >= 3) {
-            resultObject.time = new Date(
-                Number(rawObject[4].readBigUInt64BE(0)),
-            );
-            resultObject.hit300k = rawObject[4].readInt32BE(8);
-            resultObject.hit100k = rawObject[4].readInt32BE(16);
-            resultObject.score = rawObject[4].readInt32BE(32);
-            resultObject.maxCombo = rawObject[4].readInt32BE(36);
-            resultObject.accuracy = new Accuracy({
-                n300: rawObject[4].readInt32BE(12),
-                n100: rawObject[4].readInt32BE(20),
-                n50: rawObject[4].readInt32BE(24),
-                nmiss: rawObject[4].readInt32BE(28),
-            });
-            resultObject.isFullCombo = !!rawObject[4][44];
-            resultObject.playerName = rawObject[5];
-            resultObject.rawMods = rawObject[6].elements;
-            resultObject.convertedMods = ModUtil.droidStringToMods(
-                this.convertDroidMods(rawObject[6].elements),
-            );
-
-            determineRank();
-        } else {
-            resultObject.convertedMods = this.difficultyAttributes?.mods.filter(
-                (v) => v.isApplicableToDroid(),
-            ) as (Mod & IModApplicableToDroid)[];
-        }
-
-        if (resultObject.replayVersion >= 4) {
-            const str: string[] = rawObject[7].split("|");
-
-            for (const s of str) {
-                switch (true) {
-                    // Forced stats
-                    case s.startsWith("CS"):
-                        resultObject.forceCS = parseFloat(s.replace("CS", ""));
-                        break;
-                    case s.startsWith("AR"):
-                        resultObject.forceAR = parseFloat(s.replace("AR", ""));
-                        break;
-                    case s.startsWith("OD"):
-                        resultObject.forceOD = parseFloat(s.replace("OD", ""));
-                        break;
-                    case s.startsWith("HP"):
-                        resultObject.forceHP = parseFloat(s.replace("HP", ""));
-                        break;
-                    // FL follow delay
-                    case s.startsWith("FLD"):
-                        resultObject.flashlightFollowDelay =
-                            parseFloat(s.replace("FLD", "")) || 0.12;
-                        break;
-                    // Speed multiplier
-                    case s.startsWith("x"):
-                        resultObject.speedMultiplier =
-                            parseFloat(s.replace("x", "")) || 1;
-                        break;
-                }
-            }
-        }
-
-        let bufferIndex: number;
-        switch (true) {
-            // replay v4 and above
-            case resultObject.replayVersion >= 4:
-                bufferIndex = 8;
-                break;
-            // replay v3
-            case resultObject.replayVersion === 3:
-                bufferIndex = 7;
-                break;
-            // replay v1 and v2
-            default:
-                bufferIndex = 4;
-        }
-
-        const replayDataBufferArray: Buffer[] = [];
-
-        while (bufferIndex < rawObject.length) {
-            replayDataBufferArray.push(rawObject[bufferIndex++]);
-        }
-
-        // Merge all cursor movement and hit object data section into one for better control when parsing
-        const replayDataBuffer = Buffer.concat(replayDataBufferArray);
-        this.bufferOffset = 0;
-
-        const size = this.readInt(replayDataBuffer);
-
-        // Parse movement data
-        for (let x = 0; x < size; x++) {
-            const moveSize = this.readInt(replayDataBuffer);
-            const time: number[] = [];
-            const x: number[] = [];
-            const y: number[] = [];
-            const id: MovementType[] = [];
-            for (let i = 0; i < moveSize; i++) {
-                time[i] = this.readInt(replayDataBuffer);
-                id[i] = time[i] & 3;
-                time[i] >>= 2;
-                if (id[i] !== MovementType.up) {
-                    if (resultObject.replayVersion >= 5) {
-                        x[i] = this.readFloat(replayDataBuffer);
-                        y[i] = this.readFloat(replayDataBuffer);
-                    } else {
-                        x[i] = this.readShort(replayDataBuffer);
-                        y[i] = this.readShort(replayDataBuffer);
-                    }
-                } else {
-                    x[i] = -1;
-                    y[i] = -1;
-                }
-            }
-            resultObject.cursorMovement.push(
-                new CursorData({
-                    size: moveSize,
-                    time: time,
-                    x: x,
-                    y: y,
-                    id: id,
-                }),
-            );
-        }
-
-        const replayObjectLength = this.readInt(replayDataBuffer);
-
-        // Parse result data
-        for (let i = 0; i < replayObjectLength; i++) {
-            const replayObjectData: ReplayObjectData = {
-                accuracy: 0,
-                tickset: [],
-                result: HitResult.miss,
-            };
-
-            replayObjectData.accuracy = this.readShort(replayDataBuffer);
-            const len = this.readByte(replayDataBuffer);
-
-            if (len > 0) {
-                const bytes: number[] = [];
-
-                for (let j = 0; j < len; j++) {
-                    bytes.push(this.readByte(replayDataBuffer));
-                }
-                // Int/int division in Java; numbers must be truncated to get actual number
-                for (let j = 0; j < len * 8; j++) {
-                    replayObjectData.tickset.push(
-                        (bytes[len - Math.trunc(j / 8) - 1] &
-                            (1 << Math.trunc(j % 8))) !==
-                            0,
-                    );
-                }
-            }
-
-            if (resultObject.replayVersion >= 1) {
-                replayObjectData.result = this.readByte(replayDataBuffer);
-            }
-
-            resultObject.hitObjectData.push(replayObjectData);
-        }
-
-        // Parse max combo, hit results, and accuracy in old replay version
-        if (resultObject.replayVersion < 3) {
-            const objects = (
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-                    ? this.beatmap.beatmap
-                    : this.beatmap
-            )?.hitObjects.objects;
-
-            let grantsGekiOrKatu = true;
-
-            for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
-                // Hit result
-                const hitObjectData = resultObject.hitObjectData[i];
-                const isNextNewCombo = objects
-                    ? i + 1 !== objects.length
-                        ? objects[i + 1].isNewCombo
-                        : true
-                    : false;
-
-                switch (hitObjectData.result) {
-                    case HitResult.miss:
-                        ++resultObject.accuracy.nmiss;
-                        grantsGekiOrKatu = false;
-                        break;
-                    case HitResult.meh:
-                        ++resultObject.accuracy.n50;
-                        grantsGekiOrKatu = false;
-                        break;
-                    case HitResult.good:
-                        ++resultObject.accuracy.n100;
-                        if (grantsGekiOrKatu && isNextNewCombo) {
-                            resultObject.hit100k ??= 0;
-                            ++resultObject.hit100k;
-                        }
-                        break;
-                    case HitResult.great:
-                        ++resultObject.accuracy.n300;
-                        if (grantsGekiOrKatu && isNextNewCombo) {
-                            resultObject.hit300k ??= 0;
-                            ++resultObject.hit300k;
-                        }
-                        break;
-                }
-
-                if (isNextNewCombo) {
-                    grantsGekiOrKatu = true;
-                }
-            }
-
-            determineRank();
-        }
-
-        this.data = new ReplayData(resultObject);
     }
 
     /**
@@ -616,48 +286,6 @@ export class ReplayAnalyzer {
             negativeAvg: negativeTotal / negativeCount || 0,
             unstableRate: MathUtils.calculateStandardDeviation(accuracies) * 10,
         };
-    }
-
-    /**
-     * Converts replay mods to droid mod string.
-     */
-    private convertDroidMods(replayMods: string[]): string {
-        const replayModsConstants = {
-            MOD_AUTO: new ModAuto().droidString,
-            MOD_AUTOPILOT: new ModAutopilot().droidString,
-            MOD_NOFAIL: new ModNoFail().droidString,
-            MOD_EASY: new ModEasy().droidString,
-            MOD_HIDDEN: new ModHidden().droidString,
-            MOD_HARDROCK: new ModHardRock().droidString,
-            MOD_DOUBLETIME: new ModDoubleTime().droidString,
-            MOD_HALFTIME: new ModHalfTime().droidString,
-            MOD_NIGHTCORE: new ModNightCore().droidString,
-            MOD_PRECISE: new ModPrecise().droidString,
-            MOD_SMALLCIRCLE: new ModSmallCircle().droidString,
-            MOD_SPEEDUP: new ModSpeedUp().droidString,
-            MOD_REALLYEASY: new ModReallyEasy().droidString,
-            MOD_RELAX: new ModRelax().droidString,
-            MOD_PERFECT: new ModPerfect().droidString,
-            MOD_SUDDENDEATH: new ModSuddenDeath().droidString,
-            MOD_SCOREV2: new ModScoreV2().droidString,
-            MOD_FLASHLIGHT: new ModFlashlight().droidString,
-        };
-
-        let modString = "";
-        for (const mod of replayMods) {
-            for (const property in replayModsConstants) {
-                if (!mod.includes(property)) {
-                    continue;
-                }
-                modString +=
-                    replayModsConstants[
-                        property as keyof typeof replayModsConstants
-                    ];
-                break;
-            }
-        }
-
-        return modString;
     }
 
     /**
@@ -736,6 +364,405 @@ export class ReplayAnalyzer {
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;
+    }
+
+    /**
+     * Downloads the given score ID's replay.
+     */
+    private async downloadReplay(): Promise<Buffer | null> {
+        const apiRequestBuilder = new DroidAPIRequestBuilder()
+            .setRequireAPIkey(false)
+            .setEndpoint("upload")
+            .addParameter("", `${this.scoreID}.odr`);
+
+        const result = await apiRequestBuilder.sendRequest();
+
+        if (result.statusCode !== 200) {
+            return null;
+        }
+
+        return result.data;
+    }
+
+    /**
+     * Decompresses a replay.
+     *
+     * The decompressed replay is in a form of Java object. This will be converted to a buffer and deserialized to read data from the replay.
+     */
+    private decompress(): Promise<Buffer> {
+        return new Promise((resolve, reject) => {
+            const stream = new Readable();
+            stream.push(this.originalODR);
+            stream.push(null);
+            stream
+                .pipe(Parse())
+                .on("entry", async (entry) => {
+                    const fileName: string = entry.path;
+                    if (fileName === "data") {
+                        return resolve(await entry.buffer());
+                    } else {
+                        entry.autodrain();
+                    }
+                })
+                .on("error", (e) => {
+                    setTimeout(() => reject(e), 2000);
+                });
+        });
+    }
+
+    /**
+     * Parses a replay after being downloaded and converted to a buffer.
+     */
+    private parseReplay(): void {
+        if (!this.fixedODR) {
+            return;
+        }
+
+        // javaDeserialization can only somewhat parse some string field
+        // the rest will be a buffer that we need to manually parse
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        let rawObject: any[];
+        try {
+            rawObject = javaDeserialization.parse(this.fixedODR);
+        } catch {
+            return;
+        }
+
+        const resultObject: ReplayInformation = {
+            replayVersion: rawObject[0].version,
+            folderName: rawObject[1],
+            fileName: rawObject[2],
+            hash: rawObject[3],
+            cursorMovement: [],
+            hitObjectData: [],
+            accuracy: new Accuracy({ n300: 0 }),
+            rank: "D",
+        };
+
+        if (resultObject.replayVersion >= 3) {
+            resultObject.time = new Date(
+                Number(rawObject[4].readBigUInt64BE(0)),
+            );
+            resultObject.hit300k = rawObject[4].readInt32BE(8);
+            resultObject.hit100k = rawObject[4].readInt32BE(16);
+            resultObject.score = rawObject[4].readInt32BE(32);
+            resultObject.maxCombo = rawObject[4].readInt32BE(36);
+            resultObject.accuracy = new Accuracy({
+                n300: rawObject[4].readInt32BE(12),
+                n100: rawObject[4].readInt32BE(20),
+                n50: rawObject[4].readInt32BE(24),
+                nmiss: rawObject[4].readInt32BE(28),
+            });
+            resultObject.isFullCombo = !!rawObject[4][44];
+            resultObject.playerName = rawObject[5];
+            resultObject.rawMods = rawObject[6].elements;
+            resultObject.convertedMods = ModUtil.droidStringToMods(
+                this.convertDroidMods(rawObject[6].elements),
+            );
+            resultObject.rank = this.calculateRank(resultObject);
+        } else {
+            resultObject.convertedMods = this.difficultyAttributes?.mods.filter(
+                (v) => v.isApplicableToDroid(),
+            ) as (Mod & IModApplicableToDroid)[] | undefined;
+        }
+
+        if (resultObject.replayVersion >= 4) {
+            const str: string[] = rawObject[7].split("|");
+
+            for (const s of str) {
+                switch (true) {
+                    // Forced stats
+                    case s.startsWith("CS"):
+                        resultObject.forceCS = parseFloat(s.replace("CS", ""));
+                        break;
+
+                    case s.startsWith("AR"):
+                        resultObject.forceAR = parseFloat(s.replace("AR", ""));
+                        break;
+
+                    case s.startsWith("OD"):
+                        resultObject.forceOD = parseFloat(s.replace("OD", ""));
+                        break;
+
+                    case s.startsWith("HP"):
+                        resultObject.forceHP = parseFloat(s.replace("HP", ""));
+                        break;
+
+                    // FL follow delay
+                    case s.startsWith("FLD"):
+                        resultObject.flashlightFollowDelay =
+                            parseFloat(s.replace("FLD", "")) || 0.12;
+                        break;
+
+                    // Speed multiplier
+                    case s.startsWith("x"):
+                        resultObject.speedMultiplier =
+                            parseFloat(s.replace("x", "")) || 1;
+                        break;
+                }
+            }
+        }
+
+        let bufferIndex: number;
+        switch (true) {
+            // replay v4 and above
+            case resultObject.replayVersion >= 4:
+                bufferIndex = 8;
+                break;
+            // replay v3
+            case resultObject.replayVersion === 3:
+                bufferIndex = 7;
+                break;
+            // replay v1 and v2
+            default:
+                bufferIndex = 4;
+        }
+
+        const replayDataBufferArray: Buffer[] = [];
+
+        while (bufferIndex < rawObject.length) {
+            replayDataBufferArray.push(rawObject[bufferIndex++]);
+        }
+
+        // Merge all cursor movement and hit object data section into one for better control when parsing
+        const replayDataBuffer = Buffer.concat(replayDataBufferArray);
+        this.bufferOffset = 0;
+
+        this.parseMovementData(resultObject, replayDataBuffer);
+        this.parseHitObjectData(resultObject, replayDataBuffer);
+        this.parseOldReplayInformation(resultObject);
+
+        this.data = new ReplayData(resultObject);
+    }
+
+    /**
+     * Converts replay mods to droid mod string.
+     */
+    private convertDroidMods(replayMods: string[]): string {
+        const replayModsConstants = {
+            MOD_AUTO: new ModAuto().droidString,
+            MOD_AUTOPILOT: new ModAutopilot().droidString,
+            MOD_NOFAIL: new ModNoFail().droidString,
+            MOD_EASY: new ModEasy().droidString,
+            MOD_HIDDEN: new ModHidden().droidString,
+            MOD_HARDROCK: new ModHardRock().droidString,
+            MOD_DOUBLETIME: new ModDoubleTime().droidString,
+            MOD_HALFTIME: new ModHalfTime().droidString,
+            MOD_NIGHTCORE: new ModNightCore().droidString,
+            MOD_PRECISE: new ModPrecise().droidString,
+            MOD_SMALLCIRCLE: new ModSmallCircle().droidString,
+            MOD_SPEEDUP: new ModSpeedUp().droidString,
+            MOD_REALLYEASY: new ModReallyEasy().droidString,
+            MOD_RELAX: new ModRelax().droidString,
+            MOD_PERFECT: new ModPerfect().droidString,
+            MOD_SUDDENDEATH: new ModSuddenDeath().droidString,
+            MOD_SCOREV2: new ModScoreV2().droidString,
+            MOD_FLASHLIGHT: new ModFlashlight().droidString,
+        };
+
+        let modString = "";
+        for (const mod of replayMods) {
+            for (const property in replayModsConstants) {
+                if (!mod.includes(property)) {
+                    continue;
+                }
+                modString +=
+                    replayModsConstants[
+                        property as keyof typeof replayModsConstants
+                    ];
+                break;
+            }
+        }
+
+        return modString;
+    }
+
+    private parseMovementData(
+        resultObject: ReplayInformation,
+        replayDataBuffer: Buffer,
+    ) {
+        resultObject.cursorMovement.length = 0;
+
+        const size = this.readInt(replayDataBuffer);
+
+        for (let i = 0; i < size; i++) {
+            const moveSize = this.readInt(replayDataBuffer);
+            const time: number[] = [];
+            const x: number[] = [];
+            const y: number[] = [];
+            const id: MovementType[] = [];
+
+            for (let j = 0; j < moveSize; j++) {
+                time[j] = this.readInt(replayDataBuffer);
+                id[j] = time[j] & 3;
+                time[j] >>= 2;
+
+                if (id[j] !== MovementType.up) {
+                    x[j] = (
+                        resultObject.replayVersion >= 5
+                            ? this.readFloat
+                            : this.readShort
+                    )(replayDataBuffer);
+
+                    y[j] = (
+                        resultObject.replayVersion >= 5
+                            ? this.readFloat
+                            : this.readShort
+                    )(replayDataBuffer);
+                } else {
+                    x[j] = -1;
+                    y[j] = -1;
+                }
+            }
+
+            resultObject.cursorMovement.push(
+                new CursorData({
+                    size: moveSize,
+                    time: time,
+                    x: x,
+                    y: y,
+                    id: id,
+                }),
+            );
+        }
+    }
+
+    private parseHitObjectData(
+        resultObject: ReplayInformation,
+        replayDataBuffer: Buffer,
+    ) {
+        resultObject.hitObjectData.length = 0;
+
+        const replayObjectLength = this.readInt(replayDataBuffer);
+
+        // Parse result data
+        for (let i = 0; i < replayObjectLength; i++) {
+            const replayObjectData: ReplayObjectData = {
+                accuracy: 0,
+                tickset: [],
+                result: HitResult.miss,
+            };
+
+            replayObjectData.accuracy = this.readShort(replayDataBuffer);
+            const len = this.readByte(replayDataBuffer);
+
+            if (len > 0) {
+                const bytes: number[] = [];
+
+                for (let j = 0; j < len; j++) {
+                    bytes.push(this.readByte(replayDataBuffer));
+                }
+                // Int/int division in Java; numbers must be truncated to get actual number
+                for (let j = 0; j < len * 8; j++) {
+                    replayObjectData.tickset.push(
+                        (bytes[len - Math.trunc(j / 8) - 1] &
+                            (1 << Math.trunc(j % 8))) !==
+                            0,
+                    );
+                }
+            }
+
+            if (resultObject.replayVersion >= 1) {
+                replayObjectData.result = this.readByte(replayDataBuffer);
+            }
+
+            resultObject.hitObjectData.push(replayObjectData);
+        }
+    }
+
+    private parseOldReplayInformation(resultObject: ReplayInformation) {
+        // Parse max combo, hit results, and accuracy in old replay version
+        if (resultObject.replayVersion >= 3) {
+            return;
+        }
+
+        const objects = (
+            this.beatmap instanceof DroidDifficultyCalculator ||
+            this.beatmap instanceof RebalanceDroidDifficultyCalculator
+                ? this.beatmap.beatmap
+                : this.beatmap
+        )?.hitObjects.objects;
+
+        let grantsGekiOrKatu = true;
+
+        for (let i = 0; i < resultObject.hitObjectData.length; ++i) {
+            // Hit result
+            const hitObjectData = resultObject.hitObjectData[i];
+            const isNextNewCombo = objects
+                ? i + 1 !== objects.length
+                    ? objects[i + 1].isNewCombo
+                    : true
+                : false;
+
+            switch (hitObjectData.result) {
+                case HitResult.miss:
+                    ++resultObject.accuracy.nmiss;
+                    grantsGekiOrKatu = false;
+                    break;
+                case HitResult.meh:
+                    ++resultObject.accuracy.n50;
+                    grantsGekiOrKatu = false;
+                    break;
+                case HitResult.good:
+                    ++resultObject.accuracy.n100;
+                    if (grantsGekiOrKatu && isNextNewCombo) {
+                        resultObject.hit100k ??= 0;
+                        ++resultObject.hit100k;
+                    }
+                    break;
+                case HitResult.great:
+                    ++resultObject.accuracy.n300;
+                    if (grantsGekiOrKatu && isNextNewCombo) {
+                        resultObject.hit300k ??= 0;
+                        ++resultObject.hit300k;
+                    }
+                    break;
+            }
+
+            if (isNextNewCombo) {
+                grantsGekiOrKatu = true;
+            }
+        }
+
+        resultObject.rank = this.calculateRank(resultObject);
+    }
+
+    private calculateRank(resultObject: ReplayInformation): Grade {
+        const totalHits =
+            resultObject.accuracy.n300 +
+            resultObject.accuracy.n100 +
+            resultObject.accuracy.n50 +
+            resultObject.accuracy.nmiss;
+        const isHidden =
+            resultObject.convertedMods?.some(
+                (m) => m instanceof ModHidden || m instanceof ModFlashlight,
+            ) ?? false;
+
+        const hit300Ratio = resultObject.accuracy.n300 / totalHits;
+
+        switch (true) {
+            case resultObject.accuracy.value() === 1:
+                return isHidden ? "XH" : "X";
+
+            case hit300Ratio > 0.9 &&
+                resultObject.accuracy.n50 / totalHits < 0.01 &&
+                !resultObject.accuracy.nmiss:
+                return isHidden ? "SH" : "S";
+
+            case (hit300Ratio > 0.8 && !resultObject.accuracy.nmiss) ||
+                hit300Ratio > 0.9:
+                return "A";
+
+            case (hit300Ratio > 0.7 && !resultObject.accuracy.nmiss) ||
+                hit300Ratio > 0.8:
+                return "B";
+
+            case hit300Ratio > 0.6:
+                return "C";
+
+            default:
+                return "D";
+        }
     }
 
     private constructPlayableBeatmap(): Beatmap {
