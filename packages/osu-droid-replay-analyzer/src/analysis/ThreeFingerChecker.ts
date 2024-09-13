@@ -14,6 +14,8 @@ import {
     PlaceableHitObject,
     calculateDroidDifficultyStatistics,
     Utils,
+    Playfield,
+    ModHardRock,
 } from "@rian8337/osu-base";
 import {
     ExtendedDroidDifficultyAttributes,
@@ -94,10 +96,8 @@ export class ThreeFingerChecker {
      */
     private readonly nerfFactors: NerfFactor[] = [];
 
-    /**
-     * Whether this score uses the Precise mod.
-     */
     private readonly isPrecise: boolean;
+    private readonly isHardRock: boolean;
 
     /**
      * @param beatmap The beatmap to analyze.
@@ -115,14 +115,20 @@ export class ThreeFingerChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+            mods: ModUtil.removeSpeedChangingMods(data.convertedMods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 
-        this.isPrecise = this.difficultyAttributes.mods.some(
+        this.isPrecise = difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise,
         );
+
+        this.isHardRock = difficultyAttributes.mods.some(
+            (m) => m instanceof ModHardRock,
+        );
+
         this.hitWindow = new DroidHitWindow(od);
+
         this.hitObjects = beatmap.hitObjects.objects;
     }
 
@@ -626,31 +632,26 @@ export class ThreeFingerChecker {
                     const cursor = cursors[k];
                     const prevCursor = cursors[k - 1];
 
+                    const currentPosition = this.getCursorPosition(cursor);
+                    const prevPosition = this.getCursorPosition(prevCursor);
+
                     // Only consider cursor at interval prev.time <= hitTime <= current.time.
                     if (prevCursor.time <= hitTime && cursor.time >= hitTime) {
                         switch (cursor.id) {
                             case MovementType.up:
                                 isInObject =
-                                    prevCursor.position.getDistance(
-                                        objectPosition,
-                                    ) <= object.radius;
+                                    prevPosition.getDistance(objectPosition) <=
+                                    object.radius;
                                 break;
                             case MovementType.move: {
                                 // Interpolate movement.
                                 const t =
                                     (hitTime - prevCursor.time) /
                                     (cursor.time - prevCursor.time);
-                                const cursorPosition = new Vector2(
-                                    Interpolation.lerp(
-                                        prevCursor.position.x,
-                                        cursor.position.x,
-                                        t,
-                                    ),
-                                    Interpolation.lerp(
-                                        prevCursor.position.y,
-                                        cursor.position.y,
-                                        t,
-                                    ),
+                                const cursorPosition = Interpolation.lerp(
+                                    prevPosition,
+                                    currentPosition,
+                                    t,
                                 );
 
                                 isInObject =
@@ -777,5 +778,16 @@ export class ThreeFingerChecker {
                     ),
             1,
         );
+    }
+
+    private getCursorPosition(cursor: CursorOccurrence) {
+        if (this.isHardRock) {
+            return new Vector2(
+                cursor.position.x,
+                Playfield.baseSize.y - cursor.position.y,
+            );
+        }
+
+        return cursor.position;
     }
 }

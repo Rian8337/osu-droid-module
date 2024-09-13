@@ -7,8 +7,10 @@ import {
     Interpolation,
     MathUtils,
     Modes,
+    ModHardRock,
     ModPrecise,
     ModUtil,
+    Playfield,
     Slider,
     Spinner,
     // Utils,
@@ -21,6 +23,7 @@ import { MovementType } from "../constants/MovementType";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { IndexedHitObject } from "./objects/IndexedHitObject";
+import { CursorOccurrence } from "../data/CursorOccurrence";
 // import { join } from "path";
 
 /**
@@ -77,6 +80,8 @@ export class TwoHandChecker {
      */
     private readonly hitWindow50: number;
 
+    private readonly isHardRock: boolean;
+
     // private csvString: string;
 
     /**
@@ -102,6 +107,7 @@ export class TwoHandChecker {
         this.hitWindow50 = this.hitWindow.hitWindowFor50(
             calculator.mods.some((m) => m instanceof ModPrecise),
         );
+        this.isHardRock = calculator.mods.some((m) => m instanceof ModHardRock);
         // this.csvString = `Mods,${
         //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
         // }\nCombo,${data.maxCombo}\nAccuracy,"${(
@@ -419,7 +425,10 @@ export class TwoHandChecker {
             const cursor = cursors[i];
             const prevCursor = cursors[i - 1];
 
-            if (cursor.position.equals(prevCursor.position)) {
+            const currentPosition = this.getCursorPosition(cursor);
+            const prevPosition = this.getCursorPosition(prevCursor);
+
+            if (currentPosition.equals(prevPosition)) {
                 continue;
             }
 
@@ -427,9 +436,7 @@ export class TwoHandChecker {
                 break;
             }
 
-            const currentMovement = cursor.position.subtract(
-                prevCursor.position,
-            );
+            const currentMovement = currentPosition.subtract(prevPosition);
             const dot = prevToCurrentCursorMovement.dot(currentMovement);
             const det =
                 prevToCurrentCursorMovement.x * currentMovement.y -
@@ -591,9 +598,10 @@ export class TwoHandChecker {
 
                 // Validate the down press first.
                 const { down } = cursorGroup;
+                const downPosition = this.getCursorPosition(down);
+
                 if (
-                    down.position.getDistance(objectPosition) <=
-                        object.radius &&
+                    downPosition.getDistance(objectPosition) <= object.radius &&
                     Math.abs(down.time - object.startTime) <= hitWindow
                 ) {
                     if (objectIndex > 0) {
@@ -604,7 +612,7 @@ export class TwoHandChecker {
 
                         if (down.time > prevObject.endTime) {
                             return {
-                                position: down.position,
+                                position: downPosition,
                                 cursorIndex: i,
                                 groupIndex: j,
                                 occurrenceIndex: 0,
@@ -613,7 +621,7 @@ export class TwoHandChecker {
                         }
                     } else {
                         return {
-                            position: down.position,
+                            position: downPosition,
                             cursorIndex: i,
                             groupIndex: j,
                             occurrenceIndex: 0,
@@ -638,7 +646,7 @@ export class TwoHandChecker {
 
                     let cursorPosition: Vector2;
                     if (cursor.id === MovementType.up) {
-                        cursorPosition = prevCursor.position;
+                        cursorPosition = this.getCursorPosition(prevCursor);
 
                         const distance =
                             cursorPosition.getDistance(objectPosition);
@@ -680,8 +688,8 @@ export class TwoHandChecker {
                                 (cursorGroup.down.time - prevCursor.time) /
                                 (cursor.time - prevCursor.time);
                             cursorPosition = Interpolation.lerp(
-                                prevCursor.position,
-                                cursor.position,
+                                this.getCursorPosition(prevCursor),
+                                this.getCursorPosition(cursor),
                                 t,
                             );
 
@@ -799,11 +807,11 @@ export class TwoHandChecker {
                     let cursorPosition: Vector2;
                     switch (cursor.id) {
                         case MovementType.down:
-                            cursorPosition = cursor.position;
+                            cursorPosition = this.getCursorPosition(cursor);
                             break;
                         case MovementType.up: {
                             const prevCursor = cursors[k - 1];
-                            cursorPosition = prevCursor.position;
+                            cursorPosition = this.getCursorPosition(prevCursor);
                             break;
                         }
                         case MovementType.move: {
@@ -816,8 +824,8 @@ export class TwoHandChecker {
                             );
 
                             cursorPosition = Interpolation.lerp(
-                                prevCursor.position,
-                                cursor.position,
+                                this.getCursorPosition(prevCursor),
+                                this.getCursorPosition(cursor),
                                 t,
                             );
 
@@ -896,6 +904,17 @@ export class TwoHandChecker {
         }
 
         return false;
+    }
+
+    private getCursorPosition(cursor: CursorOccurrence) {
+        if (this.isHardRock) {
+            return new Vector2(
+                cursor.position.x,
+                Playfield.baseSize.y - cursor.position.y,
+            );
+        }
+
+        return cursor.position;
     }
 
     /**

@@ -4,8 +4,10 @@ import {
     DroidHitWindow,
     Interpolation,
     Modes,
+    ModHardRock,
     ModPrecise,
     ModUtil,
+    Playfield,
     Slider,
     Utils,
     Vector2,
@@ -16,6 +18,7 @@ import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { ReplayData } from "../data/ReplayData";
 import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
+import { CursorOccurrence } from "../data/CursorOccurrence";
 
 /**
  * Utility to check whether relevant sliders in a beatmap are cheesed.
@@ -43,6 +46,8 @@ export class SliderCheeseChecker {
      */
     private readonly hitWindow50: number;
 
+    private readonly isHardRock: boolean;
+
     /**
      * @param beatmap The beatmap to analyze.
      * @param data The data of the replay.
@@ -61,12 +66,16 @@ export class SliderCheeseChecker {
 
         const od = calculateDroidDifficultyStatistics({
             overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(this.data.convertedMods),
+            mods: ModUtil.removeSpeedChangingMods(data.convertedMods),
             convertOverallDifficulty: false,
         }).overallDifficulty;
 
         this.hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
-            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise),
+            difficultyAttributes.mods.some((m) => m instanceof ModPrecise),
+        );
+
+        this.isHardRock = difficultyAttributes.mods.some(
+            (m) => m instanceof ModHardRock,
         );
     }
 
@@ -156,10 +165,10 @@ export class SliderCheeseChecker {
                     }
 
                     if (group.startTime >= minTimeLimit) {
+                        const position = this.getCursorPosition(group.down);
+
                         const distance =
-                            group.down.position.getDistance(
-                                objectStartPosition,
-                            );
+                            position.getDistance(objectStartPosition);
 
                         if (closestDistance > distance) {
                             closestDistance = distance;
@@ -177,43 +186,39 @@ export class SliderCheeseChecker {
                     const { allOccurrences } = group;
 
                     for (let k = 1; k < allOccurrences.length; ++k) {
-                        const occurrence = allOccurrences[k];
-                        const prevOccurrence = allOccurrences[k - 1];
+                        const cursor = allOccurrences[k];
+                        const prevCursor = allOccurrences[k - 1];
 
                         let distance = Number.POSITIVE_INFINITY;
 
-                        switch (occurrence.id) {
+                        const currentPosition = this.getCursorPosition(cursor);
+                        const prevPosition = this.getCursorPosition(prevCursor);
+
+                        switch (cursor.id) {
                             case MovementType.up:
                                 distance =
-                                    prevOccurrence.position.getDistance(
+                                    prevPosition.getDistance(
                                         objectStartPosition,
                                     );
                                 break;
                             case MovementType.move:
                                 for (
                                     let mSecPassed = Math.max(
-                                        prevOccurrence.time,
+                                        prevCursor.time,
                                         minTimeLimit,
                                     );
                                     mSecPassed <=
-                                    Math.min(occurrence.time, maxTimeLimit);
+                                    Math.min(cursor.time, maxTimeLimit);
                                     ++mSecPassed
                                 ) {
                                     const t =
-                                        (mSecPassed - prevOccurrence.time) /
-                                        (occurrence.time - prevOccurrence.time);
+                                        (mSecPassed - prevCursor.time) /
+                                        (cursor.time - prevCursor.time);
 
-                                    const cursorPosition = new Vector2(
-                                        Interpolation.lerp(
-                                            prevOccurrence.position.x,
-                                            occurrence.position.x,
-                                            t,
-                                        ),
-                                        Interpolation.lerp(
-                                            prevOccurrence.position.y,
-                                            occurrence.position.y,
-                                            t,
-                                        ),
+                                    const cursorPosition = Interpolation.lerp(
+                                        prevPosition,
+                                        currentPosition,
+                                        t,
                                     );
 
                                     distance =
@@ -302,27 +307,23 @@ export class SliderCheeseChecker {
                     continue;
                 }
 
-                const occurrence = allOccurrences[occurrenceLoopIndex];
-                const prevOccurrence = allOccurrences[occurrenceLoopIndex - 1];
+                const cursor = allOccurrences[occurrenceLoopIndex];
+                const prevCursor = allOccurrences[occurrenceLoopIndex - 1];
 
-                switch (occurrence.id) {
+                const currentPosition = this.getCursorPosition(cursor);
+                const prevPosition = this.getCursorPosition(prevCursor);
+
+                switch (cursor.id) {
                     case MovementType.move: {
                         // Interpolate cursor position during nested object time.
                         const t =
-                            (nestedObject.startTime - prevOccurrence.time) /
-                            (occurrence.time - prevOccurrence.time);
+                            (nestedObject.startTime - prevCursor.time) /
+                            (cursor.time - prevCursor.time);
 
-                        const cursorPosition = new Vector2(
-                            Interpolation.lerp(
-                                prevOccurrence.position.x,
-                                occurrence.position.x,
-                                t,
-                            ),
-                            Interpolation.lerp(
-                                prevOccurrence.position.y,
-                                occurrence.position.y,
-                                t,
-                            ),
+                        const cursorPosition = Interpolation.lerp(
+                            prevPosition,
+                            currentPosition,
+                            t,
                         );
 
                         const distance =
@@ -333,9 +334,8 @@ export class SliderCheeseChecker {
                     }
                     case MovementType.up:
                         isCheesed =
-                            prevOccurrence.position.getDistance(
-                                nestedPosition,
-                            ) > acceptableRadius;
+                            prevPosition.getDistance(nestedPosition) >
+                            acceptableRadius;
                 }
             }
 
@@ -387,5 +387,16 @@ export class SliderCheeseChecker {
                 ),
             ),
         };
+    }
+
+    private getCursorPosition(cursor: CursorOccurrence) {
+        if (this.isHardRock) {
+            return new Vector2(
+                cursor.position.x,
+                Playfield.baseSize.y - cursor.position.y,
+            );
+        }
+
+        return cursor.position;
     }
 }

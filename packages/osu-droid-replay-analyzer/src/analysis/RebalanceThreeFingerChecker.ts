@@ -13,6 +13,9 @@ import {
     Utils,
     Interpolation,
     calculateDroidDifficultyStatistics,
+    ModHardRock,
+    Vector2,
+    Playfield,
 } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
@@ -83,10 +86,8 @@ export class RebalanceThreeFingerChecker {
      */
     private readonly nerfFactors: NerfFactor[] = [];
 
-    /**
-     * Whether this score uses the Precise mod.
-     */
     private readonly isPrecise: boolean;
+    private readonly isHardRock: boolean;
 
     private get hitWindow50() {
         return this.hitWindow.hitWindowFor50(this.isPrecise);
@@ -112,9 +113,14 @@ export class RebalanceThreeFingerChecker {
             convertOverallDifficulty: false,
         }).overallDifficulty;
 
-        this.isPrecise = this.difficultyAttributes.mods.some(
+        this.isPrecise = difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise,
         );
+
+        this.isHardRock = difficultyAttributes.mods.some(
+            (m) => m instanceof ModHardRock,
+        );
+
         this.hitWindow = new DroidHitWindow(od);
     }
 
@@ -454,10 +460,12 @@ export class RebalanceThreeFingerChecker {
 
                     let distance: number;
 
+                    const currentPosition = this.getCursorPosition(cursor);
+                    const prevPosition = this.getCursorPosition(prevCursor);
+
                     switch (cursor.id) {
                         case MovementType.up:
-                            distance =
-                                prevCursor.position.getDistance(objectPosition);
+                            distance = prevPosition.getDistance(objectPosition);
                             break;
                         case MovementType.move: {
                             // Interpolate movement.
@@ -465,8 +473,8 @@ export class RebalanceThreeFingerChecker {
                                 (hitTime - prevCursor.time) /
                                 (cursor.time - prevCursor.time);
                             const cursorPosition = Interpolation.lerp(
-                                prevCursor.position,
-                                cursor.position,
+                                prevPosition,
+                                currentPosition,
                                 t,
                             );
 
@@ -706,5 +714,16 @@ export class RebalanceThreeFingerChecker {
                     ),
             1,
         );
+    }
+
+    private getCursorPosition(cursor: CursorOccurrence) {
+        if (this.isHardRock) {
+            return new Vector2(
+                cursor.position.x,
+                Playfield.baseSize.y - cursor.position.y,
+            );
+        }
+
+        return cursor.position;
     }
 }
