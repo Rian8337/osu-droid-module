@@ -625,17 +625,13 @@ export class ReplayAnalyzer {
                 time[j] >>= 2;
 
                 if (id[j] !== MovementType.up) {
-                    x[j] = (
-                        resultObject.replayVersion >= 5
-                            ? this.readFloat
-                            : this.readShort
-                    )(replayDataBuffer);
-
-                    y[j] = (
-                        resultObject.replayVersion >= 5
-                            ? this.readFloat
-                            : this.readShort
-                    )(replayDataBuffer);
+                    if (resultObject.replayVersion >= 5) {
+                        x[j] = this.readFloat(replayDataBuffer);
+                        y[j] = this.readFloat(replayDataBuffer);
+                    } else {
+                        x[j] = this.readShort(replayDataBuffer);
+                        y[j] = this.readShort(replayDataBuffer);
+                    }
                 } else {
                     x[j] = -1;
                     y[j] = -1;
