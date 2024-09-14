@@ -410,6 +410,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates aim-related attributes.
      */
     private calculateAimAttributes(): void {
+        this.attributes.difficultSliders = [];
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
         for (let i = 0; i < this.objects.length; ++i) {
