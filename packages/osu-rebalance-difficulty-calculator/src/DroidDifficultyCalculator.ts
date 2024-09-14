@@ -13,6 +13,7 @@ import {
     calculateDroidDifficultyStatistics,
     ModDifficultyAdjust,
     OsuHitWindow,
+    ModAutopilot,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -382,8 +383,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             aimSkill.countRetryability(),
         );
 
-        this.attributes.aimDifficulty =
-            this.starValue(aimSkill.difficultyValue()) * retryabilityScaling;
+        this.attributes.aimDifficulty = this.mods.some(
+            (m) => m instanceof ModAutopilot,
+        )
+            ? 0
+            : this.starValue(aimSkill.difficultyValue()) * retryabilityScaling;
 
         if (this.aim) {
             this.attributes.sliderFactor =
@@ -595,11 +599,14 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 ) / this.flashlight;
         }
 
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.flashlightDifficulty *= 0.3;
+        }
+
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.flashlightDifficulty *= 0.7;
         }
 
-        this.attributes.flashlightDifficulty = this.flashlight;
         this.attributes.flashlightDifficultStrainCount =
             flashlightSkill.countDifficultStrains();
     }
@@ -624,6 +631,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             this.attributes.visualSliderFactor =
                 this.starValue(visualSkillWithoutSliders.difficultyValue()) /
                 this.visual;
+        }
+
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.visualDifficulty *= 0.8;
         }
 
         this.attributes.visualDifficultStrainCount =
