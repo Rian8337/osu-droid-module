@@ -141,7 +141,12 @@ export class RebalanceThreeFingerChecker {
      */
     check(): ThreeFingerInformation {
         if (
-            this.difficultyAttributes.possibleThreeFingeredSections.length === 0
+            !RebalanceThreeFingerChecker.isEligibleToDetect(
+                this.difficultyAttributes,
+            ) ||
+            this.data.cursorMovement.filter(
+                (v) => v.occurrenceGroups.length > 0,
+            ).length <= 3
         ) {
             return { is3Finger: false, penalty: 1 };
         }
