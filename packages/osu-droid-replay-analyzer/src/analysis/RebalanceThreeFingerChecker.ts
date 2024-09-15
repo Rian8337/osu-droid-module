@@ -49,14 +49,6 @@ export class RebalanceThreeFingerChecker {
     readonly difficultyAttributes: RebalanceExtendedDroidDifficultyAttributes;
 
     /**
-     * The ratio threshold between non-3 finger cursors and 3-finger cursors.
-     *
-     * Increasing this number will increase detection accuracy, however
-     * it also increases the chance of falsely flagged plays.
-     */
-    private readonly threeFingerRatioThreshold = 0.01;
-
-    /**
      * Extended sections of the beatmap for drag detection.
      */
     private readonly beatmapSections: RebalanceThreeFingerBeatmapSection[] = [];
@@ -569,7 +561,6 @@ export class RebalanceThreeFingerChecker {
      */
     private calculateNerfFactors(): void {
         for (const beatmapSection of this.beatmapSections) {
-            let nonThreeFingerCursorCount = 0;
             const threeFingerCursorCounts = Utils.initializeArray(
                 Math.max(0, this.downCursorInstances.length - 2),
                 0,
@@ -586,7 +577,6 @@ export class RebalanceThreeFingerChecker {
                         case 0:
                         case 1:
                         case 2:
-                            ++nonThreeFingerCursorCount;
                             break;
 
                         default:
@@ -600,7 +590,6 @@ export class RebalanceThreeFingerChecker {
                     switch (object.pressingCursorInstanceIndex) {
                         case 0:
                         case 1:
-                            ++nonThreeFingerCursorCount;
                             break;
 
                         default:
@@ -617,45 +606,39 @@ export class RebalanceThreeFingerChecker {
                 0,
             );
 
-            // Divide >=3rd cursor instances with 1st + 2nd to check if the section is 3-fingered.
-            const threeFingerRatio =
-                threeFingerCursorCount / Math.max(nonThreeFingerCursorCount, 1);
-
-            if (threeFingerRatio > this.threeFingerRatioThreshold) {
-                const sectionObjectCount =
-                    beatmapSection.lastObjectIndex -
-                    beatmapSection.firstObjectIndex +
-                    1;
-
-                const threeFingeredObjectRatio =
-                    threeFingerCursorCount / sectionObjectCount;
-
-                const strainFactor = Math.max(
-                    1,
-                    beatmapSection.sumStrain * threeFingeredObjectRatio,
-                );
-
-                // Finger factor applies more penalty if more fingers were used.
-                const fingerFactor = threeFingerCursorCounts.reduce(
-                    (acc, count, index) =>
-                        acc +
-                        Math.pow(
-                            ((index + 1) * count) / sectionObjectCount,
-                            0.9,
-                        ),
-                    1,
-                );
-
-                // Length factor applies more penalty if there are more 3-fingered object.
-                const lengthFactor =
-                    1 + Math.pow(threeFingeredObjectRatio, 0.8);
-
-                this.nerfFactors.push({
-                    strainFactor: strainFactor,
-                    fingerFactor: fingerFactor,
-                    lengthFactor: lengthFactor,
-                });
+            if (threeFingerCursorCount === 0) {
+                continue;
             }
+
+            const sectionObjectCount =
+                beatmapSection.lastObjectIndex -
+                beatmapSection.firstObjectIndex +
+                1;
+
+            const threeFingeredObjectRatio =
+                threeFingerCursorCount / sectionObjectCount;
+
+            const strainFactor = Math.max(
+                1,
+                beatmapSection.sumStrain * threeFingeredObjectRatio,
+            );
+
+            // Finger factor applies more penalty if more fingers were used.
+            const fingerFactor = threeFingerCursorCounts.reduce(
+                (acc, count, index) =>
+                    acc +
+                    Math.pow(((index + 1) * count) / sectionObjectCount, 0.9),
+                1,
+            );
+
+            // Length factor applies more penalty if there are more 3-fingered object.
+            const lengthFactor = 1 + Math.pow(threeFingeredObjectRatio, 0.8);
+
+            this.nerfFactors.push({
+                strainFactor: strainFactor,
+                fingerFactor: fingerFactor,
+                lengthFactor: lengthFactor,
+            });
         }
     }
 
