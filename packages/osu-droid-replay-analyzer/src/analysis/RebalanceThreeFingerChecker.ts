@@ -397,12 +397,10 @@ export class RebalanceThreeFingerChecker {
             return -1;
         }
 
-        const { hitWindow50 } = this;
-
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            objectData.accuracy === Math.floor(hitWindow50) + 13
+            objectData.accuracy === Math.floor(this.hitWindow50) + 13
         ) {
             return -1;
         }
@@ -521,48 +519,17 @@ export class RebalanceThreeFingerChecker {
         object: PlaceableHitObject,
         objectData: ReplayObjectData,
         cursorLookupIndices: number[],
-        ...excludedCursorIndices: number[]
     ): number {
         if (objectData.result === HitResult.miss || object instanceof Spinner) {
             return -1;
         }
 
-        const { hitWindow50 } = this;
-
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            objectData.accuracy === Math.floor(hitWindow50) + 13
+            objectData.accuracy === Math.floor(this.hitWindow50) + 13
         ) {
             return -1;
-        }
-
-        // We are not directly using hit time to determine which cursor pressed the object
-        // to account for time difference between hit registration and object judgement.
-        let minHitTime = object.startTime;
-        let maxHitTime = object.startTime;
-
-        if (object instanceof Circle) {
-            let hitWindowGap = hitWindow50;
-
-            switch (objectData.result) {
-                case HitResult.great:
-                    hitWindowGap = this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
-                    break;
-                case HitResult.good:
-                    hitWindowGap = this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
-                    break;
-            }
-
-            minHitTime -= hitWindowGap;
-            maxHitTime += hitWindowGap;
-        } else if (object instanceof Slider) {
-            minHitTime -= hitWindow50;
-            maxHitTime += Math.min(hitWindow50, object.spanDuration);
         }
 
         const hitTime = object.startTime + objectData.accuracy;
@@ -570,10 +537,6 @@ export class RebalanceThreeFingerChecker {
         let nearestTime = Number.POSITIVE_INFINITY;
 
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
-            if (excludedCursorIndices.includes(i)) {
-                continue;
-            }
-
             const cursors = this.downCursorInstances[i];
 
             for (
@@ -583,15 +546,11 @@ export class RebalanceThreeFingerChecker {
             ) {
                 const cursor = cursors[j];
 
-                if (cursor.time < minHitTime) {
-                    continue;
-                }
-
-                if (cursor.time > maxHitTime) {
+                if (cursor.time > hitTime) {
                     break;
                 }
 
-                const deltaTime = Math.abs(hitTime - cursor.time);
+                const deltaTime = hitTime - cursor.time;
 
                 if (deltaTime > nearestTime) {
                     break;
