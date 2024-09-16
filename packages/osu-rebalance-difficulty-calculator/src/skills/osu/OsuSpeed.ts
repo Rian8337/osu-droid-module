@@ -1,5 +1,4 @@
 import { OsuSkill } from "./OsuSkill";
-import { Mod, OsuHitWindow } from "@rian8337/osu-base";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
@@ -18,15 +17,6 @@ export class OsuSpeed extends OsuSkill {
     private currentRhythm = 0;
 
     private readonly skillMultiplier = 1375;
-    private readonly greatWindow: number;
-
-    constructor(mods: Mod[], overallDifficulty: number) {
-        super(mods);
-
-        this.greatWindow = new OsuHitWindow(
-            overallDifficulty,
-        ).hitWindowFor300();
-    }
 
     /**
      * @param current The hitobject to calculate.
@@ -34,13 +24,10 @@ export class OsuSpeed extends OsuSkill {
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentSpeedStrain *= this.strainDecay(current.strainTime);
         this.currentSpeedStrain +=
-            OsuSpeedEvaluator.evaluateDifficultyOf(current, this.greatWindow) *
+            OsuSpeedEvaluator.evaluateDifficultyOf(current) *
             this.skillMultiplier;
 
-        this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(
-            current,
-            this.greatWindow,
-        );
+        this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(current);
 
         return this.currentSpeedStrain * this.currentRhythm;
     }

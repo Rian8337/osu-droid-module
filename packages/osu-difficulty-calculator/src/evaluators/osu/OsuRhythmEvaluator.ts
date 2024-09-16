@@ -13,26 +13,20 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
      * @param current The current object.
      * @param greatWindow The great hit window of the current object.
      */
-    static evaluateDifficultyOf(
-        current: OsuDifficultyHitObject,
-        greatWindow: number,
-    ): number {
+    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
 
-        let previousIslandSize: number = 0;
-        let rhythmComplexitySum: number = 0;
-        let islandSize: number = 1;
+        let previousIslandSize = 0;
+        let rhythmComplexitySum = 0;
+        let islandSize = 1;
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
-        let startRatio: number = 0;
-
-        let firstDeltaSwitch: boolean = false;
-
-        const historicalNoteCount: number = Math.min(current.index, 32);
-
-        let rhythmStart: number = 0;
+        let startRatio = 0;
+        let firstDeltaSwitch = false;
+        const historicalNoteCount = Math.min(current.index, 32);
+        let rhythmStart = 0;
 
         while (
             rhythmStart < historicalNoteCount - 2 &&
@@ -43,14 +37,12 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
         }
 
         for (let i = rhythmStart; i > 0; --i) {
-            const currentObject: OsuDifficultyHitObject = current.previous(
-                i - 1,
-            )!;
-            const prevObject: OsuDifficultyHitObject = current.previous(i)!;
-            const lastObject: OsuDifficultyHitObject = current.previous(i + 1)!;
+            const currentObject = current.previous(i - 1)!;
+            const prevObject = current.previous(i)!;
+            const lastObject = current.previous(i + 1)!;
 
             // Scale note 0 to 1 from history to now.
-            let currentHistoricalDecay: number =
+            let currentHistoricalDecay =
                 (this.historyTimeMax -
                     (current.startTime - currentObject.startTime)) /
                 this.historyTimeMax;
@@ -61,11 +53,11 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
                 (historicalNoteCount - i) / historicalNoteCount,
             );
 
-            const currentDelta: number = currentObject.strainTime;
-            const prevDelta: number = prevObject.strainTime;
-            const lastDelta: number = lastObject.strainTime;
+            const currentDelta = currentObject.strainTime;
+            const prevDelta = prevObject.strainTime;
+            const lastDelta = lastObject.strainTime;
 
-            const currentRatio: number =
+            const currentRatio =
                 1 +
                 6 *
                     Math.min(
@@ -80,16 +72,17 @@ export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
                         ),
                     );
 
-            const windowPenalty: number = Math.min(
+            const windowPenalty = Math.min(
                 1,
                 Math.max(
                     0,
-                    Math.abs(prevDelta - currentDelta) - greatWindow * 0.6,
+                    Math.abs(prevDelta - currentDelta) -
+                        current.fullGreatWindow * 0.3,
                 ) /
-                    (greatWindow * 0.6),
+                    (current.fullGreatWindow * 0.3),
             );
 
-            let effectiveRatio: number = windowPenalty * currentRatio;
+            let effectiveRatio = windowPenalty * currentRatio;
 
             if (firstDeltaSwitch) {
                 if (

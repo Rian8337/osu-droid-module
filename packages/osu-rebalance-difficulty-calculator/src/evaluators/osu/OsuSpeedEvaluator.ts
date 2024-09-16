@@ -9,7 +9,7 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
     /**
      * Spacing threshold for a single hitobject spacing.
      */
-    private static readonly SINGLE_SPACING_THRESHOLD: number = 125;
+    private static readonly SINGLE_SPACING_THRESHOLD = 125;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -19,57 +19,34 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
      * - and how easily they can be cheesed.
      *
      * @param current The current object.
-     * @param greatWindow The great hit window of the current object.
      */
-    static evaluateDifficultyOf(
-        current: OsuDifficultyHitObject,
-        greatWindow: number,
-    ): number {
+    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
 
-        const prev: OsuDifficultyHitObject | null = current.previous(0);
-
-        let strainTime: number = current.strainTime;
-
-        const greatWindowFull: number = greatWindow * 2;
+        const prev = current.previous(0);
+        let strainTime = current.strainTime;
 
         // Nerf doubletappable doubles.
-        const next: OsuDifficultyHitObject | null = current.next(0);
-        let doubletapness: number = 1;
-
-        if (next) {
-            const currentDeltaTime: number = Math.max(1, current.deltaTime);
-            const nextDeltaTime: number = Math.max(1, next.deltaTime);
-            const deltaDifference: number = Math.abs(
-                nextDeltaTime - currentDeltaTime,
-            );
-            const speedRatio: number =
-                currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
-            const windowRatio: number = Math.pow(
-                Math.min(1, currentDeltaTime / greatWindowFull),
-                2,
-            );
-            doubletapness = Math.pow(speedRatio, 1 - windowRatio);
-        }
+        const doubletapness = 1 - current.doubletapness;
 
         // Cap deltatime to the OD 300 hitwindow.
         // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
         strainTime /= MathUtils.clamp(
-            strainTime / greatWindowFull / 0.93,
+            strainTime / current.fullGreatWindow / 0.93,
             0.92,
             1,
         );
 
-        let speedBonus: number = 1;
+        let speedBonus = 1;
         if (strainTime < this.minSpeedBonus) {
             speedBonus +=
                 0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
         }
 
-        const travelDistance: number = prev?.travelDistance ?? 0;
-        const distance: number = Math.min(
+        const travelDistance = prev?.travelDistance ?? 0;
+        const distance = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
             travelDistance + current.minimumJumpDistance,
         );

@@ -95,10 +95,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
-        const speedSkill = new OsuSpeed(
-            this.mods,
-            this.difficultyStatistics.overallDifficulty,
-        );
+        const speedSkill = new OsuSpeed(this.mods);
 
         this.calculateSkills(speedSkill);
 
@@ -234,10 +231,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         return [
             new OsuAim(this.mods, true),
             new OsuAim(this.mods, false),
-            new OsuSpeed(
-                this.mods,
-                this.difficultyStatistics.overallDifficulty,
-            ),
+            new OsuSpeed(this.mods),
             new OsuFlashlight(this.mods),
         ];
     }
