@@ -535,6 +535,7 @@ export class RebalanceThreeFingerChecker {
 
         for (let i = 0; i < this.downCursorInstances.length; ++i) {
             const cursors = this.downCursorInstances[i];
+            let cursorNearestTime = Number.POSITIVE_INFINITY;
 
             for (
                 let j = cursorLookupIndices[i];
@@ -547,14 +548,12 @@ export class RebalanceThreeFingerChecker {
                     break;
                 }
 
-                const deltaTime = hitTime - cursor.time;
+                cursorNearestTime = hitTime - cursor.time;
+            }
 
-                if (deltaTime > nearestTime) {
-                    break;
-                }
-
+            if (cursorNearestTime < nearestTime) {
                 nearestCursorInstanceIndex = i;
-                nearestTime = deltaTime;
+                nearestTime = cursorNearestTime;
             }
         }
 
