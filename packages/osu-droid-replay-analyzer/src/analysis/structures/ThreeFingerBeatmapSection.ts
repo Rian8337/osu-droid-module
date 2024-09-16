@@ -9,9 +9,4 @@ export interface ThreeFingerBeatmapSection extends HighStrainSection {
      * The objects in this section with three-finger data.
      */
     readonly objects: ThreeFingerObject[];
-
-    /**
-     * The index of the cursor that is dragging this section.
-     */
-    readonly dragFingerIndex: number;
 }
