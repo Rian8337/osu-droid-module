@@ -68,7 +68,7 @@ class Island {
  * An evaluator for calculating osu!droid Rhythm skill.
  */
 export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
-    protected static override readonly rhythmMultiplier = 1.05;
+    protected static override readonly rhythmMultiplier = 1.2;
     protected static override readonly historyTimeMax = 4000;
     private static readonly maxIslandSize = 7;
     private static readonly historyObjectsMax = 24;
@@ -151,7 +151,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
             const currentRatio =
                 1 +
-                5.8 *
+                10 *
                     Math.min(
                         0.5,
                         Math.pow(
