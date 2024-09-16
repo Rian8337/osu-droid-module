@@ -1,4 +1,9 @@
-import { BeatmapDecoder, ModDoubleTime, ModRelax } from "@rian8337/osu-base";
+import {
+    BeatmapDecoder,
+    ModAutopilot,
+    ModDoubleTime,
+    ModRelax,
+} from "@rian8337/osu-base";
 import { DroidDifficultyCalculator } from "../src";
 import { readFileSync } from "fs";
 import { join } from "path";
@@ -174,6 +179,16 @@ const testDiffCalc = (
                 6,
             );
         });
+    });
+
+    test("Autopilot aim difficulty calculation", () => {
+        const autopilotRating = new DroidDifficultyCalculator(
+            beatmap,
+        ).calculate({
+            mods: [new ModAutopilot()],
+        });
+
+        expect(autopilotRating.aim).toBe(0);
     });
 
     describe("Relax tap and rhythm difficulty calculation", () => {
