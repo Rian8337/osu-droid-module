@@ -210,7 +210,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
                     // Singletaps are easier to control.
                     if (island.deltas.length === 1) {
-                        effectiveRatio *= 0.7;
+                        effectiveRatio /= 2;
                     }
 
                     let islandFound = false;
