@@ -109,7 +109,10 @@ export class SliderCheeseChecker {
         const cheesedDifficultyRatings: number[] = [];
 
         // Current loop indices are stored for efficiency.
-        const cursorLoopIndices = Utils.initializeArray(10, 0);
+        const cursorLoopIndices = Utils.initializeArray(
+            this.data.cursorMovement.length,
+            0,
+        );
         const acceptableRadius = objects[0].radius * 2;
 
         // Sort difficult sliders by index so that cursor loop indices work properly.
