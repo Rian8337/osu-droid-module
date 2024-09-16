@@ -198,13 +198,8 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
                     // BPM change was from a slider, this is typically easier than circle -> circle.
                     // Unintentional side effect is that bursts with kicksliders at the ends might
-                    // have lower difficulty than bursts without sliders. Therefore we're checking for
-                    // quick sliders and don't lower the difficulty for them since they don't really
-                    // make tapping easier (no time to adjust).
-                    if (
-                        prevObject.object instanceof Slider &&
-                        prevObject.travelTime > prevDelta * 1.5
-                    ) {
+                    // have lower difficulty than bursts without sliders.
+                    if (prevObject.object instanceof Slider) {
                         effectiveRatio /= 4;
                     }
 
