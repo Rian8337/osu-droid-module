@@ -1,4 +1,3 @@
-import { Mod } from "@rian8337/osu-base";
 import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -14,19 +13,12 @@ export class DroidRhythm extends DroidSkill {
 
     private currentRhythmStrain = 0;
     private currentRhythmMultiplier = 1;
-    private readonly clockRate: number;
-
-    constructor(mods: Mod[], clockRate: number) {
-        super(mods);
-
-        this.clockRate = clockRate;
-    }
 
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
         this.currentRhythmMultiplier =
-            DroidRhythmEvaluator.evaluateDifficultyOf(current, this.clockRate);
+            DroidRhythmEvaluator.evaluateDifficultyOf(current);
 
         this.currentRhythmStrain *= this.strainDecay(current.deltaTime);
         this.currentRhythmStrain += this.currentRhythmMultiplier - 1;

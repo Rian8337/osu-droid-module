@@ -69,8 +69,9 @@ class Island {
  */
 export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
     protected static override readonly rhythmMultiplier = 1.05;
+    protected static override readonly historyTimeMax = 4000;
     private static readonly maxIslandSize = 7;
-    private static readonly historyObjectsMax = 32;
+    private static readonly historyObjectsMax = 24;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -78,10 +79,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
      *
      * @param current The current object.
      */
-    static evaluateDifficultyOf(
-        current: DroidDifficultyHitObject,
-        clockRate: number,
-    ): number {
+    static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
         if (
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
@@ -97,13 +95,6 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         let previousIsland = new Island(deltaDifferenceEpsilon);
         const islandCounts = new Map<Island, number>();
 
-        const historyTimeMaxAdjusted = Math.ceil(
-            this.historyTimeMax / clockRate,
-        );
-        const historyObjectsMaxAdjusted = Math.ceil(
-            this.historyObjectsMax / clockRate,
-        );
-
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
         let firstDeltaSwitch = false;
@@ -111,7 +102,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
 
         const historicalNoteCount = Math.min(
             current.index,
-            historyObjectsMaxAdjusted,
+            this.historyObjectsMax,
         );
 
         // Exclude overlapping objects that can be tapped at once.
@@ -132,7 +123,7 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         while (
             rhythmStart < validPrevious.length - 2 &&
             current.startTime - validPrevious[rhythmStart].startTime <
-                historyTimeMaxAdjusted
+                this.historyTimeMax
         ) {
             ++rhythmStart;
         }
@@ -140,9 +131,9 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
         for (let i = rhythmStart; i > 0; --i) {
             // Scale note 0 to 1 from history to now.
             let currentHistoricalDecay =
-                (historyTimeMaxAdjusted -
+                (this.historyTimeMax -
                     (current.startTime - validPrevious[i - 1].startTime)) /
-                historyTimeMaxAdjusted;
+                this.historyTimeMax;
 
             // Either we're limited by time or limited by object count.
             currentHistoricalDecay = Math.min(

@@ -169,10 +169,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the rhythm star rating of the beatmap and stores it in this instance.
      */
     calculateRhythm(): void {
-        const rhythmSkill = new DroidRhythm(
-            this.mods,
-            this.difficultyStatistics.overallSpeedMultiplier,
-        );
+        const rhythmSkill = new DroidRhythm(this.mods);
 
         this.calculateSkills(rhythmSkill);
         this.postCalculateRhythm(rhythmSkill);
@@ -351,10 +348,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             new DroidAim(this.mods, true),
             new DroidAim(this.mods, false),
             // Tap skill depends on rhythm skill, so we put it first
-            new DroidRhythm(
-                this.mods,
-                this.difficultyStatistics.overallSpeedMultiplier,
-            ),
+            new DroidRhythm(this.mods),
             // Cheesability tap
             new DroidTap(this.mods, true),
             // Non-cheesability tap
