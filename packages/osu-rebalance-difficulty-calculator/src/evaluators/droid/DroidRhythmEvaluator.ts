@@ -217,6 +217,11 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         effectiveRatio /= 8;
                     }
 
+                    // Singletaps are easier to control.
+                    if (island.deltas.length === 1) {
+                        effectiveRatio *= 0.7;
+                    }
+
                     let islandFound = false;
 
                     for (const [currentIsland, count] of islandCounts) {
