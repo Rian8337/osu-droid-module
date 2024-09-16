@@ -205,19 +205,19 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         {
             noMod: {
                 aim: 2.4814071238381215,
-                tap: 1.4997744292829895,
-                rhythm: 0.8775324539140502,
+                tap: 1.4942543935880108,
+                rhythm: 0.7617058040683989,
                 flashlight: 1.5206253436039583,
-                visual: 0.7897655464962676,
-                total: 3.987460853080255,
+                visual: 0.7808575406851211,
+                total: 3.978985422301676,
             },
             doubleTime: {
                 aim: 3.3905334356485666,
-                tap: 2.1836296933331045,
-                rhythm: 1.061749550191306,
+                tap: 2.1748589225889963,
+                rhythm: 0.9032136117024168,
                 flashlight: 2.059260991975098,
-                visual: 0.9481615543937826,
-                total: 5.123759461521921,
+                visual: 0.9416551460354949,
+                total: 5.115114222809041,
             },
         },
     );
@@ -227,19 +227,19 @@ describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
             aim: 1.1987600018648465,
-            tap: 1.0006709597268135,
-            rhythm: 0.6432345193454881,
+            tap: 1.0003000500699684,
+            rhythm: 0.6303983925347473,
             flashlight: 0.5655539900280351,
-            visual: 0.8112020843588915,
-            total: 3.0004800503848736,
+            visual: 0.7365501111399614,
+            total: 2.904620099301128,
         },
         doubleTime: {
             aim: 1.6343032570598897,
-            tap: 1.407530447303691,
-            rhythm: 0.8216298705157962,
+            tap: 1.3924209859130339,
+            rhythm: 0.7847276810553927,
             flashlight: 0.7630253989835782,
-            visual: 0.9700786686644048,
-            total: 3.565597702247347,
+            visual: 0.8533696935604126,
+            total: 3.444061225930614,
         },
     });
 });
@@ -250,19 +250,19 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         {
             noMod: {
                 aim: 2.935214690378211,
-                tap: 3.176599290019633,
-                rhythm: 1.384266453689203,
+                tap: 3.209740164456088,
+                rhythm: 1.2526406165201789,
                 flashlight: 1.8166004150316049,
-                visual: 0.9676350950108931,
-                total: 5.8501089754149005,
+                visual: 0.9529284137332561,
+                total: 5.886127017702072,
             },
             doubleTime: {
                 aim: 4.0829661751427695,
-                tap: 4.354213960888814,
-                rhythm: 1.5415612896827433,
+                tap: 4.383883058019356,
+                rhythm: 1.3559464524256253,
                 flashlight: 2.498508945253868,
-                visual: 1.0955786835073091,
-                total: 7.788290832175184,
+                visual: 1.0832452330439357,
+                total: 7.824797158409172,
             },
         },
     );
@@ -272,19 +272,19 @@ describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
             aim: 3.0824581750703843,
-            tap: 1.4273929472848053,
-            rhythm: 0.8279224718488427,
+            tap: 1.406721078102933,
+            rhythm: 0.7132455693331773,
             flashlight: 3.036035049248153,
-            visual: 2.9109762504029613,
-            total: 5.82656135750621,
+            visual: 1.8491804699383172,
+            total: 5.074791032797349,
         },
         doubleTime: {
             aim: 4.294640590160559,
-            tap: 2.03038057135962,
-            rhythm: 1.0127723646589712,
+            tap: 1.9819686792340598,
+            rhythm: 0.8430284406108397,
             flashlight: 3.657422534623763,
-            visual: 3.8319715099145686,
-            total: 7.087503407155718,
+            visual: 2.566147929961863,
+            total: 6.39391418097372,
         },
     });
 });
@@ -296,7 +296,7 @@ describe("Test difficulty calculation sample beatmap 5", () => {
             noMod: {
                 aim: 1030.3285858976476,
                 tap: 5.1903726491946625,
-                rhythm: 0.6421118550985445,
+                rhythm: 0.6823361636632594,
                 flashlight: 5673.556664655397,
                 visual: 4.09114891489215,
                 total: 417.07209072930243,
@@ -304,9 +304,9 @@ describe("Test difficulty calculation sample beatmap 5", () => {
             doubleTime: {
                 aim: 1343.0887818792448,
                 tap: 7.0112110684502404,
-                rhythm: 0.6558919035917352,
+                rhythm: 0.7006890080102589,
                 flashlight: 5625.476697521746,
-                visual: 5.33658004263501,
+                visual: 5.336536545288567,
                 total: 515.5969334630472,
             },
         },
@@ -338,19 +338,19 @@ describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
             aim: 3.3694281304042724,
-            tap: 2.603733100355841,
-            rhythm: 1.6715609435020071,
+            tap: 2.551418516304382,
+            rhythm: 1.46991402878021,
             flashlight: 2.7262670257558708,
-            visual: 1.0971005974437773,
-            total: 5.499578933920545,
+            visual: 1.0935623156427097,
+            total: 5.452809001269151,
         },
         doubleTime: {
             aim: 4.792493017363569,
-            tap: 3.820070915791649,
-            rhythm: 1.8191003351103172,
+            tap: 3.7576127035052007,
+            rhythm: 1.6034657232648741,
             flashlight: 3.742818329383441,
-            visual: 1.460394734752147,
-            total: 7.534644415504766,
+            visual: 1.4543444460226884,
+            total: 7.469309113134923,
         },
     });
 });

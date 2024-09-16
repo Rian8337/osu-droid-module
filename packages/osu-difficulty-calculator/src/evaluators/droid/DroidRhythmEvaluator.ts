@@ -1,11 +1,78 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
 import { RhythmEvaluator } from "../base/RhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
+
+class Island {
+    private readonly deltaDifferenceEpsilon: number;
+    readonly deltas: number[] = [];
+
+    constructor(epsilon: number);
+    constructor(firstDelta: number, epsilon: number);
+    constructor(firstDelta: number, epsilon?: number) {
+        if (epsilon === undefined) {
+            this.deltaDifferenceEpsilon = firstDelta;
+            return;
+        }
+
+        this.deltaDifferenceEpsilon = epsilon;
+        this.addDelta(firstDelta);
+    }
+
+    addDelta(delta: number) {
+        // Convert to integer
+        delta = Math.trunc(delta);
+
+        const existingDelta = this.deltas.find(
+            (v) => Math.abs(v - delta) >= this.deltaDifferenceEpsilon,
+        );
+
+        this.deltas.push(existingDelta ?? delta);
+    }
+
+    get averageDelta(): number {
+        return this.deltas.length > 0
+            ? Math.max(
+                  this.deltas.reduce((a, b) => a + b) / this.deltas.length,
+                  DifficultyHitObject.minDeltaTime,
+              )
+            : 0;
+    }
+
+    isSimilarPolarity(other: Island): boolean {
+        // Consider islands to be of similar polarity only if they're having the same
+        // average delta (we don't want to consider 3 singletaps similar to a triple)
+        return (
+            Math.abs(this.averageDelta - other.averageDelta) <
+                this.deltaDifferenceEpsilon &&
+            this.deltas.length % 2 === other.deltas.length % 2
+        );
+    }
+
+    equals(other: Island): boolean {
+        if (this.deltas.length !== other.deltas.length) {
+            return false;
+        }
+
+        for (let i = 0; i < this.deltas.length; ++i) {
+            if (this.deltas[i] !== other.deltas[i]) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+}
 
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
  */
 export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
+    protected static override readonly rhythmMultiplier = 1.2;
+    protected static override readonly historyTimeMax = 4000;
+    private static readonly maxIslandSize = 7;
+    private static readonly historyObjectsMax = 24;
+
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
      * with historic data of the current object.
@@ -21,16 +88,22 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
             return 1;
         }
 
-        let previousIslandSize = 0;
+        const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
         let rhythmComplexitySum = 0;
-        let islandSize = 1;
+
+        let island = new Island(deltaDifferenceEpsilon);
+        let previousIsland = new Island(deltaDifferenceEpsilon);
+        const islandCounts = new Map<Island, number>();
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
         let firstDeltaSwitch = false;
         let rhythmStart = 0;
 
-        const historicalNoteCount = Math.min(current.index, 32);
+        const historicalNoteCount = Math.min(
+            current.index,
+            this.historyObjectsMax,
+        );
 
         // Exclude overlapping objects that can be tapped at once.
         const validPrevious: DroidDifficultyHitObject[] = [];
@@ -68,13 +141,17 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                 (validPrevious.length - i) / validPrevious.length,
             );
 
-            const currentDelta = validPrevious[i - 1].strainTime;
-            const prevDelta = validPrevious[i].strainTime;
-            const lastDelta = validPrevious[i + 1].strainTime;
+            const currentObject = validPrevious[i - 1];
+            const prevObject = validPrevious[i];
+            const lastObject = validPrevious[i + 1];
+
+            const currentDelta = currentObject.strainTime;
+            const prevDelta = prevObject.strainTime;
+            const lastDelta = lastObject.strainTime;
 
             const currentRatio =
                 1 +
-                6 *
+                10 *
                     Math.min(
                         0.5,
                         Math.pow(
@@ -87,93 +164,131 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                         ),
                     );
 
-            const windowPenalty = Math.min(
+            const windowPenalty = MathUtils.clamp(
+                (Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon) /
+                    deltaDifferenceEpsilon,
+                0,
                 1,
-                Math.max(
-                    0,
-                    Math.abs(prevDelta - currentDelta) -
-                        current.fullGreatWindow * 0.3,
-                ) /
-                    (current.fullGreatWindow * 0.3),
             );
 
             let effectiveRatio = windowPenalty * currentRatio;
 
             if (firstDeltaSwitch) {
                 if (
-                    prevDelta <= 1.25 * currentDelta &&
-                    prevDelta * 1.25 >= currentDelta
+                    Math.abs(prevDelta - currentDelta) <= deltaDifferenceEpsilon
                 ) {
-                    // Island is still progressing, count size.
-                    if (islandSize < 7) {
-                        ++islandSize;
+                    if (island.deltas.length < this.maxIslandSize) {
+                        // Island is still progressing.
+                        island.addDelta(currentDelta);
                     }
                 } else {
-                    if (validPrevious[i - 1].object instanceof Slider) {
-                        // BPM change is into slider, this is easy acc window.
+                    // BPM change is into slider, this is easy acc window.
+                    if (currentObject.object instanceof Slider) {
                         effectiveRatio /= 8;
                     }
 
-                    if (validPrevious[i].object instanceof Slider) {
-                        // BPM change was from a slider, this is typically easier than circle -> circle.
+                    // BPM change was from a slider, this is typically easier than circle -> circle.
+                    // Unintentional side effect is that bursts with kicksliders at the ends might
+                    // have lower difficulty than bursts without sliders.
+                    if (prevObject.object instanceof Slider) {
                         effectiveRatio /= 4;
                     }
 
-                    if (previousIslandSize === islandSize) {
-                        // Repeated island size (ex: triplet -> triplet).
-                        effectiveRatio /= 4;
+                    // Repeated island polarity (2 -> 4, 3 -> 5).
+                    if (island.isSimilarPolarity(previousIsland)) {
+                        effectiveRatio *= 0.3;
                     }
 
-                    if (previousIslandSize % 2 === islandSize % 2) {
-                        // Repeated island polarity (2 -> 4, 3 -> 5).
+                    // Previous increase happened a note ago.
+                    // Albeit this is a 1/1 -> 1/2-1/4 type of transition, we don't want to buff this.
+                    if (
+                        lastDelta > prevDelta + deltaDifferenceEpsilon &&
+                        prevDelta > currentDelta + deltaDifferenceEpsilon
+                    ) {
+                        effectiveRatio /= 8;
+                    }
+
+                    // Singletaps are easier to control.
+                    if (island.deltas.length === 1) {
                         effectiveRatio /= 2;
                     }
 
-                    if (
-                        lastDelta > prevDelta + 10 &&
-                        prevDelta > currentDelta + 10
-                    ) {
-                        // Previous increase happened a note ago.
-                        // Albeit this is a 1/1 -> 1/2-1/4 type of transition, we don't want to buff this.
-                        effectiveRatio /= 8;
+                    let islandFound = false;
+
+                    for (const [currentIsland, count] of islandCounts) {
+                        if (!island.equals(currentIsland)) {
+                            continue;
+                        }
+
+                        islandFound = true;
+                        let islandCount = count;
+
+                        if (previousIsland.equals(island)) {
+                            // Only add island to island counts if they're going one after another.
+                            ++islandCount;
+                            islandCounts.set(currentIsland, islandCount);
+                        }
+
+                        // Repeated island (ex: triplet -> triplet).
+                        // Graph: https://www.desmos.com/calculator/pj7an56zwf
+                        effectiveRatio *= Math.min(
+                            1 / islandCount,
+                            Math.pow(
+                                1 / islandCount,
+                                4 /
+                                    (1 +
+                                        Math.exp(
+                                            10 - 0.165 * island.averageDelta,
+                                        )),
+                            ),
+                        );
+
+                        break;
                     }
 
+                    if (!islandFound) {
+                        islandCounts.set(island, 1);
+                    }
+
+                    // Scale down the difficulty if the object is doubletappable.
+                    effectiveRatio *= 1 - prevObject.doubletapness * 0.75;
+
                     rhythmComplexitySum +=
-                        (((Math.sqrt(effectiveRatio * startRatio) *
-                            currentHistoricalDecay *
-                            Math.sqrt(4 + islandSize)) /
-                            2) *
-                            Math.sqrt(4 + previousIslandSize)) /
-                        2;
+                        Math.sqrt(effectiveRatio * startRatio) *
+                        currentHistoricalDecay;
 
                     startRatio = effectiveRatio;
+                    previousIsland = island;
 
-                    previousIslandSize = islandSize;
-
-                    if (prevDelta * 1.25 < currentDelta) {
+                    if (prevDelta + deltaDifferenceEpsilon < currentDelta) {
                         // We're slowing down, stop counting.
                         // If we're speeding up, this stays as is and we keep counting island size.
                         firstDeltaSwitch = false;
                     }
 
-                    islandSize = 1;
+                    island = new Island(
+                        Math.trunc(currentDelta),
+                        deltaDifferenceEpsilon,
+                    );
                 }
-            } else if (prevDelta > 1.25 * currentDelta) {
-                // We want to be speeding up.
+            } else if (prevDelta > deltaDifferenceEpsilon + currentDelta) {
+                // We're speeding up.
                 // Begin counting island until we change speed again.
                 firstDeltaSwitch = true;
+
+                // Reduce ratio if we're starting after a slider.
+                if (prevObject.object instanceof Slider) {
+                    effectiveRatio *= 0.3;
+                }
+
                 startRatio = effectiveRatio;
-                islandSize = 1;
+                island = new Island(
+                    Math.trunc(currentDelta),
+                    deltaDifferenceEpsilon,
+                );
             }
         }
 
-        // Nerf doubles that can be tapped at the same time to get Great hit results.
-        const doubletapness = 1 - current.doubletapness;
-
-        return (
-            Math.sqrt(
-                4 + rhythmComplexitySum * this.rhythmMultiplier * doubletapness,
-            ) / 2
-        );
+        return Math.sqrt(4 + rhythmComplexitySum * this.rhythmMultiplier) / 2;
     }
 }
