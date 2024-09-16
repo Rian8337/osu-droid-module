@@ -614,10 +614,7 @@ export class RebalanceThreeFingerChecker {
                 continue;
             }
 
-            const sectionObjectCount =
-                beatmapSection.lastObjectIndex -
-                beatmapSection.firstObjectIndex +
-                1;
+            const sectionObjectCount = beatmapSection.objects.length;
 
             const threeFingeredObjectRatio =
                 threeFingerCursorCount / sectionObjectCount;
