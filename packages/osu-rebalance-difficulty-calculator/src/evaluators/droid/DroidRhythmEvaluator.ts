@@ -281,9 +281,15 @@ export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
                     );
                 }
             } else if (prevDelta > deltaDifferenceEpsilon + currentDelta) {
-                // We want to be speeding up.
+                // We're speeding up.
                 // Begin counting island until we change speed again.
                 firstDeltaSwitch = true;
+
+                // Reduce ratio if we're starting after a slider.
+                if (prevObject.object instanceof Slider) {
+                    effectiveRatio *= 0.3;
+                }
+
                 startRatio = effectiveRatio;
                 island = new Island(
                     Math.trunc(currentDelta),
