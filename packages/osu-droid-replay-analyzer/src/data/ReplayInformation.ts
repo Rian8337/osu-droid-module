@@ -90,7 +90,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    rawMods: string;
+    rawMods: string[];
 
     /**
      * The achieved rank in the play.

@@ -450,7 +450,7 @@ export class ReplayAnalyzer {
             isFullCombo: false,
             maxCombo: 0,
             playerName: "",
-            rawMods: "",
+            rawMods: [],
             score: 0,
             time: new Date(0),
         };
@@ -471,9 +471,9 @@ export class ReplayAnalyzer {
             });
             resultObject.isFullCombo = !!rawObject[4][44];
             resultObject.playerName = rawObject[5];
-            resultObject.rawMods = rawObject[6].elements;
+            resultObject.rawMods = Object.values(rawObject[6].elements);
             resultObject.convertedMods = ModUtil.droidStringToMods(
-                this.convertDroidMods(rawObject[6].elements),
+                this.convertDroidMods(resultObject.rawMods),
             );
             resultObject.rank = this.calculateRank(resultObject);
         }

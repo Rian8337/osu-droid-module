@@ -38,7 +38,7 @@ export class ReplayV3Data extends ReplayData {
     /**
      * Enabled modifications during the play in raw Java object format.
      */
-    readonly rawMods: string;
+    readonly rawMods: string[];
 
     /**
      * Enabled modifications during the play that have been converted to their respective `Mod` instances.
