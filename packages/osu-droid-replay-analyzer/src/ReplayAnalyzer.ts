@@ -456,19 +456,15 @@ export class ReplayAnalyzer {
         };
 
         if (resultObject.replayVersion >= 3) {
-            resultObject.time = new Date(
-                Number(rawObject[4].readBigUInt64BE(0)),
-            );
+            resultObject.time.setTime(Number(rawObject[4].readBigUInt64BE(0)));
             resultObject.hit300k = rawObject[4].readInt32BE(8);
+            resultObject.accuracy.n300 = rawObject[4].readInt32BE(12);
             resultObject.hit100k = rawObject[4].readInt32BE(16);
+            resultObject.accuracy.n100 = rawObject[4].readInt32BE(20);
+            resultObject.accuracy.n50 = rawObject[4].readInt32BE(24);
+            resultObject.accuracy.nmiss = rawObject[4].readInt32BE(28);
             resultObject.score = rawObject[4].readInt32BE(32);
             resultObject.maxCombo = rawObject[4].readInt32BE(36);
-            resultObject.accuracy = new Accuracy({
-                n300: rawObject[4].readInt32BE(12),
-                n100: rawObject[4].readInt32BE(20),
-                n50: rawObject[4].readInt32BE(24),
-                nmiss: rawObject[4].readInt32BE(28),
-            });
             resultObject.isFullCombo = !!rawObject[4][44];
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = Object.values(rawObject[6].elements);
