@@ -72,6 +72,7 @@ export class BeatmapProcessor {
             const next = objects[i + 1];
 
             if (
+                current instanceof Circle &&
                 next.startTime - current.startTime <
                     2000 * this.beatmap.general.stackLeniency &&
                 next.position.getDistance(current.position) <
