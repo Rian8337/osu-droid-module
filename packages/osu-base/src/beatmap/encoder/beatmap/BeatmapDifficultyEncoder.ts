@@ -1,4 +1,3 @@
-import { BeatmapDifficulty } from "../../sections/BeatmapDifficulty";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
 
 /**
@@ -10,7 +9,7 @@ export class BeatmapDifficultyEncoder extends BeatmapBaseEncoder {
             this.writeLine("[Difficulty]");
         }
 
-        const difficulty: BeatmapDifficulty = this.map.difficulty;
+        const { difficulty } = this.map;
 
         this.writeLine(`HPDrainRate: ${difficulty.hp}`);
         this.writeLine(`CircleSize: ${difficulty.cs}`);

@@ -22,17 +22,17 @@ export abstract class APIRequestBuilder<Params extends string = string> {
     /**
      * Whether or not to include the API key in the request URL.
      */
-    protected requiresAPIkey: boolean = true;
+    protected requiresAPIkey = true;
 
     /**
      * The endpoint of this builder.
      */
-    protected endpoint: string = "";
+    protected endpoint = "";
 
     /**
      * The parameters of this builder.
      */
-    protected readonly params: Map<string, string | number> = new Map();
+    protected readonly params = new Map<string, string>();
 
     /**
      * The base URL of this builder.
@@ -41,7 +41,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
         return this.host + this.endpoint;
     }
 
-    private fetchAttempts: number = 0;
+    private fetchAttempts = 0;
 
     /**
      * Sets the API endpoint.
@@ -73,7 +73,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
         if (this.requiresAPIkey) {
             if (!this.APIkey) {
                 throw new Error(
-                    "An API key is not specified as environment variable"
+                    "An API key is not specified as environment variable",
                 );
             }
 
@@ -102,7 +102,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
 
                     if (res.status >= 500 && this.fetchAttempts < 5) {
                         console.error(
-                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts} attempts so far; retrying`
+                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts} attempts so far; retrying`,
                         );
 
                         return resolve(this.sendRequest());
@@ -117,7 +117,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
                 })
                 .catch((e: Error) => {
                     console.error(
-                        `Request to ${url} failed with the following error: ${e.message}; ${this.fetchAttempts} attempts so far; aborting`
+                        `Request to ${url} failed with the following error: ${e.message}; ${this.fetchAttempts} attempts so far; aborting`,
                     );
 
                     this.fetchAttempts = 0;
@@ -137,7 +137,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
      * @param value The value to add for the parameter.
      */
     addParameter(param: string, value: string | number): this {
-        this.params.set(param, value);
+        this.params.set(param, value.toString());
         return this;
     }
 

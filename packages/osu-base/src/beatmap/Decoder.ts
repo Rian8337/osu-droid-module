@@ -17,12 +17,12 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
         return this.finalResult;
     }
 
-    static readonly latestVersion: number = 14;
+    static readonly latestVersion = 14;
 
     /**
      * The format version of the decoded target.
      */
-    protected formatVersion: number = Decoder.latestVersion;
+    protected formatVersion = Decoder.latestVersion;
 
     /**
      * Available per-section decoders, mapped by its section name.
@@ -32,17 +32,17 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
     /**
      * The amount of lines of the file that have been processed up to this point.
      */
-    protected line: number = 0;
+    protected line = 0;
 
     /**
      * The currently processed line.
      */
-    protected currentLine: string = "";
+    protected currentLine = "";
 
     /**
      * The currently processed section.
      */
-    protected section: BeatmapSection = BeatmapSection.general;
+    protected section = BeatmapSection.general;
 
     /**
      * Performs the decoding process.
@@ -75,11 +75,11 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
 
             // [SectionName]
             if (line.startsWith("[") && line.endsWith("]")) {
-                const section: string = line.substring(1, line.length - 1);
+                const section = line.substring(1, line.length - 1);
 
                 if (!Object.values<string>(BeatmapSection).includes(section)) {
                     console.warn(
-                        `Unknown section "${line}" at line ${this.line}`
+                        `Unknown section "${line}" at line ${this.line}`,
                     );
                     continue;
                 }
@@ -107,7 +107,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
                 console.log(
                     `at line ${this.line}\n${this.currentLine}\n${this.decoders[
                         this.section
-                    ]?.logExceptionPosition()}`
+                    ]?.logExceptionPosition()}`,
                 );
             }
         }

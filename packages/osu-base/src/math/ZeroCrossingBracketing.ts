@@ -16,19 +16,19 @@ export abstract class ZeroCrossingBracketing {
         f: (x: number) => number,
         bounds: RootBounds,
         factor: number = 1.6,
-        maxIterations: number = 50
+        maxIterations: number = 50,
     ): boolean {
-        const originalUpperBound: number = bounds.upperBound;
-        const originalLowerBound: number = bounds.lowerBound;
+        const originalUpperBound = bounds.upperBound;
+        const originalLowerBound = bounds.lowerBound;
 
         if (originalLowerBound >= originalUpperBound) {
             throw new RangeError(
-                "Upper bound must be greater than lower bound."
+                "Upper bound must be greater than lower bound.",
             );
         }
 
-        let fmin: number = f(originalLowerBound);
-        let fmax: number = f(originalUpperBound);
+        let fmin = f(originalLowerBound);
+        let fmax = f(originalUpperBound);
 
         for (let i = 0; i < maxIterations; ++i) {
             if (Math.sign(fmin) !== Math.sign(fmax)) {
@@ -55,33 +55,33 @@ export abstract class ZeroCrossingBracketing {
     static reduce(
         f: (x: number) => number,
         bounds: RootBounds,
-        subdivisions: number = 1000
+        subdivisions: number = 1000,
     ): boolean {
-        const originalUpperBound: number = bounds.upperBound;
-        const originalLowerBound: number = bounds.lowerBound;
+        const originalUpperBound = bounds.upperBound;
+        const originalLowerBound = bounds.lowerBound;
 
         if (originalLowerBound >= originalUpperBound) {
             throw new RangeError(
-                "Upper bound must be greater than lower bound."
+                "Upper bound must be greater than lower bound.",
             );
         }
 
         // TODO: Consider binary-style search instead of linear scan
-        const fmin: number = f(bounds.lowerBound);
-        const fmax: number = f(bounds.upperBound);
+        const fmin = f(bounds.lowerBound);
+        const fmax = f(bounds.upperBound);
 
         if (Math.sign(fmin) != Math.sign(fmax)) {
             return true;
         }
 
-        const subdiv: number =
-            (bounds.upperBound - bounds.lowerBound) / subdivisions;
-        let smin: number = bounds.lowerBound;
-        const sign: number = Math.sign(fmin);
+        const subdiv = (bounds.upperBound - bounds.lowerBound) / subdivisions;
+        let smin = bounds.lowerBound;
+        const sign = Math.sign(fmin);
 
         for (let i = 0; i < subdivisions; ++i) {
-            const smax: number = smin + subdiv;
-            const sfmax: number = f(smax);
+            const smax = smin + subdiv;
+            const sfmax = f(smax);
+
             if (!Number.isFinite(sfmax)) {
                 // expand interval to include pole
                 smin = smax;
@@ -108,7 +108,7 @@ export abstract class ZeroCrossingBracketing {
         bounds: RootBounds,
         expansionFactor: number = 1.6,
         expansionMaxIterations: number = 50,
-        reduceSubdivisions: number = 100
+        reduceSubdivisions: number = 100,
     ): boolean {
         return (
             this.expand(f, bounds, expansionFactor, expansionMaxIterations) ||

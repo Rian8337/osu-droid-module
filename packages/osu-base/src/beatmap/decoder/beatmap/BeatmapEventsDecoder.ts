@@ -11,7 +11,7 @@ import { SectionDecoder } from "../SectionDecoder";
 export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
     readonly storyboardLines: string[] = [];
     protected override decodeInternal(line: string): void {
-        const s: string[] = line.split(",");
+        const s = line.split(",");
 
         switch (s[0]) {
             case "0":

@@ -35,40 +35,40 @@ export class BlendingParameters {
      */
     alphaEquation: BlendingEquation;
 
-    static readonly none: BlendingParameters = new BlendingParameters(
+    static readonly none = new BlendingParameters(
         BlendingType.one,
         BlendingType.zero,
         BlendingType.one,
         BlendingType.zero,
         BlendingEquation.add,
-        BlendingEquation.add
+        BlendingEquation.add,
     );
 
-    static readonly inherit: BlendingParameters = new BlendingParameters(
+    static readonly inherit = new BlendingParameters(
         BlendingType.inherit,
         BlendingType.inherit,
         BlendingType.inherit,
         BlendingType.inherit,
         BlendingEquation.inherit,
-        BlendingEquation.inherit
+        BlendingEquation.inherit,
     );
 
-    static readonly mixture: BlendingParameters = new BlendingParameters(
+    static readonly mixture = new BlendingParameters(
         BlendingType.srcAlpha,
         BlendingType.oneMinusSrcAlpha,
         BlendingType.one,
         BlendingType.one,
         BlendingEquation.add,
-        BlendingEquation.add
+        BlendingEquation.add,
     );
 
-    static readonly additive: BlendingParameters = new BlendingParameters(
+    static readonly additive = new BlendingParameters(
         BlendingType.srcAlpha,
         BlendingType.one,
         BlendingType.one,
         BlendingType.one,
         BlendingEquation.add,
-        BlendingEquation.add
+        BlendingEquation.add,
     );
 
     constructor(
@@ -77,7 +77,7 @@ export class BlendingParameters {
         sourceAlpha: BlendingType,
         destinationAlpha: BlendingType,
         rgbEquation: BlendingEquation,
-        alphaEquation: BlendingEquation
+        alphaEquation: BlendingEquation,
     ) {
         this.source = source;
         this.destination = destination;

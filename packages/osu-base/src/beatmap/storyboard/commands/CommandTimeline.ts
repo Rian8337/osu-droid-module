@@ -42,8 +42,8 @@ export class CommandTimeline<T> implements ICommandTimeline {
     readonly parameterType?: StoryboardParameterCommandType;
 
     private _commands: Command<T>[] = [];
-    private _startTime: number = Number.MAX_SAFE_INTEGER;
-    private _endTime: number = Number.MIN_SAFE_INTEGER;
+    private _startTime = Number.MAX_SAFE_INTEGER;
+    private _endTime = Number.MIN_SAFE_INTEGER;
     private _startValue: T | null = null;
     private _endValue: T | null = null;
 
@@ -82,7 +82,7 @@ export class CommandTimeline<T> implements ICommandTimeline {
 
     constructor(
         type: StoryboardCommandType,
-        parameterType?: StoryboardParameterCommandType
+        parameterType?: StoryboardParameterCommandType,
     ) {
         this.type = type;
         this.parameterType = parameterType;
@@ -102,7 +102,7 @@ export class CommandTimeline<T> implements ICommandTimeline {
         startTime: number,
         endTime: number,
         startValue: T,
-        endValue: T
+        endValue: T,
     ): void {
         if (startTime > endTime) {
             return;
@@ -116,8 +116,8 @@ export class CommandTimeline<T> implements ICommandTimeline {
                 startValue,
                 endValue,
                 this.type,
-                this.parameterType
-            )
+                this.parameterType,
+            ),
         );
 
         if (startTime < this._startTime) {

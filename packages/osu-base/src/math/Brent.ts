@@ -25,14 +25,14 @@ export abstract class Brent {
         accuracy: number = 1e-8,
         maxIterations: number = 100,
         expandFactor: number = 1.6,
-        maxExpandIterations: number = 100
+        maxExpandIterations: number = 100,
     ): number {
         ZeroCrossingBracketing.expandReduce(
             f,
             bounds,
             expandFactor,
             maxExpandIterations,
-            maxExpandIterations * 10
+            maxExpandIterations * 10,
         );
         return this.findRoot(f, bounds, accuracy, maxIterations);
     }
@@ -50,18 +50,13 @@ export abstract class Brent {
         f: (x: number) => number,
         bounds: RootBounds,
         accuracy: number = 1e-8,
-        maxIterations: number = 100
+        maxIterations: number = 100,
     ): number {
-        const root: number | null = this.tryFindRoot(
-            f,
-            bounds,
-            accuracy,
-            maxIterations
-        );
+        const root = this.tryFindRoot(f, bounds, accuracy, maxIterations);
 
         if (root === null) {
             throw new Error(
-                "The algorithm has failed, exceeded the number of iterations allowed or there is no root within the provided bounds."
+                "The algorithm has failed, exceeded the number of iterations allowed or there is no root within the provided bounds.",
             );
         }
 
@@ -81,7 +76,7 @@ export abstract class Brent {
         f: (x: number) => number,
         bounds: RootBounds,
         accuracy: number,
-        maxIterations: number
+        maxIterations: number,
     ): number | null {
         if (accuracy <= 0) {
             throw new RangeError("Accuracy must be greater than 0.");
@@ -89,14 +84,14 @@ export abstract class Brent {
 
         let { lowerBound, upperBound } = bounds;
 
-        let fmin: number = f(lowerBound);
-        let fmax: number = f(upperBound);
-        let froot: number = fmax;
-        let d: number = 0;
-        let e: number = 0;
+        let fmin = f(lowerBound);
+        let fmax = f(upperBound);
+        let froot = fmax;
+        let d = 0;
+        let e = 0;
 
-        let root: number = upperBound;
-        let xMid: number = Number.NaN;
+        let root = upperBound;
+        let xMid = Number.NaN;
 
         // Root must be bracketed.
         if (Math.sign(fmin) === Math.sign(fmax)) {
@@ -121,9 +116,8 @@ export abstract class Brent {
             }
 
             // Convergence check
-            const xAcc1: number =
-                2 * Math.pow(2, -53) * Math.abs(root) + accuracy / 2;
-            const xMidOld: number = xMid;
+            const xAcc1 = 2 * Math.pow(2, -53) * Math.abs(root) + accuracy / 2;
+            const xMidOld = xMid;
             xMid = (upperBound - root) / 2;
 
             if (
@@ -140,15 +134,16 @@ export abstract class Brent {
 
             if (Math.abs(e) >= xAcc1 && Math.abs(fmin) > Math.abs(froot)) {
                 // Attempt inverse quadratic interpolation
-                const s: number = froot / fmin;
+                const s = froot / fmin;
                 let p: number;
                 let q: number;
+
                 if (Precision.almostEqualRelative(lowerBound, upperBound)) {
                     p = 2 * xMid * s;
                     q = 1 - s;
                 } else {
                     q = fmin / fmax;
-                    const r: number = froot / fmax;
+                    const r = froot / fmax;
                     p =
                         s *
                         (2 * xMid * q * (q - r) -
@@ -167,7 +162,7 @@ export abstract class Brent {
                     2 * p <
                     Math.min(
                         3 * xMid * q - Math.abs(xAcc1 * q),
-                        Math.abs(e * q)
+                        Math.abs(e * q),
                     )
                 ) {
                     // Accept interpolation

@@ -10,7 +10,7 @@ import { SectionDecoder } from "../SectionDecoder";
  */
 export class BeatmapGeneralDecoder extends SectionDecoder<Beatmap> {
     protected override decodeInternal(line: string): void {
-        const p: string[] = this.property(line);
+        const p = this.property(line);
 
         switch (p[0]) {
             case "AudioFilename":
@@ -51,7 +51,7 @@ export class BeatmapGeneralDecoder extends SectionDecoder<Beatmap> {
                 break;
             case "LetterboxInBreaks":
                 this.target.general.letterBoxInBreaks = !!this.tryParseInt(
-                    p[1]
+                    p[1],
                 );
                 break;
             case "UseSkinSprites":
@@ -70,12 +70,12 @@ export class BeatmapGeneralDecoder extends SectionDecoder<Beatmap> {
                 break;
             case "CountdownOffset":
                 this.target.general.countdownOffset = this.tryParseInt(
-                    p[1] || "0"
+                    p[1] || "0",
                 );
                 break;
             case "WidescreenStoryboard":
                 this.target.general.widescreenStoryboard = !!this.tryParseInt(
-                    p[1]
+                    p[1],
                 );
                 break;
             case "SamplesMatchPlaybackRate":

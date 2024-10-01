@@ -12,7 +12,7 @@ export abstract class Encoder<T, E extends BaseEncoder> {
     /**
      * The result of the encoding process.
      */
-    protected finalResult: string = "";
+    protected finalResult = "";
 
     /**
      * The result of the encoding process.

@@ -123,7 +123,7 @@ export class Vector2 {
      * Normalizes the vector.
      */
     normalize(): void {
-        const length: number = this.length;
+        const length = this.length;
         this.x /= length;
         this.y /= length;
     }

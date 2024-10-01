@@ -1,5 +1,4 @@
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
-import { BeatmapMetadata } from "../../sections/BeatmapMetadata";
 
 /**
  * An encoder for encoding a beatmap's metadata section.
@@ -10,7 +9,7 @@ export class BeatmapMetadataEncoder extends BeatmapBaseEncoder {
             this.writeLine("[Metadata]");
         }
 
-        const metadata: BeatmapMetadata = this.map.metadata;
+        const { metadata } = this.map;
 
         this.writeLine(`Title: ${metadata.title}`);
 

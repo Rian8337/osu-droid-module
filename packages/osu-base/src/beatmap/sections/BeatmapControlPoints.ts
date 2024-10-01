@@ -10,26 +10,22 @@ export class BeatmapControlPoints {
     /**
      * The manager for timing control points of the beatmap.
      */
-    readonly timing: TimingControlPointManager =
-        new TimingControlPointManager();
+    readonly timing = new TimingControlPointManager();
 
     /**
      * The manager for difficulty control points of the beatmap.
      */
-    readonly difficulty: DifficultyControlPointManager =
-        new DifficultyControlPointManager();
+    readonly difficulty = new DifficultyControlPointManager();
 
     /**
      * The manager for effect control points of the beatmap.
      */
-    readonly effect: EffectControlPointManager =
-        new EffectControlPointManager();
+    readonly effect = new EffectControlPointManager();
 
     /**
      * The manager for sample control points of the beatmap.
      */
-    readonly sample: SampleControlPointManager =
-        new SampleControlPointManager();
+    readonly sample = new SampleControlPointManager();
 
     /**
      * Clears all control points in the beatmap.

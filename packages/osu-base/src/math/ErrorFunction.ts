@@ -779,7 +779,7 @@ export abstract class ErrorFunction {
                 case x < 3: {
                     // Max error found: 1.089051e-20
                     y = 0.807220458984375;
-                    const xs: number = x - 1.125;
+                    const xs = x - 1.125;
                     r =
                         Polynomial.evaluate(xs, this.ervInvImpCn) /
                         Polynomial.evaluate(xs, this.ervInvImpCd);
@@ -788,7 +788,7 @@ export abstract class ErrorFunction {
                 case x < 6: {
                     // Max error found: 8.389174e-21
                     y = 0.93995571136474609375;
-                    const xs: number = x - 3;
+                    const xs = x - 3;
                     r =
                         Polynomial.evaluate(xs, this.ervInvImpDn) /
                         Polynomial.evaluate(xs, this.ervInvImpDd);
@@ -797,7 +797,7 @@ export abstract class ErrorFunction {
                 case x < 18: {
                     // Max error found: 1.481312e-19
                     y = 0.98362827301025390625;
-                    const xs: number = x - 6;
+                    const xs = x - 6;
                     r =
                         Polynomial.evaluate(xs, this.ervInvImpEn) /
                         Polynomial.evaluate(xs, this.ervInvImpEd);
@@ -806,7 +806,7 @@ export abstract class ErrorFunction {
                 case x < 44: {
                     // Max error found: 5.697761e-20
                     y = 0.99714565277099609375;
-                    const xs: number = x - 18;
+                    const xs = x - 18;
                     r =
                         Polynomial.evaluate(xs, this.ervInvImpFn) /
                         Polynomial.evaluate(xs, this.ervInvImpFd);
@@ -815,7 +815,7 @@ export abstract class ErrorFunction {
                 default: {
                     // Max error found: 1.279746e-20
                     y = 0.99941349029541015625;
-                    const xs: number = x - 44;
+                    const xs = x - 44;
                     r =
                         Polynomial.evaluate(xs, this.ervInvImpGn) /
                         Polynomial.evaluate(xs, this.ervInvImpGd);

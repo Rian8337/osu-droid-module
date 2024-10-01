@@ -15,7 +15,7 @@ export class Storyboard {
         Foreground: new StoryboardLayer(StoryboardLayerType.foreground, 0),
         Overlay: new StoryboardLayer(
             StoryboardLayerType.overlay,
-            Number.MIN_SAFE_INTEGER
+            Number.MIN_SAFE_INTEGER,
         ),
     };
 
@@ -32,7 +32,7 @@ export class Storyboard {
     /**
      * The depth of the currently front-most storyboard layer, excluding the overlay layer.
      */
-    private minimumLayerDepth: number = 0;
+    private minimumLayerDepth = 0;
 
     /**
      * Across all layers, find the earliest point in time that a storyboard element exists at.
@@ -74,7 +74,7 @@ export class Storyboard {
      */
     getLayer(
         type: StoryboardLayerType,
-        createIfNotAvailable?: boolean
+        createIfNotAvailable?: boolean,
     ): StoryboardLayer;
 
     /**
@@ -86,14 +86,14 @@ export class Storyboard {
      */
     getLayer(
         type: StoryboardLayerType,
-        createIfNotAvailable: false
+        createIfNotAvailable: false,
     ): StoryboardLayer | null;
 
     getLayer(
         type: StoryboardLayerType,
-        createIfNotAvailable: boolean = true
+        createIfNotAvailable: boolean = true,
     ): StoryboardLayer | null {
-        let layer: StoryboardLayer | undefined = this.layers[type];
+        let layer = this.layers[type];
 
         if (!layer && createIfNotAvailable) {
             layer = new StoryboardLayer(type, --this.minimumLayerDepth);

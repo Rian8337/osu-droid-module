@@ -1,4 +1,3 @@
-import { BeatmapEvents } from "../../sections/BeatmapEvents";
 import { StoryboardEncoder } from "../../StoryboardEncoder";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
 
@@ -13,17 +12,17 @@ export class BeatmapEventsEncoder extends BeatmapBaseEncoder {
 
         this.writeLine("//Background and Video Events");
 
-        const events: BeatmapEvents = this.map.events;
+        const { events } = this.map;
 
         if (events.background) {
             this.writeLine(
-                `0,0,"${events.background.filename}",${events.background.offset.x},${events.background.offset.y}`
+                `0,0,"${events.background.filename}",${events.background.offset.x},${events.background.offset.y}`,
             );
         }
 
         if (events.video) {
             this.writeLine(
-                `Video,${events.video.startTime},"${events.video.filename}",${events.video.offset.x},${events.video.offset.y}`
+                `Video,${events.video.startTime},"${events.video.filename}",${events.video.offset.x},${events.video.offset.y}`,
             );
         }
 
@@ -37,8 +36,8 @@ export class BeatmapEventsEncoder extends BeatmapBaseEncoder {
             this.writeLine(
                 new StoryboardEncoder(
                     this.map.events.storyboard,
-                    false
-                ).encode().result
+                    false,
+                ).encode().result,
             );
         } else {
             this.writeLine("//Storyboard Layer 0 (Background)");

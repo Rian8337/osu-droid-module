@@ -24,13 +24,13 @@ export type DroidAPIEndpoint =
  * An API request builder for osu!droid.
  */
 export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> {
-    protected override readonly host: string = "https://osudroid.moe/api/";
-    protected override readonly APIkey: string = process.env.DROID_API_KEY!;
-    protected override readonly APIkeyParam: string = `apiKey=${this.APIkey}&`;
+    protected override readonly host = "https://osudroid.moe/api/";
+    protected override readonly APIkey = process.env.DROID_API_KEY!;
+    protected override readonly APIkeyParam = `apiKey=${this.APIkey}&`;
 
     override buildURL(): string {
         if (this.endpoint === "upload") {
-            let url: string = this.baseURL + "/";
+            let url = this.baseURL + "/";
 
             for (const [, value] of this.params.entries()) {
                 url += encodeURIComponent(value);

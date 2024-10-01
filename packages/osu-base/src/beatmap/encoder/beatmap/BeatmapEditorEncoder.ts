@@ -1,4 +1,3 @@
-import { BeatmapEditor } from "../../sections/BeatmapEditor";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
 
 /**
@@ -10,7 +9,7 @@ export class BeatmapEditorEncoder extends BeatmapBaseEncoder {
             this.writeLine("[Editor]");
         }
 
-        const editor: BeatmapEditor = this.map.editor;
+        const { editor } = this.map;
 
         if (editor.bookmarks.length > 0) {
             this.writeLine(editor.bookmarks.join());

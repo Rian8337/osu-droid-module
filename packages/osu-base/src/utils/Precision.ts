@@ -84,7 +84,7 @@ export abstract class Precision {
         }
 
         // If one is almost zero, fall back to absolute equality.
-        const doublePrecision: number = Math.pow(2, -53);
+        const doublePrecision = Math.pow(2, -53);
         if (Math.abs(a) < doublePrecision || Math.abs(b) < doublePrecision) {
             return Math.abs(diff) < maximumError;
         }

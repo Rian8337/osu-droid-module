@@ -19,7 +19,7 @@ import { BeatmapMetadataEncoder } from "./encoder/beatmap/BeatmapMetadataEncoder
 export class BeatmapEncoder extends Encoder<Beatmap, BeatmapBaseEncoder> {
     protected override encoders: BeatmapBaseEncoder[] = [];
 
-    private readonly latestVersion: number = 14;
+    private readonly latestVersion = 14;
 
     protected override encodeInternal(): void {
         this.writeLine(`osu file format v${this.latestVersion}`);

@@ -35,7 +35,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
             return;
         }
 
-        let depth: number = 0;
+        let depth = 0;
 
         for (const c of line) {
             if (c === " " || c === "_") {
@@ -49,7 +49,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
         // Decode any beatmap variables present in a line into their real values.
         while (line.includes("$")) {
-            const originalLine: string = line;
+            const originalLine = line;
 
             for (const key in this.target.variables) {
                 line = line.replace(key, this.target.variables[key]);
@@ -60,7 +60,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
             }
         }
 
-        const s: string[] = line.split(",");
+        const s = line.split(",");
 
         if (depth === 0) {
             this.storyboardSprite = null;
@@ -89,11 +89,10 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                         .elements.push(this.storyboardSprite);
                     break;
                 }
+
                 case StoryboardEventType.animation: {
-                    let frameDelay: number = this.tryParseInt(
-                        this.setPosition(s[7]),
-                    );
-                    const loopType: AnimationLoopType =
+                    let frameDelay = this.tryParseInt(this.setPosition(s[7]));
+                    const loopType =
                         s[8] === "1" || s[8] === "LoopOnce"
                             ? AnimationLoopType.loopOnce
                             : AnimationLoopType.loopForever;
@@ -131,6 +130,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                         .elements.push(this.storyboardSprite);
                     break;
                 }
+
                 case StoryboardEventType.sample:
                     this.target
                         .getLayer(<StoryboardLayerType>this.setPosition(s[2]))
@@ -144,6 +144,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             ),
                         );
                     break;
+
                 default:
                     throw new TypeError(
                         `Unknown event type: ${this.setPosition(s[0])}`,
@@ -169,6 +170,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             : 0,
                     );
                     break;
+
                 case StoryboardCommandType.loop:
                     this.timelineGroup = this.storyboardSprite?.addLoop(
                         this.tryParseInt(this.setPosition(s[1])),
@@ -178,27 +180,24 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                         ),
                     );
                     break;
+
                 default: {
                     if (!s[3]) {
                         s[3] = this.setPosition(s[2]);
                     }
 
-                    const easing: Easing = <Easing>(
+                    const easing = <Easing>(
                         this.tryParseInt(this.setPosition(s[1]))
                     );
-                    const startTime: number = this.tryParseInt(
-                        this.setPosition(s[2]),
-                    );
-                    const endTime: number = this.tryParseInt(
-                        this.setPosition(s[3]),
-                    );
+                    const startTime = this.tryParseInt(this.setPosition(s[2]));
+                    const endTime = this.tryParseInt(this.setPosition(s[3]));
 
                     switch (s[0]) {
                         case StoryboardCommandType.fade: {
-                            const startValue: number = this.tryParseFloat(
+                            const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const endValue: number =
+                            const endValue =
                                 s.length > 5
                                     ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
@@ -213,11 +212,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.scale: {
-                            const startValue: number = this.tryParseFloat(
+                            const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const endValue: number =
+                            const endValue =
                                 s.length > 5
                                     ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
@@ -232,18 +232,19 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.vectorScale: {
-                            const startX: number = this.tryParseFloat(
+                            const startX = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const startY: number = this.tryParseFloat(
+                            const startY = this.tryParseFloat(
                                 this.setPosition(s[5]),
                             );
-                            const endX: number =
+                            const endX =
                                 s.length > 6
                                     ? this.tryParseFloat(this.setPosition(s[6]))
                                     : startX;
-                            const endY: number =
+                            const endY =
                                 s.length > 7
                                     ? this.tryParseFloat(this.setPosition(s[7]))
                                     : startY;
@@ -258,11 +259,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.rotation: {
-                            const startValue: number = this.tryParseFloat(
+                            const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const endValue: number =
+                            const endValue =
                                 s.length > 5
                                     ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
@@ -277,18 +279,19 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.movement: {
-                            const startX: number = this.tryParseFloat(
+                            const startX = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const startY: number = this.tryParseFloat(
+                            const startY = this.tryParseFloat(
                                 this.setPosition(s[5]),
                             );
-                            const endX: number =
+                            const endX =
                                 s.length > 6
                                     ? this.tryParseFloat(this.setPosition(s[6]))
                                     : startX;
-                            const endY: number =
+                            const endY =
                                 s.length > 7
                                     ? this.tryParseFloat(this.setPosition(s[7]))
                                     : startY;
@@ -303,11 +306,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.movementX: {
-                            const startValue: number = this.tryParseFloat(
+                            const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const endValue: number =
+                            const endValue =
                                 s.length > 5
                                     ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
@@ -322,11 +326,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.movementY: {
-                            const startValue: number = this.tryParseFloat(
+                            const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const endValue: number =
+                            const endValue =
                                 s.length > 5
                                     ? this.tryParseFloat(this.setPosition(s[5]))
                                     : startValue;
@@ -341,25 +346,29 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.color: {
-                            const startRed: number = this.tryParseFloat(
+                            const startRed = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
-                            const startGreen: number = this.tryParseFloat(
+                            const startGreen = this.tryParseFloat(
                                 this.setPosition(s[5]),
                             );
-                            const startBlue: number = this.tryParseFloat(
+                            const startBlue = this.tryParseFloat(
                                 this.setPosition(s[6]),
                             );
-                            const endRed: number =
+
+                            const endRed =
                                 s.length > 7
                                     ? this.tryParseFloat(this.setPosition(s[7]))
                                     : startRed;
-                            const endGreen: number =
+
+                            const endGreen =
                                 s.length > 8
                                     ? this.tryParseFloat(s[8])
                                     : startGreen;
-                            const endBlue: number =
+
+                            const endBlue =
                                 s.length > 9
                                     ? this.tryParseFloat(s[9])
                                     : startBlue;
@@ -374,6 +383,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                             break;
                         }
+
                         case StoryboardCommandType.parameter:
                             switch (this.setPosition(s[4])) {
                                 case StoryboardParameterCommandType.blendingMode:
@@ -386,8 +396,8 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                                             ? BlendingParameters.additive
                                             : BlendingParameters.inherit,
                                     );
-
                                     break;
+
                                 case StoryboardParameterCommandType.horizontalFlip:
                                     this.timelineGroup?.flipHorizontal.add(
                                         easing,
@@ -396,8 +406,8 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                                         true,
                                         startTime === endTime,
                                     );
-
                                     break;
+
                                 case StoryboardParameterCommandType.verticalFlip:
                                     this.timelineGroup?.flipVertical.add(
                                         easing,
@@ -406,10 +416,10 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                                         true,
                                         startTime === endTime,
                                     );
-
                                     break;
                             }
                             break;
+
                         default:
                             throw new TypeError(
                                 `Unknown command type: ${this.setPosition(
@@ -424,8 +434,8 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
     private cleanFilename(name: string): string {
         // Trim double quotes from filenames.
-        let start: number = 0;
-        let end: number = name.length;
+        let start = 0;
+        let end = name.length;
 
         while (start < end && name.charAt(start) === '"') {
             ++start;

@@ -16,7 +16,7 @@ export type OsuAPIEndpoint =
  * An API request builder for osu!standard.
  */
 export class OsuAPIRequestBuilder extends APIRequestBuilder<OsuAPIEndpoint> {
-    protected override readonly host: string = "https://osu.ppy.sh/api/";
-    protected override readonly APIkey: string = process.env.OSU_API_KEY!;
-    protected override readonly APIkeyParam: string = `k=${this.APIkey}&`;
+    protected override readonly host = "https://osu.ppy.sh/api/";
+    protected override readonly APIkey = process.env.OSU_API_KEY!;
+    protected override readonly APIkeyParam = `k=${this.APIkey}&`;
 }

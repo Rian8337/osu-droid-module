@@ -29,7 +29,7 @@ export abstract class Utils {
      * @param initialValue The initial value of each array value.
      */
     static initializeArray<T>(length: number, initialValue?: T): T[] {
-        const array: T[] = new Array(length);
+        const array = new Array<T>(length);
 
         if (initialValue !== undefined) {
             for (let i = 0; i < length; ++i) {

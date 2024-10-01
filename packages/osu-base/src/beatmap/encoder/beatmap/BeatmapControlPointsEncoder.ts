@@ -41,7 +41,7 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
         this.collectSampleControlPointInfo();
 
         for (const group of Object.values(this.controlPointGroups).sort(
-            (a, b) => a.time - b.time
+            (a, b) => a.time - b.time,
         )) {
             // If the group contains a timing control point, it needs to be output separately.
             if (group.timing) {
@@ -53,7 +53,7 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
             // Output any remaining effects as secondary non-timing control point.
             this.write(`${group.time},`);
 
-            const difficultyPoint: DifficultyControlPoint =
+            const difficultyPoint =
                 group.difficulty ??
                 this.map.controlPoints.difficulty.controlPointAt(group.time);
 
@@ -110,7 +110,7 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
             effect?: EffectControlPoint;
             sample?: SampleControlPoint;
         },
-        isTimingPoint: boolean
+        isTimingPoint: boolean,
     ): void {
         const samplePoint: SampleControlPoint =
             group.sample ??
@@ -135,7 +135,7 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
                     group.timing ??
                     this.map.controlPoints.timing.controlPointAt(group.time)
                 ).timeSignature
-            },`
+            },`,
         );
         this.write(`${samplePoint.sampleBank.toString()},`);
         this.write(`${samplePoint.customSampleBank.toString()},`);

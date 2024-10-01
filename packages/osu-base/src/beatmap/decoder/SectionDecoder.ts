@@ -8,7 +8,7 @@ export abstract class SectionDecoder<T> {
     /**
      * The string in the line at which the decoder is processing.
      */
-    private lastPosition: string = "";
+    private lastPosition = "";
 
     /**
      * The target of the decoding process.
@@ -17,7 +17,7 @@ export abstract class SectionDecoder<T> {
 
     protected readonly formatVersion: number;
 
-    constructor(target: T, formatVersion: number = Decoder.latestVersion) {
+    constructor(target: T, formatVersion = Decoder.latestVersion) {
         this.target = target;
         this.formatVersion = formatVersion;
     }
@@ -47,7 +47,7 @@ export abstract class SectionDecoder<T> {
      * For example, `ApproachRate:9` will be split into `[ApproachRate, 9]`.
      */
     protected property(line: string): string[] {
-        const s: string[] = line.split(":");
+        const s = line.split(":");
 
         s[0] = this.setPosition(s[0]).trim();
         s[1] = this.setPosition(s.slice(1).join(":")).trim();
@@ -88,9 +88,9 @@ export abstract class SectionDecoder<T> {
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
         max: number = ParserConstants.MAX_PARSE_VALUE,
-        allowNaN: boolean = false
+        allowNaN: boolean = false,
     ): number {
-        const num: number = parseInt(str);
+        const num = parseInt(str);
 
         if (num < min) {
             throw new RangeError("Value is too low");
@@ -122,9 +122,9 @@ export abstract class SectionDecoder<T> {
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
         max: number = ParserConstants.MAX_PARSE_VALUE,
-        allowNaN: boolean = false
+        allowNaN: boolean = false,
     ): number {
-        const num: number = parseFloat(str);
+        const num = parseFloat(str);
 
         if (num < min) {
             throw new RangeError("Value is too low");
@@ -151,7 +151,7 @@ export abstract class SectionDecoder<T> {
     protected isNumberValid(
         num: number,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
-        max: number = ParserConstants.MAX_PARSE_VALUE
+        max: number = ParserConstants.MAX_PARSE_VALUE,
     ): boolean {
         return num >= min && num <= max;
     }

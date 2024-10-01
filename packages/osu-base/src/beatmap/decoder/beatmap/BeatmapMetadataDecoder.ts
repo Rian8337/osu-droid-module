@@ -6,7 +6,7 @@ import { SectionDecoder } from "../SectionDecoder";
  */
 export class BeatmapMetadataDecoder extends SectionDecoder<Beatmap> {
     protected override decodeInternal(line: string): void {
-        const p: string[] = this.property(line);
+        const p = this.property(line);
 
         switch (p[0]) {
             case "Title":

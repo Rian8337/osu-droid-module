@@ -7,5 +7,5 @@ export abstract class Playfield {
     /**
      * The size of the playfield, which is 512x384.
      */
-    static readonly baseSize: Vector2 = new Vector2(512, 384);
+    static readonly baseSize = new Vector2(512, 384);
 }

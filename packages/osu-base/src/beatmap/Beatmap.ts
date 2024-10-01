@@ -127,8 +127,8 @@ export class Beatmap {
                     }
 
                     // osu-stable forced the first control point to start at 0.
-                    const currentTime: number = i === 0 ? 0 : t.time;
-                    const nextTime: number =
+                    const currentTime = i === 0 ? 0 : t.time;
+                    const nextTime =
                         i === a.length - 1 ? lastTime : a[i + 1].time;
 
                     return {

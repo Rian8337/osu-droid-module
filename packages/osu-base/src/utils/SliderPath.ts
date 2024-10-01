@@ -25,7 +25,7 @@ export class SliderPath {
     /**
      * Whether or not the instance has been initialized.
      */
-    isInitialized: boolean = false;
+    isInitialized = false;
 
     /**
      * The calculated path of the slider.
@@ -82,18 +82,15 @@ export class SliderPath {
     calculatePath(): void {
         this.calculatedPath.length = 0;
 
-        let spanStart: number = 0;
+        let spanStart = 0;
 
         for (let i = 0; i < this.controlPoints.length; i++) {
             if (
                 i === this.controlPoints.length - 1 ||
                 this.controlPoints[i].equals(this.controlPoints[i + 1])
             ) {
-                const spanEnd: number = i + 1;
-                const cpSpan: Vector2[] = this.controlPoints.slice(
-                    spanStart,
-                    spanEnd,
-                );
+                const spanEnd = i + 1;
+                const cpSpan = this.controlPoints.slice(spanStart, spanEnd);
                 this.calculateSubPath(cpSpan).forEach((t) => {
                     if (
                         this.calculatedPath.length === 0 ||
@@ -119,7 +116,7 @@ export class SliderPath {
                     break;
                 }
 
-                const subPath: Vector2[] =
+                const subPath =
                     PathApproximator.approximateCircularArc(subControlPoints);
 
                 // If for some reason a circular arc could not be fit to the 3 given points, fall back to a numerically stable Bézier approximation.
@@ -145,7 +142,7 @@ export class SliderPath {
         this.cumulativeLength.push(0);
 
         for (let i = 0; i < this.calculatedPath.length - 1; ++i) {
-            const diff: Vector2 = this.calculatedPath[i + 1].subtract(
+            const diff = this.calculatedPath[i + 1].subtract(
                 this.calculatedPath[i],
             );
             calculatedLength += diff.length;
@@ -167,7 +164,7 @@ export class SliderPath {
 
             // The last length is always incorrect
             this.cumulativeLength.pop();
-            let pathEndIndex: number = this.calculatedPath.length - 1;
+            let pathEndIndex = this.calculatedPath.length - 1;
 
             if (calculatedLength > this.expectedDistance) {
                 // The path will be shortened further, in which case we should trim any more unnecessary lengths and their associated path segments
@@ -187,7 +184,7 @@ export class SliderPath {
             }
 
             // The direction of the segment to shorten or lengthen
-            const dir: Vector2 = this.calculatedPath[pathEndIndex].subtract(
+            const dir = this.calculatedPath[pathEndIndex].subtract(
                 this.calculatedPath[pathEndIndex - 1],
             );
             dir.normalize();
@@ -212,7 +209,7 @@ export class SliderPath {
     positionAt(progress: number): Vector2 {
         this.ensureInitialized();
 
-        const d: number = this.progressToDistance(progress);
+        const d = this.progressToDistance(progress);
         return this.interpolateVerticles(this.indexOfDistance(d), d);
     }
 
@@ -238,18 +235,18 @@ export class SliderPath {
             return this.calculatedPath.at(-1)!;
         }
 
-        const p0: Vector2 = this.calculatedPath[i - 1];
-        const p1: Vector2 = this.calculatedPath[i];
+        const p0 = this.calculatedPath[i - 1];
+        const p1 = this.calculatedPath[i];
 
-        const d0: number = this.cumulativeLength[i - 1];
-        const d1: number = this.cumulativeLength[i];
+        const d0 = this.cumulativeLength[i - 1];
+        const d1 = this.cumulativeLength[i];
 
         // Avoid division by and almost-zero number in case two points are extremely close to each other.
         if (Precision.almostEqualsNumber(d0, d1)) {
             return p0;
         }
 
-        const w: number = (d - d0) / (d1 - d0);
+        const w = (d - d0) / (d1 - d0);
         return p0.add(p1.subtract(p0).scale(w));
     }
 
@@ -272,11 +269,11 @@ export class SliderPath {
             return this.cumulativeLength.length;
         }
 
-        let l: number = 0;
-        let r: number = this.cumulativeLength.length - 2;
+        let l = 0;
+        let r = this.cumulativeLength.length - 2;
 
         while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
+            const pivot = l + ((r - l) >> 1);
 
             if (this.cumulativeLength[pivot] < d) {
                 l = pivot + 1;

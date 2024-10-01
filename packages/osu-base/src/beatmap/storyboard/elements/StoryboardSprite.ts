@@ -1,6 +1,5 @@
 import { Anchor } from "../../../constants/Anchor";
 import { Vector2 } from "../../../math/Vector2";
-import { Command } from "../commands/Command";
 import { CommandLoop } from "../commands/CommandLoop";
 import { CommandTimelineGroup } from "../commands/CommandTimelineGroup";
 import { CommandTrigger } from "../commands/CommandTrigger";
@@ -33,7 +32,7 @@ export class StoryboardSprite extends StoryboardElement {
     /**
      * The command timeline group of the sprite.
      */
-    readonly timelineGroup: CommandTimelineGroup = new CommandTimelineGroup();
+    readonly timelineGroup = new CommandTimelineGroup();
 
     override get startTime(): number {
         // To get the initial start time, we need to check whether the first alpha command to exist (across all loops) has a start value of zero.
@@ -46,7 +45,7 @@ export class StoryboardSprite extends StoryboardElement {
             readonly isZeroStartValue: boolean;
         }[] = [];
 
-        let command: Command<number> = this.timelineGroup.alpha.commands[0];
+        let command = this.timelineGroup.alpha.commands[0];
         if (command) {
             alphaCommands.push({
                 startTime: command.startTime,
@@ -83,7 +82,7 @@ export class StoryboardSprite extends StoryboardElement {
     get earliestTransformTime(): number {
         // If we got to this point, either no alpha commands were present, or the earliest had a non-zero start value.
         // The sprite's start time will be determined by the earliest command, regardless of type.
-        let earliestStartTime: number = this.timelineGroup.startTime;
+        let earliestStartTime = this.timelineGroup.startTime;
 
         for (const l of this.loops) {
             earliestStartTime = Math.min(earliestStartTime, l.startTime);
@@ -124,7 +123,7 @@ export class StoryboardSprite extends StoryboardElement {
      * @returns The added command.
      */
     addLoop(startTime: number, repeatCount: number): CommandLoop {
-        const loop: CommandLoop = new CommandLoop(startTime, repeatCount);
+        const loop = new CommandLoop(startTime, repeatCount);
 
         this.loops.push(loop);
 
@@ -146,7 +145,7 @@ export class StoryboardSprite extends StoryboardElement {
         endTime: number,
         groupNumber: number,
     ): CommandTrigger {
-        const trigger: CommandTrigger = new CommandTrigger(
+        const trigger = new CommandTrigger(
             triggerName,
             startTime,
             endTime,

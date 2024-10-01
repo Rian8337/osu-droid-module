@@ -6,7 +6,7 @@ import { SectionDecoder } from "../SectionDecoder";
  */
 export class StoryboardVariablesDecoder extends SectionDecoder<Storyboard> {
     protected override decodeInternal(line: string): void {
-        const s: string[] = line.split("=");
+        const s = line.split("=");
 
         this.target.variables[s[0]] = s[1];
     }

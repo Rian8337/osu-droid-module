@@ -1,4 +1,3 @@
-import { BeatmapGeneral } from "../../sections/BeatmapGeneral";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
 
 /**
@@ -10,7 +9,7 @@ export class BeatmapGeneralEncoder extends BeatmapBaseEncoder {
             this.writeLine("[General]");
         }
 
-        const general: BeatmapGeneral = this.map.general;
+        const { general } = this.map;
 
         if (general.audioFilename) {
             this.writeLine(`AudioFilename: ${general.audioFilename}`);
@@ -20,12 +19,12 @@ export class BeatmapGeneralEncoder extends BeatmapBaseEncoder {
         this.writeLine(`PreviewTime: ${general.previewTime}`);
         this.writeLine(`Countdown: ${general.countdown}`);
         this.writeLine(
-            `SampleSet: ${this.sampleBankToString(general.sampleBank)}`
+            `SampleSet: ${this.sampleBankToString(general.sampleBank)}`,
         );
         this.writeLine(`StackLeniency: ${general.stackLeniency}`);
         this.writeLine(`Mode: ${general.mode}`);
         this.writeLine(
-            `LetterboxInBreaks: ${general.letterBoxInBreaks ? 1 : 0}`
+            `LetterboxInBreaks: ${general.letterBoxInBreaks ? 1 : 0}`,
         );
 
         if (general.epilepsyWarning) {
@@ -37,7 +36,7 @@ export class BeatmapGeneralEncoder extends BeatmapBaseEncoder {
         }
 
         this.writeLine(
-            `WidescreenStoryboard: ${general.widescreenStoryboard ? 1 : 0}`
+            `WidescreenStoryboard: ${general.widescreenStoryboard ? 1 : 0}`,
         );
 
         if (general.samplesMatchPlaybackRate) {

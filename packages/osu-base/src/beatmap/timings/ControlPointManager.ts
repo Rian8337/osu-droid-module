@@ -38,7 +38,7 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      * @returns Whether the control point was added.
      */
     add(controlPoint: T): boolean {
-        let existing: T = this.controlPointAt(controlPoint.time);
+        let existing = this.controlPointAt(controlPoint.time);
 
         // Timing points are a special case and need to be added regardless of fallback availability.
         if (
@@ -60,7 +60,7 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         this._points.splice(
             this.findInsertionIndex(controlPoint.time),
             0,
-            controlPoint
+            controlPoint,
         );
 
         return true;
@@ -122,7 +122,7 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      */
     protected binarySearchWithFallback(
         time: number,
-        fallback: T = this.defaultControlPoint
+        fallback: T = this.defaultControlPoint,
     ): T {
         return this.binarySearch(time) ?? fallback;
     }
@@ -142,11 +142,11 @@ export abstract class ControlPointManager<T extends ControlPoint> {
             return this._points.at(-1)!;
         }
 
-        let l: number = 0;
-        let r: number = this._points.length - 2;
+        let l = 0;
+        let r = this._points.length - 2;
 
         while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
+            const pivot = l + ((r - l) >> 1);
 
             if (this._points[pivot].time < time) {
                 l = pivot + 1;
@@ -175,11 +175,11 @@ export abstract class ControlPointManager<T extends ControlPoint> {
             return this._points.length;
         }
 
-        let l: number = 0;
-        let r: number = this._points.length - 2;
+        let l = 0;
+        let r = this._points.length - 2;
 
         while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
+            const pivot = l + ((r - l) >> 1);
 
             if (this._points[pivot].time < time) {
                 l = pivot + 1;

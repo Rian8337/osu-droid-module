@@ -32,12 +32,12 @@ export abstract class MathUtils {
         if (data.length === 0) {
             return 0;
         }
-        const mean: number =
-            data.reduce((acc, value) => acc + value) / data.length;
+
+        const mean = data.reduce((acc, value) => acc + value) / data.length;
 
         return Math.sqrt(
             data.reduce((acc, value) => acc + Math.pow(value - mean, 2), 0) /
-                data.length
+                data.length,
         );
     }
 

@@ -1,6 +1,5 @@
 import { HitSoundType } from "../../../constants/HitSoundType";
 import { SampleBank } from "../../../constants/SampleBank";
-import { Vector2 } from "../../../math/Vector2";
 import { BankHitSampleInfo } from "../../hitobjects/BankHitSampleInfo";
 import { FileHitSampleInfo } from "../../hitobjects/FileHitSampleInfo";
 import { HitSampleInfo } from "../../hitobjects/HitSampleInfo";
@@ -75,7 +74,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         // Skip the first control point as it is right on the
         // start position of the slider.
         for (let i = 1; i < slider.path.controlPoints.length; ++i) {
-            const realPosition: Vector2 = slider.path.controlPoints[i].add(
+            const realPosition = slider.path.controlPoints[i].add(
                 slider.position,
             );
 

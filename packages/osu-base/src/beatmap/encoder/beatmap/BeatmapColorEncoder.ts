@@ -1,5 +1,3 @@
-import { RGBColor } from "../../../utils/RGBColor";
-import { BeatmapColor } from "../../sections/BeatmapColor";
 import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
 
 /**
@@ -7,7 +5,7 @@ import { BeatmapBaseEncoder } from "./BeatmapBaseEncoder";
  */
 export class BeatmapColorEncoder extends BeatmapBaseEncoder {
     protected override encodeInternal(): void {
-        const colors: BeatmapColor = this.map.colors;
+        const { colors } = this.map;
 
         if (
             colors.combo.length === 0 &&
@@ -22,7 +20,7 @@ export class BeatmapColorEncoder extends BeatmapBaseEncoder {
         }
 
         for (let i = 0; i < colors.combo.length; ++i) {
-            const color: RGBColor = colors.combo[i];
+            const color = colors.combo[i];
 
             this.write(`Combo${i + 1}: `);
             this.write(`${color.r},`);

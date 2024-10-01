@@ -13,12 +13,12 @@ export class StoryboardDecoder extends Decoder<
     Storyboard,
     SectionDecoder<Storyboard>
 > {
-    protected override finalResult: Storyboard = new Storyboard();
+    protected override finalResult = new Storyboard();
     protected override decoders: Partial<
         Record<BeatmapSection, SectionDecoder<Storyboard>>
     > = {};
 
-    constructor(formatVersion: number = Decoder.latestVersion) {
+    constructor(formatVersion = Decoder.latestVersion) {
         super();
 
         this.formatVersion = formatVersion;
@@ -32,15 +32,15 @@ export class StoryboardDecoder extends Decoder<
         this.decoders = {
             General: new StoryboardGeneralDecoder(
                 this.finalResult,
-                this.formatVersion
+                this.formatVersion,
             ),
             Events: new StoryboardEventsDecoder(
                 this.finalResult,
-                this.formatVersion
+                this.formatVersion,
             ),
             Variables: new StoryboardVariablesDecoder(
                 this.finalResult,
-                this.formatVersion
+                this.formatVersion,
             ),
         };
     }

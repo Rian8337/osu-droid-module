@@ -5,37 +5,37 @@ export class BeatmapMetadata {
     /**
      * The romanized song title of the beatmap.
      */
-    title: string = "";
+    title = "";
 
     /**
      * The song title of the beatmap.
      */
-    titleUnicode: string = "";
+    titleUnicode = "";
 
     /**
      * The romanized artist of the song of the beatmap.
      */
-    artist: string = "";
+    artist = "";
 
     /**
      * The song artist of the beatmap.
      */
-    artistUnicode: string = "";
+    artistUnicode = "";
 
     /**
      * The creator of the beatmap.
      */
-    creator: string = "";
+    creator = "";
 
     /**
      * The difficulty name of the beatmap.
      */
-    version: string = "";
+    version = "";
 
     /**
      * The original media the song was produced for.
      */
-    source: string = "";
+    source = "";
 
     /**
      * The search terms of the beatmap.
@@ -55,7 +55,7 @@ export class BeatmapMetadata {
     /**
      * The full title of the beatmap, which is `Artist - Title (Creator) [Difficulty Name]`.
      */
-    get fullTitle(): string {
+    get fullTitle() {
         return `${this.artist} - ${this.title} (${this.creator}) [${this.version}]`;
     }
 
@@ -64,7 +64,7 @@ export class BeatmapMetadata {
      *
      * Will fallback to original artist and title if needed.
      */
-    get fullUnicodeTitle(): string {
+    get fullUnicodeTitle() {
         return `${this.artistUnicode || this.artist} - ${
             this.titleUnicode || this.title
         } (${this.creator}) [${this.version}]`;

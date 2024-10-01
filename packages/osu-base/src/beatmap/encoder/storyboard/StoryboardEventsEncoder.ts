@@ -6,7 +6,6 @@ import { CommandTimeline } from "../../storyboard/commands/CommandTimeline";
 import { CommandTimelineGroup } from "../../storyboard/commands/CommandTimelineGroup";
 import { CommandTrigger } from "../../storyboard/commands/CommandTrigger";
 import { StoryboardAnimation } from "../../storyboard/elements/StoryboardAnimation";
-import { StoryboardLayer } from "../../storyboard/elements/StoryboardLayer";
 import { StoryboardSample } from "../../storyboard/elements/StoryboardSample";
 import { StoryboardSprite } from "../../storyboard/elements/StoryboardSprite";
 import { StoryboardEventType } from "../../storyboard/enums/StoryboardEventType";
@@ -63,10 +62,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     }
 
     private encodeLayer(layerType: StoryboardLayerType): void {
-        const layer: StoryboardLayer | null = this.storyboard.getLayer(
-            layerType,
-            false,
-        );
+        const layer = this.storyboard.getLayer(layerType, false);
 
         for (const element of layer?.elements ?? []) {
             // Checking for StoryboardAnimation first is mandatory as it extends StoryboardSprite.

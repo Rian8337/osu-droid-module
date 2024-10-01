@@ -7,19 +7,19 @@ import { SectionDecoder } from "../SectionDecoder";
  */
 export class BeatmapColorDecoder extends SectionDecoder<Beatmap> {
     protected override decodeInternal(line: string): void {
-        const p: string[] = this.property(line);
+        const p = this.property(line);
 
-        const s: number[] = this.setPosition(p[1])
+        const s = this.setPosition(p[1])
             .split(",")
             .map((v) => this.tryParseInt(v));
 
         if (s.length !== 3 && s.length !== 4) {
             throw new TypeError(
-                "Color specified in incorrect format (should be R,G,B or R,G,B,A)"
+                "Color specified in incorrect format (should be R,G,B or R,G,B,A)",
             );
         }
 
-        const color: RGBColor = new RGBColor(s[0], s[1], s[2], s[3]);
+        const color = new RGBColor(s[0], s[1], s[2], s[3]);
 
         if (p[0].startsWith("Combo")) {
             this.target.colors.combo.push(color);

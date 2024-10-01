@@ -4,7 +4,7 @@ import { BlendingParameters } from "../BlendingParameters";
 import { StoryboardCommandType } from "../enums/StoryboardCommandType";
 import { StoryboardParameterCommandType } from "../enums/StoryboardParameterCommandType";
 import { Command } from "./Command";
-import { CommandTimeline, ICommandTimeline } from "./CommandTimeline";
+import { CommandTimeline } from "./CommandTimeline";
 
 /**
  * Represents a group of command timelines.
@@ -13,76 +13,61 @@ export class CommandTimelineGroup {
     /**
      * The command timeline that changes an animation or sprite's X and Y coordinates.
      */
-    move: CommandTimeline<Vector2> = new CommandTimeline(
-        StoryboardCommandType.movement,
-    );
+    move = new CommandTimeline<Vector2>(StoryboardCommandType.movement);
 
     /**
      * The command timeline that changes an animation or sprite's X-coordinate.
      */
-    x: CommandTimeline<number> = new CommandTimeline(
-        StoryboardCommandType.movementX,
-    );
+    x = new CommandTimeline<number>(StoryboardCommandType.movementX);
 
     /**
      * The command timeline that changes an animation or sprite's Y-coordinate.
      */
-    y: CommandTimeline<number> = new CommandTimeline(
-        StoryboardCommandType.movementY,
-    );
+    y = new CommandTimeline<number>(StoryboardCommandType.movementY);
 
     /**
      * The command timeline that scales an animation or sprite with a number.
      */
-    scale: CommandTimeline<number> = new CommandTimeline(
-        StoryboardCommandType.scale,
-    );
+    scale = new CommandTimeline<number>(StoryboardCommandType.scale);
 
     /**
      * The command timeline that scales an animation or sprite with a vector.
      *
      * This allows scaling the width and height of an animation or sprite individually at the same time.
      */
-    vectorScale: CommandTimeline<Vector2> = new CommandTimeline(
+    vectorScale = new CommandTimeline<Vector2>(
         StoryboardCommandType.vectorScale,
     );
 
     /**
      * The command timeline that rotates an animation or sprite, in radians, clockwise.
      */
-    rotation: CommandTimeline<number> = new CommandTimeline(
-        StoryboardCommandType.rotation,
-    );
+    rotation = new CommandTimeline<number>(StoryboardCommandType.rotation);
 
     /**
      * The command timeline that changes an animation or sprite's virtual light source color.
      *
      * The colors of the pixels on the animation or sprite are determined subtractively.
      */
-    color: CommandTimeline<RGBColor> = new CommandTimeline(
-        StoryboardCommandType.color,
-    );
+    color = new CommandTimeline<RGBColor>(StoryboardCommandType.color);
 
     /**
      * The command timeline that changes the opacity of an animation or sprite.
      */
-    alpha: CommandTimeline<number> = new CommandTimeline(
-        StoryboardCommandType.fade,
-    );
+    alpha = new CommandTimeline<number>(StoryboardCommandType.fade);
 
     /**
      * The command timeline that determines the blending behavior of an animation or sprite.
      */
-    blendingParameters: CommandTimeline<BlendingParameters> =
-        new CommandTimeline(
-            StoryboardCommandType.parameter,
-            StoryboardParameterCommandType.blendingMode,
-        );
+    blendingParameters = new CommandTimeline<BlendingParameters>(
+        StoryboardCommandType.parameter,
+        StoryboardParameterCommandType.blendingMode,
+    );
 
     /**
      * The command timeline that determines whether the animation or sprite should be flipped horizontally.
      */
-    flipHorizontal: CommandTimeline<boolean> = new CommandTimeline(
+    flipHorizontal = new CommandTimeline<boolean>(
         StoryboardCommandType.parameter,
         StoryboardParameterCommandType.horizontalFlip,
     );
@@ -90,12 +75,12 @@ export class CommandTimelineGroup {
     /**
      * The command timeline that determines whether the animation or sprite should be flipped vertically.
      */
-    flipVertical: CommandTimeline<boolean> = new CommandTimeline(
+    flipVertical = new CommandTimeline<boolean>(
         StoryboardCommandType.parameter,
         StoryboardParameterCommandType.verticalFlip,
     );
 
-    private readonly timelines: readonly ICommandTimeline[] = [
+    private readonly timelines = [
         this.x,
         this.y,
         this.scale,
@@ -106,7 +91,7 @@ export class CommandTimelineGroup {
         this.blendingParameters,
         this.flipHorizontal,
         this.flipVertical,
-    ];
+    ] as const;
 
     /**
      * The start time of commands.

@@ -5,7 +5,7 @@ export class BreakPoint {
     /**
      * The minimum duration required for a break to have any effect.
      */
-    static readonly MIN_BREAK_DURATION: number = 650;
+    static readonly MIN_BREAK_DURATION = 650;
 
     /**
      * The start time of the break period.
