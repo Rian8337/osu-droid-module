@@ -1,6 +1,7 @@
 import {
     Accuracy,
     Beatmap,
+    BeatmapDifficulty,
     DroidAPIRequestBuilder,
     DroidHitWindow,
     MathUtils,
@@ -27,7 +28,6 @@ import {
     Modes,
     Slider,
     Spinner,
-    calculateDroidDifficultyStatistics,
 } from "@rian8337/osu-base";
 import {
     DroidDifficultyCalculator,
@@ -245,14 +245,18 @@ export class ReplayAnalyzer {
                   m.isApplicableToDroid(),
               ) ?? [];
 
-        const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(mods),
-        }).overallDifficulty;
+        const adjustedDifficulty = new BeatmapDifficulty(beatmap.difficulty);
 
-        const hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
-            mods.some((m) => m instanceof ModPrecise),
+        ModUtil.applyModsToBeatmapDifficulty(
+            adjustedDifficulty,
+            Modes.droid,
+            mods,
+            this.data.isReplayV4() ? this.data.speedMultiplier : 1,
         );
+
+        const hitWindow50 = new DroidHitWindow(
+            adjustedDifficulty.od,
+        ).hitWindowFor50(mods.some((m) => m instanceof ModPrecise));
 
         // The accuracy of sliders is set to (50 hit window)ms + 13ms if their head was not hit:
         // https://github.com/osudroid/osu-droid/blob/6306c68e3ffaf671eac794bf45cc95c0f3313a82/src/ru/nsu/ccfit/zuev/osu/game/Slider.java#L821
