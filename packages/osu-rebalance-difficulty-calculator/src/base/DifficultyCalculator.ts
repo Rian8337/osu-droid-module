@@ -1,8 +1,11 @@
 import {
     Beatmap,
+    DroidHitWindow,
     Mod,
     Modes,
-    DifficultyStatisticsCalculatorResult,
+    ModPrecise,
+    ModUtil,
+    OsuHitWindow,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
@@ -26,7 +29,14 @@ export abstract class DifficultyCalculator<
     /**
      * The difficulty objects of the beatmap.
      */
-    readonly objects: THitObject[] = [];
+    private _objects: THitObject[] = [];
+
+    /**
+     * The difficulty objects of the beatmap.
+     */
+    get objects(): readonly THitObject[] {
+        return this._objects;
+    }
 
     /**
      * The modifications applied.
@@ -39,16 +49,6 @@ export abstract class DifficultyCalculator<
     get total(): number {
         return this.attributes.starRating;
     }
-
-    /**
-     * The difficulty statistics of the beatmap after modifications are applied.
-     */
-    difficultyStatistics: DifficultyStatisticsCalculatorResult<
-        number,
-        number,
-        number,
-        number
-    >;
 
     /**
      * The strain peaks of various calculated difficulties.
@@ -76,18 +76,10 @@ export abstract class DifficultyCalculator<
     /**
      * Constructs a new instance of the calculator.
      *
-     * @param beatmap The beatmap to calculate. This beatmap will be deep-cloned to prevent reference changes.
+     * @param beatmap The beatmap to calculate.
      */
     constructor(beatmap: Beatmap) {
         this.beatmap = beatmap;
-
-        this.difficultyStatistics = {
-            circleSize: beatmap.difficulty.cs,
-            approachRate: beatmap.difficulty.ar,
-            overallDifficulty: beatmap.difficulty.od,
-            healthDrain: beatmap.difficulty.hp,
-            overallSpeedMultiplier: 1,
-        };
     }
 
     /**
@@ -114,14 +106,15 @@ export abstract class DifficultyCalculator<
             customSpeedMultiplier: options?.customSpeedMultiplier,
         });
 
-        this.difficultyStatistics = Object.seal(
-            this.computeDifficultyStatistics(options),
-        );
+        const clockRate =
+            ModUtil.calculateRateWithMods(this.mods) *
+            (options?.customSpeedMultiplier ?? 1);
 
-        this.populateDifficultyAttributes();
+        this.populateDifficultyAttributes(playableBeatmap, clockRate);
 
-        this.objects.push(
-            ...this.generateDifficultyHitObjects(playableBeatmap),
+        this._objects = this.generateDifficultyHitObjects(
+            playableBeatmap,
+            clockRate,
         );
 
         this.calculateAll();
@@ -132,21 +125,13 @@ export abstract class DifficultyCalculator<
     /**
      * Generates difficulty hitobjects for this calculator.
      *
-     * @param convertedBeatmap The beatmap to generate difficulty hitobjects from.
+     * @param beatmap The beatmap to generate difficulty hitobjects from.
+     * @param clockRate The clock rate of the beatmap.
      */
     protected abstract generateDifficultyHitObjects(
-        convertedBeatmap: Beatmap,
+        beatmap: Beatmap,
+        clockRate: number,
     ): THitObject[];
-
-    /**
-     * Computes the difficulty statistics of the original beatmap with respect to the used options.
-     *
-     * @param options The options to use for the difficulty statistics calculation.
-     * @returns The computed difficulty statistics.
-     */
-    protected abstract computeDifficultyStatistics(
-        options?: DifficultyCalculationOptions,
-    ): DifficultyStatisticsCalculatorResult<number, number, number, number>;
 
     /**
      * Calculates the skills provided.
@@ -184,18 +169,44 @@ export abstract class DifficultyCalculator<
 
     /**
      * Populates the stored difficulty attributes with necessary data.
+     *
+     * @param beatmap The beatmap to populate the attributes with.
+     * @param clockRate The clock rate of the beatmap.
      */
-    protected populateDifficultyAttributes(): void {
-        this.attributes.approachRate = this.difficultyStatistics.approachRate;
+    protected populateDifficultyAttributes(
+        beatmap: Beatmap,
+        clockRate: number,
+    ): void {
         this.attributes.hitCircleCount = this.beatmap.hitObjects.circles;
         this.attributes.maxCombo = this.beatmap.maxCombo;
         this.attributes.mods = this.mods.slice();
-        this.attributes.overallDifficulty =
-            this.difficultyStatistics.overallDifficulty;
         this.attributes.sliderCount = this.beatmap.hitObjects.sliders;
         this.attributes.spinnerCount = this.beatmap.hitObjects.spinners;
-        this.attributes.clockRate =
-            this.difficultyStatistics.overallSpeedMultiplier;
+        this.attributes.clockRate = clockRate;
+
+        let greatWindow: number;
+
+        switch (this.mode) {
+            case Modes.droid:
+                greatWindow = new DroidHitWindow(
+                    beatmap.difficulty.od,
+                ).hitWindowFor300(
+                    this.mods.some((m) => m instanceof ModPrecise),
+                );
+
+                break;
+
+            case Modes.osu:
+                greatWindow = new OsuHitWindow(
+                    beatmap.difficulty.od,
+                ).hitWindowFor300();
+
+                break;
+        }
+
+        this.attributes.overallDifficulty = OsuHitWindow.hitWindow300ToOD(
+            greatWindow / clockRate,
+        );
     }
 
     /**

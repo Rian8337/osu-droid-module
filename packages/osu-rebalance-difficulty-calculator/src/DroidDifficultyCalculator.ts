@@ -9,11 +9,9 @@ import {
     Modes,
     ModUtil,
     Beatmap,
-    DifficultyStatisticsCalculatorResult,
-    calculateDroidDifficultyStatistics,
-    ModDifficultyAdjust,
-    OsuHitWindow,
     ModAutopilot,
+    DroidHitWindow,
+    ModPrecise,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -21,7 +19,6 @@ import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDif
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
-import { DroidDifficultyCalculationOptions } from "./structures/DroidDifficultyCalculationOptions";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -86,7 +83,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         speedNoteCount: 0,
         sliderFactor: 0,
         clockRate: 1,
-        approachRate: 0,
         overallDifficulty: 0,
         hitCircleCount: 0,
         sliderCount: 0,
@@ -105,30 +101,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     override get cacheableAttributes(): CacheableDifficultyAttributes<DroidDifficultyAttributes> {
         return {
-            tapDifficulty: this.tap,
-            rhythmDifficulty: this.rhythm,
-            visualDifficulty: this.visual,
+            ...this.attributes,
             mods: ModUtil.modsToOsuString(this.attributes.mods),
-            starRating: this.total,
-            maxCombo: this.attributes.maxCombo,
-            aimDifficulty: this.aim,
-            flashlightDifficulty: this.flashlight,
-            speedNoteCount: this.attributes.speedNoteCount,
-            sliderFactor: this.attributes.sliderFactor,
-            clockRate: this.attributes.clockRate,
-            approachRate: this.attributes.approachRate,
-            overallDifficulty: this.attributes.overallDifficulty,
-            hitCircleCount: this.attributes.hitCircleCount,
-            sliderCount: this.attributes.sliderCount,
-            spinnerCount: this.attributes.spinnerCount,
-            aimDifficultStrainCount: this.attributes.aimDifficultStrainCount,
-            tapDifficultStrainCount: this.attributes.tapDifficultStrainCount,
-            flashlightDifficultStrainCount:
-                this.attributes.flashlightDifficultStrainCount,
-            visualDifficultStrainCount:
-                this.attributes.visualDifficultStrainCount,
-            averageSpeedDeltaTime: this.attributes.averageSpeedDeltaTime,
-            vibroFactor: this.attributes.vibroFactor,
         };
     }
 
@@ -293,17 +267,18 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects(convertedBeatmap: Beatmap) {
+    protected override generateDifficultyHitObjects(
+        beatmap: Beatmap,
+        clockRate: number,
+    ) {
         const difficultyObjects: DroidDifficultyHitObject[] = [];
-        const { objects } = convertedBeatmap.hitObjects;
+        const { objects } = beatmap.hitObjects;
 
-        const difficultyAdjustMod = this.mods.find(
-            (m) => m instanceof ModDifficultyAdjust,
-        ) as ModDifficultyAdjust | undefined;
-
-        const greatWindow = new OsuHitWindow(
-            this.difficultyStatistics.overallDifficulty,
-        ).hitWindowFor300();
+        const isPrecise = this.mods.some((m) => m instanceof ModPrecise);
+        const greatWindow =
+            new DroidHitWindow(beatmap.difficulty.od).hitWindowFor300(
+                isPrecise,
+            ) / clockRate;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
@@ -311,36 +286,16 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 1] ?? null,
                 objects[i - 2] ?? null,
                 difficultyObjects,
-                this.difficultyStatistics.overallSpeedMultiplier,
+                clockRate,
                 greatWindow,
-                difficultyAdjustMod?.ar !== undefined,
             );
 
-            difficultyObject.computeProperties(
-                this.difficultyStatistics.overallSpeedMultiplier,
-                objects,
-            );
+            difficultyObject.computeProperties(clockRate, objects);
 
             difficultyObjects.push(difficultyObject);
         }
 
         return difficultyObjects;
-    }
-
-    protected override computeDifficultyStatistics(
-        options?: DroidDifficultyCalculationOptions,
-    ): DifficultyStatisticsCalculatorResult<number, number, number, number> {
-        const { difficulty } = this.beatmap;
-
-        return calculateDroidDifficultyStatistics({
-            circleSize: difficulty.cs,
-            approachRate: difficulty.ar,
-            overallDifficulty: difficulty.od,
-            healthDrain: difficulty.hp,
-            mods: this.mods,
-            customSpeedMultiplier: options?.customSpeedMultiplier,
-            oldStatistics: options?.oldStatistics,
-        });
     }
 
     protected override createSkills(): DroidSkill[] {

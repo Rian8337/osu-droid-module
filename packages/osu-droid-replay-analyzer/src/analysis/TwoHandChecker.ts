@@ -1,6 +1,5 @@
 // import { writeFileSync } from "fs";
 import {
-    calculateDroidDifficultyStatistics,
     // Beatmap,
     Circle,
     DroidHitWindow,
@@ -9,7 +8,7 @@ import {
     Modes,
     ModHardRock,
     ModPrecise,
-    ModUtil,
+    OsuHitWindow,
     Playfield,
     Slider,
     Spinner,
@@ -97,13 +96,16 @@ export class TwoHandChecker {
         this.calculator = calculator;
         this.data = data;
 
-        const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: calculator.beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(calculator.mods),
-            convertOverallDifficulty: false,
-        }).overallDifficulty;
+        const greatWindow =
+            new OsuHitWindow(
+                calculator.attributes.overallDifficulty,
+            ).hitWindowFor300() * calculator.attributes.clockRate;
 
-        this.hitWindow = new DroidHitWindow(od);
+        const isPrecise = calculator.mods.some((m) => m instanceof ModPrecise);
+
+        this.hitWindow = new DroidHitWindow(
+            DroidHitWindow.hitWindow300ToOD(greatWindow, isPrecise),
+        );
         this.hitWindow50 = this.hitWindow.hitWindowFor50(
             calculator.mods.some((m) => m instanceof ModPrecise),
         );

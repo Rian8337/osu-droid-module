@@ -9,15 +9,14 @@ import {
     ModTouchDevice,
     Modes,
     ModUtil,
-    DifficultyStatisticsCalculatorResult,
-    calculateOsuDifficultyStatistics,
     Beatmap,
     OsuHitWindow,
+    BeatmapDifficulty,
+    HitObject,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
-import { DifficultyCalculationOptions } from "./structures/DifficultyCalculationOptions";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
@@ -183,13 +182,16 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         );
     }
 
-    protected override generateDifficultyHitObjects(convertedBeatmap: Beatmap) {
+    protected override generateDifficultyHitObjects(
+        beatmap: Beatmap,
+        clockRate: number,
+    ) {
         const difficultyObjects: OsuDifficultyHitObject[] = [];
-        const { objects } = convertedBeatmap.hitObjects;
+        const { objects } = beatmap.hitObjects;
 
-        const greatWindow = new OsuHitWindow(
-            this.difficultyStatistics.overallDifficulty,
-        ).hitWindowFor300();
+        const greatWindow =
+            new OsuHitWindow(beatmap.difficulty.od).hitWindowFor300() /
+            clockRate;
 
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
@@ -197,34 +199,16 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 1] ?? null,
                 objects[i - 2] ?? null,
                 difficultyObjects,
-                this.difficultyStatistics.overallSpeedMultiplier,
+                clockRate,
                 greatWindow,
             );
 
-            difficultyObject.computeProperties(
-                this.difficultyStatistics.overallSpeedMultiplier,
-                objects,
-            );
+            difficultyObject.computeProperties(clockRate, objects);
 
             difficultyObjects.push(difficultyObject);
         }
 
         return difficultyObjects;
-    }
-
-    protected override computeDifficultyStatistics(
-        options?: DifficultyCalculationOptions,
-    ): DifficultyStatisticsCalculatorResult<number, number, number, number> {
-        const { difficulty } = this.beatmap;
-
-        return calculateOsuDifficultyStatistics({
-            circleSize: difficulty.cs,
-            approachRate: difficulty.ar,
-            overallDifficulty: difficulty.od,
-            healthDrain: difficulty.hp,
-            mods: options?.mods,
-            customSpeedMultiplier: options?.customSpeedMultiplier,
-        });
     }
 
     protected override createSkills(): OsuSkill[] {
@@ -234,6 +218,28 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             new OsuSpeed(this.mods),
             new OsuFlashlight(this.mods),
         ];
+    }
+
+    protected override populateDifficultyAttributes(
+        beatmap: Beatmap,
+        clockRate: number,
+    ): void {
+        super.populateDifficultyAttributes(beatmap, clockRate);
+
+        const preempt =
+            BeatmapDifficulty.difficultyRange(
+                beatmap.difficulty.ar,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            ) / clockRate;
+
+        this.attributes.approachRate = BeatmapDifficulty.inverseDifficultyRange(
+            preempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
     }
 
     /**

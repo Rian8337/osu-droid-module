@@ -1,6 +1,5 @@
 import {
     DroidHitWindow,
-    ModUtil,
     ModPrecise,
     MathUtils,
     Circle,
@@ -12,7 +11,6 @@ import {
     PlaceableHitObject,
     Utils,
     Interpolation,
-    calculateDroidDifficultyStatistics,
     ModHardRock,
     Vector2,
     Playfield,
@@ -99,12 +97,6 @@ export class ThreeFingerChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(difficultyAttributes.mods),
-            convertOverallDifficulty: false,
-        }).overallDifficulty;
-
         this.isPrecise = difficultyAttributes.mods.some(
             (m) => m instanceof ModPrecise,
         );
@@ -113,7 +105,7 @@ export class ThreeFingerChecker {
             (m) => m instanceof ModHardRock,
         );
 
-        this.hitWindow = new DroidHitWindow(od);
+        this.hitWindow = new DroidHitWindow(beatmap.difficulty.od);
     }
 
     /**

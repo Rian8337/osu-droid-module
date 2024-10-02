@@ -1,12 +1,10 @@
 import {
     Beatmap,
-    calculateDroidDifficultyStatistics,
     DroidHitWindow,
     Interpolation,
     Modes,
     ModHardRock,
     ModPrecise,
-    ModUtil,
     Playfield,
     Slider,
     Utils,
@@ -64,13 +62,9 @@ export class SliderCheeseChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        const od = calculateDroidDifficultyStatistics({
-            overallDifficulty: beatmap.difficulty.od,
-            mods: ModUtil.removeSpeedChangingMods(difficultyAttributes.mods),
-            convertOverallDifficulty: false,
-        }).overallDifficulty;
-
-        this.hitWindow50 = new DroidHitWindow(od).hitWindowFor50(
+        this.hitWindow50 = new DroidHitWindow(
+            beatmap.difficulty.od,
+        ).hitWindowFor50(
             difficultyAttributes.mods.some((m) => m instanceof ModPrecise),
         );
 
