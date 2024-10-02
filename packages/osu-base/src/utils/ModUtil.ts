@@ -1,3 +1,6 @@
+import { HitObject } from "../beatmap/hitobjects/HitObject";
+import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
+import { Modes } from "../constants/Modes";
 import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
 import { IModApplicableToOsu } from "../mods/IModApplicableToOsu";
 import { Mod } from "../mods/Mod";
@@ -22,6 +25,7 @@ import { ModSpeedUp } from "../mods/ModSpeedUp";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
+import { DroidHitWindow } from "./HitWindow";
 
 /**
  * Options for parsing mods.
@@ -245,6 +249,67 @@ export abstract class ModUtil {
                         (v) => m.acronym === v.acronym,
                     ),
             );
+    }
+
+    /**
+     * Applies the selected `Mod`s to a `BeatmapDifficulty`.
+     *
+     * @param difficulty The `BeatmapDifficulty` to apply the `Mod`s to.
+     * @param mode The game mode to apply the `Mod`s for.
+     * @param mods The selected `Mod`s.
+     * @param customSpeedMultiplier The custom speed multiplier to apply.
+     */
+    static applyModsToBeatmapDifficulty(
+        difficulty: BeatmapDifficulty,
+        mode: Modes,
+        mods: Mod[],
+        customSpeedMultiplier: number = 1,
+    ) {
+        for (const mod of mods) {
+            if (mod.isApplicableToDifficulty()) {
+                mod.applyToDifficulty(mode, difficulty);
+            }
+        }
+
+        for (const mod of mods) {
+            if (mod.isApplicableToDifficultyWithSettings()) {
+                mod.applyToDifficultyWithSettings(
+                    mode,
+                    difficulty,
+                    mods,
+                    customSpeedMultiplier,
+                );
+            }
+        }
+
+        // Apply rate adjustments
+        const totalSpeedMultiplier =
+            this.calculateRateWithMods(mods) * customSpeedMultiplier;
+
+        const preempt =
+            BeatmapDifficulty.difficultyRange(
+                difficulty.ar,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            ) / totalSpeedMultiplier;
+
+        difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
+            preempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
+
+        const isPreciseMod = mods.some((m) => m instanceof ModPrecise);
+        const hitWindow = new DroidHitWindow(difficulty.od);
+        const greatWindow =
+            hitWindow.hitWindowFor300(isPreciseMod) / totalSpeedMultiplier;
+
+        difficulty.od = DroidHitWindow.hitWindow300ToOD(
+            greatWindow,
+            isPreciseMod,
+        );
     }
 
     /**
