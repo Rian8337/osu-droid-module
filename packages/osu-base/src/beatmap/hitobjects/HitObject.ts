@@ -217,7 +217,7 @@ export abstract class HitObject {
             difficulty.ar,
             HitObject.preemptMax,
             HitObject.preemptMid,
-            HitObject.preemptMid,
+            HitObject.preemptMin,
         );
 
         // Preempt time can go below 450ms. Normally, this is achieved via the DT mod which uniformly speeds up all animations game wide regardless of AR.
