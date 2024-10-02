@@ -1,5 +1,6 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 
 /**
@@ -7,7 +8,10 @@ import { Mod } from "./Mod";
  */
 export class ModDoubleTime
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
+    implements
+        IModApplicableToDroid,
+        IModApplicableToOsu,
+        IModApplicableToTrackRate
 {
     override readonly acronym = "DT";
     override readonly name = "DoubleTime";
@@ -20,4 +24,6 @@ export class ModDoubleTime
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 6;
+
+    readonly trackRateMultiplier = 1.5;
 }

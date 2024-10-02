@@ -1,5 +1,6 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 
 /**
@@ -7,7 +8,10 @@ import { Mod } from "./Mod";
  */
 export class ModHalfTime
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
+    implements
+        IModApplicableToDroid,
+        IModApplicableToOsu,
+        IModApplicableToTrackRate
 {
     override readonly acronym = "HT";
     override readonly name = "HalfTime";
@@ -20,4 +24,6 @@ export class ModHalfTime
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
+
+    readonly trackRateMultiplier = 0.75;
 }

@@ -3,52 +3,54 @@ import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
+import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 
 /**
  * Represents a mod.
  */
 export abstract class Mod {
     /**
-     * The acronym of the mod.
+     * The acronym of this `Mod`.
      */
     abstract readonly acronym: string;
 
     /**
-     * The name of the mod.
+     * The name of this `Mod`.
      */
     abstract readonly name: string;
 
     /**
-     * Whether this mod can be applied to osu!droid.
+     * Whether this `Mod` can be applied to osu!droid.
      */
     isApplicableToDroid(): this is this & IModApplicableToDroid {
         return "droidRanked" in this;
     }
 
     /**
-     * Whether this mod can be applied to osu!standard.
+     * Whether this `Mod` can be applied to osu!standard.
      */
     isApplicableToOsu(): this is this & IModApplicableToOsu {
         return "pcRanked" in this;
     }
 
     /**
-     * Whether this mod can be applied to a beatmap.
+     * Whether this `Mod` can be applied to a `Beatmap`.
      */
     isApplicableToBeatmap(): this is this & IModApplicableToBeatmap {
         return "applyToBeatmap" in this;
     }
 
     /**
-     * Whether this mod can be applied to a beatmap difficulty.
+     * Whether this `Mod` can be applied to a `BeatmapDifficulty`.
      */
     isApplicableToDifficulty(): this is this & IModApplicableToDifficulty {
         return "applyToDifficulty" in this;
     }
 
     /**
-     * Whether this mod can be applied to a beatmap difficulty relative to other mods and settings.
+     * Whether this `Mod` can be applied to a `BeatmapDifficulty` relative to other `Mod`s and settings.
      */
     isApplicableToDifficultyWithSettings(): this is this &
         IModApplicableToDifficultyWithSettings {
@@ -56,9 +58,24 @@ export abstract class Mod {
     }
 
     /**
-     * Whether this mod can be applied to a hitobject.
+     * Whether this `Mod` can be applied to a `HitObject`.
      */
     isApplicableToHitObject(): this is this & IModApplicableToHitObject {
         return "applyToHitObject" in this;
+    }
+
+    /**
+     * Whether this `Mod` can be applied to a `HitObject` relative to other `Mod`s and settings.
+     */
+    isApplicableToHitObjectWithSettings(): this is this &
+        IModApplicableToHitObjectWithSettings {
+        return "applyToHitObjectWithSettings" in this;
+    }
+
+    /**
+     * Whether this `Mod`s can be applied to a track's playback rate.
+     */
+    isApplicableToTrackRate(): this is this & IModApplicableToTrackRate {
+        return "trackRateMultiplier" in this;
     }
 }

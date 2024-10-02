@@ -1,5 +1,6 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 
 /**
@@ -7,7 +8,10 @@ import { Mod } from "./Mod";
  */
 export class ModNightCore
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
+    implements
+        IModApplicableToDroid,
+        IModApplicableToOsu,
+        IModApplicableToTrackRate
 {
     override readonly acronym = "NC";
     override readonly name = "NightCore";
@@ -20,4 +24,6 @@ export class ModNightCore
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
+
+    readonly trackRateMultiplier = 1.5;
 }
