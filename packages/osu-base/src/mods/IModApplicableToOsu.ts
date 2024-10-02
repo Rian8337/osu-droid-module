@@ -1,19 +1,19 @@
 /**
- * An interface denoting that a mod can be applied to osu!standard.
+ * An interface denoting that a `Mod` can be applied to osu!standard.
  */
 export interface IModApplicableToOsu {
     /**
-     * Whether the mod is ranked in osu!standard.
+     * Whether this `Mod` is ranked in osu!standard.
      */
     readonly pcRanked: boolean;
 
     /**
-     * The PC score multiplier of this mod.
+     * The osu!standard score multiplier of this `Mod`.
      */
     readonly pcScoreMultiplier: number;
 
     /**
-     * The bitwise enum of the mod.
+     * The bitwise enum of this `Mod`.
      */
     readonly bitwise: number;
 }
