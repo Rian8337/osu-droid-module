@@ -184,33 +184,29 @@ export abstract class DifficultyCalculator<
         this.attributes.spinnerCount = this.beatmap.hitObjects.spinners;
         this.attributes.clockRate = clockRate;
 
+        let greatWindow: number;
+
         switch (this.mode) {
-            case Modes.droid: {
-                const isPrecise = this.mods.some(
-                    (m) => m instanceof ModPrecise,
+            case Modes.droid:
+                greatWindow = new DroidHitWindow(
+                    beatmap.difficulty.od,
+                ).hitWindowFor300(
+                    this.mods.some((m) => m instanceof ModPrecise),
                 );
-                const greatWindow =
-                    new DroidHitWindow(beatmap.difficulty.od).hitWindowFor300(
-                        isPrecise,
-                    ) / clockRate;
-
-                this.attributes.overallDifficulty =
-                    DroidHitWindow.hitWindow300ToOD(greatWindow, isPrecise);
 
                 break;
-            }
 
-            case Modes.osu: {
-                const greatWindow =
-                    new OsuHitWindow(beatmap.difficulty.od).hitWindowFor300() /
-                    clockRate;
-
-                this.attributes.overallDifficulty =
-                    OsuHitWindow.hitWindow300ToOD(greatWindow);
+            case Modes.osu:
+                greatWindow = new OsuHitWindow(
+                    beatmap.difficulty.od,
+                ).hitWindowFor300();
 
                 break;
-            }
         }
+
+        this.attributes.overallDifficulty = OsuHitWindow.hitWindow300ToOD(
+            greatWindow / clockRate,
+        );
     }
 
     /**
