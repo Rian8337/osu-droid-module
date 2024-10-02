@@ -286,20 +286,20 @@ describe("Test difficulty calculation sample beatmap 3", () => {
 describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
-            aim: 2.7602593344655855,
+            aim: 2.760928712365149,
             tap: 1.367667100667766,
             rhythm: 0.7132455693331773,
-            flashlight: 3.036035049248153,
-            visual: 1.8491804699383172,
-            total: 4.881886726536875,
+            flashlight: 3.0365814525947425,
+            visual: 1.8489439408479278,
+            total: 4.882069999062491,
         },
         doubleTime: {
-            aim: 3.852605714473806,
+            aim: 3.8539731872173304,
             tap: 1.9275115728321794,
             rhythm: 0.8430284406108397,
-            flashlight: 3.657422534623763,
-            visual: 2.566147929961863,
-            total: 6.11912472732163,
+            flashlight: 3.6580858146569497,
+            visual: 2.5659800257082583,
+            total: 6.119790988612928,
         },
     });
 });
@@ -309,20 +309,20 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 965.5505553330325,
-                tap: 4.908605708885889,
+                aim: 886.3526620739104,
+                tap: 4.916772959393507,
                 rhythm: 0.6823361636632594,
-                flashlight: 5673.556664655397,
-                visual: 4.091146244278765,
-                total: 395.9603475888213,
+                flashlight: 5556.036396919156,
+                visual: 3.1248059028282156,
+                total: 369.75884255273667,
             },
             doubleTime: {
-                aim: 1257.1591970080917,
-                tap: 6.663376207162514,
+                aim: 1147.737311511626,
+                tap: 6.676332454472421,
                 rhythm: 0.7006890080102589,
-                flashlight: 5625.476697521746,
-                visual: 5.336536545288567,
-                total: 489.03475586727575,
+                flashlight: 5514.256658778721,
+                visual: 3.994183818533306,
+                total: 454.67698884468444,
             },
         },
     );
@@ -355,17 +355,17 @@ describe("Test difficulty calculation sample beatmap 7", () => {
             aim: 3.002290014580639,
             tap: 2.5084797101170144,
             rhythm: 1.46991402878021,
-            flashlight: 2.7262670257558708,
+            flashlight: 2.724744458885731,
             visual: 1.0935623156427097,
-            total: 5.2092794757583825,
+            total: 5.209280884923975,
         },
         doubleTime: {
-            aim: 4.295842123488076,
+            aim: 4.295847271138737,
             tap: 3.6976499471752486,
             rhythm: 1.6034657232648741,
-            flashlight: 3.742818329383441,
+            flashlight: 3.7407466768252005,
             visual: 1.4543444460226884,
-            total: 7.166574688618557,
+            total: 7.166577066350623,
         },
     });
 });
