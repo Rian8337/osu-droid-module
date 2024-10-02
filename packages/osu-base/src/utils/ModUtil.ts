@@ -248,6 +248,24 @@ export abstract class ModUtil {
     }
 
     /**
+     * Calculates the rate for the track with the selected `Mod`s.
+     *
+     * @param mods The list of selected `Mod`s.
+     * @returns The rate with `Mod`s.
+     */
+    static calculateRateWithMods(mods: Iterable<Mod>): number {
+        let rate = 1;
+
+        for (const mod of mods) {
+            if (mod.isApplicableToTrackRate()) {
+                rate *= mod.trackRateMultiplier;
+            }
+        }
+
+        return rate;
+    }
+
+    /**
      * Processes parsing options.
      *
      * @param mods The mods to process.
