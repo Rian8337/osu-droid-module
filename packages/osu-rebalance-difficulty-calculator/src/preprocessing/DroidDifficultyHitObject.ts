@@ -1,4 +1,4 @@
-import { Modes, PlaceableHitObject, Slider, Spinner } from "@rian8337/osu-base";
+import { Circle, Modes, PlaceableHitObject, Spinner } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -129,6 +129,9 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * Keep in mind that "overlapping" in this case is overlapping to the point where both hitobjects
      * can be hit with just a single tap in osu!droid.
      *
+     * In the case of sliders, it is considered overlapping if all nested hitobjects can be hit with
+     * one aim motion.
+     *
      * @param considerDistance Whether to consider the distance between both hitobjects.
      * @returns Whether the hitobject is considered overlapping.
      */
@@ -137,34 +140,73 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             return false;
         }
 
-        const previous = this.previous(0);
+        const prev = this.previous(0);
 
-        if (!previous || previous.object instanceof Spinner) {
+        if (!prev || prev.object instanceof Spinner) {
             return false;
         }
 
-        if (this.deltaTime >= 5) {
+        if (this.object.startTime !== prev.object.startTime) {
             return false;
         }
 
-        if (considerDistance) {
-            const endPosition = this.object.getStackedPosition(Modes.droid);
+        if (!considerDistance) {
+            return true;
+        }
 
-            let distance = previous.object
-                .getStackedEndPosition(Modes.droid)
-                .getDistance(endPosition);
+        const distanceThreshold = 2 * this.object.radius;
+        const startPosition = this.object.getStackedPosition(Modes.droid);
+        const prevStartPosition = prev.object.getStackedPosition(Modes.droid);
 
-            if (
-                previous.object instanceof Slider &&
-                previous.object.lazyEndPosition
-            ) {
-                distance = Math.min(
-                    distance,
-                    previous.object.lazyEndPosition.getDistance(endPosition),
-                );
+        // We need to consider two cases:
+        //
+        // Case 1: Current object is a circle, or previous object is a circle.
+        // In this case, we only need to check if their positions are close enough to be tapped together.
+        //
+        // Case 2: Both objects are sliders.
+        // In this case, we need to check if all nested hitobjects can be hit together.
+
+        // To start with, check if the starting positions can be tapped together.
+        if (startPosition.getDistance(prevStartPosition) > distanceThreshold) {
+            return false;
+        }
+
+        if (this.object instanceof Circle || prev.object instanceof Circle) {
+            return true;
+        }
+
+        // Check if all nested hitobjects can be hit together.
+        for (let i = 1; i < this.object.nestedHitObjects.length; ++i) {
+            const position = this.object.nestedHitObjects[i].getStackedPosition(
+                Modes.droid,
+            );
+
+            const prevPosition = prevStartPosition.add(
+                prev.object.curvePositionAt(
+                    i / (this.object.nestedHitObjects.length - 1),
+                ),
+            );
+
+            if (position.getDistance(prevPosition) > distanceThreshold) {
+                return false;
             }
+        }
 
-            return distance <= 2 * this.object.radius;
+        // Do the same for the previous slider as well.
+        for (let i = 1; i < prev.object.nestedHitObjects.length; ++i) {
+            const prevPosition = prev.object.nestedHitObjects[
+                i
+            ].getStackedPosition(Modes.droid);
+
+            const position = startPosition.add(
+                this.object.curvePositionAt(
+                    i / (prev.object.nestedHitObjects.length - 1),
+                ),
+            );
+
+            if (prevPosition.getDistance(position) > distanceThreshold) {
+                return false;
+            }
         }
 
         return true;
