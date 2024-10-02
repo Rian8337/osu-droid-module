@@ -88,6 +88,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
      * Calculates the speed star rating of the beatmap and stores it in this instance.
      */
     calculateSpeed(): void {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.attributes.speedDifficulty = 0;
+            return;
+        }
+
         const speedSkill = new OsuSpeed(this.mods);
 
         this.calculateSkills(speedSkill);
@@ -137,6 +142,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
     override calculateAll(): void {
         const skills = this.createSkills();
+        const isRelax = this.mods.some((m) => m instanceof ModRelax);
+
         this.calculateSkills(...skills);
 
         const aimSkill = <OsuAim>skills[0];
@@ -146,7 +153,12 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
 
-        this.postCalculateSpeed(speedSkill);
+        if (isRelax) {
+            this.attributes.speedDifficulty = 0;
+        } else {
+            this.postCalculateSpeed(speedSkill);
+        }
+
         this.calculateSpeedAttributes();
 
         this.postCalculateFlashlight(flashlightSkill);
