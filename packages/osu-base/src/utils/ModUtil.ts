@@ -1,4 +1,3 @@
-import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
@@ -25,7 +24,6 @@ import { ModSpeedUp } from "../mods/ModSpeedUp";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
-import { DroidHitWindow } from "./HitWindow";
 
 /**
  * Options for parsing mods.
@@ -281,35 +279,6 @@ export abstract class ModUtil {
                 );
             }
         }
-
-        // Apply rate adjustments
-        const totalSpeedMultiplier =
-            this.calculateRateWithMods(mods) * customSpeedMultiplier;
-
-        const preempt =
-            BeatmapDifficulty.difficultyRange(
-                difficulty.ar,
-                HitObject.preemptMax,
-                HitObject.preemptMid,
-                HitObject.preemptMin,
-            ) / totalSpeedMultiplier;
-
-        difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
-            preempt,
-            HitObject.preemptMax,
-            HitObject.preemptMid,
-            HitObject.preemptMin,
-        );
-
-        const isPreciseMod = mods.some((m) => m instanceof ModPrecise);
-        const hitWindow = new DroidHitWindow(difficulty.od);
-        const greatWindow =
-            hitWindow.hitWindowFor300(isPreciseMod) / totalSpeedMultiplier;
-
-        difficulty.od = DroidHitWindow.hitWindow300ToOD(
-            greatWindow,
-            isPreciseMod,
-        );
     }
 
     /**
