@@ -3,11 +3,6 @@ import { ObjectTypes } from "../../constants/ObjectTypes";
 import { SampleBank } from "../../constants/SampleBank";
 import { Vector2 } from "../../math/Vector2";
 import { CircleSizeCalculator } from "../../utils/CircleSizeCalculator";
-import {
-    AR10_MS,
-    calculateDroidDifficultyStatistics,
-    convertApproachRateToMilliseconds,
-} from "../../utils/DifficultyStatisticsCalculator";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
@@ -21,6 +16,21 @@ export abstract class HitObject {
      * The base radius of all hitobjects.
      */
     static readonly baseRadius = 64;
+
+    /**
+     * Maximum preempt time at AR=0.
+     */
+    static readonly preemptMax = 1800;
+
+    /**
+     * Median preempt time at AR=5.
+     */
+    static readonly preemptMid = 1200;
+
+    /**
+     * Minimum preempt time at AR=10.
+     */
+    static readonly preemptMin = 450;
 
     /**
      * A small adjustment to the start time of control points to account for rounding/precision errors.
@@ -203,19 +213,33 @@ export abstract class HitObject {
         difficulty: BeatmapDifficulty,
         mode: Modes,
     ) {
-        this.timePreempt = convertApproachRateToMilliseconds(difficulty.ar);
+        this.timePreempt = BeatmapDifficulty.difficultyRange(
+            difficulty.ar,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMid,
+        );
 
         // Preempt time can go below 450ms. Normally, this is achieved via the DT mod which uniformly speeds up all animations game wide regardless of AR.
         // This uniform speedup is hard to match 1:1, however we can at least make AR>10 (via mods) feel good by extending the upper linear function above.
         // Note that this doesn't exactly match the AR>10 visuals as they're classically known, but it feels good.
         // This adjustment is necessary for AR>10, otherwise timePreempt can become smaller leading to hit circles not fully fading in.
-        this.timeFadeIn = 400 * Math.min(1, this.timePreempt / AR10_MS);
+        this.timeFadeIn =
+            400 * Math.min(1, this.timePreempt / HitObject.preemptMin);
 
         switch (mode) {
             case Modes.droid: {
-                const cs = calculateDroidDifficultyStatistics({
-                    circleSize: difficulty.cs,
-                }).circleSize;
+                const droidScale = CircleSizeCalculator.droidCSToDroidScale(
+                    difficulty.cs,
+                );
+
+                const radius =
+                    CircleSizeCalculator.droidScaleToStandardRadius(droidScale);
+
+                const cs = CircleSizeCalculator.standardRadiusToStandardCS(
+                    radius,
+                    true,
+                );
 
                 this.scale = CircleSizeCalculator.standardCSToStandardScale(
                     cs,
@@ -223,6 +247,7 @@ export abstract class HitObject {
                 );
                 break;
             }
+
             case Modes.osu:
                 this.scale = CircleSizeCalculator.standardCSToStandardScale(
                     difficulty.cs,

@@ -1,7 +1,10 @@
+import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
+import { ModUtil } from "../utils/ModUtil";
+import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
+import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
@@ -15,7 +18,8 @@ export class ModDifficultyAdjust
     implements
         IModApplicableToDroid,
         IModApplicableToOsu,
-        IModApplicableToDifficulty
+        IModApplicableToDifficultyWithSettings,
+        IModApplicableToHitObjectWithSettings
 {
     override readonly acronym = "DA";
     override readonly name = "Difficulty Adjust";
@@ -63,21 +67,61 @@ export class ModDifficultyAdjust
         this.hp = values?.hp;
     }
 
-    applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
-        if (this.cs !== undefined) {
-            difficulty.cs = this.cs;
-        }
+    applyToDifficultyWithSettings(
+        mode: Modes,
+        difficulty: BeatmapDifficulty,
+        mods: Mod[],
+        customSpeedMultiplier: number,
+    ): void {
+        difficulty.cs = this.cs ?? difficulty.cs;
+        difficulty.ar = this.ar ?? difficulty.ar;
+        difficulty.od = this.od ?? difficulty.od;
+        difficulty.hp = this.hp ?? difficulty.hp;
 
+        // Special case for force AR, where the AR value is kept constant with respect to game time.
+        // This makes the player perceive the AR as is under all speed multipliers.
         if (this.ar !== undefined) {
-            difficulty.ar = this.ar;
+            const preempt = BeatmapDifficulty.difficultyRange(
+                this.ar,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            );
+
+            const trackRate = this.calculateTrackRate(
+                mods,
+                customSpeedMultiplier,
+            );
+
+            difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
+                preempt * trackRate,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            );
+        }
+    }
+
+    applyToHitObjectWithSettings(
+        mode: Modes,
+        hitObject: HitObject,
+        mods: Mod[],
+        customSpeedMultiplier: number,
+    ): void {
+        // Special case for force AR, where the AR value is kept constant with respect to game time.
+        // This makes the player perceive the fade in animation as is under all speed multipliers.
+        if (this.ar === undefined) {
+            return;
         }
 
-        if (this.od !== undefined) {
-            difficulty.od = this.od;
-        }
+        const trackRate = this.calculateTrackRate(mods, customSpeedMultiplier);
+        hitObject.timeFadeIn *= trackRate;
+    }
 
-        if (this.hp !== undefined) {
-            difficulty.hp = this.hp;
-        }
+    private calculateTrackRate(
+        mods: Iterable<Mod>,
+        customSpeedMultiplier: number,
+    ) {
+        return ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
     }
 }

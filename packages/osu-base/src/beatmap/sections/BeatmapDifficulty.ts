@@ -46,6 +46,55 @@ export class BeatmapDifficulty {
      */
     sliderTickRate = 1;
 
+    /**
+     * Maps a difficulty value [0, 10] to a two-piece linear range of values.
+     *
+     * @param difficulty The difficulty value to be mapped.
+     * @param min Minimum of the resulting range which will be achieved by a difficulty value of 0.
+     * @param mid Midpoint of the resulting range which will be achieved by a difficulty value of 5.
+     * @param max Maximum of the resulting range which will be achieved by a difficulty value of 10.
+     */
+    static difficultyRange(
+        difficulty: number,
+        min: number,
+        mid: number,
+        max: number,
+    ): number {
+        switch (true) {
+            case difficulty > 5:
+                return mid + ((max - mid) * (difficulty - 5)) / 5;
+
+            case difficulty < 5:
+                return mid + ((mid - min) * (difficulty - 5)) / 5;
+
+            default:
+                return mid;
+        }
+    }
+
+    /**
+     * Inverse function to `difficultyRange`. Maps a value returned by the function back to the
+     * difficulty that produced it.
+     *
+     * @param difficultyValue The difficulty-dependent value to be unmapped.
+     * @param diff0 Minimum of the resulting range which will be achieved by a difficulty value of 0.
+     * @param diff5 Midpoint of the resulting range which will be achieved by a difficulty value of 5.
+     * @param diff10 Maximum of the resulting range which will be achieved by a difficulty value of 10.
+     * @return The value to which the difficulty value maps in the specified range.
+     */
+    static inverseDifficultyRange(
+        difficultyValue: number,
+        diff0: number,
+        diff5: number,
+        diff10: number,
+    ): number {
+        if (Math.sign(difficultyValue - diff5) == Math.sign(diff10 - diff0)) {
+            return ((difficultyValue - diff5) / (diff10 - diff5)) * 5 + 5;
+        } else {
+            return ((difficultyValue - diff5) / (diff5 - diff0)) * 5 + 5;
+        }
+    }
+
     constructor(shallowCopy?: BeatmapDifficulty) {
         if (!shallowCopy) {
             return;

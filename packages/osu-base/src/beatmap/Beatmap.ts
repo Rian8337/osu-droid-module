@@ -13,7 +13,6 @@ import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
 import { Modes } from "../constants/Modes";
 import { BeatmapProcessor } from "./BeatmapProcessor";
 import { BeatmapConverter } from "./BeatmapConverter";
-import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 
 /**
  * Represents a beatmap with advanced information.
@@ -318,12 +317,6 @@ export class Beatmap {
             }
         });
 
-        // Special handling for difficulty adjust mod where difficulty statistics are forced.
-        const difficultyAdjustMod = mods.find(
-            (m) => m instanceof ModDifficultyAdjust,
-        ) as ModDifficultyAdjust | undefined;
-        difficultyAdjustMod?.applyToDifficulty(mode, converted.difficulty);
-
         mods.forEach((mod) => {
             if (mod.isApplicableToDifficultyWithSettings()) {
                 mod.applyToDifficultyWithSettings(
@@ -348,6 +341,19 @@ export class Beatmap {
             if (mod.isApplicableToHitObject()) {
                 for (const hitObject of converted.hitObjects.objects) {
                     mod.applyToHitObject(mode, hitObject);
+                }
+            }
+        });
+
+        mods.forEach((mod) => {
+            if (mod.isApplicableToHitObjectWithSettings()) {
+                for (const hitObject of converted.hitObjects.objects) {
+                    mod.applyToHitObjectWithSettings(
+                        mode,
+                        hitObject,
+                        mods,
+                        customSpeedMultiplier,
+                    );
                 }
             }
         });
