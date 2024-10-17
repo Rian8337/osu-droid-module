@@ -1,9 +1,11 @@
 import {
     ModDifficultyAdjust,
     ModDoubleTime,
+    ModEasy,
     ModHalfTime,
     ModHardRock,
     ModHidden,
+    ModNightCore,
     ModNoFail,
     ModPrecise,
     ModUtil,
@@ -163,4 +165,42 @@ describe("Test mods array to osu!standard string conversion", () => {
 
         expect(ModUtil.modsToOsuString(mods)).toBe("NFDT");
     });
+});
+
+describe("Test removing speed changing mods", () => {
+    test("Remove DT from HDDT", () => {
+        const mods = [new ModHidden(), new ModDoubleTime()];
+
+        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
+            new ModHidden(),
+        ]);
+    });
+
+    test("Remove HT from NFHT", () => {
+        const mods = [new ModNoFail(), new ModHalfTime()];
+
+        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
+            new ModNoFail(),
+        ]);
+    });
+
+    test("Remove NC from NFNC", () => {
+        const mods = [new ModNoFail(), new ModNightCore()];
+
+        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
+            new ModNoFail(),
+        ]);
+    });
+});
+
+test("Remove incompatible mods", () => {
+    const mods = [new ModHardRock(), new ModEasy()];
+
+    expect(ModUtil.checkIncompatibleMods(mods)).toEqual([new ModHardRock()]);
+});
+
+test("Calculate track rate multiplier", () => {
+    const mods = [new ModHidden(), new ModDoubleTime()];
+
+    expect(ModUtil.calculateRateWithMods(mods)).toBe(1.5);
 });
