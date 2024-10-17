@@ -352,12 +352,13 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     }
 
     /**
-     * Constructs a `MapInfo` from an osu! API response.
+     * Constructs a `MapInfo` from an osu! API response and (optionally) a parsed `Beatmap`.
      *
      * @param mapinfo The osu! API response.
-     * @returns A `MapInfo` instance representing the osu! API response.
+     * @param parsedBeatmap The parsed `Beatmap`.
+     * @returns A `MapInfo` instance representing the osu! API response and parsed `Beatmap`.
      */
-    static from(mapinfo: OsuAPIResponse): MapInfo {
+    static from(mapinfo: OsuAPIResponse, parsedBeatmap?: Beatmap): MapInfo {
         const map = new MapInfo();
 
         const parseDate = (str: string): Date => {
@@ -418,6 +419,10 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
         map.videoAvailable = !!parseInt(mapinfo.video);
         map.downloadAvailable = !parseInt(mapinfo.download_unavailable);
         map.audioAvailable = !parseInt(mapinfo.audio_unavailable);
+
+        if (parsedBeatmap) {
+            map.cachedBeatmap = parsedBeatmap;
+        }
 
         return map;
     }
