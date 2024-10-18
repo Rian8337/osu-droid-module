@@ -307,7 +307,7 @@ export abstract class ModUtil {
         difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
             preempt,
             HitObject.preemptMax,
-            HitObject.preemptMin,
+            HitObject.preemptMid,
             HitObject.preemptMin,
         );
 
