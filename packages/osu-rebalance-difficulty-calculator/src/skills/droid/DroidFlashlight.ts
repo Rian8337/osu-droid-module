@@ -13,7 +13,7 @@ export class DroidFlashlight extends DroidSkill {
     protected override readonly reducedSectionBaseline = 1;
     protected override readonly starsPerDouble = 1.06;
 
-    private readonly skillMultiplier = 0.052;
+    private readonly skillMultiplier = 0.02;
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
     private currentFlashlightStrain = 0;
