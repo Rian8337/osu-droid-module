@@ -29,6 +29,17 @@ export abstract class StrainSkill extends Skill {
      */
     protected abstract readonly strainDecayBase: number;
 
+    protected readonly _objectStrains: number[] = [];
+
+    protected difficulty = 0;
+
+    /**
+     * The strains of hitobjects.
+     */
+    get objectStrains(): readonly number[] {
+        return this._objectStrains;
+    }
+
     private readonly sectionLength = 400;
     private currentStrain = 0;
     private currentSectionPeak = 0;
@@ -67,6 +78,28 @@ export abstract class StrainSkill extends Skill {
      */
     saveCurrentPeak(): void {
         this.strainPeaks.push(this.currentSectionPeak);
+    }
+
+    /**
+     * Returns the number of strains weighed against the top strain.
+     *
+     * The result is scaled by clock rate as it affects the total number of strains.
+     */
+    countDifficultStrains(): number {
+        if (this.difficulty === 0) {
+            return 0;
+        }
+
+        // This is what the top strain is if all strain values were identical.
+        const consistentTopStrain = this.difficulty / 10;
+
+        // Use a weighted sum of all strains.
+        return this._objectStrains.reduce(
+            (total, next) =>
+                total +
+                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
+            0,
+        );
     }
 
     /**

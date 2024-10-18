@@ -17,39 +17,6 @@ export abstract class DroidSkill extends StrainSkill {
      */
     protected readonly minimumRetryabilityStrains: number = 500;
 
-    protected readonly _objectStrains: number[] = [];
-
-    /**
-     * The strains of hitobjects.
-     */
-    get objectStrains(): readonly number[] {
-        return this._objectStrains;
-    }
-
-    private difficulty = 0;
-
-    /**
-     * Returns the number of strains weighed against the top strain.
-     *
-     * The result is scaled by clock rate as it affects the total number of strains.
-     */
-    countDifficultStrains(): number {
-        if (this.difficulty === 0) {
-            return 0;
-        }
-
-        // This is what the top strain is if all strain values were identical.
-        const consistentTopStrain = this.difficulty / 10;
-
-        // Use a weighted sum of all strains.
-        return this._objectStrains.reduce(
-            (total, next) =>
-                total +
-                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
-            0,
-        );
-    }
-
     /**
      * Computes the retryability of the beatmap based on the strains of the hitobjects.
      *

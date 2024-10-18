@@ -485,28 +485,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
     }
 
     /**
-     * Calculates a strain-based miss penalty.
-     *
-     * Strain-based miss penalty assumes that a player will miss on the hardest parts of a map,
-     * so we use the amount of relatively difficult sections to adjust miss penalty
-     * to make it more punishing on maps with lower amount of hard sections.
-     */
-    private calculateStrainBasedMissPenalty(
-        difficultStrainCount: number,
-    ): number {
-        if (this.effectiveMissCount === 0) {
-            return 1;
-        }
-
-        return (
-            0.96 /
-            (this.effectiveMissCount /
-                (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
-                1)
-        );
-    }
-
-    /**
      * The object-based proportional miss penalty.
      */
     private get proportionalMissPenalty(): number {

@@ -8,6 +8,7 @@ import {
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
+import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -16,25 +17,27 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     /**
      * The aim performance value.
      */
-    aim: number = 0;
+    aim = 0;
 
     /**
      * The speed performance value.
      */
-    speed: number = 0;
+    speed = 0;
 
     /**
      * The accuracy performance value.
      */
-    accuracy: number = 0;
+    accuracy = 0;
 
     /**
      * The flashlight performance value.
      */
-    flashlight: number = 0;
+    flashlight = 0;
 
-    protected override finalMultiplier = 1.14;
-    protected override readonly mode: Modes = Modes.osu;
+    protected override finalMultiplier = 1.15;
+    protected override readonly mode = Modes.osu;
+
+    private comboPenalty = 1;
 
     protected override calculateValues(): void {
         this.aim = this.calculateAimValue();
@@ -55,13 +58,23 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         );
     }
 
+    protected override handleOptions(
+        options?: PerformanceCalculationOptions,
+    ): void {
+        super.handleOptions(options);
+
+        const maxCombo = this.difficultyAttributes.maxCombo;
+        const miss = this.computedAccuracy.nmiss;
+        const combo = options?.combo ?? maxCombo - miss;
+
+        this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
+    }
+
     /**
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
-        let aimValue: number = this.baseValue(
-            this.difficultyAttributes.aimDifficulty,
-        );
+        let aimValue = this.baseValue(this.difficultyAttributes.aimDifficulty);
 
         // Longer maps are worth more
         let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
@@ -86,15 +99,16 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
                 );
         }
 
-        // Combo scaling
-        aimValue *= this.comboPenalty;
+        aimValue *= this.calculateStrainBasedMissPenalty(
+            this.difficultyAttributes.aimDifficultStrainCount,
+        );
 
-        const calculatedAR: number = this.difficultyAttributes.approachRate;
+        const calculatedAR = this.difficultyAttributes.approachRate;
         if (
             !this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)
         ) {
             // AR scaling
-            let arFactor: number = 0;
+            let arFactor = 0;
             if (calculatedAR > 10.33) {
                 arFactor += 0.3 * (calculatedAR - 10.33);
             } else if (calculatedAR < 8) {
@@ -119,8 +133,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         aimValue *= this.computedAccuracy.value();
 
         // It is also important to consider accuracy difficulty when doing that.
-        const odScaling: number =
+        const odScaling =
             Math.pow(this.difficultyAttributes.overallDifficulty, 2) / 2500;
+
         aimValue *= 0.98 + odScaling;
 
         return aimValue;
@@ -134,7 +149,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             return 0;
         }
 
-        let speedValue: number = this.baseValue(
+        let speedValue = this.baseValue(
             this.difficultyAttributes.speedDifficulty,
         );
 
@@ -146,26 +161,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         speedValue *= lengthBonus;
 
-        if (this.effectiveMissCount > 0) {
-            // Penalize misses by assessing # of misses relative to the total # of objects.
-            // Default a 3% reduction for any # of misses.
-            speedValue *=
-                0.97 *
-                Math.pow(
-                    1 -
-                        Math.pow(
-                            this.effectiveMissCount / this.totalHits,
-                            0.775,
-                        ),
-                    Math.pow(this.effectiveMissCount, 0.875),
-                );
-        }
-
-        // Combo scaling
-        speedValue *= this.comboPenalty;
+        speedValue *= this.calculateStrainBasedMissPenalty(
+            this.difficultyAttributes.speedDifficultStrainCount,
+        );
 
         // AR scaling
-        const calculatedAR: number = this.difficultyAttributes.approachRate;
+        const calculatedAR = this.difficultyAttributes.approachRate;
         if (calculatedAR > 10.33) {
             // Buff for longer maps with high AR.
             speedValue *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
@@ -178,14 +179,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         }
 
         // Calculate accuracy assuming the worst case scenario.
-        const countGreat: number = this.computedAccuracy.n300;
-        const countOk: number = this.computedAccuracy.n100;
-        const countMeh: number = this.computedAccuracy.n50;
+        const countGreat = this.computedAccuracy.n300;
+        const countOk = this.computedAccuracy.n100;
+        const countMeh = this.computedAccuracy.n50;
 
-        const relevantTotalDiff: number =
+        const relevantTotalDiff =
             this.totalHits - this.difficultyAttributes.speedNoteCount;
 
-        const relevantAccuracy: Accuracy = new Accuracy(
+        const relevantAccuracy = new Accuracy(
             this.difficultyAttributes.speedNoteCount > 0
                 ? {
                       n300: Math.max(0, countGreat - relevantTotalDiff),
@@ -217,9 +218,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
                         this.difficultyAttributes.speedNoteCount,
                     )) /
                     2,
-                (14.5 -
-                    Math.max(this.difficultyAttributes.overallDifficulty, 8)) /
-                    2,
+                (14.5 - this.difficultyAttributes.overallDifficulty) / 2,
             );
 
         // Scale the speed value with # of 50s to punish doubletapping.
@@ -239,7 +238,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             return 0;
         }
 
-        const ncircles: number = this.difficultyAttributes.mods.some(
+        const ncircles = this.difficultyAttributes.mods.some(
             (m) => m instanceof ModScoreV2,
         )
             ? this.totalHits - this.difficultyAttributes.spinnerCount
@@ -249,14 +248,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             return 0;
         }
 
-        const realAccuracy: Accuracy = new Accuracy({
+        const realAccuracy = new Accuracy({
             ...this.computedAccuracy,
             n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
         });
 
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
-        let accuracyValue: number =
+        let accuracyValue =
             Math.pow(1.52163, this.difficultyAttributes.overallDifficulty) *
             // It is possible to reach a negative accuracy with this formula. Cap it at zero - zero points.
             Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
@@ -293,7 +292,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             return 0;
         }
 
-        let flashlightValue: number =
+        let flashlightValue =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 2) * 25;
 
         // Combo scaling

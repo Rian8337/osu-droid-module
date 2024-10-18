@@ -61,6 +61,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         hitCircleCount: 0,
         sliderCount: 0,
         spinnerCount: 0,
+        aimDifficultStrainCount: 0,
+        speedDifficultStrainCount: 0,
     };
 
     override get cacheableAttributes(): CacheableDifficultyAttributes<OsuDifficultyAttributes> {
@@ -129,7 +131,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             // Document for formula derivation:
             // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
             this.attributes.starRating =
-                Math.cbrt(1.14) *
+                Math.cbrt(1.15) *
                 0.027 *
                 (Math.cbrt(
                     (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue,
@@ -269,6 +271,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.aimDifficulty *= 0.9;
         }
+
+        this.attributes.aimDifficultStrainCount =
+            aimSkill.countDifficultStrains();
     }
 
     /**
@@ -282,6 +287,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         this.attributes.speedDifficulty = this.starValue(
             speedSkill.difficultyValue(),
         );
+
+        this.attributes.speedDifficultStrainCount =
+            speedSkill.countDifficultStrains();
     }
 
     /**

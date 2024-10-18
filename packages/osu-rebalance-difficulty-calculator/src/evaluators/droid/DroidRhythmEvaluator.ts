@@ -1,5 +1,4 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
-import { RhythmEvaluator } from "../base/RhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
@@ -67,9 +66,9 @@ class Island {
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
  */
-export abstract class DroidRhythmEvaluator extends RhythmEvaluator {
-    protected static override readonly rhythmMultiplier = 1.2;
-    protected static override readonly historyTimeMax = 4000;
+export abstract class DroidRhythmEvaluator {
+    private static readonly rhythmMultiplier = 1.2;
+    private static readonly historyTimeMax = 4000;
     private static readonly maxIslandSize = 7;
     private static readonly historyObjectsMax = 24;
 
