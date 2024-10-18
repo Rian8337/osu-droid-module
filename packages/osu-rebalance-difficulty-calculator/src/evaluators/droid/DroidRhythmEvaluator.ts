@@ -60,7 +60,7 @@ export abstract class DroidRhythmEvaluator {
      */
     static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
-            return 0;
+            return 1;
         }
 
         const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
@@ -113,7 +113,7 @@ export abstract class DroidRhythmEvaluator {
                 (this.historyTimeMax -
                     (current.startTime - currentObject.startTime)) /
                 this.historyTimeMax;
-            const noteDecay = (historicalNoteCount - i) / historicalNoteCount;
+            const noteDecay = (validPrevious.length - i) / validPrevious.length;
 
             // Either we're limited by time or limited by object count.
             const currentHistoricalDecay = Math.min(timeDecay, noteDecay);
