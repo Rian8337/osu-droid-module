@@ -4,62 +4,42 @@ import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 
 class Island {
     private readonly deltaDifferenceEpsilon: number;
-    readonly deltas: number[] = [];
+    delta = Number.MAX_SAFE_INTEGER;
+    deltaCount = 0;
 
     constructor(epsilon: number);
-    constructor(firstDelta: number, epsilon: number);
-    constructor(firstDelta: number, epsilon?: number) {
-        if (epsilon === undefined) {
-            this.deltaDifferenceEpsilon = firstDelta;
-            return;
+    constructor(delta: number, deltaDifferenceEpsilon: number);
+    constructor(delta: number, deltaDifferenceEpsilon?: number) {
+        if (deltaDifferenceEpsilon === undefined) {
+            this.deltaDifferenceEpsilon = delta;
+        } else {
+            this.deltaDifferenceEpsilon = deltaDifferenceEpsilon;
+            this.addDelta(delta);
         }
-
-        this.deltaDifferenceEpsilon = epsilon;
-        this.addDelta(firstDelta);
     }
 
     addDelta(delta: number) {
-        // Convert to integer
-        delta = Math.trunc(delta);
+        if (this.delta === Number.MAX_SAFE_INTEGER) {
+            this.delta = Math.max(
+                Math.trunc(delta),
+                DifficultyHitObject.minDeltaTime,
+            );
+        }
 
-        const existingDelta = this.deltas.find(
-            (v) => Math.abs(v - delta) >= this.deltaDifferenceEpsilon,
-        );
-
-        this.deltas.push(existingDelta ?? delta);
-    }
-
-    get averageDelta(): number {
-        return this.deltas.length > 0
-            ? Math.max(
-                  this.deltas.reduce((a, b) => a + b) / this.deltas.length,
-                  DifficultyHitObject.minDeltaTime,
-              )
-            : 0;
+        ++this.deltaCount;
     }
 
     isSimilarPolarity(other: Island): boolean {
-        // Consider islands to be of similar polarity only if they're having the same
-        // average delta (we don't want to consider 3 singletaps similar to a triple)
-        return (
-            Math.abs(this.averageDelta - other.averageDelta) <
-                this.deltaDifferenceEpsilon &&
-            this.deltas.length % 2 === other.deltas.length % 2
-        );
+        // TODO: consider islands to be of similar polarity only if they're having the same average delta (we don't want to consider 3 singletaps similar to a triple)
+        // naively adding delta check here breaks _a lot_ of maps because of the flawed ratio calculation
+        return this.deltaCount % 2 == other.deltaCount % 2;
     }
 
     equals(other: Island): boolean {
-        if (this.deltas.length !== other.deltas.length) {
-            return false;
-        }
-
-        for (let i = 0; i < this.deltas.length; ++i) {
-            if (this.deltas[i] !== other.deltas[i]) {
-                return false;
-            }
-        }
-
-        return true;
+        return (
+            Math.abs(this.delta - other.delta) < this.deltaDifferenceEpsilon &&
+            this.deltaCount === other.deltaCount
+        );
     }
 }
 
@@ -67,10 +47,10 @@ class Island {
  * An evaluator for calculating osu!droid Rhythm skill.
  */
 export abstract class DroidRhythmEvaluator {
-    private static readonly rhythmMultiplier = 1.2;
-    private static readonly historyTimeMax = 4000;
-    private static readonly maxIslandSize = 7;
-    private static readonly historyObjectsMax = 24;
+    private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
+    private static readonly historyObjectsMax = 32;
+    private static readonly rhythmOverallMultiplier = 0.95;
+    private static readonly rhythmRatioMultiplier = 12;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -79,12 +59,8 @@ export abstract class DroidRhythmEvaluator {
      * @param current The current object.
      */
     static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
-        if (
-            current.object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(false)
-        ) {
-            return 1;
+        if (current.object instanceof Spinner) {
+            return 0;
         }
 
         const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
@@ -128,74 +104,77 @@ export abstract class DroidRhythmEvaluator {
         }
 
         for (let i = rhythmStart; i > 0; --i) {
-            // Scale note 0 to 1 from history to now.
-            let currentHistoricalDecay =
-                (this.historyTimeMax -
-                    (current.startTime - validPrevious[i - 1].startTime)) /
-                this.historyTimeMax;
-
-            // Either we're limited by time or limited by object count.
-            currentHistoricalDecay = Math.min(
-                currentHistoricalDecay,
-                (validPrevious.length - i) / validPrevious.length,
-            );
-
             const currentObject = validPrevious[i - 1];
             const prevObject = validPrevious[i];
             const lastObject = validPrevious[i + 1];
+
+            // Scale note 0 to 1 from history to now.
+            const timeDecay =
+                (this.historyTimeMax -
+                    (current.startTime - currentObject.startTime)) /
+                this.historyTimeMax;
+            const noteDecay = (historicalNoteCount - i) / historicalNoteCount;
+
+            // Either we're limited by time or limited by object count.
+            const currentHistoricalDecay = Math.min(timeDecay, noteDecay);
 
             const currentDelta = currentObject.strainTime;
             const prevDelta = prevObject.strainTime;
             const lastDelta = lastObject.strainTime;
 
+            // Calculate how much current delta difference deserves a rhythm bonus
+            // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200)
+            const deltaDifferenceRatio =
+                Math.min(prevDelta, currentDelta) /
+                Math.max(prevDelta, currentDelta);
             const currentRatio =
                 1 +
-                10 *
+                this.rhythmRatioMultiplier *
                     Math.min(
                         0.5,
-                        Math.pow(
-                            Math.sin(
-                                Math.PI /
-                                    (Math.min(prevDelta, currentDelta) /
-                                        Math.max(prevDelta, currentDelta)),
-                            ),
-                            2,
-                        ),
+                        Math.pow(Math.sin(Math.PI / deltaDifferenceRatio), 2),
                     );
 
-            const windowPenalty = MathUtils.clamp(
-                (Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon) /
-                    deltaDifferenceEpsilon,
-                0,
+            // Reduce ratio bonus if delta difference is too big
+            const fraction = Math.max(
+                prevDelta / currentDelta,
+                currentDelta / prevDelta,
+            );
+            const fractionMultiplier = MathUtils.clamp(2 - fraction / 8, 0, 1);
+
+            const windowPenalty = Math.min(
                 1,
+                Math.max(
+                    0,
+                    Math.abs(prevDelta - currentDelta) - deltaDifferenceEpsilon,
+                ) / deltaDifferenceEpsilon,
             );
 
-            let effectiveRatio = windowPenalty * currentRatio;
+            let effectiveRatio =
+                windowPenalty * currentRatio * fractionMultiplier;
 
             if (firstDeltaSwitch) {
                 if (
-                    Math.abs(prevDelta - currentDelta) <= deltaDifferenceEpsilon
+                    Math.abs(prevDelta - currentDelta) < deltaDifferenceEpsilon
                 ) {
-                    if (island.deltas.length < this.maxIslandSize) {
-                        // Island is still progressing.
-                        island.addDelta(currentDelta);
-                    }
+                    // Island is still progressing, count size.
+                    island.addDelta(currentDelta);
                 } else {
                     // BPM change is into slider, this is easy acc window.
                     if (currentObject.object instanceof Slider) {
                         effectiveRatio /= 8;
                     }
 
-                    // BPM change was from a slider, this is typically easier than circle -> circle.
-                    // Unintentional side effect is that bursts with kicksliders at the ends might
-                    // have lower difficulty than bursts without sliders.
+                    // BPM change was from a slider, this is easier typically than circle -> circle.
+                    // Unintentional side effect is that bursts with kicksliders at the ends might have lower difficulty
+                    // than bursts without sliders.
                     if (prevObject.object instanceof Slider) {
-                        effectiveRatio /= 4;
+                        effectiveRatio *= 0.3;
                     }
 
                     // Repeated island polarity (2 -> 4, 3 -> 5).
                     if (island.isSimilarPolarity(previousIsland)) {
-                        effectiveRatio *= 0.3;
+                        effectiveRatio /= 2;
                     }
 
                     // Previous increase happened a note ago.
@@ -207,8 +186,9 @@ export abstract class DroidRhythmEvaluator {
                         effectiveRatio /= 8;
                     }
 
-                    // Singletaps are easier to control.
-                    if (island.deltas.length === 1) {
+                    // Repeated island size (ex: triplet -> triplet).
+                    // TODO: remove this nerf since its staying here only for balancing purposes because of the flawed ratio calculation
+                    if (previousIsland.deltaCount == island.deltaCount) {
                         effectiveRatio /= 2;
                     }
 
@@ -231,14 +211,10 @@ export abstract class DroidRhythmEvaluator {
                         // Repeated island (ex: triplet -> triplet).
                         // Graph: https://www.desmos.com/calculator/pj7an56zwf
                         effectiveRatio *= Math.min(
-                            1 / islandCount,
+                            3 / islandCount,
                             Math.pow(
                                 1 / islandCount,
-                                4 /
-                                    (1 +
-                                        Math.exp(
-                                            10 - 0.165 * island.averageDelta,
-                                        )),
+                                2.75 / (1 + Math.exp(14 - 0.24 * island.delta)),
                             ),
                         );
 
@@ -265,29 +241,34 @@ export abstract class DroidRhythmEvaluator {
                         firstDeltaSwitch = false;
                     }
 
-                    island = new Island(
-                        Math.trunc(currentDelta),
-                        deltaDifferenceEpsilon,
-                    );
+                    island = new Island(currentDelta, deltaDifferenceEpsilon);
                 }
-            } else if (prevDelta > deltaDifferenceEpsilon + currentDelta) {
-                // We're speeding up.
+            } else if (prevDelta > currentDelta + deltaDifferenceEpsilon) {
+                // We are speeding up.
                 // Begin counting island until we change speed again.
                 firstDeltaSwitch = true;
 
-                // Reduce ratio if we're starting after a slider.
+                // BPM change is into slider, this is easy acc window.
+                if (currentObject.object instanceof Slider) {
+                    effectiveRatio *= 0.6;
+                }
+
+                // BPM change was from a slider, this is easier typically than circle -> circle
+                // Unintentional side effect is that bursts with kicksliders at the ends might have lower difficulty
+                // than bursts without sliders
                 if (prevObject.object instanceof Slider) {
-                    effectiveRatio *= 0.3;
+                    effectiveRatio *= 0.6;
                 }
 
                 startRatio = effectiveRatio;
-                island = new Island(
-                    Math.trunc(currentDelta),
-                    deltaDifferenceEpsilon,
-                );
+
+                island = new Island(currentDelta, deltaDifferenceEpsilon);
             }
         }
 
-        return Math.sqrt(4 + rhythmComplexitySum * this.rhythmMultiplier) / 2;
+        return (
+            Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
+            2
+        );
     }
 }
