@@ -76,6 +76,6 @@ export abstract class Mod {
      * Whether this `Mod`s can be applied to a track's playback rate.
      */
     isApplicableToTrackRate(): this is this & IModApplicableToTrackRate {
-        return "trackRateMultiplier" in this;
+        return "applyToRate" in this;
     }
 }

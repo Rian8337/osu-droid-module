@@ -25,5 +25,7 @@ export class ModNightCore
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
 
-    readonly trackRateMultiplier = 1.5;
+    applyToRate(rate: number, oldStatistics?: boolean): number {
+        return rate * (oldStatistics ? 1.39 : 1.5);
+    }
 }

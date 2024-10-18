@@ -285,14 +285,18 @@ export abstract class ModUtil {
      * Calculates the rate for the track with the selected `Mod`s.
      *
      * @param mods The list of selected `Mod`s.
+     * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
      * @returns The rate with `Mod`s.
      */
-    static calculateRateWithMods(mods: Iterable<Mod>): number {
+    static calculateRateWithMods(
+        mods: Iterable<Mod>,
+        oldStatistics?: boolean,
+    ): number {
         let rate = 1;
 
         for (const mod of mods) {
             if (mod.isApplicableToTrackRate()) {
-                rate *= mod.trackRateMultiplier;
+                rate = mod.applyToRate(rate, oldStatistics);
             }
         }
 

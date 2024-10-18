@@ -199,8 +199,16 @@ test("Remove incompatible mods", () => {
     expect(ModUtil.checkIncompatibleMods(mods)).toEqual([new ModHardRock()]);
 });
 
-test("Calculate track rate multiplier", () => {
-    const mods = [new ModHidden(), new ModDoubleTime()];
+describe("Calculate track rate multiplier", () => {
+    test("Without old statistics flag", () => {
+        const mods = [new ModHidden(), new ModDoubleTime()];
 
-    expect(ModUtil.calculateRateWithMods(mods)).toBe(1.5);
+        expect(ModUtil.calculateRateWithMods(mods)).toBe(1.5);
+    });
+
+    test("With old statistics flag", () => {
+        const mods = [new ModHidden(), new ModNightCore()];
+
+        expect(ModUtil.calculateRateWithMods(mods, true)).toBe(1.39);
+    });
 });

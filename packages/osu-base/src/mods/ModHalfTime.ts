@@ -25,5 +25,7 @@ export class ModHalfTime
     readonly pcScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
 
-    readonly trackRateMultiplier = 0.75;
+    applyToRate(rate: number): number {
+        return rate * 0.75;
+    }
 }

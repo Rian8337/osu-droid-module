@@ -18,4 +18,8 @@ export class ModSpeedUp
     readonly isDroidLegacyMod = true;
 
     readonly trackRateMultiplier = 1.25;
+
+    applyToRate(rate: number): number {
+        return rate * 1.25;
+    }
 }

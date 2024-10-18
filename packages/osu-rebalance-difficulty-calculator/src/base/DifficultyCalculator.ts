@@ -106,9 +106,7 @@ export abstract class DifficultyCalculator<
             customSpeedMultiplier: options?.customSpeedMultiplier,
         });
 
-        const clockRate =
-            ModUtil.calculateRateWithMods(this.mods) *
-            (options?.customSpeedMultiplier ?? 1);
+        const clockRate = this.calculateClockRate(options);
 
         this.populateDifficultyAttributes(playableBeatmap, clockRate);
 
@@ -166,6 +164,21 @@ export abstract class DifficultyCalculator<
      * Creates skills to be calculated.
      */
     protected abstract createSkills(): Skill[];
+
+    /**
+     * Obtains the clock rate of the beatmap.
+     *
+     * @param options The options to obtain the clock rate with.
+     * @returns The clock rate of the beatmap.
+     */
+    protected calculateClockRate(
+        options?: DifficultyCalculationOptions,
+    ): number {
+        return (
+            ModUtil.calculateRateWithMods(options?.mods ?? []) *
+            (options?.customSpeedMultiplier ?? 1)
+        );
+    }
 
     /**
      * Populates the stored difficulty attributes with necessary data.

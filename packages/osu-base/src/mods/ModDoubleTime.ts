@@ -25,5 +25,7 @@ export class ModDoubleTime
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 6;
 
-    readonly trackRateMultiplier = 1.5;
+    applyToRate(rate: number): number {
+        return rate * 1.5;
+    }
 }
