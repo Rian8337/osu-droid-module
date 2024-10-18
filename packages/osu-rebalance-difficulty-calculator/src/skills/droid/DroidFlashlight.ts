@@ -65,9 +65,8 @@ export class DroidFlashlight extends DroidSkill {
     }
 
     override difficultyValue(): number {
-        return Math.pow(
-            this.strainPeaks.reduce((a, v) => a + v, 0) * this.starsPerDouble,
-            0.8,
+        return (
+            this.strainPeaks.reduce((a, v) => a + v, 0) * this.starsPerDouble
         );
     }
 }
