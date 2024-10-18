@@ -13,7 +13,7 @@ export class DroidFlashlight extends DroidSkill {
     protected override readonly reducedSectionBaseline = 1;
     protected override readonly starsPerDouble = 1.06;
 
-    private readonly skillMultiplier = 0.052;
+    private readonly skillMultiplier = 0.02;
     private readonly isHidden: boolean;
     private readonly withSliders: boolean;
     private currentFlashlightStrain = 0;
@@ -65,9 +65,8 @@ export class DroidFlashlight extends DroidSkill {
     }
 
     override difficultyValue(): number {
-        return Math.pow(
-            this.strainPeaks.reduce((a, v) => a + v, 0) * this.starsPerDouble,
-            0.8,
+        return (
+            this.strainPeaks.reduce((a, v) => a + v, 0) * this.starsPerDouble
         );
     }
 }

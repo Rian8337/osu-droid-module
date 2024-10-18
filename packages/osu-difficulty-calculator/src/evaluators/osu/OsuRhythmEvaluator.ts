@@ -1,11 +1,13 @@
 import { Spinner, Slider } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { RhythmEvaluator } from "../base/RhythmEvaluator";
 
 /**
  * An evaluator for calculating osu!standard Rhythm skill.
  */
-export abstract class OsuRhythmEvaluator extends RhythmEvaluator {
+export abstract class OsuRhythmEvaluator {
+    private static readonly rhythmMultiplier = 0.75;
+    private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
+
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
      * with historic data of the current object.

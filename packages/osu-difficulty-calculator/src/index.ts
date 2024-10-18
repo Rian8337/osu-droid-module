@@ -36,6 +36,5 @@ export * from "./skills/osu/OsuSpeed";
 export * from "./evaluators/osu/OsuSpeedEvaluator";
 export * from "./structures/PerformanceCalculationOptions";
 export * from "./base/PerformanceCalculator";
-export * from "./evaluators/base/RhythmEvaluator";
 export * from "./evaluators/base/SpeedEvaluator";
 export * from "./structures/StrainPeaks";
