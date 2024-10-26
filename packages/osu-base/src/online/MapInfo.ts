@@ -540,6 +540,17 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     }
 
     /**
+     * Sets the parsed beatmap that is associated with this `MapInfo`.
+     *
+     * This is used as an alternative to downloading the beatmap file in case the beatmap file already exists locally.
+     *
+     * @param beatmap The beatmap to associate with this `MapInfo`.
+     */
+    setBeatmap(beatmap: Beatmap) {
+        this.cachedBeatmap = beatmap;
+    }
+
+    /**
      * Returns a string representative of the class.
      */
     toString(): string {
