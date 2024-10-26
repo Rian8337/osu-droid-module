@@ -352,12 +352,22 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     }
 
     /**
-     * Constructs a `MapInfo` from an osu! API response and (optionally) a parsed `Beatmap`.
+     * Constructs a `MapInfo` from an osu! API response.
+     *
+     * @param mapinfo The osu! API response.
+     * @returns A `MapInfo` instance representing the osu! API response.
+     */
+    static from(mapinfo: OsuAPIResponse): MapInfo;
+
+    /**
+     * Constructs a `MapInfo` from an osu! API response and a parsed `Beatmap`.
      *
      * @param mapinfo The osu! API response.
      * @param parsedBeatmap The parsed `Beatmap`.
      * @returns A `MapInfo` instance representing the osu! API response and parsed `Beatmap`.
      */
+    static from(mapinfo: OsuAPIResponse, parsedBeatmap: Beatmap): MapInfo<true>;
+
     static from(mapinfo: OsuAPIResponse, parsedBeatmap?: Beatmap): MapInfo {
         const map = new MapInfo();
 
