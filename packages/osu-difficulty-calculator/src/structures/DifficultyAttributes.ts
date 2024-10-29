@@ -71,4 +71,9 @@ export interface DifficultyAttributes {
      * The number of spinners in the beatmap.
      */
     spinnerCount: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the aim skill.
+     */
+    aimDifficultStrainCount: number;
 }

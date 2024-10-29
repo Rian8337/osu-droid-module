@@ -19,22 +19,17 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     /**
      * The overall performance value.
      */
-    total: number = 0;
+    total = 0;
 
     /**
      * The calculated accuracy.
      */
-    computedAccuracy: Accuracy = new Accuracy({});
+    computedAccuracy = new Accuracy({});
 
     /**
      * The difficulty attributes that is being calculated.
      */
     readonly difficultyAttributes: T;
-
-    /**
-     * Penalty for combo breaks.
-     */
-    protected comboPenalty: number = 0;
 
     /**
      * The global multiplier to be applied to the final performance value.
@@ -51,12 +46,12 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     /**
      * The amount of misses that are filtered out from sliderbreaks.
      */
-    protected effectiveMissCount: number = 0;
+    protected effectiveMissCount = 0;
 
     /**
      * Nerf factor used for nerfing beatmaps with very likely dropped sliderends.
      */
-    protected sliderNerfFactor: number = 1;
+    protected sliderNerfFactor = 1;
 
     /**
      * @param difficultyAttributes The difficulty attributes to calculate.
@@ -139,11 +134,9 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
      * @param options Options for performance calculation.
      */
     protected handleOptions(options?: PerformanceCalculationOptions): void {
-        const maxCombo: number = this.difficultyAttributes.maxCombo;
-        const miss: number = this.computedAccuracy.nmiss;
-        const combo: number = options?.combo ?? maxCombo - miss;
-
-        this.comboPenalty = Math.min(Math.pow(combo / maxCombo, 0.8), 1);
+        const maxCombo = this.difficultyAttributes.maxCombo;
+        const miss = this.computedAccuracy.nmiss;
+        const combo = options?.combo ?? maxCombo - miss;
 
         if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
@@ -199,7 +192,7 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
         if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
             // Graph: https://www.desmos.com/calculator/bc9eybdthb
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
-            const n100Multiplier: number = Math.max(
+            const n100Multiplier = Math.max(
                 0,
                 this.difficultyAttributes.overallDifficulty > 0
                     ? 1 -
@@ -211,9 +204,9 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
                     : 1,
             );
 
-            const n50Multiplier: number = Math.max(
+            const n50Multiplier = Math.max(
                 0,
-                this.difficultyAttributes.overallDifficulty > 0.0
+                this.difficultyAttributes.overallDifficulty > 0
                     ? 1 -
                           Math.pow(
                               this.difficultyAttributes.overallDifficulty /
@@ -235,9 +228,9 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
 
         if (this.difficultyAttributes.sliderCount > 0) {
             // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-            const estimateDifficultSliders: number =
+            const estimateDifficultSliders =
                 this.difficultyAttributes.sliderCount * 0.15;
-            const estimateSliderEndsDropped: number = MathUtils.clamp(
+            const estimateSliderEndsDropped = MathUtils.clamp(
                 Math.min(
                     this.computedAccuracy.n100 +
                         this.computedAccuracy.n50 +
@@ -261,6 +254,28 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     }
 
     /**
+     * Calculates a strain-based miss penalty.
+     *
+     * Strain-based miss penalty assumes that a player will miss on the hardest parts of a map,
+     * so we use the amount of relatively difficult sections to adjust miss penalty
+     * to make it more punishing on maps with lower amount of hard sections.
+     */
+    protected calculateStrainBasedMissPenalty(
+        difficultStrainCount: number,
+    ): number {
+        if (this.effectiveMissCount === 0) {
+            return 1;
+        }
+
+        return (
+            0.96 /
+            (this.effectiveMissCount /
+                (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
+                1)
+        );
+    }
+
+    /**
      * Calculates the amount of misses + sliderbreaks from combo.
      */
     private calculateEffectiveMissCount(
@@ -268,10 +283,10 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
         maxCombo: number,
     ): number {
         // Guess the number of misses + slider breaks from combo.
-        let comboBasedMissCount: number = 0;
+        let comboBasedMissCount = 0;
 
         if (this.difficultyAttributes.sliderCount > 0) {
-            const fullComboThreshold: number =
+            const fullComboThreshold =
                 maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
 
             if (combo < fullComboThreshold) {

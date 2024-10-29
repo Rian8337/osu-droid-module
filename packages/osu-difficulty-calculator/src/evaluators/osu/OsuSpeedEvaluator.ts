@@ -8,8 +8,12 @@ import { SpeedEvaluator } from "../base/SpeedEvaluator";
 export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
     /**
      * Spacing threshold for a single hitobject spacing.
+     *
+     * About 1.25 circles distance between hitobject centers.
      */
-    private static readonly SINGLE_SPACING_THRESHOLD: number = 125;
+    private static readonly SINGLE_SPACING_THRESHOLD = 125;
+
+    private static readonly DISTANCE_MULTIPLIER = 0.94;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -39,24 +43,33 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
             1,
         );
 
-        let speedBonus = 1;
+        // speedBonus will be 0.0 for BPM < 200
+        let speedBonus = 0;
+
+        // Add additional scaling bonus for streams/bursts higher than 200bpm
         if (strainTime < this.minSpeedBonus) {
-            speedBonus +=
+            speedBonus =
                 0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
         }
 
         const travelDistance = prev?.travelDistance ?? 0;
+
+        // Cap distance at spacing threshold
         const distance = Math.min(
             this.SINGLE_SPACING_THRESHOLD,
             travelDistance + current.minimumJumpDistance,
         );
 
-        return (
-            ((speedBonus +
-                speedBonus *
-                    Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.5)) *
-                doubletapness) /
-            strainTime
-        );
+        // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
+        const distanceBonus =
+            Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
+            this.DISTANCE_MULTIPLIER;
+
+        // Base difficulty with all bonuses
+        const difficulty =
+            ((1 + speedBonus + distanceBonus) * 1000) / strainTime;
+
+        // Apply penalty if there's doubletappable doubles
+        return difficulty * doubletapness;
     }
 }

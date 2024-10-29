@@ -10,13 +10,12 @@ export class OsuSpeed extends OsuSkill {
     protected override readonly strainDecayBase = 0.3;
     protected override readonly reducedSectionCount = 5;
     protected override readonly reducedSectionBaseline = 0.75;
-    protected override readonly difficultyMultiplier = 1.04;
     protected override readonly decayWeight = 0.9;
 
     private currentSpeedStrain = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 1375;
+    private readonly skillMultiplier = 1.43;
 
     /**
      * @param current The hitobject to calculate.
@@ -29,7 +28,10 @@ export class OsuSpeed extends OsuSkill {
 
         this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(current);
 
-        return this.currentSpeedStrain * this.currentRhythm;
+        const strain = this.currentSpeedStrain * this.currentRhythm;
+        this._objectStrains.push(strain);
+
+        return strain;
     }
 
     protected override calculateInitialStrain(

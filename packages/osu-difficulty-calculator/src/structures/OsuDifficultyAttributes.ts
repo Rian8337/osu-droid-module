@@ -15,4 +15,9 @@ export interface OsuDifficultyAttributes extends DifficultyAttributes {
      * The difficulty corresponding to the speed skill.
      */
     speedDifficulty: number;
+
+    /**
+     * The amount of strains that are considered difficult with respect to the speed skill.
+     */
+    speedDifficultStrainCount: number;
 }
