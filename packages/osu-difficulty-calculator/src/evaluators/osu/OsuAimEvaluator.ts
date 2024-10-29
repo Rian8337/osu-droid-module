@@ -21,7 +21,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
         current: OsuDifficultyHitObject,
         withSliders: boolean,
     ): number {
-        const last: OsuDifficultyHitObject | null = current.previous(0)!;
+        const last = current.previous(0)!;
 
         if (
             current.object instanceof Spinner ||
@@ -31,20 +31,18 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             return 0;
         }
 
-        const lastLast: OsuDifficultyHitObject = current.previous(1)!;
+        const lastLast = current.previous(1)!;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
-        let currentVelocity: number =
-            current.lazyJumpDistance / current.strainTime;
+        let currentVelocity = current.lazyJumpDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (last.object instanceof Slider && withSliders) {
             // Calculate the slider velocity from slider head to slider end.
-            const travelVelocity: number =
-                last.travelDistance / last.travelTime;
+            const travelVelocity = last.travelDistance / last.travelTime;
 
             // Calculate the movement velocity from slider end to current object.
-            const movementVelocity: number =
+            const movementVelocity =
                 current.minimumJumpDistance / current.minimumJumpTime;
 
             // Take the larger total combined velocity.
@@ -55,13 +53,13 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
         }
 
         // As above, do the same for the previous hitobject.
-        let prevVelocity: number = last.lazyJumpDistance / last.strainTime;
+        let prevVelocity = last.lazyJumpDistance / last.strainTime;
 
         if (lastLast.object instanceof Slider && withSliders) {
-            const travelVelocity: number =
+            const travelVelocity =
                 lastLast.travelDistance / lastLast.travelTime;
 
-            const movementVelocity: number =
+            const movementVelocity =
                 last.minimumJumpDistance / last.minimumJumpTime;
 
             prevVelocity = Math.max(
@@ -70,13 +68,13 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             );
         }
 
-        let wideAngleBonus: number = 0;
-        let acuteAngleBonus: number = 0;
-        let sliderBonus: number = 0;
-        let velocityChangeBonus: number = 0;
+        let wideAngleBonus = 0;
+        let acuteAngleBonus = 0;
+        let sliderBonus = 0;
+        let velocityChangeBonus = 0;
 
         // Start strain with regular velocity.
-        let strain: number = currentVelocity;
+        let strain = currentVelocity;
 
         if (
             // If rhythms are the same.
@@ -87,7 +85,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             lastLast.angle !== null
         ) {
             // Rewarding angles, take the smaller velocity as base.
-            const angleBonus: number = Math.min(currentVelocity, prevVelocity);
+            const angleBonus = Math.min(currentVelocity, prevVelocity);
 
             wideAngleBonus = this.calculateWideAngleBonus(current.angle);
             acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
@@ -157,7 +155,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
                 current.strainTime;
 
             // Scale with ratio of difference compared to half the max distance.
-            const distanceRatio: number = Math.pow(
+            const distanceRatio = Math.pow(
                 Math.sin(
                     ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
                         Math.max(prevVelocity, currentVelocity),
@@ -166,7 +164,7 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
             );
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
-            const overlapVelocityBuff: number = Math.min(
+            const overlapVelocityBuff = Math.min(
                 125 / Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
