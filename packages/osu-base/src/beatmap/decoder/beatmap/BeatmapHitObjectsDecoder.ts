@@ -128,9 +128,13 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 points.push(vec.subtract(position));
             }
 
-            // A special case for old beatmaps where the first
-            // control point is in the position of the slider.
-            if (points[0].equals(points[1])) {
+            // A special case for Catmull sliders where the first control point is in the position of the slider.
+            // This results in a duplicate (0, 0) point in the path.
+            if (
+                pathType == PathType.Catmull &&
+                points.length >= 2 &&
+                points[0].equals(points[1])
+            ) {
                 points.shift();
             }
 
