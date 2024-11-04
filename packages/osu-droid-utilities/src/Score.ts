@@ -3,7 +3,6 @@ import {
     Mod,
     ModUtil,
     DroidAPIRequestBuilder,
-    RequestResponse,
     IModApplicableToDroid,
 } from "@rian8337/osu-base";
 
@@ -126,7 +125,7 @@ export class Score {
     /**
      * The speed multiplier of the play.
      */
-    speedMultiplier: number = 1;
+    speedMultiplier = 1;
 
     /**
      * Whether to use old statistics for this score when calculating with `MapStats`.
@@ -164,7 +163,7 @@ export class Score {
      * The complete mod string of this score (mods, speed multiplier, and force AR combined).
      */
     get completeModString(): string {
-        let finalString: string = `+${
+        let finalString = `+${
             this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
         }`;
 
@@ -229,19 +228,18 @@ export class Score {
     static async getFromHash(uid: number, hash: string): Promise<Score | null> {
         const score = new Score();
 
-        const apiRequestBuilder: DroidAPIRequestBuilder =
-            new DroidAPIRequestBuilder()
-                .setEndpoint("scoresearchv2.php")
-                .addParameter("uid", uid)
-                .addParameter("hash", hash);
+        const apiRequestBuilder = new DroidAPIRequestBuilder()
+            .setEndpoint("scoresearchv2.php")
+            .addParameter("uid", uid)
+            .addParameter("hash", hash);
 
-        const result: RequestResponse = await apiRequestBuilder.sendRequest();
+        const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
             throw new Error("Error retrieving score data");
         }
 
-        const entry: string[] = result.data.toString("utf-8").split("<br>");
+        const entry = result.data.toString("utf-8").split("<br>");
 
         entry.shift();
 
@@ -260,7 +258,7 @@ export class Score {
      * @param info The score information from API response to fill with.
      */
     fillInformation(info: string): Score {
-        const play: string[] = info.split(" ");
+        const play = info.split(" ");
 
         this.scoreID = parseInt(play[0]);
         this.uid = parseInt(play[1]);
@@ -278,19 +276,19 @@ export class Score {
             nmiss: parseInt(play[11]),
         });
 
-        const date: Date = new Date(parseInt(play[12]) * 1000);
+        const date = new Date(parseInt(play[12]) * 1000);
         date.setUTCHours(date.getUTCHours() + 8);
 
         // https://stackoverflow.com/a/63199512
-        const tz: string = date
+        const tz = date
             .toLocaleString("en", {
                 timeZone: "Europe/Berlin",
                 timeStyle: "long",
             })
             .split(" ")
             .slice(-1)[0];
-        const dateString: string = date.toString();
-        const msOffset: number =
+        const dateString = date.toString();
+        const msOffset =
             Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
         date.setUTCMilliseconds(date.getUTCMilliseconds() - msOffset);
 
@@ -315,8 +313,8 @@ export class Score {
      * @param str The modstring.
      */
     private parseMods(str: string): void {
-        const modstrings: string[] = str.split("|");
-        let actualMods: string = "";
+        const modstrings = str.split("|");
+        let actualMods = "";
 
         for (const str of modstrings) {
             if (!str) {
@@ -328,31 +326,38 @@ export class Score {
                 case str.startsWith("CS"):
                     this.forceCS = parseFloat(str.replace("CS", ""));
                     break;
+
                 case str.startsWith("AR"):
                     this.forceAR = parseFloat(str.replace("AR", ""));
                     break;
+
                 case str.startsWith("OD"):
                     this.forceOD = parseFloat(str.replace("OD", ""));
                     break;
+
                 case str.startsWith("HP"):
                     this.forceHP = parseFloat(str.replace("HP", ""));
                     break;
+
                 // FL follow delay
                 case str.startsWith("FLD"):
                     this.flashlightFollowDelay = parseFloat(
                         str.replace("FLD", ""),
                     );
                     break;
+
                 // Speed multiplier
                 case str.startsWith("x"):
                     this.speedMultiplier = parseFloat(str.replace("x", ""));
                     break;
+
                 default:
                     actualMods += str;
             }
         }
 
         this.mods = ModUtil.droidStringToMods(actualMods);
+
         // The pipe was added in 1.6.8 first pre-release (https://github.com/osudroid/osu-droid/commit/c08c406f4b2e535ed1ec43607a72fd8f70f8e316),
         // so we can use that information to infer whether the score was set on version 1.6.7 or lower.
         this.oldStatistics = !str.includes("|");
