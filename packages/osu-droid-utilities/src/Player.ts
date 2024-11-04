@@ -1,12 +1,9 @@
-import {
-    DroidAPIRequestBuilder,
-    RequestResponse,
-    Accuracy,
-} from "@rian8337/osu-base";
+import { DroidAPIRequestBuilder, Accuracy } from "@rian8337/osu-base";
 import { Score } from "./Score";
 
 interface ExtraInformation {
     readonly rank: number;
+    readonly pp: number;
     readonly recent: {
         readonly filename: string;
         readonly score: number;
@@ -31,47 +28,47 @@ export class Player {
     /**
      * The uid of the player.
      */
-    uid: number = 0;
+    uid = 0;
 
     /**
      * The username of the player.
      */
-    username: string = "";
+    username = "";
 
     /**
      * The avatar URL of the player.
      */
-    avatarURL: string = "";
+    avatarURL = "";
 
     /**
      * The location of the player based on ISO 3166-1 country codes. See {@link https://en.wikipedia.org/wiki/ISO_3166-1 this} Wikipedia page for more information.
      */
-    location: string = "";
+    location = "";
 
     /**
      * The email that is attached to the player's account.
      */
-    email: string = "";
+    email = "";
 
     /**
      * The overall rank of the player.
      */
-    rank: number = 0;
+    rank = 0;
 
     /**
      * The total score of the player.
      */
-    score: number = 0;
+    score = 0;
 
     /**
      * The overall accuracy of the player.
      */
-    accuracy: number = 0;
+    accuracy = 0;
 
     /**
      * The amount of times the player has played.
      */
-    playCount: number = 0;
+    playCount = 0;
 
     /**
      * Recent plays of the player.
@@ -85,26 +82,25 @@ export class Player {
      * @returns The player, `null` if the player is not found.
      */
     static async getInformation(
-        uidOrUsername: string | number
+        uidOrUsername: string | number,
     ): Promise<Player | null> {
-        const player: Player = new Player();
+        const player = new Player();
 
-        const apiRequestBuilder: DroidAPIRequestBuilder =
-            new DroidAPIRequestBuilder()
-                .setEndpoint("getuserinfo.php")
-                .addParameter(
-                    typeof uidOrUsername === "number" ? "uid" : "username",
-                    uidOrUsername
-                );
+        const apiRequestBuilder = new DroidAPIRequestBuilder()
+            .setEndpoint("getuserinfo.php")
+            .addParameter(
+                typeof uidOrUsername === "number" ? "uid" : "username",
+                uidOrUsername,
+            );
 
-        const result: RequestResponse = await apiRequestBuilder.sendRequest();
+        const result = await apiRequestBuilder.sendRequest();
         if (result.statusCode !== 200) {
             throw new Error("Error retrieving player data");
         }
 
-        const data: string = result.data.toString("utf-8");
-        const resArr: string[] = data.split("<br>");
-        const headerRes: string[] = resArr[0].split(" ");
+        const data = result.data.toString("utf-8");
+        const resArr = data.split("<br>");
+        const headerRes = resArr[0].split(" ");
 
         if (headerRes[0] === "FAILED") {
             return null;
@@ -121,8 +117,8 @@ export class Player {
      * @param info The player information from API response to fill with.
      */
     fillInformation(info: string): Player {
-        const resArr: string[] = info.split("<br>");
-        const headerRes: string[] = resArr[0].split(" ");
+        const resArr = info.split("<br>");
+        const headerRes = resArr[0].split(" ");
 
         if (headerRes[0] === "FAILED") {
             return this;
@@ -143,16 +139,16 @@ export class Player {
         const recent: ExtraInformation["recent"] = obj.recent;
         for (const play of recent) {
             // https://stackoverflow.com/a/63199512
-            const date: Date = new Date((play.date + 3600 * 8) * 1000);
-            const tz: string = date
+            const date = new Date((play.date + 3600 * 8) * 1000);
+            const tz = date
                 .toLocaleString("en", {
                     timeZone: "Europe/Berlin",
                     timeStyle: "long",
                 })
                 .split(" ")
                 .slice(-1)[0];
-            const dateString: string = date.toString();
-            const msOffset: number =
+            const dateString = date.toString();
+            const msOffset =
                 Date.parse(`${dateString} UTC`) -
                 Date.parse(`${dateString} ${tz}`);
 
@@ -174,7 +170,7 @@ export class Player {
                     date: date.getTime() - msOffset,
                     mods: play.mode,
                     hash: play.hash,
-                })
+                }),
             );
         }
 
