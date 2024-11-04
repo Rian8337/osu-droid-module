@@ -61,6 +61,11 @@ export class Player {
     score = 0;
 
     /**
+     * The total performance points of the player.
+     */
+    pp = 0;
+
+    /**
      * The overall accuracy of the player.
      */
     accuracy = 0;
@@ -135,6 +140,7 @@ export class Player {
         this.location = headerRes[7];
         this.avatarURL = `https://osudroid.moe/user/avatar?id=${this.uid}`;
         this.rank = obj.rank;
+        this.pp = obj.pp;
 
         const recent: ExtraInformation["recent"] = obj.recent;
         for (const play of recent) {
