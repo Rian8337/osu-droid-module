@@ -469,7 +469,7 @@ export class ReplayAnalyzer {
             resultObject.accuracy.nmiss = rawObject[4].readInt32BE(28);
             resultObject.score = rawObject[4].readInt32BE(32);
             resultObject.maxCombo = rawObject[4].readInt32BE(36);
-            resultObject.isFullCombo = !!rawObject[4][44];
+            resultObject.isFullCombo = resultObject.accuracy.value() === 1;
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = Object.values(rawObject[6].elements);
             resultObject.convertedMods = ModUtil.droidStringToMods(
