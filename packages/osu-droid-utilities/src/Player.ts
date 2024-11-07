@@ -1,25 +1,6 @@
-import { DroidAPIRequestBuilder, Accuracy } from "@rian8337/osu-base";
+import { DroidAPIRequestBuilder } from "@rian8337/osu-base";
 import { Score } from "./Score";
-
-interface ExtraInformation {
-    readonly rank: number;
-    readonly pp: number;
-    readonly recent: {
-        readonly filename: string;
-        readonly score: number;
-        readonly scoreid: number;
-        readonly combo: number;
-        readonly mark: string;
-        readonly mode: string;
-        readonly accuracy: number;
-        readonly perfect: number;
-        readonly good: number;
-        readonly bad: number;
-        readonly miss: number;
-        readonly date: number;
-        readonly hash: string;
-    }[];
-}
+import { APIPlayer } from "./APIPlayer";
 
 /**
  * Represents an osu!droid player.
@@ -38,17 +19,14 @@ export class Player {
     /**
      * The avatar URL of the player.
      */
-    avatarURL = "";
+    get avatarUrl(): string {
+        return `https://osudroid.moe/user/avatar?id=${this.uid}`;
+    }
 
     /**
      * The location of the player based on ISO 3166-1 country codes. See {@link https://en.wikipedia.org/wiki/ISO_3166-1 this} Wikipedia page for more information.
      */
     location = "";
-
-    /**
-     * The email that is attached to the player's account.
-     */
-    email = "";
 
     /**
      * The overall rank of the player.
@@ -80,6 +58,21 @@ export class Player {
      */
     readonly recentPlays: Score[] = [];
 
+    constructor(apiPlayer: APIPlayer) {
+        this.uid = apiPlayer.id;
+        this.username = apiPlayer.username;
+        this.score = apiPlayer.score;
+        this.playCount = apiPlayer.playcount;
+        this.accuracy = apiPlayer.accuracy * 100;
+        this.location = apiPlayer.region;
+        this.rank = apiPlayer.rank;
+        this.pp = apiPlayer.pp;
+
+        for (const score of apiPlayer.recent) {
+            this.recentPlays.push(new Score(score));
+        }
+    }
+
     /**
      * Retrieves a player's info based on their username.
      *
@@ -89,8 +82,6 @@ export class Player {
     static async getInformation(
         uidOrUsername: string | number,
     ): Promise<Player | null> {
-        const player = new Player();
-
         const apiRequestBuilder = new DroidAPIRequestBuilder()
             .setEndpoint("getuserinfo.php")
             .addParameter(
@@ -103,84 +94,19 @@ export class Player {
             throw new Error("Error retrieving player data");
         }
 
-        const data = result.data.toString("utf-8");
-        const resArr = data.split("<br>");
-        const headerRes = resArr[0].split(" ");
+        let response: APIPlayer;
 
-        if (headerRes[0] === "FAILED") {
+        try {
+            response = JSON.parse(result.data.toString("utf-8"));
+        } catch {
             return null;
         }
 
-        player.fillInformation(data);
-
-        return player;
-    }
-
-    /**
-     * Fills this instance with player information.
-     *
-     * @param info The player information from API response to fill with.
-     */
-    fillInformation(info: string): Player {
-        const resArr = info.split("<br>");
-        const headerRes = resArr[0].split(" ");
-
-        if (headerRes[0] === "FAILED") {
-            return this;
+        if (!response.id) {
+            return null;
         }
 
-        const obj: ExtraInformation = JSON.parse(resArr[1]);
-
-        this.uid = parseInt(headerRes[1]);
-        this.username = headerRes[2];
-        this.score = parseInt(headerRes[3]);
-        this.playCount = parseInt(headerRes[4]);
-        this.accuracy = parseFloat((parseFloat(headerRes[5]) * 100).toFixed(2));
-        this.email = headerRes[6];
-        this.location = headerRes[7];
-        this.avatarURL = `https://osudroid.moe/user/avatar?id=${this.uid}`;
-        this.rank = obj.rank;
-        this.pp = obj.pp;
-
-        const recent: ExtraInformation["recent"] = obj.recent;
-        for (const play of recent) {
-            // https://stackoverflow.com/a/63199512
-            const date = new Date((play.date + 3600 * 8) * 1000);
-            const tz = date
-                .toLocaleString("en", {
-                    timeZone: "Europe/Berlin",
-                    timeStyle: "long",
-                })
-                .split(" ")
-                .slice(-1)[0];
-            const dateString = date.toString();
-            const msOffset =
-                Date.parse(`${dateString} UTC`) -
-                Date.parse(`${dateString} ${tz}`);
-
-            this.recentPlays.push(
-                new Score({
-                    uid: this.uid,
-                    username: this.username,
-                    scoreID: play.scoreid,
-                    score: play.score,
-                    accuracy: new Accuracy({
-                        n300: play.perfect,
-                        n100: play.good,
-                        n50: play.bad,
-                        nmiss: play.miss,
-                    }),
-                    rank: play.mark,
-                    combo: play.combo,
-                    title: play.filename,
-                    date: date.getTime() - msOffset,
-                    mods: play.mode,
-                    hash: play.hash,
-                }),
-            );
-        }
-
-        return this;
+        return new Player(response);
     }
 
     /**

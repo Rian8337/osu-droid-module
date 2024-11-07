@@ -5,77 +5,21 @@ import {
     DroidAPIRequestBuilder,
     IModApplicableToDroid,
 } from "@rian8337/osu-base";
-
-interface ScoreInformation {
-    /**
-     * The uid of the player.
-     */
-    uid?: number;
-
-    /**
-     * The ID of the score.
-     */
-    scoreID?: number;
-
-    /**
-     * The player's name.
-     */
-    username: string;
-
-    /**
-     * The title of the beatmap.
-     */
-    title: string;
-
-    /**
-     * The maximum combo achieved in the play.
-     */
-    combo: number;
-
-    /**
-     * The score achieved in the play.
-     */
-    score: number;
-
-    /**
-     * The rank achieved in the play.
-     */
-    rank: string;
-
-    /**
-     * The date of which the play was set.
-     */
-    date: Date | number;
-
-    /**
-     * The accuracy achieved in the play.
-     */
-    accuracy: Accuracy;
-
-    /**
-     * Enabled modifications in the score, including force AR and custom speed multiplier.
-     */
-    mods: string;
-
-    /**
-     * MD5 hash of the play.
-     */
-    hash: string;
-}
+import { APIScore } from "./APIScore";
 
 /**
  * Represents an osu!droid score.
  */
 export class Score {
     /**
+     * The ID of the score.
+     */
+    id: number;
+
+    /**
      * The uid of the player.
      */
     uid: number;
-
-    /**
-     * The ID of the score.
-     */
-    scoreID: number;
 
     /**
      * The player's name.
@@ -113,14 +57,47 @@ export class Score {
     accuracy: Accuracy;
 
     /**
+     * The amount of 300s in the play.
+     */
+    get perfect(): number {
+        return this.accuracy.n300;
+    }
+
+    /**
+     * The amount of 100s in the play.
+     */
+    get good(): number {
+        return this.accuracy.n100;
+    }
+
+    /**
+     * The amount of 50s in the play.
+     */
+    get bad(): number {
+        return this.accuracy.n50;
+    }
+
+    /**
+     * The amount of misses in the play.
+     */
+    get miss(): number {
+        return this.accuracy.nmiss;
+    }
+
+    /**
      * Enabled modifications in the score.
      */
-    mods: (Mod & IModApplicableToDroid)[];
+    mods: (Mod & IModApplicableToDroid)[] = [];
 
     /**
      * MD5 hash of the play.
      */
     hash: string;
+
+    /**
+     * The performance points of the play.
+     */
+    pp: number | null;
 
     /**
      * The speed multiplier of the play.
@@ -132,7 +109,7 @@ export class Score {
      *
      * Otherwise, this denotes whether the score was set in version 1.6.7 or lower.
      */
-    oldStatistics: boolean;
+    oldStatistics = false;
 
     /**
      * The force CS of the play.
@@ -200,22 +177,41 @@ export class Score {
         return finalString;
     }
 
-    constructor(values?: ScoreInformation) {
-        this.uid = values?.uid ?? 0;
-        this.scoreID = values?.scoreID ?? 0;
-        this.username = values?.username ?? "";
-        this.title = values?.title ?? "";
-        this.combo = values?.combo ?? 0;
-        this.score = values?.score ?? 0;
-        this.rank = values?.rank ?? "";
-        this.date = new Date(values?.date ?? 0);
-        this.accuracy = values?.accuracy ?? new Accuracy({});
-        this.hash = values?.hash ?? "";
+    constructor(apiScore: APIScore) {
+        this.id = apiScore.id;
+        this.uid = apiScore.uid;
+        this.username = apiScore.username;
+        this.title = apiScore.filename;
+        this.combo = apiScore.combo;
+        this.score = apiScore.score;
+        this.rank = apiScore.mark;
 
-        this.mods = [];
-        this.oldStatistics = false;
+        // https://stackoverflow.com/a/63199512
+        const date = new Date((apiScore.date + 3600 * 8) * 1000);
+        const tz = date
+            .toLocaleString("en", {
+                timeZone: "Europe/Berlin",
+                timeStyle: "long",
+            })
+            .split(" ")
+            .slice(-1)[0];
+        const dateString = date.toString();
+        const msOffset =
+            Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
 
-        this.parseMods(values?.mods ?? "");
+        this.date = new Date(date.getTime() - msOffset);
+
+        this.accuracy = new Accuracy({
+            n300: apiScore.perfect,
+            n100: apiScore.good,
+            n50: apiScore.bad,
+            nmiss: apiScore.miss,
+        });
+
+        this.hash = apiScore.hash;
+        this.pp = apiScore.pp;
+
+        this.parseMods(apiScore.mode);
     }
 
     /**
@@ -226,8 +222,6 @@ export class Score {
      * @returns The score, `null` if the score is not found.
      */
     static async getFromHash(uid: number, hash: string): Promise<Score | null> {
-        const score = new Score();
-
         const apiRequestBuilder = new DroidAPIRequestBuilder()
             .setEndpoint("scoresearchv2.php")
             .addParameter("uid", uid)
@@ -239,65 +233,15 @@ export class Score {
             throw new Error("Error retrieving score data");
         }
 
-        const entry = result.data.toString("utf-8").split("<br>");
+        let response: APIScore;
 
-        entry.shift();
-
-        if (entry.length === 0) {
+        try {
+            response = JSON.parse(result.data.toString("utf-8"));
+        } catch {
             return null;
         }
 
-        score.fillInformation(entry[0]);
-
-        return score;
-    }
-
-    /**
-     * Fills this instance with score information.
-     *
-     * @param info The score information from API response to fill with.
-     */
-    fillInformation(info: string): Score {
-        const play = info.split(" ");
-
-        this.scoreID = parseInt(play[0]);
-        this.uid = parseInt(play[1]);
-        this.username = play[2];
-        this.score = parseInt(play[3]);
-        this.combo = parseInt(play[4]);
-        this.rank = play[5];
-
-        this.parseMods(play[6]);
-
-        this.accuracy = new Accuracy({
-            n300: parseInt(play[8]),
-            n100: parseInt(play[9]),
-            n50: parseInt(play[10]),
-            nmiss: parseInt(play[11]),
-        });
-
-        const date = new Date(parseInt(play[12]) * 1000);
-        date.setUTCHours(date.getUTCHours() + 8);
-
-        // https://stackoverflow.com/a/63199512
-        const tz = date
-            .toLocaleString("en", {
-                timeZone: "Europe/Berlin",
-                timeStyle: "long",
-            })
-            .split(" ")
-            .slice(-1)[0];
-        const dateString = date.toString();
-        const msOffset =
-            Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
-        date.setUTCMilliseconds(date.getUTCMilliseconds() - msOffset);
-
-        this.date = date;
-        this.title = play[13]
-            .substring(0, play[13].length - 4)
-            .replace(/_/g, " ");
-        this.hash = play[14];
-        return this;
+        return new Score(response);
     }
 
     /**

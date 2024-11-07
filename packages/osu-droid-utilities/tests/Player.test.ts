@@ -1,15 +1,63 @@
+import { APIPlayer } from "../src/APIPlayer";
 import { Player } from "../src/Player";
 
-const apiMock = `SUCCESS 51076 Rian8337 19913797741 746 0.9764 sampleemail@idk.com ID<br>{"rank": 186,"recent":[{"filename":"Mage - The Words I Never Said (Strategas) [Regret]","score":67030952,"scoreid":18535463,"combo":2376,"mark":"S","mode":"|","accuracy":98392,"perfect":1700,"good":42,"bad":0,"miss":0,"date":1639619724,"hash":"70b1226af3d8b76d859982b505c4ce11"},{"filename":"Nogizaka46 - Yubi Bouenkyou ~Anime-ban~ (Nevo) [~A r M i N s Adventure~]","score":3047526,"scoreid":5517583,"combo":454,"mark":"SH","mode":"hc|","accuracy":99367,"perfect":313,"good":3,"bad":0,"miss":0,"date":1636183419,"hash":"0830b2d3a56b590b11910b26df3a2d84"}]}`;
+const apiMock: APIPlayer = {
+    id: 51076,
+    username: "Rian8337",
+    score: 19913797741,
+    playcount: 746,
+    accuracy: 0.9764,
+    region: "ID",
+    rank: 186,
+    pp: 0,
+    recent: [
+        {
+            id: 1,
+            uid: 51076,
+            username: "Rian8337",
+            filename: "Mage - The Words I Never Said (Strategas) [Regret]",
+            score: 67030952,
+            scoreid: 18535463,
+            combo: 2376,
+            mark: "S",
+            mode: "|",
+            accuracy: 98392,
+            perfect: 1700,
+            good: 42,
+            bad: 0,
+            miss: 0,
+            date: 1639619724,
+            hash: "70b1226af3d8b76d859982b505c4ce11",
+            pp: 1.5,
+        },
+        {
+            id: 2,
+            uid: 51076,
+            username: "Rian8337",
+            filename:
+                "Nogizaka46 - Yubi Bouenkyou ~Anime-ban~ (Nevo) [~A r M i N s Adventure~]",
+            score: 3047526,
+            scoreid: 5517583,
+            combo: 454,
+            mark: "SH",
+            mode: "hc|",
+            accuracy: 99367,
+            perfect: 313,
+            good: 3,
+            bad: 0,
+            miss: 0,
+            date: 1636183419,
+            hash: "0830b2d3a56b590b11910b26df3a2d84",
+            pp: null,
+        },
+    ],
+};
 
 test("Test fill information", () => {
-    const player = new Player();
-
-    player.fillInformation(apiMock);
+    const player = new Player(apiMock);
 
     expect(player.accuracy).toBe(97.64);
-    expect(player.avatarURL).toBe("https://osudroid.moe/user/avatar?id=51076");
-    expect(player.email).toBe("sampleemail@idk.com");
+    expect(player.avatarUrl).toBe("https://osudroid.moe/user/avatar?id=51076");
     expect(player.location).toBe("ID");
     expect(player.playCount).toBe(746);
     expect(player.recentPlays.length).toBe(2);
