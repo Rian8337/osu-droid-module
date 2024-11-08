@@ -554,6 +554,7 @@ export class ReplayAnalyzer {
                 break;
 
             case 5:
+            case 6:
                 this.data = new ReplayV5Data(resultObject);
                 break;
 
