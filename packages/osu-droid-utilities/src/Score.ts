@@ -185,21 +185,7 @@ export class Score {
         this.combo = apiScore.combo;
         this.score = apiScore.score;
         this.rank = apiScore.mark;
-
-        // https://stackoverflow.com/a/63199512
-        const date = new Date((apiScore.date + 3600 * 8) * 1000);
-        const tz = date
-            .toLocaleString("en", {
-                timeZone: "Europe/Berlin",
-                timeStyle: "long",
-            })
-            .split(" ")
-            .slice(-1)[0];
-        const dateString = date.toString();
-        const msOffset =
-            Date.parse(`${dateString} UTC`) - Date.parse(`${dateString} ${tz}`);
-
-        this.date = new Date(date.getTime() - msOffset);
+        this.date = new Date(apiScore.date * 1000);
 
         this.accuracy = new Accuracy({
             n300: apiScore.perfect,
