@@ -17,7 +17,6 @@ const apiMock: APIPlayer = {
             username: "Rian8337",
             filename: "Mage - The Words I Never Said (Strategas) [Regret]",
             score: 67030952,
-            scoreid: 18535463,
             combo: 2376,
             mark: "S",
             mode: "|",
@@ -37,7 +36,6 @@ const apiMock: APIPlayer = {
             filename:
                 "Nogizaka46 - Yubi Bouenkyou ~Anime-ban~ (Nevo) [~A r M i N s Adventure~]",
             score: 3047526,
-            scoreid: 5517583,
             combo: 454,
             mark: "SH",
             mode: "hc|",
@@ -58,10 +56,10 @@ test("Test fill information", () => {
 
     expect(player.accuracy).toBe(97.64);
     expect(player.avatarUrl).toBe("https://osudroid.moe/user/avatar?id=51076");
+    expect(player.id).toBe(51076);
     expect(player.location).toBe("ID");
     expect(player.playCount).toBe(746);
     expect(player.recentPlays.length).toBe(2);
     expect(player.score).toBe(19913797741);
-    expect(player.uid).toBe(51076);
     expect(player.username).toBe("Rian8337");
 });

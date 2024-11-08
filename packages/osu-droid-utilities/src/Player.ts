@@ -7,9 +7,9 @@ import { APIPlayer } from "./APIPlayer";
  */
 export class Player {
     /**
-     * The uid of the player.
+     * The user ID of the player.
      */
-    uid = 0;
+    id = 0;
 
     /**
      * The username of the player.
@@ -20,7 +20,7 @@ export class Player {
      * The avatar URL of the player.
      */
     get avatarUrl(): string {
-        return `https://osudroid.moe/user/avatar?id=${this.uid}`;
+        return `https://osudroid.moe/user/avatar?id=${this.id}`;
     }
 
     /**
@@ -59,7 +59,7 @@ export class Player {
     readonly recentPlays: Score[] = [];
 
     constructor(apiPlayer: APIPlayer) {
-        this.uid = apiPlayer.id;
+        this.id = apiPlayer.id;
         this.username = apiPlayer.username;
         this.score = apiPlayer.score;
         this.playCount = apiPlayer.playcount;
@@ -113,6 +113,6 @@ export class Player {
      * Returns a string representative of the class.
      */
     toString(): string {
-        return `Username: ${this.username}\nUID: ${this.uid}\nRank: ${this.rank}\nScore: ${this.score}\nPlay count: ${this.playCount}`;
+        return `Username: ${this.username}\nUID: ${this.id}\nRank: ${this.rank}\nScore: ${this.score}\nPlay count: ${this.playCount}`;
     }
 }
