@@ -3,12 +3,11 @@ import { Score } from "../src/Score";
 import { APIScore } from "../src/APIScore";
 
 const apiMock: APIScore = {
-    id: 18535463,
+    id: 1,
     uid: 51076,
     username: "Rian8337",
     filename: "Mage_-_The_Words_I_Never_Said_(Strategas)_[Regret].osu",
     score: 67030952,
-    scoreid: 1,
     combo: 2376,
     mark: "S",
     mode: "h|x1.25|AR10|OD7.6|CS4.2|HP5",
@@ -36,7 +35,7 @@ test("Test fill information", () => {
     expect(score.forceCS).toBe(4.2);
     expect(score.forceHP).toBe(5);
     expect(score.forceOD).toBe(7.6);
-    expect(score.id).toBe(18535463);
+    expect(score.id).toBe(1);
     expect(score.hash).toBe("70b1226af3d8b76d859982b505c4ce11");
     expect(score.mods.length).toBe(1);
     expect(score.mods[0]).toBeInstanceOf(ModHidden);
