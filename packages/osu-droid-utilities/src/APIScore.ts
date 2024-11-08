@@ -4,7 +4,6 @@ export interface APIScore {
     readonly username: string;
     readonly filename: string;
     readonly score: number;
-    readonly scoreid: number;
     readonly combo: number;
     readonly mark: string;
     readonly mode: string;
