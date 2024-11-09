@@ -5,7 +5,6 @@ export * from "./data/ExportedReplayJSONDataV1";
 export * from "./data/ExportedReplayJSONDataV2";
 export * from "./data/ExportedReplayJSONV1";
 export * from "./data/ExportedReplayJSONV2";
-export * from "./data/Grade";
 export * from "./constants/HitResult";
 export * from "./constants/MovementType";
 export * from "./analysis/RebalanceThreeFingerChecker";

@@ -26,6 +26,7 @@ import {
     ModSuddenDeath,
     ModUtil,
     Modes,
+    ScoreRank,
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
@@ -50,7 +51,6 @@ import { HitResult } from "./constants/HitResult";
 import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
 import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
-import { Grade } from "./data/Grade";
 import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayV3Data } from "./data/ReplayV3Data";
 import { ReplayV4Data } from "./data/ReplayV4Data";
@@ -751,7 +751,7 @@ export class ReplayAnalyzer {
         resultObject.rank = this.calculateRank(resultObject);
     }
 
-    private calculateRank(resultObject: ReplayInformation): Grade {
+    private calculateRank(resultObject: ReplayInformation): ScoreRank {
         const totalHits =
             resultObject.accuracy.n300 +
             resultObject.accuracy.n100 +

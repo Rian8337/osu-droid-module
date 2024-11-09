@@ -1,7 +1,6 @@
-import { Accuracy } from "@rian8337/osu-base";
+import { Accuracy, ScoreRank } from "@rian8337/osu-base";
 import { CursorData } from "./CursorData";
 import { ReplayObjectData } from "./ReplayObjectData";
-import { Grade } from "./Grade";
 import { ReplayInformation } from "./ReplayInformation";
 import type { ReplayV3Data } from "./ReplayV3Data";
 import type { ReplayV4Data } from "./ReplayV4Data";
@@ -43,7 +42,7 @@ export class ReplayData {
     /**
      * The achieved rank in the play.
      */
-    readonly rank: Grade;
+    readonly rank: ScoreRank;
 
     /**
      * The amount of geki and 300 katu achieved in the play. See {@link https://osu.ppy.sh/help/wiki/Score this}

@@ -101,6 +101,7 @@ export * from "./constants/SampleBank";
 export * from "./beatmap/hitobjects/SampleBankInfo";
 export * from "./beatmap/timings/SampleControlPoint";
 export * from "./beatmap/timings/SampleControlPointManager";
+export * from "./structures/ScoreRank";
 export * from "./beatmap/hitobjects/Slider";
 export * from "./beatmap/hitobjects/sliderObjects/SliderHead";
 export * from "./beatmap/hitobjects/sliderObjects/SliderNestedHitObject";

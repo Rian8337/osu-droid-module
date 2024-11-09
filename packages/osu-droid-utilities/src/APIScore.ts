@@ -1,3 +1,5 @@
+import { ScoreRank } from "@rian8337/osu-base";
+
 export interface APIScore {
     readonly id: number;
     readonly uid: number;
@@ -5,7 +7,7 @@ export interface APIScore {
     readonly filename: string;
     readonly score: number;
     readonly combo: number;
-    readonly mark: string;
+    readonly mark: ScoreRank;
     readonly mode: string;
     readonly accuracy: number;
     readonly perfect: number;

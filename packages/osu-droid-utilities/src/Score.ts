@@ -4,6 +4,7 @@ import {
     ModUtil,
     DroidAPIRequestBuilder,
     IModApplicableToDroid,
+    ScoreRank,
 } from "@rian8337/osu-base";
 import { APIScore } from "./APIScore";
 
@@ -44,7 +45,7 @@ export class Score {
     /**
      * The rank achieved in the play.
      */
-    rank: string;
+    rank: ScoreRank;
 
     /**
      * The date of which the play was set.

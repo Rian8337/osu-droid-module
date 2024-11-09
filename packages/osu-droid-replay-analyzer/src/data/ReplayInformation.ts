@@ -1,7 +1,11 @@
-import { Accuracy, IModApplicableToDroid, Mod } from "@rian8337/osu-base";
+import {
+    Accuracy,
+    IModApplicableToDroid,
+    Mod,
+    ScoreRank,
+} from "@rian8337/osu-base";
 import { CursorData } from "./CursorData";
 import { ReplayObjectData } from "./ReplayObjectData";
-import { Grade } from "./Grade";
 
 /**
  * Contains information about a replay.
@@ -95,7 +99,7 @@ export interface ReplayInformation {
     /**
      * The achieved rank in the play.
      */
-    rank: Grade;
+    rank: ScoreRank;
 
     /**
      * Enabled modifications during the play that have been converted to their respective `Mod` instances.
