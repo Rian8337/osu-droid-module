@@ -138,7 +138,7 @@ export class Score {
     flashlightFollowDelay?: number;
 
     /**
-     * The complete mod string of this score (mods, speed multiplier, and force AR combined).
+     * The complete mod string of this score (mods, speed multiplier, and forced difficulty statistics combined).
      */
     get completeModString(): string {
         let finalString = `+${
