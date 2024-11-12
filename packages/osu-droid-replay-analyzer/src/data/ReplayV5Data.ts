@@ -24,6 +24,41 @@ export class ReplayV5Data extends ReplayV4Data {
      */
     readonly forceHP?: number;
 
+    override get completeModString(): string {
+        let finalString = this.modString;
+        const customStats: string[] = [];
+
+        if (this.speedMultiplier !== 1) {
+            customStats.push(`${this.speedMultiplier}x`);
+        }
+
+        if (this.forceAR !== undefined) {
+            customStats.push(`AR${this.forceAR}`);
+        }
+
+        if (this.forceOD !== undefined) {
+            customStats.push(`OD${this.forceOD}`);
+        }
+
+        if (this.forceCS !== undefined) {
+            customStats.push(`CS${this.forceCS}`);
+        }
+
+        if (this.forceHP !== undefined) {
+            customStats.push(`HP${this.forceHP}`);
+        }
+
+        if (this.flashlightFollowDelay !== undefined) {
+            customStats.push(`FLD${this.flashlightFollowDelay}`);
+        }
+
+        if (customStats.length > 0) {
+            finalString += ` (${customStats.join(", ")})`;
+        }
+
+        return finalString;
+    }
+
     constructor(values: ReplayInformation) {
         super(values);
 

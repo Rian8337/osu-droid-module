@@ -24,6 +24,29 @@ export class ReplayV4Data extends ReplayV3Data {
      */
     readonly flashlightFollowDelay: number;
 
+    override get completeModString(): string {
+        let finalString = this.modString;
+        const customStats: string[] = [];
+
+        if (this.speedMultiplier !== 1) {
+            customStats.push(`${this.speedMultiplier}x`);
+        }
+
+        if (this.forceAR !== undefined) {
+            customStats.push(`AR${this.forceAR}`);
+        }
+
+        if (this.flashlightFollowDelay !== undefined) {
+            customStats.push(`FLD${this.flashlightFollowDelay}`);
+        }
+
+        if (customStats.length > 0) {
+            finalString += ` (${customStats.join(", ")})`;
+        }
+
+        return finalString;
+    }
+
     constructor(values: ReplayInformation) {
         super(values);
 
