@@ -30,7 +30,10 @@ test("Test fill information", () => {
     expect(score.accuracy.nmiss).toBe(0);
     expect(score.accuracy.value()).toBeCloseTo(0.98392);
     expect(score.combo).toBe(2376);
-    expect(score.date.getTime()).toBe(1639644924 * 1000);
+    expect(score.completeModString).toBe(
+        "+HD (1.25x, AR10, OD7.6, CS4.2, HP5)",
+    );
+    expect(score.date.getTime()).toBe(1639619724 * 1000);
     expect(score.forceAR).toBe(10);
     expect(score.forceCS).toBe(4.2);
     expect(score.forceHP).toBe(5);
