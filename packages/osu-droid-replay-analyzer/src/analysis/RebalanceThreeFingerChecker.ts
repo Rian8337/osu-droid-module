@@ -389,7 +389,9 @@ export class RebalanceThreeFingerChecker {
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            objectData.accuracy === Math.floor(this.hitWindow50) + 13
+            (-this.hitWindow50 > objectData.accuracy ||
+                objectData.accuracy >
+                    Math.min(this.hitWindow50, object.duration))
         ) {
             return -1;
         }
@@ -516,7 +518,9 @@ export class RebalanceThreeFingerChecker {
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            objectData.accuracy === Math.floor(this.hitWindow50) + 13
+            (-this.hitWindow50 > objectData.accuracy ||
+                objectData.accuracy >
+                    Math.min(this.hitWindow50, object.duration))
         ) {
             return -1;
         }

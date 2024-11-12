@@ -117,17 +117,19 @@ export class SliderCheeseChecker {
                 continue;
             }
 
+            const object = <Slider>objects[difficultSlider.index];
             const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.
             if (
                 objectData.result === HitResult.miss ||
-                objectData.accuracy === Math.floor(this.hitWindow50) + 13
+                -this.hitWindow50 > objectData.accuracy ||
+                objectData.accuracy >
+                    Math.min(this.hitWindow50, object.duration)
             ) {
                 continue;
             }
 
-            const object = <Slider>objects[difficultSlider.index];
             const objectStartPosition = object.getStackedPosition(Modes.droid);
 
             // These time boundaries should consider the delta time between the previous and next
