@@ -47,9 +47,6 @@ export abstract class HitObject {
      */
     readonly type: ObjectTypes;
 
-    /**
-     * The position of the hitobject in osu!pixels.
-     */
     protected _position: Vector2;
 
     /**
@@ -59,9 +56,6 @@ export abstract class HitObject {
         return this._position;
     }
 
-    /**
-     * The position of the hitobject in osu!pixels.
-     */
     set position(value: Vector2) {
         this._position = value;
     }
@@ -110,9 +104,15 @@ export abstract class HitObject {
      */
     auxiliarySamples: HitSampleInfo[] = [];
 
+    private _kiai = false;
+
     /**
-     * The stack height of this hitobject.
+     * Whether this hitobject is in kiai time.
      */
+    get kiai(): boolean {
+        return this._kiai;
+    }
+
     protected _stackHeight = 0;
 
     /**
@@ -122,16 +122,10 @@ export abstract class HitObject {
         return this._stackHeight;
     }
 
-    /**
-     * The stack height of this hitobject.
-     */
     set stackHeight(value: number) {
         this._stackHeight = value;
     }
 
-    /**
-     * The osu!standard scale of this hitobject.
-     */
     protected _scale = 1;
 
     /**
@@ -141,9 +135,6 @@ export abstract class HitObject {
         return this._scale;
     }
 
-    /**
-     * The osu!standard scale of this hitobject.
-     */
     set scale(value: number) {
         this._scale = value;
     }
@@ -213,6 +204,10 @@ export abstract class HitObject {
         difficulty: BeatmapDifficulty,
         mode: Modes,
     ) {
+        this._kiai = controlPoints.effect.controlPointAt(
+            this.startTime + HitObject.controlPointLeniency,
+        ).isKiai;
+
         this.timePreempt = BeatmapDifficulty.difficultyRange(
             difficulty.ar,
             HitObject.preemptMax,
@@ -289,9 +284,9 @@ export abstract class HitObject {
                         ) *
                         4,
                 );
+
             case Modes.osu:
                 return new Vector2(this.stackHeight * this.scale * -6.4);
-                break;
         }
     }
 
