@@ -26,6 +26,7 @@ import {
     ModSuddenDeath,
     ModUtil,
     Modes,
+    PreciseDroidHitWindow,
     ScoreRank,
     Slider,
     Spinner,
@@ -254,9 +255,9 @@ export class ReplayAnalyzer {
             this.data.isReplayV4() ? this.data.speedMultiplier : 1,
         );
 
-        const hitWindow50 = new DroidHitWindow(
-            adjustedDifficulty.od,
-        ).hitWindowFor50(mods.some((m) => m instanceof ModPrecise));
+        const mehWindow = mods.some((m) => m instanceof ModPrecise)
+            ? new PreciseDroidHitWindow(adjustedDifficulty.od).mehWindow
+            : new DroidHitWindow(adjustedDifficulty.od).mehWindow;
 
         const accuracies: number[] = [];
 
@@ -274,8 +275,8 @@ export class ReplayAnalyzer {
             if (
                 o instanceof Slider &&
                 // Do not include slider breaks.
-                (-hitWindow50 > accuracy ||
-                    accuracy > Math.min(hitWindow50, o.duration))
+                (-mehWindow > accuracy ||
+                    accuracy > Math.min(mehWindow, o.duration))
             ) {
                 accuracies.push(0);
                 continue;

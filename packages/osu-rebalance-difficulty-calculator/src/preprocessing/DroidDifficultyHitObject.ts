@@ -86,7 +86,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
-     * @param greatWindow The great window of the hitobject.
      */
     constructor(
         object: PlaceableHitObject,
@@ -94,7 +93,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
-        greatWindow: number,
     ) {
         super(
             object,
@@ -102,7 +100,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             lastLastObject,
             difficultyHitObjects,
             clockRate,
-            greatWindow,
         );
 
         this.timePreempt = object.timePreempt / clockRate;

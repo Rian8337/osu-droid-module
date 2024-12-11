@@ -10,8 +10,6 @@ import {
     ModUtil,
     Beatmap,
     ModAutopilot,
-    DroidHitWindow,
-    ModPrecise,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -280,12 +278,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: DroidDifficultyHitObject[] = [];
         const { objects } = beatmap.hitObjects;
 
-        const isPrecise = this.mods.some((m) => m instanceof ModPrecise);
-        const greatWindow =
-            new DroidHitWindow(beatmap.difficulty.od).hitWindowFor300(
-                isPrecise,
-            ) / clockRate;
-
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
@@ -293,11 +285,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 2] ?? null,
                 difficultyObjects,
                 clockRate,
-                greatWindow,
             );
 
             difficultyObject.computeProperties(clockRate, objects);
-
             difficultyObjects.push(difficultyObject);
         }
 

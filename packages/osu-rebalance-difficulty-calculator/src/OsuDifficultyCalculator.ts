@@ -10,7 +10,6 @@ import {
     Modes,
     ModUtil,
     Beatmap,
-    OsuHitWindow,
     BeatmapDifficulty,
     HitObject,
 } from "@rian8337/osu-base";
@@ -188,10 +187,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: OsuDifficultyHitObject[] = [];
         const { objects } = beatmap.hitObjects;
 
-        const greatWindow =
-            new OsuHitWindow(beatmap.difficulty.od).hitWindowFor300() /
-            clockRate;
-
         for (let i = 0; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
                 objects[i],
@@ -199,11 +194,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 objects[i - 2] ?? null,
                 difficultyObjects,
                 clockRate,
-                greatWindow,
             );
 
             difficultyObject.computeProperties(clockRate, objects);
-
             difficultyObjects.push(difficultyObject);
         }
 

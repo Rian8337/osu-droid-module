@@ -3,6 +3,9 @@ import { ObjectTypes } from "../../constants/ObjectTypes";
 import { SampleBank } from "../../constants/SampleBank";
 import { Vector2 } from "../../math/Vector2";
 import { CircleSizeCalculator } from "../../utils/CircleSizeCalculator";
+import { DroidHitWindow } from "../../utils/DroidHitWindow";
+import { HitWindow } from "../../utils/HitWindow";
+import { OsuHitWindow } from "../../utils/OsuHitWindow";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
@@ -113,6 +116,11 @@ export abstract class HitObject {
         return this._kiai;
     }
 
+    /**
+     * The hit window of this hitobject.
+     */
+    hitWindow: HitWindow | null = null;
+
     protected _stackHeight = 0;
 
     /**
@@ -207,6 +215,12 @@ export abstract class HitObject {
         this._kiai = controlPoints.effect.controlPointAt(
             this.startTime + HitObject.controlPointLeniency,
         ).isKiai;
+
+        this.hitWindow ??= this.createHitWindow(mode);
+
+        if (this.hitWindow) {
+            this.hitWindow.overallDifficulty = difficulty.od;
+        }
 
         this.timePreempt = BeatmapDifficulty.difficultyRange(
             difficulty.ar,
@@ -336,6 +350,26 @@ export abstract class HitObject {
         }
 
         return new BankHitSampleInfo(sampleName, SampleBank.none);
+    }
+
+    /**
+     * Creates the hit window of this hitobject.
+     *
+     * A `null` return means that this hitobject has no hit window and timing errors should not be displayed to the user.
+     *
+     * This will only be called if this hitobject's hit window has not been set externally.
+     *
+     * @param mode The gamemode to create the hit window for.
+     * @returns The created hit window.
+     */
+    protected createHitWindow(mode: Modes): HitWindow | null {
+        switch (mode) {
+            case Modes.droid:
+                return new DroidHitWindow();
+
+            case Modes.osu:
+                return new OsuHitWindow();
+        }
     }
 
     /**

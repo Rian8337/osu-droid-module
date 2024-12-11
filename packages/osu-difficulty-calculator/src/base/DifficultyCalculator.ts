@@ -6,6 +6,7 @@ import {
     ModPrecise,
     ModUtil,
     OsuHitWindow,
+    PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
@@ -201,23 +202,25 @@ export abstract class DifficultyCalculator<
 
         switch (this.mode) {
             case Modes.droid:
-                greatWindow = new DroidHitWindow(
-                    beatmap.difficulty.od,
-                ).hitWindowFor300(
-                    this.mods.some((m) => m instanceof ModPrecise),
-                );
+                if (this.mods.some((m) => m instanceof ModPrecise)) {
+                    greatWindow = new PreciseDroidHitWindow(
+                        beatmap.difficulty.od,
+                    ).greatWindow;
+                } else {
+                    greatWindow = new DroidHitWindow(beatmap.difficulty.od)
+                        .greatWindow;
+                }
 
                 break;
 
             case Modes.osu:
-                greatWindow = new OsuHitWindow(
-                    beatmap.difficulty.od,
-                ).hitWindowFor300();
+                greatWindow = new OsuHitWindow(beatmap.difficulty.od)
+                    .greatWindow;
 
                 break;
         }
 
-        this.attributes.overallDifficulty = OsuHitWindow.hitWindow300ToOD(
+        this.attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
             greatWindow / clockRate,
         );
     }

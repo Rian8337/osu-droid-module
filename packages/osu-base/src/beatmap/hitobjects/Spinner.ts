@@ -1,4 +1,6 @@
 import { Vector2 } from "../../math/Vector2";
+import { EmptyHitWindow } from "../../utils/EmptyHitWindow";
+import { HitWindow } from "../../utils/HitWindow";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
@@ -55,6 +57,10 @@ export class Spinner extends HitObject {
 
     override getStackedEndPosition(): Vector2 {
         return this.position;
+    }
+
+    protected override createHitWindow(): HitWindow | null {
+        return new EmptyHitWindow();
     }
 
     override toString(): string {

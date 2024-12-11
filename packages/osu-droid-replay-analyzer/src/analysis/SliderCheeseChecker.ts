@@ -6,6 +6,7 @@ import {
     ModHardRock,
     ModPrecise,
     Playfield,
+    PreciseDroidHitWindow,
     Slider,
     Utils,
     Vector2,
@@ -62,11 +63,11 @@ export class SliderCheeseChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        this.hitWindow50 = new DroidHitWindow(
-            beatmap.difficulty.od,
-        ).hitWindowFor50(
-            difficultyAttributes.mods.some((m) => m instanceof ModPrecise),
-        );
+        this.hitWindow50 = difficultyAttributes.mods.some(
+            (m) => m instanceof ModPrecise,
+        )
+            ? new PreciseDroidHitWindow(beatmap.difficulty.od).mehWindow
+            : new DroidHitWindow(beatmap.difficulty.od).mehWindow;
 
         this.isHardRock = difficultyAttributes.mods.some(
             (m) => m instanceof ModHardRock,

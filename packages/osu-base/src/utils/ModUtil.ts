@@ -25,7 +25,9 @@ import { ModSpeedUp } from "../mods/ModSpeedUp";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
-import { DroidHitWindow, OsuHitWindow } from "./HitWindow";
+import { DroidHitWindow } from "./DroidHitWindow";
+import { OsuHitWindow } from "./OsuHitWindow";
+import { PreciseDroidHitWindow } from "./PreciseDroidHitWindow";
 
 /**
  * Options for parsing mods.
@@ -313,22 +315,30 @@ export abstract class ModUtil {
 
         switch (mode) {
             case Modes.droid: {
-                const isPrecise = mods.some((m) => m instanceof ModPrecise);
-                const hitWindow = new DroidHitWindow(difficulty.od);
-                const greatWindow = hitWindow.hitWindowFor300(isPrecise) / rate;
+                if (mods.some((m) => m instanceof ModPrecise)) {
+                    const hitWindow = new PreciseDroidHitWindow(difficulty.od);
 
-                difficulty.od = DroidHitWindow.hitWindow300ToOD(
-                    greatWindow,
-                    isPrecise,
-                );
+                    difficulty.od = PreciseDroidHitWindow.greatWindowToOD(
+                        hitWindow.greatWindow / rate,
+                    );
+                } else {
+                    const hitWindow = new DroidHitWindow(difficulty.od);
+
+                    difficulty.od = DroidHitWindow.greatWindowToOD(
+                        hitWindow.greatWindow / rate,
+                    );
+                }
+
                 break;
             }
 
             case Modes.osu: {
                 const hitWindow = new OsuHitWindow(difficulty.od);
-                const greatWindow = hitWindow.hitWindowFor300() / rate;
 
-                difficulty.od = OsuHitWindow.hitWindow300ToOD(greatWindow);
+                difficulty.od = OsuHitWindow.greatWindowToOD(
+                    hitWindow.greatWindow / rate,
+                );
+
                 break;
             }
         }

@@ -13,6 +13,8 @@ import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { MathUtils } from "../../math/MathUtils";
 import { Cached } from "../../utils/Cached";
+import { HitWindow } from "../../utils/HitWindow";
+import { EmptyHitWindow } from "../../utils/EmptyHitWindow";
 
 /**
  * Represents a slider in a beatmap.
@@ -409,6 +411,10 @@ export class Slider extends HitObject {
      */
     spanAt(progress: number): number {
         return Math.floor(progress * this.spanCount);
+    }
+
+    protected override createHitWindow(): HitWindow | null {
+        return new EmptyHitWindow();
     }
 
     private createNestedHitObjects(mode: Modes): void {

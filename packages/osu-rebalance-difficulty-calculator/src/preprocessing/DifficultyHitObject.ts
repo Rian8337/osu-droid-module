@@ -137,7 +137,6 @@ export abstract class DifficultyHitObject {
      * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
-     * @param greatWindow The great window of the hitobject.
      */
     constructor(
         object: PlaceableHitObject,
@@ -145,13 +144,18 @@ export abstract class DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
-        greatWindow: number,
     ) {
         this.object = object;
         this.lastObject = lastObject;
         this.lastLastObject = lastLastObject;
         this.hitObjects = difficultyHitObjects;
-        this.fullGreatWindow = greatWindow * 2;
+
+        if (object instanceof Slider) {
+            this.fullGreatWindow =
+                ((object.head.hitWindow?.greatWindow ?? 1200) * 2) / clockRate;
+        } else {
+            this.fullGreatWindow = (object.hitWindow?.greatWindow ?? 1200) * 2;
+        }
 
         this.index = difficultyHitObjects.length - 1;
 

@@ -7,6 +7,7 @@ import {
     ModPrecise,
     ErrorFunction,
     ModScoreV2,
+    PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -578,27 +579,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             return Number.POSITIVE_INFINITY;
         }
 
-        const hitWindow300 = new OsuHitWindow(
-            this.difficultyAttributes.overallDifficulty,
-        ).hitWindowFor300();
+        const { clockRate } = this.difficultyAttributes;
+        const hitWindow = this.getConvertedHitWindow();
 
-        // Obtain the 50 and 100 hit window for droid.
-        const isPrecise = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        );
-        const droidHitWindow = new DroidHitWindow(
-            DroidHitWindow.hitWindow300ToOD(
-                hitWindow300 * this.difficultyAttributes.clockRate,
-                isPrecise,
-            ),
-        );
-
-        const hitWindow50 =
-            droidHitWindow.hitWindowFor50(isPrecise) /
-            this.difficultyAttributes.clockRate;
-        const hitWindow100 =
-            droidHitWindow.hitWindowFor100(isPrecise) /
-            this.difficultyAttributes.clockRate;
+        const hitWindow300 = hitWindow.greatWindow / clockRate;
+        const hitWindow100 = hitWindow.okWindow / clockRate;
+        const hitWindow50 = hitWindow.mehWindow / clockRate;
 
         const { n100, n50, nmiss } = this.computedAccuracy;
 
@@ -698,28 +684,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             return Number.POSITIVE_INFINITY;
         }
 
-        const { speedNoteCount, clockRate, overallDifficulty } =
-            this.difficultyAttributes;
+        const { speedNoteCount, clockRate } = this.difficultyAttributes;
+        const hitWindow = this.getConvertedHitWindow();
 
-        const hitWindow300 = new OsuHitWindow(
-            overallDifficulty,
-        ).hitWindowFor300();
-
-        // Obtain the 50 and 100 hit window for droid.
-        const isPrecise = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        );
-        const droidHitWindow = new DroidHitWindow(
-            DroidHitWindow.hitWindow300ToOD(
-                hitWindow300 * clockRate,
-                isPrecise,
-            ),
-        );
-
-        const hitWindow50 =
-            droidHitWindow.hitWindowFor50(isPrecise) / clockRate;
-        const hitWindow100 =
-            droidHitWindow.hitWindowFor100(isPrecise) / clockRate;
+        const hitWindow300 = hitWindow.greatWindow / clockRate;
+        const hitWindow100 = hitWindow.okWindow / clockRate;
+        const hitWindow50 = hitWindow.mehWindow / clockRate;
 
         const { n100, n50, nmiss } = this.computedAccuracy;
 
@@ -795,6 +765,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         }
 
         return Number.POSITIVE_INFINITY;
+    }
+
+    private getConvertedHitWindow() {
+        const hitWindow300 = new OsuHitWindow(
+            this.difficultyAttributes.overallDifficulty,
+        ).greatWindow;
+
+        if (
+            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise)
+        ) {
+            return new PreciseDroidHitWindow(
+                PreciseDroidHitWindow.greatWindowToOD(
+                    hitWindow300 * this.difficultyAttributes.clockRate,
+                ),
+            );
+        } else {
+            return new DroidHitWindow(
+                DroidHitWindow.greatWindowToOD(
+                    hitWindow300 * this.difficultyAttributes.clockRate,
+                ),
+            );
+        }
     }
 
     override toString(): string {

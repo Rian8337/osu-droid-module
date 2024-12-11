@@ -10,6 +10,7 @@ import {
     ModPrecise,
     OsuHitWindow,
     Playfield,
+    PreciseDroidHitWindow,
     Slider,
     Spinner,
     // Utils,
@@ -74,11 +75,6 @@ export class TwoHandChecker {
      */
     private readonly hitWindow: DroidHitWindow;
 
-    /**
-     * The 50 osu!droid hit window of the analyzed beatmap.
-     */
-    private readonly hitWindow50: number;
-
     private readonly isHardRock: boolean;
 
     // private csvString: string;
@@ -97,18 +93,15 @@ export class TwoHandChecker {
         this.data = data;
 
         const greatWindow =
-            new OsuHitWindow(
-                calculator.attributes.overallDifficulty,
-            ).hitWindowFor300() * calculator.attributes.clockRate;
+            new OsuHitWindow(calculator.attributes.overallDifficulty)
+                .greatWindow * calculator.attributes.clockRate;
 
-        const isPrecise = calculator.mods.some((m) => m instanceof ModPrecise);
+        this.hitWindow = calculator.mods.some((m) => m instanceof ModPrecise)
+            ? new PreciseDroidHitWindow(
+                  PreciseDroidHitWindow.greatWindowToOD(greatWindow),
+              )
+            : new DroidHitWindow(DroidHitWindow.greatWindowToOD(greatWindow));
 
-        this.hitWindow = new DroidHitWindow(
-            DroidHitWindow.hitWindow300ToOD(greatWindow, isPrecise),
-        );
-        this.hitWindow50 = this.hitWindow.hitWindowFor50(
-            calculator.mods.some((m) => m instanceof ModPrecise),
-        );
         this.isHardRock = calculator.mods.some((m) => m instanceof ModHardRock);
         // this.csvString = `Mods,${
         //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
@@ -548,18 +541,15 @@ export class TwoHandChecker {
             };
         }
 
-        let hitWindow = this.hitWindow50;
-        const isPrecise = this.calculator.mods.some(
-            (m) => m instanceof ModPrecise,
-        );
+        let hitWindow = this.hitWindow.mehWindow;
         // For sliders, set the hit window to as lenient as possible.
         if (object instanceof Circle) {
             switch (data.result) {
                 case HitResult.great:
-                    hitWindow = this.hitWindow.hitWindowFor300(isPrecise);
+                    hitWindow = this.hitWindow.greatWindow;
                     break;
                 case HitResult.good:
-                    hitWindow = this.hitWindow.hitWindowFor100(isPrecise);
+                    hitWindow = this.hitWindow.okWindow;
                     break;
             }
         }

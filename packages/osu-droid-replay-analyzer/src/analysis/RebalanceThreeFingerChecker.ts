@@ -14,6 +14,8 @@ import {
     ModHardRock,
     Vector2,
     Playfield,
+    HitWindow,
+    PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
@@ -54,7 +56,7 @@ export class RebalanceThreeFingerChecker {
     /**
      * The hit window of this beatmap. Keep in mind that speed-changing mods do not change hit window length in game logic.
      */
-    private readonly hitWindow: DroidHitWindow;
+    private readonly hitWindow: HitWindow;
 
     /**
      * A reprocessed break points to match right on object time.
@@ -76,12 +78,7 @@ export class RebalanceThreeFingerChecker {
      */
     private readonly nerfFactors: NerfFactor[] = [];
 
-    private readonly isPrecise: boolean;
     private readonly isHardRock: boolean;
-
-    private get hitWindow50() {
-        return this.hitWindow.hitWindowFor50(this.isPrecise);
-    }
 
     /**
      * @param beatmap The beatmap to analyze.
@@ -97,15 +94,15 @@ export class RebalanceThreeFingerChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        this.isPrecise = difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        );
-
         this.isHardRock = difficultyAttributes.mods.some(
             (m) => m instanceof ModHardRock,
         );
 
-        this.hitWindow = new DroidHitWindow(beatmap.difficulty.od);
+        this.hitWindow = difficultyAttributes.mods.some(
+            (m) => m instanceof ModPrecise,
+        )
+            ? new PreciseDroidHitWindow(beatmap.difficulty.od)
+            : new DroidHitWindow(beatmap.difficulty.od);
     }
 
     /**
@@ -182,7 +179,7 @@ export class RebalanceThreeFingerChecker {
                 if (objectBeforeData.result !== HitResult.miss) {
                     timeBefore += objectBeforeData.accuracy;
                 } else {
-                    timeBefore += this.hitWindow.hitWindowFor50(this.isPrecise);
+                    timeBefore += this.hitWindow.mehWindow;
                 }
             }
 
@@ -223,48 +220,34 @@ export class RebalanceThreeFingerChecker {
         const lastObject = objects.at(-1)!;
 
         // For sliders, automatically set hit window length to be as lenient as possible.
-        let firstObjectHitWindow = this.hitWindow.hitWindowFor50(
-            this.isPrecise,
-        );
+        let firstObjectHitWindow = this.hitWindow.mehWindow;
 
         if (firstObject instanceof Circle) {
             switch (firstObjectResult) {
                 case HitResult.great:
-                    firstObjectHitWindow = this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
+                    firstObjectHitWindow = this.hitWindow.greatWindow;
                     break;
                 case HitResult.good:
-                    firstObjectHitWindow = this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
+                    firstObjectHitWindow = this.hitWindow.okWindow;
                     break;
                 default:
-                    firstObjectHitWindow = this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
+                    firstObjectHitWindow = this.hitWindow.mehWindow;
             }
         }
 
         // For sliders, automatically set hit window length to be as lenient as possible.
-        let lastObjectHitWindow = this.hitWindow.hitWindowFor50(this.isPrecise);
+        let lastObjectHitWindow = this.hitWindow.mehWindow;
 
         if (lastObject instanceof Circle) {
             switch (lastObjectResult) {
                 case HitResult.great:
-                    lastObjectHitWindow = this.hitWindow.hitWindowFor300(
-                        this.isPrecise,
-                    );
+                    lastObjectHitWindow = this.hitWindow.greatWindow;
                     break;
                 case HitResult.good:
-                    lastObjectHitWindow = this.hitWindow.hitWindowFor100(
-                        this.isPrecise,
-                    );
+                    lastObjectHitWindow = this.hitWindow.okWindow;
                     break;
                 default:
-                    lastObjectHitWindow = this.hitWindow.hitWindowFor50(
-                        this.isPrecise,
-                    );
+                    lastObjectHitWindow = this.hitWindow.mehWindow;
             }
         } else if (lastObject instanceof Slider) {
             lastObjectHitWindow = Math.min(
@@ -389,9 +372,9 @@ export class RebalanceThreeFingerChecker {
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            (-this.hitWindow50 > objectData.accuracy ||
+            (-this.hitWindow.mehWindow > objectData.accuracy ||
                 objectData.accuracy >
-                    Math.min(this.hitWindow50, object.duration))
+                    Math.min(this.hitWindow.mehWindow, object.duration))
         ) {
             return -1;
         }
@@ -518,9 +501,9 @@ export class RebalanceThreeFingerChecker {
         // Check for sliderbreaks and treat them as misses.
         if (
             object instanceof Slider &&
-            (-this.hitWindow50 > objectData.accuracy ||
+            (-this.hitWindow.mehWindow > objectData.accuracy ||
                 objectData.accuracy >
-                    Math.min(this.hitWindow50, object.duration))
+                    Math.min(this.hitWindow.mehWindow, object.duration))
         ) {
             return -1;
         }
