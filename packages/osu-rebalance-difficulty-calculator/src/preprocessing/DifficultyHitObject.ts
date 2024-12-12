@@ -152,10 +152,12 @@ export abstract class DifficultyHitObject {
 
         if (object instanceof Slider) {
             this.fullGreatWindow =
-                ((object.head.hitWindow?.greatWindow ?? 1200) * 2) / clockRate;
+                (object.head.hitWindow?.greatWindow ?? 1200) * 2;
         } else {
             this.fullGreatWindow = (object.hitWindow?.greatWindow ?? 1200) * 2;
         }
+
+        this.fullGreatWindow /= clockRate;
 
         this.index = difficultyHitObjects.length - 1;
 
