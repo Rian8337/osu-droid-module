@@ -4,7 +4,6 @@ import {
     Circle,
     Modes,
     ObjectTypes,
-    OsuHitWindow,
     PathType,
     Slider,
     SliderPath,
@@ -47,7 +46,6 @@ const createDifficultyHitObjects = () => {
     }
 
     const difficultyObjects: OsuDifficultyHitObject[] = [];
-    const greatWindow = new OsuHitWindow(difficulty.od).hitWindowFor300();
 
     for (let i = 0; i < objects.length; ++i) {
         const difficultyObject = new OsuDifficultyHitObject(
@@ -56,11 +54,9 @@ const createDifficultyHitObjects = () => {
             objects[i - 2] ?? null,
             difficultyObjects,
             1,
-            greatWindow,
         );
 
         difficultyObject.computeProperties(1, objects);
-
         difficultyObjects.push(difficultyObject);
     }
 

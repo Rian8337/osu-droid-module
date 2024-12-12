@@ -1,3 +1,4 @@
+import { MathUtils } from "../../math/MathUtils";
 import { ControlPoint } from "./ControlPoint";
 import { TimingControlPoint } from "./TimingControlPoint";
 
@@ -109,6 +110,35 @@ export abstract class ControlPointManager<T extends ControlPoint> {
      */
     clear(): void {
         this._points.length = 0;
+    }
+
+    /**
+     * Gets all control points between two times.
+     *
+     * @param start The start time, in milliseconds.
+     * @param end The end time, in milliseconds.
+     * @return An array of control points between the two times. If `start` is greater than `end`, the control point at
+     * `start` will be returned.
+     */
+    between(startTime: number, endTime: number): T[] {
+        if (this._points.length === 0) {
+            return [this.defaultControlPoint];
+        }
+
+        if (startTime > endTime) {
+            return [this.controlPointAt(startTime)];
+        }
+
+        // Subtract 1 from start index as the binary search from findInsertionIndex would return the next control point
+        const startIndex = Math.max(0, this.findInsertionIndex(startTime) - 1);
+        // End index does not matter as slice range is exclusive
+        const endIndex = MathUtils.clamp(
+            this.findInsertionIndex(endTime),
+            startIndex + 1,
+            this._points.length,
+        );
+
+        return this._points.slice(startIndex, endIndex);
     }
 
     /**

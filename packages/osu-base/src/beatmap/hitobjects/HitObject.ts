@@ -10,6 +10,7 @@ import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitSampleInfo } from "./HitSampleInfo";
+import { SequenceHitSampleInfo } from "./SequenceHitSampleInfo";
 
 /**
  * Represents a hitobject in a beatmap.
@@ -105,7 +106,7 @@ export abstract class HitObject {
     /**
      * Any samples which may be used by this hitobject that are non-standard.
      */
-    auxiliarySamples: HitSampleInfo[] = [];
+    auxiliarySamples: SequenceHitSampleInfo[] = [];
 
     private _kiai = false;
 

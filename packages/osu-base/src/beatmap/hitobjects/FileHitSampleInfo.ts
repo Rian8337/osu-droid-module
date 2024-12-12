@@ -9,6 +9,21 @@ export class FileHitSampleInfo extends HitSampleInfo {
      */
     readonly filename: string;
 
+    override get lookupNames(): string[] {
+        const names: string[] = [];
+
+        names.push(this.filename);
+
+        // Fallback to file name without extension.
+        const extensionIndex = this.filename.lastIndexOf(".");
+
+        if (extensionIndex !== -1) {
+            names.push(this.filename.substring(0, extensionIndex));
+        }
+
+        return names;
+    }
+
     constructor(filename: string, volume: number = 0) {
         super(volume);
 

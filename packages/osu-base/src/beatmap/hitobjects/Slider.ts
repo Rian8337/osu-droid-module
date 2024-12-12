@@ -15,11 +15,26 @@ import { MathUtils } from "../../math/MathUtils";
 import { Cached } from "../../utils/Cached";
 import { HitWindow } from "../../utils/HitWindow";
 import { EmptyHitWindow } from "../../utils/EmptyHitWindow";
+import { SequenceHitSampleInfo } from "./SequenceHitSampleInfo";
+import { TimedHitSampleInfo } from "./TimedHitSampleInfo";
+import { FileHitSampleInfo } from "./FileHitSampleInfo";
 
 /**
  * Represents a slider in a beatmap.
  */
 export class Slider extends HitObject {
+    private static readonly baseNormalSlideSample = new BankHitSampleInfo(
+        "sliderslide",
+    );
+
+    private static readonly baseWhistleSlideSample = new BankHitSampleInfo(
+        "sliderwhistle",
+    );
+
+    private static readonly baseTickSample = new BankHitSampleInfo(
+        "slidertick",
+    );
+
     override get position(): Vector2 {
         return super.position;
     }
@@ -314,7 +329,7 @@ export class Slider extends HitObject {
               this.tickDistanceMultiplier
             : Number.POSITIVE_INFINITY;
 
-        this.createNestedHitObjects(mode);
+        this.createNestedHitObjects(mode, controlPoints);
 
         this.nestedHitObjects.forEach((v) =>
             v.applyDefaults(controlPoints, difficulty, mode),
@@ -323,45 +338,6 @@ export class Slider extends HitObject {
 
     override applySamples(controlPoints: BeatmapControlPoints): void {
         super.applySamples(controlPoints);
-
-        // Create sliding samples
-        this.auxiliarySamples.length = 0;
-
-        const bankSamples = this.samples.filter(
-            (v) => v instanceof BankHitSampleInfo,
-        ) as BankHitSampleInfo[];
-
-        const normalSample = bankSamples.find(
-            (v) => v.name === BankHitSampleInfo.HIT_NORMAL,
-        );
-
-        if (normalSample) {
-            this.auxiliarySamples.push(
-                new BankHitSampleInfo(
-                    "sliderslide",
-                    normalSample.bank,
-                    normalSample.customSampleBank,
-                    normalSample.volume,
-                    normalSample.isLayered,
-                ),
-            );
-        }
-
-        const whistleSample = bankSamples.find(
-            (v) => v.name === BankHitSampleInfo.HIT_WHISTLE,
-        );
-
-        if (whistleSample) {
-            this.auxiliarySamples.push(
-                new BankHitSampleInfo(
-                    "sliderwhistle",
-                    whistleSample.bank,
-                    whistleSample.customSampleBank,
-                    whistleSample.volume,
-                    whistleSample.isLayered,
-                ),
-            );
-        }
 
         this.nodeSamples.forEach((nodeSample, i) => {
             const time =
@@ -375,6 +351,10 @@ export class Slider extends HitObject {
                 nodeSamplePoint.applyTo(v),
             );
         });
+
+        // Create sliding samples
+        this.createSlidingSamples(controlPoints);
+        this.updateNestedSamples(controlPoints);
     }
 
     /**
@@ -417,7 +397,10 @@ export class Slider extends HitObject {
         return new EmptyHitWindow();
     }
 
-    private createNestedHitObjects(mode: Modes): void {
+    private createNestedHitObjects(
+        mode: Modes,
+        controlPoints: BeatmapControlPoints,
+    ): void {
         this.nestedHitObjects.length = 0;
 
         this._head = new SliderHead({
@@ -529,7 +512,7 @@ export class Slider extends HitObject {
         this.nestedHitObjects.push(this.tail);
         this.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);
 
-        this.updateNestedSamples();
+        this.updateNestedSamples(controlPoints);
     }
 
     private updateNestedPositions(): void {
@@ -539,7 +522,105 @@ export class Slider extends HitObject {
         this.tail.position = this.endPosition;
     }
 
-    private updateNestedSamples(): void {
+    private createSlidingSamples(controlPoints: BeatmapControlPoints): void {
+        this.auxiliarySamples.length = 0;
+
+        const bankSamples = this.samples.filter(
+            (v): v is BankHitSampleInfo => v instanceof BankHitSampleInfo,
+        );
+
+        const normalSample = bankSamples.find(
+            (v) => v.name === BankHitSampleInfo.HIT_NORMAL,
+        );
+
+        const whistleSample = bankSamples.find(
+            (v) => v.name === BankHitSampleInfo.HIT_WHISTLE,
+        );
+
+        if (!normalSample && !whistleSample) {
+            return;
+        }
+
+        const samplePoints = controlPoints.sample.between(
+            this.startTime + Slider.controlPointLeniency,
+            this.endTime + Slider.controlPointLeniency,
+        );
+
+        if (normalSample) {
+            this.auxiliarySamples.push(
+                new SequenceHitSampleInfo(
+                    samplePoints.map(
+                        (s) =>
+                            new TimedHitSampleInfo(
+                                s.time,
+                                s.applyTo(Slider.baseNormalSlideSample),
+                            ),
+                    ),
+                ),
+            );
+        }
+
+        if (whistleSample) {
+            this.auxiliarySamples.push(
+                new SequenceHitSampleInfo(
+                    samplePoints.map(
+                        (s) =>
+                            new TimedHitSampleInfo(
+                                s.time,
+                                s.applyTo(Slider.baseWhistleSlideSample),
+                            ),
+                    ),
+                ),
+            );
+        }
+    }
+
+    private updateNestedSamples(controlPoints: BeatmapControlPoints): void {
+        // Ensure that the list of node samples is at least as long as the number of nodes.
+        while (this.nodeSamples.length < this.repeatCount + 2) {
+            this.nodeSamples.push(
+                this.samples.map((s) => {
+                    if (s instanceof BankHitSampleInfo) {
+                        return new BankHitSampleInfo(
+                            s.name,
+                            s.bank,
+                            s.customSampleBank,
+                            s.volume,
+                            s.isLayered,
+                        );
+                    } else if (s instanceof FileHitSampleInfo) {
+                        return new FileHitSampleInfo(s.filename, s.volume);
+                    } else {
+                        throw new TypeError("Unknown type of hit sample info.");
+                    }
+                }),
+            );
+        }
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.samples.length = 0;
+
+            if (nestedObject instanceof SliderHead) {
+                nestedObject.samples.push(...this.nodeSamples[0]);
+            } else if (nestedObject instanceof SliderRepeat) {
+                nestedObject.samples.push(
+                    ...this.nodeSamples[nestedObject.spanIndex + 1],
+                );
+            } else if (nestedObject instanceof SliderTail) {
+                nestedObject.samples.push(...this.nodeSamples[this.spanCount]);
+            } else {
+                const time =
+                    nestedObject.startTime + Slider.controlPointLeniency;
+
+                const tickSamplePoint =
+                    controlPoints.sample.controlPointAt(time);
+
+                nestedObject.samples.push(
+                    tickSamplePoint.applyTo(Slider.baseTickSample),
+                );
+            }
+        }
+
         const bankSamples = this.samples.filter(
             (v) => v instanceof BankHitSampleInfo,
         ) as BankHitSampleInfo[];

@@ -9,6 +9,11 @@ export abstract class HitSampleInfo {
      */
     readonly volume: number;
 
+    /**
+     * All possible filenames that can be used as an audio source, returned in order of preference (highest first).
+     */
+    abstract get lookupNames(): string[];
+
     constructor(volume: number = 0) {
         this.volume = volume;
     }

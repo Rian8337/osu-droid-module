@@ -35,9 +35,41 @@ export class BankHitSampleInfo extends HitSampleInfo {
      */
     readonly isLayered: boolean;
 
+    override get lookupNames(): string[] {
+        const names: string[] = [];
+
+        let prefix: string;
+
+        switch (this.bank) {
+            case SampleBank.none:
+                prefix = "";
+                break;
+
+            case SampleBank.normal:
+                prefix = "normal";
+                break;
+
+            case SampleBank.soft:
+                prefix = "soft";
+                break;
+
+            case SampleBank.drum:
+                prefix = "drum";
+                break;
+        }
+
+        if (this.customSampleBank >= 2) {
+            names.push(`${prefix}-${this.name}${this.customSampleBank}`);
+        }
+
+        names.push(`${prefix}-${this.name}`, this.name);
+
+        return names;
+    }
+
     constructor(
         name: string,
-        bank: SampleBank,
+        bank: SampleBank = SampleBank.none,
         customSampleBank: number = 0,
         volume: number = 0,
         isLayered: boolean = false,

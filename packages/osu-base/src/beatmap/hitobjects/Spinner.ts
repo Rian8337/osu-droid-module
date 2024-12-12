@@ -4,6 +4,8 @@ import { HitWindow } from "../../utils/HitWindow";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
+import { SequenceHitSampleInfo } from "./SequenceHitSampleInfo";
+import { TimedHitSampleInfo } from "./TimedHitSampleInfo";
 
 /**
  * Represents a spinner in a beatmap.
@@ -12,6 +14,14 @@ import { HitObject } from "./HitObject";
  * position of a spinner is always at 256x192.
  */
 export class Spinner extends HitObject {
+    private static readonly baseSpinnerSpinSample = new BankHitSampleInfo(
+        "spinnerspin",
+    );
+
+    private static readonly baseSpinnerBonusSample = new BankHitSampleInfo(
+        "spinnerbonus",
+    );
+
     private _endTime: number;
 
     override get endTime(): number {
@@ -30,25 +40,36 @@ export class Spinner extends HitObject {
     override applySamples(controlPoints: BeatmapControlPoints): void {
         super.applySamples(controlPoints);
 
+        const samplePoints = controlPoints.sample.between(
+            this.startTime + HitObject.controlPointLeniency,
+            this.endTime + HitObject.controlPointLeniency,
+        );
+
         this.auxiliarySamples.length = 0;
 
-        const bankSample = this.samples.find(
-            (v) => v instanceof BankHitSampleInfo,
-        ) as BankHitSampleInfo | undefined;
-
-        if (bankSample) {
-            this.auxiliarySamples.push(
-                new BankHitSampleInfo(
-                    "spinnerspin",
-                    bankSample.bank,
-                    bankSample.customSampleBank,
-                    bankSample.volume,
-                    bankSample.isLayered,
+        this.auxiliarySamples.push(
+            new SequenceHitSampleInfo(
+                samplePoints.map(
+                    (s) =>
+                        new TimedHitSampleInfo(
+                            s.time,
+                            s.applyTo(Spinner.baseSpinnerSpinSample),
+                        ),
                 ),
-            );
-        }
+            ),
+        );
 
-        this.auxiliarySamples.push(this.createHitSampleInfo("spinnerbonus"));
+        this.auxiliarySamples.push(
+            new SequenceHitSampleInfo(
+                samplePoints.map(
+                    (s) =>
+                        new TimedHitSampleInfo(
+                            s.time,
+                            s.applyTo(Spinner.baseSpinnerBonusSample),
+                        ),
+                ),
+            ),
+        );
     }
 
     override getStackedPosition(): Vector2 {
