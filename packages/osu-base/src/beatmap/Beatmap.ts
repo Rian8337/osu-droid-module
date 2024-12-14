@@ -328,6 +328,10 @@ export class Beatmap {
             }
         });
 
+        const processor = new BeatmapProcessor(converted);
+
+        processor.preProcess();
+
         // Compute default values for hit objects, including creating nested hit objects in-case they're needed.
         converted.hitObjects.objects.forEach((hitObject) =>
             hitObject.applyDefaults(
@@ -358,7 +362,7 @@ export class Beatmap {
             }
         });
 
-        new BeatmapProcessor(converted).postProcess(mode);
+        processor.postProcess(mode);
 
         mods.forEach((mod) => {
             if (mod.isApplicableToBeatmap()) {

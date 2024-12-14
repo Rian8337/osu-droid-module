@@ -2,6 +2,7 @@ import { Modes } from "../constants/Modes";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { Beatmap } from "./Beatmap";
 import { Circle } from "./hitobjects/Circle";
+import { HitObject } from "./hitobjects/HitObject";
 import { Slider } from "./hitobjects/Slider";
 import { Spinner } from "./hitobjects/Spinner";
 
@@ -18,6 +19,28 @@ export class BeatmapProcessor {
 
     constructor(beatmap: Beatmap) {
         this.beatmap = beatmap;
+    }
+
+    /**
+     * Processes the converted beatmap prior to `HitObject.applyDefaults` being invoked.
+     *
+     * Nested hitobjects generated during `HitObject.applyDefaults` will not be present by this point,
+     * and no mods will have been applied to the hitobjects.
+     *
+     * This can only be used to add alterations to hitobjects generated directly through the conversion process.
+     */
+    preProcess() {
+        let last: HitObject | null = null;
+
+        for (const object of this.beatmap.hitObjects.objects) {
+            object.updateComboInformation(last);
+            last = object;
+        }
+
+        // Mark the last object in the beatmap as last in combo.
+        if (last) {
+            last.isLastInCombo = true;
+        }
     }
 
     /**

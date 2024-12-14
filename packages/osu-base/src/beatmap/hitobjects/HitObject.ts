@@ -91,9 +91,48 @@ export abstract class HitObject {
     readonly isNewCombo: boolean;
 
     /**
-     * How many combo colors to skip, if this hitobject starts a new combo.
+     * When starting a new combo, the offset of the new combo relative to the current one.
+     *
+     * This is generally a setting provided by a beatmap creator to choreograph interesting color patterns
+     * which can only be achieved by skipping combo colors with per-hitobject level.
+     *
+     * It is exposed via `comboIndexWithOffsets`.
      */
     readonly comboOffset: number;
+
+    private _indexInCurrentCombo = 0;
+
+    /**
+     * The index of this hitobject in the current combo.
+     */
+    get indexInCurrentCombo(): number {
+        return this._indexInCurrentCombo;
+    }
+
+    private _comboIndex = 0;
+
+    /**
+     * The index of this hitobject's combo in relation to the beatmap.
+     *
+     * In other words, this is incremented by 1 each time an `isNewCombo` is reached.
+     */
+    get comboIndex(): number {
+        return this._comboIndex;
+    }
+
+    private _comboIndexWithOffsets = 0;
+
+    /**
+     * The index of this hitobject's combo in relation to the beatmap, with all aggregates applied.
+     */
+    get comboIndexWithOffsets(): number {
+        return this._comboIndexWithOffsets;
+    }
+
+    /**
+     * Whether this is the last hitobject in the current combo.
+     */
+    isLastInCombo = false;
 
     /**
      * The samples to be played when this hitobject is hit.
@@ -278,6 +317,31 @@ export abstract class HitObject {
         );
 
         this.samples = this.samples.map((v) => sampleControlPoint.applyTo(v));
+    }
+
+    /**
+     * Given the previous hitobject in the beatmap, update relevant combo information.
+     *
+     * @param prev The previous hitobject in the beatmap.
+     */
+    updateComboInformation(prev?: HitObject | null) {
+        this._comboIndex = prev?.comboIndex ?? 0;
+        this._comboIndexWithOffsets = prev?.comboIndexWithOffsets ?? 0;
+        this._indexInCurrentCombo = prev ? prev.indexInCurrentCombo + 1 : 0;
+
+        if (this.isNewCombo || !prev || prev.type & ObjectTypes.spinner) {
+            this._indexInCurrentCombo = 0;
+            ++this._comboIndex;
+
+            if (!(this.type & ObjectTypes.spinner)) {
+                // Spinners do not affect combo color offsets.
+                this._comboIndexWithOffsets += this.comboOffset + 1;
+            }
+
+            if (prev) {
+                prev.isLastInCombo = true;
+            }
+        }
     }
 
     /**
