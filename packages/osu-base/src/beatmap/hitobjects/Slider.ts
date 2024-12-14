@@ -285,6 +285,8 @@ export class Slider extends HitObject {
         });
 
         this._tail = new SliderTail({
+            sliderStartTime: this.startTime,
+            sliderSpanDuration: this.spanDuration,
             position: this.endPosition,
             startTime: this.endTime,
             spanIndex: this.spanCount - 1,
@@ -461,6 +463,8 @@ export class Slider extends HitObject {
                         this.path.positionAt((span + 1) % 2),
                     );
                     const repeatPoint = new SliderRepeat({
+                        sliderStartTime: this.startTime,
+                        sliderSpanDuration: this.spanDuration,
                         position: repeatPosition,
                         startTime: spanStartTime + this.spanDuration,
                         spanIndex: span,
@@ -474,6 +478,8 @@ export class Slider extends HitObject {
         switch (mode) {
             case Modes.droid:
                 this._tail = new SliderTail({
+                    sliderStartTime: this.startTime,
+                    sliderSpanDuration: this.spanDuration,
                     position: this.endPosition,
                     startTime: this.endTime,
                     spanIndex: this.spanCount - 1,
@@ -500,6 +506,8 @@ export class Slider extends HitObject {
                 );
 
                 this._tail = new SliderTail({
+                    sliderStartTime: this.startTime,
+                    sliderSpanDuration: this.spanDuration,
                     position: this.endPosition,
                     startTime: finalSpanEndTime,
                     spanIndex: this.spanCount - 1,

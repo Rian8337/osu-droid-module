@@ -1,12 +1,6 @@
-import { EmptyHitWindow } from "../../../utils/EmptyHitWindow";
-import { HitWindow } from "../../../utils/HitWindow";
-import { SliderNestedHitObject } from "./SliderNestedHitObject";
+import { SliderEndCircle } from "./SliderEndCircle";
 
 /**
  * Represents the tail of a slider.
  */
-export class SliderTail extends SliderNestedHitObject {
-    protected override createHitWindow(): HitWindow | null {
-        return new EmptyHitWindow();
-    }
-}
+export class SliderTail extends SliderEndCircle {}
