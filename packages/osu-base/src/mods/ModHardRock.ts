@@ -77,7 +77,7 @@ export class ModHardRock
         });
 
         // Reflect the position of slider ticks and repeats.
-        hitObject.nestedHitObjects.forEach((obj) => {
+        hitObject.nestedHitObjects.slice(1, -1).forEach((obj) => {
             obj.position = this.reflectVector(obj.position);
         });
     }
