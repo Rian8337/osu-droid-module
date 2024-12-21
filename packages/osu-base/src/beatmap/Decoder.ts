@@ -104,7 +104,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
                 this.decodeLine(line);
             } catch (e) {
                 console.error(e);
-                console.log(
+                console.error(
                     `at line ${this.line}\n${this.decoders[
                         this.section
                     ]?.logExceptionPosition()}`,
