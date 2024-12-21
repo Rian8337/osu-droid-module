@@ -1,4 +1,6 @@
 import {
+    BeatmapControlPoints,
+    BeatmapDifficulty,
     Circle,
     ModHardRock,
     Modes,
@@ -22,6 +24,8 @@ test("Test vertically flipping circle", () => {
 });
 
 test("Test vertically flipping slider", () => {
+    const mode = Modes.droid;
+
     const slider = new Slider({
         startTime: 100,
         type: 2,
@@ -32,12 +36,20 @@ test("Test vertically flipping slider", () => {
             expectedDistance: 10 * Math.SQRT2,
         }),
         position: new Vector2(100, 100),
-        repeatCount: 1,
+        repeatCount: 0,
         tickDistanceMultiplier: 1,
     });
 
-    mod.applyToHitObject(Modes.droid, slider);
+    slider.applyDefaults(
+        new BeatmapControlPoints(),
+        new BeatmapDifficulty(),
+        mode,
+    );
+
+    mod.applyToHitObject(mode, slider);
 
     expect(slider.position.y).toBe(284);
+    expect(slider.head.position.y).toBe(284);
+    expect(slider.tail.position.y).toBe(274);
     expect(slider.path.controlPoints[1].y).toBe(-10);
 });
