@@ -450,6 +450,11 @@ export class Slider extends HitObject {
                         spanStartTime: spanStartTime,
                     });
 
+                    // Inherit the slider's preempt and fade in times for now. They may be overridden
+                    // in applyDefaults later.
+                    sliderTick.timePreempt = this.timePreempt;
+                    sliderTick.timeFadeIn = this.timeFadeIn;
+
                     sliderTicks.push(sliderTick);
                 }
 
