@@ -416,13 +416,14 @@ export class Slider extends HitObject {
         // This exists for edge cases such as /b/1573664 where the beatmap has been edited by the user, and should never be reached in normal usage.
         const maxLength = 100000;
         const length = Math.min(maxLength, this.path.expectedDistance);
+
         const tickDistance = MathUtils.clamp(this.tickDistance, 0, length);
+        const minDistanceFromEnd = this.velocity * 10;
 
-        if (tickDistance !== 0 && this.generateTicks) {
-            const minDistanceFromEnd = this.velocity * 10;
+        for (let span = 0; span < this.spanCount; ++span) {
+            const spanStartTime = this.startTime + span * this.spanDuration;
 
-            for (let span = 0; span < this.spanCount; ++span) {
-                const spanStartTime = this.startTime + span * this.spanDuration;
+            if (tickDistance !== 0 && this.generateTicks) {
                 const reversed = span % 2 === 1;
                 const sliderTicks: SliderTick[] = [];
 
@@ -440,6 +441,7 @@ export class Slider extends HitObject {
                     const sliderTickPosition = this.position.add(
                         this.path.positionAt(distanceProgress),
                     );
+
                     const sliderTick = new SliderTick({
                         startTime:
                             spanStartTime + timeProgress * this.spanDuration,
@@ -457,21 +459,23 @@ export class Slider extends HitObject {
                 }
 
                 this.nestedHitObjects.push(...sliderTicks);
+            }
 
-                if (span < this.spanCount - 1) {
-                    const repeatPosition = this.position.add(
-                        this.path.positionAt((span + 1) % 2),
-                    );
-                    const repeatPoint = new SliderRepeat({
-                        sliderStartTime: this.startTime,
-                        sliderSpanDuration: this.spanDuration,
-                        position: repeatPosition,
-                        startTime: spanStartTime + this.spanDuration,
-                        spanIndex: span,
-                        spanStartTime: spanStartTime,
-                    });
-                    this.nestedHitObjects.push(repeatPoint);
-                }
+            if (span < this.spanCount - 1) {
+                const repeatPosition = this.position.add(
+                    this.path.positionAt((span + 1) % 2),
+                );
+
+                const repeatPoint = new SliderRepeat({
+                    sliderStartTime: this.startTime,
+                    sliderSpanDuration: this.spanDuration,
+                    position: repeatPosition,
+                    startTime: spanStartTime + this.spanDuration,
+                    spanIndex: span,
+                    spanStartTime: spanStartTime,
+                });
+
+                this.nestedHitObjects.push(repeatPoint);
             }
         }
 
