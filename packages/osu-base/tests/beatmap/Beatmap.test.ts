@@ -6,6 +6,7 @@ import {
     ModHidden,
     ModReallyEasy,
     ModRelax,
+    ModScoreV2,
     Modes,
     ObjectTypes,
     PathType,
@@ -316,6 +317,18 @@ describe("Test osu!droid max score calculation", () => {
     test("With unranked mods", () => {
         expect(beatmap.maxDroidScore([new ModRelax()])).toBe(0);
     });
+
+    describe("With ScoreV2", () => {
+        test("Without extra mods", () => {
+            expect(beatmap.maxDroidScore([new ModScoreV2()])).toBe(1e6);
+        });
+
+        test("With extra mods", () => {
+            expect(
+                beatmap.maxDroidScore([new ModScoreV2(), new ModHidden()]),
+            ).toBe(1.06e6);
+        });
+    });
 });
 
 describe("Test osu!standard max score calculation", () => {
@@ -389,6 +402,20 @@ describe("Test osu!standard max score calculation", () => {
 
     test("With mods", () => {
         expect(constructBeatmap().maxOsuScore([new ModHidden()])).toBe(300);
+    });
+
+    describe("With ScoreV2", () => {
+        const beatmap = constructBeatmap();
+
+        test("Without extra mods", () => {
+            expect(beatmap.maxOsuScore([new ModScoreV2()])).toBe(1e6);
+        });
+
+        test("With extra mods", () => {
+            expect(
+                beatmap.maxOsuScore([new ModScoreV2(), new ModHidden()]),
+            ).toBe(1.06e6);
+        });
     });
 });
 

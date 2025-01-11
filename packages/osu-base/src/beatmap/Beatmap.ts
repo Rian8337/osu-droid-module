@@ -13,6 +13,7 @@ import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
 import { Modes } from "../constants/Modes";
 import { BeatmapProcessor } from "./BeatmapProcessor";
 import { BeatmapConverter } from "./BeatmapConverter";
+import { ModScoreV2 } from "../mods/ModScoreV2";
 
 /**
  * Represents a beatmap with advanced information.
@@ -176,6 +177,10 @@ export class Beatmap {
             scoreMultiplier *= Math.pow(0.3, (1 - customSpeedMultiplier) * 4);
         }
 
+        if (mods.some((m) => m instanceof ModScoreV2)) {
+            return 1e6 * scoreMultiplier;
+        }
+
         const difficultyMultiplier =
             1 +
             this.difficulty.od / 10 +
@@ -234,6 +239,10 @@ export class Beatmap {
             if (mod.isApplicableToOsu()) {
                 scoreMultiplier *= mod.pcScoreMultiplier;
             }
+        }
+
+        if (mods.some((m) => m instanceof ModScoreV2)) {
+            return 1e6 * scoreMultiplier;
         }
 
         switch (true) {
