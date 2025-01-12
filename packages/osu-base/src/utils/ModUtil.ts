@@ -277,7 +277,7 @@ export abstract class ModUtil {
             }
         }
 
-        let rate = 1;
+        let rate = customSpeedMultiplier;
 
         for (const mod of mods) {
             if (mod.isApplicableToDifficultyWithSettings()) {
@@ -314,7 +314,7 @@ export abstract class ModUtil {
         );
 
         switch (mode) {
-            case Modes.droid: {
+            case Modes.droid:
                 if (mods.some((m) => m instanceof ModPrecise)) {
                     const hitWindow = new PreciseDroidHitWindow(difficulty.od);
 
@@ -330,7 +330,6 @@ export abstract class ModUtil {
                 }
 
                 break;
-            }
 
             case Modes.osu: {
                 const hitWindow = new OsuHitWindow(difficulty.od);
