@@ -1,4 +1,5 @@
 import {
+    BeatmapDifficulty,
     ModDifficultyAdjust,
     ModDoubleTime,
     ModEasy,
@@ -9,6 +10,7 @@ import {
     ModNoFail,
     ModPrecise,
     ModUtil,
+    Modes,
 } from "../../src";
 
 describe("Test droid string to mods conversion", () => {
@@ -210,5 +212,261 @@ describe("Calculate track rate multiplier", () => {
         const mods = [new ModHidden(), new ModNightCore()];
 
         expect(ModUtil.calculateRateWithMods(mods, true)).toBe(1.39);
+    });
+});
+
+describe("Test apply mods to beatmap difficulty", () => {
+    describe("osu!droid game mode", () => {
+        test("No Mod", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, []);
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBe(5);
+            expect(difficulty.od).toBe(5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("HR", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, [
+                new ModHardRock(),
+            ]);
+
+            expect(difficulty.cs).toBeCloseTo(6.258653241032096, 5);
+            expect(difficulty.ar).toBe(7);
+            expect(difficulty.od).toBe(7);
+            expect(difficulty.hp).toBe(7);
+        });
+
+        test("DT", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [new ModDoubleTime()],
+                undefined,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
+            expect(difficulty.od).toBe(10);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("NC", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [new ModNightCore()],
+                undefined,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
+            expect(difficulty.od).toBe(10);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("NC with old statistics", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [new ModNightCore()],
+                undefined,
+                true,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.244604316546763, 5);
+            expect(difficulty.od).toBeCloseTo(9.20863309352518, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("1.25x speed multiplier", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [],
+                1.25,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(6.6);
+            expect(difficulty.od).toBe(8);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("DTHR, 1.25x speed multiplier", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [new ModDoubleTime(), new ModHardRock()],
+                1.25,
+                true,
+            );
+
+            expect(difficulty.cs).toBeCloseTo(6.258653241032096, 5);
+            expect(difficulty.ar).toBeCloseTo(9.8);
+            expect(difficulty.od).toBeCloseTo(13.066666666666666, 5);
+            expect(difficulty.hp).toBe(7);
+        });
+
+        test("PR", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, [
+                new ModPrecise(),
+            ]);
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBe(5);
+            expect(difficulty.od).toBe(5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("DTPR", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.droid,
+                [new ModDoubleTime(), new ModPrecise()],
+                undefined,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
+            expect(difficulty.od).toBeCloseTo(8.055555555555555, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+    });
+
+    describe("osu!standard game mode", () => {
+        test("No Mod", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, []);
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBe(5);
+            expect(difficulty.od).toBe(5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("HR", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, [
+                new ModHardRock(),
+            ]);
+
+            expect(difficulty.cs).toBeCloseTo(6.5);
+            expect(difficulty.ar).toBe(7);
+            expect(difficulty.od).toBe(7);
+            expect(difficulty.hp).toBe(7);
+        });
+
+        test("DT", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.osu,
+                [new ModDoubleTime()],
+                undefined,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
+            expect(difficulty.od).toBeCloseTo(7.777777777777778, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("NC", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.osu,
+                [new ModNightCore()],
+                undefined,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
+            expect(difficulty.od).toBeCloseTo(7.777777777777778, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("NC with old statistics", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.osu,
+                [new ModNightCore()],
+                undefined,
+                true,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(7.244604316546763, 5);
+            expect(difficulty.od).toBeCloseTo(7.338129496402877, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("1.25x speed multiplier", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.osu,
+                [],
+                1.25,
+                true,
+            );
+
+            expect(difficulty.cs).toBe(5);
+            expect(difficulty.ar).toBeCloseTo(6.6, 2);
+            expect(difficulty.od).toBeCloseTo(6.666666666666667, 5);
+            expect(difficulty.hp).toBe(5);
+        });
+
+        test("DTHR, 1.25x speed multiplier", () => {
+            const difficulty = new BeatmapDifficulty();
+
+            ModUtil.applyModsToBeatmapDifficulty(
+                difficulty,
+                Modes.osu,
+                [new ModDoubleTime(), new ModHardRock()],
+                1.25,
+                true,
+            );
+
+            expect(difficulty.cs).toBeCloseTo(6.5);
+            expect(difficulty.ar).toBeCloseTo(9.8);
+            expect(difficulty.od).toBeCloseTo(9.955555555555556, 5);
+            expect(difficulty.hp).toBe(7);
+        });
     });
 });
