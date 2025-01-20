@@ -23,7 +23,7 @@ export class OsuSpeed extends OsuSkill {
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentSpeedStrain *= this.strainDecay(current.strainTime);
         this.currentSpeedStrain +=
-            OsuSpeedEvaluator.evaluateDifficultyOf(current) *
+            OsuSpeedEvaluator.evaluateDifficultyOf(current, this.mods) *
             this.skillMultiplier;
 
         this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(current);

@@ -1,4 +1,4 @@
-import { MathUtils, Spinner } from "@rian8337/osu-base";
+import { MathUtils, Mod, ModAutopilot, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
@@ -23,8 +23,12 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
      * - and how easily they can be cheesed.
      *
      * @param current The current object.
+     * @param mods The mods applied.
      */
-    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
+    static evaluateDifficultyOf(
+        current: OsuDifficultyHitObject,
+        mods: Mod[],
+    ): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
@@ -61,9 +65,13 @@ export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
         );
 
         // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
-        const distanceBonus =
+        let distanceBonus =
             Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
             this.DISTANCE_MULTIPLIER;
+
+        if (mods.some((m) => m instanceof ModAutopilot)) {
+            distanceBonus = 0;
+        }
 
         // Base difficulty with all bonuses
         const difficulty =

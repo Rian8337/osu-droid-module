@@ -12,6 +12,7 @@ import {
     Beatmap,
     BeatmapDifficulty,
     HitObject,
+    ModAutopilot,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
@@ -263,6 +264,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.aimDifficulty *= 0.9;
+        } else if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.aimDifficulty = 0;
         }
 
         this.attributes.aimDifficultStrainCount =
@@ -280,6 +283,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         this.attributes.speedDifficulty = this.starValue(
             speedSkill.difficultyValue(),
         );
+
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.speedDifficulty *= 0.5;
+        }
 
         this.attributes.speedDifficultStrainCount =
             speedSkill.countDifficultStrains();
@@ -322,6 +329,8 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.flashlightDifficulty *= 0.7;
+        } else if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.flashlightDifficulty *= 0.4;
         }
     }
 }

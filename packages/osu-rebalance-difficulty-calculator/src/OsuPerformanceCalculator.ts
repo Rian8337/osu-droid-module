@@ -5,6 +5,7 @@ import {
     ModScoreV2,
     ModFlashlight,
     Modes,
+    ModAutopilot,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
@@ -74,6 +75,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
+        if (
+            this.difficultyAttributes.mods.some(
+                (m) => m instanceof ModAutopilot,
+            )
+        ) {
+            return 0;
+        }
+
         let aimValue = this.baseValue(this.difficultyAttributes.aimDifficulty);
 
         // Longer maps are worth more
@@ -167,7 +176,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // AR scaling
         const calculatedAR = this.difficultyAttributes.approachRate;
-        if (calculatedAR > 10.33) {
+        if (
+            calculatedAR > 10.33 &&
+            !this.difficultyAttributes.mods.some(
+                (m) => m instanceof ModAutopilot,
+            )
+        ) {
             // Buff for longer maps with high AR.
             speedValue *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
         }
