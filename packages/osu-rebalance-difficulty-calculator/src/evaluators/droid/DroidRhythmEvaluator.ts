@@ -173,7 +173,12 @@ export abstract class DroidRhythmEvaluator {
                             3 / islandCount,
                             Math.pow(
                                 1 / islandCount,
-                                2.75 / (1 + Math.exp(14 - 0.24 * island.delta)),
+                                MathUtils.offsetLogistic(
+                                    island.delta,
+                                    58.33,
+                                    0.24,
+                                    2.75,
+                                ),
                             ),
                         );
 
