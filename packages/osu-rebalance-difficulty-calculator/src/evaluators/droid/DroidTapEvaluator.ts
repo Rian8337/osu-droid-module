@@ -51,6 +51,6 @@ export abstract class DroidTapEvaluator extends SpeedEvaluator {
                 );
         }
 
-        return (speedBonus * Math.pow(doubletapness, 1.5)) / strainTime;
+        return (speedBonus * Math.pow(doubletapness, 1.5) * 1000) / strainTime;
     }
 }
