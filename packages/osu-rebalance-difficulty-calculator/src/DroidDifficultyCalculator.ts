@@ -562,6 +562,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.flashlightDifficulty *= 0.7;
+        } else if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.flashlightDifficulty *= 0.4;
         }
 
         this.attributes.flashlightDifficultStrainCount =
