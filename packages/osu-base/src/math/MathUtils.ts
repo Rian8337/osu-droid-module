@@ -60,4 +60,88 @@ export abstract class MathUtils {
     static radiansToDegrees(radians: number): number {
         return (radians * 180) / Math.PI;
     }
+
+    /**
+     * Converts a BPM value to milliseconds.
+     *
+     * @param bpm The BPM value.
+     * @param delimiter The denominator of the time signature. Defaults to 4.
+     * @returns The BPM value in milliseconds.
+     */
+    static bpmToMilliseconds(bpm: number, delimiter = 4): number {
+        return 60000 / bpm / delimiter;
+    }
+
+    /**
+     * Converts milliseconds to BPM.
+     *
+     * @param milliseconds The milliseconds value.
+     * @param delimiter The denominator of the time signature. Defaults to 4.
+     * @returns The milliseconds value in BPM.
+     */
+    static millisecondsToBPM(milliseconds: number, delimiter = 4): number {
+        return 60000 / (milliseconds * delimiter);
+    }
+
+    /**
+     * Calculates an S-shaped {@link https://en.wikipedia.org/wiki/Logistic_function logistic function}
+     * with offset at `x`.
+     *
+     * @param x The value to calculate the function for.
+     * @param midpointOffset How much the function midpoint is offset from zero `x`.
+     * @param multiplier The growth rate of the function.
+     * @param maxValue Maximum value returnable by the function.
+     * @returns The output of the logistic function calculated at `x`.
+     */
+    static offsetLogistic(
+        x: number,
+        midpointOffset: number,
+        multiplier: number,
+        maxValue = 1,
+    ): number {
+        return maxValue / (1 + Math.exp(multiplier * (midpointOffset - x)));
+    }
+
+    /**
+     * Calculates the {@link https://en.wikipedia.org/wiki/Smoothstep smoothstep} function
+     * at `x`.
+     *
+     * @param x The value to calculate the function for.
+     * @param start The `x` value at which the function returns 0.
+     * @param end The `x` value at which the function returns 1.
+     * @returns The output of the smoothstep function calculated at `x`.
+     */
+    static smoothstep(x: number, start: number, end: number): number {
+        x = this.reverseLerp(x, start, end);
+
+        return x * x * (3 - 2 * x);
+    }
+
+    /**
+     * Calculates the {@link https://en.wikipedia.org/wiki/Smoothstep#Variations smoothstep}
+     * function at `x`.
+     *
+     * @param x The value to calculate the function for.
+     * @param start The `x` value at which the function returns 0.
+     * @param end The `x` value at which the function returns 1.
+     * @returns The output of the smoothstep function calculated at `x`.
+     */
+    static smootherstep(x: number, start: number, end: number): number {
+        x = this.reverseLerp(x, start, end);
+
+        return x * x * x * (x * (6 * x - 15) + 10);
+    }
+
+    /**
+     * Calculates the reverse {@link https://en.wikipedia.org/wiki/Linear_interpolation linear interpolation}
+     * function at `x`.
+     *
+     * @param x The value to calculate the function for.
+     * @param start The `x` value at which the function returns 0.
+     * @param end The `x` value at which the function returns 1.
+     * @returns The output of the reverse lerp function calculated at `x`.
+     */
+    static reverseLerp(x: number, start: number, end: number): number {
+        return this.clamp((x - start) / (end - start), 0, 1);
+    }
 }
