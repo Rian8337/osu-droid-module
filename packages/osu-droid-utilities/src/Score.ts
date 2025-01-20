@@ -206,6 +206,7 @@ export class Score {
      *
      * @param uid The uid of the player.
      * @param hash The MD5 hash of the beatmap.
+     * @param bestPP Whether to retrieve the score in terms of the best performance points rather than best score. Defaults to `false`.
      * @returns The score, `null` if the score is not found.
      */
     static async getFromHash(uid: number, hash: string): Promise<Score | null> {
@@ -220,7 +221,7 @@ export class Score {
             throw new Error("Error retrieving score data");
         }
 
-        let response: APIScore;
+        let response: APIScore[];
 
         try {
             response = JSON.parse(result.data.toString("utf-8"));
@@ -228,7 +229,11 @@ export class Score {
             return null;
         }
 
-        return new Score(response);
+        if (response.length === 0) {
+            return null;
+        }
+
+        return new Score(response[0]);
     }
 
     /**
