@@ -70,6 +70,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     override readonly attributes: ExtendedDroidDifficultyAttributes = {
         mode: "rebalance",
+        aimDifficultSliderCount: 0,
         tapDifficulty: 0,
         rhythmDifficulty: 0,
         visualDifficulty: 0,
@@ -353,6 +354,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         this.attributes.aimDifficultStrainCount =
             aimSkill.countDifficultStrains();
+
+        this.attributes.aimDifficultSliderCount =
+            aimSkill.countDifficultSliders();
 
         this.calculateAimAttributes();
     }

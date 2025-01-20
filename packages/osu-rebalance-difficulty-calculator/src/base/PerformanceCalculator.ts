@@ -122,6 +122,17 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     }
 
     /**
+     * The total of imperfect hits (100s, 50s, misses).
+     */
+    protected get totalImperfectHits(): number {
+        return (
+            this.computedAccuracy.n100 +
+            this.computedAccuracy.n50 +
+            this.computedAccuracy.nmiss
+        );
+    }
+
+    /**
      * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
@@ -231,12 +242,7 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
             const estimateDifficultSliders =
                 this.difficultyAttributes.sliderCount * 0.15;
             const estimateSliderEndsDropped = MathUtils.clamp(
-                Math.min(
-                    this.computedAccuracy.n100 +
-                        this.computedAccuracy.n50 +
-                        this.computedAccuracy.nmiss,
-                    maxCombo - combo,
-                ),
+                Math.min(this.totalImperfectHits, maxCombo - combo),
                 0,
                 estimateDifficultSliders,
             );
@@ -293,9 +299,7 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
                 // Clamp miss count to maximum amount of possible breaks.
                 comboBasedMissCount = Math.min(
                     fullComboThreshold / Math.max(1, combo),
-                    this.computedAccuracy.n100 +
-                        this.computedAccuracy.n50 +
-                        this.computedAccuracy.nmiss,
+                    this.totalImperfectHits,
                 );
             }
         }

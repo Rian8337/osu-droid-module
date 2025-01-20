@@ -8,6 +8,7 @@ export abstract class AimEvaluator {
     protected static readonly acuteAngleMultiplier: number = 1.95;
     protected static readonly sliderMultiplier: number = 1.35;
     protected static readonly velocityChangeMultiplier: number = 0.75;
+    protected static readonly wiggleMultiplier: number = 1.02;
 
     /**
      * Calculates the bonus of wide angles.
@@ -17,9 +18,9 @@ export abstract class AimEvaluator {
             Math.sin(
                 (3 / 4) *
                     (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
-                        Math.PI / 6)
+                        Math.PI / 6),
             ),
-            2
+            2,
         );
     }
 

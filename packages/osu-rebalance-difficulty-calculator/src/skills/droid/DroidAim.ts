@@ -1,4 +1,4 @@
-import { Mod } from "@rian8337/osu-base";
+import { Mod, Slider } from "@rian8337/osu-base";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -12,15 +12,40 @@ export class DroidAim extends DroidSkill {
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly starsPerDouble = 1.05;
 
-    private readonly skillMultiplier = 24.55;
+    private readonly skillMultiplier = 25.6;
 
     private readonly withSliders: boolean;
     private currentAimStrain = 0;
+
+    private readonly sliderStrains: number[] = [];
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;
+    }
+
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain.
+     */
+    countDifficultSliders(): number {
+        if (this.sliderStrains.length === 0) {
+            return 0;
+        }
+
+        const sortedStrains = this.sliderStrains.sort((a, b) => b - a);
+        const maxSliderStrain = sortedStrains[0];
+
+        if (maxSliderStrain === 0) {
+            return 0;
+        }
+
+        return sortedStrains.reduce(
+            (total, strain) =>
+                total +
+                1 / (1 + Math.exp(-((strain / maxSliderStrain) * 12 - 6))),
+            0,
+        );
     }
 
     protected override strainValueAt(
@@ -30,6 +55,10 @@ export class DroidAim extends DroidSkill {
         this.currentAimStrain +=
             DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
             this.skillMultiplier;
+
+        if (current.object instanceof Slider) {
+            this.sliderStrains.push(this.currentAimStrain);
+        }
 
         return this.currentAimStrain;
     }
