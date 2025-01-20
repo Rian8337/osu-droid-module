@@ -8,6 +8,7 @@ export type DroidAPIEndpoint =
     | "scoresearch.php"
     | "scoresearchv2.php"
     | "upload"
+    | "bestpp"
     | "user_list.php"
     | "usergeneral.php"
     | "top.php"
@@ -29,16 +30,20 @@ export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> 
     protected override readonly APIkeyParam = `apiKey=${this.APIkey}&`;
 
     override buildURL(): string {
-        if (this.endpoint === "upload") {
-            let url = this.baseURL + "/";
+        switch (this.endpoint) {
+            case "upload":
+            case "bestpp": {
+                let url = this.baseURL + "/";
 
-            for (const [, value] of this.params.entries()) {
-                url += encodeURIComponent(value);
+                for (const [, value] of this.params.entries()) {
+                    url += encodeURIComponent(value);
+                }
+
+                return url;
             }
 
-            return url;
+            default:
+                return super.buildURL();
         }
-
-        return super.buildURL();
     }
 }
