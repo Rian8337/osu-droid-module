@@ -335,20 +335,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.strainPeaks.aimWithSliders = aimSkill.strainPeaks;
         this.strainPeaks.aimWithoutSliders = aimSkillWithoutSliders.strainPeaks;
 
-        const retryabilityScaling = this.calculateRetryabilityScaling(
-            aimSkill.countRetryability(),
-        );
-
         this.attributes.aimDifficulty = this.mods.some(
             (m) => m instanceof ModAutopilot,
         )
             ? 0
-            : this.starValue(aimSkill.difficultyValue()) * retryabilityScaling;
+            : this.starValue(aimSkill.difficultyValue());
 
         if (this.aim) {
             this.attributes.sliderFactor =
-                (this.starValue(aimSkillWithoutSliders.difficultyValue()) *
-                    retryabilityScaling) /
+                this.starValue(aimSkillWithoutSliders.difficultyValue()) /
                 this.aim;
         }
 
@@ -422,22 +417,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ): void {
         this.strainPeaks.speed = tapSkillCheese.strainPeaks;
 
-        const retryabilityScaling = this.calculateRetryabilityScaling(
-            tapSkillCheese.countRetryability(),
-        );
-
         this.attributes.tapDifficulty = this.mods.some(
             (m) => m instanceof ModRelax,
         )
             ? 0
-            : this.starValue(tapSkillCheese.difficultyValue()) *
-              retryabilityScaling;
+            : this.starValue(tapSkillCheese.difficultyValue());
 
         if (this.tap) {
             this.attributes.vibroFactor =
-                (this.starValue(tapSkillVibro.difficultyValue()) *
-                    retryabilityScaling) /
-                this.tap;
+                this.starValue(tapSkillVibro.difficultyValue()) / this.tap;
         }
 
         this.attributes.speedNoteCount = tapSkillCheese.relevantNoteCount();

@@ -11,7 +11,6 @@ export class DroidTap extends DroidSkill {
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly strainDecayBase = 0.3;
     protected override readonly starsPerDouble = 1.1;
-    protected override readonly minimumRetryabilityStrains = 750;
 
     private currentTapStrain = 0;
     private currentRhythmMultiplier = 0;
