@@ -216,19 +216,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             sliderBonus = last.travelDistance / last.travelTime;
         }
 
-        // Reduce snap aim difficulty for low spacing as the player is more likely to perform
-        // a flowing movement instead of snapping to the object. This also prevents the weird
-        // scenario of awarding flow aim difficulty in snap aim.
-        const flowBonus = Math.pow(
-            last.minimumJumpDistance / this.singleSpacingThreshold,
-            3.5,
-        );
-
-        if (flowBonus < 1) {
-            strain *= 0.5 * (1 + Math.sqrt(flowBonus));
-            wideAngleBonus *= 0.5 * (1 + Math.sqrt(flowBonus));
-        }
-
         // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
@@ -257,42 +244,15 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                 Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
         }
 
-        const prev = current.previous(0);
-
-        // Punish low spacing as it is easier to aim.
-        const travelDistance = prev?.travelDistance ?? 0;
-        const distance = travelDistance + current.minimumJumpDistance;
-        const shortDistancePenalty = Math.min(
-            1,
-            Math.pow(distance / this.singleSpacingThreshold, 3.5),
+        const travelDistance = current.previous(0)?.travelDistance ?? 0;
+        const shortDistancePenalty = Math.pow(
+            Math.min(
+                this.singleSpacingThreshold,
+                travelDistance + current.minimumJumpDistance,
+            ) / this.singleSpacingThreshold,
+            3.5,
         );
 
-        let adjustedDistanceScale = 1;
-
-        // Reward for inconsistent angles while punishing consistent ones.
-        // Only apply the adjustment to patterns with the same delta time.
-        // Graph: https://www.desmos.com/calculator/soomupyfwp
-        if (
-            current.angle !== null &&
-            typeof prev?.angle === "number" &&
-            Math.abs(current.deltaTime - prev.deltaTime) < 10
-        ) {
-            const angleDiff = Math.abs(current.angle - prev.angle);
-            const adjustedAngleDiff = Math.sin(angleDiff / 2) * 180;
-
-            const angularVelocity =
-                adjustedAngleDiff / (0.1 + current.strainTime);
-            const angularVelocityBonus = Math.max(
-                0,
-                Math.pow(angularVelocity, 0.4) - 1,
-            );
-
-            adjustedDistanceScale = 0.65 + angularVelocityBonus * 0.45;
-        }
-
-        return (
-            (200 * speedBonus * shortDistancePenalty * adjustedDistanceScale) /
-            current.strainTime
-        );
+        return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
     }
 }
