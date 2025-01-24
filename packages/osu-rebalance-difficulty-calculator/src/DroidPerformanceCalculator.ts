@@ -9,7 +9,6 @@ import {
     ModScoreV2,
     PreciseDroidHitWindow,
     MathUtils,
-    Interpolation,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
@@ -334,16 +333,44 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             ),
         );
 
+        // Normalize the deviation to 300 BPM.
+        const normalizedDeviation =
+            this.tapDeviation *
+            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
+        // We expect the player to get 7500/x deviation when doubletapping x BPM.
+        // Using this expectation, we penalize scores with deviation above 25.
+        const averageBPM =
+            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
+        const adjustedDeviation =
+            normalizedDeviation *
+            (1 +
+                1 /
+                    (1 +
+                        Math.exp(
+                            -(normalizedDeviation - 7500 / averageBPM) /
+                                ((2 * 300) / averageBPM),
+                        )));
+
         // Scale the tap value with tap deviation.
         tapValue *=
             1.05 *
             Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * this.tapDeviation)),
+                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
                 0.6,
             );
 
-        // Scale the tap value with high deviation nerf.
-        tapValue *= this.calculateTapHighDeviationNerf();
+        // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
+        // Higher BPMs require more precise tapping. When the deviation is too high,
+        // it can be assumed that the player taps invariant to rhythm.
+        // We harshen the punishment for such scenario.
+        tapValue *=
+            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
+                (1 +
+                    Math.exp(
+                        (this._tapDeviation - 7500 / averageBPM) /
+                            ((2 * 300) / averageBPM),
+                    )) +
+            Math.pow(this.difficultyAttributes.vibroFactor, 6);
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
@@ -763,44 +790,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
         }
 
         return Number.POSITIVE_INFINITY;
-    }
-
-    /**
-     * Calculates multiplier for tap to account for improper tapping based on the deviation and tap difficulty.
-     *
-     * https://www.desmos.com/calculator/dmogdhzofn
-     */
-    private calculateTapHighDeviationNerf(): number {
-        if (this.tapDeviation === Number.POSITIVE_INFINITY) {
-            return 0;
-        }
-
-        const tapValue = this.baseValue(
-            this.difficultyAttributes.tapDifficulty,
-        );
-
-        // Decide a point where the PP value achieved compared to the tap deviation is assumed to be
-        // tapped improperly. Any PP above this point is considered "excess" tap difficulty.
-        // This is used to cause PP above the cutoff to scale logarithmically towards the original
-        // tap value, thus nerfing the value.
-        const excessTapDifficultyCutoff =
-            100 + 220 * Math.pow(22 / this.tapDeviation, 6.5);
-
-        if (tapValue <= excessTapDifficultyCutoff) {
-            return 1;
-        }
-
-        const scale = 50;
-        const adjustedTapValue =
-            scale *
-            (Math.log((tapValue - excessTapDifficultyCutoff) / scale + 1) +
-                excessTapDifficultyCutoff / scale);
-
-        // 200 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
-        const lerp =
-            1 - MathUtils.clamp((this.tapDeviation - 20) / (24 - 20), 0, 1);
-
-        return Interpolation.lerp(adjustedTapValue, tapValue, lerp) / tapValue;
     }
 
     private getConvertedHitWindow() {
