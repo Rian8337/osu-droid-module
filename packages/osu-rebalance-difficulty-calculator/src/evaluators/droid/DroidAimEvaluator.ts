@@ -193,13 +193,13 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
                     MathUtils.degreesToRadians(60),
                 ) *
                 MathUtils.smootherstep(
-                    current.lazyJumpDistance,
+                    last.lazyJumpDistance,
                     radius,
                     diameter,
                 ) *
                 Math.pow(
                     MathUtils.reverseLerp(
-                        current.lazyJumpDistance,
+                        last.lazyJumpDistance,
                         diameter * 3,
                         diameter,
                     ),
