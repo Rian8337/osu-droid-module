@@ -251,19 +251,6 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             sliderBonus = last.travelDistance / last.travelTime;
         }
 
-        // Reduce snap aim difficulty for low spacing as the player is more likely to perform
-        // a flowing movement instead of snapping to the object. This also prevents the weird
-        // scenario of awarding flow aim difficulty in snap aim.
-        const flowBonus = Math.pow(
-            last.minimumJumpDistance / this.singleSpacingThreshold,
-            3.5,
-        );
-
-        if (flowBonus < 1) {
-            strain *= 0.5 * (1 + Math.sqrt(flowBonus));
-            wideAngleBonus *= 0.5 * (1 + Math.sqrt(flowBonus));
-        }
-
         strain += wiggleBonus * this.wiggleMultiplier;
 
         // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
