@@ -33,14 +33,13 @@ export class DroidAim extends DroidSkill {
             return 0;
         }
 
-        const sortedStrains = this.sliderStrains.sort((a, b) => b - a);
-        const maxSliderStrain = sortedStrains[0];
+        const maxSliderStrain = Math.max(...this.sliderStrains);
 
         if (maxSliderStrain === 0) {
             return 0;
         }
 
-        return sortedStrains.reduce(
+        return this.sliderStrains.reduce(
             (total, strain) =>
                 total +
                 1 / (1 + Math.exp(-((strain / maxSliderStrain) * 12 - 6))),
