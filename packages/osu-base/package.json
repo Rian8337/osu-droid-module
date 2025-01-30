@@ -32,9 +32,6 @@
     "bugs": {
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
-    "dependencies": {
-        "dotenv": "^16.0.3"
-    },
     "publishConfig": {
         "access": "public"
     },

@@ -133,6 +133,3 @@ export * from "./beatmap/timings/TimingControlPointManager";
 export * from "./utils/Utils";
 export * from "./math/Vector2";
 export * from "./math/ZeroCrossingBracketing";
-
-import { config } from "dotenv";
-config();

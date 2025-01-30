@@ -25,8 +25,19 @@ export type DroidAPIEndpoint =
  * An API request builder for osu!droid.
  */
 export class DroidAPIRequestBuilder extends APIRequestBuilder<DroidAPIEndpoint> {
+    private static apiKey = "";
+
+    /**
+     * Sets the API key for all subsequent initializations of a `DroidAPIRequestBuilder`.
+     *
+     * @param key The API key.
+     */
+    static setAPIKey(key: string) {
+        this.apiKey = key;
+    }
+
     protected override readonly host = "https://osudroid.moe/api/";
-    protected override readonly APIkey = process.env.DROID_API_KEY!;
+    protected override readonly APIkey = DroidAPIRequestBuilder.apiKey;
     protected override readonly APIkeyParam = `apiKey=${this.APIkey}&`;
 
     override buildURL(): string {
