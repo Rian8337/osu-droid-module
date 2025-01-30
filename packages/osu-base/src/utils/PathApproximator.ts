@@ -1,6 +1,5 @@
 import { Vector2 } from "../math/Vector2";
 import { Precision } from "./Precision";
-import { Utils } from "./Utils";
 
 /**
  * Path approximator for sliders.
@@ -39,13 +38,14 @@ export abstract class PathApproximator {
         // (More specifically, we iteratively and adaptively refine our curve with a
         // depth-first search (https://en.wikipedia.org/wiki/Depth-first_search)
         // over the tree resulting from the subdivisions we make.)
-        const toFlatten = [Utils.deepCopy(controlPoints)];
-        const freeBuffers: Vector2[][] = [];
+        const toFlatten = [controlPoints.slice()];
 
+        const freeBuffers: Vector2[][] = [];
         const leftChild = subdivisionBuffer2;
 
         while (toFlatten.length > 0) {
             const parent = toFlatten.pop()!;
+
             if (this.bezierIsFlatEnough(parent)) {
                 // If the control points we currently operate on are sufficiently "flat", we use
                 // an extension to De Casteljau's algorithm to obtain a piecewise-linear approximation
@@ -58,6 +58,7 @@ export abstract class PathApproximator {
                     subdivisionBuffer2,
                     count + 1,
                 );
+
                 freeBuffers.push(parent);
                 continue;
             }
@@ -119,6 +120,7 @@ export abstract class PathApproximator {
                         c / this.catmullDetail,
                     ),
                 );
+
                 result.push(
                     this.catmullFindPoint(
                         v1,
