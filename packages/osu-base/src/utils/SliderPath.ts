@@ -111,6 +111,7 @@ export class SliderPath {
         switch (this.pathType) {
             case PathType.Linear:
                 return PathApproximator.approximateLinear(subControlPoints);
+
             case PathType.PerfectCurve: {
                 if (subControlPoints.length !== 3) {
                     break;
@@ -126,6 +127,7 @@ export class SliderPath {
 
                 return subPath;
             }
+
             case PathType.Catmull:
                 return PathApproximator.approximateCatmull(subControlPoints);
         }
@@ -137,7 +139,7 @@ export class SliderPath {
      * Calculates the slider's cumulative length.
      */
     calculateCumulativeLength(): void {
-        let calculatedLength: number = 0;
+        let calculatedLength = 0;
         this.cumulativeLength.length = 0;
         this.cumulativeLength.push(0);
 
@@ -225,7 +227,7 @@ export class SliderPath {
      */
     private interpolateVerticles(i: number, d: number): Vector2 {
         if (this.calculatedPath.length === 0) {
-            return new Vector2(0, 0);
+            return new Vector2(0);
         }
 
         if (i <= 0) {
