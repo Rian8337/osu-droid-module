@@ -14,15 +14,23 @@ export class Vector2 {
 
     constructor(value: number);
     constructor(x: number, y: number);
-    constructor(valueOrX: number, y?: number) {
-        if (y === undefined) {
-            this.x = valueOrX;
-            this.y = valueOrX;
+    constructor(other: Vector2);
+    constructor(valueOrXOrOther: number | Vector2, y?: number) {
+        if (valueOrXOrOther instanceof Vector2) {
+            this.x = valueOrXOrOther.x;
+            this.y = valueOrXOrOther.y;
 
             return;
         }
 
-        this.x = valueOrX;
+        if (y === undefined) {
+            this.x = valueOrXOrOther;
+            this.y = valueOrXOrOther;
+
+            return;
+        }
+
+        this.x = valueOrXOrOther;
         this.y = y;
     }
 
@@ -136,6 +144,13 @@ export class Vector2 {
      */
     equals(other: Vector2): boolean {
         return this.x === other.x && this.y === other.y;
+    }
+
+    /**
+     * Deep clones this vector.
+     */
+    clone(): Vector2 {
+        return new Vector2(this);
     }
 
     /**
