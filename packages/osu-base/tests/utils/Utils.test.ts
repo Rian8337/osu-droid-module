@@ -14,22 +14,6 @@ test("Test random array element getter", () => {
     expect(arr).toContain(Utils.getRandomArrayElement(arr));
 });
 
-test("Test deep copying", () => {
-    const obj = {
-        a: 1,
-    };
-
-    expect(Utils.deepCopy(obj)).toEqual(obj);
-
-    obj.a = 2;
-
-    expect(Utils.deepCopy(obj)).toEqual(obj);
-
-    obj.a = 3;
-
-    expect(Utils.deepCopy(obj)).toEqual(obj);
-});
-
 test("Test array initializer", () => {
     let arr = Utils.initializeArray(10);
 

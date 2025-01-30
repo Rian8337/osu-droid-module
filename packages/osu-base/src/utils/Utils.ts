@@ -1,5 +1,3 @@
-import cloneDeep from "lodash.clonedeep";
-
 /**
  * Some utilities, no biggie.
  */
@@ -11,15 +9,6 @@ export abstract class Utils {
      */
     static getRandomArrayElement<T>(array: T[]): T {
         return array[Math.floor(Math.random() * array.length)];
-    }
-
-    /**
-     * Deep copies an object.
-     *
-     * @param obj The object to deep copy.
-     */
-    static deepCopy<T>(obj: T): T {
-        return cloneDeep(obj);
     }
 
     /**
