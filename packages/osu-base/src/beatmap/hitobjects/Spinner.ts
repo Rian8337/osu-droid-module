@@ -1,6 +1,7 @@
 import { Vector2 } from "../../math/Vector2";
 import { EmptyHitWindow } from "../../utils/EmptyHitWindow";
 import { HitWindow } from "../../utils/HitWindow";
+import { Playfield } from "../../utils/Playfield";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
@@ -31,7 +32,7 @@ export class Spinner extends HitObject {
     constructor(values: { startTime: number; type: number; endTime: number }) {
         super({
             ...values,
-            position: new Vector2(256, 192),
+            position: Playfield.baseSize.divide(2),
         });
 
         this._endTime = values.endTime;
