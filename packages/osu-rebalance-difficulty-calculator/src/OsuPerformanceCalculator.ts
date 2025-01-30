@@ -75,11 +75,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
-        if (
-            this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModAutopilot,
-            )
-        ) {
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
             return 0;
         }
 
@@ -113,9 +109,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         );
 
         const calculatedAR = this.difficultyAttributes.approachRate;
-        if (
-            !this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)
-        ) {
+
+        if (!this.mods.some((m) => m instanceof ModRelax)) {
             // AR scaling
             let arFactor = 0;
             if (calculatedAR > 10.33) {
@@ -129,9 +124,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         }
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
-        ) {
+        if (this.mods.some((m) => m instanceof ModHidden)) {
             aimValue *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -154,7 +147,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the speed performance value of the beatmap.
      */
     private calculateSpeedValue(): number {
-        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
             return 0;
         }
 
@@ -176,19 +169,16 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
 
         // AR scaling
         const calculatedAR = this.difficultyAttributes.approachRate;
+
         if (
             calculatedAR > 10.33 &&
-            !this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModAutopilot,
-            )
+            !this.mods.some((m) => m instanceof ModAutopilot)
         ) {
             // Buff for longer maps with high AR.
             speedValue *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
         }
 
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
-        ) {
+        if (this.mods.some((m) => m instanceof ModHidden)) {
             speedValue *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -248,13 +238,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): number {
-        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
             return 0;
         }
 
-        const ncircles = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2,
-        )
+        const ncircles = this.mods.some((m) => m instanceof ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
 
@@ -278,16 +266,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
         accuracyValue *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModHidden)
-        ) {
+        if (this.mods.some((m) => m instanceof ModHidden)) {
             accuracyValue *= 1.08;
         }
-        if (
-            this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight,
-            )
-        ) {
+
+        if (this.mods.some((m) => m instanceof ModFlashlight)) {
             accuracyValue *= 1.02;
         }
 
@@ -298,11 +281,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the flashlight performance value of the beatmap.
      */
     private calculateFlashlightValue(): number {
-        if (
-            !this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight,
-            )
-        ) {
+        if (!this.mods.some((m) => m instanceof ModFlashlight)) {
             return 0;
         }
 

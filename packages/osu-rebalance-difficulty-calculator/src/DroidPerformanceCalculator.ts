@@ -386,7 +386,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      */
     private calculateAccuracyValue(): number {
         if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModRelax) ||
+            this.mods.some((m) => m instanceof ModRelax) ||
             this.totalSuccessfulHits === 0
         ) {
             return 0;
@@ -394,9 +394,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
 
         let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
 
-        const ncircles = this.difficultyAttributes.mods.some(
-            (m) => m instanceof ModScoreV2,
-        )
+        const ncircles = this.mods.some((m) => m instanceof ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
 
@@ -420,11 +418,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             Math.max(0, this.effectiveMissCount - 1),
         );
 
-        if (
-            this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight,
-            )
-        ) {
+        if (this.mods.some((m) => m instanceof ModFlashlight)) {
             accuracyValue *= 1.02;
         }
 
@@ -435,11 +429,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
      * Calculates the flashlight performance value of the beatmap.
      */
     private calculateFlashlightValue(): number {
-        if (
-            !this.difficultyAttributes.mods.some(
-                (m) => m instanceof ModFlashlight,
-            )
-        ) {
+        if (!this.mods.some((m) => m instanceof ModFlashlight)) {
             return 0;
         }
 
@@ -797,9 +787,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDiffi
             this.difficultyAttributes.overallDifficulty,
         ).greatWindow;
 
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModPrecise)
-        ) {
+        if (this.mods.some((m) => m instanceof ModPrecise)) {
             return new PreciseDroidHitWindow(
                 PreciseDroidHitWindow.greatWindowToOD(
                     hitWindow300 * this.difficultyAttributes.clockRate,

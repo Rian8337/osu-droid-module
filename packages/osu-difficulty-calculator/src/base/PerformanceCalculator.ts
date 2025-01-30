@@ -6,7 +6,7 @@ import {
     MathUtils,
     Modes,
     ModUtil,
-    Utils,
+    Mod,
 } from "@rian8337/osu-base";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
@@ -29,7 +29,12 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     /**
      * The difficulty attributes that is being calculated.
      */
-    readonly difficultyAttributes: T;
+    readonly difficultyAttributes: T | CacheableDifficultyAttributes<T>;
+
+    /**
+     * The mods that were used.
+     */
+    protected readonly mods: Mod[];
 
     /**
      * The global multiplier to be applied to the final performance value.
@@ -57,14 +62,11 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
      * @param difficultyAttributes The difficulty attributes to calculate.
      */
     constructor(difficultyAttributes: T | CacheableDifficultyAttributes<T>) {
-        if (this.isCacheableAttribute(difficultyAttributes)) {
-            this.difficultyAttributes = <T>{
-                ...difficultyAttributes,
-                mods: ModUtil.pcStringToMods(difficultyAttributes.mods),
-            };
-        } else {
-            this.difficultyAttributes = Utils.deepCopy(difficultyAttributes);
-        }
+        this.difficultyAttributes = difficultyAttributes;
+
+        this.mods = this.isCacheableAttribute(difficultyAttributes)
+            ? ModUtil.pcStringToMods(difficultyAttributes.mods)
+            : difficultyAttributes.mods;
     }
 
     /**
@@ -169,18 +171,14 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
             maxCombo,
         );
 
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModNoFail)
-        ) {
+        if (this.mods.some((m) => m instanceof ModNoFail)) {
             this.finalMultiplier *= Math.max(
                 0.9,
                 1 - 0.02 * this.effectiveMissCount,
             );
         }
 
-        if (
-            this.difficultyAttributes.mods.some((m) => m instanceof ModSpunOut)
-        ) {
+        if (this.mods.some((m) => m instanceof ModSpunOut)) {
             this.finalMultiplier *=
                 1 -
                 Math.pow(
@@ -189,7 +187,7 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
                 );
         }
 
-        if (this.difficultyAttributes.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
             // Graph: https://www.desmos.com/calculator/bc9eybdthb
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
             const n100Multiplier = Math.max(
