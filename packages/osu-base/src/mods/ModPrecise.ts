@@ -21,7 +21,11 @@ export class ModPrecise
     readonly droidString = "s";
     readonly isDroidLegacyMod = false;
 
-    applyToHitObject(_: Modes, hitObject: HitObject): void {
+    applyToHitObject(mode: Modes, hitObject: HitObject): void {
+        if (mode === Modes.osu) {
+            return;
+        }
+
         if (hitObject instanceof Slider) {
             // For sliders, the hit window is enforced in the head - everything else is an instant hit or miss.
             hitObject.head.hitWindow = new PreciseDroidHitWindow(
