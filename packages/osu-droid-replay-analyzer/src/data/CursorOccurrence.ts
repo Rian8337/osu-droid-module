@@ -25,4 +25,31 @@ export class CursorOccurrence {
         this.position = new Vector2(x, y);
         this.id = id;
     }
+
+    /**
+     * Returns a string representation of this `CursorOccurrence`.
+     */
+    toString(): string {
+        let str = `${this.time}ms `;
+
+        switch (this.id) {
+            case MovementType.down:
+                str += "Down";
+                break;
+
+            case MovementType.up:
+                str += "Up";
+                break;
+
+            case MovementType.move:
+                str += "Move";
+                break;
+        }
+
+        if (this.id !== MovementType.up) {
+            str += ` (${this.position.x.toFixed(2)}, ${this.position.y.toFixed(2)})`;
+        }
+
+        return str;
+    }
 }
