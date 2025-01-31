@@ -68,7 +68,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
      * Builds the URL to request the API.
      */
     buildURL(): string {
-        let url: string = this.baseURL + "?";
+        let url = this.baseURL + "?";
 
         if (this.requiresAPIkey) {
             if (!this.APIkey) {
@@ -92,7 +92,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
      */
     sendRequest(): Promise<RequestResponse> {
         return new Promise((resolve) => {
-            const url: string = this.buildURL();
+            const url = this.buildURL();
 
             fetch(url)
                 .then(async (res) => {
