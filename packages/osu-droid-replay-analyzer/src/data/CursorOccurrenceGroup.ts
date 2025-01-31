@@ -19,7 +19,7 @@ export class CursorOccurrenceGroup {
     set down(value: CursorOccurrence) {
         if (value.id !== MovementType.down) {
             throw new TypeError(
-                "Attempting to set the down cursor occurrence to one with different movement type."
+                "Attempting to set the down cursor occurrence to one with different movement type.",
             );
         }
 
@@ -50,7 +50,7 @@ export class CursorOccurrenceGroup {
     set up(value: CursorOccurrence | undefined) {
         if (value && value.id !== MovementType.up) {
             throw new TypeError(
-                "Attempting to set the up cursor occurrence to one with different movement type."
+                "Attempting to set the up cursor occurrence to one with different movement type.",
             );
         }
 
@@ -113,7 +113,7 @@ export class CursorOccurrenceGroup {
     constructor(
         down: CursorOccurrence,
         moves: CursorOccurrence[],
-        up?: CursorOccurrence
+        up?: CursorOccurrence,
     ) {
         this._down = down;
         this._moves = moves;
@@ -152,11 +152,11 @@ export class CursorOccurrenceGroup {
             return this._up;
         }
 
-        let l: number = 0;
-        let r: number = this._moves.length - 2;
+        let l = 0;
+        let r = this._moves.length - 2;
 
         while (l <= r) {
-            const pivot: number = l + ((r - l) >> 1);
+            const pivot = l + ((r - l) >> 1);
 
             if (this._moves[pivot].time < time) {
                 l = pivot + 1;
@@ -169,5 +169,14 @@ export class CursorOccurrenceGroup {
 
         // l will be the first cursor occurrence with time > this._moves[l].time, but we want the one before it
         return this._moves[l - 1];
+    }
+
+    /**
+     * Returns a string representation of this class.
+     */
+    toString(): string {
+        return `Down: ${this.down.time}ms (${this.down.position.x.toFixed(2)}, ${this.down.position.y.toFixed(2)}) | Moves: ${this.moves.length} | Up: ${
+            this.up ? `${this.up.time}ms` : "N/A"
+        }`;
     }
 }
