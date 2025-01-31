@@ -72,9 +72,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
 
         if (this.requiresAPIkey) {
             if (!this.APIkey) {
-                throw new Error(
-                    "An API key is not specified as environment variable",
-                );
+                throw new Error("An API key has not been specified");
             }
 
             url += this.APIkeyParam;
