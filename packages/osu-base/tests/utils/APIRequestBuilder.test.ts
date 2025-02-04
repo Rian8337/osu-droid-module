@@ -2,8 +2,11 @@ import { DroidAPIRequestBuilder, OsuAPIRequestBuilder } from "../../src";
 
 const droidHostname = "https://osudroid.moe/api/";
 const osuHostname = "https://osu.ppy.sh/api/";
+const droidKey = "testdroidkey";
+const osuKey = "testosukey";
 
-process.env.DROID_API_KEY = "testkey";
+DroidAPIRequestBuilder.setAPIKey(droidKey);
+OsuAPIRequestBuilder.setAPIKey(osuKey);
 
 describe("Test setting endpoint", () => {
     test("Not upload endpoint", () => {
@@ -12,8 +15,7 @@ describe("Test setting endpoint", () => {
         builder.setEndpoint("getuserinfo.php");
 
         expect(builder.buildURL()).toBe(
-            droidHostname +
-                `getuserinfo.php?apiKey=${process.env.DROID_API_KEY}&`
+            droidHostname + `getuserinfo.php?apiKey=${droidKey}&`,
         );
     });
 
@@ -33,8 +35,7 @@ describe("Test adding parameter", () => {
         builder.setEndpoint("getuserinfo.php").addParameter("uid", 51076);
 
         expect(builder.buildURL()).toBe(
-            droidHostname +
-                `getuserinfo.php?apiKey=${process.env.DROID_API_KEY}&uid=51076&`
+            droidHostname + `getuserinfo.php?apiKey=${droidKey}&uid=51076&`,
         );
     });
 
@@ -79,8 +80,7 @@ test("Test removing parameter", () => {
     builder.removeParameter("username");
 
     expect(builder.buildURL()).toBe(
-        droidHostname +
-            `getuserinfo.php?apiKey=${process.env.DROID_API_KEY}&uid=51076&`
+        droidHostname + `getuserinfo.php?apiKey=${droidKey}&uid=51076&`,
     );
 });
 
@@ -95,7 +95,5 @@ test("Test osu! API URL builder", () => {
 
     builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
 
-    expect(builder.buildURL()).toBe(
-        osuHostname + `get_beatmaps?k=${process.env.OSU_API_KEY}&`
-    );
+    expect(builder.buildURL()).toBe(osuHostname + `get_beatmaps?k=${osuKey}&`);
 });
