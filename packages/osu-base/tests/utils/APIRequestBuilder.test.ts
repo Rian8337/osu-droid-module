@@ -85,15 +85,7 @@ test("Test removing parameter", () => {
 });
 
 test("Test osu! API URL builder", () => {
-    let builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
-
-    if (!process.env.OSU_API_KEY) {
-        expect(() => builder.buildURL()).toThrow();
-    }
-
-    process.env.OSU_API_KEY = "testkey";
-
-    builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
+    const builder = new OsuAPIRequestBuilder().setEndpoint("get_beatmaps");
 
     expect(builder.buildURL()).toBe(osuHostname + `get_beatmaps?k=${osuKey}&`);
 });
