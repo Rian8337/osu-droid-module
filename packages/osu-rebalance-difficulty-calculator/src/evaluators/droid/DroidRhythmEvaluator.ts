@@ -16,8 +16,12 @@ export abstract class DroidRhythmEvaluator {
      * with historic data of the current object.
      *
      * @param current The current object.
+     * @param useSliderAccuracy Whether to use slider accuracy.
      */
-    static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
+    static evaluateDifficultyOf(
+        current: DroidDifficultyHitObject,
+        useSliderAccuracy: boolean,
+    ): number {
         if (current.object instanceof Spinner) {
             return 1;
         }
@@ -119,16 +123,18 @@ export abstract class DroidRhythmEvaluator {
                     // Island is still progressing, count size.
                     island.addDelta(currentDelta);
                 } else {
-                    // BPM change is into slider, this is easy acc window.
-                    if (currentObject.object instanceof Slider) {
-                        effectiveRatio /= 8;
-                    }
+                    if (!useSliderAccuracy) {
+                        // BPM change is into slider, this is easy acc window.
+                        if (currentObject.object instanceof Slider) {
+                            effectiveRatio /= 8;
+                        }
 
-                    // BPM change was from a slider, this is easier typically than circle -> circle.
-                    // Unintentional side effect is that bursts with kicksliders at the ends might have lower difficulty
-                    // than bursts without sliders.
-                    if (prevObject.object instanceof Slider) {
-                        effectiveRatio *= 0.3;
+                        // BPM change was from a slider, this is easier typically than circle -> circle.
+                        // Unintentional side effect is that bursts with kicksliders at the ends might have lower difficulty
+                        // than bursts without sliders.
+                        if (prevObject.object instanceof Slider) {
+                            effectiveRatio *= 0.3;
+                        }
                     }
 
                     // Repeated island polarity (2 -> 4, 3 -> 5).
