@@ -266,7 +266,6 @@ export class ReplayAnalyzer {
             const o = objects[i];
 
             if (o instanceof Spinner || v.result === HitResult.miss) {
-                accuracies.push(0);
                 continue;
             }
 
@@ -278,7 +277,6 @@ export class ReplayAnalyzer {
                 (-mehWindow > accuracy ||
                     accuracy > Math.min(mehWindow, o.duration))
             ) {
-                accuracies.push(0);
                 continue;
             }
 
