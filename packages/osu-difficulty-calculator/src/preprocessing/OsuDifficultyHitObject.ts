@@ -22,7 +22,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
         const radius = this.object.radius;
 
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
-        let scalingFactor = this.normalizedRadius / radius;
+        let scalingFactor = DifficultyHitObject.normalizedRadius / radius;
 
         // High circle size (small CS) bonus
         if (radius < this.radiusBuffThreshold) {

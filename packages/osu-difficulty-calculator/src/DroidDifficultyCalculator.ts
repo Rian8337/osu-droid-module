@@ -70,6 +70,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     override readonly attributes: ExtendedDroidDifficultyAttributes = {
         mode: "live",
+        aimDifficultSliderCount: 0,
         tapDifficulty: 0,
         rhythmDifficulty: 0,
         visualDifficulty: 0,
@@ -354,6 +355,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.attributes.aimDifficultStrainCount =
             aimSkill.countDifficultStrains();
 
+        this.attributes.aimDifficultSliderCount =
+            aimSkill.countDifficultSliders();
+
         this.calculateAimAttributes();
     }
 
@@ -550,6 +554,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.flashlightDifficulty *= 0.7;
+        } else if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.flashlightDifficulty *= 0.4;
         }
 
         this.attributes.flashlightDifficultStrainCount =

@@ -6,9 +6,10 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator extends AimEvaluator {
-    protected static override readonly wideAngleMultiplier = 1.65;
-    protected static override readonly sliderMultiplier = 1.5;
-    protected static override readonly velocityChangeMultiplier = 0.85;
+    protected static override readonly wideAngleMultiplier = 1.5;
+    protected static override readonly acuteAngleMultiplier = 2.6;
+    protected static override readonly sliderMultiplier = 1.35;
+    protected static override readonly velocityChangeMultiplier = 0.75;
 
     private static readonly singleSpacingThreshold = 100;
 
@@ -61,6 +62,9 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         const last = current.previous(0)!;
         const lastLast = current.previous(1)!;
 
+        const radius = DroidDifficultyHitObject.normalizedRadius;
+        const diameter = DroidDifficultyHitObject.normalizedDiameter;
+
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity = current.lazyJumpDistance / current.strainTime;
 
@@ -104,6 +108,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         let acuteAngleBonus = 0;
         let sliderBonus = 0;
         let velocityChangeBonus = 0;
+        let wiggleBonus = 0;
 
         // Start strain with regular velocity.
         let strain = currentVelocity;
@@ -116,65 +121,94 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             last.angle !== null &&
             lastLast.angle !== null
         ) {
+            const currentAngle = current.angle;
+            const lastAngle = last.angle;
+
             // Rewarding angles, take the smaller velocity as base.
             const angleBonus = Math.min(currentVelocity, prevVelocity);
 
             wideAngleBonus = this.calculateWideAngleBonus(current.angle);
             acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
 
-            // Only buff deltaTime exceeding 300 BPM 1/2.
-            if (current.strainTime > 100) {
-                acuteAngleBonus = 0;
-            } else {
-                acuteAngleBonus *=
-                    // Multiply by previous angle, we don't want to buff unless this is a wiggle type pattern.
-                    this.calculateAcuteAngleBonus(last.angle) *
-                    // The maximum velocity we buff is equal to 125 / strainTime.
-                    Math.min(angleBonus, 125 / current.strainTime) *
-                    // Scale buff from 300 BPM 1/2 to 400 BPM 1/2.
-                    Math.pow(
-                        Math.sin(
-                            (Math.PI / 2) *
-                                Math.min(1, (100 - current.strainTime) / 25),
-                        ),
-                        2,
-                    ) *
-                    // Buff distance exceeding 50 (radius) up to 100 (diameter).
-                    Math.pow(
-                        Math.sin(
-                            ((Math.PI / 2) *
-                                (MathUtils.clamp(
-                                    current.lazyJumpDistance,
-                                    50,
-                                    100,
-                                ) -
-                                    50)) /
-                                50,
-                        ),
-                        2,
-                    );
-            }
-
-            // Penalize wide angles if they're repeated, reducing the penalty as last.angle gets more acute.
+            // Penalize angle repetition.
             wideAngleBonus *=
-                angleBonus *
-                (1 -
-                    Math.min(
-                        wideAngleBonus,
-                        Math.pow(this.calculateWideAngleBonus(last.angle), 3),
-                    ));
-            // Penalize acute angles if they're repeated, reducing the penalty as lastLast.angle gets more obtuse.
+                1 -
+                Math.min(
+                    wideAngleBonus,
+                    Math.pow(this.calculateWideAngleBonus(lastAngle), 3),
+                );
+
             acuteAngleBonus *=
-                0.5 +
-                0.5 *
+                0.08 +
+                0.92 *
                     (1 -
                         Math.min(
                             acuteAngleBonus,
                             Math.pow(
-                                this.calculateAcuteAngleBonus(lastLast.angle),
+                                this.calculateAcuteAngleBonus(lastAngle),
                                 3,
                             ),
                         ));
+
+            // Apply full wide angle bonus for distance more than one diameter
+            wideAngleBonus *=
+                angleBonus *
+                MathUtils.smootherstep(current.lazyJumpDistance, 0, diameter);
+
+            // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter
+            acuteAngleBonus *=
+                angleBonus *
+                MathUtils.smootherstep(
+                    MathUtils.millisecondsToBPM(current.strainTime, 2),
+                    300,
+                    400,
+                ) *
+                MathUtils.smootherstep(
+                    current.lazyJumpDistance,
+                    diameter,
+                    diameter * 2,
+                );
+
+            // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
+            // https://www.desmos.com/calculator/dp0v0nvowc
+            wiggleBonus =
+                angleBonus *
+                MathUtils.smootherstep(
+                    current.lazyJumpDistance,
+                    radius,
+                    diameter,
+                ) *
+                Math.pow(
+                    MathUtils.reverseLerp(
+                        current.lazyJumpDistance,
+                        diameter * 3,
+                        diameter,
+                    ),
+                    1.8,
+                ) *
+                MathUtils.smootherstep(
+                    currentAngle,
+                    MathUtils.degreesToRadians(110),
+                    MathUtils.degreesToRadians(60),
+                ) *
+                MathUtils.smootherstep(
+                    last.lazyJumpDistance,
+                    radius,
+                    diameter,
+                ) *
+                Math.pow(
+                    MathUtils.reverseLerp(
+                        last.lazyJumpDistance,
+                        diameter * 3,
+                        diameter,
+                    ),
+                    1.8,
+                ) *
+                MathUtils.smootherstep(
+                    lastAngle,
+                    MathUtils.degreesToRadians(110),
+                    MathUtils.degreesToRadians(60),
+                );
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
@@ -216,6 +250,8 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
             sliderBonus = last.travelDistance / last.travelTime;
         }
 
+        strain += wiggleBonus * this.wiggleMultiplier;
+
         // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
@@ -254,5 +290,21 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         );
 
         return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
+    }
+
+    protected static override calculateWideAngleBonus(angle: number): number {
+        return MathUtils.smoothstep(
+            angle,
+            MathUtils.degreesToRadians(40),
+            MathUtils.degreesToRadians(140),
+        );
+    }
+
+    protected static override calculateAcuteAngleBonus(angle: number): number {
+        return MathUtils.smoothstep(
+            angle,
+            MathUtils.degreesToRadians(140),
+            MathUtils.degreesToRadians(40),
+        );
     }
 }

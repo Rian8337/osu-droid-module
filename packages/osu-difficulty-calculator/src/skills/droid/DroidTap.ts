@@ -15,7 +15,7 @@ export class DroidTap extends DroidSkill {
     private currentTapStrain = 0;
     private currentRhythmMultiplier = 0;
 
-    private readonly skillMultiplier = 1375;
+    private readonly skillMultiplier = 1.375;
     private readonly considerCheesability: boolean;
     private readonly strainTimeCap?: number;
 

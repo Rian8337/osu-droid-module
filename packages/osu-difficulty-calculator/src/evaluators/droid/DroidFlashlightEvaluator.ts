@@ -42,6 +42,8 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const currentObject = current.previous(i)!;
 
+            cumulativeStrainTime += last.strainTime;
+
             if (
                 !(currentObject.object instanceof Spinner) &&
                 // Exclude overlapping objects that can be tapped at once.
@@ -52,8 +54,6 @@ export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
                     .subtract(
                         currentObject.object.getStackedEndPosition(Modes.droid),
                     ).length;
-
-                cumulativeStrainTime += last.strainTime;
 
                 // We want to nerf objects that can be easily seen within the Flashlight circle radius.
                 if (i === 0) {
