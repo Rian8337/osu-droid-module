@@ -591,8 +591,4 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.attributes.visualDifficultStrainCount =
             visualSkillWithSliders.countDifficultStrains();
     }
-
-    private calculateRetryabilityScaling(retryability: number) {
-        return 1 - Math.pow(retryability, 4) / 10;
-    }
 }
