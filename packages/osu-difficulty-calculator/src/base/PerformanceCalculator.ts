@@ -124,6 +124,17 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
     }
 
     /**
+     * The total of imperfect hits (100s, 50s, misses).
+     */
+    protected get totalImperfectHits(): number {
+        return (
+            this.computedAccuracy.n100 +
+            this.computedAccuracy.n50 +
+            this.computedAccuracy.nmiss
+        );
+    }
+
+    /**
      * Calculates the base performance value of a star rating.
      */
     protected baseValue(stars: number): number {
