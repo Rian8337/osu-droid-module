@@ -1,4 +1,4 @@
-import { Beatmap, Vector2 } from "@rian8337/osu-base";
+import { Beatmap, MathUtils, Vector2 } from "@rian8337/osu-base";
 import { StrainPeaks } from "@rian8337/osu-difficulty-calculator";
 import { StrainPeaks as RebalanceStrainPeaks } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { loadImage } from "canvas";
@@ -60,7 +60,10 @@ export default async function (
     const maxTime =
         strainInformations.at(-1)?.time ??
         beatmap.hitObjects.objects.at(-1)!.endTime / 1000 / clockRate;
-    const maxStrain = Math.max(...strainInformations.map((v) => v.strain), 1);
+    const maxStrain = Math.max(
+        MathUtils.max(strainInformations.map((v) => v.strain)),
+        1,
+    );
 
     const maxXUnits = 10;
     const maxYUnits = 10;

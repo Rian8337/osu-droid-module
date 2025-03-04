@@ -1,4 +1,4 @@
-import { Mod, Slider } from "@rian8337/osu-base";
+import { MathUtils, Mod, Slider } from "@rian8337/osu-base";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -33,7 +33,7 @@ export class DroidAim extends DroidSkill {
             return 0;
         }
 
-        const maxSliderStrain = Math.max(...this.sliderStrains);
+        const maxSliderStrain = MathUtils.max(this.sliderStrains);
 
         if (maxSliderStrain === 0) {
             return 0;

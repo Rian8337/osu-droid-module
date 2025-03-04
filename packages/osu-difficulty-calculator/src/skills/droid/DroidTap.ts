@@ -1,4 +1,4 @@
-import { Mod } from "@rian8337/osu-base";
+import { MathUtils, Mod } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -47,7 +47,7 @@ export class DroidTap extends DroidSkill {
             return 0;
         }
 
-        const maxStrain = Math.max(...this._objectStrains);
+        const maxStrain = MathUtils.max(this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;
@@ -68,7 +68,7 @@ export class DroidTap extends DroidSkill {
             return 0;
         }
 
-        const maxStrain = Math.max(...this._objectStrains);
+        const maxStrain = MathUtils.max(this._objectStrains);
 
         if (maxStrain === 0) {
             return 0;

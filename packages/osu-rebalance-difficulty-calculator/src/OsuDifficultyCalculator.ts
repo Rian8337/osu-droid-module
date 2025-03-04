@@ -13,6 +13,7 @@ import {
     BeatmapDifficulty,
     HitObject,
     ModAutopilot,
+    MathUtils,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
@@ -297,7 +298,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
      */
     private calculateSpeedAttributes(): void {
         const objectStrains = this.objects.map((v) => v.speedStrain);
-        const maxStrain = Math.max(...objectStrains);
+        const maxStrain = MathUtils.max(objectStrains);
 
         if (maxStrain) {
             this.attributes.speedNoteCount = objectStrains.reduce(
