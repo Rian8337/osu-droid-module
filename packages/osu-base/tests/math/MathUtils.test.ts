@@ -1,5 +1,27 @@
 import { MathUtils } from "../../src";
 
+test("Test min", () => {
+    expect(MathUtils.min([])).toBe(0);
+    expect(MathUtils.min([1])).toBe(1);
+    expect(MathUtils.min([1, 5])).toBe(1);
+    expect(MathUtils.min([1, 2, Number.NaN])).toBeNaN();
+    expect(MathUtils.min([-1, -5, 4])).toBe(-5);
+    expect(MathUtils.min([-1, 5, Number.NEGATIVE_INFINITY])).toBe(
+        Number.NEGATIVE_INFINITY,
+    );
+});
+
+test("Test max", () => {
+    expect(MathUtils.max([])).toBe(0);
+    expect(MathUtils.max([1])).toBe(1);
+    expect(MathUtils.max([1, 5])).toBe(5);
+    expect(MathUtils.max([1, 2, Number.NaN])).toBeNaN();
+    expect(MathUtils.max([-1, -5, 4])).toBe(4);
+    expect(MathUtils.max([-1, 5, Number.POSITIVE_INFINITY])).toBe(
+        Number.POSITIVE_INFINITY,
+    );
+});
+
 test("Test rounding", () => {
     expect(MathUtils.round(5.12398123791, 1)).toBeCloseTo(5.1, 1);
     expect(MathUtils.round(5.12398123791, 2)).toBeCloseTo(5.12);
@@ -22,7 +44,7 @@ test("Test standard deviation", () => {
     expect(MathUtils.calculateStandardDeviation([1, 5])).toBeCloseTo(2);
     expect(MathUtils.calculateStandardDeviation([1, 5, 9])).toBeCloseTo(3.27);
     expect(MathUtils.calculateStandardDeviation([1, 5, 9, 3, 12])).toBeCloseTo(
-        4
+        4,
     );
 });
 

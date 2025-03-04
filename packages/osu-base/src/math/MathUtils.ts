@@ -3,6 +3,74 @@
  */
 export abstract class MathUtils {
     /**
+     * An alternative of {@link Math.min} that does not require a spread operator, making it
+     * more efficient for larger arrays.
+     *
+     * @param values The values to get the minimum from.
+     * @returns One of the following:
+     * - The minimum value.
+     * - 0 if the iterable is empty.
+     * - `NaN` if any of the values are `NaN`.
+     */
+    static min(values: Iterable<number>): number {
+        let hasValue = false;
+        let min = Number.POSITIVE_INFINITY;
+
+        for (const value of values) {
+            // Optimization - immediately return when the minimum is already negative infinity.
+            if (hasValue && min === Number.NEGATIVE_INFINITY) {
+                return min;
+            }
+
+            hasValue = true;
+
+            if (Number.isNaN(value)) {
+                return Number.NaN;
+            }
+
+            if (value < min) {
+                min = value;
+            }
+        }
+
+        return hasValue ? min : 0;
+    }
+
+    /**
+     * An alternative of {@link Math.max} that does not require a spread operator, making it
+     * more efficient for larger arrays.
+     *
+     * @param values The values to get the maximum from.
+     * @returns One of the following:
+     * - The maximum value.
+     * - 0 if the iterable is empty.
+     * - `NaN` if any of the values are `NaN`.
+     */
+    static max(values: Iterable<number>): number {
+        let hasValue = false;
+        let max = Number.NEGATIVE_INFINITY;
+
+        for (const value of values) {
+            // Optimization - immediately return when the maximum is already positive infinity.
+            if (hasValue && max === Number.POSITIVE_INFINITY) {
+                return max;
+            }
+
+            hasValue = true;
+
+            if (Number.isNaN(value)) {
+                return Number.NaN;
+            }
+
+            if (value > max) {
+                max = value;
+            }
+        }
+
+        return hasValue ? max : 0;
+    }
+
+    /**
      * Rounds a specified number with specified amount of fractional digits.
      *
      * @param num The number to round.
