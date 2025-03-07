@@ -118,8 +118,7 @@ export abstract class DroidAimEvaluator {
             Math.max(current.strainTime, last.strainTime) <
                 1.25 * Math.min(current.strainTime, last.strainTime) &&
             current.angle !== null &&
-            last.angle !== null &&
-            lastLast.angle !== null
+            last.angle !== null
         ) {
             const currentAngle = current.angle;
             const lastAngle = last.angle;

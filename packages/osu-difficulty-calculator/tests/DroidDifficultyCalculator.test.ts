@@ -226,20 +226,20 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 1.1878773067649688,
+            aim: 1.187883822214656,
             tap: 0.9920702742360272,
             rhythm: 0.6013744914648519,
             flashlight: 0.45975898744747334,
             visual: 0.7342340416938831,
-            total: 2.8934608650339273,
+            total: 2.8934637532283443,
         },
         doubleTime: {
-            aim: 1.625692714823466,
+            aim: 1.6257023674613005,
             tap: 1.3850570311596002,
             rhythm: 0.747004165876224,
             flashlight: 0.6681150535256252,
             visual: 0.8473317674989617,
-            total: 3.429468828867204,
+            total: 3.4294737255078522,
         },
     });
 });
@@ -249,20 +249,20 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noMod: {
-                aim: 2.9720162875744505,
+                aim: 2.972058300389381,
                 tap: 3.2460702528715935,
                 rhythm: 1.2221930759823814,
                 flashlight: 1.8982402716945184,
                 visual: 0.9493658854538004,
-                total: 5.943891875911393,
+                total: 5.943908085667447,
             },
             doubleTime: {
-                aim: 4.126240763653687,
+                aim: 4.126354347265696,
                 tap: 4.43060943693035,
                 rhythm: 1.3559657861736483,
                 flashlight: 2.7848409588539473,
                 visual: 1.081656916976236,
-                total: 7.900442672207831,
+                total: 7.900481750290572,
             },
         },
     );
