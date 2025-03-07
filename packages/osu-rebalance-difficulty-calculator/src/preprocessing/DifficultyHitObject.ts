@@ -3,6 +3,7 @@ import {
     Modes,
     ModHidden,
     PlaceableHitObject,
+    Precision,
     Slider,
     SliderRepeat,
     SliderTick,
@@ -457,6 +458,19 @@ export abstract class DifficultyHitObject {
                 reordered.push(lastRealTick);
 
                 nestedObjects = reordered;
+            }
+        }
+
+        if (this.mode === Modes.droid) {
+            // Temporary lazy end position until a real result can be derived.
+            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
+
+            // Stop here if the slider has too short duration, allowing the player to essentially
+            // complete the slider without movement, making travel distance and time irrelevant.
+            if (
+                Precision.almostEqualsNumber(slider.startTime, slider.endTime)
+            ) {
+                return;
             }
         }
 
