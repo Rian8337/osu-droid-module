@@ -3,9 +3,9 @@ import {
     Modes,
     ModHidden,
     PlaceableHitObject,
-    Precision,
     Slider,
     SliderRepeat,
+    SliderTick,
     Spinner,
 } from "@rian8337/osu-base";
 
@@ -417,22 +417,50 @@ export abstract class DifficultyHitObject {
             return;
         }
 
-        if (this.mode === Modes.droid) {
-            // Temporary lazy end position until a real result can be derived.
-            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
+        let trackingEndTime = slider.endTime;
+        let { nestedHitObjects: nestedObjects } = slider;
 
-            // Stop here if the slider has too short duration, allowing the player to essentially
-            // complete the slider without movement, making travel distance and time irrelevant.
-            if (
-                Precision.almostEqualsNumber(slider.startTime, slider.endTime)
-            ) {
-                return;
+        if (this.mode === Modes.osu) {
+            trackingEndTime = Math.max(
+                slider.endTime - Slider.legacyLastTickOffset,
+                slider.startTime + slider.duration / 2,
+            );
+
+            let lastRealTick: SliderTick | null = null;
+
+            for (let i = nestedObjects.length - 2; i > 0; --i) {
+                const current = nestedObjects[i];
+
+                if (current instanceof SliderTick) {
+                    lastRealTick = current;
+                    break;
+                }
+
+                if (current instanceof SliderRepeat) {
+                    // A repeat means the slider does not have a slider tick.
+                    break;
+                }
+            }
+
+            if (lastRealTick && lastRealTick.startTime > trackingEndTime) {
+                trackingEndTime = lastRealTick.startTime;
+
+                // When the last tick falls after the tracking end time, we need to re-sort the nested objects
+                // based on time. This creates a somewhat weird ordering which is counter to how a user would
+                // understand the slider, but allows a zero-diff with known diffcalc output.
+                //
+                // To reiterate, this is definitely not correct from a difficulty calculation perspective
+                // and should be revisited at a later date.
+                const reordered = nestedObjects.slice();
+
+                reordered.splice(reordered.indexOf(lastRealTick), 1);
+                reordered.push(lastRealTick);
+
+                nestedObjects = reordered;
             }
         }
 
-        // Not using slider.endTime due to legacy last tick offset.
-        slider.lazyTravelTime =
-            slider.nestedHitObjects.at(-1)!.startTime - slider.startTime;
+        slider.lazyTravelTime = trackingEndTime - slider.startTime;
 
         let endTimeMin = slider.lazyTravelTime / slider.spanDuration;
         if (endTimeMin % 2 >= 1) {
@@ -450,18 +478,19 @@ export abstract class DifficultyHitObject {
         const scalingFactor =
             DifficultyHitObject.normalizedRadius / slider.radius;
 
-        for (let i = 1; i < slider.nestedHitObjects.length; ++i) {
-            const currentMovementObject = slider.nestedHitObjects[i];
+        for (let i = 1; i < nestedObjects.length; ++i) {
+            const currentMovementObject = nestedObjects[i];
 
             let currentMovement = currentMovementObject
                 .getStackedPosition(this.mode)
                 .subtract(currentCursorPosition);
+
             let currentMovementLength = scalingFactor * currentMovement.length;
 
             // The amount of movement required so that the cursor position needs to be updated.
             let requiredMovement = this.assumedSliderRadius;
 
-            if (i === slider.nestedHitObjects.length - 1) {
+            if (i === nestedObjects.length - 1) {
                 // The end of a slider has special aim rules due to the relaxed time constraint on position.
                 // There is both a lazy end position as well as the actual end slider position. We assume the player takes the simpler movement.
                 // For sliders that are circular, the lazy end position may actually be farther away than the sliders' true end.
@@ -489,13 +518,15 @@ export abstract class DifficultyHitObject {
                             currentMovementLength,
                     ),
                 );
+
                 currentMovementLength *=
                     (currentMovementLength - requiredMovement) /
                     currentMovementLength;
+
                 slider.lazyTravelDistance += currentMovementLength;
             }
 
-            if (i === slider.nestedHitObjects.length - 1) {
+            if (i === nestedObjects.length - 1) {
                 slider.lazyEndPosition = currentCursorPosition;
             }
         }
