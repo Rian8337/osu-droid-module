@@ -20,6 +20,12 @@ test("Test linear interpolation of vectors", () => {
     ).toEqual(new Vector2(15, 14));
 });
 
+test("Test reverse linear interpolation", () => {
+    expect(Interpolation.reverseLerp(5, 4, 6)).toBe(0.5);
+    expect(Interpolation.reverseLerp(5, 2, 8)).toBe(0.5);
+    expect(Interpolation.reverseLerp(7, -1, 15)).toBe(0.5);
+});
+
 describe("Test interpolation using easing functions", () => {
     const testEasing = (easing: Easing, t: number, expected: number) => {
         expect(Interpolation.easing(easing, t)).toBeCloseTo(expected);

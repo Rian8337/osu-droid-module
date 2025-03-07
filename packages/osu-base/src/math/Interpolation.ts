@@ -1,4 +1,5 @@
 import { Easing } from "../constants/Easing";
+import { MathUtils } from "./MathUtils";
 import { Vector2 } from "./Vector2";
 
 /**
@@ -41,6 +42,19 @@ export abstract class Interpolation {
                 ((final as number) - (start as number)) * amount
             );
         }
+    }
+
+    /**
+     * Calculates the reverse [linear interpolation](https://en.wikipedia.org/wiki/Linear_interpolation)
+     * function at `x`.
+     *
+     * @param x The value to calculate the function for.
+     * @param start The `x` value at which the function returns 0.
+     * @param end The `x` value at which the function returns 1.
+     * @return The output of the reverse linear interpolation function calculated at `x`.
+     */
+    static reverseLerp(x: number, start: number, end: number): number {
+        return MathUtils.clamp((x - start) / (end - start), 0, 1);
     }
 
     /**
