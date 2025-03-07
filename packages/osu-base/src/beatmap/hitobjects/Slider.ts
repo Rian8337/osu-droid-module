@@ -331,7 +331,7 @@ export class Slider extends HitObject {
               this.tickDistanceMultiplier
             : Number.POSITIVE_INFINITY;
 
-        this.createNestedHitObjects(mode, controlPoints);
+        this.createNestedHitObjects(controlPoints);
 
         this.nestedHitObjects.forEach((v) =>
             v.applyDefaults(controlPoints, difficulty, mode),
@@ -399,10 +399,7 @@ export class Slider extends HitObject {
         return new EmptyHitWindow();
     }
 
-    private createNestedHitObjects(
-        mode: Modes,
-        controlPoints: BeatmapControlPoints,
-    ): void {
+    private createNestedHitObjects(controlPoints: BeatmapControlPoints): void {
         this.nestedHitObjects.length = 0;
 
         this._head = new SliderHead({
@@ -484,47 +481,14 @@ export class Slider extends HitObject {
             }
         }
 
-        switch (mode) {
-            case Modes.droid:
-                this._tail = new SliderTail({
-                    sliderStartTime: this.startTime,
-                    sliderSpanDuration: this.spanDuration,
-                    position: this.endPosition,
-                    startTime: this.endTime,
-                    spanIndex: this.spanCount - 1,
-                    spanStartTime:
-                        this.startTime + this.spanDuration * this.spanCount,
-                });
-                break;
-            case Modes.osu: {
-                // Okay, I'll level with you. I made a mistake. It was 2007.
-                // Times were simpler. osu! was but in its infancy and sliders were a new concept.
-                // A hack was made, which has unfortunately lived through until this day.
-                //
-                // This legacy tick is used for some calculations and judgements where audio output is not required.
-                // Generally we are keeping this around just for difficulty compatibility.
-                // Optimistically we do not want to ever use this for anything user-facing going forwards.
-                const finalSpanIndex = this.repeatCount;
-                const finalSpanStartTime =
-                    this.startTime + finalSpanIndex * this.spanDuration;
-                const finalSpanEndTime = Math.max(
-                    this.startTime + this.duration / 2,
-                    finalSpanStartTime +
-                        this.spanDuration -
-                        Slider.legacyLastTickOffset,
-                );
-
-                this._tail = new SliderTail({
-                    sliderStartTime: this.startTime,
-                    sliderSpanDuration: this.spanDuration,
-                    position: this.endPosition,
-                    startTime: finalSpanEndTime,
-                    spanIndex: this.spanCount - 1,
-                    spanStartTime: finalSpanStartTime,
-                });
-                break;
-            }
-        }
+        this._tail = new SliderTail({
+            sliderStartTime: this.startTime,
+            sliderSpanDuration: this.spanDuration,
+            position: this.endPosition,
+            startTime: this.endTime,
+            spanIndex: this.spanCount - 1,
+            spanStartTime: this.startTime + this.spanDuration * this.spanCount,
+        });
 
         this.nestedHitObjects.push(this.tail);
         this.nestedHitObjects.sort((a, b) => a.startTime - b.startTime);

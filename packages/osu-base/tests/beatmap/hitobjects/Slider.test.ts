@@ -215,7 +215,6 @@ describe("Test slider without slider ticks", () => {
         expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
-
         expect(head.position.x).toBeCloseTo(100);
         expect(head.position.y).toBeCloseTo(192);
     });
@@ -227,10 +226,7 @@ describe("Test slider without slider ticks", () => {
 
         expect(tail).toEqual(slider.tail);
 
-        expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset,
-        );
-
+        expect(tail.startTime).toBeCloseTo(slider.endTime);
         expect(tail.position.x).toBeCloseTo(300);
         expect(tail.position.y).toBeCloseTo(192);
     });
@@ -258,7 +254,6 @@ describe("Test slider with 1 slider tick", () => {
         expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
-
         expect(head.position.x).toBeCloseTo(100);
         expect(head.position.y).toBeCloseTo(192);
     });
@@ -269,7 +264,6 @@ describe("Test slider with 1 slider tick", () => {
         expect(tick).toBeInstanceOf(SliderTick);
 
         expect(tick.startTime).toBeCloseTo(2000);
-
         expect(tick.position.x).toBeCloseTo(200);
         expect(tick.position.y).toBeCloseTo(192);
     });
@@ -281,10 +275,7 @@ describe("Test slider with 1 slider tick", () => {
 
         expect(tail).toEqual(slider.tail);
 
-        expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset,
-        );
-
+        expect(tail.startTime).toBeCloseTo(slider.endTime);
         expect(tail.position.x).toBeCloseTo(300);
         expect(tail.position.y).toBeCloseTo(192);
     });
@@ -313,7 +304,6 @@ describe("Test slider with 3 slider ticks", () => {
         expect(head).toEqual(slider.head);
 
         expect(head.startTime).toBeCloseTo(slider.startTime);
-
         expect(head.position.x).toBeCloseTo(100);
         expect(head.position.y).toBeCloseTo(192);
     });
@@ -329,7 +319,6 @@ describe("Test slider with 3 slider ticks", () => {
             const tick = ticks[i];
 
             expect(tick.startTime).toBeCloseTo(1000 + 500 * (i + 1));
-
             expect(tick.position.x).toBeCloseTo(100 + 50 * (i + 1));
             expect(tick.position.y).toBeCloseTo(192);
         }
@@ -342,10 +331,7 @@ describe("Test slider with 3 slider ticks", () => {
 
         expect(tail).toEqual(slider.tail);
 
-        expect(tail.startTime).toBeCloseTo(
-            slider.endTime - Slider.legacyLastTickOffset,
-        );
-
+        expect(tail.startTime).toBeCloseTo(slider.endTime);
         expect(tail.position.x).toBeCloseTo(300);
         expect(tail.position.y).toBeCloseTo(192);
     });
