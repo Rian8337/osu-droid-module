@@ -16,8 +16,6 @@ export class DroidTap extends DroidSkill {
     private currentRhythmMultiplier = 0;
 
     private readonly skillMultiplier = 1.375;
-    private readonly considerCheesability: boolean;
-    private readonly strainTimeCap?: number;
 
     private readonly _objectDeltaTimes: number[] = [];
 
@@ -27,6 +25,9 @@ export class DroidTap extends DroidSkill {
     get objectDeltaTimes(): readonly number[] {
         return this._objectDeltaTimes;
     }
+
+    readonly considerCheesability: boolean;
+    private readonly strainTimeCap?: number;
 
     constructor(
         mods: Mod[],

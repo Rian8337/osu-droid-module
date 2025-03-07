@@ -13,11 +13,12 @@ export class DroidVisual extends DroidSkill {
     protected override readonly strainDecayBase = 0.1;
 
     private readonly isHidden: boolean;
-    private readonly withSliders: boolean;
 
     private currentVisualStrain = 0;
     private currentRhythmMultiplier = 1;
     private readonly skillMultiplier = 10;
+
+    readonly withSliders: boolean;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);

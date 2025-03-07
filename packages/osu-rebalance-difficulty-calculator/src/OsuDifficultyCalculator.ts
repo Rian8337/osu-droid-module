@@ -81,6 +81,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.aimDifficulty = 0;
+            return;
+        }
+
         const aimSkill = new OsuAim(this.mods, true);
         const aimSkillWithoutSliders = new OsuAim(this.mods, false);
 
@@ -107,6 +112,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
+        if (!this.mods.some((m) => m instanceof ModFlashlight)) {
+            this.attributes.flashlightDifficulty = 0;
+            return;
+        }
+
         const flashlightSkill = new OsuFlashlight(this.mods);
 
         this.calculateSkills(flashlightSkill);
@@ -146,26 +156,35 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
     override calculateAll(): void {
         const skills = this.createSkills();
-        const isRelax = this.mods.some((m) => m instanceof ModRelax);
-
         this.calculateSkills(...skills);
 
-        const aimSkill = <OsuAim>skills[0];
-        const aimSkillWithoutSliders = <OsuAim>skills[1];
-        const speedSkill = <OsuSpeed>skills[2];
-        const flashlightSkill = <OsuFlashlight>skills[3];
+        const aimSkill = skills.find(
+            (s) => s instanceof OsuAim && s.withSliders,
+        ) as OsuAim | undefined;
 
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        const aimSkillWithoutSliders = skills.find(
+            (s) => s instanceof OsuAim && !s.withSliders,
+        ) as OsuAim | undefined;
 
-        if (isRelax) {
-            this.attributes.speedDifficulty = 0;
-        } else {
+        const speedSkill = skills.find((s) => s instanceof OsuSpeed) as
+            | OsuSpeed
+            | undefined;
+
+        const flashlightSkill = skills.find(
+            (s) => s instanceof OsuFlashlight,
+        ) as OsuFlashlight | undefined;
+
+        if (aimSkill && aimSkillWithoutSliders) {
+            this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        }
+
+        if (speedSkill) {
             this.postCalculateSpeed(speedSkill);
         }
 
-        this.calculateSpeedAttributes();
-
-        this.postCalculateFlashlight(flashlightSkill);
+        if (flashlightSkill) {
+            this.postCalculateFlashlight(flashlightSkill);
+        }
 
         this.calculateTotal();
     }
@@ -207,12 +226,22 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createSkills(): OsuSkill[] {
-        return [
-            new OsuAim(this.mods, true),
-            new OsuAim(this.mods, false),
-            new OsuSpeed(this.mods),
-            new OsuFlashlight(this.mods),
-        ];
+        const skills: OsuSkill[] = [];
+
+        if (!this.mods.some((m) => m instanceof ModAutopilot)) {
+            skills.push(new OsuAim(this.mods, true));
+            skills.push(new OsuAim(this.mods, false));
+        }
+
+        if (!this.mods.some((m) => m instanceof ModRelax)) {
+            skills.push(new OsuSpeed(this.mods));
+        }
+
+        if (this.mods.some((m) => m instanceof ModFlashlight)) {
+            skills.push(new OsuFlashlight(this.mods));
+        }
+
+        return skills;
     }
 
     protected override populateDifficultyAttributes(
@@ -285,9 +314,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     private postCalculateSpeed(speedSkill: OsuSpeed): void {
         this.strainPeaks.speed = speedSkill.strainPeaks;
 
-        this.attributes.speedDifficulty = this.starValue(
-            speedSkill.difficultyValue(),
-        );
+        this.attributes.speedDifficulty = this.mods.some(
+            (m) => m instanceof ModRelax,
+        )
+            ? 0
+            : this.starValue(speedSkill.difficultyValue());
 
         if (this.mods.some((m) => m instanceof ModAutopilot)) {
             this.attributes.speedDifficulty *= 0.5;
@@ -295,12 +326,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         this.attributes.speedDifficultStrainCount =
             speedSkill.countDifficultStrains();
-    }
 
-    /**
-     * Calculates speed-related attributes.
-     */
-    private calculateSpeedAttributes(): void {
         const objectStrains = this.objects.map((v) => v.speedStrain);
         const maxStrain = MathUtils.max(objectStrains);
 

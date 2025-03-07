@@ -118,6 +118,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the aim star rating of the beatmap and stores it in this instance.
      */
     calculateAim(): void {
+        if (this.mods.some((m) => m instanceof ModAutopilot)) {
+            this.attributes.aimDifficulty = 0;
+            return;
+        }
+
         const aimSkill = new DroidAim(this.mods, true);
         const aimSkillWithoutSliders = new DroidAim(this.mods, false);
 
@@ -129,6 +134,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the tap star rating of the beatmap and stores it in this instance.
      */
     calculateTap(): void {
+        if (this.mods.some((m) => m instanceof ModRelax)) {
+            this.attributes.tapDifficulty = 0;
+            return;
+        }
+
         const tapSkillCheese = new DroidTap(this.mods, true);
         const tapSkillNoCheese = new DroidTap(this.mods, false);
         this.calculateSkills(tapSkillCheese, tapSkillNoCheese);
@@ -158,6 +168,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      * Calculates the flashlight star rating of the beatmap and stores it in this instance.
      */
     calculateFlashlight(): void {
+        if (!this.mods.some((m) => m instanceof ModFlashlight)) {
+            this.attributes.flashlightDifficulty = 0;
+            return;
+        }
+
         const flashlightSkill = new DroidFlashlight(this.mods, true);
         const flashlightSkillWithoutSliders = new DroidFlashlight(
             this.mods,
@@ -177,7 +192,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     calculateVisual(): void {
         if (this.mods.some((m) => m instanceof ModRelax)) {
             this.attributes.visualDifficulty = 0;
-
             return;
         }
 
@@ -226,31 +240,65 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const skills = this.createSkills();
         this.calculateSkills(...skills);
 
-        const aimSkill = <DroidAim>skills[0];
-        const aimSkillWithoutSliders = <DroidAim>skills[1];
-        const rhythmSkill = <DroidRhythm>skills[2];
-        const tapSkillCheese = <DroidTap>skills[3];
-        const flashlightSkill = <DroidFlashlight>skills[5];
-        const flashlightSkillWithoutSliders = <DroidFlashlight>skills[6];
-        const visualSkill = <DroidVisual>skills[7];
-        const visualSkillWithoutSliders = <DroidVisual>skills[8];
-
-        const tapSkillVibro = new DroidTap(
-            this.mods,
-            true,
-            tapSkillCheese.relevantDeltaTime(),
+        const aimSkill = skills.find(
+            (s): s is DroidAim => s instanceof DroidAim && s.withSliders,
         );
 
-        this.calculateSkills(tapSkillVibro);
+        const aimSkillWithoutSliders = skills.find(
+            (s): s is DroidAim => s instanceof DroidAim && !s.withSliders,
+        );
 
-        this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
-        this.postCalculateTap(tapSkillCheese, tapSkillVibro);
+        const rhythmSkill = skills.find(
+            (s) => s instanceof DroidRhythm,
+        ) as DroidRhythm;
+
+        const tapSkillCheese = skills.find(
+            (s) => s instanceof DroidTap && s.considerCheesability,
+        ) as DroidTap | undefined;
+
+        const flashlightSkill = skills.find(
+            (s) => s instanceof DroidFlashlight && s.withSliders,
+        ) as DroidFlashlight | undefined;
+
+        const flashlightSkillWithoutSliders = skills.find(
+            (s) => s instanceof DroidFlashlight && !s.withSliders,
+        ) as DroidFlashlight | undefined;
+
+        const visualSkill = skills.find(
+            (s) => s instanceof DroidVisual && s.withSliders,
+        ) as DroidVisual | undefined;
+
+        const visualSkillWithoutSliders = skills.find(
+            (s) => s instanceof DroidVisual && !s.withSliders,
+        ) as DroidVisual | undefined;
+
+        if (aimSkill && aimSkillWithoutSliders) {
+            this.postCalculateAim(aimSkill, aimSkillWithoutSliders);
+        }
+
+        if (tapSkillCheese) {
+            const tapSkillVibro = new DroidTap(
+                this.mods,
+                true,
+                tapSkillCheese.relevantDeltaTime(),
+            );
+
+            this.calculateSkills(tapSkillVibro);
+            this.postCalculateTap(tapSkillCheese, tapSkillVibro);
+        }
+
         this.postCalculateRhythm(rhythmSkill);
-        this.postCalculateFlashlight(
-            flashlightSkill,
-            flashlightSkillWithoutSliders,
-        );
-        this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
+
+        if (flashlightSkill && flashlightSkillWithoutSliders) {
+            this.postCalculateFlashlight(
+                flashlightSkill,
+                flashlightSkillWithoutSliders,
+            );
+        }
+
+        if (visualSkill && visualSkillWithoutSliders) {
+            this.postCalculateVisual(visualSkill, visualSkillWithoutSliders);
+        }
 
         this.calculateTotal();
     }
@@ -296,20 +344,28 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createSkills(): DroidSkill[] {
-        return [
-            new DroidAim(this.mods, true),
-            new DroidAim(this.mods, false),
-            // Tap skill depends on rhythm skill, so we put it first
-            new DroidRhythm(this.mods),
-            // Cheesability tap
-            new DroidTap(this.mods, true),
-            // Non-cheesability tap
-            new DroidTap(this.mods, false),
-            new DroidFlashlight(this.mods, true),
-            new DroidFlashlight(this.mods, false),
-            new DroidVisual(this.mods, true),
-            new DroidVisual(this.mods, false),
-        ];
+        const skills: DroidSkill[] = [];
+
+        if (!this.mods.some((m) => m instanceof ModAutopilot)) {
+            skills.push(new DroidAim(this.mods, true));
+            skills.push(new DroidAim(this.mods, false));
+        }
+
+        if (!this.mods.some((m) => m instanceof ModRelax)) {
+            // Tap and visual skills depend on rhythm skill, so we put it first
+            skills.push(new DroidRhythm(this.mods));
+            skills.push(new DroidTap(this.mods, true));
+            skills.push(new DroidTap(this.mods, false));
+            skills.push(new DroidVisual(this.mods, true));
+            skills.push(new DroidVisual(this.mods, false));
+        }
+
+        if (this.mods.some((m) => m instanceof ModFlashlight)) {
+            skills.push(new DroidFlashlight(this.mods, true));
+            skills.push(new DroidFlashlight(this.mods, false));
+        }
+
+        return skills;
     }
 
     protected override calculateClockRate(

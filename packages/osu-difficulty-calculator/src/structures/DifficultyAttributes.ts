@@ -73,6 +73,11 @@ export interface DifficultyAttributes {
     spinnerCount: number;
 
     /**
+     * The number of sliders weighted by difficulty.
+     */
+    aimDifficultSliderCount: number;
+
+    /**
      * The amount of strains that are considered difficult with respect to the aim skill.
      */
     aimDifficultStrainCount: number;

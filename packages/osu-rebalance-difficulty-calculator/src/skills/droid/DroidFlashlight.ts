@@ -15,8 +15,9 @@ export class DroidFlashlight extends DroidSkill {
 
     private readonly skillMultiplier = 0.02;
     private readonly isHidden: boolean;
-    private readonly withSliders: boolean;
     private currentFlashlightStrain = 0;
+
+    readonly withSliders: boolean;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);

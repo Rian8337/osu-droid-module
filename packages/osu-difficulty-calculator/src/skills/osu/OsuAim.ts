@@ -14,9 +14,10 @@ export class OsuAim extends OsuSkill {
 
     private currentAimStrain = 0;
     private readonly skillMultiplier = 25.6;
-    private readonly withSliders: boolean;
 
     private readonly sliderStrains: number[] = [];
+
+    readonly withSliders: boolean;
 
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
