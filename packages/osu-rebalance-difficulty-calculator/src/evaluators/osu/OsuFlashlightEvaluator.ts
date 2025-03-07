@@ -41,14 +41,14 @@ export abstract class OsuFlashlightEvaluator {
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const currentObject = current.previous(i)!;
 
+            cumulativeStrainTime += last.strainTime;
+
             if (!(currentObject.object instanceof Spinner)) {
                 const jumpDistance = current.object
                     .getStackedPosition(Modes.osu)
                     .subtract(
                         currentObject.object.getStackedEndPosition(Modes.osu),
                     ).length;
-
-                cumulativeStrainTime += last.strainTime;
 
                 // We want to nerf objects that can be easily seen within the Flashlight circle radius.
                 if (i === 0) {

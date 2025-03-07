@@ -6,6 +6,9 @@ import {
     ModFlashlight,
     Modes,
     ModAutopilot,
+    OsuHitWindow,
+    ErrorFunction,
+    Interpolation,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
@@ -39,8 +42,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
     protected override readonly mode = Modes.osu;
 
     private comboPenalty = 1;
+    private speedDeviation = 0;
 
     protected override calculateValues(): void {
+        this.speedDeviation = this.calculateSpeedDeviation();
+
         this.aim = this.calculateAimValue();
         this.speed = this.calculateSpeedValue();
         this.accuracy = this.calculateAccuracyValue();
@@ -147,7 +153,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
      * Calculates the speed performance value of the beatmap.
      */
     private calculateSpeedValue(): number {
-        if (this.mods.some((m) => m instanceof ModRelax)) {
+        if (
+            this.mods.some((m) => m instanceof ModRelax) ||
+            this.speedDeviation === Number.POSITIVE_INFINITY
+        ) {
             return 0;
         }
 
@@ -211,10 +220,15 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
                   { n300: 0, nobjects: 1 },
         );
 
+        speedValue *= this.calculateSpeedHighDeviationNerf();
+
         // Scale the speed value with accuracy and OD.
         speedValue *=
             (0.95 +
-                Math.pow(this.difficultyAttributes.overallDifficulty, 2) /
+                Math.pow(
+                    Math.max(0, this.difficultyAttributes.overallDifficulty),
+                    2,
+                ) /
                     750) *
             Math.pow(
                 (this.computedAccuracy.value() +
@@ -224,12 +238,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
                     2,
                 (14.5 - this.difficultyAttributes.overallDifficulty) / 2,
             );
-
-        // Scale the speed value with # of 50s to punish doubletapping.
-        speedValue *= Math.pow(
-            0.99,
-            Math.max(0, this.computedAccuracy.n50 - this.totalHits / 500),
-        );
 
         return speedValue;
     }
@@ -322,6 +330,185 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         flashlightValue *= 0.98 + odScaling;
 
         return flashlightValue;
+    }
+
+    /**
+     * Estimates a player's deviation on speed notes using {@link calculateDeviation}, assuming worst-case.
+     *
+     * Treats all speed notes as hit circles.
+     */
+    private calculateSpeedDeviation(): number {
+        if (this.totalSuccessfulHits === 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        // Calculate accuracy assuming the worst case scenario
+        const speedNoteCount =
+            this.difficultyAttributes.speedNoteCount +
+            (this.totalHits - this.difficultyAttributes.speedNoteCount) * 0.1;
+
+        // Assume worst case: all mistakes were on speed notes
+        const relevantCountMiss = Math.min(
+            this.computedAccuracy.nmiss,
+            speedNoteCount,
+        );
+
+        const relevantCountMeh = Math.min(
+            this.computedAccuracy.n50,
+            speedNoteCount - relevantCountMiss,
+        );
+
+        const relevantCountOk = Math.min(
+            this.computedAccuracy.n100,
+            speedNoteCount - relevantCountMiss - relevantCountMeh,
+        );
+
+        const relevantCountGreat = Math.max(
+            0,
+            speedNoteCount -
+                relevantCountMiss -
+                relevantCountMeh -
+                relevantCountOk,
+        );
+
+        return this.calculateDeviation(
+            relevantCountGreat,
+            relevantCountOk,
+            relevantCountMeh,
+            relevantCountMiss,
+        );
+    }
+
+    /**
+     * Estimates the player's tap deviation based on the OD, given number of greats, oks, mehs and misses,
+     * assuming the player's mean hit error is 0. The estimation is consistent in that two SS scores on the
+     * same map with the same settings will always return the same deviation.
+     *
+     * Misses are ignored because they are usually due to misaiming.
+     *
+     * Greats and oks are assumed to follow a normal distribution, whereas mehs are assumed to follow a uniform distribution.
+     */
+    private calculateDeviation(
+        relevantCountGreat: number,
+        relevantCountOk: number,
+        relevantCountMeh: number,
+        relevantCountMiss: number,
+    ): number {
+        if (relevantCountGreat + relevantCountOk + relevantCountMeh <= 0) {
+            return Number.POSITIVE_INFINITY;
+        }
+
+        const objectCount =
+            relevantCountGreat +
+            relevantCountOk +
+            relevantCountMeh +
+            relevantCountMiss;
+
+        // Obtain the great, ok, and meh windows.
+        const hitWindow = new OsuHitWindow(
+            OsuHitWindow.greatWindowToOD(
+                // Convert current OD to non clock rate-adjusted OD.
+                new OsuHitWindow(this.difficultyAttributes.overallDifficulty)
+                    .greatWindow * this.difficultyAttributes.clockRate,
+            ),
+        );
+
+        const { greatWindow, okWindow, mehWindow } = hitWindow;
+
+        // The probability that a player hits a circle is unknown, but we can estimate it to be
+        // the number of greats on circles divided by the number of circles, and then add one
+        // to the number of circles as a bias correction.
+        const n = Math.max(
+            1,
+            objectCount - relevantCountMiss - relevantCountMeh,
+        );
+
+        // 99% critical value for the normal distribution (one-tailed).
+        const z = 2.32634787404;
+
+        // Proportion of greats hit on circles, ignoring misses and 50s.
+        const p = relevantCountGreat / n;
+
+        // We can be 99% confident that p is at least this value.
+        const pLowerBound =
+            (n * p + (z * z) / 2) / (n + z * z) -
+            (z / (n + z * z)) * Math.sqrt(n * p * (1 - p) + (z * z) / 4);
+
+        // Compute the deviation assuming greats and oks are normally distributed, and mehs are uniformly distributed.
+        // Begin with greats and oks first. Ignoring mehs, we can be 99% confident that the deviation is not higher than:
+        let deviation =
+            greatWindow / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
+
+        const randomValue =
+            (Math.sqrt(2 / Math.PI) *
+                okWindow *
+                Math.pow(Math.exp(-0.5 * (okWindow / deviation)), 2)) /
+            (deviation *
+                ErrorFunction.erf(okWindow / (Math.SQRT2 * deviation)));
+
+        deviation *= Math.sqrt(1 - randomValue);
+
+        // Value deviation approach as greatCount approaches 0
+        const limitValue = okWindow / Math.sqrt(3);
+
+        // If precision is not enough to compute true deviation - use limit value
+        if (pLowerBound == 0.0 || randomValue >= 1 || deviation > limitValue) {
+            deviation = limitValue;
+        }
+
+        // Then compute the variance for mehs.
+        const mehVariance =
+            (Math.pow(mehWindow, 2) +
+                okWindow * mehWindow +
+                Math.pow(okWindow, 2)) /
+            3;
+
+        // Find the total deviation.
+        deviation = Math.sqrt(
+            ((relevantCountGreat + relevantCountOk) * Math.pow(deviation, 2) +
+                relevantCountMeh * mehVariance) /
+                (relevantCountGreat + relevantCountOk + relevantCountMeh),
+        );
+
+        return deviation;
+    }
+
+    /**
+     * Calculates multiplier for speed to account for improper tapping based on the deviation and speed difficulty.
+     *
+     * [Graph](https://www.desmos.com/calculator/dmogdhzofn)
+     */
+    private calculateSpeedHighDeviationNerf(): number {
+        if (this.speedDeviation == Number.POSITIVE_INFINITY) {
+            return 0;
+        }
+
+        const speedValue = this.baseValue(
+            this.difficultyAttributes.speedDifficulty,
+        );
+
+        // Decide a point where the PP value achieved compared to the speed deviation is assumed to be tapped
+        // improperly. Any PP above this point is considered "excess" speed difficulty. This is used to cause
+        // PP above the cutoff to scale logarithmically towards the original speed value thus nerfing the value.
+        const excessSpeedDifficultyCutoff =
+            100 + 220 * Math.pow(22 / this.speedDeviation, 6.5);
+
+        if (speedValue <= excessSpeedDifficultyCutoff) {
+            return 1;
+        }
+
+        const scale = 50;
+        const adjustedSpeedValue =
+            scale *
+            (Math.log((speedValue - excessSpeedDifficultyCutoff) / scale + 1) +
+                excessSpeedDifficultyCutoff / scale);
+
+        // 220 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
+        const t = 1 - Interpolation.reverseLerp(this.speedDeviation, 22, 27);
+
+        return (
+            Interpolation.lerp(adjustedSpeedValue, speedValue, t) / speedValue
+        );
     }
 
     override toString(): string {

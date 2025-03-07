@@ -62,6 +62,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         hitCircleCount: 0,
         sliderCount: 0,
         spinnerCount: 0,
+        aimDifficultSliderCount: 0,
         aimDifficultStrainCount: 0,
         speedDifficultStrainCount: 0,
     };
@@ -271,6 +272,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         this.attributes.aimDifficultStrainCount =
             aimSkill.countDifficultStrains();
+
+        this.attributes.aimDifficultSliderCount =
+            aimSkill.countDifficultSliders();
     }
 
     /**

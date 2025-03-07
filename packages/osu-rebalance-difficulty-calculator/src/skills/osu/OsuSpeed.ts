@@ -15,7 +15,7 @@ export class OsuSpeed extends OsuSkill {
     private currentSpeedStrain = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 1.43;
+    private readonly skillMultiplier = 1.46;
 
     /**
      * @param current The hitobject to calculate.

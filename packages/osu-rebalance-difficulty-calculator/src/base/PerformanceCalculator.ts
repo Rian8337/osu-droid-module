@@ -235,22 +235,21 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
             );
         }
 
-        if (this.difficultyAttributes.sliderCount > 0) {
-            // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-            const estimateDifficultSliders =
-                this.difficultyAttributes.sliderCount * 0.15;
-            const estimateSliderEndsDropped = MathUtils.clamp(
+        if (this.difficultyAttributes.aimDifficultSliderCount > 0) {
+            // Consider all missing combo to be dropped difficult sliders.
+            const estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
                 Math.min(this.totalImperfectHits, maxCombo - combo),
                 0,
-                estimateDifficultSliders,
+                this.difficultyAttributes.aimDifficultSliderCount,
             );
 
             this.sliderNerfFactor =
                 (1 - this.difficultyAttributes.sliderFactor) *
                     Math.pow(
                         1 -
-                            estimateSliderEndsDropped /
-                                estimateDifficultSliders,
+                            estimateImproperlyFollowedDifficultSliders /
+                                this.difficultyAttributes
+                                    .aimDifficultSliderCount,
                         3,
                     ) +
                 this.difficultyAttributes.sliderFactor;

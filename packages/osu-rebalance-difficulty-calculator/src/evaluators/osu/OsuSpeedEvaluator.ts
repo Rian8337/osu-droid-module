@@ -15,7 +15,7 @@ export abstract class OsuSpeedEvaluator {
     // ~200 1/4 BPM streams
     private static readonly minSpeedBonus = 75;
 
-    private static readonly DISTANCE_MULTIPLIER = 0.94;
+    private static readonly DISTANCE_MULTIPLIER = 0.9;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:

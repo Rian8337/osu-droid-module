@@ -5,11 +5,6 @@ import { DifficultyAttributes } from "./DifficultyAttributes";
  */
 export interface DroidDifficultyAttributes extends DifficultyAttributes {
     /**
-     * The number of sliders weighted by difficulty.
-     */
-    aimDifficultSliderCount: number;
-
-    /**
      * The difficulty corresponding to the tap skill.
      */
     tapDifficulty: number;
