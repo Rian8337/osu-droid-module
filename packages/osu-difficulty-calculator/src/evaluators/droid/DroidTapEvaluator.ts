@@ -1,11 +1,13 @@
 import { Spinner, ErrorFunction } from "@rian8337/osu-base";
-import { SpeedEvaluator } from "../base/SpeedEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid tap skill.
  */
-export abstract class DroidTapEvaluator extends SpeedEvaluator {
+export abstract class DroidTapEvaluator {
+    // ~200 1/4 BPM streams
+    private static readonly minSpeedBonus = 75;
+
     /**
      * Evaluates the difficulty of tapping the current object, based on:
      *

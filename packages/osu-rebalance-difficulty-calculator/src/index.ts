@@ -1,4 +1,3 @@
-export * from "./evaluators/base/AimEvaluator";
 export * from "./structures/CacheableDifficultyAttributes";
 export * from "./structures/DifficultyAttributes";
 export * from "./structures/DifficultyCalculationOptions";
@@ -21,7 +20,6 @@ export * from "./evaluators/droid/DroidTapEvaluator";
 export * from "./skills/droid/DroidVisual";
 export * from "./evaluators/droid/DroidVisualEvaluator";
 export * from "./structures/ExtendedDroidDifficultyAttributes";
-export * from "./evaluators/base/FlashlightEvaluator";
 export * from "./structures/HighStrainSection";
 export * from "./skills/osu/OsuAim";
 export * from "./evaluators/osu/OsuAimEvaluator";
@@ -36,5 +34,4 @@ export * from "./skills/osu/OsuSpeed";
 export * from "./evaluators/osu/OsuSpeedEvaluator";
 export * from "./structures/PerformanceCalculationOptions";
 export * from "./base/PerformanceCalculator";
-export * from "./evaluators/base/SpeedEvaluator";
 export * from "./structures/StrainPeaks";

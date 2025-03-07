@@ -1,11 +1,13 @@
 import { MathUtils, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
 /**
  * An evaluator for calculating osu!standard speed skill.
  */
-export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
+export abstract class OsuSpeedEvaluator {
+    // ~200 1/4 BPM streams
+    private static readonly minSpeedBonus = 75;
+
     /**
      * Spacing threshold for a single hitobject spacing.
      *

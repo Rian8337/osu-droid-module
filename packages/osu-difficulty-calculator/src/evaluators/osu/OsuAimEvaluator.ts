@@ -1,11 +1,15 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { AimEvaluator } from "../base/AimEvaluator";
 
 /**
  * An evaluator for calculating osu!standard Aim skill.
  */
-export abstract class OsuAimEvaluator extends AimEvaluator {
+export abstract class OsuAimEvaluator {
+    private static readonly wideAngleMultiplier = 1.5;
+    private static readonly acuteAngleMultiplier = 1.95;
+    private static readonly sliderMultiplier = 1.35;
+    private static readonly velocityChangeMultiplier = 0.75;
+
     /**
      * Evaluates the difficulty of aiming the current object, based on:
      *
@@ -197,5 +201,20 @@ export abstract class OsuAimEvaluator extends AimEvaluator {
         }
 
         return strain;
+    }
+
+    private static calculateWideAngleBonus(angle: number): number {
+        return Math.pow(
+            Math.sin(
+                (3 / 4) *
+                    (Math.min((5 / 6) * Math.PI, Math.max(Math.PI / 6, angle)) -
+                        Math.PI / 6),
+            ),
+            2,
+        );
+    }
+
+    private static calculateAcuteAngleBonus(angle: number): number {
+        return 1 - this.calculateWideAngleBonus(angle);
     }
 }

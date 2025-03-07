@@ -1,11 +1,16 @@
 import { Modes, Slider, Spinner } from "@rian8337/osu-base";
-import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Flashlight skill.
  */
-export abstract class DroidFlashlightEvaluator extends FlashlightEvaluator {
+export abstract class DroidFlashlightEvaluator {
+    private static readonly maxOpacityBonus = 0.4;
+    private static readonly hiddenBonus = 0.2;
+    private static readonly minVelocity = 0.5;
+    private static readonly sliderMultiplier = 1.3;
+    private static readonly minAngleMultiplier = 0.2;
+
     /**
      * Evaluates the difficulty of memorizing and hitting the current object, based on:
      *

@@ -1,15 +1,15 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
-import { AimEvaluator } from "../base/AimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid Aim skill.
  */
-export abstract class DroidAimEvaluator extends AimEvaluator {
-    protected static override readonly wideAngleMultiplier = 1.5;
-    protected static override readonly acuteAngleMultiplier = 2.6;
-    protected static override readonly sliderMultiplier = 1.35;
-    protected static override readonly velocityChangeMultiplier = 0.75;
+export abstract class DroidAimEvaluator {
+    private static readonly wideAngleMultiplier = 1.5;
+    private static readonly acuteAngleMultiplier = 2.6;
+    private static readonly sliderMultiplier = 1.35;
+    private static readonly velocityChangeMultiplier = 0.75;
+    private static readonly wiggleMultiplier = 1.02;
 
     private static readonly singleSpacingThreshold =
         DroidDifficultyHitObject.normalizedDiameter;
@@ -294,7 +294,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         return (200 * speedBonus * shortDistancePenalty) / current.strainTime;
     }
 
-    protected static override calculateWideAngleBonus(angle: number): number {
+    private static calculateWideAngleBonus(angle: number): number {
         return MathUtils.smoothstep(
             angle,
             MathUtils.degreesToRadians(40),
@@ -302,7 +302,7 @@ export abstract class DroidAimEvaluator extends AimEvaluator {
         );
     }
 
-    protected static override calculateAcuteAngleBonus(angle: number): number {
+    private static calculateAcuteAngleBonus(angle: number): number {
         return MathUtils.smoothstep(
             angle,
             MathUtils.degreesToRadians(140),

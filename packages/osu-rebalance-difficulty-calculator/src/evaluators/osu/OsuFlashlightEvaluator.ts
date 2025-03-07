@@ -1,11 +1,16 @@
 import { Modes, Slider, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { FlashlightEvaluator } from "../base/FlashlightEvaluator";
 
 /**
  * An evaluator for calculating osu!standard Flashlight skill.
  */
-export abstract class OsuFlashlightEvaluator extends FlashlightEvaluator {
+export abstract class OsuFlashlightEvaluator {
+    private static readonly maxOpacityBonus = 0.4;
+    private static readonly hiddenBonus = 0.2;
+    private static readonly minVelocity = 0.5;
+    private static readonly sliderMultiplier = 1.3;
+    private static readonly minAngleMultiplier = 0.2;
+
     /**
      * Evaluates the difficulty of memorizing and hitting the current object, based on:
      *

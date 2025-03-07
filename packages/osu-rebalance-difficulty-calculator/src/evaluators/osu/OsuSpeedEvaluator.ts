@@ -1,17 +1,19 @@
 import { MathUtils, Mod, ModAutopilot, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { SpeedEvaluator } from "../base/SpeedEvaluator";
 
 /**
  * An evaluator for calculating osu!standard speed skill.
  */
-export abstract class OsuSpeedEvaluator extends SpeedEvaluator {
+export abstract class OsuSpeedEvaluator {
     /**
      * Spacing threshold for a single hitobject spacing.
      *
      * About 1.25 circles distance between hitobject centers.
      */
     private static readonly SINGLE_SPACING_THRESHOLD = 125;
+
+    // ~200 1/4 BPM streams
+    private static readonly minSpeedBonus = 75;
 
     private static readonly DISTANCE_MULTIPLIER = 0.94;
 
