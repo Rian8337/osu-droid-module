@@ -1,13 +1,10 @@
-import { MathUtils, Spinner } from "@rian8337/osu-base";
+import { MathUtils, Mod, ModAutopilot, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!standard speed skill.
  */
 export abstract class OsuSpeedEvaluator {
-    // ~200 1/4 BPM streams
-    private static readonly minSpeedBonus = 75;
-
     /**
      * Spacing threshold for a single hitobject spacing.
      *
@@ -15,7 +12,10 @@ export abstract class OsuSpeedEvaluator {
      */
     private static readonly SINGLE_SPACING_THRESHOLD = 125;
 
-    private static readonly DISTANCE_MULTIPLIER = 0.94;
+    // ~200 1/4 BPM streams
+    private static readonly minSpeedBonus = 75;
+
+    private static readonly DISTANCE_MULTIPLIER = 0.9;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -25,8 +25,12 @@ export abstract class OsuSpeedEvaluator {
      * - and how easily they can be cheesed.
      *
      * @param current The current object.
+     * @param mods The mods applied.
      */
-    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
+    static evaluateDifficultyOf(
+        current: OsuDifficultyHitObject,
+        mods: Mod[],
+    ): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
@@ -63,9 +67,13 @@ export abstract class OsuSpeedEvaluator {
         );
 
         // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
-        const distanceBonus =
+        let distanceBonus =
             Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
             this.DISTANCE_MULTIPLIER;
+
+        if (mods.some((m) => m instanceof ModAutopilot)) {
+            distanceBonus = 0;
+        }
 
         // Base difficulty with all bonuses
         const difficulty =
