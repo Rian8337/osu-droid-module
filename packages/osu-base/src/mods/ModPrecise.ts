@@ -1,5 +1,6 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
+import { Spinner } from "../beatmap/hitobjects/Spinner";
 import { Modes } from "../constants/Modes";
 import { PreciseDroidHitWindow } from "../utils/PreciseDroidHitWindow";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
@@ -22,7 +23,7 @@ export class ModPrecise
     readonly isDroidLegacyMod = false;
 
     applyToHitObject(mode: Modes, hitObject: HitObject): void {
-        if (mode === Modes.osu) {
+        if (mode !== Modes.droid || hitObject instanceof Spinner) {
             return;
         }
 
