@@ -93,16 +93,6 @@ export abstract class ModUtil {
     ];
 
     /**
-     * Mods that change the way the map looks.
-     */
-    static readonly mapChangingMods: Mod[] = this.speedChangingMods.concat(
-        new ModEasy(),
-        new ModHardRock(),
-        new ModReallyEasy(),
-        new ModSmallCircle(),
-    );
-
-    /**
      * Gets a list of mods from a droid mod string, such as "hd".
      *
      * @param str The string.
