@@ -82,6 +82,7 @@ export * from "./mods/ModSmallCircle";
 export * from "./mods/ModSpunOut";
 export * from "./mods/ModSuddenDeath";
 export * from "./mods/ModTouchDevice";
+export * from "./mods/ModTraceable";
 export * from "./utils/ModUtil";
 export * from "./constants/Modes";
 export * from "./math/NormalDistribution";
