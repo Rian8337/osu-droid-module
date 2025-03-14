@@ -1,6 +1,7 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
+import { ModHidden } from "./ModHidden";
 
 /**
  * Represents the Traceable mod.
@@ -19,4 +20,10 @@ export class ModTraceable
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModHidden);
+    }
 }

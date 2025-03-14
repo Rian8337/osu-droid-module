@@ -2,6 +2,8 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
+import { ModDoubleTime } from "./ModDoubleTime";
+import { ModHalfTime } from "./ModHalfTime";
 
 /**
  * Represents the NightCore mod.
@@ -24,6 +26,12 @@ export class ModNightCore
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModDoubleTime).add(ModHalfTime);
+    }
 
     applyToRate(rate: number, oldStatistics?: boolean): number {
         return rate * (oldStatistics ? 1.39 : 1.5);

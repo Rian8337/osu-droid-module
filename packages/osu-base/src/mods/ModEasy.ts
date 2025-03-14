@@ -5,6 +5,7 @@ import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModHardRock } from "./ModHardRock";
 
 /**
  * Represents the Easy mod.
@@ -27,6 +28,12 @@ export class ModEasy
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;
     readonly bitwise = 1 << 1;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModHardRock);
+    }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
         switch (mode) {

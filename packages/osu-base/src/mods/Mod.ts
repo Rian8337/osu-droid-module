@@ -23,6 +23,11 @@ export abstract class Mod {
     abstract readonly name: string;
 
     /**
+     * `Mod`s that are incompatible with this `Mod`.
+     */
+    readonly incompatibleMods = new Set<typeof Mod>();
+
+    /**
      * Whether this `Mod` can be applied to osu!droid.
      */
     isApplicableToDroid(): this is this & IModApplicableToDroid {

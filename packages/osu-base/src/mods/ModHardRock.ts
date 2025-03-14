@@ -11,6 +11,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModEasy } from "./ModEasy";
 
 /**
  * Represents the HardRock mod.
@@ -34,6 +35,12 @@ export class ModHardRock
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;
     readonly bitwise = 1 << 4;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModEasy);
+    }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
         switch (mode) {

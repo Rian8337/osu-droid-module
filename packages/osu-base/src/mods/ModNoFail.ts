@@ -1,6 +1,8 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModPerfect } from "./ModPerfect";
+import { ModSuddenDeath } from "./ModSuddenDeath";
 
 /**
  * Represents the NoFail mod.
@@ -20,4 +22,10 @@ export class ModNoFail
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;
     readonly bitwise = 1 << 0;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModPerfect).add(ModSuddenDeath);
+    }
 }

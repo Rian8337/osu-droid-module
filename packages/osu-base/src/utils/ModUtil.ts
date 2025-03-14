@@ -49,17 +49,6 @@ export interface ModParseOptions {
  */
 export abstract class ModUtil {
     /**
-     * Mods that are incompatible with each other.
-     */
-    static readonly incompatibleMods: Mod[][] = [
-        [new ModDoubleTime(), new ModNightCore(), new ModHalfTime()],
-        [new ModNoFail(), new ModSuddenDeath(), new ModPerfect()],
-        [new ModHardRock(), new ModEasy()],
-        [new ModAuto(), new ModRelax(), new ModAutopilot()],
-        [new ModHidden(), new ModTraceable()],
-    ];
-
-    /**
      * All mods that exists.
      */
     static readonly allMods: Mod[] = [
@@ -204,17 +193,19 @@ export abstract class ModUtil {
      * @returns Mods that have been filtered.
      */
     static checkIncompatibleMods<T extends Mod>(mods: T[]): T[] {
-        for (const incompatibleMod of this.incompatibleMods) {
-            const fulfilledMods: T[] = mods.filter((m) =>
-                incompatibleMod.some((v) => m.acronym === v.acronym),
-            );
+        for (let i = 0; i < mods.length; ++i) {
+            const mod = mods[i];
 
-            if (fulfilledMods.length > 1) {
-                mods = mods.filter((m) =>
-                    incompatibleMod.every((v) => m.acronym !== v.acronym),
-                );
-                // Keep the first selected mod
-                mods.push(fulfilledMods[0]);
+            for (const incompatibleMod of mod.incompatibleMods) {
+                if (
+                    mods.some((m) => m !== mod && m instanceof incompatibleMod)
+                ) {
+                    mods = mods.filter(
+                        (m) =>
+                            // Keep the mod itself.
+                            m === mod || !(m instanceof incompatibleMod),
+                    );
+                }
             }
         }
 

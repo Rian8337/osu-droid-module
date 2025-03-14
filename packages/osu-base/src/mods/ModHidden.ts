@@ -5,6 +5,7 @@ import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModTraceable } from "./ModTraceable";
 
 /**
  * Represents the Hidden mod.
@@ -30,6 +31,12 @@ export class ModHidden
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;
     readonly bitwise = 1 << 3;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModTraceable);
+    }
 
     applyToBeatmap(beatmap: Beatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {

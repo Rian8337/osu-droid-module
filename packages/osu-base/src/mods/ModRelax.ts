@@ -1,6 +1,8 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModAuto } from "./ModAuto";
+import { ModAutopilot } from "./ModAutopilot";
 
 /**
  * Represents the Relax mod.
@@ -20,4 +22,10 @@ export class ModRelax
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 0;
     readonly bitwise = 1 << 7;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModAuto).add(ModAutopilot);
+    }
 }
