@@ -1,4 +1,4 @@
-import { Spinner, Slider } from "@rian8337/osu-base";
+import { Spinner, Slider, Mod, ModHidden } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -17,12 +17,12 @@ export abstract class DroidVisualEvaluator {
      * - and whether the Hidden mod is enabled.
      *
      * @param current The current object.
-     * @param isHiddenMod Whether the Hidden mod is enabled.
+     * @param mods The mods used.
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        isHiddenMod: boolean,
+        mods: Mod[],
         withSliders: boolean,
     ): number {
         if (
@@ -38,7 +38,7 @@ export abstract class DroidVisualEvaluator {
         // Add density caps for sanity.
         let strain: number;
 
-        if (isHiddenMod) {
+        if (mods.some((m) => m instanceof ModHidden)) {
             strain = Math.min(30, Math.pow(current.noteDensity, 3));
         } else {
             strain = Math.min(20, Math.pow(current.noteDensity, 2));
@@ -65,9 +65,7 @@ export abstract class DroidVisualEvaluator {
             }
 
             strain +=
-                (1 -
-                    current.opacityAt(previous.object.startTime, isHiddenMod)) /
-                4;
+                (1 - current.opacityAt(previous.object.startTime, mods)) / 4;
         }
 
         if (current.timePreempt < 400) {

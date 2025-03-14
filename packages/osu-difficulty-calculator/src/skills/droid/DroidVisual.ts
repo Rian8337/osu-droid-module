@@ -1,4 +1,4 @@
-import { Mod, ModHidden } from "@rian8337/osu-base";
+import { Mod } from "@rian8337/osu-base";
 import { DroidVisualEvaluator } from "../../evaluators/droid/DroidVisualEvaluator";
 import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -12,8 +12,6 @@ export class DroidVisual extends DroidSkill {
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly strainDecayBase = 0.1;
 
-    private readonly isHidden: boolean;
-
     private currentVisualStrain = 0;
     private currentRhythmMultiplier = 1;
     private readonly skillMultiplier = 10;
@@ -23,7 +21,6 @@ export class DroidVisual extends DroidSkill {
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
-        this.isHidden = mods.some((m) => m instanceof ModHidden);
         this.withSliders = withSliders;
     }
 
@@ -34,7 +31,7 @@ export class DroidVisual extends DroidSkill {
         this.currentVisualStrain +=
             DroidVisualEvaluator.evaluateDifficultyOf(
                 current,
-                this.isHidden,
+                this.mods,
                 this.withSliders,
             ) * this.skillMultiplier;
 

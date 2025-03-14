@@ -1,4 +1,4 @@
-import { Mod, ModHidden } from "@rian8337/osu-base";
+import { Mod } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
@@ -14,7 +14,6 @@ export class DroidFlashlight extends DroidSkill {
     protected override readonly starsPerDouble = 1.06;
 
     private readonly skillMultiplier = 0.02;
-    private readonly isHidden: boolean;
     private currentFlashlightStrain = 0;
 
     readonly withSliders: boolean;
@@ -22,7 +21,6 @@ export class DroidFlashlight extends DroidSkill {
     constructor(mods: Mod[], withSliders: boolean) {
         super(mods);
 
-        this.isHidden = mods.some((m) => m instanceof ModHidden);
         this.withSliders = withSliders;
     }
 
@@ -33,7 +31,7 @@ export class DroidFlashlight extends DroidSkill {
         this.currentFlashlightStrain +=
             DroidFlashlightEvaluator.evaluateDifficultyOf(
                 current,
-                this.isHidden,
+                this.mods,
                 this.withSliders,
             ) * this.skillMultiplier;
 

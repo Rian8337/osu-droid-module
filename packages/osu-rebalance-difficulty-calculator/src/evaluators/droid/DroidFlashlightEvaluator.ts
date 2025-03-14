@@ -1,4 +1,4 @@
-import { Modes, Slider, Spinner } from "@rian8337/osu-base";
+import { Mod, Modes, Slider, Spinner } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -21,12 +21,12 @@ export abstract class DroidFlashlightEvaluator {
      * - and whether Hidden mod is enabled.
      *
      * @param current The current object.
-     * @param isHiddenMod Whether the Hidden mod is enabled.
+     * @param mods The mods used.
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        isHiddenMod: boolean,
+        mods: Mod[],
         withSliders: boolean,
     ): number {
         if (
@@ -78,7 +78,7 @@ export abstract class DroidFlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                isHiddenMod,
+                                mods,
                             ));
 
                 result +=
@@ -99,7 +99,7 @@ export abstract class DroidFlashlightEvaluator {
         result = Math.pow(smallDistNerf * result, 2);
 
         // Additional bonus for Hidden due to there being no approach circles.
-        if (isHiddenMod) {
+        if (mods) {
             result *= 1 + this.hiddenBonus;
         }
 

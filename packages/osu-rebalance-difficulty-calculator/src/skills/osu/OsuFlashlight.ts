@@ -1,4 +1,3 @@
-import { Mod, ModHidden } from "@rian8337/osu-base";
 import { OsuFlashlightEvaluator } from "../../evaluators/osu/OsuFlashlightEvaluator";
 import { OsuSkill } from "./OsuSkill";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
@@ -14,13 +13,6 @@ export class OsuFlashlight extends OsuSkill {
 
     private currentFlashlightStrain = 0;
     private readonly skillMultiplier = 0.05512;
-    private readonly isHidden: boolean;
-
-    constructor(mods: Mod[]) {
-        super(mods);
-
-        this.isHidden = mods.some((m) => m instanceof ModHidden);
-    }
 
     override difficultyValue(): number {
         return this.strainPeaks.reduce((a, b) => a + b, 0);
@@ -29,10 +21,8 @@ export class OsuFlashlight extends OsuSkill {
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
-            OsuFlashlightEvaluator.evaluateDifficultyOf(
-                current,
-                this.isHidden,
-            ) * this.skillMultiplier;
+            OsuFlashlightEvaluator.evaluateDifficultyOf(current, this.mods) *
+            this.skillMultiplier;
 
         return this.currentFlashlightStrain;
     }
