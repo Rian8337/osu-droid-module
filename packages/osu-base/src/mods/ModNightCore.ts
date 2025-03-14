@@ -1,5 +1,5 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 
@@ -10,7 +10,7 @@ export class ModNightCore
     extends Mod
     implements
         IModApplicableToDroid,
-        IModApplicableToOsu,
+        IModApplicableToOsuStable,
         IModApplicableToTrackRate
 {
     override readonly acronym = "NC";

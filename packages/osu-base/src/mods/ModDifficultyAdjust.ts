@@ -31,7 +31,6 @@ export class ModDifficultyAdjust
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;
-    readonly bitwise = 0;
 
     /**
      * The circle size to enforce.

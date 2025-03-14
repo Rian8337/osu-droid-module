@@ -1,10 +1,10 @@
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 
 /**
  * Represents the SpunOut mod.
  */
-export class ModSpunOut extends Mod implements IModApplicableToOsu {
+export class ModSpunOut extends Mod implements IModApplicableToOsuStable {
     override readonly acronym = "SO";
     override readonly name = "SpunOut";
 

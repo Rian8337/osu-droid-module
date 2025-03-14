@@ -5,6 +5,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 
 /**
@@ -33,6 +34,13 @@ export abstract class Mod {
      */
     isApplicableToOsu(): this is this & IModApplicableToOsu {
         return "pcRanked" in this;
+    }
+
+    /**
+     * Whether this `Mod` can be applied to osu!standard, specifically the osu!stable client.
+     */
+    isApplicableToOsuStable(): this is this & IModApplicableToOsuStable {
+        return "bitwise" in this;
     }
 
     /**

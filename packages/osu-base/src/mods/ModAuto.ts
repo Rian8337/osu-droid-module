@@ -1,5 +1,5 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 
 /**
@@ -7,7 +7,7 @@ import { Mod } from "./Mod";
  */
 export class ModAuto
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
+    implements IModApplicableToDroid, IModApplicableToOsuStable
 {
     override readonly acronym = "AT";
     override readonly name = "Autoplay";

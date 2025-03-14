@@ -11,9 +11,4 @@ export interface IModApplicableToOsu {
      * The osu!standard score multiplier of this `Mod`.
      */
     readonly pcScoreMultiplier: number;
-
-    /**
-     * The bitwise enum of this `Mod`.
-     */
-    readonly bitwise: number;
 }

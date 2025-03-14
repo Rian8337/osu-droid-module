@@ -2,7 +2,7 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
-import { IModApplicableToOsu } from "../mods/IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "../mods/IModApplicableToOsuStable";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
@@ -121,10 +121,10 @@ export abstract class ModUtil {
     static pcModbitsToMods(
         modbits: number,
         options?: ModParseOptions,
-    ): (Mod & IModApplicableToOsu)[] {
-        return <(Mod & IModApplicableToOsu)[]>this.processParsingOptions(
+    ): (Mod & IModApplicableToOsuStable)[] {
+        return <(Mod & IModApplicableToOsuStable)[]>this.processParsingOptions(
             this.allMods.filter(
-                (m) => m.isApplicableToOsu() && m.bitwise & modbits,
+                (m) => m.isApplicableToOsuStable() && (m.bitwise & modbits) > 0,
             ),
             options,
         );

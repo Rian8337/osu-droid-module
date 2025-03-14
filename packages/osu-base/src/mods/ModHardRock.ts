@@ -9,7 +9,7 @@ import { SliderPath } from "../utils/SliderPath";
 import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 
 /**
@@ -19,7 +19,7 @@ export class ModHardRock
     extends Mod
     implements
         IModApplicableToDroid,
-        IModApplicableToOsu,
+        IModApplicableToOsuStable,
         IModApplicableToDifficulty,
         IModApplicableToHitObject
 {

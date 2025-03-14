@@ -3,7 +3,7 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 
 /**
@@ -13,7 +13,7 @@ export class ModHidden
     extends Mod
     implements
         IModApplicableToDroid,
-        IModApplicableToOsu,
+        IModApplicableToOsuStable,
         IModApplicableToBeatmap
 {
     static readonly fadeInDurationMultiplier = 0.4;

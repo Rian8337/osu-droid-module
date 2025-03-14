@@ -3,7 +3,7 @@ import { Modes } from "../constants/Modes";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
-import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 
 /**
@@ -13,7 +13,7 @@ export class ModEasy
     extends Mod
     implements
         IModApplicableToDroid,
-        IModApplicableToOsu,
+        IModApplicableToOsuStable,
         IModApplicableToDifficulty
 {
     override readonly acronym = "EZ";
