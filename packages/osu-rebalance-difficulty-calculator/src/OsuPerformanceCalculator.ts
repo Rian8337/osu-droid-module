@@ -9,6 +9,7 @@ import {
     OsuHitWindow,
     ErrorFunction,
     Interpolation,
+    ModTraceable,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
@@ -130,7 +131,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         }
 
         // We want to give more reward for lower AR when it comes to aim and HD. This nerfs high AR and buffs lower AR.
-        if (this.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.mods.some(
+                (m) => m instanceof ModHidden || m instanceof ModTraceable,
+            )
+        ) {
             aimValue *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -187,7 +192,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
             speedValue *= 1 + 0.3 * (calculatedAR - 10.33) * lengthBonus;
         }
 
-        if (this.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.mods.some(
+                (m) => m instanceof ModHidden || m instanceof ModTraceable,
+            )
+        ) {
             speedValue *= 1 + 0.04 * (12 - calculatedAR);
         }
 
@@ -274,7 +283,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficult
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
         accuracyValue *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
 
-        if (this.mods.some((m) => m instanceof ModHidden)) {
+        if (
+            this.mods.some(
+                (m) => m instanceof ModHidden || m instanceof ModTraceable,
+            )
+        ) {
             accuracyValue *= 1.08;
         }
 
