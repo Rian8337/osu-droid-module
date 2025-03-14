@@ -1,19 +1,13 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
-import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
-import { Mod } from "./Mod";
-import { ModDoubleTime } from "./ModDoubleTime";
-import { ModHalfTime } from "./ModHalfTime";
+import { ModRateAdjust } from "./ModRateAdjust";
 
 /**
  * Represents the NightCore mod.
  */
 export class ModNightCore
-    extends Mod
-    implements
-        IModApplicableToDroid,
-        IModApplicableToOsuStable,
-        IModApplicableToTrackRate
+    extends ModRateAdjust
+    implements IModApplicableToDroid, IModApplicableToOsuStable
 {
     override readonly acronym = "NC";
     override readonly name = "NightCore";
@@ -27,13 +21,7 @@ export class ModNightCore
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModDoubleTime).add(ModHalfTime);
-    }
-
-    applyToRate(rate: number, oldStatistics?: boolean): number {
+    override applyToRate(rate: number, oldStatistics?: boolean): number {
         return rate * (oldStatistics ? 1.39 : 1.5);
     }
 }

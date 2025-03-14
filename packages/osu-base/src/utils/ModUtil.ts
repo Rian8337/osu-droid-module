@@ -17,6 +17,7 @@ import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
 import { ModPerfect } from "../mods/ModPerfect";
 import { ModPrecise } from "../mods/ModPrecise";
+import { ModRateAdjust } from "../mods/ModRateAdjust";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
 import { ModScoreV2 } from "../mods/ModScoreV2";
@@ -78,7 +79,7 @@ export abstract class ModUtil {
     /**
      * Mods that change the playback speed of a beatmap.
      */
-    static readonly speedChangingMods: Mod[] = [
+    static readonly speedChangingMods: ModRateAdjust[] = [
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),

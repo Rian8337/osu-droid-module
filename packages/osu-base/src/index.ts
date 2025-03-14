@@ -75,6 +75,7 @@ export * from "./mods/ModNightCore";
 export * from "./mods/ModNoFail";
 export * from "./mods/ModPerfect";
 export * from "./mods/ModPrecise";
+export * from "./mods/ModRateAdjust";
 export * from "./mods/ModReallyEasy";
 export * from "./mods/ModRelax";
 export * from "./mods/ModScoreV2";
