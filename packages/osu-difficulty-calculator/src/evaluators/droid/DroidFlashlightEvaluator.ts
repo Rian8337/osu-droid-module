@@ -1,4 +1,12 @@
-import { Mod, ModHidden, Modes, Slider, Spinner } from "@rian8337/osu-base";
+import {
+    Circle,
+    Mod,
+    ModHidden,
+    ModTraceable,
+    Modes,
+    Slider,
+    Spinner,
+} from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -7,6 +15,8 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
 export abstract class DroidFlashlightEvaluator {
     private static readonly maxOpacityBonus = 0.4;
     private static readonly hiddenBonus = 0.2;
+    private static readonly traceableCircleBonus = 0.15;
+    private static readonly traceableObjectBonus = 0.1;
     private static readonly minVelocity = 0.5;
     private static readonly sliderMultiplier = 1.3;
     private static readonly minAngleMultiplier = 0.2;
@@ -101,6 +111,15 @@ export abstract class DroidFlashlightEvaluator {
         // Additional bonus for Hidden due to there being no approach circles.
         if (mods.some((m) => m instanceof ModHidden)) {
             result *= 1 + this.hiddenBonus;
+        } else if (mods.some((m) => m instanceof ModTraceable)) {
+            // Additional bonus for Traceable due to there being no primary or secondary object pieces.
+            if (current.object instanceof Circle) {
+                // Additional bonus for hit circles due to there being no circle piece, which is the primary piece.
+                result *= 1 + this.traceableCircleBonus;
+            } else {
+                // The rest of the objects only hide secondary pieces.
+                result *= 1 + this.traceableObjectBonus;
+            }
         }
 
         // Nerf patterns with repeated angles.

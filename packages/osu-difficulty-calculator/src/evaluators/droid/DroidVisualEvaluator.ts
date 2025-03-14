@@ -1,4 +1,11 @@
-import { Spinner, Slider, Mod, ModHidden } from "@rian8337/osu-base";
+import {
+    Spinner,
+    Slider,
+    Mod,
+    ModHidden,
+    ModTraceable,
+    Circle,
+} from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -34,12 +41,19 @@ export abstract class DroidVisualEvaluator {
             return 0;
         }
 
-        // Start with base density and give global bonus for Hidden.
+        // Start with base density and give global bonus for Hidden and Traceable.
         // Add density caps for sanity.
         let strain: number;
 
         if (mods.some((m) => m instanceof ModHidden)) {
             strain = Math.min(30, Math.pow(current.noteDensity, 3));
+        } else if (mods.some((m) => m instanceof ModTraceable)) {
+            // Give more bonus for hit circles due to there being no circle piece.
+            if (current.object instanceof Circle) {
+                strain = Math.min(25, Math.pow(current.noteDensity, 2.5));
+            } else {
+                strain = Math.min(22.5, Math.pow(current.noteDensity, 2.25));
+            }
         } else {
             strain = Math.min(20, Math.pow(current.noteDensity, 2));
         }

@@ -1,4 +1,11 @@
-import { Circle, Modes, PlaceableHitObject, Spinner } from "@rian8337/osu-base";
+import {
+    Circle,
+    Mod,
+    ModTraceable,
+    Modes,
+    PlaceableHitObject,
+    Spinner,
+} from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -113,6 +120,18 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         super.computeProperties(clockRate, hitObjects);
 
         this.setVisuals(clockRate, hitObjects);
+    }
+
+    override opacityAt(time: number, mods: Mod[]): number {
+        // Traceable hides the primary piece of a hit circle (that is, its body), so consider it as fully invisible.
+        if (
+            this.object instanceof Circle &&
+            mods.some((m) => m instanceof ModTraceable)
+        ) {
+            return 0;
+        }
+
+        return super.opacityAt(time, mods);
     }
 
     /**
