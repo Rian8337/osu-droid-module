@@ -24,6 +24,7 @@ import { ModSmallCircle } from "../mods/ModSmallCircle";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
+import { ModTraceable } from "../mods/ModTraceable";
 import { DroidHitWindow } from "./DroidHitWindow";
 import { OsuHitWindow } from "./OsuHitWindow";
 import { PreciseDroidHitWindow } from "./PreciseDroidHitWindow";
@@ -55,6 +56,7 @@ export abstract class ModUtil {
         [new ModNoFail(), new ModSuddenDeath(), new ModPerfect()],
         [new ModHardRock(), new ModEasy()],
         [new ModAuto(), new ModRelax(), new ModAutopilot()],
+        [new ModHidden(), new ModTraceable()],
     ];
 
     /**
@@ -68,6 +70,7 @@ export abstract class ModUtil {
         new ModEasy(),
         new ModNoFail(),
         new ModHidden(),
+        new ModTraceable(),
         new ModHardRock(),
         new ModDoubleTime(),
         new ModNightCore(),
