@@ -21,7 +21,6 @@ import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { ModSmallCircle } from "../mods/ModSmallCircle";
-import { ModSpeedUp } from "../mods/ModSpeedUp";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
@@ -52,12 +51,7 @@ export abstract class ModUtil {
      * Mods that are incompatible with each other.
      */
     static readonly incompatibleMods: Mod[][] = [
-        [
-            new ModDoubleTime(),
-            new ModNightCore(),
-            new ModHalfTime(),
-            new ModSpeedUp(),
-        ],
+        [new ModDoubleTime(), new ModNightCore(), new ModHalfTime()],
         [new ModNoFail(), new ModSuddenDeath(), new ModPerfect()],
         [new ModHardRock(), new ModEasy()],
         [new ModAuto(), new ModRelax(), new ModAutopilot()],
@@ -78,7 +72,6 @@ export abstract class ModUtil {
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),
-        new ModSpeedUp(),
         new ModFlashlight(),
         new ModSuddenDeath(),
         new ModPerfect(),
@@ -97,7 +90,6 @@ export abstract class ModUtil {
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),
-        new ModSpeedUp(),
     ];
 
     /**

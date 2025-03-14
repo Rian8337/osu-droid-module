@@ -79,7 +79,6 @@ export * from "./mods/ModReallyEasy";
 export * from "./mods/ModRelax";
 export * from "./mods/ModScoreV2";
 export * from "./mods/ModSmallCircle";
-export * from "./mods/ModSpeedUp";
 export * from "./mods/ModSpunOut";
 export * from "./mods/ModSuddenDeath";
 export * from "./mods/ModTouchDevice";
