@@ -219,14 +219,9 @@ export abstract class ModUtil {
      * @returns A new array with speed changing mods filtered out.
      */
     static removeSpeedChangingMods<T extends Mod>(mods: T[]): T[] {
-        return mods
-            .slice()
-            .filter(
-                (m) =>
-                    !this.speedChangingMods.some(
-                        (v) => m.acronym === v.acronym,
-                    ),
-            );
+        return mods.filter(
+            (m) => !this.speedChangingMods.some((v) => m.acronym === v.acronym),
+        );
     }
 
     /**
