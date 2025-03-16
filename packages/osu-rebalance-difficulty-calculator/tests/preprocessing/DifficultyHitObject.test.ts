@@ -2,6 +2,7 @@ import {
     BeatmapControlPoints,
     BeatmapDifficulty,
     Circle,
+    ModHidden,
     Modes,
     ObjectTypes,
     PathType,
@@ -79,28 +80,29 @@ test("Test next index", () => {
 
 describe("Test object opacity", () => {
     const object = createDifficultyHitObjects()[0];
+    const mods = [new ModHidden()];
 
     describe("Before and during hit time", () => {
         test("Without Hidden mod", () => {
-            expect(object.opacityAt(400, false)).toBe(0);
-            expect(object.opacityAt(600, false)).toBeCloseTo(0.5);
-            expect(object.opacityAt(800, false)).toBe(1);
-            expect(object.opacityAt(1000, false)).toBe(1);
+            expect(object.opacityAt(400, [])).toBe(0);
+            expect(object.opacityAt(600, [])).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, [])).toBe(1);
+            expect(object.opacityAt(1000, [])).toBe(1);
         });
 
         test("With Hidden mod", () => {
-            expect(object.opacityAt(400, true)).toBe(0);
-            expect(object.opacityAt(600, true)).toBeCloseTo(0.5);
-            expect(object.opacityAt(800, true)).toBe(1);
-            expect(object.opacityAt(900, true)).toBeCloseTo(0.44);
-            expect(object.opacityAt(1000, true)).toBe(0);
+            expect(object.opacityAt(400, mods)).toBe(0);
+            expect(object.opacityAt(600, mods)).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, mods)).toBe(1);
+            expect(object.opacityAt(900, mods)).toBeCloseTo(0.44);
+            expect(object.opacityAt(1000, mods)).toBe(0);
         });
     });
 
     test("After hit time", () => {
-        expect(object.opacityAt(1100, false)).toBe(0);
-        expect(object.opacityAt(1100, false)).toBe(0);
-        expect(object.opacityAt(1100, true)).toBe(0);
-        expect(object.opacityAt(1100, true)).toBe(0);
+        expect(object.opacityAt(1100, [])).toBe(0);
+        expect(object.opacityAt(1100, [])).toBe(0);
+        expect(object.opacityAt(1100, mods)).toBe(0);
+        expect(object.opacityAt(1100, mods)).toBe(0);
     });
 });
