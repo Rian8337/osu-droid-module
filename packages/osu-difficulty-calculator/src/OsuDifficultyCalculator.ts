@@ -14,6 +14,13 @@ import {
     HitObject,
     ModAutopilot,
     MathUtils,
+    ModDoubleTime,
+    ModHalfTime,
+    ModEasy,
+    ModHardRock,
+    ModHidden,
+    ModNightCore,
+    ModDifficultyAdjust,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
@@ -73,6 +80,20 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             mods: ModUtil.modsToOsuString(this.attributes.mods),
         };
     }
+
+    protected static override readonly difficultyAdjustmentMods = new Set([
+        ModTouchDevice,
+        ModDoubleTime,
+        ModNightCore,
+        ModDifficultyAdjust,
+        ModHalfTime,
+        ModEasy,
+        ModHardRock,
+        ModFlashlight,
+        ModHidden,
+        ModRelax,
+        ModAutopilot,
+    ]);
 
     protected override readonly difficultyMultiplier = 0.0675;
     protected override readonly mode = Modes.osu;

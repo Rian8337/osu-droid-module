@@ -10,6 +10,16 @@ import {
     ModUtil,
     Beatmap,
     ModAutopilot,
+    ModDifficultyAdjust,
+    ModDoubleTime,
+    ModEasy,
+    ModHalfTime,
+    ModHardRock,
+    ModHidden,
+    ModNightCore,
+    ModPrecise,
+    ModScoreV2,
+    ModTraceable,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -105,6 +115,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             mods: ModUtil.modsToOsuString(this.attributes.mods),
         };
     }
+
+    protected static override readonly difficultyAdjustmentMods = new Set([
+        ModDoubleTime,
+        ModNightCore,
+        ModDifficultyAdjust,
+        ModHalfTime,
+        ModEasy,
+        ModHardRock,
+        ModFlashlight,
+        ModHidden,
+        ModRelax,
+        ModAutopilot,
+        ModPrecise,
+        ModScoreV2,
+        ModTraceable,
+    ]);
 
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;

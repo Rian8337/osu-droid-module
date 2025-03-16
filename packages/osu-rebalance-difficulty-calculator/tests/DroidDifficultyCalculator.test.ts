@@ -3,6 +3,7 @@ import {
     ModAutopilot,
     ModDoubleTime,
     ModFlashlight,
+    ModNoFail,
     ModRelax,
 } from "@rian8337/osu-base";
 import { DroidDifficultyCalculator } from "../src";
@@ -212,6 +213,16 @@ const testDiffCalc = (
         expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
     });
 };
+
+test("Test difficulty adjustment mod retention", () => {
+    expect(
+        DroidDifficultyCalculator.retainDifficultyAdjustmentMods([
+            new ModDoubleTime(),
+            new ModFlashlight(),
+            new ModNoFail(),
+        ]),
+    ).toEqual([new ModDoubleTime(), new ModFlashlight()]);
+});
 
 describe("Test difficulty calculation sample beatmap 1", () => {
     testDiffCalc(

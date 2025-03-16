@@ -2,6 +2,7 @@ import {
     BeatmapDecoder,
     ModDoubleTime,
     ModFlashlight,
+    ModNoFail,
 } from "@rian8337/osu-base";
 import { OsuDifficultyCalculator } from "../src";
 import { readFileSync } from "fs";
@@ -128,6 +129,16 @@ const testDiffCalc = (
         expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
     });
 };
+
+test("Test difficulty adjustment mod retention", () => {
+    expect(
+        OsuDifficultyCalculator.retainDifficultyAdjustmentMods([
+            new ModDoubleTime(),
+            new ModFlashlight(),
+            new ModNoFail(),
+        ]),
+    ).toEqual([new ModDoubleTime(), new ModFlashlight()]);
+});
 
 describe("Test difficulty calculation sample beatmap 1", () => {
     testDiffCalc(

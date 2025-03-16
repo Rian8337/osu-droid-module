@@ -71,6 +71,11 @@ export abstract class DifficultyCalculator<
      */
     abstract get cacheableAttributes(): CacheableDifficultyAttributes<TAttributes>;
 
+    /**
+     * `Mod`s that adjust the difficulty of a beatmap.
+     */
+    protected static readonly difficultyAdjustmentMods = new Set<typeof Mod>();
+
     protected abstract readonly difficultyMultiplier: number;
     protected abstract readonly mode: Modes;
 
@@ -81,6 +86,18 @@ export abstract class DifficultyCalculator<
      */
     constructor(beatmap: Beatmap) {
         this.beatmap = beatmap;
+    }
+
+    /**
+     * Retains `Mod`s that adjust a beatmap's difficulty from the specified mods.
+     *
+     * @param mods The mods to retain the difficulty adjustment mods from.
+     * @returns The retained difficulty adjustment mods.
+     */
+    static retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
+        return mods.filter((mod) =>
+            this.difficultyAdjustmentMods.has(mod.constructor as typeof Mod),
+        );
     }
 
     /**
