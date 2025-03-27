@@ -15,14 +15,21 @@ export abstract class Utils {
      * Creates an array with specific length that's prefilled with an initial value.
      *
      * @param length The length of the array.
-     * @param initialValue The initial value of each array value.
+     * @param initialValue The initial value of each element, or a function that returns the initial value of each element.
+     * @returns The array.
      */
-    static initializeArray<T>(length: number, initialValue?: T): T[] {
+    static initializeArray<T>(
+        length: number,
+        initialValue?: T | ((index: number) => T),
+    ): T[] {
         const array = new Array<T>(length);
 
         if (initialValue !== undefined) {
             for (let i = 0; i < length; ++i) {
-                array[i] = initialValue;
+                array[i] =
+                    typeof initialValue === "function"
+                        ? (initialValue as (index: number) => T)(i)
+                        : initialValue;
             }
         }
 
