@@ -141,7 +141,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             // Edge-case rules (to match osu!stable).
             if (pathType === PathType.PerfectCurve) {
                 if (
-                    this.formatVersion <
+                    this.target.formatVersion <
                     BeatmapHitObjectsDecoder.firstLazerVersion
                 ) {
                     if (points.length !== 3) {
