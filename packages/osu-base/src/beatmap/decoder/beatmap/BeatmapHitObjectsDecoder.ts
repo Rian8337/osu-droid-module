@@ -6,6 +6,7 @@ import { SampleBank } from "../../../constants/SampleBank";
 import { Vector2 } from "../../../math/Vector2";
 import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
+import { Utils } from "../../../utils/Utils";
 import { Beatmap } from "../../Beatmap";
 import { BankHitSampleInfo } from "../../hitobjects/BankHitSampleInfo";
 import { Circle } from "../../hitobjects/Circle";
@@ -178,10 +179,10 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             const nodes = repeatCount + 2;
 
             // Populate node sample bank infos with the default hit object sample bank
-            const nodeBankInfos: SampleBankInfo[] = [];
-            for (let i = 0; i < nodes; ++i) {
-                nodeBankInfos.push(new SampleBankInfo(bankInfo));
-            }
+            const nodeBankInfos = Utils.initializeArray(
+                nodes,
+                () => new SampleBankInfo(bankInfo),
+            );
 
             // Read any per-node sample banks
             if (s.length > 9 && s[9]) {
@@ -193,10 +194,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             }
 
             // Populate node sound types with the default hit object sound type
-            const nodeSoundTypes: HitSoundType[] = [];
-            for (let i = 0; i < nodes; ++i) {
-                nodeSoundTypes.push(soundType);
-            }
+            const nodeSoundTypes = Utils.initializeArray(nodes, soundType);
 
             // Read any per-node sound types
             if (s.length > 8 && s[8]) {
@@ -208,12 +206,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             }
 
             // Generate the final per-node samples
-            const nodeSamples: HitSampleInfo[][] = [];
-            for (let i = 0; i < nodes; ++i) {
-                nodeSamples.push(
-                    this.convertSoundType(nodeSoundTypes[i], nodeBankInfos[i]),
-                );
-            }
+            const nodeSamples = Utils.initializeArray(nodes, (i) =>
+                this.convertSoundType(nodeSoundTypes[i], nodeBankInfos[i]),
+            );
 
             newCombo ||= this.forceNewCombo;
             comboOffset += this.extraComboOffset;
