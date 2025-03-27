@@ -138,21 +138,29 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 points.shift();
             }
 
-            // Edge-case rules (to match stable).
+            // Edge-case rules (to match osu!stable).
             if (pathType === PathType.PerfectCurve) {
-                if (points.length !== 3) {
-                    pathType = PathType.Bezier;
-                } else if (
-                    Precision.almostEqualsNumber(
-                        0,
-                        (points[1].y - points[0].y) *
-                            (points[2].x - points[0].x) -
-                            (points[1].x - points[0].x) *
-                                (points[2].y - points[0].y),
-                    )
+                if (
+                    this.formatVersion <
+                    BeatmapHitObjectsDecoder.firstLazerVersion
                 ) {
-                    // osu-stable special-cased colinear perfect curves to a linear path
-                    pathType = PathType.Linear;
+                    if (points.length !== 3) {
+                        pathType = PathType.Bezier;
+                    } else if (
+                        Precision.almostEqualsNumber(
+                            0,
+                            (points[1].y - points[0].y) *
+                                (points[2].x - points[0].x) -
+                                (points[1].x - points[0].x) *
+                                    (points[2].y - points[0].y),
+                        )
+                    ) {
+                        // osu!stable special-cased colinear perfect curves to a linear path
+                        pathType = PathType.Linear;
+                    }
+                } else if (points.length > 3) {
+                    // osu!lazer supports perfect curves with less than 3 points and co-linear points
+                    pathType = PathType.Bezier;
                 }
             }
 

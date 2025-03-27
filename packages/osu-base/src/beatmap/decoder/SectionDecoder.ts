@@ -15,6 +15,11 @@ export abstract class SectionDecoder<T> {
      */
     protected target: T;
 
+    /**
+     * The first version of beatmaps exported from osu!lazer.
+     */
+    static readonly firstLazerVersion = 128;
+
     protected readonly formatVersion: number;
 
     constructor(target: T, formatVersion = Decoder.latestVersion) {
