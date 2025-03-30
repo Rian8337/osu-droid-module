@@ -12,7 +12,7 @@ export class ModNightCore
     override readonly acronym = "NC";
     override readonly name = "NightCore";
 
-    override readonly trackRateMultiplier = 1.5;
+    override readonly trackRateMultiplier: number = 1.5;
 
     readonly droidRanked = true;
     readonly droidString = "c";
