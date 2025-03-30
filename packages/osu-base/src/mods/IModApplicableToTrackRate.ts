@@ -3,11 +3,11 @@
  */
 export interface IModApplicableToTrackRate {
     /**
-     * Returns the playback rate with this `Mod` applied.
+     * Returns the playback rate at `time` after this `Mod` is applied.
      *
-     * @param rate The playback rate before applying this `Mod`.
-     * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
-     * For example, `ModNightCore` would apply a 1.39 rate multiplier instead of 1.5 with this flag.
+     * @param time The time at which the playback rate is queried, in milliseconds.
+     * @param rate The playback rate before applying this [Mod].
+     * @return The playback rate after applying this [Mod].
      */
-    applyToRate(rate: number, oldStatistics?: boolean): number;
+    applyToRate(time: number, rate: number): number;
 }

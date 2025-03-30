@@ -201,18 +201,10 @@ test("Remove incompatible mods", () => {
     expect(ModUtil.checkIncompatibleMods(mods)).toEqual([new ModHardRock()]);
 });
 
-describe("Calculate track rate multiplier", () => {
-    test("Without old statistics flag", () => {
-        const mods = [new ModHidden(), new ModDoubleTime()];
+test("Calculate track rate multiplier", () => {
+    const mods = [new ModHidden(), new ModDoubleTime()];
 
-        expect(ModUtil.calculateRateWithMods(mods)).toBe(1.5);
-    });
-
-    test("With old statistics flag", () => {
-        const mods = [new ModHidden(), new ModNightCore()];
-
-        expect(ModUtil.calculateRateWithMods(mods, true)).toBe(1.39);
-    });
+    expect(ModUtil.calculateRateWithMods(mods)).toBe(1.5);
 });
 
 describe("Test apply mods to beatmap difficulty", () => {
@@ -272,24 +264,6 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
             expect(difficulty.od).toBe(10);
-            expect(difficulty.hp).toBe(5);
-        });
-
-        test("NC with old statistics", () => {
-            const difficulty = new BeatmapDifficulty();
-
-            ModUtil.applyModsToBeatmapDifficulty(
-                difficulty,
-                Modes.droid,
-                [new ModNightCore()],
-                undefined,
-                true,
-                true,
-            );
-
-            expect(difficulty.cs).toBe(5);
-            expect(difficulty.ar).toBeCloseTo(7.244604316546763, 5);
-            expect(difficulty.od).toBeCloseTo(9.20863309352518, 5);
             expect(difficulty.hp).toBe(5);
         });
 
@@ -414,24 +388,6 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
             expect(difficulty.od).toBeCloseTo(7.777777777777778, 5);
-            expect(difficulty.hp).toBe(5);
-        });
-
-        test("NC with old statistics", () => {
-            const difficulty = new BeatmapDifficulty();
-
-            ModUtil.applyModsToBeatmapDifficulty(
-                difficulty,
-                Modes.osu,
-                [new ModNightCore()],
-                undefined,
-                true,
-                true,
-            );
-
-            expect(difficulty.cs).toBe(5);
-            expect(difficulty.ar).toBeCloseTo(7.244604316546763, 5);
-            expect(difficulty.od).toBeCloseTo(7.338129496402877, 5);
             expect(difficulty.hp).toBe(5);
         });
 

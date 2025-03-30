@@ -12,6 +12,8 @@ export class ModNightCore
     override readonly acronym = "NC";
     override readonly name = "NightCore";
 
+    override readonly trackRateMultiplier = 1.5;
+
     readonly droidRanked = true;
     readonly droidString = "c";
     readonly isDroidLegacyMod = false;
@@ -21,10 +23,6 @@ export class ModNightCore
     readonly bitwise = 1 << 9;
 
     calculateDroidScoreMultiplier(): number {
-        return 1.12;
-    }
-
-    override applyToRate(rate: number, oldStatistics?: boolean): number {
-        return rate * (oldStatistics ? 1.39 : 1.5);
+        return this.droidScoreMultiplier;
     }
 }

@@ -12,6 +12,8 @@ export class ModHalfTime
     override readonly acronym = "HT";
     override readonly name = "HalfTime";
 
+    override readonly trackRateMultiplier = 0.75;
+
     readonly droidRanked = true;
     readonly droidString = "t";
     readonly isDroidLegacyMod = false;
@@ -21,10 +23,6 @@ export class ModHalfTime
     readonly bitwise = 1 << 8;
 
     calculateDroidScoreMultiplier(): number {
-        return 0.3;
-    }
-
-    override applyToRate(rate: number): number {
-        return rate * 0.75;
+        return this.droidScoreMultiplier;
     }
 }

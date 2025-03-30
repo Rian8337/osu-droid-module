@@ -241,7 +241,6 @@ export abstract class ModUtil {
         mods: Mod[],
         customSpeedMultiplier = 1,
         withRateChange = false,
-        oldStatistics = false,
     ) {
         for (const mod of mods) {
             if (mod.isApplicableToDifficulty()) {
@@ -262,7 +261,7 @@ export abstract class ModUtil {
             }
 
             if (mod.isApplicableToTrackRate()) {
-                rate = mod.applyToRate(rate, oldStatistics);
+                rate = mod.applyToRate(0, rate);
             }
         }
 
@@ -322,15 +321,12 @@ export abstract class ModUtil {
      * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
      * @returns The rate with `Mod`s.
      */
-    static calculateRateWithMods(
-        mods: Iterable<Mod>,
-        oldStatistics?: boolean,
-    ): number {
+    static calculateRateWithMods(mods: Iterable<Mod>): number {
         let rate = 1;
 
         for (const mod of mods) {
             if (mod.isApplicableToTrackRate()) {
-                rate = mod.applyToRate(rate, oldStatistics);
+                rate = mod.applyToRate(0, rate);
             }
         }
 

@@ -12,6 +12,8 @@ export class ModDoubleTime
     override readonly acronym = "DT";
     override readonly name = "DoubleTime";
 
+    override readonly trackRateMultiplier = 1.5;
+
     readonly droidRanked = true;
     readonly droidString = "d";
     readonly isDroidLegacyMod = false;
@@ -21,10 +23,6 @@ export class ModDoubleTime
     readonly bitwise = 1 << 6;
 
     calculateDroidScoreMultiplier(): number {
-        return 1.12;
-    }
-
-    override applyToRate(rate: number): number {
-        return rate * 1.5;
+        return this.droidScoreMultiplier;
     }
 }
