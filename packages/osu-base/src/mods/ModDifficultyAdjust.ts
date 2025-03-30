@@ -9,9 +9,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 
 /**
- * Represents the difficulty adjust (DA) mod.
- *
- * This is not a real mod in osu! but is used to force difficulty values in the game.
+ * Represents the Difficulty Adjust mod.
  */
 export class ModDifficultyAdjust
     extends Mod
@@ -25,7 +23,6 @@ export class ModDifficultyAdjust
     override readonly name = "Difficulty Adjust";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 1;
     readonly droidString = "";
     readonly isDroidLegacyMod = false;
 
@@ -64,6 +61,31 @@ export class ModDifficultyAdjust
         this.ar = values?.ar;
         this.od = values?.od;
         this.hp = values?.hp;
+    }
+
+    calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number {
+        // Graph: https://www.desmos.com/calculator/yrggkhrkzz
+        let multiplier = 1;
+
+        if (this.cs !== undefined) {
+            const diff = this.cs - difficulty.cs;
+
+            multiplier *=
+                diff >= 0
+                    ? 1 + 0.0075 * Math.pow(diff, 1.5)
+                    : 2 / (1 + Math.exp(-0.5 * diff));
+        }
+
+        if (this.od !== undefined) {
+            const diff = this.od - difficulty.od;
+
+            multiplier *=
+                diff >= 0
+                    ? 1 + 0.005 * Math.pow(diff, 1.3)
+                    : 2 / (1 + Math.exp(-0.25 * diff));
+        }
+
+        return multiplier;
     }
 
     applyToDifficultyWithSettings(

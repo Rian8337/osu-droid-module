@@ -1,3 +1,5 @@
+import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
+
 /**
  * An interface denoting that a `Mod` can be applied to osu!droid.
  */
@@ -8,9 +10,12 @@ export interface IModApplicableToDroid {
     readonly droidRanked: boolean;
 
     /**
-     * The osu!droid score multiplier of this `Mod`.
+     * Calculates the score multiplier of this `Mod` in osu!droid with the given `BeatmapDifficulty`.
+     *
+     * @param difficulty The `BeatmapDifficulty` to calculate the score multiplier for.
+     * @returns The score multiplier of this `Mod` in osu!droid with the given `BeatmapDifficulty`.
      */
-    readonly droidScoreMultiplier: number;
+    calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number;
 
     /**
      * The osu!droid enum of the `Mod`.

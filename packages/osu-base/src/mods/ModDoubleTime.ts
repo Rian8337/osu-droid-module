@@ -13,13 +13,16 @@ export class ModDoubleTime
     override readonly name = "DoubleTime";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 1.12;
     readonly droidString = "d";
     readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 6;
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.12;
+    }
 
     override applyToRate(rate: number): number {
         return rate * 1.5;

@@ -13,11 +13,14 @@ export class ModScoreV2
     override readonly name = "ScoreV2";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 1;
     readonly droidString = "v";
     readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 29;
+
+    calculateDroidScoreMultiplier(): number {
+        return 1;
+    }
 }

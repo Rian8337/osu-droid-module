@@ -18,9 +18,12 @@ export class ModReallyEasy
     override readonly name = "ReallyEasy";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 0.4;
     readonly droidString = "l";
     readonly isDroidLegacyMod = false;
+
+    calculateDroidScoreMultiplier(): number {
+        return 0.4;
+    }
 
     applyToDifficultyWithSettings(
         mode: Modes,

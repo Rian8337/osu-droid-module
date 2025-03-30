@@ -167,7 +167,9 @@ export class Beatmap {
 
         for (const mod of mods) {
             if (mod.isApplicableToDroid()) {
-                scoreMultiplier *= mod.droidScoreMultiplier;
+                scoreMultiplier *= mod.calculateDroidScoreMultiplier(
+                    this.difficulty,
+                );
             }
         }
 

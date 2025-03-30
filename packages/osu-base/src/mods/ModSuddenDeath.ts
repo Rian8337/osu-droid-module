@@ -15,7 +15,6 @@ export class ModSuddenDeath
     override readonly name = "Sudden Death";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 1;
     readonly droidString = "u";
     readonly isDroidLegacyMod = false;
 
@@ -27,5 +26,9 @@ export class ModSuddenDeath
         super();
 
         this.incompatibleMods.add(ModNoFail).add(ModPerfect);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 1;
     }
 }

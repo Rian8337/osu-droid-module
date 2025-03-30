@@ -24,7 +24,6 @@ export class ModHidden
     override readonly name = "Hidden";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 1.06;
     readonly droidString = "h";
     readonly isDroidLegacyMod = false;
 
@@ -36,6 +35,10 @@ export class ModHidden
         super();
 
         this.incompatibleMods.add(ModTraceable);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.06;
     }
 
     applyToBeatmap(beatmap: Beatmap): void {

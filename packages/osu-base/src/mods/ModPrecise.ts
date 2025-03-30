@@ -18,9 +18,12 @@ export class ModPrecise
     override readonly name = "Precise";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 1.06;
     readonly droidString = "s";
     readonly isDroidLegacyMod = false;
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.06;
+    }
 
     applyToHitObject(mode: Modes, hitObject: HitObject): void {
         if (mode !== Modes.droid || hitObject instanceof Spinner) {

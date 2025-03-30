@@ -18,9 +18,12 @@ export class ModSmallCircle
     override readonly name = "SmallCircle";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 1.06;
     readonly droidString = "m";
     readonly isDroidLegacyMod = true;
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.06;
+    }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
         switch (mode) {

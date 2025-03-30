@@ -15,11 +15,14 @@ export class ModNightCore
     readonly droidRanked = true;
     readonly droidString = "c";
     readonly isDroidLegacyMod = false;
-    readonly droidScoreMultiplier = 1.12;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.12;
+    }
 
     override applyToRate(rate: number, oldStatistics?: boolean): number {
         return rate * (oldStatistics ? 1.39 : 1.5);

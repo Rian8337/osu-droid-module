@@ -15,7 +15,6 @@ export class ModAutopilot
     override readonly name = "Autopilot";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 0.001;
     readonly droidString = "p";
     readonly isDroidLegacyMod = false;
 
@@ -27,5 +26,9 @@ export class ModAutopilot
         super();
 
         this.incompatibleMods.add(ModRelax).add(ModAuto);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 0.001;
     }
 }

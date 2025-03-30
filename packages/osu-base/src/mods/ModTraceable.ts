@@ -14,7 +14,6 @@ export class ModTraceable
     override readonly name = "Traceable";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 1.06;
     readonly droidString = "b";
     readonly isDroidLegacyMod = false;
 
@@ -25,5 +24,9 @@ export class ModTraceable
         super();
 
         this.incompatibleMods.add(ModHidden);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.06;
     }
 }

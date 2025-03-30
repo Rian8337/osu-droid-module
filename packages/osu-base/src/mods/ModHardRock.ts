@@ -28,7 +28,6 @@ export class ModHardRock
     override readonly name = "HardRock";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 1.06;
     readonly droidString = "r";
     readonly isDroidLegacyMod = false;
 
@@ -40,6 +39,10 @@ export class ModHardRock
         super();
 
         this.incompatibleMods.add(ModEasy);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 1.06;
     }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {

@@ -13,13 +13,16 @@ export class ModHalfTime
     override readonly name = "HalfTime";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 0.3;
     readonly droidString = "t";
     readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
+
+    calculateDroidScoreMultiplier(): number {
+        return 0.3;
+    }
 
     override applyToRate(rate: number): number {
         return rate * 0.75;

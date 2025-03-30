@@ -21,7 +21,6 @@ export class ModEasy
     override readonly name = "Easy";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 0.5;
     readonly droidString = "e";
     readonly isDroidLegacyMod = false;
 
@@ -33,6 +32,10 @@ export class ModEasy
         super();
 
         this.incompatibleMods.add(ModHardRock);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 0.5;
     }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {

@@ -15,7 +15,6 @@ export class ModNoFail
     override readonly name = "NoFail";
 
     readonly droidRanked = true;
-    readonly droidScoreMultiplier = 0.5;
     readonly droidString = "n";
     readonly isDroidLegacyMod = false;
 
@@ -27,5 +26,9 @@ export class ModNoFail
         super();
 
         this.incompatibleMods.add(ModPerfect).add(ModSuddenDeath);
+    }
+
+    calculateDroidScoreMultiplier(): number {
+        return 0.5;
     }
 }
