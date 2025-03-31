@@ -22,12 +22,6 @@ export abstract class ModRateAdjust
             : Math.pow(0.3, (1 - this.trackRateMultiplier) * 4);
     }
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModRateAdjust);
-    }
-
     applyToRate(time: number, rate: number): number {
         return rate * this.trackRateMultiplier;
     }

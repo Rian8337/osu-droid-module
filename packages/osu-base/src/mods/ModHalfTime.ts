@@ -1,5 +1,7 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
+import { ModDoubleTime } from "./ModDoubleTime";
+import { ModNightCore } from "./ModNightCore";
 import { ModRateAdjust } from "./ModRateAdjust";
 
 /**
@@ -20,6 +22,12 @@ export class ModHalfTime
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModDoubleTime).add(ModNightCore);
+    }
 
     calculateDroidScoreMultiplier(): number {
         return this.droidScoreMultiplier;
