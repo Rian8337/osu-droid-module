@@ -1,4 +1,5 @@
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
+import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
 import { ModAuto } from "./ModAuto";
 import { ModAutopilot } from "./ModAutopilot";
@@ -30,7 +31,7 @@ export abstract class DroidLegacyModConverter {
      */
     private static readonly droidLegacyStorableMods = new Map<
         string,
-        new () => Mod
+        new () => Mod & IModApplicableToDroid
     >([
         ["a", ModAuto],
         ["b", ModTraceable],
@@ -59,7 +60,10 @@ export abstract class DroidLegacyModConverter {
      * @param difficulty The `BeatmapDifficulty` to use for `IMigratableDroidMod` migrations. When omitted, `IMigratableDroidMod`s will not be migrated.
      * @returns An array of `Mod`s.
      */
-    static convert(str?: string, difficulty?: BeatmapDifficulty): Mod[] {
+    static convert(
+        str?: string,
+        difficulty?: BeatmapDifficulty,
+    ): (Mod & IModApplicableToDroid)[] {
         if (!str) {
             return [];
         }
@@ -70,7 +74,7 @@ export abstract class DroidLegacyModConverter {
             return [];
         }
 
-        const mods: Mod[] = [];
+        const mods: (Mod & IModApplicableToDroid)[] = [];
 
         for (const c of data[0]) {
             const modType = this.droidLegacyStorableMods.get(c);
@@ -101,7 +105,10 @@ export abstract class DroidLegacyModConverter {
      * @param mods The current `Mod`s.
      * @param extraStrings The extra strings to parse.
      */
-    static parseExtraModString(mods: Mod[], extraStrings: string[]) {
+    static parseExtraModString(
+        mods: (Mod & IModApplicableToDroid)[],
+        extraStrings: string[],
+    ) {
         let customCS: number | undefined;
         let customAR: number | undefined;
         let customOD: number | undefined;
