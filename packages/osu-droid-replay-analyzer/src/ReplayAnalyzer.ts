@@ -18,6 +18,7 @@ import {
     ModHidden,
     ModNightCore,
     ModNoFail,
+    ModOldNightCore,
     ModPerfect,
     ModPrecise,
     ModReallyEasy,
@@ -471,6 +472,7 @@ export class ReplayAnalyzer {
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = Object.values(rawObject[6].elements);
             resultObject.convertedMods = this.convertDroidMods(
+                resultObject.replayVersion,
                 resultObject.rawMods,
             );
             resultObject.rank = this.calculateRank(resultObject);
@@ -531,6 +533,7 @@ export class ReplayAnalyzer {
      * Converts replay mods to droid mod string.
      */
     private convertDroidMods(
+        replayVersion: number,
         replayMods: string[],
     ): (Mod & IModApplicableToDroid)[] {
         const replayModsConstants = {
@@ -562,11 +565,16 @@ export class ReplayAnalyzer {
                     continue;
                 }
 
-                mods.push(
-                    replayModsConstants[
-                        property as keyof typeof replayModsConstants
-                    ],
-                );
+                if (replayVersion <= 3 && mod === "MOD_NIGHTCORE") {
+                    // In replay v3, the NightCore mod is bugged. See ModOldNightCore's description.
+                    mods.push(new ModOldNightCore());
+                } else {
+                    mods.push(
+                        replayModsConstants[
+                            property as keyof typeof replayModsConstants
+                        ],
+                    );
+                }
 
                 break;
             }
