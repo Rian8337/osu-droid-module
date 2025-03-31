@@ -115,7 +115,7 @@ export abstract class DifficultyCalculator<
      * @returns The current instance.
      */
     calculate(mods: Mod[] = []): this {
-        this.mods = mods;
+        this.mods = mods.slice();
 
         const playableBeatmap = this.beatmap.createPlayableBeatmap({
             mode: this.mode,
