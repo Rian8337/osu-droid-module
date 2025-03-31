@@ -1,9 +1,11 @@
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
+import { IMigratableDroidMod } from "./IMigratableDroidMod";
 import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
+import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 
 /**
  * Represents the SmallCircle mod.
@@ -12,7 +14,10 @@ import { Mod } from "./Mod";
  */
 export class ModSmallCircle
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToDifficulty
+    implements
+        IModApplicableToDroid,
+        IModApplicableToDifficulty,
+        IMigratableDroidMod
 {
     override readonly acronym = "SC";
     override readonly name = "SmallCircle";
@@ -23,6 +28,12 @@ export class ModSmallCircle
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;
+    }
+
+    migrateDroidMod(
+        difficulty: BeatmapDifficulty,
+    ): Mod & IModApplicableToDroid {
+        return new ModDifficultyAdjust({ cs: difficulty.cs + 4 });
     }
 
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {

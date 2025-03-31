@@ -1,3 +1,4 @@
+import { IMigratableDroidMod } from "./IMigratableDroidMod";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
@@ -86,9 +87,16 @@ export abstract class Mod {
     }
 
     /**
-     * Whether this `Mod`s can be applied to a track's playback rate.
+     * Whether this `Mod` can be applied to a track's playback rate.
      */
     isApplicableToTrackRate(): this is this & IModApplicableToTrackRate {
         return "applyToRate" in this;
+    }
+
+    /**
+     * Whether this `Mod` is migratable to a new `Mod` in osu!droid.
+     */
+    isMigratableDroidMod(): this is this & IMigratableDroidMod {
+        return "migrateDroidMod" in this;
     }
 }
