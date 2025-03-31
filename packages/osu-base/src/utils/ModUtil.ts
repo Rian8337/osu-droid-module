@@ -90,33 +90,6 @@ export abstract class ModUtil {
     })();
 
     /**
-     * All mods that exists.
-     */
-    static readonly legacyAllMods: Mod[] = [
-        // Janky order to keep the order on what players are used to
-        new ModAuto(),
-        new ModRelax(),
-        new ModAutopilot(),
-        new ModEasy(),
-        new ModNoFail(),
-        new ModHidden(),
-        new ModTraceable(),
-        new ModHardRock(),
-        new ModDoubleTime(),
-        new ModNightCore(),
-        new ModHalfTime(),
-        new ModFlashlight(),
-        new ModSuddenDeath(),
-        new ModPerfect(),
-        new ModPrecise(),
-        new ModReallyEasy(),
-        new ModScoreV2(),
-        new ModSmallCircle(),
-        new ModSpunOut(),
-        new ModTouchDevice(),
-    ];
-
-    /**
      * Gets a list of mods from a PC modbits.
      *
      * @param modbits The modbits.
