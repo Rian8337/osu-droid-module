@@ -95,7 +95,13 @@ export abstract class DroidLegacyModConverter {
         return mods;
     }
 
-    private static parseExtraModString(mods: Mod[], extraStrings: string[]) {
+    /**
+     * Parses the extra strings of a mod string.
+     *
+     * @param mods The current `Mod`s.
+     * @param extraStrings The extra strings to parse.
+     */
+    static parseExtraModString(mods: Mod[], extraStrings: string[]) {
         let customCS: number | undefined;
         let customAR: number | undefined;
         let customOD: number | undefined;
