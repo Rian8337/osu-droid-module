@@ -212,12 +212,13 @@ export abstract class ModUtil {
         str = str.toLowerCase();
 
         while (str) {
-            let nchars: number = 1;
+            let nchars = 1;
 
-            for (const mod of this.legacyAllMods) {
-                if (str.startsWith(mod.acronym.toLowerCase())) {
-                    finalMods.push(mod);
-                    nchars = 2;
+            for (const acronym of this.allMods.keys()) {
+                if (str.startsWith(acronym.toLowerCase())) {
+                    const modType = this.allMods.get(acronym) as new () => Mod;
+                    finalMods.push(new modType());
+                    nchars = acronym.length;
                     break;
                 }
             }
