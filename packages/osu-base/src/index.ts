@@ -62,6 +62,7 @@ export * from "./mods/IModApplicableToOsuStable";
 export * from "./mods/IModApplicableToTrackRate";
 export * from "./mods/IMigratableDroidMod";
 export * from "./math/Interpolation";
+export * from "./mods/LegacyModConverter";
 export * from "./online/MapInfo";
 export * from "./math/MathUtils";
 export * from "./mods/Mod";
