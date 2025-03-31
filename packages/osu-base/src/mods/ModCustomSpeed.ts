@@ -51,4 +51,8 @@ export class ModCustomSpeed
     protected override serializeSettings(): Record<string, unknown> | null {
         return { rateMultiplier: this.trackRateMultiplier };
     }
+
+    override toString(): string {
+        return `${super.toString()} (${this.trackRateMultiplier.toFixed(2)}x)`;
+    }
 }

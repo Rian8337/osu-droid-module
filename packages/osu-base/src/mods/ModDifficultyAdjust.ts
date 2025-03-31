@@ -186,4 +186,26 @@ export class ModDifficultyAdjust
             1,
         );
     }
+
+    override toString(): string {
+        const settings: string[] = [];
+
+        if (this.cs !== undefined) {
+            settings.push(`CS${this.cs.toFixed(1)}`);
+        }
+
+        if (this.ar !== undefined) {
+            settings.push(`AR${this.ar.toFixed(1)}`);
+        }
+
+        if (this.od !== undefined) {
+            settings.push(`OD${this.od.toFixed(1)}`);
+        }
+
+        if (this.hp !== undefined) {
+            settings.push(`HP${this.hp.toFixed(1)}`);
+        }
+
+        return `${super.toString()} (${settings.join(", ")})`;
+    }
 }

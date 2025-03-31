@@ -47,4 +47,12 @@ export class ModFlashlight
     protected override serializeSettings(): Record<string, unknown> | null {
         return { areaFollowDelay: this.followDelay };
     }
+
+    override toString(): string {
+        if (this.followDelay === ModFlashlight.defaultFollowDelay) {
+            return super.toString();
+        }
+
+        return `${super.toString()} (${this.followDelay.toFixed(2)}s follow delay)`;
+    }
 }

@@ -139,4 +139,11 @@ export abstract class Mod {
     protected serializeSettings(): Record<string, unknown> | null {
         return null;
     }
+
+    /**
+     * Returns the string representation of this `Mod`.
+     */
+    toString(): string {
+        return this.acronym;
+    }
 }
