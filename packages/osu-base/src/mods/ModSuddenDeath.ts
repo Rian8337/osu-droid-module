@@ -16,7 +16,7 @@ export class ModSuddenDeath
 
     readonly droidRanked = true;
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 5;
 

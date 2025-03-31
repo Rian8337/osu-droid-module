@@ -25,7 +25,7 @@ export class ModDifficultyAdjust
 
     readonly droidRanked = false;
 
-    readonly pcRanked = false;
+    readonly osuRanked = false;
     readonly pcScoreMultiplier = 1;
 
     /**

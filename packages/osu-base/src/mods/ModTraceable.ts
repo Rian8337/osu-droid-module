@@ -15,7 +15,7 @@ export class ModTraceable
 
     readonly droidRanked = false;
 
-    readonly pcRanked = false;
+    readonly osuRanked = false;
     readonly pcScoreMultiplier = 1;
 
     constructor() {

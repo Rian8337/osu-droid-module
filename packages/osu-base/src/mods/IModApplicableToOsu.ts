@@ -5,7 +5,7 @@ export interface IModApplicableToOsu {
     /**
      * Whether this `Mod` is ranked in osu!standard.
      */
-    readonly pcRanked: boolean;
+    readonly osuRanked: boolean;
 
     /**
      * The osu!standard score multiplier of this `Mod`.

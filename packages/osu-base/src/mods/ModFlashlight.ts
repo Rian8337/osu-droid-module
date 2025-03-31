@@ -20,7 +20,7 @@ export class ModFlashlight
 
     readonly droidRanked = true;
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 10;
 

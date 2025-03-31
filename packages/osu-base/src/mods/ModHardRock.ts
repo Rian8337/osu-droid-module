@@ -29,7 +29,7 @@ export class ModHardRock
 
     readonly droidRanked = true;
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 1.06;
     readonly bitwise = 1 << 4;
 

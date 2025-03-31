@@ -16,7 +16,7 @@ export class ModNoFail
 
     readonly droidRanked = true;
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 0.5;
     readonly bitwise = 1 << 0;
 

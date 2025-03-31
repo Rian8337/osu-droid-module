@@ -16,7 +16,7 @@ export class ModAutopilot
 
     readonly droidRanked = false;
 
-    readonly pcRanked = false;
+    readonly osuRanked = false;
     readonly pcScoreMultiplier = 0;
     readonly bitwise = 1 << 13;
 

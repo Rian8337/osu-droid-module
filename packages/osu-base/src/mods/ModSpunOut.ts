@@ -8,7 +8,7 @@ export class ModSpunOut extends Mod implements IModApplicableToOsuStable {
     override readonly acronym = "SO";
     override readonly name = "SpunOut";
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 0.9;
     readonly bitwise = 1 << 12;
 }

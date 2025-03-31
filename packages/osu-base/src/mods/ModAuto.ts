@@ -16,7 +16,7 @@ export class ModAuto
 
     readonly droidRanked = false;
 
-    readonly pcRanked = false;
+    readonly osuRanked = false;
     readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 11;
 

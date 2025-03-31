@@ -18,7 +18,7 @@ export class ModHalfTime
 
     readonly droidRanked = true;
 
-    readonly pcRanked = true;
+    readonly osuRanked = true;
     readonly pcScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
 

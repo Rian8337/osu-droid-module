@@ -19,7 +19,7 @@ export class ModCustomSpeed
 
     readonly droidRanked = true;
 
-    readonly pcRanked = false;
+    readonly osuRanked = false;
     // TODO: temporary
     readonly pcScoreMultiplier = 1;
 
