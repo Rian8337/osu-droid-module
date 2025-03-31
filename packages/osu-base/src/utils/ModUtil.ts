@@ -1,7 +1,6 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { IModApplicableToDroid } from "../mods/IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "../mods/IModApplicableToOsuStable";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
@@ -118,26 +117,6 @@ export abstract class ModUtil {
     ];
 
     /**
-     * Gets a list of mods from a droid mod string, such as "hd".
-     *
-     * @param str The string.
-     * @param options Options for parsing behavior.
-     */
-    static droidStringToMods(
-        str: string,
-        options?: ModParseOptions,
-    ): (Mod & IModApplicableToDroid)[] {
-        return <(Mod & IModApplicableToDroid)[]>this.processParsingOptions(
-            this.legacyAllMods.filter(
-                (m) =>
-                    m.isApplicableToDroid() &&
-                    str.toLowerCase().includes(m.droidString),
-            ),
-            options,
-        );
-    }
-
-    /**
      * Gets a list of mods from a PC modbits.
      *
      * @param modbits The modbits.
@@ -228,16 +207,6 @@ export abstract class ModUtil {
         }
 
         return this.processParsingOptions(finalMods, options);
-    }
-
-    /**
-     * Converts an array of mods into its osu!droid string counterpart.
-     *
-     * @param mods The array of mods to convert.
-     * @returns The string representing the mods in osu!droid.
-     */
-    static modsToDroidString(mods: IModApplicableToDroid[]): string {
-        return mods.reduce((a, v) => a + v.droidString, "");
     }
 
     /**

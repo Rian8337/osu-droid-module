@@ -24,7 +24,6 @@ export class ModDifficultyAdjust
     override readonly name = "Difficulty Adjust";
 
     readonly droidRanked = false;
-    readonly droidString = "";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

@@ -18,7 +18,6 @@ export class ModCustomSpeed
     override trackRateMultiplier: number;
 
     readonly droidRanked = true;
-    readonly droidString = "";
 
     readonly pcRanked = false;
     // TODO: temporary

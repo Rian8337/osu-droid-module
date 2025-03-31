@@ -15,7 +15,6 @@ export class ModPerfect
     override readonly name = "Perfect";
 
     readonly droidRanked = true;
-    readonly droidString = "f";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1;

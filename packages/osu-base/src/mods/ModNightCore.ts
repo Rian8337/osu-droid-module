@@ -17,7 +17,6 @@ export class ModNightCore
     override readonly trackRateMultiplier: number = 1.5;
 
     readonly droidRanked = true;
-    readonly droidString = "c";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

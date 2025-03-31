@@ -13,7 +13,6 @@ export class ModScoreV2
     override readonly name = "ScoreV2";
 
     readonly droidRanked = false;
-    readonly droidString = "v";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

@@ -15,7 +15,6 @@ export class ModNoFail
     override readonly name = "NoFail";
 
     readonly droidRanked = true;
-    readonly droidString = "n";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;

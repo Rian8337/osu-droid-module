@@ -16,9 +16,4 @@ export interface IModApplicableToDroid {
      * @returns The score multiplier of this `Mod` in osu!droid with the given `BeatmapDifficulty`.
      */
     calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number;
-
-    /**
-     * The osu!droid enum of the `Mod`.
-     */
-    readonly droidString: string;
 }

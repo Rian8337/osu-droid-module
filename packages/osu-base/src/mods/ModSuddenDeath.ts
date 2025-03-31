@@ -15,7 +15,6 @@ export class ModSuddenDeath
     override readonly name = "Sudden Death";
 
     readonly droidRanked = true;
-    readonly droidString = "u";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1;

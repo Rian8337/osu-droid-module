@@ -19,7 +19,6 @@ export class ModReallyEasy
     override readonly name = "ReallyEasy";
 
     readonly droidRanked = false;
-    readonly droidString = "l";
 
     calculateDroidScoreMultiplier(): number {
         return 0.4;

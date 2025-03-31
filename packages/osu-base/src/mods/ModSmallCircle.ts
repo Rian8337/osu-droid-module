@@ -23,7 +23,6 @@ export class ModSmallCircle
     override readonly name = "SmallCircle";
 
     readonly droidRanked = false;
-    readonly droidString = "m";
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;

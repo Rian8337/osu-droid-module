@@ -24,7 +24,6 @@ export class ModHidden
     override readonly name = "Hidden";
 
     readonly droidRanked = true;
-    readonly droidString = "h";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;

@@ -15,7 +15,6 @@ export class ModAuto
     override readonly name = "Autoplay";
 
     readonly droidRanked = false;
-    readonly droidString = "a";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

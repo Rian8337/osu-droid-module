@@ -17,7 +17,6 @@ export class ModDoubleTime
     override readonly trackRateMultiplier = 1.5;
 
     readonly droidRanked = true;
-    readonly droidString = "d";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

@@ -15,7 +15,6 @@ export class ModAutopilot
     override readonly name = "Autopilot";
 
     readonly droidRanked = false;
-    readonly droidString = "p";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 0;

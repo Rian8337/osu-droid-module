@@ -17,7 +17,6 @@ export class ModHalfTime
     override readonly trackRateMultiplier = 0.75;
 
     readonly droidRanked = true;
-    readonly droidString = "t";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.3;

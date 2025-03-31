@@ -28,7 +28,6 @@ export class ModHardRock
     override readonly name = "HardRock";
 
     readonly droidRanked = true;
-    readonly droidString = "r";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;

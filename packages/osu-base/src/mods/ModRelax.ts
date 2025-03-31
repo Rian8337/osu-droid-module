@@ -15,7 +15,6 @@ export class ModRelax
     override readonly name = "Relax";
 
     readonly droidRanked = false;
-    readonly droidString = "x";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 0;

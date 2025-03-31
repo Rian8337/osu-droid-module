@@ -18,7 +18,6 @@ export class ModPrecise
     override readonly name = "Precise";
 
     readonly droidRanked = true;
-    readonly droidString = "s";
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;

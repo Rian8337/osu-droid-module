@@ -14,7 +14,6 @@ export class ModTraceable
     override readonly name = "Traceable";
 
     readonly droidRanked = false;
-    readonly droidString = "b";
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

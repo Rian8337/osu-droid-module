@@ -19,7 +19,6 @@ export class ModFlashlight
     override readonly name = "Flashlight";
 
     readonly droidRanked = true;
-    readonly droidString = "i";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

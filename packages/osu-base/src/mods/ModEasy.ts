@@ -21,7 +21,6 @@ export class ModEasy
     override readonly name = "Easy";
 
     readonly droidRanked = true;
-    readonly droidString = "e";
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;
