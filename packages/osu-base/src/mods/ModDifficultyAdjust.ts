@@ -1,7 +1,6 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { ModUtil } from "../utils/ModUtil";
 import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
@@ -118,7 +117,7 @@ export class ModDifficultyAdjust
                 HitObject.preemptMin,
             );
 
-            const trackRate = ModUtil.calculateRateWithMods(mods);
+            const trackRate = this.calculateTrackRate(mods);
 
             difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
                 preempt * trackRate,
@@ -140,7 +139,9 @@ export class ModDifficultyAdjust
             return;
         }
 
-        const trackRate = ModUtil.calculateRateWithMods(mods);
+        // IMPORTANT: This does not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
+        const trackRate = this.calculateTrackRate(mods);
+
         hitObject.timeFadeIn *= trackRate;
     }
 
@@ -173,5 +174,16 @@ export class ModDifficultyAdjust
         }
 
         return settings;
+    }
+
+    private calculateTrackRate(mods: Mod[], time = 0): number {
+        // IMPORTANT: This does not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
+        return mods.reduce(
+            (rate, mod) =>
+                mod.isApplicableToTrackRate()
+                    ? mod.applyToRate(time, rate)
+                    : rate,
+            1,
+        );
     }
 }
