@@ -308,18 +308,18 @@ export abstract class ModUtil {
     }
 
     /**
-     * Calculates the rate for the track with the selected `Mod`s.
+     * Calculates the playback rate for the track with the selected `Mod`s at the given time.
      *
      * @param mods The list of selected `Mod`s.
-     * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
+     * @param time The time at which the playback rate is queried, in milliseconds. Defaults to 0.
      * @returns The rate with `Mod`s.
      */
-    static calculateRateWithMods(mods: Iterable<Mod>): number {
+    static calculateRateWithMods(mods: Iterable<Mod>, time = 0): number {
         let rate = 1;
 
         for (const mod of mods) {
             if (mod.isApplicableToTrackRate()) {
-                rate = mod.applyToRate(0, rate);
+                rate = mod.applyToRate(time, rate);
             }
         }
 
