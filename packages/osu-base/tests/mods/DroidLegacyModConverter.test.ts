@@ -1,6 +1,6 @@
 import {
     BeatmapDifficulty,
-    LegacyModConverter,
+    DroidLegacyModConverter,
     ModCustomSpeed,
     ModDifficultyAdjust,
     ModHardRock,
@@ -12,23 +12,25 @@ test("Test legacy mod conversion", () => {
     const difficulty = new BeatmapDifficulty();
     difficulty.cs = 5;
 
-    expect(LegacyModConverter.convert()).toEqual([]);
-    expect(LegacyModConverter.convert("r")).toEqual([new ModHardRock()]);
+    expect(DroidLegacyModConverter.convert()).toEqual([]);
+    expect(DroidLegacyModConverter.convert("r")).toEqual([new ModHardRock()]);
 
-    expect(LegacyModConverter.convert("h|x1.25")).toEqual([
+    expect(DroidLegacyModConverter.convert("h|x1.25")).toEqual([
         new ModHidden(),
         new ModCustomSpeed(1.25),
     ]);
 
-    expect(LegacyModConverter.convert("h|x1.25|CS8")).toEqual([
+    expect(DroidLegacyModConverter.convert("h|x1.25|CS8")).toEqual([
         new ModHidden(),
         new ModCustomSpeed(1.25),
         new ModDifficultyAdjust({ cs: 8 }),
     ]);
 
-    expect(LegacyModConverter.convert("m")).toEqual([new ModSmallCircle()]);
+    expect(DroidLegacyModConverter.convert("m")).toEqual([
+        new ModSmallCircle(),
+    ]);
 
-    expect(LegacyModConverter.convert("m", difficulty)).toEqual([
+    expect(DroidLegacyModConverter.convert("m", difficulty)).toEqual([
         new ModDifficultyAdjust({ cs: difficulty.cs + 4 }),
     ]);
 });

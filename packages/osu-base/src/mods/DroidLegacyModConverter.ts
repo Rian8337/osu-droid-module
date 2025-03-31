@@ -22,9 +22,9 @@ import { ModSuddenDeath } from "./ModSuddenDeath";
 import { ModTraceable } from "./ModTraceable";
 
 /**
- * A set of utilities to handle legacy mods storage conversion to the new storage format.
+ * A set of utilities to handle legacy mods storage conversion to the new storage format in osu!droid.
  */
-export abstract class LegacyModConverter {
+export abstract class DroidLegacyModConverter {
     /**
      * All `Mod`s that can be stored in the legacy mods format by their respective encode character.
      */
