@@ -208,6 +208,27 @@ export abstract class ModUtil {
     }
 
     /**
+     * Converts an array of `Mod`s into an ordered string based on {@link allMods}.
+     *
+     * @param mods The array of `Mod`s to convert.
+     * @returns The string representing the `Mod`s in ordered form.
+     */
+    static modsToOrderedString(mods: Iterable<Mod>): string {
+        const strs: string[] = [];
+
+        for (const modType of this.allMods.values()) {
+            for (const mod of mods) {
+                if (mod instanceof modType) {
+                    strs.push(mod.toString());
+                    break;
+                }
+            }
+        }
+
+        return strs.join();
+    }
+
+    /**
      * Checks for mods that are duplicated.
      *
      * @param mods The mods to check for.

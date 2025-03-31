@@ -373,3 +373,25 @@ describe("Test apply mods to beatmap difficulty", () => {
         });
     });
 });
+
+test("Test ordered mod string", () => {
+    expect(ModUtil.modsToOrderedString([new ModDoubleTime()])).toBe("DT");
+
+    expect(
+        ModUtil.modsToOrderedString([new ModHidden(), new ModHardRock()]),
+    ).toBe("HD,HR");
+
+    expect(
+        ModUtil.modsToOrderedString([
+            new ModHidden(),
+            new ModCustomSpeed(1.25),
+        ]),
+    ).toBe("HD,CS (1.25x)");
+
+    expect(
+        ModUtil.modsToOrderedString([
+            new ModHardRock(),
+            new ModDifficultyAdjust({ cs: 4 }),
+        ]),
+    ).toBe("HR,DA (CS4.0)");
+});
