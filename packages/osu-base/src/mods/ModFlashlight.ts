@@ -1,6 +1,7 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { SerializedMod } from "./SerializedMod";
 
 /**
  * Represents the Flashlight mod.
@@ -29,7 +30,19 @@ export class ModFlashlight
      */
     followDelay = ModFlashlight.defaultFollowDelay;
 
+    override copySettings(mod: SerializedMod): void {
+        super.copySettings(mod);
+
+        this.followDelay =
+            (mod.settings?.areaFollowDelay as number | undefined) ??
+            this.followDelay;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 1.12;
+    }
+
+    protected override serializeSettings(): Record<string, unknown> | null {
+        return { areaFollowDelay: this.followDelay };
     }
 }

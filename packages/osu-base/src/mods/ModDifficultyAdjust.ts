@@ -7,6 +7,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
+import { SerializedMod } from "./SerializedMod";
 
 /**
  * Represents the Difficulty Adjust mod.
@@ -60,6 +61,15 @@ export class ModDifficultyAdjust
         this.ar = values?.ar;
         this.od = values?.od;
         this.hp = values?.hp;
+    }
+
+    override copySettings(mod: SerializedMod): void {
+        super.copySettings(mod);
+
+        this.cs = mod.settings?.cs as number | undefined;
+        this.ar = mod.settings?.ar as number | undefined;
+        this.od = mod.settings?.od as number | undefined;
+        this.hp = mod.settings?.hp as number | undefined;
     }
 
     calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number {
@@ -136,6 +146,37 @@ export class ModDifficultyAdjust
 
         const trackRate = this.calculateTrackRate(mods, customSpeedMultiplier);
         hitObject.timeFadeIn *= trackRate;
+    }
+
+    protected override serializeSettings(): Record<string, unknown> | null {
+        if (
+            this.cs === undefined &&
+            this.ar === undefined &&
+            this.od === undefined &&
+            this.hp === undefined
+        ) {
+            return null;
+        }
+
+        const settings: Record<string, unknown> = {};
+
+        if (this.cs !== undefined) {
+            settings.cs = this.cs;
+        }
+
+        if (this.ar !== undefined) {
+            settings.ar = this.ar;
+        }
+
+        if (this.od !== undefined) {
+            settings.od = this.od;
+        }
+
+        if (this.hp !== undefined) {
+            settings.hp = this.hp;
+        }
+
+        return settings;
     }
 
     private calculateTrackRate(

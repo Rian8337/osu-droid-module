@@ -8,6 +8,7 @@ import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObje
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
+import { SerializedMod } from "./SerializedMod";
 
 /**
  * Represents a mod.
@@ -27,6 +28,36 @@ export abstract class Mod {
      * `Mod`s that are incompatible with this `Mod`.
      */
     readonly incompatibleMods = new Set<typeof Mod>();
+
+    /**
+     * Serializes this `Mod` to a `SerializedMod`.
+     */
+    serialize(): SerializedMod {
+        const serialized = {
+            acronym: this.acronym,
+            settings: this.serializeSettings() ?? undefined,
+        } satisfies SerializedMod;
+
+        if (!serialized.settings) {
+            delete serialized.settings;
+        }
+
+        return serialized;
+    }
+
+    /**
+     * Copies the settings of a `SerializedMod` to this `Mod`.
+     *
+     * @param mod The `SerializedMod` to copy the settings from. Must be the same `Mod` type.
+     * @throws {TypeError} If the `SerializedMod` is not the same type as this `Mod`.
+     */
+    copySettings(mod: SerializedMod) {
+        if (mod.acronym !== this.acronym) {
+            throw new TypeError(
+                `Cannot copy settings from ${mod.acronym} to ${this.acronym}`,
+            );
+        }
+    }
 
     /**
      * Whether this `Mod` can be applied to osu!droid.
@@ -98,5 +129,14 @@ export abstract class Mod {
      */
     isMigratableDroidMod(): this is this & IMigratableDroidMod {
         return "migrateDroidMod" in this;
+    }
+
+    /**
+     * Serializes the settings of this `Mod` to an object that can be converted to a JSON.
+     *
+     * @returns The serialized settings of this `Mod`, or `null` if there are no settings.
+     */
+    protected serializeSettings(): Record<string, unknown> | null {
+        return null;
     }
 }
