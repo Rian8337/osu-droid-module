@@ -4,10 +4,12 @@ import {
     BeatmapDifficulty,
     DroidAPIRequestBuilder,
     DroidHitWindow,
+    DroidLegacyModConverter,
+    IModApplicableToDroid,
     MathUtils,
+    Mod,
     ModAuto,
     ModAutopilot,
-    ModDifficultyAdjust,
     ModDoubleTime,
     ModEasy,
     ModFlashlight,
@@ -54,8 +56,6 @@ import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInfor
 import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
 import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayV3Data } from "./data/ReplayV3Data";
-import { ReplayV4Data } from "./data/ReplayV4Data";
-import { ReplayV5Data } from "./data/ReplayV5Data";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -252,7 +252,6 @@ export class ReplayAnalyzer {
             adjustedDifficulty,
             Modes.droid,
             mods,
-            this.data.isReplayV4() ? this.data.speedMultiplier : 1,
         );
 
         const mehWindow = mods.some((m) => m instanceof ModPrecise)
@@ -471,47 +470,17 @@ export class ReplayAnalyzer {
             resultObject.isFullCombo = resultObject.accuracy.value() === 1;
             resultObject.playerName = rawObject[5];
             resultObject.rawMods = Object.values(rawObject[6].elements);
-            resultObject.convertedMods = ModUtil.droidStringToMods(
-                this.convertDroidMods(resultObject.rawMods),
+            resultObject.convertedMods = this.convertDroidMods(
+                resultObject.rawMods,
             );
             resultObject.rank = this.calculateRank(resultObject);
         }
 
         if (resultObject.replayVersion >= 4) {
-            const str: string[] = rawObject[7].split("|");
-
-            for (const s of str) {
-                switch (true) {
-                    // Forced stats
-                    case s.startsWith("CS"):
-                        resultObject.forceCS = parseFloat(s.replace("CS", ""));
-                        break;
-
-                    case s.startsWith("AR"):
-                        resultObject.forceAR = parseFloat(s.replace("AR", ""));
-                        break;
-
-                    case s.startsWith("OD"):
-                        resultObject.forceOD = parseFloat(s.replace("OD", ""));
-                        break;
-
-                    case s.startsWith("HP"):
-                        resultObject.forceHP = parseFloat(s.replace("HP", ""));
-                        break;
-
-                    // FL follow delay
-                    case s.startsWith("FLD"):
-                        resultObject.flashlightFollowDelay =
-                            parseFloat(s.replace("FLD", "")) || 0.12;
-                        break;
-
-                    // Speed multiplier
-                    case s.startsWith("x"):
-                        resultObject.speedMultiplier =
-                            parseFloat(s.replace("x", "")) || 1;
-                        break;
-                }
-            }
+            DroidLegacyModConverter.parseExtraModString(
+                resultObject.convertedMods,
+                rawObject[7].split("|"),
+            );
         }
 
         let bufferIndex: number;
@@ -520,10 +489,12 @@ export class ReplayAnalyzer {
             case resultObject.replayVersion >= 4:
                 bufferIndex = 8;
                 break;
+
             // replay v3
             case resultObject.replayVersion === 3:
                 bufferIndex = 7;
                 break;
+
             // replay v1 and v2
             default:
                 bufferIndex = 4;
@@ -545,16 +516,10 @@ export class ReplayAnalyzer {
 
         switch (resultObject.replayVersion) {
             case 3:
-                this.data = new ReplayV3Data(resultObject);
-                break;
-
             case 4:
-                this.data = new ReplayV4Data(resultObject);
-                break;
-
             case 5:
             case 6:
-                this.data = new ReplayV5Data(resultObject);
+                this.data = new ReplayV3Data(resultObject);
                 break;
 
             default:
@@ -565,43 +530,49 @@ export class ReplayAnalyzer {
     /**
      * Converts replay mods to droid mod string.
      */
-    private convertDroidMods(replayMods: string[]): string {
+    private convertDroidMods(
+        replayMods: string[],
+    ): (Mod & IModApplicableToDroid)[] {
         const replayModsConstants = {
-            MOD_AUTO: new ModAuto().droidString,
-            MOD_AUTOPILOT: new ModAutopilot().droidString,
-            MOD_NOFAIL: new ModNoFail().droidString,
-            MOD_EASY: new ModEasy().droidString,
-            MOD_HIDDEN: new ModHidden().droidString,
-            MOD_TRACEABLE: new ModTraceable().droidString,
-            MOD_HARDROCK: new ModHardRock().droidString,
-            MOD_DOUBLETIME: new ModDoubleTime().droidString,
-            MOD_HALFTIME: new ModHalfTime().droidString,
-            MOD_NIGHTCORE: new ModNightCore().droidString,
-            MOD_PRECISE: new ModPrecise().droidString,
-            MOD_SMALLCIRCLE: new ModSmallCircle().droidString,
-            MOD_REALLYEASY: new ModReallyEasy().droidString,
-            MOD_RELAX: new ModRelax().droidString,
-            MOD_PERFECT: new ModPerfect().droidString,
-            MOD_SUDDENDEATH: new ModSuddenDeath().droidString,
-            MOD_SCOREV2: new ModScoreV2().droidString,
-            MOD_FLASHLIGHT: new ModFlashlight().droidString,
+            MOD_AUTO: new ModAuto(),
+            MOD_AUTOPILOT: new ModAutopilot(),
+            MOD_NOFAIL: new ModNoFail(),
+            MOD_EASY: new ModEasy(),
+            MOD_HIDDEN: new ModHidden(),
+            MOD_TRACEABLE: new ModTraceable(),
+            MOD_HARDROCK: new ModHardRock(),
+            MOD_DOUBLETIME: new ModDoubleTime(),
+            MOD_HALFTIME: new ModHalfTime(),
+            MOD_NIGHTCORE: new ModNightCore(),
+            MOD_PRECISE: new ModPrecise(),
+            MOD_SMALLCIRCLE: new ModSmallCircle(),
+            MOD_REALLYEASY: new ModReallyEasy(),
+            MOD_RELAX: new ModRelax(),
+            MOD_PERFECT: new ModPerfect(),
+            MOD_SUDDENDEATH: new ModSuddenDeath(),
+            MOD_SCOREV2: new ModScoreV2(),
+            MOD_FLASHLIGHT: new ModFlashlight(),
         };
 
-        let modString = "";
+        const mods: (Mod & IModApplicableToDroid)[] = [];
+
         for (const mod of replayMods) {
             for (const property in replayModsConstants) {
                 if (!mod.includes(property)) {
                     continue;
                 }
-                modString +=
+
+                mods.push(
                     replayModsConstants[
                         property as keyof typeof replayModsConstants
-                    ];
+                    ],
+                );
+
                 break;
             }
         }
 
-        return modString;
+        return mods;
     }
 
     private parseMovementData(
@@ -794,27 +765,8 @@ export class ReplayAnalyzer {
         }
 
         const mods = this.data.isReplayV3()
-            ? this.data.convertedMods.slice()
-            : this.difficultyAttributes?.mods.slice() ?? [];
-
-        if (
-            this.data.isReplayV5() &&
-            [
-                this.data.forceCS,
-                this.data.forceAR,
-                this.data.forceOD,
-                this.data.forceHP,
-            ].some((v) => v !== undefined)
-        ) {
-            mods.push(
-                new ModDifficultyAdjust({
-                    cs: this.data.forceCS,
-                    ar: this.data.forceAR,
-                    od: this.data.forceOD,
-                    hp: this.data.forceHP,
-                }),
-            );
-        }
+            ? this.data.convertedMods
+            : this.difficultyAttributes?.mods ?? [];
 
         return (
             this.beatmap instanceof Beatmap
@@ -823,9 +775,6 @@ export class ReplayAnalyzer {
         ).createPlayableBeatmap({
             mode: Modes.droid,
             mods: mods,
-            customSpeedMultiplier: this.data.isReplayV4()
-                ? this.data.speedMultiplier
-                : 1,
         });
     }
 

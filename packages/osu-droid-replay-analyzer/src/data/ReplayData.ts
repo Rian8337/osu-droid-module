@@ -3,8 +3,6 @@ import { CursorData } from "./CursorData";
 import { ReplayObjectData } from "./ReplayObjectData";
 import { ReplayInformation } from "./ReplayInformation";
 import type { ReplayV3Data } from "./ReplayV3Data";
-import type { ReplayV4Data } from "./ReplayV4Data";
-import type { ReplayV5Data } from "./ReplayV5Data";
 
 /**
  * Represents a replay data in an osu!droid replay version 1 and 2.
@@ -92,19 +90,5 @@ export class ReplayData {
      */
     isReplayV3(): this is ReplayV3Data {
         return this.replayVersion >= 3;
-    }
-
-    /**
-     * Whether the replay's version is 4 or later.
-     */
-    isReplayV4(): this is ReplayV4Data {
-        return this.replayVersion >= 4;
-    }
-
-    /**
-     * Whether the replay's version is 5 or later.
-     */
-    isReplayV5(): this is ReplayV5Data {
-        return this.replayVersion >= 5;
     }
 }

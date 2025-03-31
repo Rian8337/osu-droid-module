@@ -12,8 +12,6 @@ export * from "./analysis/RebalanceThreeFingerChecker";
 export * from "./ReplayAnalyzer";
 export * from "./data/ReplayData";
 export * from "./data/ReplayV3Data";
-export * from "./data/ReplayV4Data";
-export * from "./data/ReplayV5Data";
 export * from "./data/ReplayObjectData";
 export * from "./analysis/SliderCheeseChecker";
 export * from "./analysis/structures/SliderCheeseInformation";

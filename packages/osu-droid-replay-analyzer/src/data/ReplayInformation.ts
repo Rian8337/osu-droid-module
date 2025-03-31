@@ -109,48 +109,6 @@ export interface ReplayInformation {
     convertedMods: (Mod & IModApplicableToDroid)[];
 
     /**
-     * The speed multiplier of the replay.
-     *
-     * Only available in replay v4 or later.
-     */
-    speedMultiplier?: number;
-
-    /**
-     * The force CS of the replay.
-     *
-     * Only available in replay v5 or later.
-     */
-    forceCS?: number;
-
-    /**
-     * The force AR of the replay.
-     *
-     * Only available in replay v4 or later.
-     */
-    forceAR?: number;
-
-    /**
-     * The force OD of the replay.
-     *
-     * Only available in replay v5 or later.
-     */
-    forceOD?: number;
-
-    /**
-     * The force HP of the replay.
-     *
-     * Only available in replay v5 or later.
-     */
-    forceHP?: number;
-
-    /**
-     * The follow delay set for the FL mod, in seconds.
-     *
-     * Only available in replay v4 or later.
-     */
-    flashlightFollowDelay?: number;
-
-    /**
      * The cursor movement data of the replay.
      */
     readonly cursorMovement: CursorData[];
