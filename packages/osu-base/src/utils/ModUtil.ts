@@ -126,12 +126,21 @@ export abstract class ModUtil {
         modbits: number,
         options?: ModParseOptions,
     ): (Mod & IModApplicableToOsuStable)[] {
-        return <(Mod & IModApplicableToOsuStable)[]>this.processParsingOptions(
-            this.legacyAllMods.filter(
-                (m) => m.isApplicableToOsuStable() && (m.bitwise & modbits) > 0,
-            ),
-            options,
-        );
+        if (modbits === 0) {
+            return [];
+        }
+
+        const mods: (Mod & IModApplicableToOsuStable)[] = [];
+
+        for (const modType of this.allMods.values()) {
+            const mod = new (modType as new () => Mod)();
+
+            if (mod.isApplicableToOsuStable() && (mod.bitwise & modbits) > 0) {
+                mods.push(mod);
+            }
+        }
+
+        return this.processParsingOptions(mods, options);
     }
 
     /**
