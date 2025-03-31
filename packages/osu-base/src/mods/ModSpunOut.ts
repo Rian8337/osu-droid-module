@@ -9,6 +9,9 @@ export class ModSpunOut extends Mod implements IModApplicableToOsuStable {
     override readonly name = "SpunOut";
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 0.9;
     readonly bitwise = 1 << 12;
+
+    get osuScoreMultiplier(): number {
+        return 0.9;
+    }
 }

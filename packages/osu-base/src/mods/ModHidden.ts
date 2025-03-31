@@ -26,7 +26,6 @@ export class ModHidden
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 1.06;
     readonly bitwise = 1 << 3;
 
     constructor() {
@@ -36,6 +35,10 @@ export class ModHidden
     }
 
     calculateDroidScoreMultiplier(): number {
+        return 1.06;
+    }
+
+    get osuScoreMultiplier(): number {
         return 1.06;
     }
 

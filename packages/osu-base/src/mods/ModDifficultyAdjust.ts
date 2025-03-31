@@ -24,9 +24,7 @@ export class ModDifficultyAdjust
     override readonly name = "Difficulty Adjust";
 
     readonly droidRanked = false;
-
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 1;
 
     /**
      * The circle size to enforce.
@@ -94,6 +92,10 @@ export class ModDifficultyAdjust
         }
 
         return multiplier;
+    }
+
+    get osuScoreMultiplier(): number {
+        return 0.5;
     }
 
     applyToDifficultyWithSettings(

@@ -15,10 +15,13 @@ export class ModScoreV2
     readonly droidRanked = false;
 
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 29;
 
     calculateDroidScoreMultiplier(): number {
+        return 1;
+    }
+
+    get osuScoreMultiplier(): number {
         return 1;
     }
 }

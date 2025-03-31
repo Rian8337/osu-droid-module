@@ -14,9 +14,7 @@ export class ModTraceable
     override readonly name = "Traceable";
 
     readonly droidRanked = false;
-
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 1;
 
     constructor() {
         super();
@@ -26,5 +24,9 @@ export class ModTraceable
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;
+    }
+
+    get osuScoreMultiplier(): number {
+        return 1;
     }
 }

@@ -21,7 +21,6 @@ export class ModFlashlight
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 10;
 
     /**
@@ -38,6 +37,10 @@ export class ModFlashlight
     }
 
     calculateDroidScoreMultiplier(): number {
+        return 1.12;
+    }
+
+    get osuScoreMultiplier(): number {
         return 1.12;
     }
 

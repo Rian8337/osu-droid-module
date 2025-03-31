@@ -8,7 +8,7 @@ export interface IModApplicableToOsu {
     readonly osuRanked: boolean;
 
     /**
-     * The osu!standard score multiplier of this `Mod`.
+     * The score multiplier of this `Mod` in osu!standard.
      */
-    readonly pcScoreMultiplier: number;
+    get osuScoreMultiplier(): number;
 }

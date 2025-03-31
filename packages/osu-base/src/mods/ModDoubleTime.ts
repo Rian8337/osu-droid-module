@@ -19,7 +19,6 @@ export class ModDoubleTime
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 1.12;
     readonly bitwise = 1 << 6;
 
     constructor() {
@@ -30,5 +29,9 @@ export class ModDoubleTime
 
     calculateDroidScoreMultiplier(): number {
         return this.droidScoreMultiplier;
+    }
+
+    get osuScoreMultiplier(): number {
+        return 1.12;
     }
 }

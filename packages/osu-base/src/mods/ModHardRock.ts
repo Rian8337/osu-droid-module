@@ -30,7 +30,6 @@ export class ModHardRock
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 1.06;
     readonly bitwise = 1 << 4;
 
     constructor() {
@@ -40,6 +39,10 @@ export class ModHardRock
     }
 
     calculateDroidScoreMultiplier(): number {
+        return 1.06;
+    }
+
+    get osuScoreMultiplier(): number {
         return 1.06;
     }
 

@@ -17,7 +17,6 @@ export class ModRelax
     readonly droidRanked = false;
 
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 0;
     readonly bitwise = 1 << 7;
 
     constructor() {
@@ -28,5 +27,9 @@ export class ModRelax
 
     calculateDroidScoreMultiplier(): number {
         return 0.001;
+    }
+
+    get osuScoreMultiplier(): number {
+        return 0;
     }
 }

@@ -9,6 +9,9 @@ export class ModTouchDevice extends Mod implements IModApplicableToOsuStable {
     override readonly name = "TouchDevice";
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 2;
+
+    get osuScoreMultiplier(): number {
+        return 1;
+    }
 }

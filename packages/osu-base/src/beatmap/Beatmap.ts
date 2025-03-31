@@ -229,7 +229,7 @@ export class Beatmap {
 
         for (const mod of mods) {
             if (mod.isApplicableToOsu()) {
-                scoreMultiplier *= mod.pcScoreMultiplier;
+                scoreMultiplier *= mod.osuScoreMultiplier;
             }
         }
 

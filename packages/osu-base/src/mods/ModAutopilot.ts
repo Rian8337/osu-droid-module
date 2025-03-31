@@ -15,9 +15,7 @@ export class ModAutopilot
     override readonly name = "Autopilot";
 
     readonly droidRanked = false;
-
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 0;
     readonly bitwise = 1 << 13;
 
     constructor() {
@@ -28,5 +26,9 @@ export class ModAutopilot
 
     calculateDroidScoreMultiplier(): number {
         return 0.001;
+    }
+
+    get osuScoreMultiplier(): number {
+        return 0;
     }
 }

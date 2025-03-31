@@ -18,10 +18,7 @@ export class ModCustomSpeed
     override trackRateMultiplier: number;
 
     readonly droidRanked = true;
-
     readonly osuRanked = false;
-    // TODO: temporary
-    readonly pcScoreMultiplier = 1;
 
     constructor(trackRateMultiplier = 1) {
         super();
@@ -39,6 +36,16 @@ export class ModCustomSpeed
 
     calculateDroidScoreMultiplier(): number {
         return this.droidScoreMultiplier;
+    }
+
+    get osuScoreMultiplier(): number {
+        // Round to the nearest multiple of 0.1.
+        let value = Math.trunc(this.trackRateMultiplier * 10) / 10;
+
+        // Offset back to 0.
+        --value;
+
+        return this.trackRateMultiplier >= 1 ? 1 + value / 5 : 0.6 + value;
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {

@@ -23,7 +23,6 @@ export class ModEasy
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly pcScoreMultiplier = 0.5;
     readonly bitwise = 1 << 1;
 
     constructor() {
@@ -33,6 +32,10 @@ export class ModEasy
     }
 
     calculateDroidScoreMultiplier(): number {
+        return 0.5;
+    }
+
+    get osuScoreMultiplier(): number {
         return 0.5;
     }
 

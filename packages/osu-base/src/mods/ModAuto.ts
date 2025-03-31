@@ -17,7 +17,6 @@ export class ModAuto
     readonly droidRanked = false;
 
     readonly osuRanked = false;
-    readonly pcScoreMultiplier = 1;
     readonly bitwise = 1 << 11;
 
     constructor() {
@@ -27,6 +26,10 @@ export class ModAuto
     }
 
     calculateDroidScoreMultiplier(): number {
+        return 1;
+    }
+
+    get osuScoreMultiplier(): number {
         return 1;
     }
 }
