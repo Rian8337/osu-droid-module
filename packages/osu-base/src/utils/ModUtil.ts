@@ -6,6 +6,7 @@ import { IModApplicableToOsuStable } from "../mods/IModApplicableToOsuStable";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
+import { ModCustomSpeed } from "../mods/ModCustomSpeed";
 import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModEasy } from "../mods/ModEasy";
@@ -26,6 +27,7 @@ import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
+import { SerializedMod } from "../mods/SerializedMod";
 import { DroidHitWindow } from "./DroidHitWindow";
 import { OsuHitWindow } from "./OsuHitWindow";
 import { PreciseDroidHitWindow } from "./PreciseDroidHitWindow";
@@ -50,9 +52,47 @@ export interface ModParseOptions {
  */
 export abstract class ModUtil {
     /**
+     * All `Mod`s that exists, mapped by their acronym.
+     */
+    static readonly allMods: ReadonlyMap<string, new () => Mod> = (() => {
+        const mods = [
+            ModAuto,
+            ModAutopilot,
+            ModCustomSpeed,
+            ModDifficultyAdjust,
+            ModDoubleTime,
+            ModEasy,
+            ModFlashlight,
+            ModHalfTime,
+            ModHardRock,
+            ModHidden,
+            ModNightCore,
+            ModNoFail,
+            ModPerfect,
+            ModPrecise,
+            ModReallyEasy,
+            ModRelax,
+            ModScoreV2,
+            ModSmallCircle,
+            ModSpunOut,
+            ModSuddenDeath,
+            ModTouchDevice,
+            ModTraceable,
+        ];
+
+        const map = new Map<string, new () => Mod>();
+
+        for (const mod of mods) {
+            map.set(new mod().acronym, mod);
+        }
+
+        return map;
+    })();
+
+    /**
      * All mods that exists.
      */
-    static readonly allMods: Mod[] = [
+    static readonly legacyAllMods: Mod[] = [
         // Janky order to keep the order on what players are used to
         new ModAuto(),
         new ModRelax(),
@@ -97,7 +137,7 @@ export abstract class ModUtil {
         options?: ModParseOptions,
     ): (Mod & IModApplicableToDroid)[] {
         return <(Mod & IModApplicableToDroid)[]>this.processParsingOptions(
-            this.allMods.filter(
+            this.legacyAllMods.filter(
                 (m) =>
                     m.isApplicableToDroid() &&
                     str.toLowerCase().includes(m.droidString),
@@ -117,11 +157,55 @@ export abstract class ModUtil {
         options?: ModParseOptions,
     ): (Mod & IModApplicableToOsuStable)[] {
         return <(Mod & IModApplicableToOsuStable)[]>this.processParsingOptions(
-            this.allMods.filter(
+            this.legacyAllMods.filter(
                 (m) => m.isApplicableToOsuStable() && (m.bitwise & modbits) > 0,
             ),
             options,
         );
+    }
+
+    /**
+     * Serializes a list of `Mod`s.
+     *
+     * @param mods The list of `Mod`s to serialize.
+     * @returns The serialized list of `Mod`s.
+     */
+    static serializeMods(mods: Iterable<Mod>): SerializedMod[] {
+        const serializedMods: SerializedMod[] = [];
+
+        for (const mod of mods) {
+            serializedMods.push(mod.serialize());
+        }
+
+        return serializedMods;
+    }
+
+    /**
+     * Deserializes a list of `SerializedMod`s.
+     *
+     * @param mods The list of `SerializedMod`s to deserialize.
+     * @returns The deserialized list of `Mod`s.
+     */
+    static deserializeMods(mods: Iterable<SerializedMod>): Mod[] {
+        const deserializedMods: Mod[] = [];
+
+        for (const serializedMod of mods) {
+            const modType = this.allMods.get(serializedMod.acronym);
+
+            if (!modType) {
+                continue;
+            }
+
+            const mod = new modType();
+
+            if (serializedMod.settings) {
+                mod.copySettings(serializedMod);
+            }
+
+            deserializedMods.push(mod);
+        }
+
+        return deserializedMods;
     }
 
     /**
@@ -138,7 +222,7 @@ export abstract class ModUtil {
         while (str) {
             let nchars: number = 1;
 
-            for (const mod of this.allMods) {
+            for (const mod of this.legacyAllMods) {
                 if (str.startsWith(mod.acronym.toLowerCase())) {
                     finalMods.push(mod);
                     nchars = 2;
