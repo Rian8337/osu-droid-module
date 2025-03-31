@@ -56,28 +56,29 @@ export abstract class ModUtil {
      */
     static readonly allMods: ReadonlyMap<string, typeof Mod> = (() => {
         const mods = [
+            // Janky order to keep the order on what players are used to
             ModAuto,
+            ModRelax,
             ModAutopilot,
-            ModCustomSpeed,
+            ModEasy,
+            ModNoFail,
+            ModHidden,
+            ModTraceable,
+            ModHardRock,
             ModDifficultyAdjust,
             ModDoubleTime,
-            ModEasy,
-            ModFlashlight,
-            ModHalfTime,
-            ModHardRock,
-            ModHidden,
             ModNightCore,
-            ModNoFail,
+            ModHalfTime,
+            ModCustomSpeed,
+            ModFlashlight,
+            ModSuddenDeath,
             ModPerfect,
             ModPrecise,
             ModReallyEasy,
-            ModRelax,
             ModScoreV2,
             ModSmallCircle,
             ModSpunOut,
-            ModSuddenDeath,
             ModTouchDevice,
-            ModTraceable,
         ];
 
         const map = new Map<string, typeof Mod>();
