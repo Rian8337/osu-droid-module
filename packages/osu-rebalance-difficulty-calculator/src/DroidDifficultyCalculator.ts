@@ -27,7 +27,6 @@ import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDif
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
-import { DroidDifficultyCalculationOptions } from "./structures/DroidDifficultyCalculationOptions";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -134,11 +133,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
-
-    // Override to use DroidDifficultyCalculationOptions
-    override calculate(options?: DroidDifficultyCalculationOptions): this {
-        return super.calculate(options);
-    }
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.
@@ -392,17 +386,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         return skills;
-    }
-
-    protected override calculateClockRate(
-        options?: DroidDifficultyCalculationOptions,
-    ): number {
-        return (
-            ModUtil.calculateRateWithMods(
-                options?.mods ?? [],
-                options?.oldStatistics,
-            ) * (options?.customSpeedMultiplier ?? 1)
-        );
     }
 
     /**
