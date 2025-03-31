@@ -1,5 +1,6 @@
 import {
     BeatmapDifficulty,
+    ModCustomSpeed,
     ModDifficultyAdjust,
     ModDoubleTime,
     ModEasy,
@@ -240,7 +241,6 @@ describe("Test apply mods to beatmap difficulty", () => {
                 difficulty,
                 Modes.droid,
                 [new ModDoubleTime()],
-                undefined,
                 true,
             );
 
@@ -257,7 +257,6 @@ describe("Test apply mods to beatmap difficulty", () => {
                 difficulty,
                 Modes.droid,
                 [new ModNightCore()],
-                undefined,
                 true,
             );
 
@@ -267,14 +266,13 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.hp).toBe(5);
         });
 
-        test("1.25x speed multiplier", () => {
+        test("CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [],
-                1.25,
+                [new ModCustomSpeed(1.25)],
                 true,
             );
 
@@ -284,14 +282,17 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.hp).toBe(5);
         });
 
-        test("DTHR, 1.25x speed multiplier", () => {
+        test("DTHR, CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [new ModDoubleTime(), new ModHardRock()],
-                1.25,
+                [
+                    new ModDoubleTime(),
+                    new ModHardRock(),
+                    new ModCustomSpeed(1.25),
+                ],
                 true,
             );
 
@@ -321,7 +322,6 @@ describe("Test apply mods to beatmap difficulty", () => {
                 difficulty,
                 Modes.droid,
                 [new ModDoubleTime(), new ModPrecise()],
-                undefined,
                 true,
             );
 
@@ -364,7 +364,6 @@ describe("Test apply mods to beatmap difficulty", () => {
                 difficulty,
                 Modes.osu,
                 [new ModDoubleTime()],
-                undefined,
                 true,
             );
 
@@ -381,7 +380,6 @@ describe("Test apply mods to beatmap difficulty", () => {
                 difficulty,
                 Modes.osu,
                 [new ModNightCore()],
-                undefined,
                 true,
             );
 
@@ -391,14 +389,13 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.hp).toBe(5);
         });
 
-        test("1.25x speed multiplier", () => {
+        test("CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [],
-                1.25,
+                [new ModCustomSpeed(1.25)],
                 true,
             );
 
@@ -408,14 +405,17 @@ describe("Test apply mods to beatmap difficulty", () => {
             expect(difficulty.hp).toBe(5);
         });
 
-        test("DTHR, 1.25x speed multiplier", () => {
+        test("DTHR, CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [new ModDoubleTime(), new ModHardRock()],
-                1.25,
+                [
+                    new ModDoubleTime(),
+                    new ModHardRock(),
+                    new ModCustomSpeed(1.25),
+                ],
                 true,
             );
 
