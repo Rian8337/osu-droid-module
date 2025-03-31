@@ -80,6 +80,7 @@ export abstract class ModUtil {
      * Mods that change the playback speed of a beatmap.
      */
     static readonly speedChangingMods: ModRateAdjust[] = [
+        new ModCustomSpeed(),
         new ModDoubleTime(),
         new ModNightCore(),
         new ModHalfTime(),
