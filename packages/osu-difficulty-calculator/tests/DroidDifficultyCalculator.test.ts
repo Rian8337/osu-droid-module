@@ -109,9 +109,7 @@ const testDiffCalc = (
     describe("Double Time difficulty", () => {
         const doubleTimeRating = new DroidDifficultyCalculator(
             beatmap,
-        ).calculate({
-            mods: [new ModDoubleTime()],
-        });
+        ).calculate([new ModDoubleTime()]);
 
         test("Aim difficulty", () => {
             expect(doubleTimeRating.aim).toBeCloseTo(ratings.doubleTime.aim, 5);
@@ -176,17 +174,15 @@ const testDiffCalc = (
     test("Autopilot aim difficulty calculation", () => {
         const autopilotRating = new DroidDifficultyCalculator(
             beatmap,
-        ).calculate({
-            mods: [new ModAutopilot()],
-        });
+        ).calculate([new ModAutopilot()]);
 
         expect(autopilotRating.aim).toBe(0);
     });
 
     describe("Relax tap and rhythm difficulty calculation", () => {
-        const relaxRating = new DroidDifficultyCalculator(beatmap).calculate({
-            mods: [new ModRelax()],
-        });
+        const relaxRating = new DroidDifficultyCalculator(beatmap).calculate([
+            new ModRelax(),
+        ]);
 
         test("Tap difficulty", () => {
             expect(relaxRating.tap).toBe(0);
@@ -208,7 +204,7 @@ const testDiffCalc = (
     test("Flashlight difficulty calculation", () => {
         const flashlightRating = new DroidDifficultyCalculator(
             beatmap,
-        ).calculate({ mods: [new ModFlashlight()] });
+        ).calculate([new ModFlashlight()]);
 
         expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
     });

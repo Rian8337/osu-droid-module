@@ -78,9 +78,7 @@ const testDiffCalc = (
 
     describe("Double Time difficulty", () => {
         const doubleTimeRating = new OsuDifficultyCalculator(beatmap).calculate(
-            {
-                mods: [new ModDoubleTime()],
-            },
+            [new ModDoubleTime()],
         );
 
         test("Aim difficulty", () => {
@@ -123,7 +121,7 @@ const testDiffCalc = (
 
     test("Flashlight difficulty calculation", () => {
         const flashlightRating = new OsuDifficultyCalculator(beatmap).calculate(
-            { mods: [new ModFlashlight()] },
+            [new ModFlashlight()],
         );
 
         expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
