@@ -1,10 +1,10 @@
 import {
     Accuracy,
     Mod,
-    ModUtil,
     DroidAPIRequestBuilder,
     IModApplicableToDroid,
     ScoreRank,
+    DroidLegacyModConverter,
 } from "@rian8337/osu-base";
 import { APIScore } from "./APIScore";
 
@@ -100,84 +100,6 @@ export class Score {
      */
     pp: number | null;
 
-    /**
-     * The speed multiplier of the play.
-     */
-    speedMultiplier = 1;
-
-    /**
-     * Whether to use old statistics for this score when calculating with `MapStats`.
-     *
-     * Otherwise, this denotes whether the score was set in version 1.6.7 or lower.
-     */
-    oldStatistics = false;
-
-    /**
-     * The force CS of the play.
-     */
-    forceCS?: number;
-
-    /**
-     * The force AR of the play.
-     */
-    forceAR?: number;
-
-    /**
-     * The force OD of the play.
-     */
-    forceOD?: number;
-
-    /**
-     * The force HP of the play.
-     */
-    forceHP?: number;
-
-    /**
-     * The follow delay set for the FL mod, in seconds.
-     */
-    flashlightFollowDelay?: number;
-
-    /**
-     * The complete mod string of this score (mods, speed multiplier, and forced difficulty statistics combined).
-     */
-    get completeModString(): string {
-        let finalString = `+${
-            this.mods.length > 0 ? this.mods.map((v) => v.acronym) : "No Mod"
-        }`;
-
-        const customStats: string[] = [];
-
-        if (this.speedMultiplier !== 1) {
-            customStats.push(`${this.speedMultiplier}x`);
-        }
-
-        if (this.forceAR !== undefined) {
-            customStats.push(`AR${this.forceAR}`);
-        }
-
-        if (this.forceOD !== undefined) {
-            customStats.push(`OD${this.forceOD}`);
-        }
-
-        if (this.forceCS !== undefined) {
-            customStats.push(`CS${this.forceCS}`);
-        }
-
-        if (this.forceHP !== undefined) {
-            customStats.push(`HP${this.forceHP}`);
-        }
-
-        if (this.flashlightFollowDelay !== undefined) {
-            customStats.push(`FLD${this.flashlightFollowDelay}`);
-        }
-
-        if (customStats.length > 0) {
-            finalString += ` (${customStats.join(", ")})`;
-        }
-
-        return finalString;
-    }
-
     constructor(apiScore: APIScore) {
         this.id = apiScore.id;
         this.uid = apiScore.uid;
@@ -187,6 +109,7 @@ export class Score {
         this.score = apiScore.score;
         this.rank = apiScore.mark;
         this.date = new Date(apiScore.date * 1000);
+        this.mods = DroidLegacyModConverter.convert(apiScore.mode);
 
         this.accuracy = new Accuracy({
             n300: apiScore.perfect,
@@ -197,8 +120,6 @@ export class Score {
 
         this.hash = apiScore.hash;
         this.pp = apiScore.pp;
-
-        this.parseMods(apiScore.mode);
     }
 
     /**
@@ -241,61 +162,5 @@ export class Score {
      */
     toString(): string {
         return `Player: ${this.username}, uid: ${this.uid}, title: ${this.title}, score: ${this.score}, combo: ${this.combo}, rank: ${this.rank}, acc: ${this.accuracy}%, date: ${this.date}, mods: ${this.mods}, hash: ${this.hash}`;
-    }
-
-    /**
-     * Parses a modstring returned from the osu!droid API or replay.
-     *
-     * @param str The modstring.
-     */
-    private parseMods(str: string): void {
-        const modstrings = str.split("|");
-        let actualMods = "";
-
-        for (const str of modstrings) {
-            if (!str) {
-                continue;
-            }
-
-            switch (true) {
-                // Forced stats
-                case str.startsWith("CS"):
-                    this.forceCS = parseFloat(str.replace("CS", ""));
-                    break;
-
-                case str.startsWith("AR"):
-                    this.forceAR = parseFloat(str.replace("AR", ""));
-                    break;
-
-                case str.startsWith("OD"):
-                    this.forceOD = parseFloat(str.replace("OD", ""));
-                    break;
-
-                case str.startsWith("HP"):
-                    this.forceHP = parseFloat(str.replace("HP", ""));
-                    break;
-
-                // FL follow delay
-                case str.startsWith("FLD"):
-                    this.flashlightFollowDelay = parseFloat(
-                        str.replace("FLD", ""),
-                    );
-                    break;
-
-                // Speed multiplier
-                case str.startsWith("x"):
-                    this.speedMultiplier = parseFloat(str.replace("x", ""));
-                    break;
-
-                default:
-                    actualMods += str;
-            }
-        }
-
-        this.mods = ModUtil.droidStringToMods(actualMods);
-
-        // The pipe was added in 1.6.8 first pre-release (https://github.com/osudroid/osu-droid/commit/c08c406f4b2e535ed1ec43607a72fd8f70f8e316),
-        // so we can use that information to infer whether the score was set on version 1.6.7 or lower.
-        this.oldStatistics = !str.includes("|");
     }
 }
