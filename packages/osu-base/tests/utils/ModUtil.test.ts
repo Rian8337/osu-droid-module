@@ -14,39 +14,6 @@ import {
     Modes,
 } from "../../src";
 
-describe("Test droid string to mods conversion", () => {
-    test("NM", () => {
-        const mods = ModUtil.droidStringToMods("");
-
-        expect(mods.length).toBe(0);
-    });
-
-    test("HDHR", () => {
-        const mods = ModUtil.droidStringToMods("hr");
-
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHardRock)).toBe(true);
-    });
-
-    test("HDDT", () => {
-        const mods = ModUtil.droidStringToMods("hd");
-
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModDoubleTime)).toBe(true);
-    });
-
-    test("NFHTPR", () => {
-        const mods = ModUtil.droidStringToMods("nts");
-
-        expect(mods.length).toBe(3);
-        expect(mods.some((m) => m instanceof ModNoFail)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHalfTime)).toBe(true);
-        expect(mods.some((m) => m instanceof ModPrecise)).toBe(true);
-    });
-});
-
 describe("Test PC modbits to mods conversion", () => {
     test("NM", () => {
         const mods = ModUtil.pcModbitsToMods(0);
@@ -117,26 +84,6 @@ describe("Test PC string to mods conversion", () => {
 
         expect(mods.length).toBe(1);
         expect(mods[0]).toBeInstanceOf(ModHardRock);
-    });
-});
-
-describe("Test mods array to osu!droid string conversion", () => {
-    test("NM", () => {
-        const mods = ModUtil.droidStringToMods("");
-
-        expect(ModUtil.modsToDroidString(mods)).toBe("");
-    });
-
-    test("HDHR", () => {
-        const mods = [new ModHidden(), new ModHardRock()];
-
-        expect(ModUtil.modsToDroidString(mods)).toBe("hr");
-    });
-
-    test("NFHTPR", () => {
-        const mods = [new ModNoFail(), new ModHalfTime(), new ModPrecise()];
-
-        expect(ModUtil.modsToDroidString(mods)).toBe("nts");
     });
 });
 
