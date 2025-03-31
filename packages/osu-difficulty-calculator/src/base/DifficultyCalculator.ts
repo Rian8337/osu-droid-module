@@ -11,7 +11,6 @@ import {
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
-import { DifficultyCalculationOptions } from "../structures/DifficultyCalculationOptions";
 import { Skill } from "./Skill";
 import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 
@@ -112,19 +111,18 @@ export abstract class DifficultyCalculator<
      * by decaying the previous hitobject's strain until the
      * beginning of the new chunk.
      *
-     * @param options Options for the difficulty calculation.
+     * @param mods The `Mod`s to use for the calculation. Defaults to No Mod.
      * @returns The current instance.
      */
-    calculate(options?: DifficultyCalculationOptions): this {
-        this.mods = options?.mods ?? [];
+    calculate(mods: Mod[] = []): this {
+        this.mods = mods;
 
         const playableBeatmap = this.beatmap.createPlayableBeatmap({
             mode: this.mode,
             mods: this.mods,
-            customSpeedMultiplier: options?.customSpeedMultiplier,
         });
 
-        const clockRate = this.calculateClockRate(options);
+        const clockRate = ModUtil.calculateRateWithMods(mods);
 
         this.populateDifficultyAttributes(playableBeatmap, clockRate);
 
@@ -182,21 +180,6 @@ export abstract class DifficultyCalculator<
      * Creates skills to be calculated.
      */
     protected abstract createSkills(): Skill[];
-
-    /**
-     * Obtains the clock rate of the beatmap.
-     *
-     * @param options The options to obtain the clock rate with.
-     * @returns The clock rate of the beatmap.
-     */
-    protected calculateClockRate(
-        options?: DifficultyCalculationOptions,
-    ): number {
-        return (
-            ModUtil.calculateRateWithMods(options?.mods ?? []) *
-            (options?.customSpeedMultiplier ?? 1)
-        );
-    }
 
     /**
      * Populates the stored difficulty attributes with necessary data.
