@@ -70,7 +70,7 @@ export abstract class Mod {
      * Whether this `Mod` can be applied to osu!standard.
      */
     isApplicableToOsu(): this is this & IModApplicableToOsu {
-        return "pcRanked" in this;
+        return "osuRanked" in this;
     }
 
     /**
