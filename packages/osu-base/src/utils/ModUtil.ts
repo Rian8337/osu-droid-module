@@ -117,16 +117,6 @@ export abstract class ModUtil {
     ];
 
     /**
-     * Mods that change the playback speed of a beatmap.
-     */
-    static readonly speedChangingMods: ModRateAdjust[] = [
-        new ModCustomSpeed(),
-        new ModDoubleTime(),
-        new ModNightCore(),
-        new ModHalfTime(),
-    ];
-
-    /**
      * Gets a list of mods from a droid mod string, such as "hd".
      *
      * @param str The string.
@@ -305,9 +295,7 @@ export abstract class ModUtil {
      * @returns A new array with speed changing mods filtered out.
      */
     static removeSpeedChangingMods<T extends Mod>(mods: T[]): T[] {
-        return mods.filter(
-            (m) => !this.speedChangingMods.some((v) => m.acronym === v.acronym),
-        );
+        return mods.filter((m) => !(m instanceof ModRateAdjust));
     }
 
     /**
