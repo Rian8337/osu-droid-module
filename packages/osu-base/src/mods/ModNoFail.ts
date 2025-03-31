@@ -16,7 +16,6 @@ export class ModNoFail
 
     readonly droidRanked = true;
     readonly droidString = "n";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;

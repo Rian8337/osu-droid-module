@@ -16,7 +16,6 @@ export class ModAuto
 
     readonly droidRanked = false;
     readonly droidString = "a";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

@@ -16,7 +16,6 @@ export class ModHalfTime
 
     readonly droidRanked = true;
     readonly droidString = "t";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.3;

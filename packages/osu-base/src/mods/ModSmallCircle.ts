@@ -24,7 +24,6 @@ export class ModSmallCircle
 
     readonly droidRanked = false;
     readonly droidString = "m";
-    readonly isDroidLegacyMod = true;
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;

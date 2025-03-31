@@ -29,7 +29,6 @@ export class ModHardRock
 
     readonly droidRanked = true;
     readonly droidString = "r";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;

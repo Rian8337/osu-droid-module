@@ -22,7 +22,6 @@ export class ModEasy
 
     readonly droidRanked = true;
     readonly droidString = "e";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 0.5;

@@ -16,7 +16,6 @@ export class ModSuddenDeath
 
     readonly droidRanked = true;
     readonly droidString = "u";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1;

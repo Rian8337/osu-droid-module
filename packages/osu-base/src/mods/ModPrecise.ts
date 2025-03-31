@@ -19,7 +19,6 @@ export class ModPrecise
 
     readonly droidRanked = true;
     readonly droidString = "s";
-    readonly isDroidLegacyMod = false;
 
     calculateDroidScoreMultiplier(): number {
         return 1.06;

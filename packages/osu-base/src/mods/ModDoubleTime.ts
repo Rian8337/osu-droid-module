@@ -16,7 +16,6 @@ export class ModDoubleTime
 
     readonly droidRanked = true;
     readonly droidString = "d";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

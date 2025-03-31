@@ -16,7 +16,6 @@ export class ModNightCore
 
     readonly droidRanked = true;
     readonly droidString = "c";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

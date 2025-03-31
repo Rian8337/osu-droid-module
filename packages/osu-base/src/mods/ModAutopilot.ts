@@ -16,7 +16,6 @@ export class ModAutopilot
 
     readonly droidRanked = false;
     readonly droidString = "p";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 0;

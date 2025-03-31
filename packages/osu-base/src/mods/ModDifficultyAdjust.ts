@@ -24,7 +24,6 @@ export class ModDifficultyAdjust
 
     readonly droidRanked = false;
     readonly droidString = "";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

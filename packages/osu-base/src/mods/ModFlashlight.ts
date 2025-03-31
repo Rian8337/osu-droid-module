@@ -14,7 +14,6 @@ export class ModFlashlight
 
     readonly droidRanked = true;
     readonly droidString = "i";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.12;

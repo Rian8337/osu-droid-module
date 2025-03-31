@@ -16,7 +16,6 @@ export class ModPerfect
 
     readonly droidRanked = true;
     readonly droidString = "f";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1;

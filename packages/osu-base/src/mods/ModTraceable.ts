@@ -15,7 +15,6 @@ export class ModTraceable
 
     readonly droidRanked = false;
     readonly droidString = "b";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 1;

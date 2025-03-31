@@ -16,7 +16,6 @@ export class ModRelax
 
     readonly droidRanked = false;
     readonly droidString = "x";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = false;
     readonly pcScoreMultiplier = 0;

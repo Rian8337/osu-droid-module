@@ -19,7 +19,6 @@ export class ModReallyEasy
 
     readonly droidRanked = false;
     readonly droidString = "l";
-    readonly isDroidLegacyMod = false;
 
     calculateDroidScoreMultiplier(): number {
         return 0.4;

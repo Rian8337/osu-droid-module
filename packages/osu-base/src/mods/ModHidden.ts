@@ -25,7 +25,6 @@ export class ModHidden
 
     readonly droidRanked = true;
     readonly droidString = "h";
-    readonly isDroidLegacyMod = false;
 
     readonly pcRanked = true;
     readonly pcScoreMultiplier = 1.06;
