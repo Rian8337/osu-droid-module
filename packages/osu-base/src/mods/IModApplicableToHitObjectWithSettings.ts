@@ -20,12 +20,10 @@ export interface IModApplicableToHitObjectWithSettings {
      * @param mode The game mode to apply for.
      * @param hitObject The `HitObject` to mutate.
      * @param mods The `Mod`s that are applied to the beatmap.
-     * @param customSpeedMultiplier The custom speed multiplier that is applied to the beatmap.
      */
     applyToHitObjectWithSettings(
         mode: Modes,
         hitObject: HitObject,
         mods: Mod[],
-        customSpeedMultiplier: number,
     ): void;
 }

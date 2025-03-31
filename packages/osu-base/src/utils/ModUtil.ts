@@ -231,7 +231,6 @@ export abstract class ModUtil {
      * @param difficulty The `BeatmapDifficulty` to apply the `Mod`s to.
      * @param mode The game mode to apply the `Mod`s for.
      * @param mods The selected `Mod`s.
-     * @param customSpeedMultiplier The custom speed multiplier to apply.
      * @param withRateChange Whether to apply rate changes.
      * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
      */
@@ -239,7 +238,6 @@ export abstract class ModUtil {
         difficulty: BeatmapDifficulty,
         mode: Modes,
         mods: Mod[],
-        customSpeedMultiplier = 1,
         withRateChange = false,
     ) {
         for (const mod of mods) {
@@ -248,16 +246,11 @@ export abstract class ModUtil {
             }
         }
 
-        let rate = customSpeedMultiplier;
+        let rate = 1;
 
         for (const mod of mods) {
             if (mod.isApplicableToDifficultyWithSettings()) {
-                mod.applyToDifficultyWithSettings(
-                    mode,
-                    difficulty,
-                    mods,
-                    customSpeedMultiplier,
-                );
+                mod.applyToDifficultyWithSettings(mode, difficulty, mods);
             }
 
             if (mod.isApplicableToTrackRate()) {

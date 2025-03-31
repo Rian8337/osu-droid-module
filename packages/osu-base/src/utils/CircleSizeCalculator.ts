@@ -49,7 +49,6 @@ export abstract class CircleSizeCalculator {
                     Modes.droid,
                     difficulty,
                     mods,
-                    1,
                 );
             }
         }

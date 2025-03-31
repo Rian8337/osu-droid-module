@@ -20,12 +20,10 @@ export interface IModApplicableToDifficultyWithSettings {
      * @param mode The game mode to apply the mod for.
      * @param difficulty The `BeatmapDifficulty` to mutate.
      * @param mods The `Mod`s that are applied to the beatmap.
-     * @param customSpeedMultiplier The custom speed multiplier that is applied to the beatmap.
      */
     applyToDifficultyWithSettings(
         mode: Modes,
         difficulty: BeatmapDifficulty,
         mods: Mod[],
-        customSpeedMultiplier: number,
     ): void;
 }

@@ -157,12 +157,8 @@ export class Beatmap {
      * Calculates the osu!droid maximum score of the beatmap without taking spinner bonus into account.
      *
      * @param mods The modifications to calculate for. Defaults to No Mod.
-     * @param customSpeedMultiplier The custom speed multiplier of the beatmap. Defaults to 1.
      */
-    maxDroidScore(
-        mods: readonly Mod[] = [],
-        customSpeedMultiplier: number = 1,
-    ): number {
+    maxDroidScore(mods: readonly Mod[] = []): number {
         let scoreMultiplier = 1;
 
         for (const mod of mods) {
@@ -171,12 +167,6 @@ export class Beatmap {
                     this.difficulty,
                 );
             }
-        }
-
-        if (customSpeedMultiplier >= 1) {
-            scoreMultiplier *= 1 + (customSpeedMultiplier - 1) * 0.24;
-        } else {
-            scoreMultiplier *= Math.pow(0.3, (1 - customSpeedMultiplier) * 4);
         }
 
         if (mods.some((m) => m instanceof ModScoreV2)) {
@@ -316,7 +306,6 @@ export class Beatmap {
     createPlayableBeatmap(options?: PlayableBeatmapOptions): Beatmap {
         const mods = options?.mods ?? [];
         const mode = options?.mode ?? Modes.osu;
-        const customSpeedMultiplier = options?.customSpeedMultiplier ?? 1;
 
         // Convert
         const converted = new BeatmapConverter(this).convert();
@@ -334,7 +323,6 @@ export class Beatmap {
                     mode,
                     converted.difficulty,
                     mods,
-                    customSpeedMultiplier,
                 );
             }
         });
@@ -363,12 +351,7 @@ export class Beatmap {
         mods.forEach((mod) => {
             if (mod.isApplicableToHitObjectWithSettings()) {
                 for (const hitObject of converted.hitObjects.objects) {
-                    mod.applyToHitObjectWithSettings(
-                        mode,
-                        hitObject,
-                        mods,
-                        customSpeedMultiplier,
-                    );
+                    mod.applyToHitObjectWithSettings(mode, hitObject, mods);
                 }
             }
         });

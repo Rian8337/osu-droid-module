@@ -101,7 +101,6 @@ export class ModDifficultyAdjust
         mode: Modes,
         difficulty: BeatmapDifficulty,
         mods: Mod[],
-        customSpeedMultiplier: number,
     ): void {
         difficulty.cs = this.cs ?? difficulty.cs;
         difficulty.ar = this.ar ?? difficulty.ar;
@@ -118,10 +117,7 @@ export class ModDifficultyAdjust
                 HitObject.preemptMin,
             );
 
-            const trackRate = this.calculateTrackRate(
-                mods,
-                customSpeedMultiplier,
-            );
+            const trackRate = ModUtil.calculateRateWithMods(mods);
 
             difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
                 preempt * trackRate,
@@ -136,7 +132,6 @@ export class ModDifficultyAdjust
         mode: Modes,
         hitObject: HitObject,
         mods: Mod[],
-        customSpeedMultiplier: number,
     ): void {
         // Special case for force AR, where the AR value is kept constant with respect to game time.
         // This makes the player perceive the fade in animation as is under all speed multipliers.
@@ -144,7 +139,7 @@ export class ModDifficultyAdjust
             return;
         }
 
-        const trackRate = this.calculateTrackRate(mods, customSpeedMultiplier);
+        const trackRate = ModUtil.calculateRateWithMods(mods);
         hitObject.timeFadeIn *= trackRate;
     }
 
@@ -177,12 +172,5 @@ export class ModDifficultyAdjust
         }
 
         return settings;
-    }
-
-    private calculateTrackRate(
-        mods: Iterable<Mod>,
-        customSpeedMultiplier: number,
-    ) {
-        return ModUtil.calculateRateWithMods(mods) * customSpeedMultiplier;
     }
 }

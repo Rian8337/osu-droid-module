@@ -14,12 +14,4 @@ export interface PlayableBeatmapOptions {
      * The mods to apply. Defaults to No Mod.
      */
     readonly mods?: Mod[];
-
-    /**
-     * The custom speed multiplier to apply. Defaults to 1.
-     *
-     * This will not directly affect the values of beatmap and hitobject properties,
-     * but rather the application of mods to the beatmap.
-     */
-    readonly customSpeedMultiplier?: number;
 }

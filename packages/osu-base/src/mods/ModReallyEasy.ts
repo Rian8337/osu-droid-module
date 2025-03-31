@@ -4,6 +4,7 @@ import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
+import { ModCustomSpeed } from "./ModCustomSpeed";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModEasy } from "./ModEasy";
 
@@ -28,7 +29,6 @@ export class ModReallyEasy
         mode: Modes,
         difficulty: BeatmapDifficulty,
         mods: Mod[],
-        customSpeedMultiplier: number,
     ): void {
         if (mode !== Modes.droid) {
             return;
@@ -44,8 +44,12 @@ export class ModReallyEasy
                 difficulty.ar -= 0.5;
             }
 
+            const customSpeed = mods.find(
+                (m) => m instanceof ModCustomSpeed,
+            ) as ModCustomSpeed | undefined;
+
             difficulty.ar -= 0.5;
-            difficulty.ar -= customSpeedMultiplier - 1;
+            difficulty.ar -= (customSpeed?.trackRateMultiplier ?? 1) - 1;
         }
 
         if (difficultyAdjustMod?.cs === undefined) {
