@@ -54,7 +54,7 @@ export abstract class ModUtil {
     /**
      * All `Mod`s that exists, mapped by their acronym.
      */
-    static readonly allMods: ReadonlyMap<string, new () => Mod> = (() => {
+    static readonly allMods: ReadonlyMap<string, typeof Mod> = (() => {
         const mods = [
             ModAuto,
             ModAutopilot,
@@ -80,7 +80,7 @@ export abstract class ModUtil {
             ModTraceable,
         ];
 
-        const map = new Map<string, new () => Mod>();
+        const map = new Map<string, typeof Mod>();
 
         for (const mod of mods) {
             map.set(new mod().acronym, mod);
@@ -180,7 +180,9 @@ export abstract class ModUtil {
         const deserializedMods: Mod[] = [];
 
         for (const serializedMod of mods) {
-            const modType = this.allMods.get(serializedMod.acronym);
+            const modType = this.allMods.get(serializedMod.acronym) as
+                | (new () => Mod)
+                | undefined;
 
             if (!modType) {
                 continue;
