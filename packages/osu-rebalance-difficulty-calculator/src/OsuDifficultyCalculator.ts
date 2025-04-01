@@ -21,6 +21,7 @@ import {
     ModHardRock,
     ModHidden,
     ModNightCore,
+    ModCustomSpeed,
 } from "@rian8337/osu-base";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
@@ -85,6 +86,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         ModTouchDevice,
         ModDoubleTime,
         ModNightCore,
+        ModCustomSpeed,
         ModDifficultyAdjust,
         ModHalfTime,
         ModEasy,

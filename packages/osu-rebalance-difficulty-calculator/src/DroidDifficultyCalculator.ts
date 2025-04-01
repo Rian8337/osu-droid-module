@@ -20,6 +20,7 @@ import {
     ModPrecise,
     ModScoreV2,
     ModTraceable,
+    ModCustomSpeed,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -118,6 +119,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     protected static override readonly difficultyAdjustmentMods = new Set([
         ModDoubleTime,
         ModNightCore,
+        ModCustomSpeed,
         ModDifficultyAdjust,
         ModHalfTime,
         ModEasy,
