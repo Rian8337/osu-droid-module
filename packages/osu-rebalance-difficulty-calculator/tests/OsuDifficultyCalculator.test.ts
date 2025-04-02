@@ -8,6 +8,8 @@ import { OsuDifficultyCalculator } from "../src";
 import { readFileSync } from "fs";
 import { join } from "path";
 
+const calculator = new OsuDifficultyCalculator();
+
 const testDiffCalc = (
     name: string,
     ratings: Readonly<{
@@ -31,106 +33,66 @@ const testDiffCalc = (
 
     const beatmap = new BeatmapDecoder().decode(data).result;
 
-    describe("No mod difficulty", () => {
-        const noModRating = new OsuDifficultyCalculator(beatmap).calculate();
+    test("No mod difficulty", () => {
+        const noModAttributes = calculator.calculate(beatmap);
 
-        test("Aim difficulty", () => {
-            expect(noModRating.attributes.aimDifficulty).toBeCloseTo(
-                noModRating.aim,
-                5,
-            );
+        expect(noModAttributes.aimDifficulty).toBeCloseTo(ratings.noMod.aim, 5);
 
-            expect(noModRating.aim).toBeCloseTo(ratings.noMod.aim, 5);
-        });
-
-        test("Speed difficulty", () => {
-            expect(noModRating.attributes.speedDifficulty).toBeCloseTo(
-                noModRating.speed,
-                5,
-            );
-
-            expect(noModRating.speed).toBeCloseTo(ratings.noMod.speed, 5);
-        });
-
-        test("Flashlight difficulty", () => {
-            expect(noModRating.attributes.flashlightDifficulty).toBeCloseTo(
-                noModRating.flashlight,
-                5,
-            );
-
-            expect(noModRating.flashlight).toBeCloseTo(0, 5);
-        });
-
-        test("Total star rating", () => {
-            expect(noModRating.total).toBeCloseTo(ratings.noMod.total, 6);
-        });
-
-        test("toString()", () => {
-            const str = `${noModRating.total.toFixed(
-                2,
-            )} stars (${noModRating.aim.toFixed(
-                2,
-            )} aim, ${noModRating.speed.toFixed(2)} speed, 0.00 flashlight)`;
-
-            expect(noModRating.toString()).toBe(str);
-        });
-    });
-
-    describe("Double Time difficulty", () => {
-        const doubleTimeRating = new OsuDifficultyCalculator(beatmap).calculate(
-            [new ModDoubleTime()],
+        expect(noModAttributes.speedDifficulty).toBeCloseTo(
+            ratings.noMod.speed,
+            5,
         );
 
-        test("Aim difficulty", () => {
-            expect(doubleTimeRating.aim).toBeCloseTo(ratings.doubleTime.aim, 5);
+        expect(noModAttributes.flashlightDifficulty).toBe(0);
+        expect(noModAttributes.starRating).toBeCloseTo(ratings.noMod.total, 6);
 
-            doubleTimeRating.calculateAim();
+        const str = `${noModAttributes.starRating.toFixed(
+            2,
+        )} stars (${noModAttributes.aimDifficulty.toFixed(
+            2,
+        )} aim, ${noModAttributes.speedDifficulty.toFixed(2)} speed, 0.00 flashlight)`;
 
-            expect(doubleTimeRating.aim).toBeCloseTo(ratings.doubleTime.aim, 5);
-        });
+        expect(noModAttributes.toString()).toBe(str);
+    });
 
-        test("Speed difficulty", () => {
-            expect(doubleTimeRating.speed).toBeCloseTo(
-                ratings.doubleTime.speed,
-                5,
-            );
+    test("Double Time difficulty", () => {
+        const doubleTimeAttributes = calculator.calculate(beatmap, [
+            new ModDoubleTime(),
+        ]);
 
-            doubleTimeRating.calculateSpeed();
+        expect(doubleTimeAttributes.aimDifficulty).toBeCloseTo(
+            ratings.doubleTime.aim,
+            5,
+        );
 
-            expect(doubleTimeRating.speed).toBeCloseTo(
-                ratings.doubleTime.speed,
-                5,
-            );
-        });
+        expect(doubleTimeAttributes.speedDifficulty).toBeCloseTo(
+            ratings.doubleTime.speed,
+            5,
+        );
 
-        test("Flashlight difficulty", () => {
-            expect(doubleTimeRating.flashlight).toBeCloseTo(0, 5);
+        expect(doubleTimeAttributes.flashlightDifficulty).toBe(0);
 
-            doubleTimeRating.calculateFlashlight();
-
-            expect(doubleTimeRating.flashlight).toBeCloseTo(0, 5);
-        });
-
-        test("Total star rating", () => {
-            expect(doubleTimeRating.total).toBeCloseTo(
-                ratings.doubleTime.total,
-                6,
-            );
-        });
+        expect(doubleTimeAttributes.starRating).toBeCloseTo(
+            ratings.doubleTime.total,
+            6,
+        );
     });
 
     test("Flashlight difficulty calculation", () => {
-        const flashlightRating = new OsuDifficultyCalculator(beatmap).calculate(
-            [new ModFlashlight()],
-        );
+        const flashlightAttributes = calculator.calculate(beatmap, [
+            new ModFlashlight(),
+        ]);
 
-        expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
+        expect(flashlightAttributes.flashlightDifficulty).toBeCloseTo(
+            ratings.flashlight,
+            5,
+        );
     });
 };
 
 test("Test difficulty adjustment mod retention", () => {
     expect(
-        OsuDifficultyCalculator.retainDifficultyAdjustmentMods([
+        calculator.retainDifficultyAdjustmentMods([
             new ModDoubleTime(),
             new ModFlashlight(),
             new ModNoFail(),

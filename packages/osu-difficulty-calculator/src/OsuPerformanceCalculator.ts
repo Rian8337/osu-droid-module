@@ -12,13 +12,13 @@ import {
     ModTraceable,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
-import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
+import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
  */
-export class OsuPerformanceCalculator extends PerformanceCalculator<OsuDifficultyAttributes> {
+export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficultyAttributes> {
     /**
      * The aim performance value.
      */

@@ -11,7 +11,7 @@ import {
     TimingControlPoint,
     Vector2,
 } from "@rian8337/osu-base";
-import { OsuDifficultyHitObject } from "../../src";
+import { DroidDifficultyHitObject } from "../../src";
 
 const createDifficultyHitObjects = () => {
     const objects = [
@@ -46,15 +46,16 @@ const createDifficultyHitObjects = () => {
         object.applyDefaults(controlPoints, difficulty, Modes.osu);
     }
 
-    const difficultyObjects: OsuDifficultyHitObject[] = [];
+    const difficultyObjects: DroidDifficultyHitObject[] = [];
 
     for (let i = 0; i < objects.length; ++i) {
-        const difficultyObject = new OsuDifficultyHitObject(
+        const difficultyObject = new DroidDifficultyHitObject(
             objects[i],
             objects[i - 1] ?? null,
             objects[i - 2] ?? null,
             difficultyObjects,
             1,
+            i - 1,
         );
 
         difficultyObject.computeProperties(1, objects);

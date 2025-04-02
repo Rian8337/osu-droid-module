@@ -36,7 +36,7 @@ export abstract class DroidFlashlightEvaluator {
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        mods: Mod[],
+        mods: readonly Mod[],
         withSliders: boolean,
     ): number {
         if (

@@ -102,6 +102,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
+        index: number,
     ) {
         super(
             object,
@@ -109,6 +110,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
             lastLastObject,
             difficultyHitObjects,
             clockRate,
+            index,
         );
 
         this.timePreempt = object.timePreempt / clockRate;
@@ -123,7 +125,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         this.setVisuals(clockRate, hitObjects);
     }
 
-    override opacityAt(time: number, mods: Mod[]): number {
+    override opacityAt(time: number, mods: readonly Mod[]): number {
         // Traceable hides the primary piece of a hit circle (that is, its body), so consider it as fully invisible.
         if (
             this.object instanceof Circle &&
@@ -133,6 +135,16 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         }
 
         return super.opacityAt(time, mods);
+    }
+
+    override previous(backwardsIndex: number): this | null {
+        return (this.hitObjects[this.index - backwardsIndex] as this) ?? null;
+    }
+
+    override next(forwardsIndex: number): this | null {
+        return (
+            (this.hitObjects[this.index + forwardsIndex + 2] as this) ?? null
+        );
     }
 
     /**

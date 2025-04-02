@@ -1,84 +1,67 @@
-import { Mod } from "@rian8337/osu-base";
+import { Mod, ModUtil } from "@rian8337/osu-base";
+import { CacheableDifficultyAttributes } from "./CacheableDifficultyAttributes";
+import { IDifficultyAttributes } from "./IDifficultyAttributes";
 
 /**
  * Holds data that can be used to calculate performance points.
  */
-export interface DifficultyAttributes {
-    /**
-     * The mods which were applied to the beatmap.
-     */
-    mods: Mod[];
+export abstract class DifficultyAttributes implements IDifficultyAttributes {
+    mods: Mod[] = [];
+    starRating = 0;
+    maxCombo = 0;
+    aimDifficulty = 0;
+    flashlightDifficulty = 0;
+    speedNoteCount = 0;
+    sliderFactor = 1;
+    clockRate = 1;
+    overallDifficulty = 0;
+    hitCircleCount = 0;
+    sliderCount = 0;
+    spinnerCount = 0;
+    aimDifficultSliderCount = 0;
+    aimDifficultStrainCount = 0;
+
+    constructor(
+        cacheableAttributes?: CacheableDifficultyAttributes<IDifficultyAttributes>,
+    ) {
+        if (!cacheableAttributes) {
+            return;
+        }
+
+        this.mods = ModUtil.deserializeMods(cacheableAttributes.mods);
+        this.starRating = cacheableAttributes.starRating;
+        this.maxCombo = cacheableAttributes.maxCombo;
+        this.aimDifficulty = cacheableAttributes.aimDifficulty;
+        this.flashlightDifficulty = cacheableAttributes.flashlightDifficulty;
+        this.speedNoteCount = cacheableAttributes.speedNoteCount;
+        this.sliderFactor = cacheableAttributes.sliderFactor;
+        this.clockRate = cacheableAttributes.clockRate;
+        this.overallDifficulty = cacheableAttributes.overallDifficulty;
+        this.hitCircleCount = cacheableAttributes.hitCircleCount;
+        this.sliderCount = cacheableAttributes.sliderCount;
+        this.spinnerCount = cacheableAttributes.spinnerCount;
+        this.aimDifficultSliderCount =
+            cacheableAttributes.aimDifficultSliderCount;
+        this.aimDifficultStrainCount =
+            cacheableAttributes.aimDifficultStrainCount;
+    }
 
     /**
-     * The combined star rating of all skills.
-     */
-    starRating: number;
-
-    /**
-     * The maximum achievable combo.
-     */
-    maxCombo: number;
-
-    /**
-     * The difficulty corresponding to the aim skill.
-     */
-    aimDifficulty: number;
-
-    /**
-     * The difficulty corresponding to the flashlight skill.
-     */
-    flashlightDifficulty: number;
-
-    /**
-     * The number of clickable objects weighted by difficulty.
+     * Converts this `DifficultyAttributes` instance to an attribute structure that can be cached.
      *
-     * Related to speed/tap difficulty.
+     * @returns The cacheable attributes.
      */
-    speedNoteCount: number;
+    toCacheableAttributes(): CacheableDifficultyAttributes<IDifficultyAttributes> {
+        return {
+            ...this,
+            mods: ModUtil.serializeMods(this.mods),
+        };
+    }
 
     /**
-     * Describes how much of aim difficulty is contributed to by hitcircles or sliders.
-     *
-     * A value closer to 1 indicates most of aim difficulty is contributed by hitcircles.
-     *
-     * A value closer to 0 indicates most of aim difficulty is contributed by sliders.
+     * Returns a string representation of the difficulty attributes.
      */
-    sliderFactor: number;
-
-    /**
-     * The overall clock rate that was applied to the beatmap.
-     */
-    clockRate: number;
-
-    /**
-     * The perceived overall difficulty inclusive of rate-adjusting mods (DT/HT/etc), based on osu!standard judgement.
-     *
-     * Rate-adjusting mods don't directly affect the overall difficulty value, but have a perceived effect as a result of adjusting audio timing.
-     */
-    overallDifficulty: number;
-
-    /**
-     * The number of hitcircles in the beatmap.
-     */
-    hitCircleCount: number;
-
-    /**
-     * The number of sliders in the beatmap.
-     */
-    sliderCount: number;
-
-    /**
-     * The number of spinners in the beatmap.
-     */
-    spinnerCount: number;
-
-    /**
-     * The number of sliders weighted by difficulty.
-     */
-    aimDifficultSliderCount: number;
-
-    /**
-     * The amount of strains that are considered difficult with respect to the aim skill.
-     */
-    aimDifficultStrainCount: number;
+    toString(): string {
+        return `${this.starRating.toFixed(2)} stars`;
+    }
 }

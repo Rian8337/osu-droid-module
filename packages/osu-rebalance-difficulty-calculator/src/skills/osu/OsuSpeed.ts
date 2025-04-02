@@ -1,7 +1,8 @@
-import { OsuSkill } from "./OsuSkill";
-import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
+import { MathUtils } from "@rian8337/osu-base";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
+import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
+import { OsuSkill } from "./OsuSkill";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -16,6 +17,27 @@ export class OsuSpeed extends OsuSkill {
     private currentRhythm = 0;
 
     private readonly skillMultiplier = 1.46;
+
+    /**
+     * The amount of notes that are relevant to the difficulty.
+     */
+    relevantNoteCount(): number {
+        if (this._objectStrains.length === 0) {
+            return 0;
+        }
+
+        const maxStrain = MathUtils.max(this._objectStrains);
+
+        if (maxStrain === 0) {
+            return 0;
+        }
+
+        return this._objectStrains.reduce(
+            (total, next) =>
+                total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+            0,
+        );
+    }
 
     /**
      * @param current The hitobject to calculate.

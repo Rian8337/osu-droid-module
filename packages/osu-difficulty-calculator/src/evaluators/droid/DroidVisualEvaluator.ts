@@ -29,7 +29,7 @@ export abstract class DroidVisualEvaluator {
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        mods: Mod[],
+        mods: readonly Mod[],
         withSliders: boolean,
     ): number {
         if (

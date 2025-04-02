@@ -10,9 +10,9 @@ export abstract class Skill {
     /**
      * The mods that this skill processes.
      */
-    protected readonly mods: Mod[];
+    protected readonly mods: readonly Mod[];
 
-    constructor(mods: Mod[]) {
+    constructor(mods: readonly Mod[]) {
         this.mods = mods;
     }
 

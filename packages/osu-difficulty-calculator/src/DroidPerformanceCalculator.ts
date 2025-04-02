@@ -11,13 +11,13 @@ import {
     MathUtils,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
-import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
+import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
-export class DroidPerformanceCalculator extends PerformanceCalculator<DroidDifficultyAttributes> {
+export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDifficultyAttributes> {
     /**
      * The aim performance value.
      */

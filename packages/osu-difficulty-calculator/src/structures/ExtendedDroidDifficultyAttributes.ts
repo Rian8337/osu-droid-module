@@ -1,50 +1,39 @@
+import { CacheableDifficultyAttributes } from "./CacheableDifficultyAttributes";
 import { DifficultSlider } from "./DifficultSlider";
 import { DroidDifficultyAttributes } from "./DroidDifficultyAttributes";
 import { HighStrainSection } from "./HighStrainSection";
+import { IExtendedDroidDifficultyAttributes } from "./IExtendedDroidDifficultyAttributes";
 
 /**
  * Holds data that can be used to calculate osu!droid performance points as well
  * as doing some analysis using the replay of a score.
  */
-export interface ExtendedDroidDifficultyAttributes
-    extends DroidDifficultyAttributes {
-    /**
-     * The mode of the difficulty calculation.
-     */
-    mode: "live";
+export class ExtendedDroidDifficultyAttributes
+    extends DroidDifficultyAttributes
+    implements IExtendedDroidDifficultyAttributes
+{
+    mode = "live" as const;
+    possibleThreeFingeredSections: HighStrainSection[] = [];
+    difficultSliders: DifficultSlider[] = [];
+    aimNoteCount = 0;
+    flashlightSliderFactor = 1;
+    visualSliderFactor = 1;
 
-    /**
-     * Possible sections at which the player can use three fingers on.
-     */
-    possibleThreeFingeredSections: HighStrainSection[];
+    constructor(
+        cacheableAttributes?: CacheableDifficultyAttributes<IExtendedDroidDifficultyAttributes>,
+    ) {
+        super(cacheableAttributes);
 
-    /**
-     * Sliders that are considered difficult.
-     */
-    difficultSliders: DifficultSlider[];
+        if (!cacheableAttributes) {
+            return;
+        }
 
-    /**
-     * The number of clickable objects weighted by difficulty.
-     *
-     * Related to aim difficulty.
-     */
-    aimNoteCount: number;
-
-    /**
-     * Describes how much of flashlight difficulty is contributed to by hitcircles or sliders.
-     *
-     * A value closer to 1 indicates most of flashlight difficulty is contributed by hitcircles.
-     *
-     * A value closer to 0 indicates most of flashlight difficulty is contributed by sliders.
-     */
-    flashlightSliderFactor: number;
-
-    /**
-     * Describes how much of visual difficulty is contributed to by hitcircles or sliders.
-     *
-     * A value closer to 1 indicates most of visual difficulty is contributed by hitcircles.
-     *
-     * A value closer to 0 indicates most of visual difficulty is contributed by sliders.
-     */
-    visualSliderFactor: number;
+        this.possibleThreeFingeredSections =
+            cacheableAttributes.possibleThreeFingeredSections;
+        this.difficultSliders = cacheableAttributes.difficultSliders;
+        this.aimNoteCount = cacheableAttributes.aimNoteCount;
+        this.flashlightSliderFactor =
+            cacheableAttributes.flashlightSliderFactor;
+        this.visualSliderFactor = cacheableAttributes.visualSliderFactor;
+    }
 }

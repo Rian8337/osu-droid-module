@@ -19,7 +19,7 @@ export class OsuAim extends OsuSkill {
 
     readonly withSliders: boolean;
 
-    constructor(mods: Mod[], withSliders: boolean) {
+    constructor(mods: readonly Mod[], withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;

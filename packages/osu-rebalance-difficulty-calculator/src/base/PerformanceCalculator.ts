@@ -1,21 +1,21 @@
 import {
     Accuracy,
-    ModNoFail,
-    ModSpunOut,
-    ModRelax,
     MathUtils,
-    Modes,
-    ModUtil,
     Mod,
+    ModNoFail,
+    ModRelax,
+    ModSpunOut,
+    ModUtil,
+    Modes,
 } from "@rian8337/osu-base";
-import { DifficultyAttributes } from "../structures/DifficultyAttributes";
-import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
+import { IDifficultyAttributes } from "../structures/IDifficultyAttributes";
+import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 
 /**
  * The base class of performance calculators.
  */
-export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
+export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     /**
      * The overall performance value.
      */
@@ -65,7 +65,7 @@ export abstract class PerformanceCalculator<T extends DifficultyAttributes> {
         this.difficultyAttributes = difficultyAttributes;
 
         this.mods = this.isCacheableAttribute(difficultyAttributes)
-            ? ModUtil.pcStringToMods(difficultyAttributes.mods)
+            ? ModUtil.deserializeMods(difficultyAttributes.mods)
             : difficultyAttributes.mods;
     }
 

@@ -29,7 +29,7 @@ export abstract class OsuSpeedEvaluator {
      */
     static evaluateDifficultyOf(
         current: OsuDifficultyHitObject,
-        mods: Mod[],
+        mods: readonly Mod[],
     ): number {
         if (current.object instanceof Spinner) {
             return 0;

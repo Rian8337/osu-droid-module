@@ -1,23 +1,39 @@
+import { CacheableDifficultyAttributes } from "./CacheableDifficultyAttributes";
 import { DifficultyAttributes } from "./DifficultyAttributes";
+import { IOsuDifficultyAttributes } from "./IOsuDifficultyAttributes";
 
 /**
  * Holds data that can be used to calculate osu!standard performance points.
  */
-export interface OsuDifficultyAttributes extends DifficultyAttributes {
-    /**
-     * The perceived approach rate inclusive of rate-adjusting mods (DT/HT/etc).
-     *
-     * Rate-adjusting mods don't directly affect the approach rate difficulty value, but have a perceived effect as a result of adjusting audio timing.
-     */
-    approachRate: number;
+export class OsuDifficultyAttributes
+    extends DifficultyAttributes
+    implements IOsuDifficultyAttributes
+{
+    approachRate = 0;
+    speedDifficulty = 0;
+    speedDifficultStrainCount = 0;
 
-    /**
-     * The difficulty corresponding to the speed skill.
-     */
-    speedDifficulty: number;
+    constructor(
+        cacheableAttributes?: CacheableDifficultyAttributes<IOsuDifficultyAttributes>,
+    ) {
+        super(cacheableAttributes);
 
-    /**
-     * The amount of strains that are considered difficult with respect to the speed skill.
-     */
-    speedDifficultStrainCount: number;
+        if (!cacheableAttributes) {
+            return;
+        }
+
+        this.approachRate = cacheableAttributes.approachRate;
+        this.speedDifficulty = cacheableAttributes.speedDifficulty;
+        this.speedDifficultStrainCount =
+            cacheableAttributes.speedDifficultStrainCount;
+    }
+
+    override toString(): string {
+        return (
+            super.toString() +
+            ` (${this.aimDifficulty.toFixed(2)} aim, ` +
+            `${this.speedDifficulty.toFixed(2)} speed, ` +
+            `${this.flashlightDifficulty.toFixed(2)} flashlight)`
+        );
+    }
 }

@@ -10,6 +10,8 @@ import { DroidDifficultyCalculator } from "../src";
 import { readFileSync } from "fs";
 import { join } from "path";
 
+const calculator = new DroidDifficultyCalculator();
+
 const testDiffCalc = (
     name: string,
     ratings: Readonly<{
@@ -37,182 +39,104 @@ const testDiffCalc = (
 
     const beatmap = new BeatmapDecoder().decode(data).result;
 
-    describe("No mod difficulty", () => {
-        const noModRating = new DroidDifficultyCalculator(beatmap).calculate();
+    test("No mod difficulty", () => {
+        const noModAttributes = calculator.calculate(beatmap);
 
-        test("Aim difficulty", () => {
-            expect(noModRating.attributes.aimDifficulty).toBeCloseTo(
-                noModRating.aim,
-                5,
-            );
+        expect(noModAttributes.aimDifficulty).toBeCloseTo(ratings.noMod.aim, 5);
+        expect(noModAttributes.tapDifficulty).toBeCloseTo(ratings.noMod.tap, 5);
 
-            expect(noModRating.aim).toBeCloseTo(ratings.noMod.aim, 5);
-        });
+        expect(noModAttributes.rhythmDifficulty).toBeCloseTo(
+            ratings.noMod.rhythm,
+            5,
+        );
 
-        test("Tap difficulty", () => {
-            expect(noModRating.attributes.tapDifficulty).toBeCloseTo(
-                noModRating.tap,
-                5,
-            );
+        expect(noModAttributes.flashlightDifficulty).toBe(0);
 
-            expect(noModRating.tap).toBeCloseTo(ratings.noMod.tap, 5);
-        });
+        expect(noModAttributes.visualDifficulty).toBeCloseTo(
+            ratings.noMod.visual,
+            5,
+        );
 
-        test("Rhythm difficulty", () => {
-            expect(noModRating.attributes.rhythmDifficulty).toBeCloseTo(
-                noModRating.rhythm,
-                5,
-            );
+        expect(noModAttributes.starRating).toBeCloseTo(ratings.noMod.total, 6);
 
-            expect(noModRating.rhythm).toBeCloseTo(ratings.noMod.rhythm, 5);
-        });
+        const str = `${noModAttributes.starRating.toFixed(
+            2,
+        )} stars (${noModAttributes.aimDifficulty.toFixed(
+            2,
+        )} aim, ${noModAttributes.tapDifficulty.toFixed(
+            2,
+        )} tap, ${noModAttributes.rhythmDifficulty.toFixed(
+            2,
+        )} rhythm, ${noModAttributes.flashlightDifficulty.toFixed(
+            2,
+        )} flashlight, ${noModAttributes.visualDifficulty.toFixed(2)} visual)`;
 
-        test("Flashlight difficulty", () => {
-            expect(noModRating.attributes.flashlightDifficulty).toBeCloseTo(
-                noModRating.flashlight,
-                5,
-            );
-
-            expect(noModRating.flashlight).toBeCloseTo(0, 5);
-        });
-
-        test("Visual difficulty", () => {
-            expect(noModRating.attributes.visualDifficulty).toBeCloseTo(
-                noModRating.visual,
-                5,
-            );
-
-            expect(noModRating.visual).toBeCloseTo(ratings.noMod.visual, 5);
-        });
-
-        test("Total star rating", () => {
-            expect(noModRating.total).toBeCloseTo(ratings.noMod.total, 6);
-        });
-
-        test("toString()", () => {
-            const str = `${noModRating.total.toFixed(
-                2,
-            )} stars (${noModRating.aim.toFixed(
-                2,
-            )} aim, ${noModRating.tap.toFixed(
-                2,
-            )} tap, ${noModRating.rhythm.toFixed(
-                2,
-            )} rhythm, ${noModRating.flashlight.toFixed(
-                2,
-            )} flashlight, ${noModRating.visual.toFixed(2)} visual)`;
-
-            expect(noModRating.toString()).toBe(str);
-        });
+        expect(noModAttributes.toString()).toBe(str);
     });
 
-    describe("Double Time difficulty", () => {
-        const doubleTimeRating = new DroidDifficultyCalculator(
-            beatmap,
-        ).calculate([new ModDoubleTime()]);
+    test("Double Time difficulty", () => {
+        const doubleTimeAttributes = calculator.calculate(beatmap, [
+            new ModDoubleTime(),
+        ]);
 
-        test("Aim difficulty", () => {
-            expect(doubleTimeRating.aim).toBeCloseTo(ratings.doubleTime.aim, 5);
+        expect(doubleTimeAttributes.aimDifficulty).toBeCloseTo(
+            ratings.doubleTime.aim,
+            5,
+        );
 
-            doubleTimeRating.calculateAim();
+        expect(doubleTimeAttributes.tapDifficulty).toBeCloseTo(
+            ratings.doubleTime.tap,
+            5,
+        );
 
-            expect(doubleTimeRating.aim).toBeCloseTo(ratings.doubleTime.aim, 5);
-        });
+        expect(doubleTimeAttributes.rhythmDifficulty).toBeCloseTo(
+            ratings.doubleTime.rhythm,
+            5,
+        );
 
-        test("Tap difficulty", () => {
-            expect(doubleTimeRating.tap).toBeCloseTo(ratings.doubleTime.tap, 5);
+        expect(doubleTimeAttributes.flashlightDifficulty).toBe(0);
 
-            doubleTimeRating.calculateTap();
+        expect(doubleTimeAttributes.visualDifficulty).toBeCloseTo(
+            ratings.doubleTime.visual,
+            5,
+        );
 
-            expect(doubleTimeRating.tap).toBeCloseTo(ratings.doubleTime.tap, 5);
-        });
-
-        test("Rhythm difficulty", () => {
-            expect(doubleTimeRating.rhythm).toBeCloseTo(
-                ratings.doubleTime.rhythm,
-                5,
-            );
-
-            doubleTimeRating.calculateRhythm();
-
-            expect(doubleTimeRating.rhythm).toBeCloseTo(
-                ratings.doubleTime.rhythm,
-                5,
-            );
-        });
-
-        test("Flashlight difficulty", () => {
-            expect(doubleTimeRating.flashlight).toBeCloseTo(0, 5);
-
-            doubleTimeRating.calculateFlashlight();
-
-            expect(doubleTimeRating.flashlight).toBeCloseTo(0, 5);
-        });
-
-        test("Visual difficulty", () => {
-            expect(doubleTimeRating.visual).toBeCloseTo(
-                ratings.doubleTime.visual,
-                5,
-            );
-
-            doubleTimeRating.calculateVisual();
-
-            expect(doubleTimeRating.visual).toBeCloseTo(
-                ratings.doubleTime.visual,
-                5,
-            );
-        });
-
-        test("Total star rating", () => {
-            expect(doubleTimeRating.total).toBeCloseTo(
-                ratings.doubleTime.total,
-                6,
-            );
-        });
+        expect(doubleTimeAttributes.starRating).toBeCloseTo(
+            ratings.doubleTime.total,
+            6,
+        );
     });
 
     test("Autopilot aim difficulty calculation", () => {
-        const autopilotRating = new DroidDifficultyCalculator(
-            beatmap,
-        ).calculate([new ModAutopilot()]);
-
-        expect(autopilotRating.aim).toBe(0);
-    });
-
-    describe("Relax tap and rhythm difficulty calculation", () => {
-        const relaxRating = new DroidDifficultyCalculator(beatmap).calculate([
-            new ModRelax(),
+        const autopilotAttributes = calculator.calculate(beatmap, [
+            new ModAutopilot(),
         ]);
 
-        test("Tap difficulty", () => {
-            expect(relaxRating.tap).toBe(0);
+        expect(autopilotAttributes.aimDifficulty).toBe(0);
+    });
 
-            relaxRating.calculateTap();
+    test("Relax tap and rhythm difficulty calculation", () => {
+        const relaxAttributes = calculator.calculate(beatmap, [new ModRelax()]);
 
-            expect(relaxRating.tap).toBe(0);
-        });
-
-        test("Rhythm difficulty", () => {
-            expect(relaxRating.rhythm).toBe(0);
-
-            relaxRating.calculateRhythm();
-
-            expect(relaxRating.rhythm).toBe(0);
-        });
+        expect(relaxAttributes.tapDifficulty).toBe(0);
+        expect(relaxAttributes.rhythmDifficulty).toBe(0);
     });
 
     test("Flashlight difficulty calculation", () => {
-        const flashlightRating = new DroidDifficultyCalculator(
-            beatmap,
-        ).calculate([new ModFlashlight()]);
+        const flashlightAttributes = calculator.calculate(beatmap, [
+            new ModFlashlight(),
+        ]);
 
-        expect(flashlightRating.flashlight).toBeCloseTo(ratings.flashlight, 5);
+        expect(flashlightAttributes.flashlightDifficulty).toBeCloseTo(
+            ratings.flashlight,
+            5,
+        );
     });
 };
 
 test("Test difficulty adjustment mod retention", () => {
     expect(
-        DroidDifficultyCalculator.retainDifficultyAdjustmentMods([
+        calculator.retainDifficultyAdjustmentMods([
             new ModDoubleTime(),
             new ModFlashlight(),
             new ModNoFail(),

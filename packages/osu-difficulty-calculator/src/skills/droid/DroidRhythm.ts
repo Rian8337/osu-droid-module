@@ -17,7 +17,7 @@ export class DroidRhythm extends DroidSkill {
     private currentRhythmStrain = 0;
     private currentRhythmMultiplier = 1;
 
-    constructor(mods: Mod[]) {
+    constructor(mods: readonly Mod[]) {
         super(mods);
 
         this.useSliderAccuracy = mods.some((m) => m instanceof ModScoreV2);

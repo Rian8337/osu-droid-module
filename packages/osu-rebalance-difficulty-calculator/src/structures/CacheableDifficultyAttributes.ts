@@ -1,12 +1,13 @@
-import { DifficultyAttributes } from "./DifficultyAttributes";
+import { SerializedMod } from "@rian8337/osu-base";
+import { IDifficultyAttributes } from "./IDifficultyAttributes";
 
 /**
  * Represents difficulty attributes that can be cached.
  */
-export type CacheableDifficultyAttributes<T extends DifficultyAttributes> =
+export type CacheableDifficultyAttributes<T extends IDifficultyAttributes> =
     Omit<T, "mods"> & {
         /**
          * The mods which were applied to the beatmap.
          */
-        mods: string;
+        mods: SerializedMod[];
     };

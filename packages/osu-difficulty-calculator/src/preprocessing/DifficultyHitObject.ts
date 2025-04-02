@@ -158,6 +158,7 @@ export abstract class DifficultyHitObject {
         lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
+        index: number,
     ) {
         this.object = object;
         this.lastObject = lastObject;
@@ -173,7 +174,7 @@ export abstract class DifficultyHitObject {
 
         this.fullGreatWindow /= clockRate;
 
-        this.index = difficultyHitObjects.length - 1;
+        this.index = index;
 
         // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
         this.startTime = object.startTime / clockRate;
@@ -217,7 +218,9 @@ export abstract class DifficultyHitObject {
      * difficulty hitobject's index, `null` if the index is out of range.
      */
     previous(backwardsIndex: number): this | null {
-        return (this.hitObjects[this.index - backwardsIndex] as this) ?? null;
+        return (
+            (this.hitObjects[this.index - backwardsIndex - 1] as this) ?? null
+        );
     }
 
     /**
@@ -232,7 +235,7 @@ export abstract class DifficultyHitObject {
      */
     next(forwardsIndex: number): this | null {
         return (
-            (this.hitObjects[this.index + forwardsIndex + 2] as this) ?? null
+            (this.hitObjects[this.index + forwardsIndex + 1] as this) ?? null
         );
     }
 
@@ -243,7 +246,7 @@ export abstract class DifficultyHitObject {
      * @param mods The mods used.
      * @returns The opacity of the hitobject at the given time.
      */
-    opacityAt(time: number, mods: Mod[]): number {
+    opacityAt(time: number, mods: readonly Mod[]): number {
         if (time > this.object.startTime) {
             // Consider a hitobject as being invisible when its start time is passed.
             // In reality the hitobject will be visible beyond its start time up until its hittable window has passed,

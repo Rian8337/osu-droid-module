@@ -1,50 +1,53 @@
+import { CacheableDifficultyAttributes } from "./CacheableDifficultyAttributes";
 import { DifficultyAttributes } from "./DifficultyAttributes";
+import { IDroidDifficultyAttributes } from "./IDroidDifficultyAttributes";
 
 /**
  * Holds data that can be used to calculate osu!droid performance points.
  */
-export interface DroidDifficultyAttributes extends DifficultyAttributes {
-    /**
-     * The difficulty corresponding to the tap skill.
-     */
-    tapDifficulty: number;
+export class DroidDifficultyAttributes
+    extends DifficultyAttributes
+    implements IDroidDifficultyAttributes
+{
+    tapDifficulty = 0;
+    rhythmDifficulty = 0;
+    visualDifficulty = 0;
+    tapDifficultStrainCount = 0;
+    flashlightDifficultStrainCount = 0;
+    visualDifficultStrainCount = 0;
+    averageSpeedDeltaTime = 0;
+    vibroFactor = 1;
 
-    /**
-     * The difficulty corresponding to the rhythm skill.
-     */
-    rhythmDifficulty: number;
+    constructor(
+        cacheableAttributes?: CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
+    ) {
+        super(cacheableAttributes);
 
-    /**
-     * The difficulty corresponding to the visual skill.
-     */
-    visualDifficulty: number;
+        if (!cacheableAttributes) {
+            return;
+        }
 
-    /**
-     * The amount of strains that are considered difficult with respect to the tap skill.
-     */
-    tapDifficultStrainCount: number;
+        this.tapDifficulty = cacheableAttributes.tapDifficulty;
+        this.rhythmDifficulty = cacheableAttributes.rhythmDifficulty;
+        this.visualDifficulty = cacheableAttributes.visualDifficulty;
+        this.tapDifficultStrainCount =
+            cacheableAttributes.tapDifficultStrainCount;
+        this.flashlightDifficultStrainCount =
+            cacheableAttributes.flashlightDifficultStrainCount;
+        this.visualDifficultStrainCount =
+            cacheableAttributes.visualDifficultStrainCount;
+        this.averageSpeedDeltaTime = cacheableAttributes.averageSpeedDeltaTime;
+        this.vibroFactor = cacheableAttributes.vibroFactor;
+    }
 
-    /**
-     * The amount of strains that are considered difficult with respect to the flashlight skill.
-     */
-    flashlightDifficultStrainCount: number;
-
-    /**
-     * The amount of strains that are considered difficult with respect to the visual skill.
-     */
-    visualDifficultStrainCount: number;
-
-    /**
-     * The average delta time of speed objects.
-     */
-    averageSpeedDeltaTime: number;
-
-    /**
-     * Describes how much of tap difficulty is contributed by notes that are "vibroable".
-     *
-     * A value closer to 1 indicates most of tap difficulty is contributed by notes that are not "vibroable".
-     *
-     * A value closer to 0 indicates most of tap difficulty is contributed by notes that are "vibroable".
-     */
-    vibroFactor: number;
+    override toString(): string {
+        return (
+            super.toString() +
+            ` (${this.aimDifficulty.toFixed(2)} aim, ` +
+            `${this.tapDifficulty.toFixed(2)} tap, ` +
+            `${this.rhythmDifficulty.toFixed(2)} rhythm, ` +
+            `${this.flashlightDifficulty.toFixed(2)} flashlight, ` +
+            `${this.visualDifficulty.toFixed(2)} visual)`
+        );
+    }
 }

@@ -30,7 +30,7 @@ export class DroidTap extends DroidSkill {
     private readonly strainTimeCap?: number;
 
     constructor(
-        mods: Mod[],
+        mods: readonly Mod[],
         considerCheesability: boolean,
         strainTimeCap?: number,
     ) {
