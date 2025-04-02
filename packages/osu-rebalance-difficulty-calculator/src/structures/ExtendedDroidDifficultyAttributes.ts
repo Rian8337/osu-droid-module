@@ -12,7 +12,7 @@ export class ExtendedDroidDifficultyAttributes
     extends DroidDifficultyAttributes
     implements IExtendedDroidDifficultyAttributes
 {
-    mode = "live" as const;
+    mode = "rebalance" as const;
     possibleThreeFingeredSections: HighStrainSection[] = [];
     difficultSliders: DifficultSlider[] = [];
     aimNoteCount = 0;

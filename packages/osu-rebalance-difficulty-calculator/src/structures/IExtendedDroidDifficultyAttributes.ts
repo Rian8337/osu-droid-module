@@ -11,7 +11,7 @@ export interface IExtendedDroidDifficultyAttributes
     /**
      * The mode of the difficulty calculation.
      */
-    mode: "live";
+    mode: "rebalance";
 
     /**
      * Possible sections at which the player can use three fingers on.
