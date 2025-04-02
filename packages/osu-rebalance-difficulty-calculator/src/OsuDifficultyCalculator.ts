@@ -1,31 +1,23 @@
-import { OsuAim } from "./skills/osu/OsuAim";
-import { OsuSpeed } from "./skills/osu/OsuSpeed";
-import { DifficultyCalculator } from "./base/DifficultyCalculator";
-import { OsuSkill } from "./skills/osu/OsuSkill";
-import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import {
-    ModRelax,
-    ModFlashlight,
-    ModTouchDevice,
-    Modes,
-    ModUtil,
     Beatmap,
     BeatmapDifficulty,
     HitObject,
-    ModAutopilot,
     MathUtils,
-    ModDifficultyAdjust,
-    ModDoubleTime,
-    ModEasy,
-    ModHalfTime,
-    ModHardRock,
-    ModHidden,
-    ModNightCore,
-    ModCustomSpeed,
+    ModAutopilot,
+    ModFlashlight,
+    ModRelax,
+    ModTouchDevice,
+    ModUtil,
+    Modes,
 } from "@rian8337/osu-base";
-import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
+import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
+import { OsuAim } from "./skills/osu/OsuAim";
+import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
+import { OsuSkill } from "./skills/osu/OsuSkill";
+import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
+import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
@@ -82,23 +74,19 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         };
     }
 
-    protected static override readonly difficultyAdjustmentMods = new Set([
-        ModTouchDevice,
-        ModDoubleTime,
-        ModNightCore,
-        ModCustomSpeed,
-        ModDifficultyAdjust,
-        ModHalfTime,
-        ModEasy,
-        ModHardRock,
-        ModFlashlight,
-        ModHidden,
-        ModRelax,
-        ModAutopilot,
-    ]);
-
     protected override readonly difficultyMultiplier = 0.0675;
     protected override readonly mode = Modes.osu;
+
+    /**
+     * Constructs a new instance of the calculator.
+     *
+     * @param beatmap The beatmap to calculate.
+     */
+    constructor(beatmap: Beatmap) {
+        super(beatmap);
+
+        this.difficultyAdjustmentMods.add(ModTouchDevice);
+    }
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.

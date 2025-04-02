@@ -1,33 +1,25 @@
-import { DroidAim } from "./skills/droid/DroidAim";
-import { DroidTap } from "./skills/droid/DroidTap";
-import { DifficultyCalculator } from "./base/DifficultyCalculator";
-import { DroidSkill } from "./skills/droid/DroidSkill";
-import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import {
-    ModRelax,
-    ModFlashlight,
-    Modes,
-    ModUtil,
     Beatmap,
     ModAutopilot,
-    ModDifficultyAdjust,
-    ModDoubleTime,
-    ModEasy,
-    ModHalfTime,
-    ModHardRock,
-    ModHidden,
-    ModNightCore,
+    ModFlashlight,
     ModPrecise,
+    ModRelax,
     ModScoreV2,
     ModTraceable,
-    ModCustomSpeed,
+    ModUtil,
+    Modes,
 } from "@rian8337/osu-base";
-import { DroidRhythm } from "./skills/droid/DroidRhythm";
-import { DroidVisual } from "./skills/droid/DroidVisual";
-import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
+import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
+import { DroidAim } from "./skills/droid/DroidAim";
+import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
+import { DroidRhythm } from "./skills/droid/DroidRhythm";
+import { DroidSkill } from "./skills/droid/DroidSkill";
+import { DroidTap } from "./skills/droid/DroidTap";
+import { DroidVisual } from "./skills/droid/DroidVisual";
 import { CacheableDifficultyAttributes } from "./structures/CacheableDifficultyAttributes";
 import { DroidDifficultyAttributes } from "./structures/DroidDifficultyAttributes";
+import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -116,25 +108,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         };
     }
 
-    protected static override readonly difficultyAdjustmentMods = new Set([
-        ModDoubleTime,
-        ModNightCore,
-        ModCustomSpeed,
-        ModDifficultyAdjust,
-        ModHalfTime,
-        ModEasy,
-        ModHardRock,
-        ModFlashlight,
-        ModHidden,
-        ModRelax,
-        ModAutopilot,
-        ModPrecise,
-        ModScoreV2,
-        ModTraceable,
-    ]);
-
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
+
+    /**
+     * Constructs a new instance of the calculator.
+     *
+     * @param beatmap The beatmap to calculate.
+     */
+    constructor(beatmap: Beatmap) {
+        super(beatmap);
+
+        this.difficultyAdjustmentMods
+            .add(ModPrecise)
+            .add(ModScoreV2)
+            .add(ModTraceable);
+    }
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.

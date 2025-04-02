@@ -10,17 +10,9 @@ import {
     ModUtil,
     Beatmap,
     ModAutopilot,
-    ModDifficultyAdjust,
-    ModDoubleTime,
-    ModEasy,
-    ModHalfTime,
-    ModHardRock,
-    ModHidden,
-    ModNightCore,
     ModPrecise,
     ModScoreV2,
     ModTraceable,
-    ModCustomSpeed,
 } from "@rian8337/osu-base";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidVisual } from "./skills/droid/DroidVisual";
@@ -116,25 +108,22 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         };
     }
 
-    protected static override readonly difficultyAdjustmentMods = new Set([
-        ModDoubleTime,
-        ModNightCore,
-        ModDifficultyAdjust,
-        ModCustomSpeed,
-        ModHalfTime,
-        ModEasy,
-        ModHardRock,
-        ModFlashlight,
-        ModHidden,
-        ModRelax,
-        ModAutopilot,
-        ModPrecise,
-        ModScoreV2,
-        ModTraceable,
-    ]);
-
     protected override readonly difficultyMultiplier = 0.18;
     protected override readonly mode = Modes.droid;
+
+    /**
+     * Constructs a new instance of the calculator.
+     *
+     * @param beatmap The beatmap to calculate.
+     */
+    constructor(beatmap: Beatmap) {
+        super(beatmap);
+
+        this.difficultyAdjustmentMods
+            .add(ModPrecise)
+            .add(ModScoreV2)
+            .add(ModTraceable);
+    }
 
     /**
      * Calculates the aim star rating of the beatmap and stores it in this instance.

@@ -2,17 +2,28 @@ import {
     Beatmap,
     DroidHitWindow,
     Mod,
+    ModAutopilot,
+    ModCustomSpeed,
+    ModDifficultyAdjust,
+    ModDoubleTime,
+    ModEasy,
     Modes,
+    ModFlashlight,
+    ModHalfTime,
+    ModHardRock,
+    ModHidden,
+    ModNightCore,
     ModPrecise,
+    ModRelax,
     ModUtil,
     OsuHitWindow,
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { Skill } from "./Skill";
-import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 
 /**
  * The base of a difficulty calculator.
@@ -73,7 +84,19 @@ export abstract class DifficultyCalculator<
     /**
      * `Mod`s that adjust the difficulty of a beatmap.
      */
-    protected static readonly difficultyAdjustmentMods = new Set<typeof Mod>();
+    protected readonly difficultyAdjustmentMods = new Set<typeof Mod>([
+        ModDoubleTime,
+        ModNightCore,
+        ModDifficultyAdjust,
+        ModCustomSpeed,
+        ModHalfTime,
+        ModEasy,
+        ModHardRock,
+        ModFlashlight,
+        ModHidden,
+        ModRelax,
+        ModAutopilot,
+    ]);
 
     protected abstract readonly difficultyMultiplier: number;
     protected abstract readonly mode: Modes;
@@ -93,7 +116,7 @@ export abstract class DifficultyCalculator<
      * @param mods The mods to retain the difficulty adjustment mods from.
      * @returns The retained difficulty adjustment mods.
      */
-    static retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
+    retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
         return mods.filter((mod) =>
             this.difficultyAdjustmentMods.has(mod.constructor as typeof Mod),
         );
