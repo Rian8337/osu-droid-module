@@ -25,8 +25,16 @@ export class ModNoFail
         this.incompatibleMods.add(ModPerfect).add(ModSuddenDeath);
     }
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 0.5;
+    }
+
+    get isOsuRelevant(): boolean {
+        return true;
     }
 
     get osuScoreMultiplier(): number {

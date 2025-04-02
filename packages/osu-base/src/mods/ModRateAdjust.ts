@@ -22,6 +22,13 @@ export abstract class ModRateAdjust
             : Math.pow(0.3, (1 - this.trackRateMultiplier) * 4);
     }
 
+    /**
+     * Generic getter to determine if this `ModRateAdjust` is relevant.
+     */
+    protected get isRelevant(): boolean {
+        return this.trackRateMultiplier !== 1;
+    }
+
     applyToRate(time: number, rate: number): number {
         return rate * this.trackRateMultiplier;
     }

@@ -10,6 +10,11 @@ export interface IModApplicableToDroid {
     readonly droidRanked: boolean;
 
     /**
+     * Whether this `Mod` results in a meaningful effect to gameplay when applied in osu!droid.
+     */
+    get isDroidRelevant(): boolean;
+
+    /**
      * Calculates the score multiplier of this `Mod` in osu!droid with the given `BeatmapDifficulty`.
      *
      * @param difficulty The `BeatmapDifficulty` to calculate the score multiplier for.

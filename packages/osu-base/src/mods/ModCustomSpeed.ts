@@ -34,8 +34,16 @@ export class ModCustomSpeed
             this.trackRateMultiplier;
     }
 
+    get isDroidRelevant(): boolean {
+        return this.isRelevant;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return this.droidScoreMultiplier;
+    }
+
+    get isOsuRelevant(): boolean {
+        return this.isRelevant;
     }
 
     get osuScoreMultiplier(): number {

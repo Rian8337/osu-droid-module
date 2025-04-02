@@ -45,6 +45,15 @@ export class ModDifficultyAdjust
      */
     hp?: number;
 
+    private get isRelevant(): boolean {
+        return (
+            this.cs !== undefined ||
+            this.ar !== undefined ||
+            this.od !== undefined ||
+            this.hp !== undefined
+        );
+    }
+
     constructor(values?: {
         cs?: number;
         ar?: number;
@@ -66,6 +75,10 @@ export class ModDifficultyAdjust
         this.ar = mod.settings?.ar as number | undefined;
         this.od = mod.settings?.od as number | undefined;
         this.hp = mod.settings?.hp as number | undefined;
+    }
+
+    get isDroidRelevant(): boolean {
+        return this.isRelevant;
     }
 
     calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number {
@@ -91,6 +104,10 @@ export class ModDifficultyAdjust
         }
 
         return multiplier;
+    }
+
+    get isOsuRelevant(): boolean {
+        return this.isRelevant;
     }
 
     get osuScoreMultiplier(): number {

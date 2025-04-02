@@ -38,8 +38,16 @@ export class ModHardRock
         this.incompatibleMods.add(ModEasy);
     }
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 1.06;
+    }
+
+    get isOsuRelevant(): boolean {
+        return true;
     }
 
     get osuScoreMultiplier(): number {

@@ -11,6 +11,10 @@ export class ModTouchDevice extends Mod implements IModApplicableToOsuStable {
     readonly osuRanked = true;
     readonly bitwise = 1 << 2;
 
+    get isOsuRelevant(): boolean {
+        return true;
+    }
+
     get osuScoreMultiplier(): number {
         return 1;
     }

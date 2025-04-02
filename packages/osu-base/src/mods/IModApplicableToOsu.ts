@@ -8,6 +8,11 @@ export interface IModApplicableToOsu {
     readonly osuRanked: boolean;
 
     /**
+     * Whether this `Mod` results in a meaningful effect to gameplay when applied in osu!standard.
+     */
+    get isOsuRelevant(): boolean;
+
+    /**
      * The score multiplier of this `Mod` in osu!standard.
      */
     get osuScoreMultiplier(): number;

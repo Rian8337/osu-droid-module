@@ -27,8 +27,16 @@ export class ModHalfTime
         this.incompatibleMods.add(ModDoubleTime).add(ModNightCore);
     }
 
+    get isDroidRelevant(): boolean {
+        return this.isRelevant;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return this.droidScoreMultiplier;
+    }
+
+    get isOsuRelevant(): boolean {
+        return this.isRelevant;
     }
 
     get osuScoreMultiplier(): number {

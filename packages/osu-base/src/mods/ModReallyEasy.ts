@@ -20,6 +20,10 @@ export class ModReallyEasy
 
     readonly droidRanked = false;
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 0.4;
     }

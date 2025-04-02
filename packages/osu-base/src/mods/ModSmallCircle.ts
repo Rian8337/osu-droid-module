@@ -24,6 +24,10 @@ export class ModSmallCircle
 
     readonly droidRanked = false;
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 1.06;
     }

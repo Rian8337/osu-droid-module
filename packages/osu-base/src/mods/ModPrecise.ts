@@ -19,6 +19,10 @@ export class ModPrecise
 
     readonly droidRanked = true;
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 1.06;
     }

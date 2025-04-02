@@ -25,8 +25,16 @@ export class ModRelax
         this.incompatibleMods.add(ModAuto).add(ModAutopilot);
     }
 
+    get isDroidRelevant(): boolean {
+        return true;
+    }
+
     calculateDroidScoreMultiplier(): number {
         return 0.001;
+    }
+
+    get isOsuRelevant(): boolean {
+        return true;
     }
 
     get osuScoreMultiplier(): number {
