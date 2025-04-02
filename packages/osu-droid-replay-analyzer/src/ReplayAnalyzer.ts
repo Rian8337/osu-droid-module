@@ -470,35 +470,51 @@ export class ReplayAnalyzer {
             resultObject.maxCombo = rawObject[4].readInt32BE(36);
             resultObject.isFullCombo = resultObject.accuracy.value() === 1;
             resultObject.playerName = rawObject[5];
-            resultObject.convertedMods = this.convertDroidMods(
-                resultObject.replayVersion,
-                Object.values(rawObject[6].elements),
-            );
+
+            if (resultObject.replayVersion >= 7) {
+                resultObject.convertedMods = ModUtil.deserializeMods(
+                    rawObject[6],
+                ) as (Mod & IModApplicableToDroid)[];
+            } else {
+                resultObject.convertedMods = this.convertDroidMods(
+                    resultObject.replayVersion,
+                    Object.values(rawObject[6].elements),
+                );
+
+                if (resultObject.replayVersion >= 4) {
+                    DroidLegacyModConverter.parseExtraModString(
+                        resultObject.convertedMods,
+                        rawObject[7].split("|"),
+                    );
+                }
+            }
+
             resultObject.rank = this.calculateRank(resultObject);
         }
 
-        if (resultObject.replayVersion >= 4) {
-            DroidLegacyModConverter.parseExtraModString(
-                resultObject.convertedMods,
-                rawObject[7].split("|"),
-            );
-        }
-
         let bufferIndex: number;
-        switch (true) {
-            // replay v4 and above
-            case resultObject.replayVersion >= 4:
-                bufferIndex = 8;
+
+        switch (resultObject.replayVersion) {
+            case 1:
+            case 2:
+                bufferIndex = 4;
                 break;
 
-            // replay v3
-            case resultObject.replayVersion === 3:
+            case 3:
+            case 7:
                 bufferIndex = 7;
                 break;
 
-            // replay v1 and v2
+            case 4:
+            case 5:
+            case 6:
+                bufferIndex = 8;
+                break;
+
             default:
-                bufferIndex = 4;
+                throw new Error(
+                    "Unsupported replay version: " + resultObject.replayVersion,
+                );
         }
 
         const replayDataBufferArray: Buffer[] = [];
