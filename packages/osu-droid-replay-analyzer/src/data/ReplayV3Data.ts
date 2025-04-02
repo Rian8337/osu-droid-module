@@ -40,22 +40,6 @@ export class ReplayV3Data extends ReplayData {
      */
     readonly convertedMods: (Mod & IModApplicableToDroid)[];
 
-    /**
-     * The complete mod string of this replay (mods, speed multiplier, and forced difficulty statistics combined).
-     */
-    get completeModString(): string {
-        return this.modString;
-    }
-
-    /**
-     * The mod string of this replay (mods only).
-     */
-    protected get modString(): string {
-        return this.convertedMods.length > 0
-            ? this.convertedMods.map((v) => v.acronym).join("")
-            : "No Mod";
-    }
-
     constructor(values: ReplayInformation) {
         super(values);
 
