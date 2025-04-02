@@ -1,67 +1,33 @@
-import { Slider } from "./hitobjects/Slider";
-import { Mod } from "../mods/Mod";
-import { BeatmapGeneral } from "./sections/BeatmapGeneral";
-import { BeatmapEditor } from "./sections/BeatmapEditor";
-import { BeatmapMetadata } from "./sections/BeatmapMetadata";
-import { BeatmapDifficulty } from "./sections/BeatmapDifficulty";
-import { BeatmapEvents } from "./sections/BeatmapEvents";
-import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
-import { BeatmapColor } from "./sections/BeatmapColor";
-import { BeatmapHitObjects } from "./sections/BeatmapHitObjects";
-import { MathUtils } from "../math/MathUtils";
-import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
 import { Modes } from "../constants/Modes";
-import { BeatmapProcessor } from "./BeatmapProcessor";
-import { BeatmapConverter } from "./BeatmapConverter";
+import { MathUtils } from "../math/MathUtils";
+import { Mod } from "../mods/Mod";
 import { ModScoreV2 } from "../mods/ModScoreV2";
+import { BeatmapConverter } from "./BeatmapConverter";
+import { BeatmapProcessor } from "./BeatmapProcessor";
+import { IBeatmap } from "./IBeatmap";
+import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
+import { Slider } from "./hitobjects/Slider";
+import { BeatmapColor } from "./sections/BeatmapColor";
+import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
+import { BeatmapDifficulty } from "./sections/BeatmapDifficulty";
+import { BeatmapEditor } from "./sections/BeatmapEditor";
+import { BeatmapEvents } from "./sections/BeatmapEvents";
+import { BeatmapGeneral } from "./sections/BeatmapGeneral";
+import { BeatmapHitObjects } from "./sections/BeatmapHitObjects";
+import { BeatmapMetadata } from "./sections/BeatmapMetadata";
 
 /**
  * Represents a beatmap with advanced information.
  */
-export class Beatmap {
-    /**
-     * The format version of the beatmap.
-     */
+export class Beatmap implements IBeatmap {
     formatVersion: number;
-
-    /**
-     * General information about the beatmap.
-     */
     readonly general: BeatmapGeneral;
-
-    /**
-     * Saved settings for the beatmap editor.
-     */
     readonly editor: BeatmapEditor;
-
-    /**
-     * Information used to identify the beatmap.
-     */
     readonly metadata: BeatmapMetadata;
-
-    /**
-     * Difficulty settings of the beatmap.
-     */
     difficulty: BeatmapDifficulty;
-
-    /**
-     * Events of the beatmap.
-     */
     readonly events: BeatmapEvents;
-
-    /**
-     * Timing and control points of the beatmap.
-     */
     readonly controlPoints: BeatmapControlPoints;
-
-    /**
-     * Combo and skin colors of the beatmap.
-     */
     readonly colors: BeatmapColor;
-
-    /**
-     * The objects of the beatmap.
-     */
     hitObjects: BeatmapHitObjects;
 
     constructor(shallowCopy?: Beatmap) {
