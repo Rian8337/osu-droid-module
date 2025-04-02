@@ -1,33 +1,33 @@
 import {
-    DroidHitWindow,
-    ModPrecise,
-    MathUtils,
-    Circle,
-    Spinner,
-    Modes,
-    Slider,
-    Beatmap,
     BreakPoint,
-    PlaceableHitObject,
-    Utils,
-    Interpolation,
-    ModHardRock,
-    Vector2,
-    Playfield,
+    Circle,
+    DroidHitWindow,
+    DroidPlayableBeatmap,
     HitWindow,
+    Interpolation,
+    MathUtils,
+    ModHardRock,
+    ModPrecise,
+    Modes,
+    PlaceableHitObject,
+    Playfield,
     PreciseDroidHitWindow,
+    Slider,
+    Spinner,
+    Utils,
+    Vector2,
 } from "@rian8337/osu-base";
+import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
+import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { NerfFactor } from "./structures/NerfFactor";
 import { RebalanceThreeFingerBeatmapSection } from "./structures/RebalanceThreeFingerBeatmapSection";
-import { ThreeFingerInformation } from "./structures/ThreeFingerInformation";
-import { MovementType } from "../constants/MovementType";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { RebalanceThreeFingerObject } from "./structures/RebalanceThreeFingerObject";
+import { ThreeFingerInformation } from "./structures/ThreeFingerInformation";
 
 /**
  * Utility to check whether or not a beatmap is three-fingered for rebalance scores.
@@ -36,7 +36,7 @@ export class RebalanceThreeFingerChecker {
     /**
      * The beatmap that is being analyzed.
      */
-    readonly beatmap: Beatmap;
+    readonly beatmap: DroidPlayableBeatmap;
 
     /**
      * The data of the replay.
@@ -86,7 +86,7 @@ export class RebalanceThreeFingerChecker {
      * @param difficultyAttributes The difficulty attributes of the beatmap.
      */
     constructor(
-        beatmap: Beatmap,
+        beatmap: DroidPlayableBeatmap,
         data: ReplayData,
         difficultyAttributes: RebalanceExtendedDroidDifficultyAttributes,
     ) {

@@ -1,6 +1,6 @@
 import {
-    Beatmap,
     DroidHitWindow,
+    DroidPlayableBeatmap,
     Interpolation,
     Modes,
     ModHardRock,
@@ -15,9 +15,9 @@ import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calc
 import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
+import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
 import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
-import { CursorOccurrence } from "../data/CursorOccurrence";
 
 /**
  * Utility to check whether relevant sliders in a beatmap are cheesed.
@@ -26,7 +26,7 @@ export class SliderCheeseChecker {
     /**
      * The beatmap that is being analyzed.
      */
-    readonly beatmap: Beatmap;
+    readonly beatmap: DroidPlayableBeatmap;
 
     /**
      * The data of the replay.
@@ -53,7 +53,7 @@ export class SliderCheeseChecker {
      * @param difficultyAttributes The difficulty attributes of the beatmap.
      */
     constructor(
-        beatmap: Beatmap,
+        beatmap: DroidPlayableBeatmap,
         data: ReplayData,
         difficultyAttributes:
             | ExtendedDroidDifficultyAttributes

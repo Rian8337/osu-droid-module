@@ -5,6 +5,7 @@ import {
     DroidAPIRequestBuilder,
     DroidHitWindow,
     DroidLegacyModConverter,
+    DroidPlayableBeatmap,
     IModApplicableToDroid,
     MathUtils,
     Mod,
@@ -156,7 +157,7 @@ export class ReplayAnalyzer {
      */
     twoHandedNoteCount = 0;
 
-    private playableBeatmap?: Beatmap;
+    private playableBeatmap?: DroidPlayableBeatmap;
     private bufferOffset = 0;
 
     constructor(values: {
@@ -767,7 +768,7 @@ export class ReplayAnalyzer {
         }
     }
 
-    private constructPlayableBeatmap(): Beatmap {
+    private constructPlayableBeatmap(): DroidPlayableBeatmap {
         if (!this.beatmap || !this.data) {
             throw new Error("Beatmap and replay data must be defined.");
         }
@@ -780,10 +781,7 @@ export class ReplayAnalyzer {
             this.beatmap instanceof Beatmap
                 ? this.beatmap
                 : this.beatmap.beatmap
-        ).createPlayableBeatmap({
-            mode: Modes.droid,
-            mods: mods,
-        });
+        ).createDroidPlayableBeatmap(mods);
     }
 
     private readByte(buffer: Buffer): number {
