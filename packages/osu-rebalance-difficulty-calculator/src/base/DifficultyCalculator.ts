@@ -53,11 +53,7 @@ export abstract class DifficultyCalculator<
      * @param mods The mods to retain the difficulty adjustment mods from.
      * @returns The retained difficulty adjustment mods.
      */
-    retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
-        return mods.filter((mod) =>
-            this.difficultyAdjustmentMods.has(mod.constructor as typeof Mod),
-        );
-    }
+    abstract retainDifficultyAdjustmentMods(mods: Mod[]): Mod[];
 
     /**
      * Calculates the difficulty of a `PlayableBeatmap`.

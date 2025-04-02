@@ -36,6 +36,17 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         this.difficultyAdjustmentMods.add(ModTouchDevice);
     }
 
+    override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
+        return mods.filter(
+            (mod) =>
+                mod.isApplicableToOsu() &&
+                this.difficultyAdjustmentMods.has(
+                    mod.constructor as typeof Mod,
+                ) &&
+                mod.isOsuRelevant,
+        );
+    }
+
     protected override createDifficultyAttributes(
         beatmap: OsuPlayableBeatmap,
         skills: Skill[],

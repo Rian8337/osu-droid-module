@@ -50,6 +50,17 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             .add(ModTraceable);
     }
 
+    override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
+        return mods.filter(
+            (mod) =>
+                mod.isApplicableToDroid() &&
+                this.difficultyAdjustmentMods.has(
+                    mod.constructor as typeof Mod,
+                ) &&
+                mod.isDroidRelevant,
+        );
+    }
+
     protected override createDifficultyAttributes(
         beatmap: DroidPlayableBeatmap,
         skills: Skill[],
