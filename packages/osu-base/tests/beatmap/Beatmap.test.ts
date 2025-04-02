@@ -482,7 +482,7 @@ describe("Test playable beatmap creation", () => {
     }
 
     test("Test playable beatmap creation without options", () => {
-        const playableBeatmap = beatmap.createPlayableBeatmap();
+        const playableBeatmap = beatmap.createOsuPlayableBeatmap();
 
         const [firstObject, secondObject, thirdObject] =
             playableBeatmap.hitObjects.objects;
@@ -502,10 +502,8 @@ describe("Test playable beatmap creation", () => {
     describe("Test playable beatmap creation with options", () => {
         describe("osu!droid game mode", () => {
             const getConvertedFirstObject = (...mods: Mod[]) => {
-                const playableBeatmap = beatmap.createPlayableBeatmap({
-                    mode: Modes.droid,
-                    mods: mods,
-                });
+                const playableBeatmap =
+                    beatmap.createDroidPlayableBeatmap(mods);
 
                 return playableBeatmap.hitObjects.objects[0];
             };
@@ -579,9 +577,7 @@ describe("Test playable beatmap creation", () => {
 
         describe("osu!standard game mode", () => {
             const getConvertedFirstObject = (...mods: Mod[]) => {
-                const playableBeatmap = beatmap.createPlayableBeatmap({
-                    mods: mods,
-                });
+                const playableBeatmap = beatmap.createOsuPlayableBeatmap(mods);
 
                 return playableBeatmap.hitObjects.objects[0];
             };

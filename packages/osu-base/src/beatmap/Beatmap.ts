@@ -21,6 +21,11 @@ import { BeatmapMetadata } from "./sections/BeatmapMetadata";
  * Represents a beatmap with advanced information.
  */
 export class Beatmap implements IBeatmap {
+    /**
+     * The game mode this `Beatmap` was parsed as.
+     */
+    mode: Modes = Modes.osu;
+
     formatVersion: number;
     readonly general: BeatmapGeneral;
     readonly editor: BeatmapEditor;
@@ -33,6 +38,7 @@ export class Beatmap implements IBeatmap {
 
     constructor(shallowCopy?: Beatmap) {
         if (shallowCopy) {
+            this.mode = shallowCopy.mode;
             this.formatVersion = shallowCopy.formatVersion;
             this.general = shallowCopy.general;
             this.editor = shallowCopy.editor;
@@ -294,7 +300,7 @@ export class Beatmap implements IBeatmap {
     }
 
     private createPlayableBeatmap(mods: Mod[], mode: Modes): Beatmap {
-        if (mods.length === 0) {
+        if (this.mode === mode && mods.length === 0) {
             // Beatmap is already in a playable state.
             return this;
         }

@@ -33,6 +33,8 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
         mode: Modes = Modes.osu,
         parseStoryboard: boolean = true,
     ): this {
+        this.finalResult.mode = mode;
+
         super.decode(str);
 
         if (parseStoryboard) {
