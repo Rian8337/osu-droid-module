@@ -1,6 +1,6 @@
 import { Vector2 } from "../../math/Vector2";
-import { EmptyHitWindow } from "../../utils/EmptyHitWindow";
-import { HitWindow } from "../../utils/HitWindow";
+import { EmptyHitWindow } from "../EmptyHitWindow";
+import { HitWindow } from "../HitWindow";
 import { Playfield } from "../../utils/Playfield";
 import { BeatmapControlPoints } from "../sections/BeatmapControlPoints";
 import { BankHitSampleInfo } from "./BankHitSampleInfo";

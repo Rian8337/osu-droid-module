@@ -27,9 +27,9 @@ import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
 import { SerializedMod } from "../mods/SerializedMod";
-import { DroidHitWindow } from "./DroidHitWindow";
-import { OsuHitWindow } from "./OsuHitWindow";
-import { PreciseDroidHitWindow } from "./PreciseDroidHitWindow";
+import { DroidHitWindow } from "../beatmap/DroidHitWindow";
+import { OsuHitWindow } from "../beatmap/OsuHitWindow";
+import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
 
 /**
  * Options for parsing mods.

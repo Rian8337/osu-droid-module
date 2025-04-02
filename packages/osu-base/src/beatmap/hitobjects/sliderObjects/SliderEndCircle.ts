@@ -1,7 +1,7 @@
 import { Modes } from "../../../constants/Modes";
 import { Vector2 } from "../../../math/Vector2";
-import { EmptyHitWindow } from "../../../utils/EmptyHitWindow";
-import { HitWindow } from "../../../utils/HitWindow";
+import { EmptyHitWindow } from "../../EmptyHitWindow";
+import { HitWindow } from "../../HitWindow";
 import { BeatmapControlPoints } from "../../sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "../../sections/BeatmapDifficulty";
 import { SliderNestedHitObject } from "./SliderNestedHitObject";

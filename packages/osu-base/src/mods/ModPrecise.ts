@@ -2,7 +2,7 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { Spinner } from "../beatmap/hitobjects/Spinner";
 import { Modes } from "../constants/Modes";
-import { PreciseDroidHitWindow } from "../utils/PreciseDroidHitWindow";
+import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { Mod } from "./Mod";
