@@ -36,11 +36,6 @@ export class ReplayV3Data extends ReplayData {
     readonly playerName: string;
 
     /**
-     * Enabled modifications during the play in raw Java object format.
-     */
-    readonly rawMods: string[];
-
-    /**
      * Enabled modifications during the play that have been converted to their respective `Mod` instances.
      */
     readonly convertedMods: (Mod & IModApplicableToDroid)[];
@@ -69,7 +64,6 @@ export class ReplayV3Data extends ReplayData {
         this.maxCombo = values.maxCombo;
         this.isFullCombo = values.isFullCombo;
         this.playerName = values.playerName;
-        this.rawMods = values.rawMods;
         this.convertedMods = values.convertedMods;
     }
 }

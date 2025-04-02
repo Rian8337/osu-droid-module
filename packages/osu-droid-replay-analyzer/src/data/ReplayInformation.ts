@@ -90,13 +90,6 @@ export interface ReplayInformation {
     playerName: string;
 
     /**
-     * Enabled modifications during the play in raw Java object format.
-     *
-     * Only available in replay v3 or later.
-     */
-    rawMods: string[];
-
-    /**
      * The achieved rank in the play.
      */
     rank: ScoreRank;

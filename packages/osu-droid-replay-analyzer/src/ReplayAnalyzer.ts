@@ -43,20 +43,20 @@ import {
     DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
     ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
 } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { Parse } from "unzipper";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
-import { ReplayData } from "./data/ReplayData";
-import { CursorData } from "./data/CursorData";
-import { ReplayObjectData } from "./data/ReplayObjectData";
+import { Parse } from "unzipper";
+import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
+import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker } from "./analysis/TwoHandChecker";
-import { MovementType } from "./constants/MovementType";
-import { HitResult } from "./constants/HitResult";
-import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
-import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
+import { HitResult } from "./constants/HitResult";
+import { MovementType } from "./constants/MovementType";
+import { CursorData } from "./data/CursorData";
+import { ReplayData } from "./data/ReplayData";
 import { ReplayInformation } from "./data/ReplayInformation";
+import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
 
 export interface HitErrorInformation {
@@ -454,7 +454,6 @@ export class ReplayAnalyzer {
             isFullCombo: false,
             maxCombo: 0,
             playerName: "",
-            rawMods: [],
             score: 0,
             time: new Date(0),
         };
@@ -471,10 +470,9 @@ export class ReplayAnalyzer {
             resultObject.maxCombo = rawObject[4].readInt32BE(36);
             resultObject.isFullCombo = resultObject.accuracy.value() === 1;
             resultObject.playerName = rawObject[5];
-            resultObject.rawMods = Object.values(rawObject[6].elements);
             resultObject.convertedMods = this.convertDroidMods(
                 resultObject.replayVersion,
-                resultObject.rawMods,
+                Object.values(rawObject[6].elements),
             );
             resultObject.rank = this.calculateRank(resultObject);
         }
