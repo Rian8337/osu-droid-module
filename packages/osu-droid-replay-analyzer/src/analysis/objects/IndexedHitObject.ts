@@ -1,6 +1,4 @@
-import { Modes, Vector2 } from "@rian8337/osu-base";
-import { DifficultyHitObject } from "@rian8337/osu-difficulty-calculator";
-import { DifficultyHitObject as RebalanceDifficultyHitObject } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { Modes, PlaceableHitObject, Vector2 } from "@rian8337/osu-base";
 
 /**
  * Contains information about which cursor index hits a hitobject.
@@ -38,16 +36,16 @@ export class IndexedHitObject {
     /**
      * If this is a slider, whether the slider was cheesed.
      */
-    sliderCheesed: boolean = false;
+    sliderCheesed = false;
 
     /**
      * The underlying difficulty hitobject.
      */
-    readonly object: DifficultyHitObject | RebalanceDifficultyHitObject;
+    readonly object: PlaceableHitObject;
 
     /**
      * The position of the cursor at the end of this hitobject.
-     * 
+     *
      * Will be altered during detection.
      */
     endCursorPosition: Vector2;
@@ -58,19 +56,19 @@ export class IndexedHitObject {
     is2Handed: boolean;
 
     /**
-     * @param object The underlying difficulty hitobject.
+     * @param object The underlying hitobject.
      * @param cursorIndex The cursor index that moves towards the hitobject.
      * @param groupIndex The group index of the cursor within the cursor index that hits the hitobject.
      * @param occurrenceIndex The occurrence index within the group of the cursor within the cursor index that hits the hitobject.
      * @param angle The angle of the movement of the cursor that moves towards the hitobject.
      */
     constructor(
-        object: DifficultyHitObject | RebalanceDifficultyHitObject,
+        object: PlaceableHitObject,
         cursorIndex: number,
         groupIndex: number,
         occurrenceIndex: number,
         angle: number | null,
-        is2Handed: boolean
+        is2Handed: boolean,
     ) {
         this.object = object;
         this.cursorIndex = cursorIndex;
@@ -78,6 +76,6 @@ export class IndexedHitObject {
         this.occurrenceIndex = occurrenceIndex;
         this.angle = angle;
         this.is2Handed = is2Handed;
-        this.endCursorPosition = this.object.object.getStackedEndPosition(Modes.droid);
+        this.endCursorPosition = this.object.getStackedEndPosition(Modes.droid);
     }
 }

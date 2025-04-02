@@ -35,14 +35,8 @@ import {
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
-import {
-    DroidDifficultyCalculator,
-    ExtendedDroidDifficultyAttributes,
-} from "@rian8337/osu-difficulty-calculator";
-import {
-    DroidDifficultyCalculator as RebalanceDroidDifficultyCalculator,
-    ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes,
-} from "@rian8337/osu-rebalance-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
 import { Parse } from "unzipper";
@@ -76,7 +70,7 @@ export class ReplayAnalyzer {
     /**
      * The score ID of the replay.
      */
-    scoreID: number;
+    scoreID?: number;
 
     /**
      * The original odr file of the replay.
@@ -101,10 +95,7 @@ export class ReplayAnalyzer {
     /**
      * The beatmap that is being analyzed. `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
      */
-    beatmap?:
-        | Beatmap
-        | DroidDifficultyCalculator
-        | RebalanceDroidDifficultyCalculator;
+    beatmap?: Beatmap | DroidPlayableBeatmap;
 
     /**
      * The difficulty attributes of the beatmap.
@@ -160,37 +151,30 @@ export class ReplayAnalyzer {
     private playableBeatmap?: DroidPlayableBeatmap;
     private bufferOffset = 0;
 
-    constructor(values: {
+    constructor(values?: {
         /**
          * The ID of the score.
          */
-        scoreID: number;
+        scoreID?: number;
 
         /**
          * The beatmap to analyze.
-         *
-         * `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for two hand analyzing.
          */
-        map?:
-            | Beatmap
-            | DroidDifficultyCalculator
-            | RebalanceDroidDifficultyCalculator;
+        map?: Beatmap | DroidPlayableBeatmap;
 
         /**
          * The difficulty attributes.
-         *
-         * If `map` is defined as `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator`, the difficulty attributes will be obtained from it instead.
          */
         difficultyAttributes?:
             | ExtendedDroidDifficultyAttributes
             | RebalanceExtendedDroidDifficultyAttributes;
     }) {
-        this.scoreID = values.scoreID;
-        this.beatmap = values.map;
-        this.difficultyAttributes = values.difficultyAttributes;
+        this.scoreID = values?.scoreID;
+        this.beatmap = values?.map;
+        this.difficultyAttributes = values?.difficultyAttributes;
 
-        if (this.beatmap && !(this.beatmap instanceof Beatmap)) {
-            this.difficultyAttributes = this.beatmap.attributes;
+        if (this.beatmap instanceof DroidPlayableBeatmap) {
+            this.playableBeatmap = this.beatmap;
         }
     }
 
@@ -235,12 +219,7 @@ export class ReplayAnalyzer {
         let positiveTotal = 0;
         let negativeTotal = 0;
 
-        const beatmap =
-            this.beatmap instanceof DroidDifficultyCalculator ||
-            this.beatmap instanceof RebalanceDroidDifficultyCalculator
-                ? this.beatmap.beatmap
-                : this.beatmap;
-        const { objects } = beatmap.hitObjects;
+        const { objects } = this.beatmap.hitObjects;
 
         const mods = this.data.isReplayV3()
             ? this.data.convertedMods
@@ -248,7 +227,9 @@ export class ReplayAnalyzer {
                   m.isApplicableToDroid(),
               ) ?? [];
 
-        const adjustedDifficulty = new BeatmapDifficulty(beatmap.difficulty);
+        const adjustedDifficulty = new BeatmapDifficulty(
+            this.beatmap.difficulty,
+        );
 
         ModUtil.applyModsToBeatmapDifficulty(
             adjustedDifficulty,
@@ -334,20 +315,20 @@ export class ReplayAnalyzer {
     /**
      * Checks if a play is using 2 hands.
      *
-     * Requires `analyze()` to be called first and `map` to be defined as `DroidDifficultyCalculator`.
+     * Requires `analyze()` to be called first as well as `beatmap` and `difficultyAttributes` to be defined.
      */
     checkFor2Hand(): void {
-        if (
-            !(
-                this.beatmap instanceof DroidDifficultyCalculator ||
-                this.beatmap instanceof RebalanceDroidDifficultyCalculator
-            ) ||
-            !this.data
-        ) {
+        if (!this.beatmap || !this.difficultyAttributes || !this.data) {
             return;
         }
 
-        const twoHandChecker = new TwoHandChecker(this.beatmap, this.data);
+        this.playableBeatmap ??= this.constructPlayableBeatmap();
+
+        const twoHandChecker = new TwoHandChecker(
+            this.playableBeatmap,
+            this.difficultyAttributes,
+            this.data,
+        );
         const result = twoHandChecker.check();
 
         this.is2Hand = result.is2Hand;
@@ -381,6 +362,10 @@ export class ReplayAnalyzer {
      * Downloads the given score ID's replay.
      */
     private async downloadReplay(): Promise<Buffer | null> {
+        if (this.scoreID === undefined) {
+            return null;
+        }
+
         const apiRequestBuilder = new DroidAPIRequestBuilder()
             .setRequireAPIkey(false)
             .setEndpoint("upload")
@@ -693,12 +678,7 @@ export class ReplayAnalyzer {
             return;
         }
 
-        const objects = (
-            this.beatmap instanceof DroidDifficultyCalculator ||
-            this.beatmap instanceof RebalanceDroidDifficultyCalculator
-                ? this.beatmap.beatmap
-                : this.beatmap
-        )?.hitObjects.objects;
+        const objects = this.beatmap?.hitObjects.objects;
 
         let grantsGekiOrKatu = true;
 
@@ -783,6 +763,10 @@ export class ReplayAnalyzer {
     }
 
     private constructPlayableBeatmap(): DroidPlayableBeatmap {
+        if (this.beatmap instanceof DroidPlayableBeatmap) {
+            return this.beatmap;
+        }
+
         if (!this.beatmap || !this.data) {
             throw new Error("Beatmap and replay data must be defined.");
         }
@@ -791,11 +775,7 @@ export class ReplayAnalyzer {
             ? this.data.convertedMods
             : this.difficultyAttributes?.mods ?? [];
 
-        return (
-            this.beatmap instanceof Beatmap
-                ? this.beatmap
-                : this.beatmap.beatmap
-        ).createDroidPlayableBeatmap(mods);
+        return this.beatmap.createDroidPlayableBeatmap(mods);
     }
 
     private readByte(buffer: Buffer): number {
