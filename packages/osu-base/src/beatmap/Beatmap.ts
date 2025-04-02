@@ -4,8 +4,9 @@ import { Mod } from "../mods/Mod";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { BeatmapConverter } from "./BeatmapConverter";
 import { BeatmapProcessor } from "./BeatmapProcessor";
+import { DroidPlayableBeatmap } from "./DroidPlayableBeatmap";
 import { IBeatmap } from "./IBeatmap";
-import { PlayableBeatmapOptions } from "./PlayableBeatmapOptions";
+import { OsuPlayableBeatmap } from "./OsuPlayableBeatmap";
 import { Slider } from "./hitobjects/Slider";
 import { BeatmapColor } from "./sections/BeatmapColor";
 import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
@@ -261,17 +262,42 @@ export class Beatmap implements IBeatmap {
     }
 
     /**
-     * Constructs a playable `Beatmap` from this `Beatmap`.
+     * Constructs a `DroidPlayableBeatmap` from this `Beatmap`.
      *
-     * The returned `Beatmap` is in a playable state - all `HitObject` and `BeatmapDifficulty` `Mod`s
-     * have been applied, and `HitObject`s have been fully constructed.
+     * The returned `DroidPlayableBeatmap` is in a playable state - all `HitObject` and `BeatmapDifficulty`
+     * `Mod`s have been applied, and `HitObject`s have been fully constructed.
      *
-     * @param options The options to use.
-     * @return The constructed `Beatmap`.
+     * @param mods The `Mod`s to apply to the `Beatmap`. Defaults to No Mod.
+     * @return The constructed `DroidPlayableBeatmap`.
      */
-    createPlayableBeatmap(options?: PlayableBeatmapOptions): Beatmap {
-        const mods = options?.mods ?? [];
-        const mode = options?.mode ?? Modes.osu;
+    createDroidPlayableBeatmap(mods: Mod[] = []): DroidPlayableBeatmap {
+        return new DroidPlayableBeatmap(
+            this.createPlayableBeatmap(mods, Modes.droid),
+            mods,
+        );
+    }
+
+    /**
+     * Constructs a `OsuPlayableBeatmap` from this `Beatmap`.
+     *
+     * The returned `OsuPlayableBeatmap` is in a playable state - all `HitObject` and `BeatmapDifficulty`
+     * `Mod`s have been applied, and `HitObject`s have been fully constructed.
+     *
+     * @param mods The `Mod`s to apply to the `Beatmap`. Defaults to No Mod.
+     * @return The constructed `OsuPlayableBeatmap`.
+     */
+    createOsuPlayableBeatmap(mods: Mod[] = []): OsuPlayableBeatmap {
+        return new OsuPlayableBeatmap(
+            this.createPlayableBeatmap(mods, Modes.osu),
+            mods,
+        );
+    }
+
+    private createPlayableBeatmap(mods: Mod[], mode: Modes): Beatmap {
+        if (mods.length === 0) {
+            // Beatmap is already in a playable state.
+            return this;
+        }
 
         // Convert
         const converted = new BeatmapConverter(this).convert();
