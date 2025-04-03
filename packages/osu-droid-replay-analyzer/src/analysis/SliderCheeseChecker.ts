@@ -11,8 +11,8 @@ import {
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
@@ -37,8 +37,8 @@ export class SliderCheeseChecker {
      * The difficulty attributes of the beatmap.
      */
     readonly difficultyAttributes:
-        | ExtendedDroidDifficultyAttributes
-        | RebalanceExtendedDroidDifficultyAttributes;
+        | IExtendedDroidDifficultyAttributes
+        | IRebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The 50 osu!droid hit window of the analyzed beatmap.
@@ -56,8 +56,8 @@ export class SliderCheeseChecker {
         beatmap: DroidPlayableBeatmap,
         data: ReplayData,
         difficultyAttributes:
-            | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes,
+            | IExtendedDroidDifficultyAttributes
+            | IRebalanceExtendedDroidDifficultyAttributes,
     ) {
         this.beatmap = beatmap;
         this.data = data;

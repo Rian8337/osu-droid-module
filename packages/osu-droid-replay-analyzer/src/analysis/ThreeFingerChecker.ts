@@ -17,8 +17,8 @@ import {
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
@@ -46,7 +46,7 @@ export class ThreeFingerChecker {
     /**
      * The difficulty attributes of the beatmap.
      */
-    readonly difficultyAttributes: ExtendedDroidDifficultyAttributes;
+    readonly difficultyAttributes: IExtendedDroidDifficultyAttributes;
 
     /**
      * Extended sections of the beatmap for drag detection.
@@ -88,7 +88,7 @@ export class ThreeFingerChecker {
     constructor(
         beatmap: DroidPlayableBeatmap,
         data: ReplayData,
-        difficultyAttributes: ExtendedDroidDifficultyAttributes,
+        difficultyAttributes: IExtendedDroidDifficultyAttributes,
     ) {
         this.beatmap = beatmap;
         this.data = data;
@@ -112,8 +112,8 @@ export class ThreeFingerChecker {
      */
     static isEligibleToDetect(
         difficultyAttributes:
-            | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes,
+            | IExtendedDroidDifficultyAttributes
+            | IRebalanceExtendedDroidDifficultyAttributes,
     ): boolean {
         return difficultyAttributes.possibleThreeFingeredSections.length > 0;
     }

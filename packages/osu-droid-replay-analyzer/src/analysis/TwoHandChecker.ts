@@ -17,8 +17,8 @@ import {
     // Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { ReplayData } from "../data/ReplayData";
@@ -63,8 +63,8 @@ export class TwoHandChecker {
      * The difficulty attributes that is being analyzed.
      */
     readonly attributes:
-        | ExtendedDroidDifficultyAttributes
-        | RebalanceExtendedDroidDifficultyAttributes;
+        | IExtendedDroidDifficultyAttributes
+        | IRebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The data of the replay.
@@ -93,8 +93,8 @@ export class TwoHandChecker {
     constructor(
         beatmap: DroidPlayableBeatmap,
         attributes:
-            | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes,
+            | IExtendedDroidDifficultyAttributes
+            | IRebalanceExtendedDroidDifficultyAttributes,
         data: ReplayData,
     ) {
         this.beatmap = beatmap;

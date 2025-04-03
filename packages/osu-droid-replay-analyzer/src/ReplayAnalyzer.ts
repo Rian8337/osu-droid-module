@@ -35,8 +35,8 @@ import {
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
-import { ExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
-import { ExtendedDroidDifficultyAttributes as RebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
 import { Parse } from "unzipper";
@@ -101,8 +101,8 @@ export class ReplayAnalyzer {
      * The difficulty attributes of the beatmap.
      */
     difficultyAttributes?:
-        | ExtendedDroidDifficultyAttributes
-        | RebalanceExtendedDroidDifficultyAttributes;
+        | IExtendedDroidDifficultyAttributes
+        | IRebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The results of the analyzer. `null` when initialized.
@@ -166,8 +166,8 @@ export class ReplayAnalyzer {
          * The difficulty attributes.
          */
         difficultyAttributes?:
-            | ExtendedDroidDifficultyAttributes
-            | RebalanceExtendedDroidDifficultyAttributes;
+            | IExtendedDroidDifficultyAttributes
+            | IRebalanceExtendedDroidDifficultyAttributes;
     }) {
         this.scoreID = values?.scoreID;
         this.beatmap = values?.map;
