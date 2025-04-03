@@ -1,4 +1,5 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
+import { Slider } from "../beatmap/hitobjects/Slider";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
@@ -115,7 +116,7 @@ export class ModDifficultyAdjust
     }
 
     applyToDifficultyWithSettings(
-        mode: Modes,
+        _: Modes,
         difficulty: BeatmapDifficulty,
         mods: Mod[],
     ): void {
@@ -146,7 +147,7 @@ export class ModDifficultyAdjust
     }
 
     applyToHitObjectWithSettings(
-        mode: Modes,
+        _: Modes,
         hitObject: HitObject,
         mods: Mod[],
     ): void {
@@ -156,10 +157,13 @@ export class ModDifficultyAdjust
             return;
         }
 
-        // IMPORTANT: This does not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
-        const trackRate = this.calculateTrackRate(mods);
+        this.applyFadeAdjustment(hitObject, mods);
 
-        hitObject.timeFadeIn *= trackRate;
+        if (hitObject instanceof Slider) {
+            for (const nested of hitObject.nestedHitObjects) {
+                this.applyFadeAdjustment(nested, mods);
+            }
+        }
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
@@ -191,6 +195,21 @@ export class ModDifficultyAdjust
         }
 
         return settings;
+    }
+
+    private applyFadeAdjustment(hitObject: HitObject, mods: Mod[]) {
+        // IMPORTANT: These do not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
+        const initialTrackRate = this.calculateTrackRate(mods);
+
+        const currentTrackRate = this.calculateTrackRate(
+            mods,
+            hitObject.startTime,
+        );
+
+        // Cancel the rate that was initially applied to timePreempt (via applyToDifficulty above and
+        // HitObject.applyDefaults) and apply the current one.
+        hitObject.timePreempt *= currentTrackRate / initialTrackRate;
+        hitObject.timeFadeIn *= currentTrackRate;
     }
 
     private calculateTrackRate(mods: Mod[], time = 0): number {
