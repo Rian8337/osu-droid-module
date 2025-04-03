@@ -51,7 +51,7 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
      *
      * @returns The cacheable attributes.
      */
-    toCacheableAttributes(): CacheableDifficultyAttributes<IDifficultyAttributes> {
+    toCacheableAttributes(): CacheableDifficultyAttributes<this> {
         return {
             ...this,
             mods: ModUtil.serializeMods(this.mods),
