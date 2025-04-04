@@ -77,6 +77,7 @@ export * from "./mods/ModFlashlight";
 export * from "./mods/ModHalfTime";
 export * from "./mods/ModHardRock";
 export * from "./mods/ModHidden";
+export * from "./mods/ModMap";
 export * from "./mods/ModNightCore";
 export * from "./mods/ModNoFail";
 export * from "./mods/ModOldNightCore";
