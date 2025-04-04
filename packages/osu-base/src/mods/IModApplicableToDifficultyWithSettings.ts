@@ -1,6 +1,6 @@
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { Mod } from "./Mod";
+import { ModMap } from "./ModMap";
 
 /**
  * An interface for `Mod`s that make general adjustments to difficulty.
@@ -24,6 +24,6 @@ export interface IModApplicableToDifficultyWithSettings {
     applyToDifficultyWithSettings(
         mode: Modes,
         difficulty: BeatmapDifficulty,
-        mods: Mod[],
+        mods: ModMap,
     ): void;
 }

@@ -1,10 +1,9 @@
 import {
     Accuracy,
-    Mod,
     DroidAPIRequestBuilder,
-    IModApplicableToDroid,
-    ScoreRank,
     DroidLegacyModConverter,
+    ModMap,
+    ScoreRank,
 } from "@rian8337/osu-base";
 import { APIScore } from "./APIScore";
 
@@ -88,7 +87,7 @@ export class Score {
     /**
      * Enabled modifications in the score.
      */
-    mods: (Mod & IModApplicableToDroid)[] = [];
+    readonly mods: ModMap;
 
     /**
      * MD5 hash of the play.

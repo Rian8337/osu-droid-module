@@ -2,6 +2,7 @@ import {
     BeatmapDecoder,
     ModDoubleTime,
     ModFlashlight,
+    ModMap,
     ModNoFail,
 } from "@rian8337/osu-base";
 import { OsuDifficultyCalculator } from "../src";
@@ -56,9 +57,10 @@ const testDiffCalc = (
     });
 
     test("Double Time difficulty", () => {
-        const doubleTimeAttributes = calculator.calculate(beatmap, [
-            new ModDoubleTime(),
-        ]);
+        const mods = new ModMap();
+        mods.set(new ModDoubleTime());
+
+        const doubleTimeAttributes = calculator.calculate(beatmap, mods);
 
         expect(doubleTimeAttributes.aimDifficulty).toBeCloseTo(
             ratings.doubleTime.aim,
@@ -79,9 +81,10 @@ const testDiffCalc = (
     });
 
     test("Flashlight difficulty calculation", () => {
-        const flashlightAttributes = calculator.calculate(beatmap, [
-            new ModFlashlight(),
-        ]);
+        const mods = new ModMap();
+        mods.set(new ModFlashlight());
+
+        const flashlightAttributes = calculator.calculate(beatmap, mods);
 
         expect(flashlightAttributes.flashlightDifficulty).toBeCloseTo(
             ratings.flashlight,

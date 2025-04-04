@@ -1,8 +1,8 @@
-import { Mod } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
-import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DroidSkill } from "./DroidSkill";
 
 /**
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
@@ -18,7 +18,7 @@ export class DroidFlashlight extends DroidSkill {
 
     readonly withSliders: boolean;
 
-    constructor(mods: readonly Mod[], withSliders: boolean) {
+    constructor(mods: ModMap, withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;

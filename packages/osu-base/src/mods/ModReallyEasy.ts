@@ -7,6 +7,7 @@ import { Mod } from "./Mod";
 import { ModCustomSpeed } from "./ModCustomSpeed";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModEasy } from "./ModEasy";
+import { ModMap } from "./ModMap";
 
 /**
  * Represents the ReallyEasy mod.
@@ -31,25 +32,21 @@ export class ModReallyEasy
     applyToDifficultyWithSettings(
         mode: Modes,
         difficulty: BeatmapDifficulty,
-        mods: Mod[],
+        mods: ModMap,
     ): void {
         if (mode !== Modes.droid) {
             return;
         }
 
-        const difficultyAdjustMod = mods.find(
-            (m) => m instanceof ModDifficultyAdjust,
-        ) as ModDifficultyAdjust | undefined;
+        const difficultyAdjustMod = mods.get(ModDifficultyAdjust);
 
         if (difficultyAdjustMod?.ar === undefined) {
-            if (mods.some((m) => m instanceof ModEasy)) {
+            if (mods.has(ModEasy)) {
                 difficulty.ar *= 2;
                 difficulty.ar -= 0.5;
             }
 
-            const customSpeed = mods.find(
-                (m) => m instanceof ModCustomSpeed,
-            ) as ModCustomSpeed | undefined;
+            const customSpeed = mods.get(ModCustomSpeed);
 
             difficulty.ar -= 0.5;
             difficulty.ar -= (customSpeed?.trackRateMultiplier ?? 1) - 1;

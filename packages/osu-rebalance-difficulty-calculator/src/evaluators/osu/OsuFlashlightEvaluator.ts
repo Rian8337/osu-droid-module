@@ -1,4 +1,4 @@
-import { Mod, ModHidden, Modes, Slider, Spinner } from "@rian8337/osu-base";
+import { ModHidden, ModMap, Modes, Slider, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -25,7 +25,7 @@ export abstract class OsuFlashlightEvaluator {
      */
     static evaluateDifficultyOf(
         current: OsuDifficultyHitObject,
-        mods: readonly Mod[],
+        mods: ModMap,
     ): number {
         if (current.object instanceof Spinner) {
             return 0;
@@ -89,7 +89,7 @@ export abstract class OsuFlashlightEvaluator {
         result = Math.pow(smallDistNerf * result, 2);
 
         // Additional bonus for Hidden due to there being no approach circles.
-        if (mods.some((m) => m instanceof ModHidden)) {
+        if (mods.has(ModHidden)) {
             result *= 1 + this.hiddenBonus;
         }
 

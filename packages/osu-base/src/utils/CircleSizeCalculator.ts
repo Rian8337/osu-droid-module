@@ -1,7 +1,7 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { Mod } from "../mods/Mod";
+import { ModMap } from "../mods/ModMap";
 
 /**
  * A utility class for calculating circle sizes across all modes (rimu! and osu!standard).
@@ -32,24 +32,26 @@ export abstract class CircleSizeCalculator {
      * @param mods The mods to apply.
      * @returns The calculated osu!droid scale.
      */
-    static droidCSToDroidScale(cs: number, mods: Mod[] = []): number {
+    static droidCSToDroidScale(cs: number, mods?: ModMap): number {
         // Create a dummy beatmap difficulty for circle size calculation.
         const difficulty = new BeatmapDifficulty();
         difficulty.cs = cs;
 
-        for (const mod of mods) {
-            if (mod.isApplicableToDifficulty()) {
-                mod.applyToDifficulty(Modes.droid, difficulty);
+        if (mods !== undefined) {
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToDifficulty()) {
+                    mod.applyToDifficulty(Modes.droid, difficulty);
+                }
             }
-        }
 
-        for (const mod of mods) {
-            if (mod.isApplicableToDifficultyWithSettings()) {
-                mod.applyToDifficultyWithSettings(
-                    Modes.droid,
-                    difficulty,
-                    mods,
-                );
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToDifficultyWithSettings()) {
+                    mod.applyToDifficultyWithSettings(
+                        Modes.droid,
+                        difficulty,
+                        mods,
+                    );
+                }
             }
         }
 

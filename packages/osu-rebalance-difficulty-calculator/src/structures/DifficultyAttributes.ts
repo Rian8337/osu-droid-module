@@ -1,4 +1,4 @@
-import { Mod, ModUtil } from "@rian8337/osu-base";
+import { ModMap, ModUtil } from "@rian8337/osu-base";
 import { CacheableDifficultyAttributes } from "./CacheableDifficultyAttributes";
 import { IDifficultyAttributes } from "./IDifficultyAttributes";
 
@@ -6,7 +6,7 @@ import { IDifficultyAttributes } from "./IDifficultyAttributes";
  * Holds data that can be used to calculate performance points.
  */
 export abstract class DifficultyAttributes implements IDifficultyAttributes {
-    mods: Mod[] = [];
+    mods = new ModMap();
     starRating = 0;
     maxCombo = 0;
     aimDifficulty = 0;
@@ -54,7 +54,7 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
     toCacheableAttributes(): CacheableDifficultyAttributes<this> {
         return {
             ...this,
-            mods: ModUtil.serializeMods(this.mods),
+            mods: this.mods.serializeMods(),
         };
     }
 

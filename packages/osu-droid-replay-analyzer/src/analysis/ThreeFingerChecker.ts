@@ -94,13 +94,8 @@ export class ThreeFingerChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        this.isHardRock = difficultyAttributes.mods.some(
-            (m) => m instanceof ModHardRock,
-        );
-
-        this.hitWindow = difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        )
+        this.isHardRock = difficultyAttributes.mods.has(ModHardRock);
+        this.hitWindow = difficultyAttributes.mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(beatmap.difficulty.od)
             : new DroidHitWindow(beatmap.difficulty.od);
     }

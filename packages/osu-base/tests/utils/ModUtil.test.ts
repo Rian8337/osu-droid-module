@@ -7,6 +7,7 @@ import {
     ModHalfTime,
     ModHardRock,
     ModHidden,
+    ModMap,
     ModNightCore,
     ModNoFail,
     ModPrecise,
@@ -18,32 +19,33 @@ describe("Test PC modbits to mods conversion", () => {
     test("NM", () => {
         const mods = ModUtil.pcModbitsToMods(0);
 
-        expect(mods.length).toBe(0);
+        expect(mods.size).toBe(0);
+        expect(mods.isEmpty).toBe(true);
     });
 
     test("HDHR", () => {
         const mods = ModUtil.pcModbitsToMods(24);
 
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHardRock)).toBe(true);
+        expect(mods.size).toBe(2);
+        expect(mods.has(ModHidden)).toBe(true);
+        expect(mods.has(ModHardRock)).toBe(true);
     });
 
     test("HDDT", () => {
         const mods = ModUtil.pcModbitsToMods(72);
 
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModDoubleTime)).toBe(true);
+        expect(mods.size).toBe(2);
+        expect(mods.has(ModHidden)).toBe(true);
+        expect(mods.has(ModDoubleTime)).toBe(true);
     });
 
     test("NFHDHT", () => {
         const mods = ModUtil.pcModbitsToMods(265);
 
-        expect(mods.length).toBe(3);
-        expect(mods.some((m) => m instanceof ModNoFail)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHalfTime)).toBe(true);
+        expect(mods.size).toBe(3);
+        expect(mods.has(ModNoFail)).toBe(true);
+        expect(mods.has(ModHidden)).toBe(true);
+        expect(mods.has(ModHalfTime)).toBe(true);
     });
 });
 
@@ -51,39 +53,40 @@ describe("Test PC string to mods conversion", () => {
     test("NM", () => {
         const mods = ModUtil.pcStringToMods("");
 
-        expect(mods.length).toBe(0);
+        expect(mods.size).toBe(0);
+        expect(mods.isEmpty).toBe(true);
     });
 
     test("HDHR", () => {
         const mods = ModUtil.pcStringToMods("HDHR");
 
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHardRock)).toBe(true);
+        expect(mods.size).toBe(2);
+        expect(mods.has(ModHidden)).toBe(true);
+        expect(mods.has(ModHardRock)).toBe(true);
     });
 
     test("HDDT", () => {
         const mods = ModUtil.pcStringToMods("HDDT");
 
-        expect(mods.length).toBe(2);
-        expect(mods.some((m) => m instanceof ModHidden)).toBe(true);
-        expect(mods.some((m) => m instanceof ModDoubleTime)).toBe(true);
+        expect(mods.size).toBe(2);
+        expect(mods.has(ModHidden)).toBe(true);
+        expect(mods.has(ModDoubleTime)).toBe(true);
     });
 
     test("NFHTPR", () => {
         const mods = ModUtil.pcStringToMods("NFHTPR");
 
-        expect(mods.length).toBe(3);
-        expect(mods.some((m) => m instanceof ModNoFail)).toBe(true);
-        expect(mods.some((m) => m instanceof ModHalfTime)).toBe(true);
-        expect(mods.some((m) => m instanceof ModPrecise)).toBe(true);
+        expect(mods.size).toBe(3);
+        expect(mods.has(ModNoFail)).toBe(true);
+        expect(mods.has(ModHalfTime)).toBe(true);
+        expect(mods.has(ModPrecise)).toBe(true);
     });
 
     test("HREZ (incompatible mods)", () => {
         const mods = ModUtil.pcStringToMods("HREZ");
 
-        expect(mods.length).toBe(1);
-        expect(mods[0]).toBeInstanceOf(ModHardRock);
+        expect(mods.size).toBe(1);
+        expect(mods.has(ModEasy)).toBe(true);
     });
 });
 
@@ -91,7 +94,7 @@ describe("Test mods array to osu!standard string conversion", () => {
     test("NM", () => {
         const mods = ModUtil.pcStringToMods("");
 
-        expect(ModUtil.modsToOsuString(mods)).toBe("");
+        expect(ModUtil.modsToOsuString(mods.values())).toBe("");
     });
 
     test("HDHR", () => {
@@ -143,12 +146,6 @@ describe("Test removing speed changing mods", () => {
     });
 });
 
-test("Remove incompatible mods", () => {
-    const mods = [new ModHardRock(), new ModEasy()];
-
-    expect(ModUtil.checkIncompatibleMods(mods)).toEqual([new ModHardRock()]);
-});
-
 test("Calculate track rate multiplier", () => {
     const mods = [new ModHidden(), new ModDoubleTime()];
 
@@ -160,7 +157,7 @@ describe("Test apply mods to beatmap difficulty", () => {
         test("No Mod", () => {
             const difficulty = new BeatmapDifficulty();
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, []);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -170,10 +167,10 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("HR", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModHardRock());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, [
-                new ModHardRock(),
-            ]);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
 
             expect(difficulty.cs).toBeCloseTo(6.258653241032096, 5);
             expect(difficulty.ar).toBe(7);
@@ -183,11 +180,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("DT", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModDoubleTime());
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [new ModDoubleTime()],
+                mods,
                 true,
             );
 
@@ -199,11 +198,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("NC", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModNightCore());
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [new ModNightCore()],
+                mods,
                 true,
             );
 
@@ -215,11 +216,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModCustomSpeed(1.25));
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [new ModCustomSpeed(1.25)],
+                mods,
                 true,
             );
 
@@ -231,15 +234,15 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("DTHR, CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModDoubleTime());
+            mods.set(new ModHardRock());
+            mods.set(new ModCustomSpeed(1.25));
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [
-                    new ModDoubleTime(),
-                    new ModHardRock(),
-                    new ModCustomSpeed(1.25),
-                ],
+                mods,
                 true,
             );
 
@@ -251,10 +254,10 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("PR", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModPrecise());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, [
-                new ModPrecise(),
-            ]);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -264,11 +267,14 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("DTPR", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModDoubleTime());
+            mods.set(new ModPrecise());
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.droid,
-                [new ModDoubleTime(), new ModPrecise()],
+                mods,
                 true,
             );
 
@@ -283,7 +289,7 @@ describe("Test apply mods to beatmap difficulty", () => {
         test("No Mod", () => {
             const difficulty = new BeatmapDifficulty();
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, []);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -293,10 +299,10 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("HR", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModHardRock());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, [
-                new ModHardRock(),
-            ]);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, mods);
 
             expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBe(7);
@@ -306,11 +312,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("DT", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModDoubleTime());
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [new ModDoubleTime()],
+                mods,
                 true,
             );
 
@@ -322,11 +330,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("NC", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModNightCore());
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [new ModNightCore()],
+                mods,
                 true,
             );
 
@@ -338,11 +348,13 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModCustomSpeed(1.25));
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [new ModCustomSpeed(1.25)],
+                mods,
                 true,
             );
 
@@ -354,15 +366,15 @@ describe("Test apply mods to beatmap difficulty", () => {
 
         test("DTHR, CS 1.25x", () => {
             const difficulty = new BeatmapDifficulty();
+            const mods = new ModMap();
+            mods.set(new ModDoubleTime());
+            mods.set(new ModHardRock());
+            mods.set(new ModCustomSpeed(1.25));
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
                 Modes.osu,
-                [
-                    new ModDoubleTime(),
-                    new ModHardRock(),
-                    new ModCustomSpeed(1.25),
-                ],
+                mods,
                 true,
             );
 

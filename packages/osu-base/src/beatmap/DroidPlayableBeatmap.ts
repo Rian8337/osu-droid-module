@@ -9,7 +9,7 @@ import { PreciseDroidHitWindow } from "./PreciseDroidHitWindow";
  */
 export class DroidPlayableBeatmap extends PlayableBeatmap {
     protected override createHitWindow(): HitWindow {
-        if (this.mods.some((m) => m instanceof ModPrecise)) {
+        if (this.mods.has(ModPrecise)) {
             return new PreciseDroidHitWindow(this.difficulty.od);
         } else {
             return new DroidHitWindow(this.difficulty.od);

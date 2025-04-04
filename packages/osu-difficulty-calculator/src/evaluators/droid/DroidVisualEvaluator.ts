@@ -1,10 +1,10 @@
 import {
-    Spinner,
-    Slider,
-    Mod,
-    ModHidden,
-    ModTraceable,
     Circle,
+    ModHidden,
+    ModMap,
+    ModTraceable,
+    Slider,
+    Spinner,
 } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
@@ -29,7 +29,7 @@ export abstract class DroidVisualEvaluator {
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        mods: readonly Mod[],
+        mods: ModMap,
         withSliders: boolean,
     ): number {
         if (
@@ -45,9 +45,9 @@ export abstract class DroidVisualEvaluator {
         // Add density caps for sanity.
         let strain: number;
 
-        if (mods.some((m) => m instanceof ModHidden)) {
+        if (mods.has(ModHidden)) {
             strain = Math.min(30, Math.pow(current.noteDensity, 3));
-        } else if (mods.some((m) => m instanceof ModTraceable)) {
+        } else if (mods.has(ModTraceable)) {
             // Give more bonus for hit circles due to there being no circle piece.
             if (current.object instanceof Circle) {
                 strain = Math.min(25, Math.pow(current.noteDensity, 2.5));

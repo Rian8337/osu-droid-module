@@ -7,6 +7,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
+import { ModMap } from "./ModMap";
 import { SerializedMod } from "./SerializedMod";
 
 /**
@@ -118,7 +119,7 @@ export class ModDifficultyAdjust
     applyToDifficultyWithSettings(
         _: Modes,
         difficulty: BeatmapDifficulty,
-        mods: Mod[],
+        mods: ModMap,
     ): void {
         difficulty.cs = this.cs ?? difficulty.cs;
         difficulty.ar = this.ar ?? difficulty.ar;
@@ -135,7 +136,7 @@ export class ModDifficultyAdjust
                 HitObject.preemptMin,
             );
 
-            const trackRate = this.calculateTrackRate(mods);
+            const trackRate = this.calculateTrackRate(mods.values());
 
             difficulty.ar = BeatmapDifficulty.inverseDifficultyRange(
                 preempt * trackRate,
@@ -149,7 +150,7 @@ export class ModDifficultyAdjust
     applyToHitObjectWithSettings(
         _: Modes,
         hitObject: HitObject,
-        mods: Mod[],
+        mods: ModMap,
     ): void {
         // Special case for force AR, where the AR value is kept constant with respect to game time.
         // This makes the player perceive the fade in animation as is under all speed multipliers.
@@ -197,12 +198,12 @@ export class ModDifficultyAdjust
         return settings;
     }
 
-    private applyFadeAdjustment(hitObject: HitObject, mods: Mod[]) {
+    private applyFadeAdjustment(hitObject: HitObject, mods: ModMap) {
         // IMPORTANT: These do not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
-        const initialTrackRate = this.calculateTrackRate(mods);
+        const initialTrackRate = this.calculateTrackRate(mods.values());
 
         const currentTrackRate = this.calculateTrackRate(
-            mods,
+            mods.values(),
             hitObject.startTime,
         );
 
@@ -212,15 +213,17 @@ export class ModDifficultyAdjust
         hitObject.timeFadeIn *= currentTrackRate;
     }
 
-    private calculateTrackRate(mods: Mod[], time = 0): number {
+    private calculateTrackRate(mods: Iterable<Mod>, time = 0): number {
         // IMPORTANT: This does not use `ModUtil.calculateRateWithMods` to avoid circular dependency.
-        return mods.reduce(
-            (rate, mod) =>
-                mod.isApplicableToTrackRate()
-                    ? mod.applyToRate(time, rate)
-                    : rate,
-            1,
-        );
+        let rate = 1;
+
+        for (const mod of mods) {
+            if (mod.isApplicableToTrackRate()) {
+                rate = mod.applyToRate(time, rate);
+            }
+        }
+
+        return rate;
     }
 
     override toString(): string {

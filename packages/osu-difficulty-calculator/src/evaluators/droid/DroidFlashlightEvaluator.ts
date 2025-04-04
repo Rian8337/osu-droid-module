@@ -1,7 +1,7 @@
 import {
     Circle,
-    Mod,
     ModHidden,
+    ModMap,
     ModTraceable,
     Modes,
     Slider,
@@ -36,7 +36,7 @@ export abstract class DroidFlashlightEvaluator {
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        mods: readonly Mod[],
+        mods: ModMap,
         withSliders: boolean,
     ): number {
         if (
@@ -109,9 +109,9 @@ export abstract class DroidFlashlightEvaluator {
         result = Math.pow(smallDistNerf * result, 2);
 
         // Additional bonus for Hidden due to there being no approach circles.
-        if (mods.some((m) => m instanceof ModHidden)) {
+        if (mods.has(ModHidden)) {
             result *= 1 + this.hiddenBonus;
-        } else if (mods.some((m) => m instanceof ModTraceable)) {
+        } else if (mods.has(ModTraceable)) {
             // Additional bonus for Traceable due to there being no primary or secondary object pieces.
             if (current.object instanceof Circle) {
                 // Additional bonus for hit circles due to there being no circle piece, which is the primary piece.

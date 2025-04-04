@@ -5,6 +5,7 @@ import {
     Mod,
     ModAutopilot,
     ModFlashlight,
+    ModMap,
     ModRelax,
     ModTouchDevice,
     OsuHitWindow,
@@ -53,7 +54,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     ): OsuDifficultyAttributes {
         const attributes = new OsuDifficultyAttributes();
 
-        attributes.mods = beatmap.mods.slice();
+        attributes.mods = beatmap.mods;
         attributes.maxCombo = beatmap.maxCombo;
         attributes.clockRate = beatmap.speedMultiplier;
         attributes.hitCircleCount = beatmap.hitObjects.circles;
@@ -64,11 +65,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         this.populateSpeedAttributes(attributes, skills);
         this.populateFlashlightAttributes(attributes, skills);
 
-        if (attributes.mods.some((m) => m instanceof ModRelax)) {
+        if (attributes.mods.has(ModRelax)) {
             attributes.aimDifficulty *= 0.9;
             attributes.speedDifficulty = 0;
             attributes.flashlightDifficulty *= 0.7;
-        } else if (attributes.mods.some((m) => m instanceof ModAutopilot)) {
+        } else if (attributes.mods.has(ModAutopilot)) {
             attributes.aimDifficulty = 0;
             attributes.speedDifficulty *= 0.5;
             attributes.flashlightDifficulty *= 0.4;
@@ -132,7 +133,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
     protected override createPlayableBeatmap(
         beatmap: Beatmap,
-        mods: Mod[],
+        mods?: ModMap,
     ): OsuPlayableBeatmap {
         return beatmap.createOsuPlayableBeatmap(mods);
     }
@@ -163,16 +164,16 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const { mods } = beatmap;
         const skills: OsuSkill[] = [];
 
-        if (!mods.some((m) => m instanceof ModAutopilot)) {
+        if (!mods.has(ModAutopilot)) {
             skills.push(new OsuAim(mods, true));
             skills.push(new OsuAim(mods, false));
         }
 
-        if (!mods.some((m) => m instanceof ModRelax)) {
+        if (!mods.has(ModRelax)) {
             skills.push(new OsuSpeed(mods));
         }
 
-        if (mods.some((m) => m instanceof ModFlashlight)) {
+        if (mods.has(ModFlashlight)) {
             skills.push(new OsuFlashlight(mods));
         }
 

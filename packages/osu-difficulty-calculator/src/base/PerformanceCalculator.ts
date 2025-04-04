@@ -1,7 +1,7 @@
 import {
     Accuracy,
     MathUtils,
-    Mod,
+    ModMap,
     ModNoFail,
     ModRelax,
     ModSpunOut,
@@ -34,7 +34,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     /**
      * The mods that were used.
      */
-    protected readonly mods: Mod[];
+    protected readonly mods: ModMap;
 
     /**
      * The global multiplier to be applied to the final performance value.
@@ -182,14 +182,14 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             maxCombo,
         );
 
-        if (this.mods.some((m) => m instanceof ModNoFail)) {
+        if (this.mods.has(ModNoFail)) {
             this.finalMultiplier *= Math.max(
                 0.9,
                 1 - 0.02 * this.effectiveMissCount,
             );
         }
 
-        if (this.mods.some((m) => m instanceof ModSpunOut)) {
+        if (this.mods.has(ModSpunOut)) {
             this.finalMultiplier *=
                 1 -
                 Math.pow(
@@ -198,7 +198,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                 );
         }
 
-        if (this.mods.some((m) => m instanceof ModRelax)) {
+        if (this.mods.has(ModRelax)) {
             // Graph: https://www.desmos.com/calculator/bc9eybdthb
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
             const n100Multiplier = Math.max(

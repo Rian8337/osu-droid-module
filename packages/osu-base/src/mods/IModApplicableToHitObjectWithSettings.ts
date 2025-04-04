@@ -1,6 +1,6 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Modes } from "../constants/Modes";
-import { Mod } from "./Mod";
+import { ModMap } from "./ModMap";
 
 /**
  * An interface for `Mod`s that can be applied to `HitObject`s.
@@ -24,6 +24,6 @@ export interface IModApplicableToHitObjectWithSettings {
     applyToHitObjectWithSettings(
         mode: Modes,
         hitObject: HitObject,
-        mods: Mod[],
+        mods: ModMap,
     ): void;
 }

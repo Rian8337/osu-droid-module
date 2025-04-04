@@ -1,4 +1,4 @@
-import { Mod } from "../mods/Mod";
+import { ModMap } from "../mods/ModMap";
 import { ModUtil } from "../utils/ModUtil";
 import { HitWindow } from "./HitWindow";
 import { IBeatmap } from "./IBeatmap";
@@ -29,7 +29,7 @@ export abstract class PlayableBeatmap implements IBeatmap {
     /**
      * The `Mod`s that were applied to this `PlayableBeatmap`.
      */
-    readonly mods: readonly Mod[];
+    readonly mods: ModMap;
 
     /**
      * The speed multiplier that was applied to this [PlayableBeatmap].
@@ -53,7 +53,7 @@ export abstract class PlayableBeatmap implements IBeatmap {
      * @param baseBeatmap The base `IBeatmap` that was used to create this `PlayableBeatmap`.
      * @param mods The `Mod`s that were applied to this `PlayableBeatmap`.
      */
-    constructor(baseBeatmap: IBeatmap, mods: Mod[]) {
+    constructor(baseBeatmap: IBeatmap, mods: ModMap) {
         this.formatVersion = baseBeatmap.formatVersion;
         this.general = baseBeatmap.general;
         this.editor = baseBeatmap.editor;
@@ -65,8 +65,10 @@ export abstract class PlayableBeatmap implements IBeatmap {
         this.hitObjects = baseBeatmap.hitObjects;
         this.maxCombo = baseBeatmap.maxCombo;
 
-        this.mods = mods.slice();
-        this.speedMultiplier = ModUtil.calculateRateWithMods(this.mods);
+        this.mods = mods;
+        this.speedMultiplier = ModUtil.calculateRateWithMods(
+            this.mods.values(),
+        );
     }
 
     /**

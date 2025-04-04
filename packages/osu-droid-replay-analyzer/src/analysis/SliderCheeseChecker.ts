@@ -63,15 +63,11 @@ export class SliderCheeseChecker {
         this.data = data;
         this.difficultyAttributes = difficultyAttributes;
 
-        this.hitWindow50 = difficultyAttributes.mods.some(
-            (m) => m instanceof ModPrecise,
-        )
+        this.hitWindow50 = difficultyAttributes.mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(beatmap.difficulty.od).mehWindow
             : new DroidHitWindow(beatmap.difficulty.od).mehWindow;
 
-        this.isHardRock = difficultyAttributes.mods.some(
-            (m) => m instanceof ModHardRock,
-        );
+        this.isHardRock = difficultyAttributes.mods.has(ModHardRock);
     }
 
     /**

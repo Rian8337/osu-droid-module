@@ -1,9 +1,4 @@
-import {
-    Accuracy,
-    IModApplicableToDroid,
-    Mod,
-    ScoreRank,
-} from "@rian8337/osu-base";
+import { Accuracy, ModMap, ScoreRank } from "@rian8337/osu-base";
 import { CursorData } from "./CursorData";
 import { ReplayObjectData } from "./ReplayObjectData";
 
@@ -99,7 +94,7 @@ export interface ReplayInformation {
      *
      * Only available in replay v3 or later.
      */
-    convertedMods: (Mod & IModApplicableToDroid)[];
+    convertedMods: ModMap;
 
     /**
      * The cursor movement data of the replay.

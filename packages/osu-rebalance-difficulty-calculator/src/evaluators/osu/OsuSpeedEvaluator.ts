@@ -1,4 +1,4 @@
-import { MathUtils, Mod, ModAutopilot, Spinner } from "@rian8337/osu-base";
+import { MathUtils, ModAutopilot, ModMap, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -29,7 +29,7 @@ export abstract class OsuSpeedEvaluator {
      */
     static evaluateDifficultyOf(
         current: OsuDifficultyHitObject,
-        mods: readonly Mod[],
+        mods: ModMap,
     ): number {
         if (current.object instanceof Spinner) {
             return 0;
@@ -71,7 +71,7 @@ export abstract class OsuSpeedEvaluator {
             Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
             this.DISTANCE_MULTIPLIER;
 
-        if (mods.some((m) => m instanceof ModAutopilot)) {
+        if (mods.has(ModAutopilot)) {
             distanceBonus = 0;
         }
 

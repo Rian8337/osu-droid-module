@@ -1,4 +1,4 @@
-import { Mod } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 
 /**
  * Holds data that can be used to calculate performance points.
@@ -7,7 +7,7 @@ export interface IDifficultyAttributes {
     /**
      * The mods which were applied to the beatmap.
      */
-    mods: Mod[];
+    mods: ModMap;
 
     /**
      * The combined star rating of all skills.

@@ -1,6 +1,6 @@
 import {
     Circle,
-    Mod,
+    ModMap,
     ModTraceable,
     Modes,
     PlaceableHitObject,
@@ -125,12 +125,9 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         this.setVisuals(clockRate, hitObjects);
     }
 
-    override opacityAt(time: number, mods: readonly Mod[]): number {
+    override opacityAt(time: number, mods: ModMap): number {
         // Traceable hides the primary piece of a hit circle (that is, its body), so consider it as fully invisible.
-        if (
-            this.object instanceof Circle &&
-            mods.some((m) => m instanceof ModTraceable)
-        ) {
+        if (this.object instanceof Circle && mods.has(ModTraceable)) {
             return 0;
         }
 

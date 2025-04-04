@@ -3,6 +3,7 @@ import {
     ModAutopilot,
     ModDoubleTime,
     ModFlashlight,
+    ModMap,
     ModNoFail,
     ModRelax,
 } from "@rian8337/osu-base";
@@ -75,9 +76,10 @@ const testDiffCalc = (
     });
 
     test("Double Time difficulty", () => {
-        const doubleTimeAttributes = calculator.calculate(beatmap, [
-            new ModDoubleTime(),
-        ]);
+        const mods = new ModMap();
+        mods.set(new ModDoubleTime());
+
+        const doubleTimeAttributes = calculator.calculate(beatmap, mods);
 
         expect(doubleTimeAttributes.aimDifficulty).toBeCloseTo(
             ratings.doubleTime.aim,
@@ -108,24 +110,29 @@ const testDiffCalc = (
     });
 
     test("Autopilot aim difficulty calculation", () => {
-        const autopilotAttributes = calculator.calculate(beatmap, [
-            new ModAutopilot(),
-        ]);
+        const mods = new ModMap();
+        mods.set(new ModAutopilot());
+
+        const autopilotAttributes = calculator.calculate(beatmap, mods);
 
         expect(autopilotAttributes.aimDifficulty).toBe(0);
     });
 
     test("Relax tap and rhythm difficulty calculation", () => {
-        const relaxAttributes = calculator.calculate(beatmap, [new ModRelax()]);
+        const mods = new ModMap();
+        mods.set(new ModRelax());
+
+        const relaxAttributes = calculator.calculate(beatmap, mods);
 
         expect(relaxAttributes.tapDifficulty).toBe(0);
         expect(relaxAttributes.rhythmDifficulty).toBe(0);
     });
 
     test("Flashlight difficulty calculation", () => {
-        const flashlightAttributes = calculator.calculate(beatmap, [
-            new ModFlashlight(),
-        ]);
+        const mods = new ModMap();
+        mods.set(new ModFlashlight());
+
+        const flashlightAttributes = calculator.calculate(beatmap, mods);
 
         expect(flashlightAttributes.flashlightDifficulty).toBeCloseTo(
             ratings.flashlight,

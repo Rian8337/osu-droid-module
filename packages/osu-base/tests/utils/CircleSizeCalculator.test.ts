@@ -1,14 +1,14 @@
 import {
     CircleSizeCalculator,
-    Mod,
     ModEasy,
     ModHardRock,
+    ModMap,
     ModReallyEasy,
     ModSmallCircle,
 } from "../../src";
 
 describe("Test osu!droid circle size to osu!droid scale conversion", () => {
-    const expectScale = (cs: number, scale: number, mods: Mod[] = []) => {
+    const expectScale = (cs: number, scale: number, mods = new ModMap()) => {
         expect(CircleSizeCalculator.droidCSToDroidScale(cs, mods)).toBeCloseTo(
             scale,
             7,
@@ -34,35 +34,43 @@ describe("Test osu!droid circle size to osu!droid scale conversion", () => {
 
     describe("With mods", () => {
         test("Hard Rock", () => {
-            const hr = [new ModHardRock()];
-            expectScale(0, 1.6568791522125481, hr);
-            expectScale(2, 1.458254152212548, hr);
-            expectScale(4, 1.259629152212548, hr);
-            expectScale(7, 0.961691652212548, hr);
+            const mods = new ModMap();
+            mods.set(new ModHardRock());
+
+            expectScale(0, 1.6568791522125481, mods);
+            expectScale(2, 1.458254152212548, mods);
+            expectScale(4, 1.259629152212548, mods);
+            expectScale(7, 0.961691652212548, mods);
         });
 
         test("Easy", () => {
-            const ez = [new ModEasy()];
-            expectScale(0, 1.9068791522125481, ez);
-            expectScale(2, 1.708254152212548, ez);
-            expectScale(4, 1.509629152212548, ez);
-            expectScale(7, 1.211691652212548, ez);
+            const mods = new ModMap();
+            mods.set(new ModEasy());
+
+            expectScale(0, 1.9068791522125481, mods);
+            expectScale(2, 1.708254152212548, mods);
+            expectScale(4, 1.509629152212548, mods);
+            expectScale(7, 1.211691652212548, mods);
         });
 
         test("Really Easy", () => {
-            const rez = [new ModReallyEasy()];
-            expectScale(0, 1.9068791522125481, rez);
-            expectScale(2, 1.708254152212548, rez);
-            expectScale(4, 1.509629152212548, rez);
-            expectScale(7, 1.211691652212548, rez);
+            const mods = new ModMap();
+            mods.set(new ModReallyEasy());
+
+            expectScale(0, 1.9068791522125481, mods);
+            expectScale(2, 1.708254152212548, mods);
+            expectScale(4, 1.509629152212548, mods);
+            expectScale(7, 1.211691652212548, mods);
         });
 
         test("Small Circle", () => {
-            const sc = [new ModSmallCircle()];
-            expectScale(0, 1.384629152212548, sc);
-            expectScale(2, 1.186004152212548, sc);
-            expectScale(4, 0.9873791522125479, sc);
-            expectScale(7, 0.6894416522125479, sc);
+            const mods = new ModMap();
+            mods.set(new ModSmallCircle());
+
+            expectScale(0, 1.384629152212548, mods);
+            expectScale(2, 1.186004152212548, mods);
+            expectScale(4, 0.9873791522125479, mods);
+            expectScale(7, 0.6894416522125479, mods);
         });
     });
 });

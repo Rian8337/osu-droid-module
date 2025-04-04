@@ -5,6 +5,7 @@ import {
     Mod,
     ModAutopilot,
     ModFlashlight,
+    ModMap,
     ModPrecise,
     ModRelax,
     ModScoreV2,
@@ -68,7 +69,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ): ExtendedDroidDifficultyAttributes {
         const attributes = new ExtendedDroidDifficultyAttributes();
 
-        attributes.mods = beatmap.mods.slice();
+        attributes.mods = beatmap.mods;
         attributes.maxCombo = beatmap.maxCombo;
         attributes.clockRate = beatmap.speedMultiplier;
         attributes.hitCircleCount = beatmap.hitObjects.circles;
@@ -81,13 +82,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.populateFlashlightAttributes(attributes, skills);
         this.populateVisualAttributes(attributes, skills);
 
-        if (attributes.mods.some((m) => m instanceof ModRelax)) {
+        if (beatmap.mods.has(ModRelax)) {
             attributes.aimDifficulty *= 0.9;
             attributes.tapDifficulty = 0;
             attributes.rhythmDifficulty = 0;
             attributes.flashlightDifficulty *= 0.7;
             attributes.visualDifficulty = 0;
-        } else if (attributes.mods.some((m) => m instanceof ModAutopilot)) {
+        } else if (beatmap.mods.has(ModAutopilot)) {
             attributes.aimDifficulty = 0;
             attributes.flashlightDifficulty *= 0.3;
             attributes.visualDifficulty *= 0.8;
@@ -130,7 +131,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         let greatWindow: number;
 
-        if (attributes.mods.some((m) => m instanceof ModPrecise)) {
+        if (attributes.mods.has(ModPrecise)) {
             greatWindow = new PreciseDroidHitWindow(beatmap.difficulty.od)
                 .greatWindow;
         } else {
@@ -146,7 +147,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     protected override createPlayableBeatmap(
         beatmap: Beatmap,
-        mods: Mod[],
+        mods?: ModMap,
     ): DroidPlayableBeatmap {
         return beatmap.createDroidPlayableBeatmap(mods);
     }
@@ -181,12 +182,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const { mods } = beatmap;
         const skills: DroidSkill[] = [];
 
-        if (!mods.some((m) => m instanceof ModAutopilot)) {
+        if (!mods.has(ModAutopilot)) {
             skills.push(new DroidAim(mods, true));
             skills.push(new DroidAim(mods, false));
         }
 
-        if (!mods.some((m) => m instanceof ModRelax)) {
+        if (!mods.has(ModRelax)) {
             // Tap and visual skills depend on rhythm skill, so we put it first
             skills.push(new DroidRhythm(mods));
             skills.push(new DroidTap(mods, true));
@@ -195,7 +196,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             skills.push(new DroidVisual(mods, false));
         }
 
-        if (mods.some((m) => m instanceof ModFlashlight)) {
+        if (mods.has(ModFlashlight)) {
             skills.push(new DroidFlashlight(mods, true));
             skills.push(new DroidFlashlight(mods, false));
         }
@@ -302,7 +303,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         attributes.tapDifficulty = this.calculateRating(tap);
-
         attributes.tapDifficultStrainCount = tap.countDifficultStrains();
 
         attributes.speedNoteCount = tap.relevantNoteCount();

@@ -1,7 +1,7 @@
-import { MathUtils, Mod } from "@rian8337/osu-base";
+import { MathUtils, ModMap } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
-import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DroidSkill } from "./DroidSkill";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -30,7 +30,7 @@ export class DroidTap extends DroidSkill {
     private readonly strainTimeCap?: number;
 
     constructor(
-        mods: readonly Mod[],
+        mods: ModMap,
         considerCheesability: boolean,
         strainTimeCap?: number,
     ) {

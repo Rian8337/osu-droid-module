@@ -1,7 +1,7 @@
-import { Mod } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 import { DroidVisualEvaluator } from "../../evaluators/droid/DroidVisualEvaluator";
-import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DroidSkill } from "./DroidSkill";
 
 /**
  * Represents the skill required to read every object in the map.
@@ -18,7 +18,7 @@ export class DroidVisual extends DroidSkill {
 
     readonly withSliders: boolean;
 
-    constructor(mods: readonly Mod[], withSliders: boolean) {
+    constructor(mods: ModMap, withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;

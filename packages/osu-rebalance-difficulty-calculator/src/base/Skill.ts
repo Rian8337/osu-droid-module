@@ -1,4 +1,4 @@
-import { Mod } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 
 /**
@@ -8,9 +8,9 @@ export abstract class Skill {
     /**
      * The mods that this skill processes.
      */
-    protected readonly mods: readonly Mod[];
+    protected readonly mods: ModMap;
 
-    constructor(mods: readonly Mod[]) {
+    constructor(mods: ModMap) {
         this.mods = mods;
     }
 

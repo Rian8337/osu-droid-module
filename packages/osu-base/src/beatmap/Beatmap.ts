@@ -1,6 +1,7 @@
 import { Modes } from "../constants/Modes";
 import { MathUtils } from "../math/MathUtils";
 import { Mod } from "../mods/Mod";
+import { ModMap } from "../mods/ModMap";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { BeatmapConverter } from "./BeatmapConverter";
 import { BeatmapProcessor } from "./BeatmapProcessor";
@@ -276,7 +277,9 @@ export class Beatmap implements IBeatmap {
      * @param mods The `Mod`s to apply to the `Beatmap`. Defaults to No Mod.
      * @return The constructed `DroidPlayableBeatmap`.
      */
-    createDroidPlayableBeatmap(mods: Mod[] = []): DroidPlayableBeatmap {
+    createDroidPlayableBeatmap(
+        mods: ModMap = new ModMap(),
+    ): DroidPlayableBeatmap {
         return new DroidPlayableBeatmap(
             this.createPlayableBeatmap(mods, Modes.droid),
             mods,
@@ -292,15 +295,15 @@ export class Beatmap implements IBeatmap {
      * @param mods The `Mod`s to apply to the `Beatmap`. Defaults to No Mod.
      * @return The constructed `OsuPlayableBeatmap`.
      */
-    createOsuPlayableBeatmap(mods: Mod[] = []): OsuPlayableBeatmap {
+    createOsuPlayableBeatmap(mods: ModMap = new ModMap()): OsuPlayableBeatmap {
         return new OsuPlayableBeatmap(
             this.createPlayableBeatmap(mods, Modes.osu),
             mods,
         );
     }
 
-    private createPlayableBeatmap(mods: Mod[], mode: Modes): Beatmap {
-        if (this.mode === mode && mods.length === 0) {
+    private createPlayableBeatmap(mods: ModMap, mode: Modes): Beatmap {
+        if (this.mode === mode && mods.size === 0) {
             // Beatmap is already in a playable state.
             return this;
         }

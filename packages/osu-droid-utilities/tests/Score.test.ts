@@ -33,8 +33,8 @@ test("Test fill information", () => {
     expect(score.date.getTime()).toBe(1639619724 * 1000);
     expect(score.id).toBe(1);
     expect(score.hash).toBe("70b1226af3d8b76d859982b505c4ce11");
-    expect(score.mods.length).toBe(3);
-    expect(score.mods[0]).toBeInstanceOf(ModHidden);
+    expect(score.mods.size).toBe(3);
+    expect(score.mods.has(ModHidden)).toBe(true);
     expect(score.rank).toBe("S");
     expect(score.pp).toBe(15.3);
     expect(score.score).toBe(67030952);

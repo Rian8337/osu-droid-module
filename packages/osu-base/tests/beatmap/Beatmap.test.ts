@@ -6,6 +6,7 @@ import {
     ModDifficultyAdjust,
     ModHardRock,
     ModHidden,
+    ModMap,
     ModReallyEasy,
     ModRelax,
     ModScoreV2,
@@ -502,8 +503,14 @@ describe("Test playable beatmap creation", () => {
     describe("Test playable beatmap creation with options", () => {
         describe("osu!droid game mode", () => {
             const getConvertedFirstObject = (...mods: Mod[]) => {
+                const modMap = new ModMap();
+
+                for (const mod of mods) {
+                    modMap.set(mod);
+                }
+
                 const playableBeatmap =
-                    beatmap.createDroidPlayableBeatmap(mods);
+                    beatmap.createDroidPlayableBeatmap(modMap);
 
                 return playableBeatmap.hitObjects.objects[0];
             };
@@ -577,7 +584,14 @@ describe("Test playable beatmap creation", () => {
 
         describe("osu!standard game mode", () => {
             const getConvertedFirstObject = (...mods: Mod[]) => {
-                const playableBeatmap = beatmap.createOsuPlayableBeatmap(mods);
+                const modMap = new ModMap();
+
+                for (const mod of mods) {
+                    modMap.set(mod);
+                }
+
+                const playableBeatmap =
+                    beatmap.createOsuPlayableBeatmap(modMap);
 
                 return playableBeatmap.hitObjects.objects[0];
             };

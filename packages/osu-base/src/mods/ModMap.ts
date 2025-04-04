@@ -1,9 +1,11 @@
+import { ModUtil } from "../utils/ModUtil";
 import { Mod } from "./Mod";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModEasy } from "./ModEasy";
 import { ModHardRock } from "./ModHardRock";
 import { ModReallyEasy } from "./ModReallyEasy";
 import { ModSmallCircle } from "./ModSmallCircle";
+import { SerializedMod } from "./SerializedMod";
 
 /**
  * A map that stores `Mod`s depending on their type.
@@ -11,6 +13,13 @@ import { ModSmallCircle } from "./ModSmallCircle";
  * This also has additional utilities to eliminate unnecessary `Mod`s.
  */
 export class ModMap extends Map<typeof Mod, Mod> {
+    /**
+     * Whether this map is empty.
+     */
+    get isEmpty(): boolean {
+        return this.size === 0;
+    }
+
     constructor(iterable?: readonly (readonly [typeof Mod, Mod])[] | null) {
         if (Array.isArray(iterable)) {
             for (const [key, value] of iterable) {
@@ -42,7 +51,7 @@ export class ModMap extends Map<typeof Mod, Mod> {
      * Inserts the given `Mod` into this map.
      *
      * @param value The `Mod` to insert.
-     * @returns The existing `Mod` if it was already present, or `null` if it was not.
+     * @returns The existing `Mod` instance if it was already present, or `null` if it was not.
      */
     override set<T extends Mod>(value: T): T | null;
 
@@ -92,5 +101,12 @@ export class ModMap extends Map<typeof Mod, Mod> {
         super.set(key, value);
 
         return existing ?? null;
+    }
+
+    /**
+     * Serializes all `Mod`s that are in this map.
+     */
+    serializeMods(): SerializedMod[] {
+        return ModUtil.serializeMods(this.values());
     }
 }

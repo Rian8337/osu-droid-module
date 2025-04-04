@@ -6,7 +6,6 @@ import {
     DroidHitWindow,
     DroidLegacyModConverter,
     DroidPlayableBeatmap,
-    IModApplicableToDroid,
     MathUtils,
     Mod,
     ModAuto,
@@ -17,6 +16,7 @@ import {
     ModHalfTime,
     ModHardRock,
     ModHidden,
+    ModMap,
     ModNightCore,
     ModNoFail,
     ModOldNightCore,
@@ -223,9 +223,7 @@ export class ReplayAnalyzer {
 
         const mods = this.data.isReplayV3()
             ? this.data.convertedMods
-            : this.difficultyAttributes?.mods.filter((m) =>
-                  m.isApplicableToDroid(),
-              ) ?? [];
+            : this.difficultyAttributes?.mods ?? new ModMap();
 
         const adjustedDifficulty = new BeatmapDifficulty(
             this.beatmap.difficulty,
@@ -237,7 +235,7 @@ export class ReplayAnalyzer {
             mods,
         );
 
-        const mehWindow = mods.some((m) => m instanceof ModPrecise)
+        const mehWindow = mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(adjustedDifficulty.od).mehWindow
             : new DroidHitWindow(adjustedDifficulty.od).mehWindow;
 
@@ -433,7 +431,7 @@ export class ReplayAnalyzer {
             hitObjectData: [],
             accuracy: new Accuracy({ n300: 0 }),
             rank: "D",
-            convertedMods: [],
+            convertedMods: new ModMap(),
             hit100k: 0,
             hit300k: 0,
             isFullCombo: false,
@@ -459,7 +457,7 @@ export class ReplayAnalyzer {
             if (resultObject.replayVersion >= 7) {
                 resultObject.convertedMods = ModUtil.deserializeMods(
                     rawObject[6],
-                ) as (Mod & IModApplicableToDroid)[];
+                );
             } else {
                 resultObject.convertedMods = this.convertDroidMods(
                     resultObject.replayVersion,
@@ -535,41 +533,41 @@ export class ReplayAnalyzer {
     private convertDroidMods(
         replayVersion: number,
         replayMods: string[],
-    ): (Mod & IModApplicableToDroid)[] {
+    ): ModMap {
         const replayModsConstants = {
-            MOD_AUTO: new ModAuto(),
-            MOD_AUTOPILOT: new ModAutopilot(),
-            MOD_NOFAIL: new ModNoFail(),
-            MOD_EASY: new ModEasy(),
-            MOD_HIDDEN: new ModHidden(),
-            MOD_TRACEABLE: new ModTraceable(),
-            MOD_HARDROCK: new ModHardRock(),
-            MOD_DOUBLETIME: new ModDoubleTime(),
-            MOD_HALFTIME: new ModHalfTime(),
-            MOD_NIGHTCORE: new ModNightCore(),
-            MOD_PRECISE: new ModPrecise(),
-            MOD_SMALLCIRCLE: new ModSmallCircle(),
-            MOD_REALLYEASY: new ModReallyEasy(),
-            MOD_RELAX: new ModRelax(),
-            MOD_PERFECT: new ModPerfect(),
-            MOD_SUDDENDEATH: new ModSuddenDeath(),
-            MOD_SCOREV2: new ModScoreV2(),
-            MOD_FLASHLIGHT: new ModFlashlight(),
-        };
+            MOD_AUTO: ModAuto,
+            MOD_AUTOPILOT: ModAutopilot,
+            MOD_NOFAIL: ModNoFail,
+            MOD_EASY: ModEasy,
+            MOD_HIDDEN: ModHidden,
+            MOD_TRACEABLE: ModTraceable,
+            MOD_HARDROCK: ModHardRock,
+            MOD_DOUBLETIME: ModDoubleTime,
+            MOD_HALFTIME: ModHalfTime,
+            MOD_NIGHTCORE: ModNightCore,
+            MOD_PRECISE: ModPrecise,
+            MOD_SMALLCIRCLE: ModSmallCircle,
+            MOD_REALLYEASY: ModReallyEasy,
+            MOD_RELAX: ModRelax,
+            MOD_PERFECT: ModPerfect,
+            MOD_SUDDENDEATH: ModSuddenDeath,
+            MOD_SCOREV2: ModScoreV2,
+            MOD_FLASHLIGHT: ModFlashlight,
+        } as const;
 
-        const mods: (Mod & IModApplicableToDroid)[] = [];
+        const map = new ModMap();
 
         for (const mod of replayMods) {
-            for (const property in replayModsConstants) {
+            for (const property in Object(replayModsConstants)) {
                 if (!mod.includes(property)) {
                     continue;
                 }
 
                 if (replayVersion <= 3 && mod === "MOD_NIGHTCORE") {
                     // In replay v3, the NightCore mod is bugged. See ModOldNightCore's description.
-                    mods.push(new ModOldNightCore());
+                    map.set(new ModOldNightCore());
                 } else {
-                    mods.push(
+                    map.set<Mod>(
                         replayModsConstants[
                             property as keyof typeof replayModsConstants
                         ],
@@ -580,7 +578,7 @@ export class ReplayAnalyzer {
             }
         }
 
-        return mods;
+        return map;
     }
 
     private parseMovementData(
@@ -730,10 +728,11 @@ export class ReplayAnalyzer {
             resultObject.accuracy.n100 +
             resultObject.accuracy.n50 +
             resultObject.accuracy.nmiss;
+
         const isHidden =
-            resultObject.convertedMods?.some(
-                (m) => m instanceof ModHidden || m instanceof ModFlashlight,
-            ) ?? false;
+            (resultObject.convertedMods?.has(ModHidden) ||
+                resultObject.convertedMods?.has(ModFlashlight)) ??
+            false;
 
         const hit300Ratio = resultObject.accuracy.n300 / totalHits;
 
@@ -773,7 +772,7 @@ export class ReplayAnalyzer {
 
         const mods = this.data.isReplayV3()
             ? this.data.convertedMods
-            : this.difficultyAttributes?.mods ?? [];
+            : this.difficultyAttributes?.mods;
 
         return this.beatmap.createDroidPlayableBeatmap(mods);
     }

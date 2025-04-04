@@ -1,4 +1,4 @@
-import { Mod, IModApplicableToDroid } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 import { ReplayData } from "./ReplayData";
 import { ReplayInformation } from "./ReplayInformation";
 
@@ -38,7 +38,7 @@ export class ReplayV3Data extends ReplayData {
     /**
      * Enabled modifications during the play that have been converted to their respective `Mod` instances.
      */
-    readonly convertedMods: (Mod & IModApplicableToDroid)[];
+    readonly convertedMods: ModMap;
 
     constructor(values: ReplayInformation) {
         super(values);

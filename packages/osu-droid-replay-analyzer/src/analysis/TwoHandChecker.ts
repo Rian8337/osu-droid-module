@@ -105,13 +105,13 @@ export class TwoHandChecker {
             new OsuHitWindow(attributes.overallDifficulty).greatWindow *
             attributes.clockRate;
 
-        this.hitWindow = attributes.mods.some((m) => m instanceof ModPrecise)
+        this.hitWindow = attributes.mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(
                   PreciseDroidHitWindow.greatWindowToOD(greatWindow),
               )
             : new DroidHitWindow(DroidHitWindow.greatWindowToOD(greatWindow));
 
-        this.isHardRock = attributes.mods.some((m) => m instanceof ModHardRock);
+        this.isHardRock = attributes.mods.has(ModHardRock);
         // this.csvString = `Mods,${
         //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
         // }\nCombo,${data.maxCombo}\nAccuracy,"${(

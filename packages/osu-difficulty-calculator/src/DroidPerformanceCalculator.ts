@@ -385,16 +385,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the accuracy performance value of the beatmap.
      */
     private calculateAccuracyValue(): number {
-        if (
-            this.mods.some((m) => m instanceof ModRelax) ||
-            this.totalSuccessfulHits === 0
-        ) {
+        if (this.mods.has(ModRelax) || this.totalSuccessfulHits === 0) {
             return 0;
         }
 
         let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
 
-        const ncircles = this.mods.some((m) => m instanceof ModScoreV2)
+        const ncircles = this.mods.has(ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
             : this.difficultyAttributes.hitCircleCount;
 
@@ -418,7 +415,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             Math.max(0, this.effectiveMissCount - 1),
         );
 
-        if (this.mods.some((m) => m instanceof ModFlashlight)) {
+        if (this.mods.has(ModFlashlight)) {
             accuracyValue *= 1.02;
         }
 
@@ -429,7 +426,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the flashlight performance value of the beatmap.
      */
     private calculateFlashlightValue(): number {
-        if (!this.mods.some((m) => m instanceof ModFlashlight)) {
+        if (!this.mods.has(ModFlashlight)) {
             return 0;
         }
 
@@ -787,7 +784,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             this.difficultyAttributes.overallDifficulty,
         ).greatWindow;
 
-        if (this.mods.some((m) => m instanceof ModPrecise)) {
+        if (this.mods.has(ModPrecise)) {
             return new PreciseDroidHitWindow(
                 PreciseDroidHitWindow.greatWindowToOD(
                     hitWindow300 * this.difficultyAttributes.clockRate,

@@ -1,7 +1,6 @@
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { IModApplicableToOsuStable } from "../mods/IModApplicableToOsuStable";
 import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
@@ -30,21 +29,7 @@ import { SerializedMod } from "../mods/SerializedMod";
 import { DroidHitWindow } from "../beatmap/DroidHitWindow";
 import { OsuHitWindow } from "../beatmap/OsuHitWindow";
 import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
-
-/**
- * Options for parsing mods.
- */
-export interface ModParseOptions {
-    /**
-     * Whether to check for duplicate mods. Defaults to `true`.
-     */
-    checkDuplicate?: boolean;
-
-    /**
-     * Whether to check for incompatible mods. Defaults to `true`.
-     */
-    checkIncompatible?: boolean;
-}
+import { ModMap } from "../mods/ModMap";
 
 /**
  * Utilities for mods.
@@ -93,27 +78,24 @@ export abstract class ModUtil {
      * Gets a list of mods from a PC modbits.
      *
      * @param modbits The modbits.
-     * @param options Options for parsing behavior.
+     * @returns The list of mods.
      */
-    static pcModbitsToMods(
-        modbits: number,
-        options?: ModParseOptions,
-    ): (Mod & IModApplicableToOsuStable)[] {
-        if (modbits === 0) {
-            return [];
-        }
+    static pcModbitsToMods(modbits: number): ModMap {
+        const map = new ModMap();
 
-        const mods: (Mod & IModApplicableToOsuStable)[] = [];
+        if (modbits === 0) {
+            return map;
+        }
 
         for (const modType of this.allMods.values()) {
             const mod = new (modType as new () => Mod)();
 
             if (mod.isApplicableToOsuStable() && (mod.bitwise & modbits) > 0) {
-                mods.push(mod);
+                map.set(mod);
             }
         }
 
-        return this.processParsingOptions(mods, options);
+        return map;
     }
 
     /**
@@ -138,8 +120,8 @@ export abstract class ModUtil {
      * @param mods The list of `SerializedMod`s to deserialize.
      * @returns The deserialized list of `Mod`s.
      */
-    static deserializeMods(mods: Iterable<SerializedMod>): Mod[] {
-        const deserializedMods: Mod[] = [];
+    static deserializeMods(mods: Iterable<SerializedMod>): ModMap {
+        const map = new ModMap();
 
         for (const serializedMod of mods) {
             const modType = this.allMods.get(serializedMod.acronym) as
@@ -156,20 +138,20 @@ export abstract class ModUtil {
                 mod.copySettings(serializedMod);
             }
 
-            deserializedMods.push(mod);
+            map.set(mod);
         }
 
-        return deserializedMods;
+        return map;
     }
 
     /**
      * Gets a list of mods from a PC mod string, such as "HDHR".
      *
      * @param str The string.
-     * @param options Options for parsing behavior.
+     * @returns The list of mods.
      */
-    static pcStringToMods(str: string, options?: ModParseOptions): Mod[] {
-        const finalMods: Mod[] = [];
+    static pcStringToMods(str: string): ModMap {
+        const map = new ModMap();
 
         str = str.toLowerCase();
 
@@ -179,7 +161,7 @@ export abstract class ModUtil {
             for (const acronym of this.allMods.keys()) {
                 if (str.startsWith(acronym.toLowerCase())) {
                     const modType = this.allMods.get(acronym) as new () => Mod;
-                    finalMods.push(new modType());
+                    map.set(modType);
                     nchars = acronym.length;
                     break;
                 }
@@ -188,23 +170,27 @@ export abstract class ModUtil {
             str = str.slice(nchars);
         }
 
-        return this.processParsingOptions(finalMods, options);
+        return map;
     }
 
     /**
-     * Converts an array of mods into its osu!standard string counterpart.
+     * Converts a list of mods into its osu!standard string counterpart.
      *
      * @param mods The array of mods to convert.
      * @returns The string representing the mods in osu!standard.
      */
-    static modsToOsuString(mods: Mod[]): string {
-        return mods.reduce((a, v) => {
-            if (v instanceof ModDifficultyAdjust) {
-                return a;
+    static modsToOsuString(mods: Iterable<Mod>): string {
+        let str = "";
+
+        for (const mod of mods) {
+            if (mod instanceof ModDifficultyAdjust) {
+                continue;
             }
 
-            return a + v.acronym;
-        }, "");
+            str += mod.acronym;
+        }
+
+        return str;
     }
 
     /**
@@ -229,42 +215,6 @@ export abstract class ModUtil {
     }
 
     /**
-     * Checks for mods that are duplicated.
-     *
-     * @param mods The mods to check for.
-     * @returns Mods that have been filtered.
-     */
-    static checkDuplicateMods<T extends Mod>(mods: T[]): T[] {
-        return Array.from(new Set(mods));
-    }
-
-    /**
-     * Checks for mods that are incompatible with each other.
-     *
-     * @param mods The mods to check for.
-     * @returns Mods that have been filtered.
-     */
-    static checkIncompatibleMods<T extends Mod>(mods: T[]): T[] {
-        for (let i = 0; i < mods.length; ++i) {
-            const mod = mods[i];
-
-            for (const incompatibleMod of mod.incompatibleMods) {
-                if (
-                    mods.some((m) => m !== mod && m instanceof incompatibleMod)
-                ) {
-                    mods = mods.filter(
-                        (m) =>
-                            // Keep the mod itself.
-                            m === mod || !(m instanceof incompatibleMod),
-                    );
-                }
-            }
-        }
-
-        return mods;
-    }
-
-    /**
      * Removes speed-changing mods from an array of mods.
      *
      * @param mods The array of mods.
@@ -279,31 +229,34 @@ export abstract class ModUtil {
      *
      * @param difficulty The `BeatmapDifficulty` to apply the `Mod`s to.
      * @param mode The game mode to apply the `Mod`s for.
-     * @param mods The selected `Mod`s.
-     * @param withRateChange Whether to apply rate changes.
-     * @param oldStatistics Whether to enforce old statistics. Some `Mod`s behave differently with this flag.
+     * @param mods The selected `Mod`s. Defaults to No Mod.
+     * @param withRateChange Whether to apply rate changes. Defaults to `false`.
      */
     static applyModsToBeatmapDifficulty(
         difficulty: BeatmapDifficulty,
         mode: Modes,
-        mods: Mod[],
+        mods?: ModMap,
         withRateChange = false,
     ) {
-        for (const mod of mods) {
-            if (mod.isApplicableToDifficulty()) {
-                mod.applyToDifficulty(mode, difficulty);
+        if (mods !== undefined) {
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToDifficulty()) {
+                    mod.applyToDifficulty(mode, difficulty);
+                }
             }
         }
 
         let rate = 1;
 
-        for (const mod of mods) {
-            if (mod.isApplicableToDifficultyWithSettings()) {
-                mod.applyToDifficultyWithSettings(mode, difficulty, mods);
-            }
+        if (mods !== undefined) {
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToDifficultyWithSettings()) {
+                    mod.applyToDifficultyWithSettings(mode, difficulty, mods);
+                }
 
-            if (mod.isApplicableToTrackRate()) {
-                rate = mod.applyToRate(0, rate);
+                if (mod.isApplicableToTrackRate()) {
+                    rate = mod.applyToRate(0, rate);
+                }
             }
         }
 
@@ -328,7 +281,7 @@ export abstract class ModUtil {
 
         switch (mode) {
             case Modes.droid:
-                if (mods.some((m) => m instanceof ModPrecise)) {
+                if (mods?.has(ModPrecise)) {
                     const hitWindow = new PreciseDroidHitWindow(difficulty.od);
 
                     difficulty.od = PreciseDroidHitWindow.greatWindowToOD(
@@ -373,27 +326,5 @@ export abstract class ModUtil {
         }
 
         return rate;
-    }
-
-    /**
-     * Processes parsing options.
-     *
-     * @param mods The mods to process.
-     * @param options The options to process.
-     * @returns The processed mods.
-     */
-    private static processParsingOptions<T extends Mod>(
-        mods: T[],
-        options?: ModParseOptions,
-    ): T[] {
-        if (options?.checkDuplicate !== false) {
-            mods = this.checkDuplicateMods(mods);
-        }
-
-        if (options?.checkIncompatible !== false) {
-            mods = this.checkIncompatibleMods(mods);
-        }
-
-        return mods;
     }
 }

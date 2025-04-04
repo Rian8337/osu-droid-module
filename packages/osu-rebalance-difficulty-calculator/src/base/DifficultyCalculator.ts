@@ -10,6 +10,7 @@ import {
     ModHalfTime,
     ModHardRock,
     ModHidden,
+    ModMap,
     ModNightCore,
     ModRelax,
     PlayableBeatmap,
@@ -70,9 +71,9 @@ export abstract class DifficultyCalculator<
      * @param mods The `Mod`s to apply to the beatmap. Defaults to No Mod.
      * @returns A `DifficultyAttributes` object describing the difficulty of the `Beatmap`.
      */
-    calculate(beatmap: Beatmap, mods?: Mod[]): TAttributes;
+    calculate(beatmap: Beatmap, mods?: ModMap): TAttributes;
 
-    calculate(beatmap: Beatmap | TBeatmap, mods: Mod[] = []): TAttributes {
+    calculate(beatmap: Beatmap | TBeatmap, mods?: ModMap): TAttributes {
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
                 ? beatmap
@@ -109,11 +110,11 @@ export abstract class DifficultyCalculator<
      * @param mods The `Mod`s to apply to the beatmap. Defaults to No Mod.
      * @returns The strain peaks of the `Beatmap`.
      */
-    calculateStrainPeaks(beatmap: Beatmap, mods: Mod[]): StrainPeaks;
+    calculateStrainPeaks(beatmap: Beatmap, mods?: ModMap): StrainPeaks;
 
     calculateStrainPeaks(
         beatmap: Beatmap | TBeatmap,
-        mods: Mod[] = [],
+        mods?: ModMap,
     ): StrainPeaks {
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
@@ -185,7 +186,7 @@ export abstract class DifficultyCalculator<
      */
     protected abstract createPlayableBeatmap(
         beatmap: Beatmap,
-        mods: Mod[],
+        mods?: ModMap,
     ): TBeatmap;
 
     /**

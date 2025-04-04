@@ -1,8 +1,8 @@
 import {
     MathUtils,
-    Mod,
     Modes,
     ModHidden,
+    ModMap,
     PlaceableHitObject,
     Precision,
     Slider,
@@ -246,7 +246,7 @@ export abstract class DifficultyHitObject {
      * @param mods The mods used.
      * @returns The opacity of the hitobject at the given time.
      */
-    opacityAt(time: number, mods: readonly Mod[]): number {
+    opacityAt(time: number, mods: ModMap): number {
         if (time > this.object.startTime) {
             // Consider a hitobject as being invisible when its start time is passed.
             // In reality the hitobject will be visible beyond its start time up until its hittable window has passed,
@@ -257,7 +257,7 @@ export abstract class DifficultyHitObject {
         const fadeInStartTime = this.object.startTime - this.object.timePreempt;
         const fadeInDuration = this.object.timeFadeIn;
 
-        if (mods.some((m) => m instanceof ModHidden)) {
+        if (mods.has(ModHidden)) {
             const fadeOutStartTime = fadeInStartTime + fadeInDuration;
             const fadeOutDuration =
                 this.object.timePreempt * ModHidden.fadeOutDurationMultiplier;

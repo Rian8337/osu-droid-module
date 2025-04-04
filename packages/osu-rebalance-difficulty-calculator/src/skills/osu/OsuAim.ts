@@ -1,7 +1,7 @@
-import { OsuSkill } from "./OsuSkill";
-import { MathUtils, Mod, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
 import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
+import { OsuSkill } from "./OsuSkill";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -19,7 +19,7 @@ export class OsuAim extends OsuSkill {
 
     readonly withSliders: boolean;
 
-    constructor(mods: readonly Mod[], withSliders: boolean) {
+    constructor(mods: ModMap, withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;

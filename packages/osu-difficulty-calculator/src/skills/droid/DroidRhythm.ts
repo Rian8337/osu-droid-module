@@ -1,7 +1,7 @@
+import { ModMap, ModScoreV2 } from "@rian8337/osu-base";
 import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
-import { DroidSkill } from "./DroidSkill";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { Mod, ModScoreV2 } from "@rian8337/osu-base";
+import { DroidSkill } from "./DroidSkill";
 
 /**
  * Represents the skill required to properly follow a beatmap's rhythm.
@@ -17,10 +17,10 @@ export class DroidRhythm extends DroidSkill {
     private currentRhythmStrain = 0;
     private currentRhythmMultiplier = 1;
 
-    constructor(mods: readonly Mod[]) {
+    constructor(mods: ModMap) {
         super(mods);
 
-        this.useSliderAccuracy = mods.some((m) => m instanceof ModScoreV2);
+        this.useSliderAccuracy = mods.has(ModScoreV2);
     }
 
     protected override strainValueAt(

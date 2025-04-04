@@ -3,6 +3,7 @@ import {
     BeatmapDifficulty,
     Circle,
     ModHidden,
+    ModMap,
     Modes,
     ObjectTypes,
     PathType,
@@ -81,29 +82,32 @@ test("Test next index", () => {
 
 describe("Test object opacity", () => {
     const object = createDifficultyHitObjects()[0];
-    const mods = [new ModHidden()];
+
+    const map = new ModMap();
+    const hiddenMap = new ModMap();
+    hiddenMap.set(new ModHidden());
 
     describe("Before and during hit time", () => {
         test("Without Hidden mod", () => {
-            expect(object.opacityAt(400, [])).toBe(0);
-            expect(object.opacityAt(600, [])).toBeCloseTo(0.5);
-            expect(object.opacityAt(800, [])).toBe(1);
-            expect(object.opacityAt(1000, [])).toBe(1);
+            expect(object.opacityAt(400, map)).toBe(0);
+            expect(object.opacityAt(600, map)).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, map)).toBe(1);
+            expect(object.opacityAt(1000, map)).toBe(1);
         });
 
         test("With Hidden mod", () => {
-            expect(object.opacityAt(400, mods)).toBe(0);
-            expect(object.opacityAt(600, mods)).toBeCloseTo(0.5);
-            expect(object.opacityAt(800, mods)).toBe(1);
-            expect(object.opacityAt(900, mods)).toBeCloseTo(0.44);
-            expect(object.opacityAt(1000, mods)).toBe(0);
+            expect(object.opacityAt(400, hiddenMap)).toBe(0);
+            expect(object.opacityAt(600, hiddenMap)).toBeCloseTo(0.5);
+            expect(object.opacityAt(800, hiddenMap)).toBe(1);
+            expect(object.opacityAt(900, hiddenMap)).toBeCloseTo(0.44);
+            expect(object.opacityAt(1000, hiddenMap)).toBe(0);
         });
     });
 
     test("After hit time", () => {
-        expect(object.opacityAt(1100, [])).toBe(0);
-        expect(object.opacityAt(1100, [])).toBe(0);
-        expect(object.opacityAt(1100, mods)).toBe(0);
-        expect(object.opacityAt(1100, mods)).toBe(0);
+        expect(object.opacityAt(1100, map)).toBe(0);
+        expect(object.opacityAt(1100, map)).toBe(0);
+        expect(object.opacityAt(1100, hiddenMap)).toBe(0);
+        expect(object.opacityAt(1100, hiddenMap)).toBe(0);
     });
 });
