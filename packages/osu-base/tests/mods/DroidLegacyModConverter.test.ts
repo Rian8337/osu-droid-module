@@ -12,25 +12,35 @@ test("Test legacy mod conversion", () => {
     const difficulty = new BeatmapDifficulty();
     difficulty.cs = 5;
 
-    expect(DroidLegacyModConverter.convert()).toEqual([]);
-    expect(DroidLegacyModConverter.convert("r")).toEqual([new ModHardRock()]);
+    expect(DroidLegacyModConverter.convert().size).toBe(0);
 
-    expect(DroidLegacyModConverter.convert("h|x1.25")).toEqual([
-        new ModHidden(),
-        new ModCustomSpeed(1.25),
-    ]);
+    expect(
+        DroidLegacyModConverter.convert("r").get(ModHardRock),
+    ).toBeInstanceOf(ModHardRock);
 
-    expect(DroidLegacyModConverter.convert("h|x1.25|CS8")).toEqual([
-        new ModHidden(),
-        new ModCustomSpeed(1.25),
-        new ModDifficultyAdjust({ cs: 8 }),
-    ]);
+    let map = DroidLegacyModConverter.convert("h|x1.25");
 
-    expect(DroidLegacyModConverter.convert("m")).toEqual([
-        new ModSmallCircle(),
-    ]);
+    expect(map.size).toBe(2);
+    expect(map.get(ModHidden)).toBeInstanceOf(ModHidden);
+    expect(map.get(ModCustomSpeed)).toBeInstanceOf(ModCustomSpeed);
+    expect(map.get(ModCustomSpeed)?.trackRateMultiplier).toBe(1.25);
 
-    expect(DroidLegacyModConverter.convert("m", difficulty)).toEqual([
-        new ModDifficultyAdjust({ cs: difficulty.cs + 4 }),
-    ]);
+    map = DroidLegacyModConverter.convert("h|x1.25|CS8");
+
+    expect(map.size).toBe(3);
+    expect(map.get(ModHidden)).toBeInstanceOf(ModHidden);
+    expect(map.get(ModCustomSpeed)).toBeInstanceOf(ModCustomSpeed);
+    expect(map.get(ModCustomSpeed)?.trackRateMultiplier).toBe(1.25);
+    expect(map.get(ModDifficultyAdjust)).toBeInstanceOf(ModDifficultyAdjust);
+    expect(map.get(ModDifficultyAdjust)?.cs).toBe(8);
+
+    expect(
+        DroidLegacyModConverter.convert("m").get(ModSmallCircle),
+    ).toBeInstanceOf(ModSmallCircle);
+
+    expect(
+        DroidLegacyModConverter.convert("m", difficulty).get(
+            ModDifficultyAdjust,
+        ),
+    ).toEqual(new ModDifficultyAdjust({ cs: difficulty.cs + 4 }));
 });

@@ -11,6 +11,7 @@ import { ModFlashlight } from "./ModFlashlight";
 import { ModHalfTime } from "./ModHalfTime";
 import { ModHardRock } from "./ModHardRock";
 import { ModHidden } from "./ModHidden";
+import { ModMap } from "./ModMap";
 import { ModNightCore } from "./ModNightCore";
 import { ModNoFail } from "./ModNoFail";
 import { ModPerfect } from "./ModPerfect";
@@ -60,21 +61,18 @@ export abstract class DroidLegacyModConverter {
      * @param difficulty The `BeatmapDifficulty` to use for `IMigratableDroidMod` migrations. When omitted, `IMigratableDroidMod`s will not be migrated.
      * @returns An array of `Mod`s.
      */
-    static convert(
-        str?: string,
-        difficulty?: BeatmapDifficulty,
-    ): (Mod & IModApplicableToDroid)[] {
+    static convert(str?: string, difficulty?: BeatmapDifficulty): ModMap {
+        const map = new ModMap();
+
         if (!str) {
-            return [];
+            return map;
         }
 
         const data = str.split("|");
 
         if (!data[0]) {
-            return [];
+            return map;
         }
-
-        const mods: (Mod & IModApplicableToDroid)[] = [];
 
         for (const c of data[0]) {
             const modType = this.droidLegacyStorableMods.get(c);
@@ -86,29 +84,26 @@ export abstract class DroidLegacyModConverter {
             const mod = new modType();
 
             if (mod.isMigratableDroidMod() && difficulty) {
-                mods.push(mod.migrateDroidMod(difficulty));
+                map.set(mod.migrateDroidMod(difficulty));
             } else {
-                mods.push(mod);
+                map.set(mod);
             }
         }
 
         if (data.length > 1) {
-            this.parseExtraModString(mods, data.slice(1));
+            this.parseExtraModString(map, data.slice(1));
         }
 
-        return mods;
+        return map;
     }
 
     /**
      * Parses the extra strings of a mod string.
      *
-     * @param mods The current `Mod`s.
+     * @param map The current `Mod`s.
      * @param extraStrings The extra strings to parse.
      */
-    static parseExtraModString(
-        mods: (Mod & IModApplicableToDroid)[],
-        extraStrings: string[],
-    ) {
+    static parseExtraModString(map: ModMap, extraStrings: string[]) {
         let customCS: number | undefined;
         let customAR: number | undefined;
         let customOD: number | undefined;
@@ -135,14 +130,12 @@ export abstract class DroidLegacyModConverter {
 
                 // FL follow delay
                 case s.startsWith("FLD"): {
-                    let flashlight = mods.find(
-                        (m) => m instanceof ModFlashlight,
-                    ) as ModFlashlight | undefined;
+                    let flashlight = map.get(ModFlashlight);
 
                     if (!flashlight) {
                         flashlight = new ModFlashlight();
 
-                        mods.push(flashlight);
+                        map.set(flashlight);
                     }
 
                     flashlight.followDelay = parseFloat(s.slice(3));
@@ -152,14 +145,12 @@ export abstract class DroidLegacyModConverter {
 
                 // Speed multiplier
                 case s.startsWith("x"): {
-                    let customSpeed = mods.find(
-                        (m) => m instanceof ModCustomSpeed,
-                    ) as ModCustomSpeed | undefined;
+                    let customSpeed = map.get(ModCustomSpeed);
 
                     if (!customSpeed) {
                         customSpeed = new ModCustomSpeed();
 
-                        mods.push(customSpeed);
+                        map.set(customSpeed);
                     }
 
                     customSpeed.trackRateMultiplier = parseFloat(s.slice(1));
@@ -175,7 +166,7 @@ export abstract class DroidLegacyModConverter {
             customOD !== undefined ||
             customHP !== undefined
         ) {
-            mods.push(
+            map.set(
                 new ModDifficultyAdjust({
                     cs: customCS,
                     ar: customAR,
