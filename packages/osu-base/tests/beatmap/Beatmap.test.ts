@@ -305,30 +305,47 @@ describe("Test osu!droid max score calculation", () => {
     });
 
     test("With mods", () => {
-        expect(beatmap.maxDroidScore([new ModHidden()])).toBe(773);
+        const map = new ModMap();
+        map.set(new ModHidden());
+
+        expect(beatmap.maxDroidScore(map)).toBe(773);
     });
 
     test("With CS > 1x", () => {
-        expect(beatmap.maxDroidScore([new ModCustomSpeed(1.25)])).toBe(773);
+        const map = new ModMap();
+        map.set(new ModCustomSpeed(1.25));
+
+        expect(beatmap.maxDroidScore(map)).toBe(773);
     });
 
     test("With CS < 1x", () => {
-        expect(beatmap.maxDroidScore([new ModCustomSpeed(0.75)])).toBe(219);
+        const map = new ModMap();
+        map.set(new ModCustomSpeed(0.75));
+
+        expect(beatmap.maxDroidScore(map)).toBe(219);
     });
 
     test("With unranked mods", () => {
-        expect(beatmap.maxDroidScore([new ModRelax()])).toBe(0);
+        const map = new ModMap();
+        map.set(new ModRelax());
+
+        expect(beatmap.maxDroidScore(map)).toBe(0);
     });
 
     describe("With ScoreV2", () => {
         test("Without extra mods", () => {
-            expect(beatmap.maxDroidScore([new ModScoreV2()])).toBe(1e6);
+            const map = new ModMap();
+            map.set(new ModScoreV2());
+
+            expect(beatmap.maxDroidScore(map)).toBe(1e6);
         });
 
         test("With extra mods", () => {
-            expect(
-                beatmap.maxDroidScore([new ModScoreV2(), new ModHidden()]),
-            ).toBe(1.06e6);
+            const map = new ModMap();
+            map.set(new ModScoreV2());
+            map.set(new ModHidden());
+
+            expect(beatmap.maxDroidScore(map)).toBe(1.06e6);
         });
     });
 });
@@ -403,20 +420,28 @@ describe("Test osu!standard max score calculation", () => {
     });
 
     test("With mods", () => {
-        expect(constructBeatmap().maxOsuScore([new ModHidden()])).toBe(300);
+        const map = new ModMap();
+        map.set(new ModHidden());
+
+        expect(constructBeatmap().maxOsuScore(map)).toBe(300);
     });
 
     describe("With ScoreV2", () => {
         const beatmap = constructBeatmap();
 
         test("Without extra mods", () => {
-            expect(beatmap.maxOsuScore([new ModScoreV2()])).toBe(1e6);
+            const map = new ModMap();
+            map.set(new ModScoreV2());
+
+            expect(beatmap.maxOsuScore(map)).toBe(1e6);
         });
 
         test("With extra mods", () => {
-            expect(
-                beatmap.maxOsuScore([new ModScoreV2(), new ModHidden()]),
-            ).toBe(1.06e6);
+            const map = new ModMap();
+            map.set(new ModScoreV2());
+            map.set(new ModHidden());
+
+            expect(beatmap.maxOsuScore(map)).toBe(1.06e6);
         });
     });
 });
