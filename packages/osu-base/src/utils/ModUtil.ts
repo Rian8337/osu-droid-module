@@ -1,3 +1,6 @@
+import { DroidHitWindow } from "../beatmap/DroidHitWindow";
+import { OsuHitWindow } from "../beatmap/OsuHitWindow";
+import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
@@ -12,6 +15,7 @@ import { ModFlashlight } from "../mods/ModFlashlight";
 import { ModHalfTime } from "../mods/ModHalfTime";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModHidden } from "../mods/ModHidden";
+import { ModMap } from "../mods/ModMap";
 import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
 import { ModPerfect } from "../mods/ModPerfect";
@@ -26,10 +30,6 @@ import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
 import { SerializedMod } from "../mods/SerializedMod";
-import { DroidHitWindow } from "../beatmap/DroidHitWindow";
-import { OsuHitWindow } from "../beatmap/OsuHitWindow";
-import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
-import { ModMap } from "../mods/ModMap";
 
 /**
  * Utilities for mods.
