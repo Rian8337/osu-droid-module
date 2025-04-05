@@ -87,7 +87,7 @@ export class Score {
     /**
      * Enabled modifications in the score.
      */
-    readonly mods: ModMap;
+    mods: ModMap;
 
     /**
      * MD5 hash of the play.
