@@ -30,10 +30,10 @@ export abstract class DroidLegacyModConverter {
     /**
      * All `Mod`s that can be stored in the legacy mods format by their respective encode character.
      */
-    private static readonly droidLegacyStorableMods = new Map<
+    static readonly legacyStorableMods: ReadonlyMap<
         string,
         new () => Mod & IModApplicableToDroid
-    >([
+    > = new Map<string, new () => Mod & IModApplicableToDroid>([
         ["a", ModAuto],
         ["b", ModTraceable],
         ["c", ModNightCore],
@@ -75,7 +75,7 @@ export abstract class DroidLegacyModConverter {
         }
 
         for (const c of data[0]) {
-            const modType = this.droidLegacyStorableMods.get(c);
+            const modType = this.legacyStorableMods.get(c);
 
             if (!modType) {
                 continue;
