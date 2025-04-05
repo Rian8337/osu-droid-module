@@ -194,20 +194,23 @@ export abstract class ModUtil {
     }
 
     /**
-     * Converts an array of `Mod`s into an ordered string based on {@link allMods}.
+     * Converts a list of `Mod`s into an ordered string based on {@link allMods}.
      *
-     * @param mods The array of `Mod`s to convert.
+     * @param mods The list of `Mod`s to convert.
      * @returns The string representing the `Mod`s in ordered form.
      */
-    static modsToOrderedString(mods: Iterable<Mod>): string {
+    static modsToOrderedString(mods: Mod[] | ModMap): string {
         const strs: string[] = [];
 
         for (const modType of this.allMods.values()) {
-            for (const mod of mods) {
-                if (mod instanceof modType) {
-                    strs.push(mod.toString());
-                    break;
-                }
+            const mod =
+                mods instanceof ModMap
+                    ? mods.get(modType as new () => Mod)
+                    : mods.find((m) => m instanceof modType);
+
+            if (mod) {
+                strs.push(mod.toString());
+                continue;
             }
         }
 
