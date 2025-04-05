@@ -313,6 +313,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     private isCacheableAttribute(
         attributes: T | CacheableDifficultyAttributes<T>,
     ): attributes is CacheableDifficultyAttributes<T> {
-        return typeof attributes.mods === "string";
+        return Array.isArray(attributes.mods);
     }
 }
