@@ -3,6 +3,7 @@ import {
     DroidAPIRequestBuilder,
     DroidLegacyModConverter,
     ModMap,
+    ModUtil,
     ScoreRank,
 } from "@rian8337/osu-base";
 import { APIScore } from "./APIScore";
@@ -98,6 +99,17 @@ export class Score {
      * The performance points of the play.
      */
     pp: number | null;
+
+    /**
+     * The complete mod string of this score.
+     */
+    get completeModString(): string {
+        if (this.mods.isEmpty) {
+            return `+No Mod`;
+        }
+
+        return `+${ModUtil.modsToOrderedString(this.mods)}`;
+    }
 
     constructor(apiScore: APIScore) {
         this.id = apiScore.id;
