@@ -1,6 +1,5 @@
 import { Modes } from "../constants/Modes";
 import { MathUtils } from "../math/MathUtils";
-import { Mod } from "../mods/Mod";
 import { ModMap } from "../mods/ModMap";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { BeatmapConverter } from "./BeatmapConverter";
@@ -132,19 +131,21 @@ export class Beatmap implements IBeatmap {
      *
      * @param mods The modifications to calculate for. Defaults to No Mod.
      */
-    maxDroidScore(mods: readonly Mod[] = []): number {
+    maxDroidScore(mods?: ModMap): number {
         let scoreMultiplier = 1;
 
-        for (const mod of mods) {
-            if (mod.isApplicableToDroid()) {
-                scoreMultiplier *= mod.calculateDroidScoreMultiplier(
-                    this.difficulty,
-                );
+        if (mods) {
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToDroid()) {
+                    scoreMultiplier *= mod.calculateDroidScoreMultiplier(
+                        this.difficulty,
+                    );
+                }
             }
-        }
 
-        if (mods.some((m) => m instanceof ModScoreV2)) {
-            return 1e6 * scoreMultiplier;
+            if (mods.has(ModScoreV2)) {
+                return 1e6 * scoreMultiplier;
+            }
         }
 
         const difficultyMultiplier =
@@ -194,21 +195,23 @@ export class Beatmap implements IBeatmap {
      *
      * @param mods The modifications to calculate for. Defaults to No Mod.
      */
-    maxOsuScore(mods: Mod[] = []): number {
+    maxOsuScore(mods?: ModMap): number {
         const accumulatedDiffPoints =
             this.difficulty.cs + this.difficulty.hp + this.difficulty.od;
 
         let difficultyMultiplier = 2;
         let scoreMultiplier = 1;
 
-        for (const mod of mods) {
-            if (mod.isApplicableToOsu()) {
-                scoreMultiplier *= mod.osuScoreMultiplier;
+        if (mods) {
+            for (const mod of mods.values()) {
+                if (mod.isApplicableToOsu()) {
+                    scoreMultiplier *= mod.osuScoreMultiplier;
+                }
             }
-        }
 
-        if (mods.some((m) => m instanceof ModScoreV2)) {
-            return 1e6 * scoreMultiplier;
+            if (mods.has(ModScoreV2)) {
+                return 1e6 * scoreMultiplier;
+            }
         }
 
         switch (true) {
