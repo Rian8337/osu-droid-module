@@ -35,6 +35,31 @@ export class ModMap extends Map<typeof Mod, Mod> {
         super(iterable);
     }
 
+    /**
+     * Checks if the given `Mod` is present in this map.
+     *
+     * @param value The `Mod` to check for.
+     * @returns Whether the `Mod` is present in this map.
+     */
+    override has(value: Mod): boolean;
+
+    /**
+     * Checks if the given `Mod` type is present in this map.
+     *
+     * @param key The `Mod` type to check for.
+     * @returns Whether the `Mod` type is present in this map.
+     */
+    override has(key: typeof Mod): boolean;
+
+    override has(keyOrValue: typeof Mod | Mod): boolean {
+        const key =
+            keyOrValue instanceof Mod
+                ? (keyOrValue.constructor as typeof Mod)
+                : keyOrValue;
+
+        return super.has(key);
+    }
+
     override get<T extends Mod>(key: new () => T): T | undefined {
         return super.get(key) as T | undefined;
     }
