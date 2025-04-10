@@ -515,15 +515,13 @@ export class ReplayAnalyzer {
         this.parseOldReplayInformation(resultObject);
 
         switch (resultObject.replayVersion) {
-            case 3:
-            case 4:
-            case 5:
-            case 6:
-                this.data = new ReplayV3Data(resultObject);
+            case 1:
+            case 2:
+                this.data = new ReplayData(resultObject);
                 break;
 
             default:
-                this.data = new ReplayData(resultObject);
+                this.data = new ReplayV3Data(resultObject);
         }
     }
 
