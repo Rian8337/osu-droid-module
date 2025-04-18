@@ -43,4 +43,8 @@ test("Test legacy mod conversion", () => {
             ModDifficultyAdjust,
         ),
     ).toEqual(new ModDifficultyAdjust({ cs: difficulty.cs + 4 }));
+
+    expect(
+        DroidLegacyModConverter.convert("|x1.25").get(ModCustomSpeed),
+    ).toEqual(new ModCustomSpeed(1.25));
 });
