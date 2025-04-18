@@ -70,10 +70,6 @@ export abstract class DroidLegacyModConverter {
 
         const data = str.split("|");
 
-        if (!data[0]) {
-            return map;
-        }
-
         for (const c of data[0]) {
             const modType = this.legacyStorableMods.get(c);
 
