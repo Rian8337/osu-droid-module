@@ -93,6 +93,7 @@ export * from "./mods/ModSuddenDeath";
 export * from "./mods/ModTimeRamp";
 export * from "./mods/ModTouchDevice";
 export * from "./mods/ModTraceable";
+export * from "./mods/ModWindUp";
 export * from "./utils/ModUtil";
 export * from "./constants/Modes";
 export * from "./math/NormalDistribution";
