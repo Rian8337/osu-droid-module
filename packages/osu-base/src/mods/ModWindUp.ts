@@ -9,8 +9,8 @@ export class ModWindUp
     extends ModTimeRamp
     implements IModApplicableToDroid, IModApplicableToOsu
 {
-    override readonly acronym = "Wind Up";
-    override readonly name = "WU";
+    override readonly name = "Wind Up";
+    override readonly acronym = "WU";
 
     private _initialRate = 1;
 
