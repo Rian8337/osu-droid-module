@@ -1,55 +1,37 @@
-import {
-    BeatmapControlPoints,
-    BeatmapDifficulty,
-    Circle,
-    ModHardRock,
-    Modes,
-    PathType,
-    Slider,
-    SliderPath,
-    Vector2,
-} from "../../src";
+import { BeatmapDifficulty, ModHardRock, Modes } from "../../src";
 
 const mod = new ModHardRock();
 
-test("Test vertically flipping circle", () => {
-    const circle = new Circle({
-        startTime: 100,
-        position: new Vector2(100, 100),
+describe("Test beatmap setting adjustment", () => {
+    test("osu!droid game mode", () => {
+        const difficulty = new BeatmapDifficulty();
+
+        difficulty.cs = 4;
+        difficulty.ar = 9;
+        difficulty.od = 7;
+        difficulty.hp = 6;
+
+        mod.applyToDifficulty(Modes.droid, difficulty);
+
+        expect(difficulty.cs).toBeCloseTo(5.26);
+        expect(difficulty.ar).toBeCloseTo(10);
+        expect(difficulty.od).toBeCloseTo(9.8);
+        expect(difficulty.hp).toBeCloseTo(8.4);
     });
 
-    mod.applyToHitObject(Modes.droid, circle);
+    test("osu!standard game mode", () => {
+        const difficulty = new BeatmapDifficulty();
 
-    expect(circle.position.y).toBe(284);
-});
+        difficulty.cs = 4;
+        difficulty.ar = 9;
+        difficulty.od = 7;
+        difficulty.hp = 6;
 
-test("Test vertically flipping slider", () => {
-    const mode = Modes.droid;
+        mod.applyToDifficulty(Modes.osu, difficulty);
 
-    const slider = new Slider({
-        startTime: 100,
-        type: 2,
-        nodeSamples: [],
-        path: new SliderPath({
-            pathType: PathType.Linear,
-            controlPoints: [new Vector2(0, 0), new Vector2(10, 10)],
-            expectedDistance: 10 * Math.SQRT2,
-        }),
-        position: new Vector2(100, 100),
-        repeatCount: 0,
-        tickDistanceMultiplier: 1,
+        expect(difficulty.cs).toBeCloseTo(5.2);
+        expect(difficulty.ar).toBeCloseTo(10);
+        expect(difficulty.od).toBeCloseTo(9.8);
+        expect(difficulty.hp).toBeCloseTo(8.4);
     });
-
-    slider.applyDefaults(
-        new BeatmapControlPoints(),
-        new BeatmapDifficulty(),
-        mode,
-    );
-
-    mod.applyToHitObject(mode, slider);
-
-    expect(slider.position.y).toBe(284);
-    expect(slider.head.position.y).toBe(284);
-    expect(slider.tail.position.y).toBe(274);
-    expect(slider.path.controlPoints[1].y).toBe(-10);
 });
