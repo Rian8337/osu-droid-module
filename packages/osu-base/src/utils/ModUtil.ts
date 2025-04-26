@@ -28,6 +28,7 @@ import { ModScoreV2 } from "../mods/ModScoreV2";
 import { ModSmallCircle } from "../mods/ModSmallCircle";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
+import { ModSynesthesia } from "../mods/ModSynesthesia";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
 import { ModWindDown } from "../mods/ModWindDown";
@@ -65,6 +66,7 @@ export abstract class ModUtil {
             ModPerfect,
             ModPrecise,
             ModReallyEasy,
+            ModSynesthesia,
             ModScoreV2,
             ModSmallCircle,
             ModSpunOut,
