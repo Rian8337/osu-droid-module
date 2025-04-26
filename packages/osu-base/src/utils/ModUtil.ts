@@ -29,6 +29,7 @@ import { ModSpunOut } from "../mods/ModSpunOut";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
+import { ModWindDown } from "../mods/ModWindDown";
 import { ModWindUp } from "../mods/ModWindUp";
 import { SerializedMod } from "../mods/SerializedMod";
 
@@ -53,6 +54,7 @@ export abstract class ModUtil {
             ModNightCore,
             ModHalfTime,
             ModCustomSpeed,
+            ModWindDown,
             ModWindUp,
             ModHardRock,
             ModDifficultyAdjust,
