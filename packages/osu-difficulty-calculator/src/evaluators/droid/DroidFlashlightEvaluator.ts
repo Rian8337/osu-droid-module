@@ -132,7 +132,7 @@ export abstract class DroidFlashlightEvaluator {
         if (current.object instanceof Slider && withSliders) {
             // Invert the scaling factor to determine the true travel distance independent of circle size.
             const pixelTravelDistance =
-                current.object.lazyTravelDistance / scalingFactor;
+                current.lazyTravelDistance / scalingFactor;
 
             // Reward sliders based on velocity.
             sliderBonus = Math.pow(

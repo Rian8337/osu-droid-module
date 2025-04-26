@@ -117,7 +117,7 @@ describe("Test difficulty calculation sample beatmap 1", () => {
                 speed: 2.5835912678500765,
                 total: 6.272855745901558,
             },
-            flashlight: 1.5634530448756425,
+            flashlight: 1.5634943051462775,
         },
     );
 });
@@ -125,16 +125,16 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 1.3111830334440504,
+            aim: 1.3111777622073972,
             speed: 1.1414688505980326,
-            total: 2.5843197325261604,
+            total: 2.584313335337342,
         },
         doubleTime: {
-            aim: 1.760748199411534,
+            aim: 1.7607243595257362,
             speed: 1.6171130073142919,
-            total: 3.5465329658356777,
+            total: 3.546505533264885,
         },
-        flashlight: 0.4481142857693752,
+        flashlight: 0.4483185855950314,
     });
 });
 
@@ -187,7 +187,7 @@ describe("Test difficulty calculation sample beatmap 5", () => {
                 speed: 11.405325273266,
                 total: 36.46383078378835,
             },
-            flashlight: 111.66679764219036,
+            flashlight: 111.66747494515491,
         },
     );
 });

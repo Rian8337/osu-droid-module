@@ -162,7 +162,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
                 objects[i - 1] ?? null,
-                objects[i - 2] ?? null,
                 difficultyObjects,
                 clockRate,
                 i - 1,

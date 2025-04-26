@@ -95,7 +95,7 @@ export abstract class DroidVisualEvaluator {
 
             // Invert the scaling factor to determine the true travel distance independent of circle size.
             const pixelTravelDistance =
-                current.object.lazyTravelDistance / scalingFactor;
+                current.lazyTravelDistance / scalingFactor;
             const currentVelocity = pixelTravelDistance / current.travelTime;
             const spanTravelDistance =
                 pixelTravelDistance / current.object.spanCount;
@@ -124,7 +124,7 @@ export abstract class DroidVisualEvaluator {
 
                 // Invert the scaling factor to determine the true travel distance independent of circle size.
                 const lastPixelTravelDistance =
-                    last.object.lazyTravelDistance / scalingFactor;
+                    last.lazyTravelDistance / scalingFactor;
                 const lastVelocity = lastPixelTravelDistance / last.travelTime;
                 const lastSpanTravelDistance =
                     lastPixelTravelDistance / last.object.spanCount;

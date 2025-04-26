@@ -9,6 +9,7 @@ import {
     SliderRepeat,
     SliderTick,
     Spinner,
+    Vector2,
 } from "@rian8337/osu-base";
 
 /**
@@ -79,6 +80,24 @@ export abstract class DifficultyHitObject {
     travelTime = 0;
 
     /**
+     * The position of the cursor at the point of completion of this hitobject if it was hit
+     * with as few movements as possible.
+     */
+    lazyEndPosition?: Vector2;
+
+    /**
+     * The distance travelled by the cursor upon completion of this hitobject if it was hit
+     * with as few movements as possible.
+     */
+    lazyTravelDistance = 0;
+
+    /**
+     * The time taken by the cursor upon completion of this hitobject if it was hit with
+     * as few movements as possible.
+     */
+    lazyTravelTime = 0;
+
+    /**
      * Angle the player has to take to hit this hitobject.
      *
      * Calculated as the angle between the circles (current-2, current-1, current).
@@ -140,7 +159,9 @@ export abstract class DifficultyHitObject {
     static readonly minDeltaTime = 25;
 
     private readonly lastObject: PlaceableHitObject | null;
-    private readonly lastLastObject: PlaceableHitObject | null;
+
+    private readonly lastDifficultyObject: this | null;
+    private readonly lastLastDifficultyObject: this | null;
 
     /**
      * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
@@ -148,23 +169,20 @@ export abstract class DifficultyHitObject {
      *
      * @param object The underlying hitobject.
      * @param lastObject The hitobject before this hitobject.
-     * @param lastLastObject The hitobject before the last hitobject.
      * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
      * @param clockRate The clock rate of the beatmap.
+     * @param index The index of this hitobject in the list of all hitobjects.
      */
     constructor(
         object: PlaceableHitObject,
         lastObject: PlaceableHitObject | null,
-        lastLastObject: PlaceableHitObject | null,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
         index: number,
     ) {
         this.object = object;
         this.lastObject = lastObject;
-        this.lastLastObject = lastLastObject;
         this.hitObjects = difficultyHitObjects;
-        this.index = index;
 
         if (object instanceof Slider) {
             this.fullGreatWindow =
@@ -174,6 +192,7 @@ export abstract class DifficultyHitObject {
         }
 
         this.fullGreatWindow /= clockRate;
+        this.index = index;
 
         // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
         this.startTime = object.startTime / clockRate;
@@ -189,6 +208,9 @@ export abstract class DifficultyHitObject {
             this.deltaTime = 0;
             this.strainTime = 0;
         }
+
+        this.lastDifficultyObject = this.previous(0);
+        this.lastLastDifficultyObject = this.previous(1);
     }
 
     /**
@@ -203,6 +225,7 @@ export abstract class DifficultyHitObject {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         hitObjects: readonly PlaceableHitObject[],
     ) {
+        this.calculateSliderCursorPosition();
         this.setDistances(clockRate);
     }
 
@@ -309,9 +332,10 @@ export abstract class DifficultyHitObject {
 
     protected setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
-            this.calculateSliderCursorPosition(this.object);
+            this.calculateSliderCursorPosition();
 
-            this.travelDistance = this.object.lazyTravelDistance;
+            this.travelDistance = this.lazyTravelDistance;
+
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
             if (this.mode === Modes.droid) {
                 this.travelDistance *= Math.pow(
@@ -326,7 +350,7 @@ export abstract class DifficultyHitObject {
             }
 
             this.travelTime = Math.max(
-                this.object.lazyTravelTime / clockRate,
+                this.lazyTravelTime / clockRate,
                 DifficultyHitObject.minDeltaTime,
             );
         }
@@ -343,7 +367,10 @@ export abstract class DifficultyHitObject {
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
         const { scalingFactor } = this;
 
-        const lastCursorPosition = this.getEndCursorPosition(this.lastObject);
+        const lastCursorPosition =
+            this.lastDifficultyObject !== null
+                ? this.getEndCursorPosition(this.lastDifficultyObject)
+                : this.lastObject.getStackedPosition(this.mode);
 
         this.lazyJumpDistance = this.object
             .getStackedPosition(this.mode)
@@ -352,9 +379,12 @@ export abstract class DifficultyHitObject {
         this.minimumJumpTime = this.strainTime;
         this.minimumJumpDistance = this.lazyJumpDistance;
 
-        if (this.lastObject instanceof Slider) {
+        if (
+            this.lastObject instanceof Slider &&
+            this.lastDifficultyObject !== null
+        ) {
             const lastTravelTime = Math.max(
-                this.lastObject.lazyTravelTime / clockRate,
+                this.lastDifficultyObject.lazyTravelTime / clockRate,
                 DifficultyHitObject.minDeltaTime,
             );
 
@@ -398,9 +428,12 @@ export abstract class DifficultyHitObject {
             );
         }
 
-        if (this.lastLastObject && !(this.lastLastObject instanceof Spinner)) {
+        if (
+            this.lastLastDifficultyObject &&
+            !(this.lastLastDifficultyObject.object instanceof Spinner)
+        ) {
             const lastLastCursorPosition = this.getEndCursorPosition(
-                this.lastLastObject,
+                this.lastLastDifficultyObject,
             );
 
             const v1 = lastLastCursorPosition.subtract(
@@ -416,18 +449,18 @@ export abstract class DifficultyHitObject {
         }
     }
 
-    private calculateSliderCursorPosition(slider: Slider) {
-        if (slider.lazyEndPosition) {
+    private calculateSliderCursorPosition() {
+        if (!(this.object instanceof Slider) || this.lazyEndPosition) {
             return;
         }
 
-        let trackingEndTime = slider.endTime;
-        let { nestedHitObjects: nestedObjects } = slider;
+        let trackingEndTime = this.object.endTime;
+        let { nestedHitObjects: nestedObjects } = this.object;
 
         if (this.mode === Modes.osu) {
             trackingEndTime = Math.max(
-                slider.endTime - Slider.legacyLastTickOffset,
-                slider.startTime + slider.duration / 2,
+                this.object.endTime - Slider.legacyLastTickOffset,
+                this.object.startTime + this.object.duration / 2,
             );
 
             let lastRealTick: SliderTick | null = null;
@@ -466,20 +499,23 @@ export abstract class DifficultyHitObject {
 
         if (this.mode === Modes.droid) {
             // Temporary lazy end position until a real result can be derived.
-            slider.lazyEndPosition = slider.getStackedPosition(this.mode);
+            this.lazyEndPosition = this.object.getStackedPosition(this.mode);
 
             // Stop here if the slider has too short duration, allowing the player to essentially
             // complete the slider without movement, making travel distance and time irrelevant.
             if (
-                Precision.almostEqualsNumber(slider.startTime, slider.endTime)
+                Precision.almostEqualsNumber(
+                    this.object.startTime,
+                    this.object.endTime,
+                )
             ) {
                 return;
             }
         }
 
-        slider.lazyTravelTime = trackingEndTime - slider.startTime;
+        this.lazyTravelTime = trackingEndTime - this.object.startTime;
 
-        let endTimeMin = slider.lazyTravelTime / slider.spanDuration;
+        let endTimeMin = this.lazyTravelTime / this.object.spanDuration;
         if (endTimeMin % 2 >= 1) {
             endTimeMin = 1 - (endTimeMin % 1);
         } else {
@@ -487,13 +523,13 @@ export abstract class DifficultyHitObject {
         }
 
         // Temporary lazy end position until a real result can be derived.
-        slider.lazyEndPosition = slider
+        this.lazyEndPosition = this.object
             .getStackedPosition(this.mode)
-            .add(slider.path.positionAt(endTimeMin));
+            .add(this.object.path.positionAt(endTimeMin));
 
-        let currentCursorPosition = slider.getStackedPosition(this.mode);
+        let currentCursorPosition = this.object.getStackedPosition(this.mode);
         const scalingFactor =
-            DifficultyHitObject.normalizedRadius / slider.radius;
+            DifficultyHitObject.normalizedRadius / this.object.radius;
 
         for (let i = 1; i < nestedObjects.length; ++i) {
             const currentMovementObject = nestedObjects[i];
@@ -512,7 +548,7 @@ export abstract class DifficultyHitObject {
                 // There is both a lazy end position as well as the actual end slider position. We assume the player takes the simpler movement.
                 // For sliders that are circular, the lazy end position may actually be farther away than the sliders' true end.
                 // This code is designed to prevent buffing situations where lazy end is actually a less efficient movement.
-                const lazyMovement = slider.lazyEndPosition.subtract(
+                const lazyMovement = this.lazyEndPosition.subtract(
                     currentCursorPosition,
                 );
 
@@ -540,23 +576,19 @@ export abstract class DifficultyHitObject {
                     (currentMovementLength - requiredMovement) /
                     currentMovementLength;
 
-                slider.lazyTravelDistance += currentMovementLength;
+                this.lazyTravelDistance += currentMovementLength;
             }
 
             if (i === nestedObjects.length - 1) {
-                slider.lazyEndPosition = currentCursorPosition;
+                this.lazyEndPosition = currentCursorPosition;
             }
         }
     }
 
-    private getEndCursorPosition(object: PlaceableHitObject) {
-        let pos = object.getStackedPosition(this.mode);
-
-        if (object instanceof Slider) {
-            this.calculateSliderCursorPosition(object);
-            pos = object.lazyEndPosition ?? pos;
-        }
-
-        return pos;
+    private getEndCursorPosition(object: DifficultyHitObject) {
+        return (
+            object.lazyEndPosition ??
+            object.object.getStackedPosition(this.mode)
+        );
     }
 }

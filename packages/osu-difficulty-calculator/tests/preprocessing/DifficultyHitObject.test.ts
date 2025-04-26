@@ -53,7 +53,6 @@ const createDifficultyHitObjects = () => {
         const difficultyObject = new DroidDifficultyHitObject(
             objects[i],
             objects[i - 1] ?? null,
-            objects[i - 2] ?? null,
             difficultyObjects,
             1,
             i - 1,

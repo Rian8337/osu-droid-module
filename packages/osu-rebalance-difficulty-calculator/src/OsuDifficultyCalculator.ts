@@ -145,7 +145,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             const difficultyObject = new OsuDifficultyHitObject(
                 objects[i],
                 objects[i - 1] ?? null,
-                objects[i - 2] ?? null,
                 difficultyObjects,
                 clockRate,
                 i - 1,

@@ -162,24 +162,6 @@ export class Slider extends HitObject {
     generateTicks = true;
 
     /**
-     * The position of the cursor at the point of completion of this slider if it was hit
-     * with as few movements as possible. This is set and used by difficulty calculation.
-     */
-    lazyEndPosition?: Vector2;
-
-    /**
-     * The distance travelled by the cursor upon completion of this slider if it was hit
-     * with as few movements as possible. This is set and used by difficulty calculation.
-     */
-    lazyTravelDistance = 0;
-
-    /**
-     * The time taken by the cursor upon completion of this slider if it was hit with
-     * as few movements as possible. This is set and used by difficulty calculation.
-     */
-    lazyTravelTime = 0;
-
-    /**
      * The length of one span of this slider.
      */
     get spanDuration(): number {
