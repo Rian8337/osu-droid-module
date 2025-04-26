@@ -324,16 +324,19 @@ export class TwoHandChecker {
         );
 
         if (prevObject instanceof Slider) {
-            if (prevObject.lazyTravelDistance > 0) {
-                const lazyEndMovement = objectStartPosition.subtract(
-                    prevObject.lazyEndPosition!,
+            if (prevObject.distance > 0) {
+                const endPosition = prevObject.getStackedEndPosition(
+                    Modes.droid,
                 );
+
+                const lazyEndMovement =
+                    objectStartPosition.subtract(endPosition);
                 const actualEndMovement = objectStartPosition.subtract(
                     prevObjectEndPosition,
                 );
 
                 if (lazyEndMovement.length < actualEndMovement.length) {
-                    prevObjectEndPosition = prevObject.lazyEndPosition!;
+                    prevObjectEndPosition = endPosition;
                 }
             } else {
                 prevObjectEndPosition = prevObject.getStackedPosition(
@@ -749,19 +752,19 @@ export class TwoHandChecker {
         const nextObject = this.beatmap.hitObjects.objects[objectIndex - 1];
         let objectEndPosition = object.getStackedEndPosition(Modes.droid);
 
-        if (object.lazyTravelDistance > 0 && nextObject) {
+        if (object.distance > 0 && nextObject) {
+            const endPosition = object.getStackedEndPosition(Modes.droid);
+
             const nextStartPosition = nextObject.getStackedPosition(
                 Modes.droid,
             );
 
-            const lazyEndMovement = nextStartPosition.subtract(
-                object.lazyEndPosition!,
-            );
+            const lazyEndMovement = nextStartPosition.subtract(endPosition);
             const actualEndMovement =
                 nextStartPosition.subtract(objectEndPosition);
 
             if (lazyEndMovement.length < actualEndMovement.length) {
-                objectEndPosition = object.lazyEndPosition!;
+                objectEndPosition = endPosition;
             }
         } else {
             objectEndPosition = object.getStackedPosition(Modes.droid);
