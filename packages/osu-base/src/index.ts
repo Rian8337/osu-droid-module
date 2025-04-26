@@ -50,6 +50,7 @@ export * from "./beatmap/hitobjects/FileHitSampleInfo";
 export * from "./constants/GameMode";
 export * from "./beatmap/HitWindow";
 export * from "./beatmap/hitobjects/HitObject";
+export * from "./utils/HitObjectGenerationUtils";
 export * from "./beatmap/hitobjects/HitSampleInfo";
 export * from "./constants/HitSoundType";
 export * from "./beatmap/IBeatmap";
