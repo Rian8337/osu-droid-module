@@ -11,6 +11,7 @@ import {
     ModHardRock,
     ModHidden,
     ModMap,
+    ModMirror,
     ModNightCore,
     ModRelax,
     PlayableBeatmap,
@@ -46,6 +47,7 @@ export abstract class DifficultyCalculator<
         ModHidden,
         ModRelax,
         ModAutopilot,
+        ModMirror,
     ]);
 
     /**
