@@ -1,5 +1,6 @@
 import { Beatmap } from "../beatmap/Beatmap";
 import { Interpolation } from "../math/Interpolation";
+import { MathUtils } from "../math/MathUtils";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
@@ -61,7 +62,12 @@ export abstract class ModTimeRamp
             (this.finalRateTime - this.initialRateTime);
 
         return (
-            rate * Interpolation.lerp(this.initialRate, this.finalRate, amount)
+            rate *
+            Interpolation.lerp(
+                this.initialRate,
+                this.finalRate,
+                MathUtils.clamp(amount, 0, 1),
+            )
         );
     }
 
