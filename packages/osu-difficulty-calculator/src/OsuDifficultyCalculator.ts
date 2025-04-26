@@ -34,17 +34,15 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     constructor() {
         super();
 
-        this.difficultyAdjustmentMods.add(ModTouchDevice);
+        this.difficultyAdjustmentMods.push(ModTouchDevice);
     }
 
     override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
         return mods.filter(
             (mod) =>
                 mod.isApplicableToOsu() &&
-                this.difficultyAdjustmentMods.has(
-                    mod.constructor as typeof Mod,
-                ) &&
-                mod.isOsuRelevant,
+                mod.isOsuRelevant &&
+                this.difficultyAdjustmentMods.some((m) => mod instanceof m),
         );
     }
 

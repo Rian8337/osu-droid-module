@@ -45,20 +45,19 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     constructor() {
         super();
 
-        this.difficultyAdjustmentMods
-            .add(ModPrecise)
-            .add(ModScoreV2)
-            .add(ModTraceable);
+        this.difficultyAdjustmentMods.push(
+            ModPrecise,
+            ModScoreV2,
+            ModTraceable,
+        );
     }
 
     override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
         return mods.filter(
             (mod) =>
                 mod.isApplicableToDroid() &&
-                this.difficultyAdjustmentMods.has(
-                    mod.constructor as typeof Mod,
-                ) &&
-                mod.isDroidRelevant,
+                mod.isDroidRelevant &&
+                this.difficultyAdjustmentMods.some((m) => mod instanceof m),
         );
     }
 

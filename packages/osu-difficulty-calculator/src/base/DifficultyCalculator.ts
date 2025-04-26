@@ -2,17 +2,14 @@ import {
     Beatmap,
     Mod,
     ModAutopilot,
-    ModCustomSpeed,
     ModDifficultyAdjust,
-    ModDoubleTime,
     ModEasy,
     ModFlashlight,
-    ModHalfTime,
     ModHardRock,
     ModHidden,
     ModMap,
     ModMirror,
-    ModNightCore,
+    ModRateAdjust,
     ModRelax,
     PlayableBeatmap,
 } from "@rian8337/osu-base";
@@ -35,12 +32,9 @@ export abstract class DifficultyCalculator<
     /**
      * `Mod`s that adjust the difficulty of a beatmap.
      */
-    protected readonly difficultyAdjustmentMods = new Set<typeof Mod>([
-        ModDoubleTime,
-        ModNightCore,
+    protected readonly difficultyAdjustmentMods: (typeof Mod)[] = [
         ModDifficultyAdjust,
-        ModCustomSpeed,
-        ModHalfTime,
+        ModRateAdjust,
         ModEasy,
         ModHardRock,
         ModFlashlight,
@@ -48,7 +42,7 @@ export abstract class DifficultyCalculator<
         ModRelax,
         ModAutopilot,
         ModMirror,
-    ]);
+    ];
 
     /**
      * Retains `Mod`s that adjust a beatmap's difficulty from the specified mods.
