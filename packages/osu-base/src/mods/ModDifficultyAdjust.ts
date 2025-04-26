@@ -227,6 +227,10 @@ export class ModDifficultyAdjust
     }
 
     override toString(): string {
+        if (!this.isRelevant) {
+            return super.toString();
+        }
+
         const settings: string[] = [];
 
         if (this.cs !== undefined) {
