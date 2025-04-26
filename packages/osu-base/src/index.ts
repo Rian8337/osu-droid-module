@@ -1,5 +1,6 @@
 export * from "./utils/Accuracy";
 export * from "./constants/Anchor";
+export * from "./constants/Axes";
 export * from "./beatmap/storyboard/enums/AnimationLoopType";
 export * from "./beatmap/hitobjects/BankHitSampleInfo";
 export * from "./beatmap/Beatmap";
@@ -79,6 +80,7 @@ export * from "./mods/ModHalfTime";
 export * from "./mods/ModHardRock";
 export * from "./mods/ModHidden";
 export * from "./mods/ModMap";
+export * from "./mods/ModMirror";
 export * from "./mods/ModNightCore";
 export * from "./mods/ModNoFail";
 export * from "./mods/ModOldNightCore";

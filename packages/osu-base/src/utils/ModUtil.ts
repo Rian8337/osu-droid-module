@@ -16,6 +16,7 @@ import { ModHalfTime } from "../mods/ModHalfTime";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModHidden } from "../mods/ModHidden";
 import { ModMap } from "../mods/ModMap";
+import { ModMirror } from "../mods/ModMirror";
 import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
 import { ModPerfect } from "../mods/ModPerfect";
@@ -57,6 +58,7 @@ export abstract class ModUtil {
             ModWindDown,
             ModWindUp,
             ModHardRock,
+            ModMirror,
             ModDifficultyAdjust,
             ModFlashlight,
             ModSuddenDeath,
