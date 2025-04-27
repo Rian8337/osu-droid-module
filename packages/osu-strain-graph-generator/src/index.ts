@@ -5,20 +5,58 @@ import { loadImage } from "canvas";
 import { Chart } from "./Chart";
 
 /**
+ * Options for initializing the canvas.
+ */
+export interface CanvasOptions {
+    /**
+     * The beatmapset ID to get background image from. If omitted, the background will be plain white.
+     */
+    readonly beatmapsetID?: number;
+
+    /**
+     * The width of the canvas. Defaults to 600.
+     */
+    readonly width?: number;
+
+    /**
+     * The height of the canvas. Defaults to 150.
+     */
+    readonly height?: number;
+
+    /**
+     * The color of the graph. Defaults to black.
+     */
+    readonly color?: string;
+
+    /**
+     * Whether to show the time label. Defaults to `false`.
+     */
+    readonly showTimeLabel?: boolean;
+
+    /**
+     * Whether to show the strain axis. Defaults to `false`.
+     */
+    readonly drawStrainAxis?: boolean;
+
+    /**
+     * Whether to show the strain label. Only active when `drawStrainAxis` is set to `true`. Defaults to `false`.
+     */
+    readonly showStrainLabel?: boolean;
+}
+
+/**
  * Generates the strain chart of a beatmap and returns the chart as a buffer.
  *
  * @param beatmap The beatmap to generate the strain graph for.
  * @param strainPeaks The strain peaks of the beatmap.
  * @param clockRate The clock rate of the beatmap.
- * @param beatmapsetID The beatmapset ID to get background image from. If omitted, the background will be plain white.
- * @param color The color of the graph.
+ * @param options The options for the canvas.
  */
 export default async function (
     beatmap: Beatmap,
     strainPeaks: StrainPeaks | RebalanceStrainPeaks,
     clockRate: number,
-    beatmapsetID?: number,
-    color: string = "#000000",
+    options?: CanvasOptions,
 ): Promise<Buffer> {
     const sectionLength = 400;
     const currentSectionEnd =
@@ -69,29 +107,42 @@ export default async function (
     const maxYUnits = 10;
 
     const unitsPerTickX = Math.ceil(maxTime / maxXUnits / 10) * 10;
-    const unitsPerTickY = Math.ceil(maxStrain / maxYUnits / 20) * 20;
+    const unitsPerTickY = maxStrain / maxYUnits / 20;
 
     const chart = new Chart({
-        graphWidth: 900,
-        graphHeight: 250,
+        graphWidth: options?.width ?? 600,
+        graphHeight: options?.height ?? 150,
         minX: 0,
         minY: 0,
         maxX: Math.ceil(maxTime / unitsPerTickX) * unitsPerTickX,
-        maxY: Math.ceil(maxStrain / unitsPerTickY) * unitsPerTickY,
+        maxY: options?.drawStrainAxis
+            ? Math.ceil(maxStrain / Math.ceil(unitsPerTickY) / 20) *
+              Math.ceil(unitsPerTickY) *
+              20
+            : maxStrain,
         unitsPerTickX,
-        unitsPerTickY,
-        background: await loadImage(
-            `https://assets.ppy.sh/beatmaps/${beatmapsetID}/covers/cover.jpg`,
-        ).catch(() => undefined),
-        xLabel: "Time",
-        yLabel: "Strain",
+        unitsPerTickY: options?.drawStrainAxis
+            ? Math.ceil(unitsPerTickY) * 20
+            : unitsPerTickY,
+        background:
+            options?.beatmapsetID !== undefined
+                ? await loadImage(
+                      `https://assets.ppy.sh/beatmaps/${options.beatmapsetID}/covers/cover.jpg`,
+                  ).catch(() => undefined)
+                : undefined,
+        xLabel: options?.showTimeLabel ? "Time" : "",
+        yLabel: options?.drawStrainAxis
+            ? options?.showStrainLabel
+                ? "Strain"
+                : ""
+            : undefined,
         pointRadius: 0,
         xValueType: "time",
     });
 
     chart.drawArea(
         strainInformations.map((v) => new Vector2(v.time, v.strain)),
-        color,
+        options?.color ?? "#000000",
     );
 
     return chart.getBuffer();

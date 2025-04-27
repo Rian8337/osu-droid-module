@@ -50,12 +50,12 @@ interface ChartInitializer {
     readonly background?: Image;
 
     /**
-     * The X axis label of the graph.
+     * The X axis label of the graph. When undefined, the X axis will not be drawn.
      */
     readonly xLabel?: string;
 
     /**
-     * The Y axis label of the graph.
+     * The Y axis label of the graph. When undefined, the Y axis will not be drawn.
      */
     readonly yLabel?: string;
 
@@ -166,8 +166,14 @@ export class Chart implements ChartInitializer {
 
         // Draw background and X and Y axis tick marks
         this.setBackground();
-        this.drawXAxis(true);
-        this.drawYAxis(true);
+
+        if (this.xLabel !== undefined) {
+            this.drawXAxis();
+        }
+
+        if (this.yLabel !== undefined) {
+            this.drawYAxis();
+        }
     }
 
     /**
@@ -236,11 +242,15 @@ export class Chart implements ChartInitializer {
 
         c.restore();
 
-        // Redraw axes since it gets
-        // overlapped by chart area
+        // Redraw axes since it gets overlapped by chart area.
         if (color !== this.axisColor) {
-            this.drawXAxis();
-            this.drawYAxis();
+            if (this.xLabel !== undefined) {
+                this.drawXAxis();
+            }
+
+            if (this.yLabel !== undefined) {
+                this.drawYAxis();
+            }
         }
     }
 
@@ -253,15 +263,14 @@ export class Chart implements ChartInitializer {
 
     /**
      * Draws the X axis of the graph.
-     *
-     * @param drawLabel Whether or not to draw the axis label.
      */
-    private drawXAxis(drawLabel?: boolean): void {
+    private drawXAxis(): void {
         const c = this.context;
         const labelOffset = this.xLabel ? this.baseLabelOffset : 0;
         const yLabelOffset = this.yLabel ? this.baseLabelOffset : 0;
+
         c.save();
-        if (this.xLabel && drawLabel) {
+        if (this.xLabel) {
             c.textAlign = "center";
             c.font = this.axisLabelFont;
             c.fillText(
@@ -279,16 +288,16 @@ export class Chart implements ChartInitializer {
         c.stroke();
 
         // Draw tick marks
-        for (let n = 0; n < this.numXTicks; ++n) {
+        for (let n = 0; n <= this.numXTicks; ++n) {
             c.beginPath();
             c.moveTo(
-                ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
+                (n * (this.width - yLabelOffset)) / this.numXTicks +
                     this.x +
                     yLabelOffset,
                 this.y + this.height - labelOffset,
             );
             c.lineTo(
-                ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
+                (n * (this.width - yLabelOffset)) / this.numXTicks +
                     this.x +
                     yLabelOffset,
                 this.y + this.height - labelOffset - this.tickSize,
@@ -302,23 +311,25 @@ export class Chart implements ChartInitializer {
         c.textAlign = "center";
         c.textBaseline = "middle";
 
-        for (let n = 0; n < this.numXTicks; ++n) {
-            const label = Math.round(((n + 1) * this.maxX) / this.numXTicks);
-            let stringLabel = label.toString();
-            switch (this.xValueType) {
-                case "time":
-                    stringLabel = this.timeString(label);
-                    break;
+        if (this.xLabel !== undefined) {
+            for (let n = 0; n <= this.numXTicks; ++n) {
+                const label = Math.round((n * this.maxX) / this.numXTicks);
+                let stringLabel = label.toString();
+                switch (this.xValueType) {
+                    case "time":
+                        stringLabel = this.timeString(label);
+                        break;
+                }
+                c.save();
+                c.translate(
+                    (n * (this.width - yLabelOffset)) / this.numXTicks +
+                        this.x +
+                        yLabelOffset,
+                    this.y + this.height + this.padding - labelOffset,
+                );
+                c.fillText(stringLabel, 0, 0);
+                c.restore();
             }
-            c.save();
-            c.translate(
-                ((n + 1) * (this.width - yLabelOffset)) / this.numXTicks +
-                    this.x +
-                    yLabelOffset,
-                this.y + this.height + this.padding - labelOffset,
-            );
-            c.fillText(stringLabel, 0, 0);
-            c.restore();
         }
 
         c.restore();
@@ -329,12 +340,13 @@ export class Chart implements ChartInitializer {
      *
      * @param drawLabel Whether or not to draw the axis label.
      */
-    private drawYAxis(drawLabel?: boolean): void {
+    private drawYAxis(): void {
         const c = this.context;
         const labelOffset = this.yLabel ? this.baseLabelOffset : 0;
         const xLabelOffset = this.xLabel ? this.baseLabelOffset : 0;
+
         c.save();
-        if (this.yLabel && drawLabel) {
+        if (this.yLabel) {
             c.textAlign = "center";
             c.font = this.axisLabelFont;
             c.translate(0, this.graphHeight);
@@ -355,17 +367,21 @@ export class Chart implements ChartInitializer {
         c.restore();
 
         // Draw tick marks
-        for (let n = 0; n < this.numYTicks; ++n) {
-            c.beginPath();
-            c.moveTo(
-                this.x + labelOffset,
-                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y,
-            );
-            c.lineTo(
-                this.x + labelOffset + this.tickSize,
-                (n * (this.height - xLabelOffset)) / this.numYTicks + this.y,
-            );
-            c.stroke();
+        if (this.yLabel !== undefined) {
+            for (let n = 0; n < this.numYTicks; ++n) {
+                c.beginPath();
+                c.moveTo(
+                    this.x + labelOffset,
+                    (n * (this.height - xLabelOffset)) / this.numYTicks +
+                        this.y,
+                );
+                c.lineTo(
+                    this.x + labelOffset + this.tickSize,
+                    (n * (this.height - xLabelOffset)) / this.numYTicks +
+                        this.y,
+                );
+                c.stroke();
+            }
         }
 
         // Draw values
@@ -402,8 +418,7 @@ export class Chart implements ChartInitializer {
             this.y + this.height - (this.xLabel ? this.baseLabelOffset : 0),
         );
 
-        // Invert the Y scale so that it
-        // increments as we go upwards
+        // Invert the Y scale so that it increments as we go upwards
         c.scale(1, -1);
     }
 
@@ -411,6 +426,10 @@ export class Chart implements ChartInitializer {
      * Gets the longest width from each label text in Y axis.
      */
     private getLongestValueWidth(): number {
+        if (this.yLabel === undefined) {
+            return 0;
+        }
+
         this.context.font = this.font;
         let longestValueWidth = 0;
         for (let n = 0; n < this.numYTicks; ++n) {
