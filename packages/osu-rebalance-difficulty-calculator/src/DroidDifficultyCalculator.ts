@@ -8,6 +8,7 @@ import {
     ModMap,
     ModPrecise,
     ModRelax,
+    ModReplayV6,
     ModScoreV2,
     ModTraceable,
     OsuHitWindow,
@@ -49,6 +50,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             ModPrecise,
             ModScoreV2,
             ModTraceable,
+            ModReplayV6,
         );
     }
 
