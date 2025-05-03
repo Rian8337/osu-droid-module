@@ -7,6 +7,7 @@ import { Mod } from "./Mod";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { Circle } from "../beatmap/hitobjects/Circle";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
+import { Modes } from "../constants/Modes";
 
 /**
  * Represents the Replay V6 mod.
@@ -39,6 +40,10 @@ export class ModReplayV6
     }
 
     applyToBeatmap(beatmap: Beatmap) {
+        if (beatmap.mode !== Modes.droid) {
+            return;
+        }
+
         const { objects } = beatmap.hitObjects;
 
         if (objects.length === 0) {
