@@ -70,22 +70,6 @@ export class ModEasy
             );
         }
 
-        switch (mode) {
-            case Modes.droid: {
-                const scale = CircleSizeCalculator.droidCSToOldDroidScale(
-                    difficulty.cs,
-                );
-
-                difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
-                    scale + 0.125,
-                );
-
-                break;
-            }
-            case Modes.osu:
-                difficulty.cs /= 2;
-        }
-
         difficulty.ar /= 2;
         difficulty.od /= 2;
         difficulty.hp /= 2;
