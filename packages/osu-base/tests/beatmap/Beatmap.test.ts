@@ -543,7 +543,7 @@ describe("Test playable beatmap creation", () => {
             test("No Mod", () => {
                 const firstObject = getConvertedFirstObject();
 
-                expect(firstObject.scale).toBeCloseTo(0.8526588830433072);
+                expect(firstObject.scale).toBeCloseTo(0.9802961674103878);
                 expect(firstObject.timePreempt).toBe(1200);
             });
 
@@ -551,7 +551,7 @@ describe("Test playable beatmap creation", () => {
                 const firstObject = getConvertedFirstObject(new ModHardRock());
 
                 expect(firstObject.position.y).toBe(192);
-                expect(firstObject.scale).toBeCloseTo(0.769735845987075);
+                expect(firstObject.scale).toBeCloseTo(0.8752531174103879);
             });
 
             test("Hidden", () => {
@@ -577,7 +577,7 @@ describe("Test playable beatmap creation", () => {
                 );
 
                 expect(firstObject.startTime).toBe(1000);
-                expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
+                expect(firstObject.scale).toBeCloseTo(1.1553679174103877);
                 expect(firstObject.timePreempt).toBeCloseTo(1290);
             });
 
@@ -589,7 +589,7 @@ describe("Test playable beatmap creation", () => {
                 );
 
                 expect(firstObject.startTime).toBe(1000);
-                expect(firstObject.scale).toBeCloseTo(0.9351984887191644);
+                expect(firstObject.scale).toBeCloseTo(1.1553679174103877);
                 expect(firstObject.timePreempt).toBeCloseTo(1290);
             });
 
@@ -602,7 +602,7 @@ describe("Test playable beatmap creation", () => {
                 );
 
                 expect(firstObject.startTime).toBe(1000);
-                expect(firstObject.scale).toBeCloseTo(0.918164788421231);
+                expect(firstObject.scale).toBeCloseTo(1.050324867410388);
                 expect(firstObject.timePreempt).toBeCloseTo(1012.5);
             });
         });

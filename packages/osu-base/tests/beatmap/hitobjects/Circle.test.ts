@@ -1,11 +1,4 @@
-import {
-    Circle,
-    CircleSizeCalculator,
-    HitObject,
-    Modes,
-    ObjectTypes,
-    Vector2,
-} from "../../../src";
+import { Circle, HitObject, Modes, ObjectTypes, Vector2 } from "../../../src";
 
 const createCircle = (newCombo?: boolean) => {
     return new Circle({
@@ -38,16 +31,9 @@ describe("Test circle position", () => {
         describe("With height", () => {
             const executeTest = (mode: Modes) => {
                 const circle = createCircle();
+                const { scale } = circle;
 
-                const scale =
-                    mode === Modes.droid
-                        ? CircleSizeCalculator.standardScaleToDroidScale(
-                              circle.scale,
-                              true,
-                          )
-                        : circle.scale;
-
-                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 circle.stackHeight = 1;
 
@@ -112,15 +98,8 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 1;
 
-                const scale =
-                    mode === Modes.droid
-                        ? CircleSizeCalculator.standardScaleToDroidScale(
-                              circle.scale,
-                              true,
-                          )
-                        : circle.scale;
-
-                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+                const { scale } = circle;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 let positionOffset = circle
                     .getStackedEndPosition(mode)

@@ -22,7 +22,7 @@ test("Test beatmap setting override without additional mods", () => {
         ar: 8,
         od: 7,
         hp: 6,
-    }).applyToDifficultyWithSettings(Modes.droid, difficulty, new ModMap());
+    }).applyToDifficultyWithMods(Modes.droid, difficulty, new ModMap());
 
     expect(difficulty.cs).toBe(4);
     expect(difficulty.ar).toBe(8);
@@ -42,7 +42,7 @@ test("Test beatmap setting override with additional mods", () => {
         ar: 6,
         od: 6,
         hp: 6,
-    }).applyToDifficultyWithSettings(Modes.droid, difficulty, modMap);
+    }).applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
 
     expect(difficulty.cs).toBe(6);
     expect(difficulty.ar).toBe(6);
@@ -56,7 +56,7 @@ test("Test AR override with non-1x speed multiplier", () => {
 
     modMap.set(ModDoubleTime);
 
-    new ModDifficultyAdjust({ ar: 9 }).applyToDifficultyWithSettings(
+    new ModDifficultyAdjust({ ar: 9 }).applyToDifficultyWithMods(
         Modes.droid,
         difficulty,
         modMap,
@@ -72,11 +72,7 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override",
     const difficulty = new BeatmapDifficulty();
     const difficultyAdjust = new ModDifficultyAdjust({ ar: 9 });
 
-    difficultyAdjust.applyToDifficultyWithSettings(
-        Modes.droid,
-        difficulty,
-        modMap,
-    );
+    difficultyAdjust.applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
 
     const slider = new Slider({
         startTime: 0,
@@ -93,7 +89,7 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override",
     });
 
     slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.droid);
-    difficultyAdjust.applyToHitObjectWithSettings(Modes.droid, slider, modMap);
+    difficultyAdjust.applyToHitObjectWithMods(Modes.droid, slider, modMap);
 
     expect(slider.timePreempt).toBeCloseTo(900);
     expect(slider.timeFadeIn).toBeCloseTo(600);

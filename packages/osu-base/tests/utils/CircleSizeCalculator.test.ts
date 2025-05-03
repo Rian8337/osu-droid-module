@@ -85,30 +85,30 @@ describe("Test osu!droid circle size to old osu!droid scale conversion", () => {
             const mods = new ModMap();
             mods.set(new ModHardRock());
 
-            expectScale(0, 1.6568791522125481, mods);
-            expectScale(2, 1.458254152212548, mods);
-            expectScale(4, 1.259629152212548, mods);
-            expectScale(7, 0.961691652212548, mods);
+            expectScale(0, 1.7818791522125481, mods);
+            expectScale(2, 1.523666652212548, mods);
+            expectScale(4, 1.265454152212548, mods);
+            expectScale(7, 0.878135402212548, mods);
         });
 
         test("Easy", () => {
             const mods = new ModMap();
             mods.set(new ModEasy());
 
-            expectScale(0, 1.9068791522125481, mods);
-            expectScale(2, 1.708254152212548, mods);
-            expectScale(4, 1.509629152212548, mods);
-            expectScale(7, 1.211691652212548, mods);
+            expectScale(0, 1.7818791522125481, mods);
+            expectScale(2, 1.682566652212548, mods);
+            expectScale(4, 1.583254152212548, mods);
+            expectScale(7, 1.4342854022125482, mods);
         });
 
         test("Really Easy", () => {
             const mods = new ModMap();
             mods.set(new ModReallyEasy());
 
-            expectScale(0, 1.9068791522125481, mods);
-            expectScale(2, 1.708254152212548, mods);
-            expectScale(4, 1.509629152212548, mods);
-            expectScale(7, 1.211691652212548, mods);
+            expectScale(0, 1.7818791522125481, mods);
+            expectScale(2, 1.682566652212548, mods);
+            expectScale(4, 1.583254152212548, mods);
+            expectScale(7, 1.4342854022125482, mods);
         });
 
         test("Small Circle", () => {

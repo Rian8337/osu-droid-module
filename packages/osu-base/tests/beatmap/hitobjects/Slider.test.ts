@@ -12,7 +12,6 @@ import {
     BeatmapControlPoints,
     BeatmapDifficulty,
     DifficultyControlPoint,
-    CircleSizeCalculator,
 } from "../../../src";
 
 const createGlobalSliderValues = (newCombo?: boolean) => {
@@ -64,16 +63,9 @@ describe("Test slider position", () => {
         describe("With height", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
+                const { scale } = slider;
 
-                const scale =
-                    mode === Modes.droid
-                        ? CircleSizeCalculator.standardScaleToDroidScale(
-                              slider.scale,
-                              true,
-                          )
-                        : slider.scale;
-
-                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 slider.stackHeight = 1;
 
@@ -135,16 +127,9 @@ describe("Test slider position", () => {
         describe("With height", () => {
             const executeTest = (mode: Modes) => {
                 const slider = new Slider(createGlobalSliderValues());
+                const { scale } = slider;
 
-                const scale =
-                    mode === Modes.droid
-                        ? CircleSizeCalculator.standardScaleToDroidScale(
-                              slider.scale,
-                              true,
-                          )
-                        : slider.scale;
-
-                const stackMultiplier = mode === Modes.droid ? 4 : -6.4;
+                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
                 slider.stackHeight = 1;
 

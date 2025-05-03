@@ -172,7 +172,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
 
-            expect(difficulty.cs).toBeCloseTo(6.258653241032096, 5);
+            expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBe(7);
             expect(difficulty.od).toBe(7);
             expect(difficulty.hp).toBe(7);
@@ -246,7 +246,7 @@ describe("Test apply mods to beatmap difficulty", () => {
                 true,
             );
 
-            expect(difficulty.cs).toBeCloseTo(6.258653241032096, 5);
+            expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBeCloseTo(9.8);
             expect(difficulty.od).toBeCloseTo(13.066666666666666, 5);
             expect(difficulty.hp).toBe(7);
