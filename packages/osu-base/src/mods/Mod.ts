@@ -8,6 +8,7 @@ import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObje
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
+import { IModFacilitatesAdjustment } from "./IModFacilitatesAdjustment";
 import { SerializedMod } from "./SerializedMod";
 
 /**
@@ -136,6 +137,13 @@ export abstract class Mod {
      */
     isMigratableDroidMod(): this is this & IMigratableDroidMod {
         return "migrateDroidMod" in this;
+    }
+
+    /**
+     * Whether this `Mod` facilitates adjustment to a `HitObject` or `BeatmapDifficulty`.
+     */
+    isFacilitatesAdjustment(): this is this & IModFacilitatesAdjustment {
+        return "facilitatesAdjustment" in this;
     }
 
     /**
