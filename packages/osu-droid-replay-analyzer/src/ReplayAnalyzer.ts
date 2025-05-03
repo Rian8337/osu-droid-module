@@ -24,6 +24,7 @@ import {
     ModPrecise,
     ModReallyEasy,
     ModRelax,
+    ModReplayV6,
     ModScoreV2,
     ModSmallCircle,
     ModSuddenDeath,
@@ -473,6 +474,10 @@ export class ReplayAnalyzer {
             }
 
             resultObject.rank = this.calculateRank(resultObject);
+        }
+
+        if (resultObject.replayVersion <= 6) {
+            resultObject.convertedMods.set(ModReplayV6);
         }
 
         let bufferIndex: number;
