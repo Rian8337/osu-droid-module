@@ -46,7 +46,7 @@ export abstract class CircleSizeCalculator {
 
             for (const mod of mods.values()) {
                 if (mod.isApplicableToDifficultyWithSettings()) {
-                    mod.applyToDifficultyWithSettings(
+                    mod.applyToDifficultyWithMods(
                         Modes.droid,
                         difficulty,
                         mods,

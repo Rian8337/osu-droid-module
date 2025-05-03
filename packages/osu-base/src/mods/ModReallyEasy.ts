@@ -1,7 +1,7 @@
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
-import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
+import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficultyWithMods";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
 import { ModCustomSpeed } from "./ModCustomSpeed";
@@ -14,7 +14,7 @@ import { ModMap } from "./ModMap";
  */
 export class ModReallyEasy
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToDifficultyWithSettings
+    implements IModApplicableToDroid, IModApplicableToDifficultyWithMods
 {
     override readonly acronym = "RE";
     override readonly name = "ReallyEasy";
@@ -29,7 +29,7 @@ export class ModReallyEasy
         return 0.4;
     }
 
-    applyToDifficultyWithSettings(
+    applyToDifficultyWithMods(
         mode: Modes,
         difficulty: BeatmapDifficulty,
         mods: ModMap,

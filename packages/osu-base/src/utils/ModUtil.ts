@@ -262,7 +262,7 @@ export abstract class ModUtil {
         if (mods !== undefined) {
             for (const mod of mods.values()) {
                 if (mod.isApplicableToDifficultyWithSettings()) {
-                    mod.applyToDifficultyWithSettings(mode, difficulty, mods);
+                    mod.applyToDifficultyWithMods(mode, difficulty, mods);
                 }
 
                 if (mod.isApplicableToTrackRate()) {

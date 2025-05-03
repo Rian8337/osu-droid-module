@@ -1,10 +1,10 @@
 import { IMigratableDroidMod } from "./IMigratableDroidMod";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
-import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
+import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficultyWithMods";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
-import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
+import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
@@ -106,7 +106,7 @@ export abstract class Mod {
      * Whether this `Mod` can be applied to a `BeatmapDifficulty` relative to other `Mod`s and settings.
      */
     isApplicableToDifficultyWithSettings(): this is this &
-        IModApplicableToDifficultyWithSettings {
+        IModApplicableToDifficultyWithMods {
         return "applyToDifficultyWithSettings" in this;
     }
 
@@ -121,7 +121,7 @@ export abstract class Mod {
      * Whether this `Mod` can be applied to a `HitObject` relative to other `Mod`s and settings.
      */
     isApplicableToHitObjectWithSettings(): this is this &
-        IModApplicableToHitObjectWithSettings {
+        IModApplicableToHitObjectWithMods {
         return "applyToHitObjectWithSettings" in this;
     }
 

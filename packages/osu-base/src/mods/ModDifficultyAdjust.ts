@@ -2,9 +2,9 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
-import { IModApplicableToDifficultyWithSettings } from "./IModApplicableToDifficultyWithSettings";
+import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficultyWithMods";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
-import { IModApplicableToHitObjectWithSettings } from "./IModApplicableToHitObjectWithSettings";
+import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModMap } from "./ModMap";
@@ -18,8 +18,8 @@ export class ModDifficultyAdjust
     implements
         IModApplicableToDroid,
         IModApplicableToOsu,
-        IModApplicableToDifficultyWithSettings,
-        IModApplicableToHitObjectWithSettings
+        IModApplicableToDifficultyWithMods,
+        IModApplicableToHitObjectWithMods
 {
     override readonly acronym = "DA";
     override readonly name = "Difficulty Adjust";
@@ -116,7 +116,7 @@ export class ModDifficultyAdjust
         return 0.5;
     }
 
-    applyToDifficultyWithSettings(
+    applyToDifficultyWithMods(
         _: Modes,
         difficulty: BeatmapDifficulty,
         mods: ModMap,
@@ -147,7 +147,7 @@ export class ModDifficultyAdjust
         }
     }
 
-    applyToHitObjectWithSettings(
+    applyToHitObjectWithMods(
         _: Modes,
         hitObject: HitObject,
         mods: ModMap,

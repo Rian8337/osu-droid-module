@@ -58,7 +58,7 @@ export * from "./beatmap/IBeatmap";
 export * from "./utils/If";
 export * from "./mods/IModApplicableToBeatmap";
 export * from "./mods/IModApplicableToDifficulty";
-export * from "./mods/IModApplicableToDifficultyWithSettings";
+export * from "./mods/IModApplicableToDifficultyWithMods";
 export * from "./mods/IModApplicableToDroid";
 export * from "./mods/IModApplicableToHitObject";
 export * from "./mods/IModApplicableToOsu";
