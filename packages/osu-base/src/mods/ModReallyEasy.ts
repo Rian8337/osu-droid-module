@@ -8,6 +8,7 @@ import { ModCustomSpeed } from "./ModCustomSpeed";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModEasy } from "./ModEasy";
 import { ModMap } from "./ModMap";
+import { ModReplayV6 } from "./ModReplayV6";
 
 /**
  * Represents the ReallyEasy mod.
@@ -53,13 +54,21 @@ export class ModReallyEasy
         }
 
         if (difficultyAdjustMod?.cs === undefined) {
-            const scale = CircleSizeCalculator.droidCSToOldDroidScale(
-                difficulty.cs,
-            );
+            if (!mods.has(ModReplayV6)) {
+                difficulty.cs /= 2;
+            } else {
+                const scale = CircleSizeCalculator.droidCSToOldDroidScale(
+                    difficulty.cs,
+                );
 
-            difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
-                scale + 0.125,
-            );
+                // The 0.125 scale that was added before replay version 7 was in screen pixels. We need it in osu! pixels.
+                difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
+                    scale +
+                        CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                            0.125,
+                        ),
+                );
+            }
         }
 
         if (difficultyAdjustMod?.od === undefined) {

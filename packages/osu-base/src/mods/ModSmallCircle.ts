@@ -6,6 +6,7 @@ import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { Mod } from "./Mod";
 import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
+import { ModMap } from "./ModMap";
 
 /**
  * Represents the SmallCircle mod.
@@ -38,25 +39,21 @@ export class ModSmallCircle
         return new ModDifficultyAdjust({ cs: difficulty.cs + 4 });
     }
 
-    applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
-        switch (mode) {
-            case Modes.droid: {
-                const scale = CircleSizeCalculator.droidCSToOldDroidScale(
-                    difficulty.cs,
-                );
+    applyToDifficulty(
+        mode: Modes,
+        difficulty: BeatmapDifficulty,
+        adjustmentMods: ModMap,
+    ) {
+        if (mode === Modes.osu || !adjustmentMods.has(ModDifficultyAdjust)) {
+            difficulty.cs += 4;
+        } else {
+            const scale = CircleSizeCalculator.droidCSToOldDroidScale(
+                difficulty.cs,
+            );
 
-                difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
-                    scale -
-                        ((CircleSizeCalculator.oldAssumedDroidHeight / 480) *
-                            (4 * 4.48) *
-                            2) /
-                            128,
-                );
-
-                break;
-            }
-            case Modes.osu:
-                difficulty.cs += 4;
+            difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
+                scale + CircleSizeCalculator.droidCSToOldDroidScale(4),
+            );
         }
     }
 }

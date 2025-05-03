@@ -260,9 +260,17 @@ export abstract class ModUtil {
         withRateChange = false,
     ) {
         if (mods !== undefined) {
+            const adjustmentMods = new ModMap();
+
+            for (const mod of mods.values()) {
+                if (mod.isFacilitatesAdjustment()) {
+                    adjustmentMods.set(mod);
+                }
+            }
+
             for (const mod of mods.values()) {
                 if (mod.isApplicableToDifficulty()) {
-                    mod.applyToDifficulty(mode, difficulty);
+                    mod.applyToDifficulty(mode, difficulty, adjustmentMods);
                 }
             }
         }

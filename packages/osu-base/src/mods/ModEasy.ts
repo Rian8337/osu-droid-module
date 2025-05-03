@@ -6,6 +6,8 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModHardRock } from "./ModHardRock";
+import { ModMap } from "./ModMap";
+import { ModReplayV6 } from "./ModReplayV6";
 
 /**
  * Represents the Easy mod.
@@ -47,7 +49,27 @@ export class ModEasy
         return 0.5;
     }
 
-    applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
+    applyToDifficulty(
+        mode: Modes,
+        difficulty: BeatmapDifficulty,
+        adjustmentMods: ModMap,
+    ) {
+        if (mode === Modes.osu || !adjustmentMods.has(ModReplayV6)) {
+            difficulty.cs /= 2;
+        } else {
+            const scale = CircleSizeCalculator.droidCSToOldDroidScale(
+                difficulty.cs,
+            );
+
+            // The 0.125 scale that was added before replay version 7 was in screen pixels. We need it in osu! pixels.
+            difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
+                scale +
+                    CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                        0.125,
+                    ),
+            );
+        }
+
         switch (mode) {
             case Modes.droid: {
                 const scale = CircleSizeCalculator.droidCSToOldDroidScale(
