@@ -339,20 +339,9 @@ export abstract class HitObject {
      * @returns The stack offset with respect to the gamemode.
      */
     getStackOffset(mode: Modes): Vector2 {
-        switch (mode) {
-            case Modes.droid:
-                return new Vector2(
-                    this.stackHeight *
-                        CircleSizeCalculator.standardScaleToOldDroidScale(
-                            this.scale,
-                            true,
-                        ) *
-                        -4,
-                );
-
-            case Modes.osu:
-                return new Vector2(this.stackHeight * this.scale * -6.4);
-        }
+        return new Vector2(
+            this.stackHeight * this.scale * (mode === Modes.droid ? -4 : -6.4),
+        );
     }
 
     /**
