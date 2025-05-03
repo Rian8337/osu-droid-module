@@ -130,8 +130,10 @@ export class ModMap extends Map<typeof Mod, Mod> {
 
     /**
      * Serializes all `Mod`s that are in this map.
+     *
+     * @param includeNonUserPlayable Whether to include non-user-playable mods. Defaults to `true`.
      */
-    serializeMods(): SerializedMod[] {
-        return ModUtil.serializeMods(this.values());
+    serializeMods(includeNonUserPlayable = true): SerializedMod[] {
+        return ModUtil.serializeMods(this.values(), includeNonUserPlayable);
     }
 }

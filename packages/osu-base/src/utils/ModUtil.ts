@@ -112,12 +112,20 @@ export abstract class ModUtil {
      * Serializes a list of `Mod`s.
      *
      * @param mods The list of `Mod`s to serialize.
+     * @param includeNonUserPlayable Whether to include non-user-playable mods. Defaults to `true`.
      * @returns The serialized list of `Mod`s.
      */
-    static serializeMods(mods: Iterable<Mod>): SerializedMod[] {
+    static serializeMods(
+        mods: Iterable<Mod>,
+        includeNonUserPlayable = true,
+    ): SerializedMod[] {
         const serializedMods: SerializedMod[] = [];
 
         for (const mod of mods) {
+            if (!includeNonUserPlayable && !mod.userPlayable) {
+                continue;
+            }
+
             serializedMods.push(mod.serialize());
         }
 
