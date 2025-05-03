@@ -7,6 +7,55 @@ import {
     ModSmallCircle,
 } from "../../src";
 
+test("Test osu!droid circle size to osu!droid scale conversion", () => {
+    const expectScale = (cs: number, scale: number) => {
+        expect(CircleSizeCalculator.droidCSToDroidScale(cs)).toBeCloseTo(
+            scale,
+            7,
+        );
+    };
+
+    expectScale(0, 1.3304396674103878);
+    expectScale(2, 1.1903822674103879);
+    expectScale(3.5, 1.0853392174103877);
+    expectScale(4, 1.050324867410388);
+    expectScale(5, 0.9802961674103878);
+    expectScale(6, 0.9102674674103878);
+    expectScale(8, 0.7702100674103879);
+    expectScale(10, 0.6301526674103879);
+    expectScale(12, 0.49009526741038784);
+    expectScale(14, 0.35003786741038784);
+    expectScale(16, 0.20998046741038776);
+    expectScale(17, 0.1399517674103878);
+    expectScale(18, 0.0699230674103878);
+    expectScale(19, 0.001);
+    expectScale(20, 0.001);
+});
+
+test("Test osu!droid scale to osu!droid circle size conversion", () => {
+    const expectCS = (scale: number, cs: number) => {
+        expect(CircleSizeCalculator.droidScaleToDroidCS(scale)).toBeCloseTo(
+            cs,
+            7,
+        );
+    };
+
+    expectCS(1.3304396674103878, 0);
+    expectCS(1.1903822674103879, 2);
+    expectCS(1.0853392174103877, 3.5);
+    expectCS(1.050324867410388, 4);
+    expectCS(0.9802961674103878, 5);
+    expectCS(0.9102674674103878, 6);
+    expectCS(0.7702100674103879, 8);
+    expectCS(0.6301526674103879, 10);
+    expectCS(0.49009526741038784, 12);
+    expectCS(0.35003786741038784, 14);
+    expectCS(0.20998046741038776, 16);
+    expectCS(0.1399517674103878, 17);
+    expectCS(0.0699230674103878, 18);
+    expectCS(0.001, 18.98421172191384);
+});
+
 describe("Test osu!droid circle size to old osu!droid scale conversion", () => {
     const expectScale = (cs: number, scale: number, mods = new ModMap()) => {
         expect(

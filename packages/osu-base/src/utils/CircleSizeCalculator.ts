@@ -29,6 +29,38 @@ export abstract class CircleSizeCalculator {
         (0.5 * (11 - 5.2450170716245195)) / 5;
 
     /**
+     * Converts osu!droid circle size to osu!droid scale.
+     *
+     * @param cs The circle size to convert.
+     * @returns The calculated osu!droid scale.
+     */
+    static droidCSToDroidScale(cs: number): number {
+        // 6.8556344386 was derived by converting the old osu!droid gameplay scale unit into osu!pixels (by dividing it
+        // with (height / 480)) and then fitting the function to the osu!standard scale function. The height in the old
+        // osu!droid gameplay scale function was set to 576, which was chosen after sampling the top 100 most used
+        // devices by players from Firebase. This is done to ensure that the new scale is as close to the old scale as
+        // possible for most players.
+        // The fitting of both functions can be found under the following graph: https://www.desmos.com/calculator/rjfxqc3yic
+        return Math.max(
+            1e-3,
+            this.standardCSToStandardScale(cs - 6.8556344386, true),
+        );
+    }
+
+    /**
+     * Converts osu!droid scale to osu!droid circle size.
+     *
+     * @param scale The osu!droid scale to convert.
+     * @returns The calculated osu!droid circle size.
+     */
+    static droidScaleToDroidCS(scale: number): number {
+        return (
+            this.standardScaleToStandardCS(Math.max(1e-3, scale), true) +
+            6.8556344386
+        );
+    }
+
+    /**
      * Converts osu!droid CS to old osu!droid scale.
      *
      * @param cs The CS to convert.
