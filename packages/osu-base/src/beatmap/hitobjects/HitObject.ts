@@ -277,27 +277,11 @@ export abstract class HitObject {
             400 * Math.min(1, this.timePreempt / HitObject.preemptMin);
 
         switch (mode) {
-            case Modes.droid: {
-                const droidScale = CircleSizeCalculator.droidCSToOldDroidScale(
+            case Modes.droid:
+                this.scale = CircleSizeCalculator.droidCSToDroidScale(
                     difficulty.cs,
                 );
-
-                const radius =
-                    CircleSizeCalculator.oldDroidScaleToStandardRadius(
-                        droidScale,
-                    );
-
-                const cs = CircleSizeCalculator.standardRadiusToStandardCS(
-                    radius,
-                    true,
-                );
-
-                this.scale = CircleSizeCalculator.standardCSToStandardScale(
-                    cs,
-                    true,
-                );
                 break;
-            }
 
             case Modes.osu:
                 this.scale = CircleSizeCalculator.standardCSToStandardScale(
@@ -363,7 +347,7 @@ export abstract class HitObject {
                             this.scale,
                             true,
                         ) *
-                        4,
+                        -4,
                 );
 
             case Modes.osu:
