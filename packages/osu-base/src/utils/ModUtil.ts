@@ -24,6 +24,7 @@ import { ModPrecise } from "../mods/ModPrecise";
 import { ModRateAdjust } from "../mods/ModRateAdjust";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
+import { ModReplayV6 } from "../mods/ModReplayV6";
 import { ModScoreV2 } from "../mods/ModScoreV2";
 import { ModSmallCircle } from "../mods/ModSmallCircle";
 import { ModSpunOut } from "../mods/ModSpunOut";
@@ -67,6 +68,7 @@ export abstract class ModUtil {
             ModPrecise,
             ModReallyEasy,
             ModSynesthesia,
+            ModReplayV6,
             ModScoreV2,
             ModSmallCircle,
             ModSpunOut,
