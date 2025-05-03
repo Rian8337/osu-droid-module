@@ -6,6 +6,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModTraceable } from "./ModTraceable";
+import { SerializedMod } from "./SerializedMod";
 
 /**
  * Represents the Hidden mod.
@@ -27,6 +28,13 @@ export class ModHidden
 
     readonly osuRanked = true;
     readonly bitwise = 1 << 3;
+
+    /**
+     * Whether to only fade approach circles.
+     *
+     * The main object body will not fade when enabled.
+     */
+    onlyFadeApproachCircles = false;
 
     constructor() {
         super();
@@ -50,6 +58,14 @@ export class ModHidden
         return 1.06;
     }
 
+    override copySettings(mod: SerializedMod): void {
+        super.copySettings(mod);
+
+        this.onlyFadeApproachCircles =
+            (mod.settings?.onlyFadeApproachCircles as boolean | undefined) ??
+            this.onlyFadeApproachCircles;
+    }
+
     applyToBeatmap(beatmap: Beatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {
             hitObject.timeFadeIn =
@@ -61,5 +77,19 @@ export class ModHidden
         };
 
         beatmap.hitObjects.objects.forEach(applyFadeInAdjustment);
+    }
+
+    protected override serializeSettings(): Record<string, unknown> | null {
+        return this.onlyFadeApproachCircles
+            ? { onlyFadeApproachCircles: this.onlyFadeApproachCircles }
+            : null;
+    }
+
+    override toString(): string {
+        if (!this.onlyFadeApproachCircles) {
+            return super.toString();
+        }
+
+        return `${super.toString()} (approach circles only)`;
     }
 }
