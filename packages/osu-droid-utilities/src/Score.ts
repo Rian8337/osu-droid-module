@@ -138,14 +138,22 @@ export class Score {
      *
      * @param uid The uid of the player.
      * @param hash The MD5 hash of the beatmap.
-     * @param bestPP Whether to retrieve the score in terms of the best performance points rather than best score. Defaults to `false`.
+     * @param fetchBestPP Whether to retrieve the score in terms of the best performance points rather than best score. Defaults to `false`.
      * @returns The score, `null` if the score is not found.
      */
-    static async getFromHash(uid: number, hash: string): Promise<Score | null> {
+    static async getFromHash(
+        uid: number,
+        hash: string,
+        fetchBestPP = false,
+    ): Promise<Score | null> {
         const apiRequestBuilder = new DroidAPIRequestBuilder()
             .setEndpoint("scoresearchv2.php")
             .addParameter("uid", uid)
             .addParameter("hash", hash);
+
+        if (fetchBestPP) {
+            apiRequestBuilder.addParameter("order", "pp");
+        }
 
         const result = await apiRequestBuilder.sendRequest();
 
