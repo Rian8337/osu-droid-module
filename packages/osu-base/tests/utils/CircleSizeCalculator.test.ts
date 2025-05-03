@@ -123,6 +123,54 @@ describe("Test osu!droid circle size to old osu!droid scale conversion", () => {
     });
 });
 
+test("Test old osu!droid scale screen pixels to osu! pixels conversion", () => {
+    const expectScale = (screenPixelsScale: number, osuPixelsScale: number) => {
+        expect(
+            CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                screenPixelsScale,
+            ),
+        ).toBeCloseTo(osuPixelsScale, 7);
+    };
+
+    expectScale(1.7818792043749998, 1.2559501);
+    expectScale(1.5832540625, 1.11595);
+    expectScale(1.434285454375, 1.0109501);
+    expectScale(1.3846293462500001, 0.9759502);
+    expectScale(1.285316704375, 0.9059501);
+    expectScale(1.186004204375, 0.8359501);
+    expectScale(0.9873792043749999, 0.6959501);
+    expectScale(0.788754204375, 0.5559501);
+    expectScale(0.59012923275, 0.41595012);
+    expectScale(0.39150420437499994, 0.2759501);
+    expectScale(0.192879204375, 0.1359501);
+    expectScale(0.09356670437499999, 0.0659501);
+    expectScale(0.001, 7.048458e-4);
+});
+
+test("Test old osu!droid scale osu! pixels to screen pixels conversion", () => {
+    const expectScale = (osuPixelsScale: number, screenPixelsScale: number) => {
+        expect(
+            CircleSizeCalculator.oldDroidScaleOsuPixelsToScreenPixels(
+                osuPixelsScale,
+            ),
+        ).toBeCloseTo(screenPixelsScale, 7);
+    };
+
+    expectScale(1.2559501, 1.7818792043749998);
+    expectScale(1.11595, 1.5832540625);
+    expectScale(1.0109501, 1.434285454375);
+    expectScale(0.9759502, 1.3846293462500001);
+    expectScale(0.9059501, 1.285316704375);
+    expectScale(0.8359501, 1.186004204375);
+    expectScale(0.6959501, 0.9873792043749999);
+    expectScale(0.5559501, 0.788754204375);
+    expectScale(0.41595012, 0.59012923275);
+    expectScale(0.2759501, 0.39150420437499994);
+    expectScale(0.1359501, 0.192879204375);
+    expectScale(0.0659501, 0.09356670437499999);
+    expectScale(7.048458e-4, 0.001);
+});
+
 test("Test old osu!droid scale to osu!standard radius conversion", () => {
     const expectRadius = (scale: number, radius: number) => {
         expect(
