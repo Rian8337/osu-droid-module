@@ -105,9 +105,9 @@ export abstract class Mod {
     /**
      * Whether this `Mod` can be applied to a `BeatmapDifficulty` relative to other `Mod`s and settings.
      */
-    isApplicableToDifficultyWithSettings(): this is this &
+    isApplicableToDifficultyWithMods(): this is this &
         IModApplicableToDifficultyWithMods {
-        return "applyToDifficultyWithSettings" in this;
+        return "applyToDifficultyWithMods" in this;
     }
 
     /**
@@ -120,9 +120,9 @@ export abstract class Mod {
     /**
      * Whether this `Mod` can be applied to a `HitObject` relative to other `Mod`s and settings.
      */
-    isApplicableToHitObjectWithSettings(): this is this &
+    isApplicableToHitObjectWithMods(): this is this &
         IModApplicableToHitObjectWithMods {
-        return "applyToHitObjectWithSettings" in this;
+        return "applyToHitObjectWithMods" in this;
     }
 
     /**

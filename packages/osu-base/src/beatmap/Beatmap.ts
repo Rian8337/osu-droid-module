@@ -334,7 +334,7 @@ export class Beatmap implements IBeatmap {
         });
 
         mods.forEach((mod) => {
-            if (mod.isApplicableToDifficultyWithSettings()) {
+            if (mod.isApplicableToDifficultyWithMods()) {
                 mod.applyToDifficultyWithMods(mode, converted.difficulty, mods);
             }
         });
@@ -361,7 +361,7 @@ export class Beatmap implements IBeatmap {
         });
 
         mods.forEach((mod) => {
-            if (mod.isApplicableToHitObjectWithSettings()) {
+            if (mod.isApplicableToHitObjectWithMods()) {
                 for (const hitObject of converted.hitObjects.objects) {
                     mod.applyToHitObjectWithMods(mode, hitObject, mods);
                 }

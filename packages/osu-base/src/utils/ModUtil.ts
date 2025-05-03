@@ -279,7 +279,7 @@ export abstract class ModUtil {
 
         if (mods !== undefined) {
             for (const mod of mods.values()) {
-                if (mod.isApplicableToDifficultyWithSettings()) {
+                if (mod.isApplicableToDifficultyWithMods()) {
                     mod.applyToDifficultyWithMods(mode, difficulty, mods);
                 }
 
