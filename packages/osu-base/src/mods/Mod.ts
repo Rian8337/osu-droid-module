@@ -25,6 +25,13 @@ export abstract class Mod {
     abstract readonly name: string;
 
     /**
+     * Whether this `Mod` is playable by a real human user.
+     *
+     * Should be `false` for cases where the user is not meant to apply the `Mod` by themselves.
+     */
+    readonly userPlayable: boolean = true;
+
+    /**
      * `Mod`s that are incompatible with this `Mod`.
      */
     readonly incompatibleMods = new Set<typeof Mod>();
