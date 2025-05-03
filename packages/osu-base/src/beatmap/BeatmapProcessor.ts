@@ -86,9 +86,8 @@ export class BeatmapProcessor {
             return;
         }
 
-        const convertedScale = CircleSizeCalculator.standardScaleToDroidScale(
-            objects[0].scale,
-        );
+        const convertedScale =
+            CircleSizeCalculator.standardScaleToOldDroidScale(objects[0].scale);
 
         for (let i = 0; i < objects.length - 1; ++i) {
             const current = objects[i];

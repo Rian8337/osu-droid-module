@@ -41,13 +41,13 @@ export class ModSmallCircle
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
         switch (mode) {
             case Modes.droid: {
-                const scale = CircleSizeCalculator.droidCSToDroidScale(
+                const scale = CircleSizeCalculator.droidCSToOldDroidScale(
                     difficulty.cs,
                 );
 
-                difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
+                difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                     scale -
-                        ((CircleSizeCalculator.assumedDroidHeight / 480) *
+                        ((CircleSizeCalculator.oldAssumedDroidHeight / 480) *
                             (4 * 4.48) *
                             2) /
                             128,

@@ -278,12 +278,14 @@ export abstract class HitObject {
 
         switch (mode) {
             case Modes.droid: {
-                const droidScale = CircleSizeCalculator.droidCSToDroidScale(
+                const droidScale = CircleSizeCalculator.droidCSToOldDroidScale(
                     difficulty.cs,
                 );
 
                 const radius =
-                    CircleSizeCalculator.droidScaleToStandardRadius(droidScale);
+                    CircleSizeCalculator.oldDroidScaleToStandardRadius(
+                        droidScale,
+                    );
 
                 const cs = CircleSizeCalculator.standardRadiusToStandardCS(
                     radius,
@@ -357,7 +359,7 @@ export abstract class HitObject {
             case Modes.droid:
                 return new Vector2(
                     this.stackHeight *
-                        CircleSizeCalculator.standardScaleToDroidScale(
+                        CircleSizeCalculator.standardScaleToOldDroidScale(
                             this.scale,
                             true,
                         ) *

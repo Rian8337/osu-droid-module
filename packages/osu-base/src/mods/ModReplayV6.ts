@@ -50,9 +50,8 @@ export class ModReplayV6
             h.stackHeight = 0;
         });
 
-        const convertedScale = CircleSizeCalculator.standardScaleToDroidScale(
-            objects[0].scale,
-        );
+        const convertedScale =
+            CircleSizeCalculator.standardScaleToOldDroidScale(objects[0].scale);
 
         for (let i = 0; i < objects.length - 1; ++i) {
             const current = objects[i];
@@ -77,12 +76,12 @@ export class ModReplayV6
         hitObject: HitObject,
         difficulty: BeatmapDifficulty,
     ) {
-        const droidScale = CircleSizeCalculator.standardScaleToDroidScale(
+        const droidScale = CircleSizeCalculator.standardScaleToOldDroidScale(
             difficulty.cs,
         );
 
         const radius =
-            CircleSizeCalculator.droidScaleToStandardRadius(droidScale);
+            CircleSizeCalculator.oldDroidScaleToStandardRadius(droidScale);
 
         const standardCS = CircleSizeCalculator.standardRadiusToStandardCS(
             radius,

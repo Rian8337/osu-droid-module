@@ -7,12 +7,11 @@ import {
     ModSmallCircle,
 } from "../../src";
 
-describe("Test osu!droid circle size to osu!droid scale conversion", () => {
+describe("Test osu!droid circle size to old osu!droid scale conversion", () => {
     const expectScale = (cs: number, scale: number, mods = new ModMap()) => {
-        expect(CircleSizeCalculator.droidCSToDroidScale(cs, mods)).toBeCloseTo(
-            scale,
-            7,
-        );
+        expect(
+            CircleSizeCalculator.droidCSToOldDroidScale(cs, mods),
+        ).toBeCloseTo(scale, 7);
     };
 
     test("Without mods", () => {
@@ -75,10 +74,10 @@ describe("Test osu!droid circle size to osu!droid scale conversion", () => {
     });
 });
 
-test("Test osu!droid scale to osu!standard radius conversion", () => {
+test("Test old osu!droid scale to osu!standard radius conversion", () => {
     const expectRadius = (scale: number, radius: number) => {
         expect(
-            CircleSizeCalculator.droidScaleToStandardRadius(scale),
+            CircleSizeCalculator.oldDroidScaleToStandardRadius(scale),
         ).toBeCloseTo(radius, 7);
     };
 
@@ -106,10 +105,10 @@ test("Test osu!droid scale to osu!standard radius conversion", () => {
     expectRadius(0.001, 0.042456594972790876);
 });
 
-test("Test osu!standard radius to osu!droid scale conversion", () => {
+test("Test osu!standard radius to old osu!droid scale conversion", () => {
     const expectScale = (radius: number, scale: number) => {
         expect(
-            CircleSizeCalculator.standardRadiusToDroidScale(radius),
+            CircleSizeCalculator.standardRadiusToOldDroidScale(radius),
         ).toBeCloseTo(scale, 7);
     };
 
@@ -198,14 +197,14 @@ describe("Test osu!standard scale to osu!standard CS conversion", () => {
     });
 });
 
-describe("Test osu!standard scale to osu!droid scale conversion", () => {
+describe("Test osu!standard scale to old osu!droid scale conversion", () => {
     const expectScale = (
         standardScale: number,
         droidScale: number,
         applyFudge: boolean,
     ) => {
         expect(
-            CircleSizeCalculator.standardScaleToDroidScale(
+            CircleSizeCalculator.standardScaleToOldDroidScale(
                 standardScale,
                 applyFudge,
             ),

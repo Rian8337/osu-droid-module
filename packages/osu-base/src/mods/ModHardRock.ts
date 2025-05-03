@@ -58,11 +58,11 @@ export class ModHardRock
     applyToDifficulty(mode: Modes, difficulty: BeatmapDifficulty): void {
         switch (mode) {
             case Modes.droid: {
-                const scale = CircleSizeCalculator.droidCSToDroidScale(
+                const scale = CircleSizeCalculator.droidCSToOldDroidScale(
                     difficulty.cs,
                 );
 
-                difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
+                difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                     scale - 0.125,
                 );
 

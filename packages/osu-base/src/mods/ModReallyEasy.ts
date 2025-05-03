@@ -53,11 +53,11 @@ export class ModReallyEasy
         }
 
         if (difficultyAdjustMod?.cs === undefined) {
-            const scale = CircleSizeCalculator.droidCSToDroidScale(
+            const scale = CircleSizeCalculator.droidCSToOldDroidScale(
                 difficulty.cs,
             );
 
-            difficulty.cs = CircleSizeCalculator.droidScaleToDroidCS(
+            difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                 scale + 0.125,
             );
         }
