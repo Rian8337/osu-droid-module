@@ -73,9 +73,21 @@ export abstract class CircleSizeCalculator {
         difficulty.cs = cs;
 
         if (mods !== undefined) {
+            const adjustmentMods = new ModMap();
+
+            for (const mod of mods.values()) {
+                if (mod.isFacilitatesAdjustment()) {
+                    adjustmentMods.set(mod);
+                }
+            }
+
             for (const mod of mods.values()) {
                 if (mod.isApplicableToDifficulty()) {
-                    mod.applyToDifficulty(Modes.droid, difficulty);
+                    mod.applyToDifficulty(
+                        Modes.droid,
+                        difficulty,
+                        adjustmentMods,
+                    );
                 }
             }
 
@@ -114,6 +126,26 @@ export abstract class CircleSizeCalculator {
                     this.oldAssumedDroidHeight) /
             4.48
         );
+    }
+
+    /**
+     * Converts old osu!droid difficulty scale that is in **screen pixels** to **osu!pixels**.
+     *
+     * @param scale The osu!droid scale to convert.
+     * @returns The converted scale.
+     */
+    static oldDroidScaleScreenPixelsToOsuPixels(scale: number): number {
+        return (scale * 480) / this.oldAssumedDroidHeight;
+    }
+
+    /**
+     * Converts old osu!droid scale that is in **osu!pixels** to **screen pixels**.
+     *
+     * @param scale The osu!droid scale to convert.
+     * @returns The converted scale.
+     */
+    static oldDroidScaleOsuPixelsToScreenPixels(scale: number): number {
+        return (scale * this.oldAssumedDroidHeight) / 480;
     }
 
     /**
