@@ -53,3 +53,16 @@ test("Test vertical reflection", () => {
     expect(slider.endPosition).toEqual(new Vector2(300, 284));
     expect(slider.nestedHitObjects[1].position).toEqual(new Vector2(200, 284));
 });
+
+test("Test flip slider in place horizontally", () => {
+    const slider = createSlider();
+
+    HitObjectGenerationUtils.flipSliderInPlaceHorizontally(slider);
+
+    expect(slider.position).toEqual(new Vector2(100));
+    expect(slider.head.position).toEqual(slider.position);
+    expect(slider.nestedHitObjects[1].position).toEqual(new Vector2(0, 100));
+    expect(slider.endPosition).toEqual(new Vector2(-100, 100));
+    expect(slider.tail.position).toEqual(slider.endPosition);
+    expect(slider.path.controlPoints[1]).toEqual(new Vector2(-200, 0));
+});
