@@ -27,6 +27,9 @@ export class ModReplayV6
 {
     override readonly name = "Replay V6";
     override readonly acronym = "RV6";
+
+    override readonly userPlayable = false;
+
     readonly droidRanked = false;
 
     readonly facilitatesAdjustment = true;
