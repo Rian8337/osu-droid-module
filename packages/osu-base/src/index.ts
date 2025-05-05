@@ -117,6 +117,7 @@ export * from "./utils/Playfield";
 export * from "./math/Polynomial";
 export * from "./beatmap/PreciseDroidHitWindow";
 export * from "./utils/Precision";
+export * from "./math/Random";
 export * from "./online/RequestResponse";
 export * from "./utils/RGBColor";
 export * from "./math/RootBounds";
