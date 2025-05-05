@@ -216,6 +216,42 @@ export class SliderPath {
     }
 
     /**
+     * Computes the slider path until a given progress that ranges from 0 (beginning of the slider) to
+     * 1 (end of the slider).
+     *
+     * @param p0 Start progress. Ranges from 0 (beginning of the slider) to 1 (end of the slider).
+     * @param p1 End progress. Ranges from 0 (beginning of the slider) to 1 (end of the slider).
+     * @return The computed path between the two ranges.
+     */
+    pathToProgress(p0: number, p1: number): Vector2[] {
+        const path: Vector2[] = [];
+        const d0 = this.progressToDistance(p0);
+        const d1 = this.progressToDistance(p1);
+
+        let i = 0;
+
+        while (
+            i < this.calculatedPath.length &&
+            this.cumulativeLength[i] < d0
+        ) {
+            ++i;
+        }
+
+        path.push(this.interpolateVerticles(i, d0));
+
+        while (
+            i < this.calculatedPath.length &&
+            this.cumulativeLength[i] <= d1
+        ) {
+            path.push(this.calculatedPath[i++]);
+        }
+
+        path.push(this.interpolateVerticles(i, d1));
+
+        return path;
+    }
+
+    /**
      * Returns the progress of reaching expected distance.
      */
     private progressToDistance(progress: number): number {
