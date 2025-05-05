@@ -7,14 +7,10 @@ import { Spinner } from "../hitobjects/Spinner";
  * Contains information about hit objects of a beatmap.
  */
 export class BeatmapHitObjects {
-    private _objects: PlaceableHitObject[] = [];
-
     /**
      * The objects of the beatmap.
      */
-    get objects(): readonly PlaceableHitObject[] {
-        return this._objects;
-    }
+    objects: PlaceableHitObject[] = [];
 
     private _circles = 0;
 
@@ -88,7 +84,7 @@ export class BeatmapHitObjects {
             // Objects may be out of order *only* if a user has manually edited an .osu file.
             // Unfortunately there are "ranked" maps in this state (example: https://osu.ppy.sh/s/594828).
             // Finding index is used to guarantee that the parsing order of hitobjects with equal start times is maintained (stably-sorted).
-            this._objects.splice(
+            this.objects.splice(
                 this.findInsertionIndex(object.startTime),
                 0,
                 object,
@@ -111,7 +107,7 @@ export class BeatmapHitObjects {
      * @returns The hitobject that was removed, `null` if no hitobject was removed.
      */
     removeAt(index: number): PlaceableHitObject | null {
-        const object = this._objects.splice(index, 1)[0] ?? null;
+        const object = this.objects.splice(index, 1)[0] ?? null;
 
         if (object instanceof Circle) {
             --this._circles;
@@ -128,7 +124,7 @@ export class BeatmapHitObjects {
      * Clears all hitobjects.
      */
     clear(): void {
-        this._objects.length = 0;
+        this.objects.length = 0;
         this._circles = 0;
         this._sliders = 0;
         this._spinners = 0;
@@ -141,25 +137,25 @@ export class BeatmapHitObjects {
      */
     private findInsertionIndex(startTime: number): number {
         if (
-            this._objects.length === 0 ||
-            startTime < this._objects[0].startTime
+            this.objects.length === 0 ||
+            startTime < this.objects[0].startTime
         ) {
             return 0;
         }
 
-        if (startTime >= this._objects.at(-1)!.startTime) {
-            return this._objects.length;
+        if (startTime >= this.objects.at(-1)!.startTime) {
+            return this.objects.length;
         }
 
         let l = 0;
-        let r = this._objects.length - 2;
+        let r = this.objects.length - 2;
 
         while (l <= r) {
             const pivot = l + ((r - l) >> 1);
 
-            if (this._objects[pivot].startTime < startTime) {
+            if (this.objects[pivot].startTime < startTime) {
                 l = pivot + 1;
-            } else if (this._objects[pivot].startTime > startTime) {
+            } else if (this.objects[pivot].startTime > startTime) {
                 r = pivot - 1;
             } else {
                 return pivot;
