@@ -14,30 +14,13 @@ export abstract class HitObjectGenerationUtils {
      * @param hitObject The {@link HitObject} to reflect.
      */
     static reflectHorizontallyAlongPlayfield(hitObject: HitObject) {
-        // Reflect the position of the hit object.
         hitObject.position = this.reflectVectorHorizontallyAlongPlayfield(
             hitObject.position,
         );
 
-        if (!(hitObject instanceof Slider)) {
-            return;
+        if (hitObject instanceof Slider) {
+            this.modifySlider(hitObject, (v) => new Vector2(-v.x, v.y));
         }
-
-        // Reflect the control points of the slider. This will reflect the positions of head and tail circles.
-        hitObject.path = new SliderPath({
-            pathType: hitObject.path.pathType,
-            controlPoints: hitObject.path.controlPoints.map(
-                (v) => new Vector2(-v.x, v.y),
-            ),
-            expectedDistance: hitObject.path.expectedDistance,
-        });
-
-        // Reflect the position of slider ticks and repeats.
-        hitObject.nestedHitObjects.slice(1, -1).forEach((obj) => {
-            obj.position = this.reflectVectorHorizontallyAlongPlayfield(
-                obj.position,
-            );
-        });
     }
 
     /**
@@ -51,24 +34,19 @@ export abstract class HitObjectGenerationUtils {
             hitObject.position,
         );
 
-        if (!(hitObject instanceof Slider)) {
-            return;
+        if (hitObject instanceof Slider) {
+            this.modifySlider(hitObject, (v) => new Vector2(v.x, -v.y));
         }
+    }
 
-        // Reflect the control points of the slider. This will reflect the positions of head and tail circles.
-        hitObject.path = new SliderPath({
-            pathType: hitObject.path.pathType,
-            controlPoints: hitObject.path.controlPoints.map(
-                (v) => new Vector2(v.x, -v.y),
-            ),
-            expectedDistance: hitObject.path.expectedDistance,
-        });
-
-        // Reflect the position of slider ticks and repeats.
-        hitObject.nestedHitObjects.slice(1, -1).forEach((obj) => {
-            obj.position = this.reflectVectorVerticallyAlongPlayfield(
-                obj.position,
-            );
+    private static modifySlider(
+        slider: Slider,
+        modifyControlPoint: (vec: Vector2) => Vector2,
+    ) {
+        slider.path = new SliderPath({
+            pathType: slider.path.pathType,
+            controlPoints: slider.path.controlPoints.map(modifyControlPoint),
+            expectedDistance: slider.path.expectedDistance,
         });
     }
 

@@ -483,6 +483,16 @@ export class Slider extends HitObject {
 
         this.head.position = this.position;
         this.tail.position = this.endPosition;
+
+        for (let i = 1; i < this.nestedHitObjects.length - 1; ++i) {
+            const nestedObject = this.nestedHitObjects[i];
+            const progress =
+                (nestedObject.startTime - this.startTime) / this.duration;
+
+            nestedObject.position = this.position.add(
+                this.curvePositionAt(progress),
+            );
+        }
     }
 
     private createSlidingSamples(controlPoints: BeatmapControlPoints): void {
