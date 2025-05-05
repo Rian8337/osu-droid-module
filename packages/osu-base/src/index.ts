@@ -153,4 +153,5 @@ export * from "./beatmap/timings/TimingControlPoint";
 export * from "./beatmap/timings/TimingControlPointManager";
 export * from "./utils/Utils";
 export * from "./math/Vector2";
+export * from "./math/Vector4";
 export * from "./math/ZeroCrossingBracketing";
