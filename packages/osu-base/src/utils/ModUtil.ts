@@ -21,6 +21,7 @@ import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
 import { ModPerfect } from "../mods/ModPerfect";
 import { ModPrecise } from "../mods/ModPrecise";
+import { ModRandom } from "../mods/ModRandom";
 import { ModRateAdjust } from "../mods/ModRateAdjust";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
@@ -66,6 +67,7 @@ export abstract class ModUtil {
             ModSuddenDeath,
             ModPerfect,
             ModPrecise,
+            ModRandom,
             ModReallyEasy,
             ModSynesthesia,
             ModReplayV6,
