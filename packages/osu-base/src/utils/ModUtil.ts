@@ -217,9 +217,13 @@ export abstract class ModUtil {
      * Converts a list of `Mod`s into an ordered string based on {@link allMods}.
      *
      * @param mods The list of `Mod`s to convert.
+     * @param includeNonUserPlayable Whether to include non-user-playable mods. Defaults to `true`.
      * @returns The string representing the `Mod`s in ordered form.
      */
-    static modsToOrderedString(mods: Mod[] | ModMap): string {
+    static modsToOrderedString(
+        mods: Mod[] | ModMap,
+        includeNonUserPlayable = true,
+    ): string {
         const strs: string[] = [];
 
         for (const modType of this.allMods.values()) {
@@ -228,7 +232,7 @@ export abstract class ModUtil {
                     ? mods.get(modType as new () => Mod)
                     : mods.find((m) => m instanceof modType);
 
-            if (mod) {
+            if (mod && (includeNonUserPlayable || mod.userPlayable)) {
                 strs.push(mod.toString());
                 continue;
             }
