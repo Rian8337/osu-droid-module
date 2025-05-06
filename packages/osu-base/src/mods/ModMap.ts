@@ -161,4 +161,14 @@ export class ModMap extends Map<typeof Mod, Mod> {
 
         return true;
     }
+
+    /**
+     * Returns a string representation of this `ModMap`.
+     *
+     * @param includeNonUserPlayable Whether to include non-user-playable mods. Defaults to `true`.
+     * @returns A string representation of this `ModMap`.
+     */
+    override toString(includeNonUserPlayable = true): string {
+        return ModUtil.modsToOrderedString(this, includeNonUserPlayable);
+    }
 }
