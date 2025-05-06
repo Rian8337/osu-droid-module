@@ -16,3 +16,25 @@ test("Test object fade in adjustment", () => {
 
     expect(circle.timeFadeIn).toBeCloseTo(480, 1e-5);
 });
+
+test("Test equals", () => {
+    const mod1 = new ModHidden();
+    const mod2 = new ModHidden();
+    const mod3 = new ModHidden();
+
+    mod1.onlyFadeApproachCircles = false;
+    mod2.onlyFadeApproachCircles = false;
+    mod3.onlyFadeApproachCircles = true;
+
+    expect(mod1.equals(mod2)).toBe(true);
+    expect(mod1.equals(mod3)).toBe(false);
+});
+
+test("Test toString", () => {
+    const mod = new ModHidden();
+
+    expect(mod.toString()).toBe("HD");
+
+    mod.onlyFadeApproachCircles = true;
+    expect(mod.toString()).toBe("HD (only fade approach circles)");
+});

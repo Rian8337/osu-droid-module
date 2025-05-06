@@ -156,6 +156,16 @@ export abstract class Mod {
     }
 
     /**
+     * Compares this `Mod` to another `Mod` for equality.
+     *
+     * @param other The object to compare to.
+     * @returns `true` if the object is the same `Mod`, `false` otherwise.
+     */
+    equals(other: Mod): other is this {
+        return this === other || this.acronym === other.acronym;
+    }
+
+    /**
      * Returns the string representation of this `Mod`.
      */
     toString(): string {

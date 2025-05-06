@@ -119,6 +119,39 @@ test("Test serialization", () => {
     expect(mod.serialize().settings).toEqual({ cs: 4, ar: 9, od: 8, hp: 6 });
 });
 
+test("Test equals", () => {
+    const mod1 = new ModDifficultyAdjust({
+        cs: 4,
+        ar: 9,
+        od: 8,
+        hp: 6,
+    });
+
+    const mod2 = new ModDifficultyAdjust({
+        cs: 4,
+        ar: 9,
+        od: 8,
+        hp: 6,
+    });
+
+    const mod3 = new ModDifficultyAdjust({
+        cs: 5,
+        ar: 9,
+        od: 8,
+        hp: 6,
+    });
+
+    const mod4 = new ModDifficultyAdjust({
+        cs: 4,
+        ar: 9,
+        od: 8,
+    });
+
+    expect(mod1.equals(mod2)).toBe(true);
+    expect(mod1.equals(mod3)).toBe(false);
+    expect(mod1.equals(mod4)).toBe(false);
+});
+
 test("Test toString", () => {
     const mod = new ModDifficultyAdjust();
 

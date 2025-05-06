@@ -56,6 +56,14 @@ export class ModFlashlight
         return { areaFollowDelay: this.followDelay };
     }
 
+    override equals(other: Mod): other is this {
+        return (
+            super.equals(other) &&
+            other instanceof ModFlashlight &&
+            other.followDelay === this.followDelay
+        );
+    }
+
     override toString(): string {
         if (this.followDelay === ModFlashlight.defaultFollowDelay) {
             return super.toString();

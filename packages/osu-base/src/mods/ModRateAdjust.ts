@@ -29,7 +29,15 @@ export abstract class ModRateAdjust
         return this.trackRateMultiplier !== 1;
     }
 
-    applyToRate(time: number, rate: number): number {
+    applyToRate(_: number, rate: number): number {
         return rate * this.trackRateMultiplier;
+    }
+
+    override equals(other: Mod): other is this {
+        return (
+            super.equals(other) &&
+            other instanceof ModRateAdjust &&
+            this.trackRateMultiplier === other.trackRateMultiplier
+        );
     }
 }
