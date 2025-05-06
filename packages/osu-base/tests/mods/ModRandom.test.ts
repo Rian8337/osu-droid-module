@@ -37,16 +37,16 @@ test("Test equals", () => {
 
     expect(random1.equals(random2)).toBe(true);
     expect(random1.equals(random3)).toBe(false);
-    expect(random1.equals(random4)).toBe(true);
+    expect(random1.equals(random4)).toBe(false);
 });
 
 test("Test toString", () => {
     const random = new ModRandom();
 
-    expect(random.toString()).toBe("RD");
+    expect(random.toString()).toBe("RD (angle sharpness: 7.0)");
 
     random.angleSharpness = 8;
     random.seed = 100;
 
-    expect(random.toString()).toBe("RD (seed: 100, angle sharpness: 8)");
+    expect(random.toString()).toBe("RD (seed: 100, angle sharpness: 8.0)");
 });

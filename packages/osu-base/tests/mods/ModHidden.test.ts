@@ -36,5 +36,5 @@ test("Test toString", () => {
     expect(mod.toString()).toBe("HD");
 
     mod.onlyFadeApproachCircles = true;
-    expect(mod.toString()).toBe("HD (only fade approach circles)");
+    expect(mod.toString()).toBe("HD (approach circles only)");
 });
