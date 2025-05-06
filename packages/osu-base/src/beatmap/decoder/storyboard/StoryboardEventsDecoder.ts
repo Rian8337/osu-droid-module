@@ -1,9 +1,10 @@
-import { normalize } from "path";
+import { Anchor } from "../../../constants/Anchor";
 import { Easing } from "../../../constants/Easing";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { MathUtils } from "../../../math/MathUtils";
 import { Vector2 } from "../../../math/Vector2";
 import { RGBColor } from "../../../utils/RGBColor";
+import { normalize } from "../../../utils/path";
 import { Storyboard } from "../../Storyboard";
 import { BlendingParameters } from "../../storyboard/BlendingParameters";
 import { CommandTimelineGroup } from "../../storyboard/commands/CommandTimelineGroup";
@@ -11,12 +12,11 @@ import { StoryboardAnimation } from "../../storyboard/elements/StoryboardAnimati
 import { StoryboardSample } from "../../storyboard/elements/StoryboardSample";
 import { StoryboardSprite } from "../../storyboard/elements/StoryboardSprite";
 import { AnimationLoopType } from "../../storyboard/enums/AnimationLoopType";
-import { StoryboardEventType } from "../../storyboard/enums/StoryboardEventType";
 import { StoryboardCommandType } from "../../storyboard/enums/StoryboardCommandType";
+import { StoryboardEventType } from "../../storyboard/enums/StoryboardEventType";
 import { StoryboardLayerType } from "../../storyboard/enums/StoryboardLayerType";
 import { StoryboardParameterCommandType } from "../../storyboard/enums/StoryboardParameterCommandType";
 import { SectionDecoder } from "../SectionDecoder";
-import { Anchor } from "../../../constants/Anchor";
 
 /**
  * A decoder for decoding a storyboard's events section.

@@ -112,6 +112,7 @@ export * from "./beatmap/OsuHitWindow";
 export * from "./beatmap/OsuPlayableBeatmap";
 export * from "./utils/PathApproximator";
 export * from "./constants/PathType";
+export * from "./utils/path";
 export * from "./beatmap/hitobjects/PlaceableHitObject";
 export * from "./beatmap/PlayableBeatmap";
 export * from "./utils/Playfield";
