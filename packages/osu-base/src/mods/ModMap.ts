@@ -136,4 +136,29 @@ export class ModMap extends Map<typeof Mod, Mod> {
     serializeMods(includeNonUserPlayable = true): SerializedMod[] {
         return ModUtil.serializeMods(this.values(), includeNonUserPlayable);
     }
+
+    /**
+     * Determines whether this `ModMap` is equal to another `ModMap`.
+     *
+     * This equality check succeeds if and only if the two `ModMap`s have the same size and
+     * all `Mod`s in this `ModMap` are equal to the corresponding `Mod`s in the other `ModMap`.
+     *
+     * @param other The other `ModMap` to compare to.
+     * @returns Whether the two `ModMap`s are equal.
+     */
+    equals(other: ModMap): boolean {
+        if (this.size !== other.size) {
+            return false;
+        }
+
+        for (const [key, value] of this) {
+            const otherValue = other.get(key as new () => Mod);
+
+            if (!otherValue?.equals(value)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
 }
