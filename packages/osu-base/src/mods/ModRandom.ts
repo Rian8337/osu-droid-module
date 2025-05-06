@@ -279,7 +279,7 @@ export class ModRandom
             settings.push(`seed: ${this.seed}`);
         }
 
-        settings.push(`angle sharpness: ${this.angleSharpness.toFixed(2)}`);
+        settings.push(`angle sharpness: ${this.angleSharpness.toFixed(1)}`);
 
         return `${super.toString()} (${settings.join(", ")})`;
     }
