@@ -273,6 +273,14 @@ export class ModRandom
     }
 
     override toString(): string {
-        return `${super.toString()} (seed: ${this.seed}, angle sharpness: ${this.angleSharpness})`;
+        const settings: string[] = [];
+
+        if (this.seed !== null) {
+            settings.push(`seed: ${this.seed}`);
+        }
+
+        settings.push(`angle sharpness: ${this.angleSharpness.toFixed(2)}`);
+
+        return `${super.toString()} (${settings.join(", ")})`;
     }
 }
