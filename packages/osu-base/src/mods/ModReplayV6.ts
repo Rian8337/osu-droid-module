@@ -7,7 +7,6 @@ import { Mod } from "./Mod";
 import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { Circle } from "../beatmap/hitobjects/Circle";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
-import { Modes } from "../constants/Modes";
 
 /**
  * Represents the Replay V6 mod.
@@ -43,10 +42,6 @@ export class ModReplayV6
     }
 
     applyToBeatmap(beatmap: Beatmap) {
-        if (beatmap.mode !== Modes.droid) {
-            return;
-        }
-
         const { objects } = beatmap.hitObjects;
 
         if (objects.length === 0) {
@@ -58,15 +53,17 @@ export class ModReplayV6
             h.stackHeight = 0;
         });
 
-        const convertedScale =
-            CircleSizeCalculator.standardScaleToOldDroidScale(objects[0].scale);
-
         for (let i = 0; i < objects.length - 1; ++i) {
             const current = objects[i];
             const next = objects[i + 1];
 
             this.revertObjectScale(current, beatmap.difficulty);
             this.revertObjectScale(next, beatmap.difficulty);
+
+            const convertedScale =
+                CircleSizeCalculator.standardScaleToOldDroidScale(
+                    objects[0].scale,
+                );
 
             if (
                 current instanceof Circle &&
@@ -84,7 +81,7 @@ export class ModReplayV6
         hitObject: HitObject,
         difficulty: BeatmapDifficulty,
     ) {
-        const droidScale = CircleSizeCalculator.standardScaleToOldDroidScale(
+        const droidScale = CircleSizeCalculator.droidCSToOldDroidScale(
             difficulty.cs,
         );
 
