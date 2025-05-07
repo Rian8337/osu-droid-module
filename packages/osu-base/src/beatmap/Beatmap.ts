@@ -368,7 +368,7 @@ export class Beatmap implements IBeatmap {
             }
         });
 
-        processor.postProcess(mode);
+        processor.postProcess();
 
         mods.forEach((mod) => {
             if (mod.isApplicableToBeatmap()) {

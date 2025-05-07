@@ -62,7 +62,7 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
             h.applySamples(this.finalResult.controlPoints);
         });
 
-        processor.postProcess(mode);
+        processor.postProcess();
 
         return this;
     }

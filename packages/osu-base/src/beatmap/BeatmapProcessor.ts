@@ -1,5 +1,3 @@
-import { Modes } from "../constants/Modes";
-import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { Beatmap } from "./Beatmap";
 import { Circle } from "./hitobjects/Circle";
 import { HitObject } from "./hitobjects/HitObject";
@@ -50,10 +48,8 @@ export class BeatmapProcessor {
      * and mods will have been applied to all hitobjects.
      *
      * This should be used to add alterations to hitobjects while they are in their most playable state.
-     *
-     * @param mode The mode to add alterations for.
      */
-    postProcess(mode: Modes) {
+    postProcess() {
         const objects = this.beatmap.hitObjects.objects;
 
         if (objects.length === 0) {
@@ -65,47 +61,14 @@ export class BeatmapProcessor {
             h.stackHeight = 0;
         });
 
-        switch (mode) {
-            case Modes.droid:
-                this.applyDroidStacking();
-                break;
-            case Modes.osu:
-                if (this.beatmap.formatVersion >= 6) {
-                    this.applyStandardStacking();
-                } else {
-                    this.applyStandardOldStacking();
-                }
-                break;
+        if (this.beatmap.formatVersion >= 6) {
+            this.applyStacking();
+        } else {
+            this.applyOldStacking();
         }
     }
 
-    private applyDroidStacking() {
-        const objects = this.beatmap.hitObjects.objects;
-
-        if (objects.length === 0) {
-            return;
-        }
-
-        const convertedScale =
-            CircleSizeCalculator.standardScaleToOldDroidScale(objects[0].scale);
-
-        for (let i = 0; i < objects.length - 1; ++i) {
-            const current = objects[i];
-            const next = objects[i + 1];
-
-            if (
-                current instanceof Circle &&
-                next.startTime - current.startTime <
-                    2000 * this.beatmap.general.stackLeniency &&
-                next.position.getDistance(current.position) <
-                    Math.sqrt(convertedScale)
-            ) {
-                next.stackHeight = current.stackHeight + 1;
-            }
-        }
-    }
-
-    private applyStandardStacking(): void {
+    private applyStacking(): void {
         const objects = this.beatmap.hitObjects.objects;
         const startIndex = 0;
         const endIndex = objects.length - 1;
@@ -279,7 +242,7 @@ export class BeatmapProcessor {
         }
     }
 
-    private applyStandardOldStacking(): void {
+    private applyOldStacking(): void {
         const objects = this.beatmap.hitObjects.objects;
 
         for (let i = 0; i < objects.length; ++i) {
