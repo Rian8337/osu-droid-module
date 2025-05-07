@@ -10,5 +10,5 @@ export interface IModFacilitatesAdjustment {
      *
      * This is always `true`.
      */
-    readonly facilitatesAdjustment: true;
+    readonly facilitateAdjustment: true;
 }

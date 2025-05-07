@@ -317,7 +317,7 @@ export class Beatmap implements IBeatmap {
         const adjustmentMods = new ModMap();
 
         for (const mod of mods.values()) {
-            if (mod.isFacilitatesAdjustment()) {
+            if (mod.facilitatesAdjustment()) {
                 adjustmentMods.set(mod);
             }
         }

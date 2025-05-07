@@ -32,7 +32,7 @@ export class ModReplayV6
 
     readonly droidRanked = false;
 
-    readonly facilitatesAdjustment = true;
+    readonly facilitateAdjustment = true;
 
     get isDroidRelevant(): boolean {
         return true;

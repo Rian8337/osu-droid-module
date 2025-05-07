@@ -142,8 +142,8 @@ export abstract class Mod {
     /**
      * Whether this `Mod` facilitates adjustment to a `HitObject` or `BeatmapDifficulty`.
      */
-    isFacilitatesAdjustment(): this is this & IModFacilitatesAdjustment {
-        return "facilitatesAdjustment" in this;
+    facilitatesAdjustment(): this is this & IModFacilitatesAdjustment {
+        return "facilitateAdjustment" in this;
     }
 
     /**
