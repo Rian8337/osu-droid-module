@@ -35,6 +35,13 @@ export abstract class ModSetting<T = unknown> {
         this._value = value;
     }
 
+    /**
+     * Whether this `ModSetting` is set to its default value.
+     */
+    get isDefault(): boolean {
+        return this._value === this.defaultValue;
+    }
+
     constructor(name: string, description: string, defaultValue: T) {
         this.name = name;
         this.description = description;
