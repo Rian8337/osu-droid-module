@@ -48,4 +48,13 @@ export abstract class ModSetting<T = unknown> {
         this.defaultValue = defaultValue;
         this._value = defaultValue;
     }
+
+    /**
+     * Returns a string representation of this `ModSetting`'s value.
+     *
+     * @returns A string representation of this `ModSetting`'s value.
+     */
+    toDisplayString(): string {
+        return this.displayFormatter(this.value);
+    }
 }
