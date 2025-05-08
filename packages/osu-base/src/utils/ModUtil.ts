@@ -178,10 +178,9 @@ export abstract class ModUtil {
         while (str) {
             let nchars = 1;
 
-            for (const acronym of this.allMods.keys()) {
+            for (const [acronym, modType] of this.allMods) {
                 if (str.startsWith(acronym.toLowerCase())) {
-                    const modType = this.allMods.get(acronym) as new () => Mod;
-                    map.set(modType);
+                    map.set(modType as new () => Mod);
                     nchars = acronym.length;
                     break;
                 }
