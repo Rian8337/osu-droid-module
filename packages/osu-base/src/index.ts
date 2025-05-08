@@ -98,6 +98,7 @@ export * from "./mods/ModRelax";
 export * from "./mods/ModReplayV6";
 export * from "./mods/ModScoreV2";
 export * from "./mods/settings/ModSetting";
+export * from "./mods/settings/ModSettingValueChangedListener";
 export * from "./mods/ModSmallCircle";
 export * from "./mods/ModSpunOut";
 export * from "./mods/ModSuddenDeath";

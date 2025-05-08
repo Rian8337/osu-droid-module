@@ -1,3 +1,5 @@
+import { ModSettingValueChangedListener } from "./ModSettingValueChangedListener";
+
 /**
  * Represents a `Mod` specific setting.
  */
@@ -32,8 +34,19 @@ export class ModSetting<T = unknown> {
     }
 
     set value(value: T) {
-        this._value = value;
+        if (this._value !== value) {
+            const oldValue = this._value;
+            this._value = value;
+
+            for (const listener of this.valueChangedListeners) {
+                listener(oldValue, value);
+            }
+        }
     }
+
+    private valueChangedListeners = new Set<
+        ModSettingValueChangedListener<T>
+    >();
 
     /**
      * Whether this `ModSetting` is set to its default value.
@@ -56,5 +69,31 @@ export class ModSetting<T = unknown> {
      */
     toDisplayString(): string {
         return this.displayFormatter(this.value);
+    }
+
+    /**
+     * Binds an action that will be called when the value of this `ModSetting` changes.
+     *
+     * @param listener The action to call when the value of this `ModSetting` changes.
+     * @param runOnceImmediately Whether to call the action immediately with the current value of this `ModSetting`.
+     */
+    bindValueChanged(
+        listener: ModSettingValueChangedListener<T>,
+        runOnceImmediately = false,
+    ) {
+        this.valueChangedListeners.add(listener);
+
+        if (runOnceImmediately) {
+            listener(this.value, this.value);
+        }
+    }
+
+    /**
+     * Unbinds an action that was previously bound to this `ModSetting`.
+     *
+     * @param listener The action to unbind.
+     */
+    unbindValueChanged(listener: ModSettingValueChangedListener<T>) {
+        this.valueChangedListeners.delete(listener);
     }
 }
