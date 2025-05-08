@@ -1,7 +1,7 @@
 /**
  * Represents a `Mod` specific setting.
  */
-export abstract class ModSetting<T> {
+export abstract class ModSetting<T = unknown> {
     /**
      * The legible name of this `ModSetting`.
      */
