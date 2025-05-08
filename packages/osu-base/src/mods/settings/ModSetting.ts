@@ -1,7 +1,7 @@
 /**
  * Represents a `Mod` specific setting.
  */
-export abstract class ModSetting<T = unknown> {
+export class ModSetting<T = unknown> {
     /**
      * The legible name of this `ModSetting`.
      */
@@ -15,7 +15,7 @@ export abstract class ModSetting<T = unknown> {
     /**
      * The formatter to display the value of this `ModSetting`.
      */
-    protected abstract readonly displayFormatter: (value: T) => string;
+    protected readonly displayFormatter: (value: T) => string = (v) => `${v}`;
 
     /**
      * The default value of this `ModSetting`.
