@@ -14,7 +14,7 @@ export class DroidVisual extends DroidSkill {
 
     private currentVisualStrain = 0;
     private currentRhythmMultiplier = 1;
-    private readonly skillMultiplier = 10;
+    private readonly skillMultiplier = 11.2;
 
     readonly withSliders: boolean;
 
