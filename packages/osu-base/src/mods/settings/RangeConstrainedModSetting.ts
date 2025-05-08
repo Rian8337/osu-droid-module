@@ -27,8 +27,15 @@ export abstract class RangeConstrainedModSetting<T> extends ModSetting<T> {
         super.value = this.processValue(value);
     }
 
-    constructor(name: string, defaultValue: T, min: T, max: T, step: T) {
-        super(name, defaultValue);
+    constructor(
+        name: string,
+        description: string,
+        defaultValue: T,
+        min: T,
+        max: T,
+        step: T,
+    ) {
+        super(name, description, defaultValue);
 
         this.min = min;
         this.max = max;

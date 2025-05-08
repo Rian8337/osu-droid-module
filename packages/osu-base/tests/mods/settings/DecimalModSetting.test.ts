@@ -2,11 +2,14 @@ import { DecimalModSetting } from "../../../src";
 
 test("Test boundaries", () => {
     // Test precision < 0
-    expect(() => new DecimalModSetting("Test", 0.12, 0, 1, 0.1, -1)).toThrow();
+    expect(
+        () => new DecimalModSetting("Test", "Test", 0.12, 0, 1, 0.1, -1),
+    ).toThrow();
 });
 
 test("Test step with precision", () => {
     const setting = new DecimalModSetting(
+        "Test",
         "Test",
         0.12,
         undefined,
@@ -29,7 +32,15 @@ test("Test step with precision", () => {
 });
 
 test("Test value cap", () => {
-    const setting = new DecimalModSetting("Test", 0.12, 0.12, 1.2, 0.12, 2);
+    const setting = new DecimalModSetting(
+        "Test",
+        "Test",
+        0.12,
+        0.12,
+        1.2,
+        0.12,
+        2,
+    );
 
     // These need to be exactly equal to prevent serialization differences.
     expect(setting.value).toBe(0.12);

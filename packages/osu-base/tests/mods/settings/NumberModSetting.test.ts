@@ -5,20 +5,26 @@ test("Test boundaries", () => {
         expect(() => action()).toThrow();
 
     // Test min > max
-    expectThrows(() => new NumberModSetting("Test", 0.12, 0.12, 0.1, 0));
+    expectThrows(
+        () => new NumberModSetting("Test", "Test", 0.12, 0.12, 0.1, 0),
+    );
 
     // Test defaultValue > max
-    expectThrows(() => new NumberModSetting("Test", 0.24, 0.1, 0.12, 0));
+    expectThrows(
+        () => new NumberModSetting("Test", "Test", 0.24, 0.1, 0.12, 0),
+    );
 
     // Test defaultValue < min
-    expectThrows(() => new NumberModSetting("Test", 0.1, 0.12, 0.24, 0));
+    expectThrows(
+        () => new NumberModSetting("Test", "Test", 0.1, 0.12, 0.24, 0),
+    );
 
     // Test step < 0
-    expectThrows(() => new NumberModSetting("Test", 0.12, 0, 1, -0.1));
+    expectThrows(() => new NumberModSetting("Test", "Test", 0.12, 0, 1, -0.1));
 });
 
 test("Test step", () => {
-    const setting = new NumberModSetting("Test", 0.12, 0.12, 1.2, 0.12);
+    const setting = new NumberModSetting("Test", "Test", 0.12, 0.12, 1.2, 0.12);
 
     expect(setting.value).toBeCloseTo(0.12, 5);
 
@@ -33,7 +39,7 @@ test("Test step", () => {
 });
 
 test("Test value cap", () => {
-    const setting = new NumberModSetting("Test", 0.12, 0.12, 1.2, 0.12);
+    const setting = new NumberModSetting("Test", "Test", 0.12, 0.12, 1.2, 0.12);
 
     expect(setting.value).toBeCloseTo(0.12, 5);
 

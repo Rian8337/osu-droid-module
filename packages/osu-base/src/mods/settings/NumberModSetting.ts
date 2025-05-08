@@ -9,12 +9,13 @@ export class NumberModSetting extends RangeConstrainedModSetting<number> {
 
     constructor(
         name: string,
+        description: string,
         defaultValue: number,
         min: number,
         max: number,
         step: number,
     ) {
-        super(name, defaultValue, min, max, step);
+        super(name, description, defaultValue, min, max, step);
 
         if (min > max) {
             throw new RangeError(

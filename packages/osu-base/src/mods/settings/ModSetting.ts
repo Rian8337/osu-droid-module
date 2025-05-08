@@ -8,6 +8,11 @@ export abstract class ModSetting<T = unknown> {
     readonly name: string;
 
     /**
+     * The description of this `ModSetting`.
+     */
+    readonly description: string;
+
+    /**
      * The formatter to display the value of this `ModSetting`.
      */
     abstract readonly displayFormatter: (value: T) => string;
@@ -30,8 +35,9 @@ export abstract class ModSetting<T = unknown> {
         this._value = value;
     }
 
-    constructor(name: string, defaultValue: T) {
+    constructor(name: string, description: string, defaultValue: T) {
         this.name = name;
+        this.description = description;
         this.defaultValue = defaultValue;
         this._value = defaultValue;
     }

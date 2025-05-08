@@ -21,13 +21,14 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
 
     constructor(
         name: string,
+        description: string,
         defaultValue: number | null,
         min = -Number.MAX_VALUE,
         max = Number.MAX_VALUE,
         step = 0,
         precision: number | null = null,
     ) {
-        super(name, defaultValue, min, max, step);
+        super(name, description, defaultValue, min, max, step);
 
         if (min > max) {
             throw new RangeError(
