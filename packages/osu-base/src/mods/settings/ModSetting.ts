@@ -15,7 +15,7 @@ export abstract class ModSetting<T = unknown> {
     /**
      * The formatter to display the value of this `ModSetting`.
      */
-    abstract readonly displayFormatter: (value: T) => string;
+    protected abstract readonly displayFormatter: (value: T) => string;
 
     /**
      * The default value of this `ModSetting`.
