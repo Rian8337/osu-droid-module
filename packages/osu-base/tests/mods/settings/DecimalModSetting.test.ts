@@ -54,3 +54,17 @@ test("Test value cap", () => {
     setting.value = 1.5;
     expect(setting.value).toBe(1.2);
 });
+
+test("Test display formatter", () => {
+    const setting = new DecimalModSetting(
+        "Test",
+        "Test",
+        0.12,
+        0.12,
+        1.2,
+        0.12,
+        2,
+    );
+
+    expect(setting.toDisplayString()).toBe("0.12");
+});
