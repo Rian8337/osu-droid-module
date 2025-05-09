@@ -16,7 +16,7 @@ test("Test migration", () => {
     const migratedMod = mod.migrateDroidMod(difficulty);
 
     expect(migratedMod).toBeInstanceOf(ModDifficultyAdjust);
-    expect((migratedMod as ModDifficultyAdjust).cs).toBe(8);
+    expect((migratedMod as ModDifficultyAdjust).cs.value).toBe(8);
 });
 
 describe("Test beatmap setting adjustment", () => {

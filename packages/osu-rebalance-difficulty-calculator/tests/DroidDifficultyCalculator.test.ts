@@ -142,13 +142,15 @@ const testDiffCalc = (
 };
 
 test("Test difficulty adjustment mod retention", () => {
-    expect(
-        calculator.retainDifficultyAdjustmentMods([
-            new ModDoubleTime(),
-            new ModFlashlight(),
-            new ModNoFail(),
-        ]),
-    ).toEqual([new ModDoubleTime(), new ModFlashlight()]);
+    const retainedMods = calculator.retainDifficultyAdjustmentMods([
+        new ModDoubleTime(),
+        new ModFlashlight(),
+        new ModNoFail(),
+    ]);
+
+    expect(retainedMods.length).toBe(2);
+    expect(retainedMods[0]).toBeInstanceOf(ModDoubleTime);
+    expect(retainedMods[1]).toBeInstanceOf(ModFlashlight);
 });
 
 describe("Test difficulty calculation sample beatmap 1", () => {

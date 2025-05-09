@@ -22,9 +22,9 @@ test("Test equals", () => {
     const mod2 = new ModHidden();
     const mod3 = new ModHidden();
 
-    mod1.onlyFadeApproachCircles = false;
-    mod2.onlyFadeApproachCircles = false;
-    mod3.onlyFadeApproachCircles = true;
+    mod1.onlyFadeApproachCircles.value = false;
+    mod2.onlyFadeApproachCircles.value = false;
+    mod3.onlyFadeApproachCircles.value = true;
 
     expect(mod1.equals(mod2)).toBe(true);
     expect(mod1.equals(mod3)).toBe(false);
@@ -35,6 +35,6 @@ test("Test toString", () => {
 
     expect(mod.toString()).toBe("HD");
 
-    mod.onlyFadeApproachCircles = true;
+    mod.onlyFadeApproachCircles.value = true;
     expect(mod.toString()).toBe("HD (approach circles only)");
 });

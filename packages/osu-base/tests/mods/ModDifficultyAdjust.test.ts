@@ -108,13 +108,13 @@ test("Test serialization", () => {
 
     expect(mod.serialize().settings).toBeUndefined();
 
-    mod.cs = 4;
-    mod.ar = 9;
+    mod.cs.value = 4;
+    mod.ar.value = 9;
 
     expect(mod.serialize().settings).toEqual({ cs: 4, ar: 9 });
 
-    mod.od = 8;
-    mod.hp = 6;
+    mod.od.value = 8;
+    mod.hp.value = 6;
 
     expect(mod.serialize().settings).toEqual({ cs: 4, ar: 9, od: 8, hp: 6 });
 });
@@ -157,10 +157,10 @@ test("Test toString", () => {
 
     expect(mod.toString()).toBe("DA");
 
-    mod.cs = 4;
-    mod.ar = 9;
-    mod.od = 8;
-    mod.hp = 6;
+    mod.cs.value = 4;
+    mod.ar.value = 9;
+    mod.od.value = 8;
+    mod.hp.value = 6;
 
     expect(mod.toString()).toBe("DA (CS4.0, AR9.0, OD8.0, HP6.0)");
 });

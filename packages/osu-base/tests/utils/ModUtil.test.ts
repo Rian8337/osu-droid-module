@@ -123,26 +123,26 @@ describe("Test mods array to osu!standard string conversion", () => {
 describe("Test removing speed changing mods", () => {
     test("Remove DT from HDDT", () => {
         const mods = [new ModHidden(), new ModDoubleTime()];
+        const filteredMods = ModUtil.removeSpeedChangingMods(mods);
 
-        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
-            new ModHidden(),
-        ]);
+        expect(filteredMods.length).toBe(1);
+        expect(filteredMods[0]).toBeInstanceOf(ModHidden);
     });
 
     test("Remove HT from NFHT", () => {
         const mods = [new ModNoFail(), new ModHalfTime()];
+        const filteredMods = ModUtil.removeSpeedChangingMods(mods);
 
-        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
-            new ModNoFail(),
-        ]);
+        expect(filteredMods.length).toBe(1);
+        expect(filteredMods[0]).toBeInstanceOf(ModNoFail);
     });
 
     test("Remove NC from NFNC", () => {
         const mods = [new ModNoFail(), new ModNightCore()];
+        const filteredMods = ModUtil.removeSpeedChangingMods(mods);
 
-        expect(ModUtil.removeSpeedChangingMods(mods)).toEqual([
-            new ModNoFail(),
-        ]);
+        expect(filteredMods.length).toBe(1);
+        expect(filteredMods[0]).toBeInstanceOf(ModNoFail);
     });
 });
 
