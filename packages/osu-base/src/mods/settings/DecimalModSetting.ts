@@ -11,6 +11,14 @@ export class DecimalModSetting extends NumberModSetting {
      */
     readonly precision: number | null;
 
+    override readonly displayFormatter = (v: number): string => {
+        if (this.precision !== null) {
+            return v.toFixed(this.precision);
+        }
+
+        return super.toDisplayString();
+    };
+
     constructor(
         name: string,
         description: string,

@@ -16,8 +16,17 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
      */
     readonly precision: number | null;
 
-    override readonly displayFormatter = (v: number | null) =>
-        v?.toString() ?? "None";
+    override readonly displayFormatter = (v: number | null): string => {
+        if (v === null) {
+            return "None";
+        }
+
+        if (this.precision !== null) {
+            return v.toFixed(this.precision);
+        }
+
+        return super.toDisplayString();
+    };
 
     constructor(
         name: string,
