@@ -38,21 +38,27 @@ export abstract class Mod {
      */
     readonly incompatibleMods = new Set<typeof Mod>();
 
+    private settingsBacking: ModSetting[] | null = null;
+
     /**
      * `ModSetting`s that are specific to this `Mod`.
      */
     get settings(): ModSetting[] {
-        const settings: ModSetting[] = [];
+        if (this.settingsBacking !== null) {
+            return this.settingsBacking;
+        }
+
+        this.settingsBacking = [];
 
         for (const prop in this) {
             const value = (this as Record<string, unknown>)[prop];
 
             if (value instanceof ModSetting) {
-                settings.push(value);
+                this.settingsBacking.push(value);
             }
         }
 
-        return settings;
+        return this.settingsBacking;
     }
 
     /**
