@@ -62,6 +62,13 @@ export abstract class Mod {
     }
 
     /**
+     * Whether all `ModSetting`s of this `Mod` are set to their default values.
+     */
+    get usesDefaultSettings(): boolean {
+        return this.settings.every((s) => s.isDefault);
+    }
+
+    /**
      * Serializes this `Mod` to a `SerializedMod`.
      */
     serialize(): SerializedMod {
