@@ -9,6 +9,8 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { SerializedMod } from "./SerializedMod";
+import { DecimalModSetting } from "./settings/DecimalModSetting";
+import { NullableIntegerModSetting } from "./settings/NullableIntegerModSetting";
 
 /**
  * Represents the Random mod.
@@ -28,27 +30,28 @@ export class ModRandom
     readonly droidRanked = false;
     readonly osuRanked = false;
 
-    private _seed: number | null = null;
-
     /**
      * The seed to use.
      */
-    get seed(): number | null {
-        return this._seed;
-    }
-
-    set seed(value: number | null) {
-        if (value !== null) {
-            this._seed = Math.trunc(value);
-        } else {
-            this._seed = null;
-        }
-    }
+    readonly seed = new NullableIntegerModSetting(
+        "Seed",
+        "Use a custom seed instead of a random one.",
+        null,
+        0,
+    );
 
     /**
      * Defines how sharp the angles of `HitObject`s should be.
      */
-    angleSharpness = 7;
+    readonly angleSharpness = new DecimalModSetting(
+        "Angle sharpness",
+        "Defines how sharp the angles of hit objects should be.",
+        7,
+        1,
+        10,
+        0.1,
+        1,
+    );
 
     private random: Random | null = null;
 
@@ -74,17 +77,17 @@ export class ModRandom
         const { settings } = mod;
 
         if (typeof settings?.seed === "number") {
-            this.seed = settings.seed;
+            this.seed.value = settings.seed;
         }
 
         if (typeof settings?.angleSharpness === "number") {
-            this.angleSharpness = settings.angleSharpness;
+            this.angleSharpness.value = settings.angleSharpness;
         }
     }
 
     applyToBeatmap(beatmap: Beatmap) {
-        this.seed ??= Math.floor(Math.random() * 2147483647);
-        this.random = new Random(this.seed);
+        this.seed.value ??= Math.floor(Math.random() * 2147483647);
+        this.random = new Random(this.seed.value);
 
         const positionInfos = HitObjectGenerationUtils.generatePositionInfos(
             beatmap.hitObjects.objects,
@@ -157,11 +160,11 @@ export class ModRandom
     protected override serializeSettings(): Record<string, unknown> | null {
         const settings: Record<string, unknown> = {};
 
-        if (this.seed !== null) {
-            settings.seed = this.seed;
+        if (this.seed.value !== null) {
+            settings.seed = this.seed.value;
         }
 
-        settings.angleSharpness = this.angleSharpness;
+        settings.angleSharpness = this.angleSharpness.value;
 
         return settings;
     }
@@ -169,7 +172,9 @@ export class ModRandom
     private getRandomOffset(stdDev: number): number {
         // Range: [0.5, 2]
         // Higher angle sharpness -> lower multiplier
-        const customMultiplier = (15 - this.angleSharpness) / 8;
+        const customMultiplier =
+            (1.5 * this.angleSharpness.max - this.angleSharpness.value) /
+            (1.5 * this.angleSharpness.max - this.angleSharpness.defaultValue);
 
         return HitObjectGenerationUtils.randomGaussian(
             this.random!,
@@ -189,7 +194,9 @@ export class ModRandom
         flowDirection: boolean,
     ): number {
         // Range: [0.1, 1]
-        const angleSharpness = this.angleSharpness / 10;
+        const angleSharpness =
+            this.angleSharpness.value / this.angleSharpness.max;
+
         // Range: [0, 0.9]
         const angleWideness = 1 - angleSharpness;
 
@@ -267,19 +274,21 @@ export class ModRandom
         return (
             super.equals(other) &&
             other instanceof ModRandom &&
-            other.seed === this.seed &&
-            other.angleSharpness === this.angleSharpness
+            other.seed.value === this.seed.value &&
+            other.angleSharpness.value === this.angleSharpness.value
         );
     }
 
     override toString(): string {
         const settings: string[] = [];
 
-        if (this.seed !== null) {
-            settings.push(`seed: ${this.seed}`);
+        if (this.seed.value !== null) {
+            settings.push(`seed: ${this.seed.value}`);
         }
 
-        settings.push(`angle sharpness: ${this.angleSharpness.toFixed(1)}`);
+        settings.push(
+            `angle sharpness: ${this.angleSharpness.toDisplayString()}`,
+        );
 
         return `${super.toString()} (${settings.join(", ")})`;
     }

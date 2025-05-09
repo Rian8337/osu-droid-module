@@ -5,6 +5,7 @@ import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 import { SerializedMod } from "./SerializedMod";
+import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
  * Represents a mod that gradually adjusts the track's playback rate over time.
@@ -21,12 +22,12 @@ export abstract class ModTimeRamp
     /**
      * The starting speed of the track.
      */
-    abstract initialRate: number;
+    abstract readonly initialRate: DecimalModSetting;
 
     /**
      * The final speed to ramp to.
      */
-    abstract finalRate: number;
+    abstract readonly finalRate: DecimalModSetting;
 
     private initialRateTime = 0;
     private finalRateTime = 0;
@@ -42,8 +43,12 @@ export abstract class ModTimeRamp
 
         const { settings } = mod;
 
-        this.initialRate = (settings?.initialRate as number | undefined) ?? 1;
-        this.finalRate = (settings?.finalRate as number | undefined) ?? 1;
+        this.initialRate.value =
+            (settings?.initialRate as number | undefined) ??
+            this.initialRate.value;
+
+        this.finalRate.value =
+            (settings?.finalRate as number | undefined) ?? this.finalRate.value;
     }
 
     applyToBeatmap(beatmap: Beatmap): void {
@@ -64,27 +69,30 @@ export abstract class ModTimeRamp
         return (
             rate *
             Interpolation.lerp(
-                this.initialRate,
-                this.finalRate,
+                this.initialRate.value,
+                this.finalRate.value,
                 MathUtils.clamp(amount, 0, 1),
             )
         );
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        return { initialRate: this.initialRate, finalRate: this.finalRate };
+        return {
+            initialRate: this.initialRate.value,
+            finalRate: this.finalRate.value,
+        };
     }
 
     override equals(other: Mod): other is this {
         return (
             super.equals(other) &&
             other instanceof ModTimeRamp &&
-            other.initialRate === this.initialRate &&
-            other.finalRate === this.finalRate
+            other.initialRate.value === this.initialRate.value &&
+            other.finalRate.value === this.finalRate.value
         );
     }
 
     override toString(): string {
-        return `${super.toString()} (${this.initialRate.toFixed(2)}x - ${this.finalRate.toFixed(2)}x)`;
+        return `${super.toString()} (${this.initialRate.toDisplayString()}x - ${this.finalRate.toDisplayString()}x)`;
     }
 }

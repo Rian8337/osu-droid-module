@@ -14,15 +14,13 @@ export class ModDoubleTime
     override readonly acronym = "DT";
     override readonly name = "DoubleTime";
 
-    override readonly trackRateMultiplier = 1.5;
-
     readonly droidRanked = true;
 
     readonly osuRanked = true;
     readonly bitwise = 1 << 6;
 
     constructor() {
-        super();
+        super(1.5);
 
         this.incompatibleMods.add(ModHalfTime).add(ModNightCore);
     }

@@ -1,6 +1,7 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { ModTimeRamp } from "./ModTimeRamp";
+import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
  * Represents the Wind Down mod.
@@ -12,36 +13,44 @@ export class ModWindDown
     override readonly name = "Wind Down";
     override readonly acronym = "WD";
 
-    private _initialRate = 1;
-
-    override get initialRate(): number {
-        return this._initialRate;
-    }
-
-    override set initialRate(value: number) {
-        this._initialRate = value;
-
-        if (value <= this.finalRate) {
-            this.finalRate = value - 0.01;
-        }
-    }
-
-    private _finalRate = 0.75;
-
-    override get finalRate(): number {
-        return this._finalRate;
-    }
-
-    override set finalRate(value: number) {
-        this._finalRate = value;
-
-        if (value >= this.initialRate) {
-            this.initialRate = value + 0.01;
-        }
-    }
-
     readonly droidRanked = false;
     readonly osuRanked = false;
+
+    override readonly initialRate = new DecimalModSetting(
+        "Initial rate",
+        "The starting speed of the track.",
+        1,
+        0.51,
+        2,
+        0.01,
+        2,
+    );
+
+    override readonly finalRate = new DecimalModSetting(
+        "Final rate",
+        "The final speed to ramp to.",
+        0.75,
+        0.5,
+        1.99,
+        0.01,
+        2,
+    );
+
+    constructor() {
+        super();
+
+        this.initialRate.bindValueChanged((_, value) => {
+            if (value <= this.finalRate.value) {
+                this.finalRate.value = value - this.finalRate.step;
+            }
+        });
+
+        this.finalRate.bindValueChanged((_, value) => {
+            if (value >= this.initialRate.value) {
+                this.initialRate.value = value + this.initialRate.step;
+            }
+        });
+    }
 
     get isDroidRelevant(): boolean {
         return true;

@@ -9,6 +9,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModMap } from "./ModMap";
 import { SerializedMod } from "./SerializedMod";
+import { NullableDecimalModSetting } from "./settings/NullableDecimalModSetting";
 
 /**
  * Represents the Difficulty Adjust mod.
@@ -30,29 +31,58 @@ export class ModDifficultyAdjust
     /**
      * The circle size to enforce.
      */
-    cs?: number;
+    readonly cs = new NullableDecimalModSetting(
+        "Circle size",
+        "The circle size to enforce.",
+        null,
+        0,
+        15,
+        0.1,
+        1,
+    );
 
     /**
      * The approach rate to enforce.
      */
-    ar?: number;
+    readonly ar = new NullableDecimalModSetting(
+        "Approach rate",
+        "The approach rate to enforce.",
+        null,
+        0,
+        11,
+        0.1,
+        1,
+    );
 
     /**
      * The overall difficulty to enforce.
      */
-    od?: number;
+    readonly od = new NullableDecimalModSetting(
+        "Overall difficulty",
+        "The overall difficulty to enforce.",
+        null,
+        0,
+        11,
+        0.1,
+        1,
+    );
 
-    /**
-     * The health drain to enforce.
-     */
-    hp?: number;
+    readonly hp = new NullableDecimalModSetting(
+        "Health drain",
+        "The health drain to enforce.",
+        null,
+        0,
+        11,
+        0.1,
+        1,
+    );
 
     private get isRelevant(): boolean {
         return (
-            this.cs !== undefined ||
-            this.ar !== undefined ||
-            this.od !== undefined ||
-            this.hp !== undefined
+            this.cs.value !== null ||
+            this.ar.value !== null ||
+            this.od.value !== null ||
+            this.hp.value !== null
         );
     }
 
@@ -64,19 +94,19 @@ export class ModDifficultyAdjust
     }) {
         super();
 
-        this.cs = values?.cs;
-        this.ar = values?.ar;
-        this.od = values?.od;
-        this.hp = values?.hp;
+        this.cs.value = values?.cs ?? null;
+        this.ar.value = values?.ar ?? null;
+        this.od.value = values?.od ?? null;
+        this.hp.value = values?.hp ?? null;
     }
 
     override copySettings(mod: SerializedMod): void {
         super.copySettings(mod);
 
-        this.cs = mod.settings?.cs as number | undefined;
-        this.ar = mod.settings?.ar as number | undefined;
-        this.od = mod.settings?.od as number | undefined;
-        this.hp = mod.settings?.hp as number | undefined;
+        this.cs.value = (mod.settings?.cs ?? null) as number | null;
+        this.ar.value = (mod.settings?.ar ?? null) as number | null;
+        this.od.value = (mod.settings?.od ?? null) as number | null;
+        this.hp.value = (mod.settings?.hp ?? null) as number | null;
     }
 
     get isDroidRelevant(): boolean {
@@ -87,8 +117,8 @@ export class ModDifficultyAdjust
         // Graph: https://www.desmos.com/calculator/yrggkhrkzz
         let multiplier = 1;
 
-        if (this.cs !== undefined) {
-            const diff = this.cs - difficulty.cs;
+        if (this.cs.value !== null) {
+            const diff = this.cs.value - difficulty.cs;
 
             multiplier *=
                 diff >= 0
@@ -96,8 +126,8 @@ export class ModDifficultyAdjust
                     : 2 / (1 + Math.exp(-0.5 * diff));
         }
 
-        if (this.od !== undefined) {
-            const diff = this.od - difficulty.od;
+        if (this.od.value !== null) {
+            const diff = this.od.value - difficulty.od;
 
             multiplier *=
                 diff >= 0
@@ -121,16 +151,16 @@ export class ModDifficultyAdjust
         difficulty: BeatmapDifficulty,
         mods: ModMap,
     ): void {
-        difficulty.cs = this.cs ?? difficulty.cs;
-        difficulty.ar = this.ar ?? difficulty.ar;
-        difficulty.od = this.od ?? difficulty.od;
-        difficulty.hp = this.hp ?? difficulty.hp;
+        difficulty.cs = this.cs.value ?? difficulty.cs;
+        difficulty.ar = this.ar.value ?? difficulty.ar;
+        difficulty.od = this.od.value ?? difficulty.od;
+        difficulty.hp = this.hp.value ?? difficulty.hp;
 
         // Special case for force AR, where the AR value is kept constant with respect to game time.
         // This makes the player perceive the AR as is under all speed multipliers.
-        if (this.ar !== undefined) {
+        if (this.ar.value !== null) {
             const preempt = BeatmapDifficulty.difficultyRange(
-                this.ar,
+                this.ar.value,
                 HitObject.preemptMax,
                 HitObject.preemptMid,
                 HitObject.preemptMin,
@@ -154,7 +184,7 @@ export class ModDifficultyAdjust
     ): void {
         // Special case for force AR, where the AR value is kept constant with respect to game time.
         // This makes the player perceive the fade in animation as is under all speed multipliers.
-        if (this.ar === undefined) {
+        if (this.ar.value === null) {
             return;
         }
 
@@ -168,31 +198,26 @@ export class ModDifficultyAdjust
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        if (
-            this.cs === undefined &&
-            this.ar === undefined &&
-            this.od === undefined &&
-            this.hp === undefined
-        ) {
+        if (!this.isRelevant) {
             return null;
         }
 
         const settings: Record<string, unknown> = {};
 
-        if (this.cs !== undefined) {
-            settings.cs = this.cs;
+        if (this.cs.value !== null) {
+            settings.cs = this.cs.value;
         }
 
-        if (this.ar !== undefined) {
-            settings.ar = this.ar;
+        if (this.ar.value !== null) {
+            settings.ar = this.ar.value;
         }
 
-        if (this.od !== undefined) {
-            settings.od = this.od;
+        if (this.od.value !== null) {
+            settings.od = this.od.value;
         }
 
-        if (this.hp !== undefined) {
-            settings.hp = this.hp;
+        if (this.hp.value !== null) {
+            settings.hp = this.hp.value;
         }
 
         return settings;
@@ -230,10 +255,10 @@ export class ModDifficultyAdjust
         return (
             super.equals(other) &&
             other instanceof ModDifficultyAdjust &&
-            this.cs === other.cs &&
-            this.ar === other.ar &&
-            this.od === other.od &&
-            this.hp === other.hp
+            this.cs.value === other.cs.value &&
+            this.ar.value === other.ar.value &&
+            this.od.value === other.od.value &&
+            this.hp.value === other.hp.value
         );
     }
 
@@ -244,20 +269,20 @@ export class ModDifficultyAdjust
 
         const settings: string[] = [];
 
-        if (this.cs !== undefined) {
-            settings.push(`CS${this.cs.toFixed(1)}`);
+        if (this.cs.value !== null) {
+            settings.push(`CS${this.cs.toDisplayString()}`);
         }
 
-        if (this.ar !== undefined) {
-            settings.push(`AR${this.ar.toFixed(1)}`);
+        if (this.ar.value !== null) {
+            settings.push(`AR${this.ar.toDisplayString()}`);
         }
 
-        if (this.od !== undefined) {
-            settings.push(`OD${this.od.toFixed(1)}`);
+        if (this.od.value !== null) {
+            settings.push(`OD${this.od.toDisplayString()}`);
         }
 
-        if (this.hp !== undefined) {
-            settings.push(`HP${this.hp.toFixed(1)}`);
+        if (this.hp.value !== null) {
+            settings.push(`HP${this.hp.toDisplayString()}`);
         }
 
         return `${super.toString()} (${settings.join(", ")})`;

@@ -15,23 +15,15 @@ export class ModCustomSpeed
     override readonly acronym = "CS";
     override readonly name = "Custom Speed";
 
-    override trackRateMultiplier: number;
-
     readonly droidRanked = true;
     readonly osuRanked = false;
-
-    constructor(trackRateMultiplier = 1) {
-        super();
-
-        this.trackRateMultiplier = trackRateMultiplier;
-    }
 
     override copySettings(mod: SerializedMod): void {
         super.copySettings(mod);
 
-        this.trackRateMultiplier =
+        this.trackRateMultiplier.value =
             (mod.settings?.rateMultiplier as number | undefined) ??
-            this.trackRateMultiplier;
+            this.trackRateMultiplier.value;
     }
 
     get isDroidRelevant(): boolean {
@@ -48,19 +40,21 @@ export class ModCustomSpeed
 
     get osuScoreMultiplier(): number {
         // Round to the nearest multiple of 0.1.
-        let value = Math.trunc(this.trackRateMultiplier * 10) / 10;
+        let value = Math.trunc(this.trackRateMultiplier.value * 10) / 10;
 
         // Offset back to 0.
         --value;
 
-        return this.trackRateMultiplier >= 1 ? 1 + value / 5 : 0.6 + value;
+        return this.trackRateMultiplier.value >= 1
+            ? 1 + value / 5
+            : 0.6 + value;
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        return { rateMultiplier: this.trackRateMultiplier };
+        return { rateMultiplier: this.trackRateMultiplier.value };
     }
 
     override toString(): string {
-        return `${super.toString()} (${this.trackRateMultiplier.toFixed(2)}x)`;
+        return `${super.toString()} (${this.trackRateMultiplier.toDisplayString()}x)`;
     }
 }

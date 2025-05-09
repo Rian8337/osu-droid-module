@@ -39,9 +39,9 @@ export class ModReallyEasy
             return;
         }
 
-        const difficultyAdjustMod = mods.get(ModDifficultyAdjust);
+        const difficultyAdjust = mods.get(ModDifficultyAdjust);
 
-        if (difficultyAdjustMod?.ar === undefined) {
+        if (typeof difficultyAdjust?.ar.value !== "number") {
             if (mods.has(ModEasy)) {
                 difficulty.ar *= 2;
                 difficulty.ar -= 0.5;
@@ -50,10 +50,10 @@ export class ModReallyEasy
             const customSpeed = mods.get(ModCustomSpeed);
 
             difficulty.ar -= 0.5;
-            difficulty.ar -= (customSpeed?.trackRateMultiplier ?? 1) - 1;
+            difficulty.ar -= (customSpeed?.trackRateMultiplier.value ?? 1) - 1;
         }
 
-        if (difficultyAdjustMod?.cs === undefined) {
+        if (typeof difficultyAdjust?.cs.value !== "number") {
             if (!mods.has(ModReplayV6)) {
                 difficulty.cs /= 2;
             } else {
@@ -71,11 +71,11 @@ export class ModReallyEasy
             }
         }
 
-        if (difficultyAdjustMod?.od === undefined) {
+        if (typeof difficultyAdjust?.od.value !== "number") {
             difficulty.od /= 2;
         }
 
-        if (difficultyAdjustMod?.hp === undefined) {
+        if (typeof difficultyAdjust?.hp.value !== "number") {
             difficulty.hp /= 2;
         }
     }

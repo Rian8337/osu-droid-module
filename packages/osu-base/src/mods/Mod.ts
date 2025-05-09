@@ -10,6 +10,7 @@ import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { IModFacilitatesAdjustment } from "./IModFacilitatesAdjustment";
 import { SerializedMod } from "./SerializedMod";
+import { ModSetting } from "./settings/ModSetting";
 
 /**
  * Represents a mod.
@@ -36,6 +37,23 @@ export abstract class Mod {
      * `Mod`s that are incompatible with this `Mod`.
      */
     readonly incompatibleMods = new Set<typeof Mod>();
+
+    /**
+     * `ModSetting`s that are specific to this `Mod`.
+     */
+    get settings(): ModSetting[] {
+        const settings: ModSetting[] = [];
+
+        for (const prop in this) {
+            const value = (this as Record<string, unknown>)[prop];
+
+            if (value instanceof ModSetting) {
+                settings.push(value);
+            }
+        }
+
+        return settings;
+    }
 
     /**
      * Serializes this `Mod` to a `SerializedMod`.

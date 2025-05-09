@@ -134,7 +134,7 @@ export abstract class DroidLegacyModConverter {
                         map.set(flashlight);
                     }
 
-                    flashlight.followDelay = parseFloat(s.slice(3));
+                    flashlight.followDelay.value = parseFloat(s.slice(3));
 
                     break;
                 }
@@ -149,7 +149,9 @@ export abstract class DroidLegacyModConverter {
                         map.set(customSpeed);
                     }
 
-                    customSpeed.trackRateMultiplier = parseFloat(s.slice(1));
+                    customSpeed.trackRateMultiplier.value = parseFloat(
+                        s.slice(1),
+                    );
 
                     break;
                 }

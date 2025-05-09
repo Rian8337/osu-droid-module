@@ -8,6 +8,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModHardRock } from "./ModHardRock";
 import { SerializedMod } from "./SerializedMod";
+import { ModSetting } from "./settings/ModSetting";
 
 /**
  * Represents the Mirror mod.
@@ -28,7 +29,11 @@ export class ModMirror
     /**
      * The axes to reflect the `HitObject`s along.
      */
-    flippedAxes: Exclude<Axes, Axes.none> = Axes.x;
+    readonly flippedAxes = new ModSetting<Exclude<Axes, Axes.none>>(
+        "Flipped axes",
+        "The axes to reflect the hit objects along.",
+        Axes.x,
+    );
 
     constructor() {
         super();
@@ -57,21 +62,21 @@ export class ModMirror
 
         switch (mod.settings?.flippedAxes) {
             case 0:
-                this.flippedAxes = Axes.x;
+                this.flippedAxes.value = Axes.x;
                 break;
 
             case 1:
-                this.flippedAxes = Axes.y;
+                this.flippedAxes.value = Axes.y;
                 break;
 
             case 2:
-                this.flippedAxes = Axes.both;
+                this.flippedAxes.value = Axes.both;
                 break;
         }
     }
 
     applyToHitObject(_: Modes, hitObject: HitObject): void {
-        switch (this.flippedAxes) {
+        switch (this.flippedAxes.value) {
             case Axes.x:
                 HitObjectGenerationUtils.reflectHorizontallyAlongPlayfield(
                     hitObject,
@@ -96,25 +101,31 @@ export class ModMirror
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        return { flippedAxes: this.flippedAxes - 1 };
+        return { flippedAxes: this.flippedAxes.value - 1 };
     }
 
     override equals(other: Mod): other is this {
         return (
             super.equals(other) &&
             other instanceof ModMirror &&
-            other.flippedAxes === this.flippedAxes
+            other.flippedAxes.value === this.flippedAxes.value
         );
     }
 
     override toString(): string {
         const settings: string[] = [];
 
-        if (this.flippedAxes === Axes.x || this.flippedAxes === Axes.both) {
+        if (
+            this.flippedAxes.value === Axes.x ||
+            this.flippedAxes.value === Axes.both
+        ) {
             settings.push("↔");
         }
 
-        if (this.flippedAxes === Axes.y || this.flippedAxes === Axes.both) {
+        if (
+            this.flippedAxes.value === Axes.y ||
+            this.flippedAxes.value === Axes.both
+        ) {
             settings.push("↕");
         }
 

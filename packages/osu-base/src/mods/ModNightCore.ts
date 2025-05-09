@@ -14,15 +14,13 @@ export class ModNightCore
     override readonly acronym = "NC";
     override readonly name = "NightCore";
 
-    override readonly trackRateMultiplier: number = 1.5;
-
     readonly droidRanked = true;
 
     readonly osuRanked = true;
     readonly bitwise = 1 << 9;
 
     constructor() {
-        super();
+        super(1.5);
 
         this.incompatibleMods.add(ModDoubleTime).add(ModHalfTime);
     }

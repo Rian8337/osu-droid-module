@@ -7,6 +7,7 @@ import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModTraceable } from "./ModTraceable";
 import { SerializedMod } from "./SerializedMod";
+import { BooleanModSetting } from "./settings/BooleanModSetting";
 
 /**
  * Represents the Hidden mod.
@@ -34,7 +35,11 @@ export class ModHidden
      *
      * The main object body will not fade when enabled.
      */
-    onlyFadeApproachCircles = false;
+    readonly onlyFadeApproachCircles = new BooleanModSetting(
+        "Only fade approach circles",
+        "The main object body will not fade when enabled.",
+        false,
+    );
 
     constructor() {
         super();
@@ -61,9 +66,9 @@ export class ModHidden
     override copySettings(mod: SerializedMod): void {
         super.copySettings(mod);
 
-        this.onlyFadeApproachCircles =
+        this.onlyFadeApproachCircles.value =
             (mod.settings?.onlyFadeApproachCircles as boolean | undefined) ??
-            this.onlyFadeApproachCircles;
+            this.onlyFadeApproachCircles.value;
     }
 
     applyToBeatmap(beatmap: Beatmap): void {
@@ -80,8 +85,8 @@ export class ModHidden
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        return this.onlyFadeApproachCircles
-            ? { onlyFadeApproachCircles: this.onlyFadeApproachCircles }
+        return this.onlyFadeApproachCircles.value
+            ? { onlyFadeApproachCircles: this.onlyFadeApproachCircles.value }
             : null;
     }
 
@@ -89,12 +94,13 @@ export class ModHidden
         return (
             super.equals(other) &&
             other instanceof ModHidden &&
-            other.onlyFadeApproachCircles === this.onlyFadeApproachCircles
+            other.onlyFadeApproachCircles.value ===
+                this.onlyFadeApproachCircles.value
         );
     }
 
     override toString(): string {
-        if (!this.onlyFadeApproachCircles) {
+        if (!this.onlyFadeApproachCircles.value) {
             return super.toString();
         }
 

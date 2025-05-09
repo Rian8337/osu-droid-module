@@ -10,7 +10,11 @@ import { ModNightCore } from "./ModNightCore";
  * represented by this mod.
  */
 export class ModOldNightCore extends ModNightCore {
-    override readonly trackRateMultiplier = 1.39;
+    constructor() {
+        super();
+
+        this.trackRateMultiplier.value = 1.39;
+    }
 
     override calculateDroidScoreMultiplier(): number {
         return 1.12;
