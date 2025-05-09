@@ -25,9 +25,14 @@ export class ModHidden
     override readonly acronym = "HD";
     override readonly name = "Hidden";
 
-    readonly droidRanked = true;
+    get droidRanked(): boolean {
+        return this.usesDefaultSettings;
+    }
 
-    readonly osuRanked = true;
+    get osuRanked(): boolean {
+        return this.usesDefaultSettings;
+    }
+
     readonly bitwise = 1 << 3;
 
     /**

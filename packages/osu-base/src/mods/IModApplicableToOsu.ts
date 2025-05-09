@@ -5,7 +5,7 @@ export interface IModApplicableToOsu {
     /**
      * Whether this `Mod` is ranked in osu!standard.
      */
-    readonly osuRanked: boolean;
+    get osuRanked(): boolean;
 
     /**
      * Whether this `Mod` results in a meaningful effect to gameplay when applied in osu!standard.

@@ -7,7 +7,7 @@ export interface IModApplicableToDroid {
     /**
      * Whether this `Mod` is ranked in osu!droid.
      */
-    readonly droidRanked: boolean;
+    get droidRanked(): boolean;
 
     /**
      * Whether this `Mod` results in a meaningful effect to gameplay when applied in osu!droid.
