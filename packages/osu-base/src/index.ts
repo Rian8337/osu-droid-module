@@ -110,6 +110,7 @@ export * from "./mods/ModWindUp";
 export * from "./utils/ModUtil";
 export * from "./constants/Modes";
 export * from "./math/NormalDistribution";
+export * from "./mods/settings/NullableIntegerModSetting";
 export * from "./mods/settings/NullableDecimalModSetting";
 export * from "./mods/settings/NumberModSetting";
 export * from "./constants/ObjectTypes";
