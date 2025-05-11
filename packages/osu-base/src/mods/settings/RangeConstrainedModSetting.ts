@@ -4,20 +4,47 @@ import { ModSetting } from "./ModSetting";
  * Represents a `Mod` specific setting that is constrained to a range of values.
  */
 export abstract class RangeConstrainedModSetting<T> extends ModSetting<T> {
+    private _min: T;
+
     /**
      * The minimum value of this `RangeConstrainedModSetting`.
      */
-    readonly min: T;
+    get min(): T {
+        return this._min;
+    }
+
+    set min(value: T) {
+        this._min = value;
+        this.value = this.processValue(this.value);
+    }
+
+    private _max: T;
 
     /**
      * The maximum value of this `RangeConstrainedModSetting`.
      */
-    readonly max: T;
+    get max(): T {
+        return this._max;
+    }
+
+    set max(value: T) {
+        this._max = value;
+        this.value = this.processValue(this.value);
+    }
+
+    private _step: T;
 
     /**
      * The step size of this `RangeConstrainedModSetting`.
      */
-    readonly step: T;
+    get step(): T {
+        return this._step;
+    }
+
+    set step(value: T) {
+        this._step = value;
+        this.value = this.processValue(this.value);
+    }
 
     override get value(): T {
         return super.value;
@@ -37,9 +64,9 @@ export abstract class RangeConstrainedModSetting<T> extends ModSetting<T> {
     ) {
         super(name, description, defaultValue);
 
-        this.min = min;
-        this.max = max;
-        this.step = step;
+        this._min = min;
+        this._max = max;
+        this._step = step;
     }
 
     /**

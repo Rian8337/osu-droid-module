@@ -9,12 +9,30 @@ import { RangeConstrainedModSetting } from "./RangeConstrainedModSetting";
 export class NullableDecimalModSetting extends RangeConstrainedModSetting<
     number | null
 > {
+    private _precision: number | null;
+
     /**
      * The number of decimal places to round the value to.
      *
      * When set to `null`, the value will not be rounded.
      */
-    readonly precision: number | null;
+    get precision(): number | null {
+        return this._precision;
+    }
+
+    set precision(value: number | null) {
+        if (value !== null && value < 0) {
+            throw new RangeError(
+                `The precision (${value}) must be greater than or equal to 0.`,
+            );
+        }
+
+        this._precision = value;
+
+        if (value !== null) {
+            this.value = this.processValue(this.value);
+        }
+    }
 
     override readonly displayFormatter = (v: number | null): string => {
         if (v === null) {
@@ -60,7 +78,7 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
             );
         }
 
-        this.precision = precision;
+        this._precision = precision;
     }
 
     protected override processValue(value: number | null): number | null {

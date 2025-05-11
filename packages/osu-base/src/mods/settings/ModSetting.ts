@@ -19,10 +19,18 @@ export class ModSetting<T = unknown> {
      */
     protected readonly displayFormatter: (value: T) => string = (v) => `${v}`;
 
+    private _defaultValue: T;
+
     /**
      * The default value of this `ModSetting`.
      */
-    readonly defaultValue: T;
+    get defaultValue(): T {
+        return this._value;
+    }
+
+    set defaultValue(value: T) {
+        this._defaultValue = value;
+    }
 
     private _value: T;
 
@@ -58,7 +66,7 @@ export class ModSetting<T = unknown> {
     constructor(name: string, description: string, defaultValue: T) {
         this.name = name;
         this.description = description;
-        this.defaultValue = defaultValue;
+        this._defaultValue = defaultValue;
         this._value = defaultValue;
     }
 
