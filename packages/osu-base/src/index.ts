@@ -89,6 +89,7 @@ export * from "./mods/ModMirror";
 export * from "./mods/ModMuted";
 export * from "./mods/ModNightCore";
 export * from "./mods/ModNoFail";
+export * from "./mods/ModObjectScaleTween";
 export * from "./mods/ModOldNightCore";
 export * from "./mods/ModPerfect";
 export * from "./mods/ModPrecise";
