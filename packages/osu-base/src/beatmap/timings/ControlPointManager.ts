@@ -191,6 +191,10 @@ export abstract class ControlPointManager<T extends ControlPoint> {
         return this._points[l - 1];
     }
 
+    [Symbol.iterator](): IterableIterator<T> {
+        return this._points[Symbol.iterator]();
+    }
+
     /**
      * Finds the insertion index of a control point in a given time.
      *
