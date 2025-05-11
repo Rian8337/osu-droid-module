@@ -13,6 +13,7 @@ import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModEasy } from "../mods/ModEasy";
 import { ModFlashlight } from "../mods/ModFlashlight";
+import { ModFreezeFrame } from "../mods/ModFreezeFrame";
 import { ModGrow } from "../mods/ModGrow";
 import { ModHalfTime } from "../mods/ModHalfTime";
 import { ModHardRock } from "../mods/ModHardRock";
@@ -56,6 +57,7 @@ export abstract class ModUtil {
             ModEasy,
             ModNoFail,
             ModHidden,
+            ModFreezeFrame,
             ModTraceable,
             ModDoubleTime,
             ModNightCore,

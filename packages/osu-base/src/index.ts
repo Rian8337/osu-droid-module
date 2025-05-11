@@ -82,6 +82,7 @@ export * from "./mods/ModDifficultyAdjust";
 export * from "./mods/ModDoubleTime";
 export * from "./mods/ModEasy";
 export * from "./mods/ModFlashlight";
+export * from "./mods/ModFreezeFrame";
 export * from "./mods/ModGrow";
 export * from "./mods/ModHalfTime";
 export * from "./mods/ModHardRock";
