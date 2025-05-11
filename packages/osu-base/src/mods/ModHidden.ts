@@ -95,15 +95,6 @@ export class ModHidden
             : null;
     }
 
-    override equals(other: Mod): other is this {
-        return (
-            super.equals(other) &&
-            other instanceof ModHidden &&
-            other.onlyFadeApproachCircles.value ===
-                this.onlyFadeApproachCircles.value
-        );
-    }
-
     override toString(): string {
         if (!this.onlyFadeApproachCircles.value) {
             return super.toString();

@@ -193,7 +193,36 @@ export abstract class Mod {
      * @returns `true` if the object is the same `Mod`, `false` otherwise.
      */
     equals(other: Mod): other is this {
-        return this === other || this.acronym === other.acronym;
+        if (this === other) {
+            return true;
+        }
+
+        if (this.acronym !== other.acronym) {
+            return false;
+        }
+
+        const settings = this.settings;
+        const otherSettings = other.settings;
+
+        if (settings.length !== otherSettings.length) {
+            return false;
+        }
+
+        for (const setting of settings) {
+            const otherSetting = otherSettings.find(
+                (s) => s.name === setting.name,
+            );
+
+            if (!otherSetting) {
+                return false;
+            }
+
+            if (setting.value !== otherSetting.value) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**

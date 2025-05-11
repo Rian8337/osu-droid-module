@@ -83,15 +83,6 @@ export abstract class ModTimeRamp
         };
     }
 
-    override equals(other: Mod): other is this {
-        return (
-            super.equals(other) &&
-            other instanceof ModTimeRamp &&
-            other.initialRate.value === this.initialRate.value &&
-            other.finalRate.value === this.finalRate.value
-        );
-    }
-
     override toString(): string {
         return `${super.toString()} (${this.initialRate.toDisplayString()}x - ${this.finalRate.toDisplayString()}x)`;
     }

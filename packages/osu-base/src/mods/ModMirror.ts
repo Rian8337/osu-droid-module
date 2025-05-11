@@ -104,14 +104,6 @@ export class ModMirror
         return { flippedAxes: this.flippedAxes.value - 1 };
     }
 
-    override equals(other: Mod): other is this {
-        return (
-            super.equals(other) &&
-            other instanceof ModMirror &&
-            other.flippedAxes.value === this.flippedAxes.value
-        );
-    }
-
     override toString(): string {
         const settings: string[] = [];
 

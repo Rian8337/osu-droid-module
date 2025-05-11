@@ -270,15 +270,6 @@ export class ModRandom
         return previousObjectStartedCombo && this.random!.nextDouble() < 0.6;
     }
 
-    override equals(other: Mod): other is this {
-        return (
-            super.equals(other) &&
-            other instanceof ModRandom &&
-            other.seed.value === this.seed.value &&
-            other.angleSharpness.value === this.angleSharpness.value
-        );
-    }
-
     override toString(): string {
         const settings: string[] = [];
 

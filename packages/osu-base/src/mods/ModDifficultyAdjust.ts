@@ -251,17 +251,6 @@ export class ModDifficultyAdjust
         return rate;
     }
 
-    override equals(other: Mod): other is this {
-        return (
-            super.equals(other) &&
-            other instanceof ModDifficultyAdjust &&
-            this.cs.value === other.cs.value &&
-            this.ar.value === other.ar.value &&
-            this.od.value === other.od.value &&
-            this.hp.value === other.hp.value
-        );
-    }
-
     override toString(): string {
         if (!this.isRelevant) {
             return super.toString();
