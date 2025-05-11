@@ -8,10 +8,12 @@ import { Mod } from "../mods/Mod";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
 import { ModCustomSpeed } from "../mods/ModCustomSpeed";
+import { ModDeflate } from "../mods/ModDeflate";
 import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModEasy } from "../mods/ModEasy";
 import { ModFlashlight } from "../mods/ModFlashlight";
+import { ModGrow } from "../mods/ModGrow";
 import { ModHalfTime } from "../mods/ModHalfTime";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModHidden } from "../mods/ModHidden";
@@ -63,6 +65,8 @@ export abstract class ModUtil {
             ModWindUp,
             ModHardRock,
             ModMirror,
+            ModGrow,
+            ModDeflate,
             ModDifficultyAdjust,
             ModFlashlight,
             ModSuddenDeath,
