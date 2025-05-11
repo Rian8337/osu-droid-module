@@ -130,6 +130,10 @@ export class BeatmapHitObjects {
         this._spinners = 0;
     }
 
+    [Symbol.iterator](): IterableIterator<PlaceableHitObject> {
+        return this.objects[Symbol.iterator]();
+    }
+
     /**
      * Finds the insertion index of a hitobject in a given time.
      *
