@@ -5,6 +5,7 @@ import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModApproachDifferent } from "./ModApproachDifferent";
 import { ModTraceable } from "./ModTraceable";
 import { SerializedMod } from "./SerializedMod";
 import { BooleanModSetting } from "./settings/BooleanModSetting";
@@ -49,7 +50,7 @@ export class ModHidden
     constructor() {
         super();
 
-        this.incompatibleMods.add(ModTraceable);
+        this.incompatibleMods.add(ModTraceable).add(ModApproachDifferent);
     }
 
     get isDroidRelevant(): boolean {

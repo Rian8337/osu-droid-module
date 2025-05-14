@@ -5,6 +5,7 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { Mod } from "../mods/Mod";
+import { ModApproachDifferent } from "../mods/ModApproachDifferent";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
 import { ModCustomSpeed } from "../mods/ModCustomSpeed";
@@ -57,6 +58,7 @@ export abstract class ModUtil {
             ModEasy,
             ModNoFail,
             ModHidden,
+            ModApproachDifferent,
             ModFreezeFrame,
             ModTraceable,
             ModDoubleTime,

@@ -74,6 +74,7 @@ export * from "./math/Interpolation";
 export * from "./online/MapInfo";
 export * from "./math/MathUtils";
 export * from "./mods/Mod";
+export * from "./mods/ModApproachDifferent";
 export * from "./mods/ModAuto";
 export * from "./mods/ModAutopilot";
 export * from "./mods/ModCustomSpeed";

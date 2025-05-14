@@ -5,6 +5,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
+import { ModApproachDifferent } from "./ModApproachDifferent";
 
 /**
  * Represents the Freeze Frame mod.
@@ -18,6 +19,12 @@ export class ModFreezeFrame
 {
     override readonly name = "Freeze Frame";
     override readonly acronym = "FR";
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModApproachDifferent);
+    }
 
     private lastNewComboTime = 0;
 
