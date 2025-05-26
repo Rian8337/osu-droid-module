@@ -49,9 +49,30 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     protected abstract readonly mode: Modes;
 
     /**
-     * The amount of misses that are filtered out from sliderbreaks.
+     * The amount of misses, including slider nested misses.
      */
     protected effectiveMissCount = 0;
+
+    /**
+     * The amount of slider ends dropped in the score.
+     */
+    protected sliderEndsDropped = 0;
+
+    /**
+     * The amount of slider ticks missed in the score.
+     *
+     * This is used to calculate the slider accuracy.
+     */
+    protected sliderTicksMissed = 0;
+
+    private _usingClassicSliderAccuracy = false;
+
+    /**
+     * Whether this score uses classic slider accuracy.
+     */
+    protected get usingClassicSliderAccuracy(): boolean {
+        return this._usingClassicSliderAccuracy;
+    }
 
     /**
      * Nerf factor used for nerfing beatmaps with very likely dropped sliderends.
@@ -149,7 +170,27 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     protected handleOptions(options?: PerformanceCalculationOptions): void {
         const maxCombo = this.difficultyAttributes.maxCombo;
         const miss = this.computedAccuracy.nmiss;
-        const combo = options?.combo ?? maxCombo - miss;
+        let combo = options?.combo ?? maxCombo - miss;
+
+        if (
+            options?.sliderEndsDropped !== undefined &&
+            options?.sliderTicksMissed !== undefined
+        ) {
+            this._usingClassicSliderAccuracy = true;
+            this.sliderEndsDropped = options.sliderEndsDropped;
+            this.sliderTicksMissed = options.sliderTicksMissed;
+        } else {
+            this._usingClassicSliderAccuracy = false;
+            this.sliderEndsDropped = 0;
+            this.sliderTicksMissed = 0;
+        }
+
+        // Ensure that combo is within possible bounds.
+        combo = MathUtils.clamp(
+            combo,
+            0,
+            maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
+        );
 
         if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
@@ -236,12 +277,26 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         }
 
         if (this.difficultyAttributes.aimDifficultSliderCount > 0) {
-            // Consider all missing combo to be dropped difficult sliders.
-            const estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                Math.min(this.totalImperfectHits, maxCombo - combo),
-                0,
-                this.difficultyAttributes.aimDifficultSliderCount,
-            );
+            let estimateImproperlyFollowedDifficultSliders: number;
+
+            if (this.usingClassicSliderAccuracy) {
+                // When the score is considered classic (regardless if it was made on old client or not),
+                // we consider all missing combo to be dropped difficult sliders.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    Math.min(this.totalImperfectHits, maxCombo - combo),
+                    0,
+                    this.difficultyAttributes.aimDifficultSliderCount,
+                );
+            } else {
+                // We add tick misses here since they too mean that the player didn't follow the slider
+                // properly. However aren't adding misses here because missing slider heads has a harsh
+                // penalty by itself and doesn't mean that the rest of the slider wasn't followed properly.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    this.sliderEndsDropped + this.sliderTicksMissed,
+                    0,
+                    this.difficultyAttributes.aimDifficultSliderCount,
+                );
+            }
 
             this.sliderNerfFactor =
                 (1 - this.difficultyAttributes.sliderFactor) *
@@ -285,23 +340,43 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         combo: number,
         maxCombo: number,
     ): number {
-        // Guess the number of misses + slider breaks from combo.
-        let comboBasedMissCount = 0;
+        let missCount = 0;
 
         if (this.difficultyAttributes.sliderCount > 0) {
-            const fullComboThreshold =
-                maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
+            if (this.usingClassicSliderAccuracy) {
+                // Consider that full combo is maximum combo minus dropped slider tails since
+                // they don't contribute to combo but also don't break it.
+                // In classic scores, we can't know the amount of dropped sliders so we estimate
+                // to 10% of all sliders in the beatmap.
+                const fullComboThreshold =
+                    maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
 
-            if (combo < fullComboThreshold) {
-                // Clamp miss count to maximum amount of possible breaks.
-                comboBasedMissCount = Math.min(
-                    fullComboThreshold / Math.max(1, combo),
-                    this.totalImperfectHits,
+                if (combo < fullComboThreshold) {
+                    missCount = fullComboThreshold / Math.max(1, combo);
+                }
+
+                // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
+                missCount = Math.min(missCount, this.totalImperfectHits);
+            } else {
+                const fullComboThreshold = maxCombo - this.sliderEndsDropped;
+
+                if (combo < fullComboThreshold) {
+                    missCount = fullComboThreshold / Math.max(1, combo);
+                }
+
+                // Combine regular misses with tick misses, since tick misses break combo as well.
+                missCount = Math.min(
+                    missCount,
+                    this.sliderTicksMissed + this.computedAccuracy.nmiss,
                 );
             }
         }
 
-        return Math.max(this.computedAccuracy.nmiss, comboBasedMissCount);
+        return MathUtils.clamp(
+            missCount,
+            this.computedAccuracy.nmiss,
+            this.totalHits,
+        );
     }
 
     /**
