@@ -147,10 +147,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      * @param options Options for performance calculation.
      */
     protected handleOptions(options?: PerformanceCalculationOptions): void {
-        const maxCombo = this.difficultyAttributes.maxCombo;
-        const miss = this.computedAccuracy.nmiss;
-        const combo = options?.combo ?? maxCombo - miss;
-
         if (options?.accPercent instanceof Accuracy) {
             // Copy into new instance to not modify the original
             this.computedAccuracy = new Accuracy(options.accPercent);
@@ -173,9 +169,13 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             this.computedAccuracy = new Accuracy({
                 percent: options?.accPercent,
                 nobjects: this.totalHits,
-                nmiss: options?.miss || 0,
+                nmiss: options?.miss ?? 0,
             });
         }
+
+        const maxCombo = this.difficultyAttributes.maxCombo;
+        const miss = this.computedAccuracy.nmiss;
+        const combo = options?.combo ?? maxCombo - miss;
 
         this.effectiveMissCount = this.calculateEffectiveMissCount(
             combo,

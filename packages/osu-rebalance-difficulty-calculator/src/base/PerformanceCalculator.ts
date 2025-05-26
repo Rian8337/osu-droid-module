@@ -168,6 +168,32 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      * @param options Options for performance calculation.
      */
     protected handleOptions(options?: PerformanceCalculationOptions): void {
+        if (options?.accPercent instanceof Accuracy) {
+            // Copy into new instance to not modify the original
+            this.computedAccuracy = new Accuracy(options.accPercent);
+
+            if (this.computedAccuracy.n300 <= 0) {
+                this.computedAccuracy.n300 = Math.max(
+                    0,
+                    this.totalHits -
+                        this.computedAccuracy.n100 -
+                        this.computedAccuracy.n50 -
+                        this.computedAccuracy.nmiss,
+                );
+            } else {
+                this.computedAccuracy.nmiss = Math.max(
+                    0,
+                    this.totalHits - this.totalSuccessfulHits,
+                );
+            }
+        } else {
+            this.computedAccuracy = new Accuracy({
+                percent: options?.accPercent,
+                nobjects: this.totalHits,
+                nmiss: options?.miss ?? 0,
+            });
+        }
+
         const maxCombo = this.difficultyAttributes.maxCombo;
         const miss = this.computedAccuracy.nmiss;
         let combo = options?.combo ?? maxCombo - miss;
@@ -191,32 +217,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             0,
             maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
-
-        if (options?.accPercent instanceof Accuracy) {
-            // Copy into new instance to not modify the original
-            this.computedAccuracy = new Accuracy(options.accPercent);
-
-            if (this.computedAccuracy.n300 <= 0) {
-                this.computedAccuracy.n300 = Math.max(
-                    0,
-                    this.totalHits -
-                        this.computedAccuracy.n100 -
-                        this.computedAccuracy.n50 -
-                        this.computedAccuracy.nmiss,
-                );
-            } else {
-                this.computedAccuracy.nmiss = Math.max(
-                    0,
-                    this.totalHits - this.totalSuccessfulHits,
-                );
-            }
-        } else {
-            this.computedAccuracy = new Accuracy({
-                percent: options?.accPercent,
-                nobjects: this.totalHits,
-                nmiss: options?.miss || 0,
-            });
-        }
 
         this.effectiveMissCount = this.calculateEffectiveMissCount(
             combo,
