@@ -137,11 +137,6 @@ export class RebalanceThreeFingerChecker {
 
         this.getAccurateBreakPoints();
         this.filterCursorInstances();
-
-        if (this.downCursorInstances.filter((v) => v.length > 0).length <= 3) {
-            return { is3Finger: false, penalty: 1 };
-        }
-
         this.getBeatmapSections();
         this.calculateNerfFactors();
 
