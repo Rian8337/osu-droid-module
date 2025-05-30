@@ -114,10 +114,22 @@ export abstract class DifficultyCalculator<
         beatmap: Beatmap | TBeatmap,
         mods?: ModMap,
     ): StrainPeaks {
+        const difficultyAdjustmentMods = this.retainDifficultyAdjustmentMods(
+            mods ? Array.from(mods.values()) : [],
+        );
+
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
                 ? beatmap
-                : this.createPlayableBeatmap(beatmap, mods);
+                : this.createPlayableBeatmap(
+                      beatmap,
+                      new ModMap(
+                          difficultyAdjustmentMods.map((m) => [
+                              m.constructor as typeof Mod,
+                              m,
+                          ]),
+                      ),
+                  );
 
         const skills = this.createStrainPeakSkills(playableBeatmap);
         const objects = this.createDifficultyHitObjects(playableBeatmap);
