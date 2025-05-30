@@ -9,5 +9,5 @@ export interface APIPlayer {
     readonly region: string;
     readonly rank: number;
     readonly pp: number;
-    readonly recent: APIScore[];
+    readonly recent: Omit<APIScore, "uid" | "username">[];
 }

@@ -69,7 +69,13 @@ export class Player {
         this.pp = apiPlayer.pp;
 
         for (const score of apiPlayer.recent) {
-            this.recentPlays.push(new Score(score));
+            this.recentPlays.push(
+                new Score({
+                    ...score,
+                    uid: this.id,
+                    username: this.username,
+                }),
+            );
         }
     }
 
