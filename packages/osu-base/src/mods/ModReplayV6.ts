@@ -97,5 +97,7 @@ export class ModReplayV6
             standardCS,
             true,
         );
+
+        hitObject.stackOffsetMultiplier = 4;
     }
 }
