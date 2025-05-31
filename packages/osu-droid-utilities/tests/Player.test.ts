@@ -13,8 +13,6 @@ const apiMock: APIPlayer = {
     recent: [
         {
             id: 1,
-            uid: 51076,
-            username: "Rian8337",
             filename: "Mage - The Words I Never Said (Strategas) [Regret]",
             score: 67030952,
             combo: 2376,
@@ -31,8 +29,6 @@ const apiMock: APIPlayer = {
         },
         {
             id: 2,
-            uid: 51076,
-            username: "Rian8337",
             filename:
                 "Nogizaka46 - Yubi Bouenkyou ~Anime-ban~ (Nevo) [~A r M i N s Adventure~]",
             score: 3047526,
