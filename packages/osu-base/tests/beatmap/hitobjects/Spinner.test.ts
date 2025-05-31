@@ -27,23 +27,20 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
             spinner.stackHeight = 1;
-
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
 
             spinner.stackHeight = 2;
-
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
 
             spinner.stackHeight = 4;
-
-            expect(spinner.getStackedPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedPosition).toEqual(playfieldCenter);
         });
     });
 
@@ -51,23 +48,20 @@ describe("Test spinner position", () => {
         test("Without height", () => {
             const spinner = createSpinner();
 
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
         });
 
         test("With height", () => {
             const spinner = createSpinner();
 
             spinner.stackHeight = 1;
-
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
 
             spinner.stackHeight = 2;
-
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
 
             spinner.stackHeight = 4;
-
-            expect(spinner.getStackedEndPosition()).toEqual(playfieldCenter);
+            expect(spinner.stackedEndPosition).toEqual(playfieldCenter);
         });
     });
 });

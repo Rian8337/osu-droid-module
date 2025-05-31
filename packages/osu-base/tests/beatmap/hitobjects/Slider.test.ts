@@ -52,12 +52,7 @@ describe("Test slider position", () => {
         test("Without height", () => {
             const slider = new Slider(createGlobalSliderValues());
 
-            expect(slider.getStackedPosition(Modes.droid)).toEqual(
-                slider.position,
-            );
-            expect(slider.getStackedPosition(Modes.osu)).toEqual(
-                slider.position,
-            );
+            expect(slider.stackedPosition).toEqual(slider.position);
         });
 
         describe("With height", () => {
@@ -67,11 +62,12 @@ describe("Test slider position", () => {
 
                 const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
+                slider.stackOffsetMultiplier = stackMultiplier;
                 slider.stackHeight = 1;
 
-                let positionOffset = slider
-                    .getStackedPosition(mode)
-                    .subtract(slider.position);
+                let positionOffset = slider.stackedPosition.subtract(
+                    slider.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -82,9 +78,9 @@ describe("Test slider position", () => {
 
                 slider.stackHeight = 2;
 
-                positionOffset = slider
-                    .getStackedPosition(mode)
-                    .subtract(slider.position);
+                positionOffset = slider.stackedPosition.subtract(
+                    slider.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -95,9 +91,9 @@ describe("Test slider position", () => {
 
                 slider.stackHeight = 0.5;
 
-                positionOffset = slider
-                    .getStackedPosition(mode)
-                    .subtract(slider.position);
+                positionOffset = slider.stackedPosition.subtract(
+                    slider.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -116,12 +112,7 @@ describe("Test slider position", () => {
         test("Without height", () => {
             const slider = new Slider(createGlobalSliderValues());
 
-            expect(slider.getStackedEndPosition(Modes.droid)).toEqual(
-                slider.endPosition,
-            );
-            expect(slider.getStackedEndPosition(Modes.osu)).toEqual(
-                slider.endPosition,
-            );
+            expect(slider.stackedEndPosition).toEqual(slider.endPosition);
         });
 
         describe("With height", () => {
@@ -131,11 +122,12 @@ describe("Test slider position", () => {
 
                 const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
+                slider.stackOffsetMultiplier = stackMultiplier;
                 slider.stackHeight = 1;
 
-                let positionOffset = slider
-                    .getStackedEndPosition(mode)
-                    .subtract(slider.endPosition);
+                let positionOffset = slider.stackedEndPosition.subtract(
+                    slider.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -146,9 +138,9 @@ describe("Test slider position", () => {
 
                 slider.stackHeight = 2;
 
-                positionOffset = slider
-                    .getStackedEndPosition(mode)
-                    .subtract(slider.endPosition);
+                positionOffset = slider.stackedEndPosition.subtract(
+                    slider.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -159,9 +151,9 @@ describe("Test slider position", () => {
 
                 slider.stackHeight = 0.5;
 
-                positionOffset = slider
-                    .getStackedEndPosition(mode)
-                    .subtract(slider.endPosition);
+                positionOffset = slider.stackedEndPosition.subtract(
+                    slider.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * slider.stackHeight * stackMultiplier,
@@ -360,13 +352,9 @@ describe("Test slider repeat points", () => {
         const position = new Vector2(300, 192);
 
         expect(repeatPoint.position).toEqual(position);
-        expect(repeatPoint.getStackedPosition(Modes.droid)).toEqual(position);
-        expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
+        expect(repeatPoint.stackedPosition).toEqual(position);
         expect(repeatPoint.endPosition).toEqual(position);
-        expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
-            position,
-        );
-        expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(position);
+        expect(repeatPoint.stackedEndPosition).toEqual(position);
 
         expect(slider.endTime).toBeCloseTo(5000);
     });
@@ -401,17 +389,9 @@ describe("Test slider repeat points", () => {
             const position = new Vector2(i % 2 ? 100 : 300, 192);
 
             expect(repeatPoint.position).toEqual(position);
-            expect(repeatPoint.getStackedPosition(Modes.droid)).toEqual(
-                position,
-            );
-            expect(repeatPoint.getStackedPosition(Modes.osu)).toEqual(position);
+            expect(repeatPoint.stackedPosition).toEqual(position);
             expect(repeatPoint.endPosition).toEqual(position);
-            expect(repeatPoint.getStackedEndPosition(Modes.droid)).toEqual(
-                position,
-            );
-            expect(repeatPoint.getStackedEndPosition(Modes.osu)).toEqual(
-                position,
-            );
+            expect(repeatPoint.stackedEndPosition).toEqual(position);
         }
 
         expect(slider.endTime).toBeCloseTo(9000);

@@ -20,12 +20,7 @@ describe("Test circle position", () => {
         test("Without height", () => {
             const circle = createCircle();
 
-            expect(circle.getStackedPosition(Modes.droid)).toEqual(
-                circle.position,
-            );
-            expect(circle.getStackedPosition(Modes.osu)).toEqual(
-                circle.position,
-            );
+            expect(circle.stackedPosition).toEqual(circle.position);
         });
 
         describe("With height", () => {
@@ -35,11 +30,12 @@ describe("Test circle position", () => {
 
                 const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
+                circle.stackOffsetMultiplier = stackMultiplier;
                 circle.stackHeight = 1;
 
-                let positionOffset = circle
-                    .getStackedPosition(mode)
-                    .subtract(circle.position);
+                let positionOffset = circle.stackedPosition.subtract(
+                    circle.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
@@ -50,9 +46,9 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 2;
 
-                positionOffset = circle
-                    .getStackedPosition(mode)
-                    .subtract(circle.position);
+                positionOffset = circle.stackedPosition.subtract(
+                    circle.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
@@ -63,9 +59,9 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 4;
 
-                positionOffset = circle
-                    .getStackedPosition(mode)
-                    .subtract(circle.position);
+                positionOffset = circle.stackedPosition.subtract(
+                    circle.position,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
@@ -84,12 +80,7 @@ describe("Test circle position", () => {
         test("Without height", () => {
             const circle = createCircle();
 
-            expect(circle.getStackedEndPosition(Modes.droid)).toEqual(
-                circle.position,
-            );
-            expect(circle.getStackedEndPosition(Modes.osu)).toEqual(
-                circle.position,
-            );
+            expect(circle.stackedEndPosition).toEqual(circle.position);
         });
 
         describe("With height", () => {
@@ -101,9 +92,11 @@ describe("Test circle position", () => {
                 const { scale } = circle;
                 const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
 
-                let positionOffset = circle
-                    .getStackedEndPosition(mode)
-                    .subtract(circle.endPosition);
+                circle.stackOffsetMultiplier = stackMultiplier;
+
+                let positionOffset = circle.stackedEndPosition.subtract(
+                    circle.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
@@ -114,9 +107,9 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 2;
 
-                positionOffset = circle
-                    .getStackedEndPosition(mode)
-                    .subtract(circle.endPosition);
+                positionOffset = circle.stackedEndPosition.subtract(
+                    circle.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
@@ -127,9 +120,9 @@ describe("Test circle position", () => {
 
                 circle.stackHeight = 4;
 
-                positionOffset = circle
-                    .getStackedEndPosition(mode)
-                    .subtract(circle.endPosition);
+                positionOffset = circle.stackedEndPosition.subtract(
+                    circle.endPosition,
+                );
 
                 expect(positionOffset.x).toBeCloseTo(
                     scale * circle.stackHeight * stackMultiplier,
