@@ -430,7 +430,7 @@ export abstract class HitObject {
      * @returns The stacked position.
      */
     private evaluateStackedPosition(position: Vector2): Vector2 {
-        if (this.type & ObjectTypes.spinner) {
+        if ((this.type & ObjectTypes.spinner) > 0 || this.stackHeight === 0) {
             return position;
         }
 
