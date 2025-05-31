@@ -6,6 +6,7 @@ import {
     ModHardRock,
     ModMap,
     ModReallyEasy,
+    ModReplayV6,
     Modes,
     ObjectTypes,
     PathType,
@@ -62,12 +63,68 @@ test("Test AR override with non-1x speed multiplier", () => {
         modMap,
     );
 
+    expect(difficulty.ar).toBe(9);
+});
+
+test("Test AR override with non-1x speed multiplier with old scaling", () => {
+    const difficulty = new BeatmapDifficulty();
+    const modMap = new ModMap();
+
+    modMap.set(ModDoubleTime);
+    modMap.set(ModReplayV6);
+
+    new ModDifficultyAdjust({ ar: 9 }).applyToDifficultyWithMods(
+        Modes.droid,
+        difficulty,
+        modMap,
+    );
+
     expect(difficulty.ar).toBe(7);
 });
 
 test("Test object fade in adjustments with non-1x speed multiplier AR override", () => {
     const modMap = new ModMap();
     modMap.set(ModDoubleTime);
+
+    const difficulty = new BeatmapDifficulty();
+    const difficultyAdjust = new ModDifficultyAdjust({ ar: 9 });
+
+    difficultyAdjust.applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
+
+    const slider = new Slider({
+        startTime: 0,
+        position: new Vector2(0),
+        repeatCount: 0,
+        path: new SliderPath({
+            pathType: PathType.Linear,
+            controlPoints: [new Vector2(0), new Vector2(256, 0)],
+            expectedDistance: 256,
+        }),
+        type: ObjectTypes.slider,
+        tickDistanceMultiplier: 1,
+        nodeSamples: [],
+    });
+
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.droid);
+    difficultyAdjust.applyToHitObjectWithMods(Modes.droid, slider, modMap);
+
+    expect(slider.timePreempt).toBeCloseTo(600);
+    expect(slider.timeFadeIn).toBeCloseTo(400);
+
+    expect(slider.head.timePreempt).toBeCloseTo(600);
+    expect(slider.head.timeFadeIn).toBeCloseTo(400);
+
+    const tick = slider.nestedHitObjects[1];
+
+    expect(tick.timePreempt).toBeCloseTo(896);
+    expect(tick.timeFadeIn).toBeCloseTo(400);
+});
+
+test("Test object fade in adjustments with non-1x speed multiplier AR override with old scaling", () => {
+    const modMap = new ModMap();
+
+    modMap.set(ModDoubleTime);
+    modMap.set(ModReplayV6);
 
     const difficulty = new BeatmapDifficulty();
     const difficultyAdjust = new ModDifficultyAdjust({ ar: 9 });

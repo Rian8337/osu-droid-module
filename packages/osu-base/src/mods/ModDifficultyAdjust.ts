@@ -8,6 +8,7 @@ import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWi
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModMap } from "./ModMap";
+import { ModReplayV6 } from "./ModReplayV6";
 import { SerializedMod } from "./SerializedMod";
 import { NullableDecimalModSetting } from "./settings/NullableDecimalModSetting";
 
@@ -156,9 +157,9 @@ export class ModDifficultyAdjust
         difficulty.od = this.od.value ?? difficulty.od;
         difficulty.hp = this.hp.value ?? difficulty.hp;
 
-        // Special case for force AR, where the AR value is kept constant with respect to game time.
-        // This makes the player perceive the AR as is under all speed multipliers.
-        if (this.ar.value !== null) {
+        // Special case for force AR in replay version 6 and older, where the AR value is kept constant with
+        // respect to game time. This makes the player perceive the AR as is under all speed multipliers.
+        if (this.ar.value !== null && mods.has(ModReplayV6)) {
             const preempt = BeatmapDifficulty.difficultyRange(
                 this.ar.value,
                 HitObject.preemptMax,
@@ -182,9 +183,10 @@ export class ModDifficultyAdjust
         hitObject: HitObject,
         mods: ModMap,
     ): void {
-        // Special case for force AR, where the AR value is kept constant with respect to game time.
-        // This makes the player perceive the fade in animation as is under all speed multipliers.
-        if (this.ar.value === null) {
+        // Special case for force AR in replay version 6 and older, where the AR value is kept constant with
+        // respect to game time. This makes the player perceive the fade in animation as is under all speed
+        // multipliers.
+        if (this.ar.value === null || !mods.has(ModReplayV6)) {
             return;
         }
 
