@@ -73,11 +73,11 @@ export class Spinner extends HitObject {
         );
     }
 
-    override getStackedPosition(): Vector2 {
+    override get stackedPosition(): Vector2 {
         return this.position;
     }
 
-    override getStackedEndPosition(): Vector2 {
+    override get stackedEndPosition(): Vector2 {
         return this.position;
     }
 

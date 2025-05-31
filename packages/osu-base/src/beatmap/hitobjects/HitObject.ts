@@ -187,6 +187,44 @@ export abstract class HitObject {
         this._scale = value;
     }
 
+    private _stackOffsetMultiplier = 0;
+
+    /**
+     * The multiplier for the stack offset of this hitobject.
+     *
+     * This determines how much hitobjects are stacked - and to which direction.
+     */
+    get stackOffsetMultiplier(): number {
+        return this._stackOffsetMultiplier;
+    }
+
+    set stackOffsetMultiplier(value: number) {
+        this._stackOffsetMultiplier = value;
+    }
+
+    /**
+     * The stack offset vector of this hitobject.
+     */
+    get stackOffset(): Vector2 {
+        return new Vector2(
+            this.stackHeight * this.scale * this.stackOffsetMultiplier,
+        );
+    }
+
+    /**
+     * The stacked position of this hitobject.
+     */
+    get stackedPosition(): Vector2 {
+        return this.evaluateStackedPosition(this.position);
+    }
+
+    /**
+     * The stacked end position of this hitobject.
+     */
+    get stackedEndPosition(): Vector2 {
+        return this.evaluateStackedPosition(this.endPosition);
+    }
+
     /**
      * The time at which the approach circle of this hitobject should appear before this hitobject starts.
      */
@@ -281,6 +319,7 @@ export abstract class HitObject {
                 this.scale = CircleSizeCalculator.droidCSToDroidScale(
                     difficulty.cs,
                 );
+                this.stackOffsetMultiplier = -4;
                 break;
 
             case Modes.osu:
@@ -288,6 +327,7 @@ export abstract class HitObject {
                     difficulty.cs,
                     true,
                 );
+                this.stackOffsetMultiplier = -6.4;
                 break;
         }
     }
@@ -328,40 +368,6 @@ export abstract class HitObject {
                 prev.isLastInCombo = true;
             }
         }
-    }
-
-    /**
-     * Evaluates the stack offset vector of the hitobject.
-     *
-     * This is used to calculate offset for stacked positions.
-     *
-     * @param mode The gamemode to evaluate for.
-     * @returns The stack offset with respect to the gamemode.
-     */
-    getStackOffset(mode: Modes): Vector2 {
-        return new Vector2(
-            this.stackHeight * this.scale * (mode === Modes.droid ? -4 : -6.4),
-        );
-    }
-
-    /**
-     * Evaluates the stacked position of the hitobject.
-     *
-     * @param mode The gamemode to evaluate for.
-     * @returns The stacked position with respect to the gamemode.
-     */
-    getStackedPosition(mode: Modes): Vector2 {
-        return this.evaluateStackedPosition(this.position, mode);
-    }
-
-    /**
-     * Evaluates the stacked end position of the hitobject.
-     *
-     * @param mode The gamemode to evaluate for.
-     * @returns The stacked end position with respect to the gamemode.
-     */
-    getStackedEndPosition(mode: Modes): Vector2 {
-        return this.evaluateStackedPosition(this.endPosition, mode);
     }
 
     /**
@@ -421,14 +427,13 @@ export abstract class HitObject {
      * Evaluates the stacked position of the specified position.
      *
      * @param position The position to evaluate.
-     * @param mode The gamemode to evaluate for.
      * @returns The stacked position.
      */
-    private evaluateStackedPosition(position: Vector2, mode: Modes): Vector2 {
+    private evaluateStackedPosition(position: Vector2): Vector2 {
         if (this.type & ObjectTypes.spinner) {
             return position;
         }
 
-        return position.add(this.getStackOffset(mode));
+        return position.add(this.stackOffset);
     }
 }
