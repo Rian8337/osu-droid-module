@@ -340,7 +340,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         combo: number,
         maxCombo: number,
     ): number {
-        let missCount = 0;
+        let missCount = this.computedAccuracy.nmiss;
 
         if (this.difficultyAttributes.sliderCount > 0) {
             if (this.usingClassicSliderAccuracy) {
