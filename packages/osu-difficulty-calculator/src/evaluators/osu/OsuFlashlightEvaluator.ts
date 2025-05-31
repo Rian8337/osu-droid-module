@@ -1,4 +1,4 @@
-import { ModHidden, ModMap, Modes, Slider, Spinner } from "@rian8337/osu-base";
+import { ModHidden, ModMap, Slider, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -44,11 +44,9 @@ export abstract class OsuFlashlightEvaluator {
             cumulativeStrainTime += last.strainTime;
 
             if (!(currentObject.object instanceof Spinner)) {
-                const jumpDistance = current.object
-                    .getStackedPosition(Modes.osu)
-                    .subtract(
-                        currentObject.object.getStackedEndPosition(Modes.osu),
-                    ).length;
+                const jumpDistance = current.object.stackedPosition.subtract(
+                    currentObject.object.stackedEndPosition,
+                ).length;
 
                 // We want to nerf objects that can be easily seen within the Flashlight circle radius.
                 if (i === 0) {

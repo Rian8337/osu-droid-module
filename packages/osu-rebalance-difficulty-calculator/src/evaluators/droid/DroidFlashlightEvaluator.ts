@@ -3,7 +3,6 @@ import {
     ModHidden,
     ModMap,
     ModTraceable,
-    Modes,
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
@@ -64,11 +63,9 @@ export abstract class DroidFlashlightEvaluator {
                 // Exclude overlapping objects that can be tapped at once.
                 !currentObject.isOverlapping(false)
             ) {
-                const jumpDistance = current.object
-                    .getStackedPosition(Modes.droid)
-                    .subtract(
-                        currentObject.object.getStackedEndPosition(Modes.droid),
-                    ).length;
+                const jumpDistance = current.object.stackedPosition.subtract(
+                    currentObject.object.stackedEndPosition,
+                ).length;
 
                 // We want to nerf objects that can be easily seen within the Flashlight circle radius.
                 if (i === 0) {

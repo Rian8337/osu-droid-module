@@ -370,10 +370,9 @@ export abstract class DifficultyHitObject {
         const lastCursorPosition =
             this.lastDifficultyObject !== null
                 ? this.getEndCursorPosition(this.lastDifficultyObject)
-                : this.lastObject.getStackedPosition(this.mode);
+                : this.lastObject.stackedPosition;
 
-        this.lazyJumpDistance = this.object
-            .getStackedPosition(this.mode)
+        this.lazyJumpDistance = this.object.stackedPosition
             .scale(scalingFactor)
             .subtract(lastCursorPosition.scale(scalingFactor)).length;
         this.minimumJumpTime = this.strainTime;
@@ -413,10 +412,9 @@ export abstract class DifficultyHitObject {
             //
             // Thus, the player is assumed to jump the minimum of these two distances in all cases.
             const tailJumpDistance =
-                this.lastObject.tail
-                    .getStackedPosition(this.mode)
-                    .subtract(this.object.getStackedPosition(this.mode))
-                    .length * scalingFactor;
+                this.lastObject.tail.stackedPosition.subtract(
+                    this.object.stackedPosition,
+                ).length * scalingFactor;
 
             this.minimumJumpDistance = Math.max(
                 0,
@@ -437,11 +435,9 @@ export abstract class DifficultyHitObject {
             );
 
             const v1 = lastLastCursorPosition.subtract(
-                this.lastObject.getStackedPosition(this.mode),
+                this.lastObject.stackedPosition,
             );
-            const v2 = this.object
-                .getStackedPosition(this.mode)
-                .subtract(lastCursorPosition);
+            const v2 = this.object.stackedPosition.subtract(lastCursorPosition);
             const dot = v1.dot(v2);
             const det = v1.x * v2.y - v1.y * v2.x;
 
@@ -499,7 +495,7 @@ export abstract class DifficultyHitObject {
 
         if (this.mode === Modes.droid) {
             // Temporary lazy end position until a real result can be derived.
-            this.lazyEndPosition = this.object.getStackedPosition(this.mode);
+            this.lazyEndPosition = this.object.stackedPosition;
 
             // Stop here if the slider has too short duration, allowing the player to essentially
             // complete the slider without movement, making travel distance and time irrelevant.
@@ -523,20 +519,21 @@ export abstract class DifficultyHitObject {
         }
 
         // Temporary lazy end position until a real result can be derived.
-        this.lazyEndPosition = this.object
-            .getStackedPosition(this.mode)
-            .add(this.object.path.positionAt(endTimeMin));
+        this.lazyEndPosition = this.object.stackedPosition.add(
+            this.object.path.positionAt(endTimeMin),
+        );
 
-        let currentCursorPosition = this.object.getStackedPosition(this.mode);
+        let currentCursorPosition = this.object.stackedPosition;
         const scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
 
         for (let i = 1; i < nestedObjects.length; ++i) {
             const currentMovementObject = nestedObjects[i];
 
-            let currentMovement = currentMovementObject
-                .getStackedPosition(this.mode)
-                .subtract(currentCursorPosition);
+            let currentMovement =
+                currentMovementObject.stackedPosition.subtract(
+                    currentCursorPosition,
+                );
 
             let currentMovementLength = scalingFactor * currentMovement.length;
 
@@ -586,9 +583,6 @@ export abstract class DifficultyHitObject {
     }
 
     private getEndCursorPosition(object: DifficultyHitObject) {
-        return (
-            object.lazyEndPosition ??
-            object.object.getStackedPosition(this.mode)
-        );
+        return object.lazyEndPosition ?? object.object.stackedPosition;
     }
 }

@@ -6,7 +6,6 @@ import {
     DroidPlayableBeatmap,
     Interpolation,
     MathUtils,
-    Modes,
     ModHardRock,
     ModPrecise,
     OsuHitWindow,
@@ -21,10 +20,10 @@ import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-cal
 import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
+import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
 import { ReplayObjectData } from "../data/ReplayObjectData";
 import { IndexedHitObject } from "./objects/IndexedHitObject";
-import { CursorOccurrence } from "../data/CursorOccurrence";
 // import { join } from "path";
 
 /**
@@ -318,16 +317,12 @@ export class TwoHandChecker {
             return new IndexedHitObject(object, -1, -1, -1, null, false);
         }
 
-        const objectStartPosition = object.getStackedPosition(Modes.droid);
-        let prevObjectEndPosition = prevObject.getStackedEndPosition(
-            Modes.droid,
-        );
+        const objectStartPosition = object.stackedPosition;
+        let prevObjectEndPosition = prevObject.stackedEndPosition;
 
         if (prevObject instanceof Slider) {
             if (prevObject.distance > 0) {
-                const endPosition = prevObject.getStackedEndPosition(
-                    Modes.droid,
-                );
+                const endPosition = prevObject.stackedEndPosition;
 
                 const lazyEndMovement =
                     objectStartPosition.subtract(endPosition);
@@ -339,15 +334,13 @@ export class TwoHandChecker {
                     prevObjectEndPosition = endPosition;
                 }
             } else {
-                prevObjectEndPosition = prevObject.getStackedPosition(
-                    Modes.droid,
-                );
+                prevObjectEndPosition = prevObject.stackedPosition;
             }
         }
 
-        const prevToCurrentMovement = object
-            .getStackedPosition(Modes.droid)
-            .subtract(prevObjectEndPosition);
+        const prevToCurrentMovement = object.stackedPosition.subtract(
+            prevObjectEndPosition,
+        );
 
         // Don't consider objects that are too close to each other.
         if (prevToCurrentMovement.length <= object.radius) {
@@ -529,7 +522,7 @@ export class TwoHandChecker {
     ): CursorPositionInformation {
         const object = this.beatmap.hitObjects.objects[objectIndex];
         const data = this.data.hitObjectData[objectIndex];
-        const objectPosition = object.getStackedPosition(Modes.droid);
+        const objectPosition = object.stackedPosition;
 
         if (object instanceof Spinner) {
             return {
@@ -750,14 +743,12 @@ export class TwoHandChecker {
         }
 
         const nextObject = this.beatmap.hitObjects.objects[objectIndex - 1];
-        let objectEndPosition = object.getStackedEndPosition(Modes.droid);
+        let objectEndPosition = object.stackedEndPosition;
 
         if (object.distance > 0 && nextObject) {
-            const endPosition = object.getStackedEndPosition(Modes.droid);
+            const endPosition = object.stackedEndPosition;
 
-            const nextStartPosition = nextObject.getStackedPosition(
-                Modes.droid,
-            );
+            const nextStartPosition = nextObject.stackedPosition;
 
             const lazyEndMovement = nextStartPosition.subtract(endPosition);
             const actualEndMovement =
@@ -767,7 +758,7 @@ export class TwoHandChecker {
                 objectEndPosition = endPosition;
             }
         } else {
-            objectEndPosition = object.getStackedPosition(Modes.droid);
+            objectEndPosition = object.stackedPosition;
         }
 
         let nearestPosition = new Vector2(Number.POSITIVE_INFINITY);

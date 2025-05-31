@@ -167,8 +167,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         }
 
         const distanceThreshold = 2 * this.object.radius;
-        const startPosition = this.object.getStackedPosition(Modes.droid);
-        const prevStartPosition = prev.object.getStackedPosition(Modes.droid);
+        const startPosition = this.object.stackedPosition;
+        const prevStartPosition = prev.object.stackedPosition;
 
         // We need to consider two cases:
         //
@@ -189,9 +189,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
 
         // Check if all nested hitobjects can be hit together.
         for (let i = 1; i < this.object.nestedHitObjects.length; ++i) {
-            const position = this.object.nestedHitObjects[i].getStackedPosition(
-                Modes.droid,
-            );
+            const position = this.object.nestedHitObjects[i].stackedPosition;
 
             const prevPosition = prevStartPosition.add(
                 prev.object.curvePositionAt(
@@ -206,9 +204,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
 
         // Do the same for the previous slider as well.
         for (let i = 1; i < prev.object.nestedHitObjects.length; ++i) {
-            const prevPosition = prev.object.nestedHitObjects[
-                i
-            ].getStackedPosition(Modes.droid);
+            const prevPosition =
+                prev.object.nestedHitObjects[i].stackedPosition;
 
             const position = startPosition.add(
                 this.object.curvePositionAt(
@@ -267,18 +264,18 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         }
 
         for (const hitObject of prevVisibleObjects) {
-            const distance = this.object
-                .getStackedPosition(this.mode)
-                .getDistance(hitObject.getStackedEndPosition(this.mode));
+            const distance = this.object.stackedPosition.getDistance(
+                hitObject.stackedEndPosition,
+            );
             const deltaTime = this.startTime - hitObject.endTime / clockRate;
 
             this.applyToOverlappingFactor(distance, deltaTime);
         }
 
         for (const hitObject of nextVisibleObjects) {
-            const distance = hitObject
-                .getStackedPosition(this.mode)
-                .getDistance(this.object.getStackedEndPosition(this.mode));
+            const distance = hitObject.stackedPosition.getDistance(
+                this.object.stackedEndPosition,
+            );
             const deltaTime = hitObject.startTime / clockRate - this.endTime;
 
             if (deltaTime >= 0) {

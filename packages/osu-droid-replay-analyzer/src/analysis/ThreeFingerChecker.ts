@@ -8,7 +8,6 @@ import {
     MathUtils,
     ModHardRock,
     ModPrecise,
-    Modes,
     PlaceableHitObject,
     Playfield,
     PreciseDroidHitWindow,
@@ -373,7 +372,7 @@ export class ThreeFingerChecker {
         }
 
         const hitTime = object.startTime + objectData.accuracy;
-        const objectPosition = object.getStackedPosition(Modes.droid);
+        const objectPosition = object.stackedPosition;
 
         // We are maintaining the closest distance to the object.
         // This is because the radius that is calculated is using an estimation.
