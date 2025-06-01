@@ -68,6 +68,7 @@ export abstract class PlayableBeatmap implements IBeatmap {
         this.mods = mods;
         this.speedMultiplier = ModUtil.calculateRateWithMods(
             this.mods.values(),
+            Number.POSITIVE_INFINITY,
         );
     }
 
