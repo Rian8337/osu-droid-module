@@ -21,6 +21,9 @@ export class ModMap extends Map<typeof Mod, Mod> {
     }
 
     constructor(iterable?: readonly (readonly [typeof Mod, Mod])[] | null) {
+        // We are not passing `iterable` here to preserve mod-specific settings.
+        super();
+
         if (Array.isArray(iterable)) {
             for (const [key, value] of iterable) {
                 // Ensure the mod type corresponds to the mod instance.
@@ -29,10 +32,10 @@ export class ModMap extends Map<typeof Mod, Mod> {
                         `Key ${key.name} does not match value ${value.constructor.name}`,
                     );
                 }
+
+                this.set(value);
             }
         }
-
-        super(iterable);
     }
 
     /**
