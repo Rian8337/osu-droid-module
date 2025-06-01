@@ -215,7 +215,7 @@ export class Slider extends HitObject {
     }
 
     override get stackHeight(): number {
-        return this._stackHeight;
+        return super.stackHeight;
     }
 
     override set stackHeight(value: number) {
@@ -227,7 +227,7 @@ export class Slider extends HitObject {
     }
 
     override get scale(): number {
-        return this._scale;
+        return super.scale;
     }
 
     override set scale(value: number) {
@@ -235,6 +235,18 @@ export class Slider extends HitObject {
 
         for (const nestedObject of this.nestedHitObjects) {
             nestedObject.scale = value;
+        }
+    }
+
+    override get stackOffsetMultiplier(): number {
+        return super.stackOffsetMultiplier;
+    }
+
+    override set stackOffsetMultiplier(value: number) {
+        super.stackOffsetMultiplier = value;
+
+        for (const nestedObject of this.nestedHitObjects) {
+            nestedObject.stackOffsetMultiplier = value;
         }
     }
 

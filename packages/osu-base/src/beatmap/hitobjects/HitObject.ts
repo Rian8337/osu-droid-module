@@ -161,7 +161,7 @@ export abstract class HitObject {
      */
     hitWindow: HitWindow | null = null;
 
-    protected _stackHeight = 0;
+    private _stackHeight = 0;
 
     /**
      * The stack height of this hitobject.
@@ -174,7 +174,7 @@ export abstract class HitObject {
         this._stackHeight = value;
     }
 
-    protected _scale = 1;
+    private _scale = 1;
 
     /**
      * The osu!standard scale of this hitobject.
