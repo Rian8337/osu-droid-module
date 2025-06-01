@@ -75,7 +75,10 @@ export abstract class DifficultyCalculator<
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
                 ? beatmap
-                : this.createPlayableBeatmap(beatmap, mods);
+                : this.createPlayableBeatmapWithDifficultyAdjustmentMods(
+                      beatmap,
+                      mods,
+                  );
 
         const skills = this.createSkills(playableBeatmap);
         const objects = this.createDifficultyHitObjects(playableBeatmap);
@@ -114,21 +117,12 @@ export abstract class DifficultyCalculator<
         beatmap: Beatmap | TBeatmap,
         mods?: ModMap,
     ): StrainPeaks {
-        const difficultyAdjustmentMods = this.retainDifficultyAdjustmentMods(
-            mods ? Array.from(mods.values()) : [],
-        );
-
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
                 ? beatmap
-                : this.createPlayableBeatmap(
+                : this.createPlayableBeatmapWithDifficultyAdjustmentMods(
                       beatmap,
-                      new ModMap(
-                          difficultyAdjustmentMods.map((m) => [
-                              m.constructor as typeof Mod,
-                              m,
-                          ]),
-                      ),
+                      mods,
                   );
 
         const skills = this.createStrainPeakSkills(playableBeatmap);
@@ -216,5 +210,24 @@ export abstract class DifficultyCalculator<
      */
     protected basePerformanceValue(rating: number): number {
         return Math.pow(5 * Math.max(1, rating / 0.0675) - 4, 3) / 100000;
+    }
+
+    private createPlayableBeatmapWithDifficultyAdjustmentMods(
+        beatmap: Beatmap,
+        mods?: ModMap,
+    ) {
+        const difficultyAdjustmentMods = this.retainDifficultyAdjustmentMods(
+            mods ? Array.from(mods.values()) : [],
+        );
+
+        return this.createPlayableBeatmap(
+            beatmap,
+            new ModMap(
+                difficultyAdjustmentMods.map((m) => [
+                    m.constructor as typeof Mod,
+                    m,
+                ]),
+            ),
+        );
     }
 }
