@@ -47,7 +47,7 @@ export class ModSetting<T = unknown> {
             this._value = value;
 
             for (const listener of this.valueChangedListeners) {
-                listener(oldValue, value);
+                listener({ oldValue, newValue: value });
             }
         }
     }
@@ -92,7 +92,7 @@ export class ModSetting<T = unknown> {
         this.valueChangedListeners.add(listener);
 
         if (runOnceImmediately) {
-            listener(this.value, this.value);
+            listener({ oldValue: this.value, newValue: this.value });
         }
     }
 

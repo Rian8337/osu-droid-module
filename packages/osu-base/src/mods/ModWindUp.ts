@@ -39,15 +39,15 @@ export class ModWindUp
     constructor() {
         super();
 
-        this.initialRate.bindValueChanged((_, value) => {
-            if (value >= this.finalRate.value) {
-                this.finalRate.value = value + this.finalRate.step;
+        this.initialRate.bindValueChanged((value) => {
+            if (value.newValue >= this.finalRate.value) {
+                this.finalRate.value = value.newValue + this.finalRate.step;
             }
         });
 
-        this.finalRate.bindValueChanged((_, value) => {
-            if (value <= this.initialRate.value) {
-                this.initialRate.value = value - this.initialRate.step;
+        this.finalRate.bindValueChanged((value) => {
+            if (value.newValue <= this.initialRate.value) {
+                this.initialRate.value = value.newValue - this.initialRate.step;
             }
         });
     }

@@ -81,8 +81,8 @@ export class ModMuted
     constructor() {
         super();
 
-        this.inverseMuting.bindValueChanged((_, newValue) => {
-            this.muteComboCount.min = newValue ? 1 : 0;
+        this.inverseMuting.bindValueChanged((value) => {
+            this.muteComboCount.min = value.newValue ? 1 : 0;
         }, true);
     }
 
