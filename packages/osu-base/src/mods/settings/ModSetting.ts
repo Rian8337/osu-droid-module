@@ -25,7 +25,7 @@ export class ModSetting<T = unknown> {
      * The default value of this `ModSetting`.
      */
     get defaultValue(): T {
-        return this._value;
+        return this._defaultValue;
     }
 
     set defaultValue(value: T) {
