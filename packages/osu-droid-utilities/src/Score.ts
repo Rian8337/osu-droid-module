@@ -96,6 +96,16 @@ export class Score {
     hash: string;
 
     /**
+     * The amount of slider ticks hit in the play.
+     */
+    sliderTickHits: number | null;
+
+    /**
+     * The amount of slider ends hit in the play.
+     */
+    sliderEndHits: number | null;
+
+    /**
      * The performance points of the play.
      */
     pp: number | null;
@@ -129,6 +139,8 @@ export class Score {
             nmiss: apiScore.miss,
         });
 
+        this.sliderTickHits = apiScore.slider_tick_hit;
+        this.sliderEndHits = apiScore.slider_end_hit;
         this.hash = apiScore.hash;
         this.pp = apiScore.pp;
     }
