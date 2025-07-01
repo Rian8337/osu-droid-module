@@ -115,13 +115,6 @@ export class Beatmap implements IBeatmap {
         return mostCommon?.beatLength ?? 0;
     }
 
-    /**
-     * Returns a time combined with beatmap-wide time offset.
-     *
-     * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
-     *
-     * @param time The time.
-     */
     getOffsetTime(time: number): number {
         return time + (this.formatVersion < 5 ? 24 : 0);
     }

@@ -60,4 +60,13 @@ export interface IBeatmap {
      * The maximum combo of the beatmap.
      */
     get maxCombo(): number;
+
+    /**
+     * Returns a time combined with beatmap-wide time offset.
+     *
+     * BeatmapVersion 4 and lower had an incorrect offset. Stable has this set as 24ms off.
+     *
+     * @param time The time.
+     */
+    getOffsetTime(time: number): number;
 }

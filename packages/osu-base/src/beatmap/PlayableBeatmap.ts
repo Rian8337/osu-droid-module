@@ -72,6 +72,10 @@ export abstract class PlayableBeatmap implements IBeatmap {
         );
     }
 
+    getOffsetTime(time: number): number {
+        return time + (this.formatVersion < 5 ? 24 : 0);
+    }
+
     /**
      * Creates the `HitWindow` of this `PlayableBeatmap`.
      */
