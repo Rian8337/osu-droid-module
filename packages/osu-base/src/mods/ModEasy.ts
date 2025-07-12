@@ -5,6 +5,7 @@ import { IModApplicableToDifficulty } from "./IModApplicableToDifficulty";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModHardRock } from "./ModHardRock";
 import { ModMap } from "./ModMap";
 import { ModReplayV6 } from "./ModReplayV6";
@@ -73,5 +74,18 @@ export class ModEasy
         difficulty.ar /= 2;
         difficulty.od /= 2;
         difficulty.hp /= 2;
+    }
+
+    override isCompatibleWith(other: Mod): boolean {
+        if (other instanceof ModDifficultyAdjust) {
+            return (
+                other.cs.value === null ||
+                other.ar.value === null ||
+                other.od.value === null ||
+                other.hp.value === null
+            );
+        }
+
+        return super.isCompatibleWith(other);
     }
 }

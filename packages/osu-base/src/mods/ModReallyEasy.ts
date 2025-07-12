@@ -79,4 +79,17 @@ export class ModReallyEasy
             difficulty.hp /= 2;
         }
     }
+
+    override isCompatibleWith(other: Mod): boolean {
+        if (other instanceof ModDifficultyAdjust) {
+            return (
+                other.cs.value === null ||
+                other.ar.value === null ||
+                other.od.value === null ||
+                other.hp.value === null
+            );
+        }
+
+        return super.isCompatibleWith(other);
+    }
 }

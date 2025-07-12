@@ -56,4 +56,12 @@ export class ModSmallCircle
             );
         }
     }
+
+    override isCompatibleWith(other: Mod): boolean {
+        if (other instanceof ModDifficultyAdjust) {
+            return other.cs.value === null;
+        }
+
+        return super.isCompatibleWith(other);
+    }
 }

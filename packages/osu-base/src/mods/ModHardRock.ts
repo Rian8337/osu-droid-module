@@ -8,6 +8,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModEasy } from "./ModEasy";
 import { ModMap } from "./ModMap";
 import { ModMirror } from "./ModMirror";
@@ -83,6 +84,19 @@ export class ModHardRock
 
     applyToHitObject(_: Modes, hitObject: HitObject): void {
         HitObjectGenerationUtils.reflectVerticallyAlongPlayfield(hitObject);
+    }
+
+    override isCompatibleWith(other: Mod): boolean {
+        if (other instanceof ModDifficultyAdjust) {
+            return (
+                other.cs.value === null ||
+                other.ar.value === null ||
+                other.od.value === null ||
+                other.hp.value === null
+            );
+        }
+
+        return super.isCompatibleWith(other);
     }
 
     private applySetting(value: number, ratio = 1.4): number {

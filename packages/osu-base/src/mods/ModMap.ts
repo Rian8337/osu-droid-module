@@ -1,10 +1,5 @@
 import { ModUtil } from "../utils/ModUtil";
 import { Mod } from "./Mod";
-import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
-import { ModEasy } from "./ModEasy";
-import { ModHardRock } from "./ModHardRock";
-import { ModReallyEasy } from "./ModReallyEasy";
-import { ModSmallCircle } from "./ModSmallCircle";
 import { SerializedMod } from "./SerializedMod";
 
 /**
@@ -70,6 +65,8 @@ export class ModMap extends Map<typeof Mod, Mod> {
     /**
      * Inserts a new instance of the given `Mod` type into this map.
      *
+     * Do note that this method will remove any `Mod`s that are incompatible with the specified `Mod`.
+     *
      * @param key The `Mod` type to insert.
      * @returns The existing `Mod` instance of the given `Mod` type if it was already present, or `null` if it was not.
      */
@@ -77,6 +74,8 @@ export class ModMap extends Map<typeof Mod, Mod> {
 
     /**
      * Inserts the given `Mod` into this map.
+     *
+     * Do note that this method will remove any `Mod`s that are incompatible with the specified `Mod`.
      *
      * @param value The `Mod` to insert.
      * @returns The existing `Mod` instance if it was already present, or `null` if it was not.
@@ -99,30 +98,11 @@ export class ModMap extends Map<typeof Mod, Mod> {
 
         const existing = this.get(key);
 
-        // If all difficulty statistics are set, all other difficulty adjusting mods are irrelevant, so we remove them.
-        // This prevents potential abuse cases where score multipliers from non-affecting mods stack (i.e., forcing
-        // all difficulty statistics while using the Hard Rock mod).
-        const removeDifficultyAdjustmentMods =
-            value instanceof ModDifficultyAdjust &&
-            value.cs !== undefined &&
-            value.ar !== undefined &&
-            value.od !== undefined &&
-            value.hp !== undefined;
-
-        if (removeDifficultyAdjustmentMods) {
-            this.delete(ModEasy);
-            this.delete(ModHardRock);
-            this.delete(ModReallyEasy);
-            this.delete(ModSmallCircle);
-        }
-
         // Check if there are any mods that are incompatible with the new mod.
         // If so, remove them.
-        for (const incompatibleMod of value.incompatibleMods) {
-            for (const mod of this.values()) {
-                if (mod instanceof incompatibleMod) {
-                    this.delete(mod.constructor as typeof Mod);
-                }
+        for (const mod of this.values()) {
+            if (!value.isCompatibleWith(mod)) {
+                this.delete(mod.constructor as typeof Mod);
             }
         }
 

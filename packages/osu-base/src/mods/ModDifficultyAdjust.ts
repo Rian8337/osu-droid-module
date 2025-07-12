@@ -7,8 +7,12 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
+import { ModEasy } from "./ModEasy";
+import { ModHardRock } from "./ModHardRock";
 import { ModMap } from "./ModMap";
+import { ModReallyEasy } from "./ModReallyEasy";
 import { ModReplayV6 } from "./ModReplayV6";
+import { ModSmallCircle } from "./ModSmallCircle";
 import { SerializedMod } from "./SerializedMod";
 import { NullableDecimalModSetting } from "./settings/NullableDecimalModSetting";
 
@@ -197,6 +201,27 @@ export class ModDifficultyAdjust
                 this.applyFadeAdjustment(nested, mods);
             }
         }
+    }
+
+    override isCompatibleWith(other: Mod): boolean {
+        if (this.cs.value !== null && other instanceof ModSmallCircle) {
+            return false;
+        }
+
+        if (
+            this.cs.value !== null &&
+            this.ar.value !== null &&
+            this.od.value !== null &&
+            this.hp.value !== null
+        ) {
+            return !(
+                other instanceof ModEasy ||
+                other instanceof ModHardRock ||
+                other instanceof ModReallyEasy
+            );
+        }
+
+        return super.isCompatibleWith(other);
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {

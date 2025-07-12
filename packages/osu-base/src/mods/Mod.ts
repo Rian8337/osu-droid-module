@@ -34,7 +34,14 @@ export abstract class Mod {
     readonly userPlayable: boolean = true;
 
     /**
-     * `Mod`s that are incompatible with this `Mod`.
+     * The {@link Mod}s this {@link Mod} cannot be enabled with.
+     *
+     * This is merely a static list of {@link Mod} constructors that this {@link Mod} is incompatible with,
+     * regardless of the actual instance of the {@link Mod}.
+     *
+     * Some {@link Mod}s may have additional compatibility requirements that are captured in
+     * {@link isCompatibleWith}. When checking for {@link Mod} compatibility, always use
+     * {@link isCompatibleWith}.
      */
     readonly incompatibleMods = new Set<typeof Mod>();
 
@@ -66,6 +73,22 @@ export abstract class Mod {
      */
     get usesDefaultSettings(): boolean {
         return this.settings.every((s) => s.isDefault);
+    }
+
+    /**
+     * Determines whether this {@link Mod} is compatible with another {@link Mod}.
+     *
+     * This extends {@link incompatibleMods} by allowing for dynamic checks against
+     * the actual instance of the {@link Mod} (i.e., its specific settings).
+     *
+     * @param other The {@link Mod} to check compatibility with.
+     * @return `true` if this {@link Mod} is compatible with {@link other}, `false` otherwise.
+     */
+    isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.incompatibleMods.has(other.constructor as typeof Mod) &&
+            !other.incompatibleMods.has(this.constructor as typeof Mod)
+        );
     }
 
     /**
