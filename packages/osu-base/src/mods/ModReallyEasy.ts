@@ -18,7 +18,7 @@ export class ModReallyEasy
     implements IModApplicableToDroid, IModApplicableToDifficultyWithMods
 {
     override readonly acronym = "RE";
-    override readonly name = "ReallyEasy";
+    override readonly name = "Really Easy";
 
     readonly droidRanked = false;
 
