@@ -1,4 +1,4 @@
-import { ScoreRank } from "@rian8337/osu-base";
+import { ScoreRank, SerializedMod } from "@rian8337/osu-base";
 
 export interface APIScore {
     readonly id: number;
@@ -8,7 +8,7 @@ export interface APIScore {
     readonly score: number;
     readonly combo: number;
     readonly mark: ScoreRank;
-    readonly mode: string;
+    readonly mods: SerializedMod[];
     readonly accuracy: number;
     readonly perfect: number;
     readonly good: number;

@@ -1,7 +1,6 @@
 import {
     Accuracy,
     DroidAPIRequestBuilder,
-    DroidLegacyModConverter,
     ModMap,
     ModUtil,
     ScoreRank,
@@ -130,7 +129,7 @@ export class Score {
         this.score = apiScore.score;
         this.rank = apiScore.mark;
         this.date = new Date(apiScore.date * 1000);
-        this.mods = DroidLegacyModConverter.convert(apiScore.mode);
+        this.mods = ModUtil.deserializeMods(apiScore.mods);
 
         this.accuracy = new Accuracy({
             n300: apiScore.perfect,
