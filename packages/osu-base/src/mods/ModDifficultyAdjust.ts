@@ -72,6 +72,9 @@ export class ModDifficultyAdjust
         1,
     );
 
+    /**
+     * The health drain rate to enforce.
+     */
     readonly hp = new NullableDecimalModSetting(
         "Health drain",
         "The health drain to enforce.",
