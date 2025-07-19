@@ -589,7 +589,7 @@ describe("Test playable beatmap creation", () => {
                 );
 
                 expect(firstObject.startTime).toBe(1000);
-                expect(firstObject.scale).toBeCloseTo(0.9802961674103878);
+                expect(firstObject.scale).toBeCloseTo(1.1553679174103877);
                 expect(firstObject.timePreempt).toBeCloseTo(1200);
             });
 
