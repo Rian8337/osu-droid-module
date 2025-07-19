@@ -457,7 +457,7 @@ export class ReplayAnalyzer {
 
             if (resultObject.replayVersion >= 7) {
                 resultObject.convertedMods = ModUtil.deserializeMods(
-                    rawObject[6],
+                    JSON.parse(rawObject[6]),
                 );
             } else {
                 resultObject.convertedMods = this.convertDroidMods(
