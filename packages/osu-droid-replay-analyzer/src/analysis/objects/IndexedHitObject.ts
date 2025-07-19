@@ -1,4 +1,4 @@
-import { Modes, PlaceableHitObject, Vector2 } from "@rian8337/osu-base";
+import { PlaceableHitObject, Vector2 } from "@rian8337/osu-base";
 
 /**
  * Contains information about which cursor index hits a hitobject.
@@ -76,6 +76,6 @@ export class IndexedHitObject {
         this.occurrenceIndex = occurrenceIndex;
         this.angle = angle;
         this.is2Handed = is2Handed;
-        this.endCursorPosition = this.object.getStackedEndPosition(Modes.droid);
+        this.endCursorPosition = this.object.stackedEndPosition;
     }
 }
