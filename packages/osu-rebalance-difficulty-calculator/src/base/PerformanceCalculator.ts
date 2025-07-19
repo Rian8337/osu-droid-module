@@ -374,8 +374,8 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
 
         return MathUtils.clamp(
             missCount,
-            this.computedAccuracy.nmiss,
             this.totalHits,
+            this.computedAccuracy.nmiss,
         );
     }
 
