@@ -20,6 +20,16 @@ export interface PerformanceCalculationOptions {
     miss?: number;
 
     /**
+     * The amount of slider ends dropped in the score.
+     */
+    sliderEndsDropped?: number;
+
+    /**
+     * The amount of slider ticks missed in the score.
+     */
+    sliderTicksMissed?: number;
+
+    /**
      * The tap penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
      */
     tapPenalty?: number;
