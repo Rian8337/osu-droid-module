@@ -10,7 +10,11 @@ const apiMock: APIScore = {
     score: 67030952,
     combo: 2376,
     mark: "S",
-    mode: "h|x1.25|AR10|OD7.6|CS4.2|HP5",
+    mods: [
+        { acronym: "HD" },
+        { acronym: "CS", settings: { rateMultiplier: 1.25 } },
+        { acronym: "DA", settings: { cs: 4.2, ar: 10, od: 7.6, hp: 5 } },
+    ],
     accuracy: 0.98392,
     perfect: 1700,
     good: 42,

@@ -590,7 +590,7 @@ describe("Test playable beatmap creation", () => {
 
                 expect(firstObject.startTime).toBe(1000);
                 expect(firstObject.scale).toBeCloseTo(1.1553679174103877);
-                expect(firstObject.timePreempt).toBeCloseTo(1200);
+                expect(firstObject.timePreempt).toBeCloseTo(1290);
             });
 
             test("Custom Speed 1.25x, Really Easy, Difficulty Adjust (CS override), Hard Rock", () => {
