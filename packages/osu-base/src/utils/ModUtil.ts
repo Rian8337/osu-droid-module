@@ -147,13 +147,18 @@ export abstract class ModUtil {
     /**
      * Deserializes a list of `SerializedMod`s.
      *
-     * @param mods The list of `SerializedMod`s to deserialize.
+     * @param mods The list of `SerializedMod`s to deserialize. If a string is provided, it will be parsed as JSON.
      * @returns The deserialized list of `Mod`s.
      */
-    static deserializeMods(mods: Iterable<SerializedMod>): ModMap {
+    static deserializeMods(mods: Iterable<SerializedMod> | string): ModMap {
+        const serializedMods =
+            typeof mods === "string"
+                ? (JSON.parse(mods) as SerializedMod[])
+                : mods;
+
         const map = new ModMap();
 
-        for (const serializedMod of mods) {
+        for (const serializedMod of serializedMods) {
             const modType = this.allMods.get(serializedMod.acronym) as
                 | (new () => Mod)
                 | undefined;
