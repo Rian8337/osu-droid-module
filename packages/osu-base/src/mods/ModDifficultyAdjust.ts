@@ -1,3 +1,4 @@
+import { Beatmap } from "../beatmap/Beatmap";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
@@ -6,6 +7,7 @@ import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficulty
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
+import { IModRequiresOriginalBeatmap } from "./IModRequiresOriginalBeatmap";
 import { Mod } from "./Mod";
 import { ModEasy } from "./ModEasy";
 import { ModHardRock } from "./ModHardRock";
@@ -25,13 +27,17 @@ export class ModDifficultyAdjust
         IModApplicableToDroid,
         IModApplicableToOsu,
         IModApplicableToDifficultyWithMods,
-        IModApplicableToHitObjectWithMods
+        IModApplicableToHitObjectWithMods,
+        IModRequiresOriginalBeatmap
 {
     override readonly acronym = "DA";
     override readonly name = "Difficulty Adjust";
 
     readonly droidRanked = false;
+
     readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
 
     /**
      * The circle size to enforce.
@@ -102,10 +108,10 @@ export class ModDifficultyAdjust
     }) {
         super();
 
-        this.cs.value = values?.cs ?? null;
-        this.ar.value = values?.ar ?? null;
-        this.od.value = values?.od ?? null;
-        this.hp.value = values?.hp ?? null;
+        this.cs.value = this.cs.defaultValue = values?.cs ?? null;
+        this.ar.value = this.ar.defaultValue = values?.ar ?? null;
+        this.od.value = this.od.defaultValue = values?.od ?? null;
+        this.hp.value = this.hp.defaultValue = values?.hp ?? null;
     }
 
     override copySettings(mod: SerializedMod): void {
@@ -121,12 +127,12 @@ export class ModDifficultyAdjust
         return this.isRelevant;
     }
 
-    calculateDroidScoreMultiplier(difficulty: BeatmapDifficulty): number {
+    get droidScoreMultiplier(): number {
         // Graph: https://www.desmos.com/calculator/yrggkhrkzz
         let multiplier = 1;
 
-        if (this.cs.value !== null) {
-            const diff = this.cs.value - difficulty.cs;
+        if (this.cs.value !== null && this.cs.defaultValue !== null) {
+            const diff = this.cs.value - this.cs.defaultValue;
 
             multiplier *=
                 diff >= 0
@@ -134,8 +140,8 @@ export class ModDifficultyAdjust
                     : 2 / (1 + Math.exp(-0.5 * diff));
         }
 
-        if (this.od.value !== null) {
-            const diff = this.od.value - difficulty.od;
+        if (this.od.value !== null && this.od.defaultValue !== null) {
+            const diff = this.od.value - this.od.defaultValue;
 
             multiplier *=
                 diff >= 0
@@ -146,12 +152,11 @@ export class ModDifficultyAdjust
         return multiplier;
     }
 
-    get isOsuRelevant(): boolean {
-        return this.isRelevant;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 0.5;
+    applyFromBeatmap(beatmap: Beatmap) {
+        this.cs.defaultValue = beatmap.difficulty.cs;
+        this.ar.defaultValue = beatmap.difficulty.ar;
+        this.od.defaultValue = beatmap.difficulty.od;
+        this.hp.defaultValue = beatmap.difficulty.hp;
     }
 
     applyToDifficultyWithMods(

@@ -1,3 +1,4 @@
+import { Beatmap } from "../beatmap/Beatmap";
 import { DroidHitWindow } from "../beatmap/DroidHitWindow";
 import { OsuHitWindow } from "../beatmap/OsuHitWindow";
 import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
@@ -118,6 +119,66 @@ export abstract class ModUtil {
         }
 
         return map;
+    }
+
+    /**
+     * Calculates the score multiplier of the given mods and game mode.
+     *
+     * @param mods The mods to calculate the score multiplier for.
+     * @param mode The game mode to calculate the score multiplier for.
+     * @param beatmap The beatmap the mods are applied to. Needed for some mods to have an effect on
+     * score multiplier (i.e., `ModDifficultyAdjust`).
+     * @returns The score multiplier.
+     */
+    static calculateScoreMultiplier(
+        mods: Iterable<Mod>,
+        mode: Modes,
+        beatmap?: Beatmap,
+    ): number {
+        // Rate-adjusting mods combine their track rate multipliers together, then bunched together.
+        let totalRateAdjustTrackRateMultiplier = 1;
+        let scoreMultiplier = 1;
+
+        for (const mod of mods) {
+            if (mod.requiresOriginalBeatmap() && beatmap) {
+                mod.applyFromBeatmap(beatmap);
+            }
+
+            if (mod instanceof ModRateAdjust) {
+                totalRateAdjustTrackRateMultiplier *=
+                    mod.trackRateMultiplier.value;
+            } else {
+                switch (mode) {
+                    case Modes.droid:
+                        if (mod.isApplicableToDroid()) {
+                            scoreMultiplier *= mod.droidScoreMultiplier;
+                        }
+                        break;
+
+                    case Modes.osu:
+                        if (mod.isApplicableToOsuStable()) {
+                            scoreMultiplier *= mod.osuScoreMultiplier;
+                        }
+                        break;
+                }
+            }
+        }
+
+        const customSpeed = new ModCustomSpeed(
+            totalRateAdjustTrackRateMultiplier,
+        );
+
+        switch (mode) {
+            case Modes.droid:
+                scoreMultiplier *= customSpeed.droidScoreMultiplier;
+                break;
+
+            case Modes.osu:
+                scoreMultiplier *= customSpeed.osuScoreMultiplier;
+                break;
+        }
+
+        return scoreMultiplier;
     }
 
     /**

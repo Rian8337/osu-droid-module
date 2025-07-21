@@ -15,29 +15,17 @@ export class ModAuto
     override readonly name = "Autoplay";
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
 
     readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
     readonly bitwise = 1 << 11;
 
     constructor() {
         super();
 
         this.incompatibleMods.add(ModAutopilot).add(ModRelax);
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
     }
 }

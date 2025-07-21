@@ -16,7 +16,7 @@ export class ModOldNightCore extends ModNightCore {
         this.trackRateMultiplier.value = 1.39;
     }
 
-    override calculateDroidScoreMultiplier(): number {
+    override get droidScoreMultiplier(): number {
         return 1.12;
     }
 }

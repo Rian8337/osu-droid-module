@@ -20,6 +20,14 @@ export class ModFreezeFrame
     override readonly name = "Freeze Frame";
     override readonly acronym = "FR";
 
+    readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
+
+    readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
+
     constructor() {
         super();
 
@@ -27,30 +35,6 @@ export class ModFreezeFrame
     }
 
     private lastNewComboTime = 0;
-
-    get droidRanked(): boolean {
-        return false;
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get osuRanked(): boolean {
-        return false;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
-    }
 
     applyToBeatmap(beatmap: Beatmap) {
         this.lastNewComboTime = 0;

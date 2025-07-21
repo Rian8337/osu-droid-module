@@ -14,7 +14,15 @@ export class ModWindUp
     override readonly acronym = "WU";
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+
     readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
+
+    override get droidScoreMultiplier(): number {
+        return super.droidScoreMultiplier;
+    }
 
     override readonly initialRate = new DecimalModSetting(
         "Initial rate",
@@ -50,21 +58,5 @@ export class ModWindUp
                 this.initialRate.value = value.newValue - this.initialRate.step;
             }
         });
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
     }
 }

@@ -24,14 +24,8 @@ export class ModSmallCircle
     override readonly name = "SmallCircle";
 
     readonly droidRanked = false;
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1.06;
-    }
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
 
     migrateDroidMod(
         difficulty: BeatmapDifficulty,

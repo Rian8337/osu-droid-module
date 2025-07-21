@@ -17,6 +17,7 @@ export class ModHalfTime
     readonly droidRanked = true;
 
     readonly osuRanked = true;
+    readonly osuScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
 
     constructor() {
@@ -29,15 +30,11 @@ export class ModHalfTime
         return this.isRelevant;
     }
 
-    calculateDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
+    override get droidScoreMultiplier(): number {
+        return super.droidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 0.3;
     }
 }

@@ -24,7 +24,12 @@ export class ModMirror
     override readonly acronym = "MR";
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
+
     readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
 
     /**
      * The axes to reflect the `HitObject`s along.
@@ -39,22 +44,6 @@ export class ModMirror
         super();
 
         this.incompatibleMods.add(ModHardRock);
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
     }
 
     override copySettings(mod: SerializedMod): void {

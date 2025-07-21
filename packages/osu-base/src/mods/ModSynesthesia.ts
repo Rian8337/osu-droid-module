@@ -13,21 +13,10 @@ export class ModSynesthesia
     override readonly acronym = "SY";
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 0.8;
+
     readonly osuRanked = false;
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 0.8;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 0.8;
-    }
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 0.8;
 }

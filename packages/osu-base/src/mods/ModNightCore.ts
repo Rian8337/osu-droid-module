@@ -17,6 +17,7 @@ export class ModNightCore
     readonly droidRanked = true;
 
     readonly osuRanked = true;
+    readonly osuScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
 
     constructor() {
@@ -29,15 +30,11 @@ export class ModNightCore
         return this.isRelevant;
     }
 
-    calculateDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
+    override get droidScoreMultiplier(): number {
+        return super.droidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1.12;
     }
 }

@@ -14,27 +14,16 @@ export class ModTraceable
     override readonly name = "Traceable";
 
     readonly droidRanked = false;
-    readonly osuRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1.06;
+
+    readonly osuRanked = true;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
 
     constructor() {
         super();
 
         this.incompatibleMods.add(ModHidden);
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1.06;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
     }
 }

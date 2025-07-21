@@ -9,6 +9,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { IModFacilitatesAdjustment } from "./IModFacilitatesAdjustment";
+import { IModRequiresOriginalBeatmap } from "./IModRequiresOriginalBeatmap";
 import { SerializedMod } from "./SerializedMod";
 import { ModSetting } from "./settings/ModSetting";
 
@@ -198,6 +199,13 @@ export abstract class Mod {
      */
     facilitatesAdjustment(): this is this & IModFacilitatesAdjustment {
         return "facilitateAdjustment" in this;
+    }
+
+    /**
+     * Whether this `Mod` requires the original `Beatmap` for conversion and processing.
+     */
+    requiresOriginalBeatmap(): this is this & IModRequiresOriginalBeatmap {
+        return "applyFromBeatmap" in this;
     }
 
     /**

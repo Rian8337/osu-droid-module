@@ -28,7 +28,12 @@ export class ModRandom
     override readonly acronym = "RD";
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
+
     readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
 
     /**
      * The seed to use.
@@ -54,22 +59,6 @@ export class ModRandom
     );
 
     private random: Random | null = null;
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
-    }
 
     override copySettings(mod: SerializedMod) {
         super.copySettings(mod);

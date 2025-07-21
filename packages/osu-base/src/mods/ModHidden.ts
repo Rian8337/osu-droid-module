@@ -26,6 +26,11 @@ export class ModHidden
     override readonly acronym = "HD";
     override readonly name = "Hidden";
 
+    readonly isDroidRelevant = true;
+
+    readonly isOsuRelevant = true;
+    readonly bitwise = 1 << 3;
+
     get droidRanked(): boolean {
         return this.usesDefaultSettings;
     }
@@ -33,8 +38,6 @@ export class ModHidden
     get osuRanked(): boolean {
         return this.usesDefaultSettings;
     }
-
-    readonly bitwise = 1 << 3;
 
     /**
      * Whether to only fade approach circles.
@@ -53,20 +56,12 @@ export class ModHidden
         this.incompatibleMods.add(ModTraceable).add(ModApproachDifferent);
     }
 
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1.06;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
+    get droidScoreMultiplier(): number {
+        return this.usesDefaultSettings ? 1.06 : 1;
     }
 
     get osuScoreMultiplier(): number {
-        return 1.06;
+        return this.usesDefaultSettings ? 1.06 : 1;
     }
 
     override copySettings(mod: SerializedMod): void {

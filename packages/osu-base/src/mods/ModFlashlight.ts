@@ -20,8 +20,12 @@ export class ModFlashlight
     override readonly name = "Flashlight";
 
     readonly droidRanked = true;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1.12;
 
     readonly osuRanked = true;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1.12;
     readonly bitwise = 1 << 10;
 
     /**
@@ -43,22 +47,6 @@ export class ModFlashlight
         this.followDelay.value =
             (mod.settings?.areaFollowDelay as number | undefined) ??
             this.followDelay.value;
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1.12;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1.12;
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {

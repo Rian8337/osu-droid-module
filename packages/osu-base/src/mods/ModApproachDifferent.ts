@@ -18,6 +18,14 @@ export class ModApproachDifferent
     override readonly name = "Approach Different";
     override readonly acronym = "AD";
 
+    readonly droidRanked = false;
+    readonly droidScoreMultiplier = 1;
+    readonly isDroidRelevant = true;
+
+    readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
+
     /**
      * The initial size of the approach circle, relative to hit circles.
      */
@@ -81,30 +89,6 @@ export class ModApproachDifferent
         super();
 
         this.incompatibleMods.add(ModHidden).add(ModFreezeFrame);
-    }
-
-    get droidRanked(): boolean {
-        return false;
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get osuRanked(): boolean {
-        return false;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
     }
 
     override copySettings(mod: SerializedMod) {

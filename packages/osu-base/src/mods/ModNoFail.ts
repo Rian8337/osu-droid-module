@@ -15,29 +15,17 @@ export class ModNoFail
     override readonly name = "NoFail";
 
     readonly droidRanked = true;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 0.5;
 
     readonly osuRanked = true;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 0.5;
     readonly bitwise = 1 << 0;
 
     constructor() {
         super();
 
         this.incompatibleMods.add(ModPerfect).add(ModSuddenDeath);
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 0.5;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 0.5;
     }
 }

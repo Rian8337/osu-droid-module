@@ -2,6 +2,7 @@ import { Modes } from "../constants/Modes";
 import { MathUtils } from "../math/MathUtils";
 import { ModMap } from "../mods/ModMap";
 import { ModScoreV2 } from "../mods/ModScoreV2";
+import { ModUtil } from "../utils/ModUtil";
 import { BeatmapConverter } from "./BeatmapConverter";
 import { BeatmapProcessor } from "./BeatmapProcessor";
 import { DroidPlayableBeatmap } from "./DroidPlayableBeatmap";
@@ -125,20 +126,12 @@ export class Beatmap implements IBeatmap {
      * @param mods The modifications to calculate for. Defaults to No Mod.
      */
     maxDroidScore(mods?: ModMap): number {
-        let scoreMultiplier = 1;
+        const scoreMultiplier = mods
+            ? ModUtil.calculateScoreMultiplier(mods.values(), Modes.droid, this)
+            : 1;
 
-        if (mods) {
-            for (const mod of mods.values()) {
-                if (mod.isApplicableToDroid()) {
-                    scoreMultiplier *= mod.calculateDroidScoreMultiplier(
-                        this.difficulty,
-                    );
-                }
-            }
-
-            if (mods.has(ModScoreV2)) {
-                return 1e6 * scoreMultiplier;
-            }
+        if (mods?.has(ModScoreV2)) {
+            return 1e6 * scoreMultiplier;
         }
 
         const difficultyMultiplier =
@@ -193,18 +186,13 @@ export class Beatmap implements IBeatmap {
             this.difficulty.cs + this.difficulty.hp + this.difficulty.od;
 
         let difficultyMultiplier = 2;
-        let scoreMultiplier = 1;
 
-        if (mods) {
-            for (const mod of mods.values()) {
-                if (mod.isApplicableToOsu()) {
-                    scoreMultiplier *= mod.osuScoreMultiplier;
-                }
-            }
+        const scoreMultiplier = mods
+            ? ModUtil.calculateScoreMultiplier(mods.values(), Modes.osu, this)
+            : 1;
 
-            if (mods.has(ModScoreV2)) {
-                return 1e6 * scoreMultiplier;
-            }
+        if (mods?.has(ModScoreV2)) {
+            return 1e6 * scoreMultiplier;
         }
 
         switch (true) {

@@ -29,6 +29,18 @@ export abstract class ModTimeRamp
      */
     abstract readonly finalRate: DecimalModSetting;
 
+    /**
+     * The generic osu!droid score multiplier of this `Mod`.
+     */
+    protected get droidScoreMultiplier(): number {
+        // Graph: https://www.desmos.com/calculator/1zp4vwl3o7
+        return Interpolation.lerp(
+            this.calculateScoreMultiplierAt(this.initialRate.value),
+            this.calculateScoreMultiplierAt(this.finalRate.value),
+            ModTimeRamp.finalRateProgress,
+        );
+    }
+
     private initialRateTime = 0;
     private finalRateTime = 0;
 
@@ -74,6 +86,10 @@ export abstract class ModTimeRamp
                 MathUtils.clamp(amount, 0, 1),
             )
         );
+    }
+
+    private calculateScoreMultiplierAt(rate: number): number {
+        return rate > 1 ? 1 + (rate - 1) * 0.24 : Math.pow(0.3, (1 - rate) * 4);
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {

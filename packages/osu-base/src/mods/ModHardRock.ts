@@ -29,8 +29,12 @@ export class ModHardRock
     override readonly name = "HardRock";
 
     readonly droidRanked = true;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1.06;
 
     readonly osuRanked = true;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1.06;
     readonly bitwise = 1 << 4;
 
     constructor() {
@@ -38,22 +42,6 @@ export class ModHardRock
 
         this.incompatibleMods.add(ModEasy);
         this.incompatibleMods.add(ModMirror);
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1.06;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1.06;
     }
 
     applyToDifficulty(

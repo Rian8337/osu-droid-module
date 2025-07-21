@@ -13,6 +13,14 @@ export class ModGrow
     override readonly name = "Grow";
     override readonly acronym = "GR";
 
+    readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
+
+    readonly osuRanked = false;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
+
     override readonly startScale = new DecimalModSetting(
         "Start scale",
         "The initial size multiplier applied to all hit objects.",
@@ -22,28 +30,4 @@ export class ModGrow
         0.01,
         2,
     );
-
-    get droidRanked(): boolean {
-        return false;
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get osuRanked(): boolean {
-        return false;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
-    }
 }

@@ -16,6 +16,14 @@ export class ModMuted
     override readonly name = "Muted";
     override readonly acronym = "MU";
 
+    readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
+
+    readonly osuRanked = true;
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 1;
+
     /**
      * Increase volume as combo builds.
      */
@@ -53,30 +61,6 @@ export class ModMuted
         "Hit sounds are also muted alongside the track.",
         true,
     );
-
-    get droidRanked(): boolean {
-        return false;
-    }
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
-
-    get osuRanked(): boolean {
-        return true;
-    }
-
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 1;
-    }
 
     constructor() {
         super();

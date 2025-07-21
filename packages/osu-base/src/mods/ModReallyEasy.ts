@@ -21,14 +21,8 @@ export class ModReallyEasy
     override readonly name = "Really Easy";
 
     readonly droidRanked = false;
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 0.4;
-    }
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 0.4;
 
     applyToDifficultyWithMods(
         mode: Modes,

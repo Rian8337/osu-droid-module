@@ -407,3 +407,16 @@ test("Test ordered mod string", () => {
         ]),
     ).toBe("HR,DA (CS4.0)");
 });
+
+test("Test score multiplier calculation", () => {
+    const mods = new ModMap();
+
+    mods.set(ModHidden);
+    mods.set(ModDoubleTime);
+    mods.set(new ModCustomSpeed(0.85));
+    mods.set(ModPrecise);
+
+    expect(
+        ModUtil.calculateScoreMultiplier(mods.values(), Modes.droid),
+    ).toBeCloseTo(1.1977576, 6);
+});

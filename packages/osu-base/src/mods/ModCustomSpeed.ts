@@ -30,8 +30,8 @@ export class ModCustomSpeed
         return this.isRelevant;
     }
 
-    calculateDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
+    override get droidScoreMultiplier(): number {
+        return super.droidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {

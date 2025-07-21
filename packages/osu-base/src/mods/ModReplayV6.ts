@@ -30,16 +30,10 @@ export class ModReplayV6
     override readonly userPlayable = false;
 
     readonly droidRanked = false;
+    readonly isDroidRelevant = true;
+    readonly droidScoreMultiplier = 1;
 
     readonly facilitateAdjustment = true;
-
-    get isDroidRelevant(): boolean {
-        return true;
-    }
-
-    calculateDroidScoreMultiplier(): number {
-        return 1;
-    }
 
     applyToBeatmap(beatmap: Beatmap) {
         const { objects } = beatmap.hitObjects;
