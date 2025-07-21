@@ -29,6 +29,7 @@ import { ModPerfect } from "../mods/ModPerfect";
 import { ModPrecise } from "../mods/ModPrecise";
 import { ModRandom } from "../mods/ModRandom";
 import { ModRateAdjust } from "../mods/ModRateAdjust";
+import { ModRateAdjustHelper } from "../mods/ModRateAdjustHelper";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
 import { ModReplayV6 } from "../mods/ModReplayV6";
@@ -135,7 +136,7 @@ export abstract class ModUtil {
         mode: Modes,
         beatmap?: Beatmap,
     ): number {
-        // Rate-adjusting mods combine their track rate multipliers together, then bunched together.
+        // In osu!droid, rate-adjusting mods combine their track rate multipliers together, then bunched together.
         let totalRateAdjustTrackRateMultiplier = 1;
         let scoreMultiplier = 1;
 
@@ -144,7 +145,7 @@ export abstract class ModUtil {
                 mod.applyFromBeatmap(beatmap);
             }
 
-            if (mod instanceof ModRateAdjust) {
+            if (mode === Modes.droid && mod instanceof ModRateAdjust) {
                 totalRateAdjustTrackRateMultiplier *=
                     mod.trackRateMultiplier.value;
             } else {
@@ -164,18 +165,12 @@ export abstract class ModUtil {
             }
         }
 
-        const customSpeed = new ModCustomSpeed(
-            totalRateAdjustTrackRateMultiplier,
-        );
+        if (mode === Modes.droid) {
+            const rateAdjustHelper = new ModRateAdjustHelper(
+                totalRateAdjustTrackRateMultiplier,
+            );
 
-        switch (mode) {
-            case Modes.droid:
-                scoreMultiplier *= customSpeed.droidScoreMultiplier;
-                break;
-
-            case Modes.osu:
-                scoreMultiplier *= customSpeed.osuScoreMultiplier;
-                break;
+            scoreMultiplier *= rateAdjustHelper.droidScoreMultiplier;
         }
 
         return scoreMultiplier;

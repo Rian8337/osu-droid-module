@@ -1,5 +1,6 @@
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
+import { ModRateAdjustHelper } from "./ModRateAdjustHelper";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
@@ -18,9 +19,8 @@ export abstract class ModRateAdjust
      * The generic osu!droid score multiplier of this `Mod`.
      */
     protected get droidScoreMultiplier(): number {
-        return this.trackRateMultiplier.value >= 1
-            ? 1 + (this.trackRateMultiplier.value - 1) * 0.24
-            : Math.pow(0.3, (1 - this.trackRateMultiplier.value) * 4);
+        return new ModRateAdjustHelper(this.trackRateMultiplier.value)
+            .droidScoreMultiplier;
     }
 
     /**
