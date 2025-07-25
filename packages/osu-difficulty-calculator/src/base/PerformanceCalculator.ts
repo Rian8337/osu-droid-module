@@ -202,11 +202,11 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             options?.sliderEndsDropped !== undefined &&
             options?.sliderTicksMissed !== undefined
         ) {
-            this._usingClassicSliderAccuracy = true;
+            this._usingClassicSliderAccuracy = false;
             this.sliderEndsDropped = options.sliderEndsDropped;
             this.sliderTicksMissed = options.sliderTicksMissed;
         } else {
-            this._usingClassicSliderAccuracy = false;
+            this._usingClassicSliderAccuracy = true;
             this.sliderEndsDropped = 0;
             this.sliderTicksMissed = 0;
         }
