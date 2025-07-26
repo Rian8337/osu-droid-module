@@ -34,6 +34,8 @@ import {
     PreciseDroidHitWindow,
     ScoreRank,
     Slider,
+    SliderTail,
+    SliderTick,
     Spinner,
 } from "@rian8337/osu-base";
 import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
@@ -53,6 +55,7 @@ import { ReplayData } from "./data/ReplayData";
 import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
+import { SliderHitInformation } from "./data/SliderHitInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -207,7 +210,7 @@ export class ReplayAnalyzer {
     /**
      * Gets hit error information of the replay.
      *
-     * `analyze()` must be called before calling this.
+     * `analyze()` must be called before calling this, and `beatmap` must be defined.
      */
     calculateHitError(): HitErrorInformation | null {
         if (!this.data || !this.beatmap) {
@@ -277,6 +280,55 @@ export class ReplayAnalyzer {
             negativeAvg: negativeTotal / negativeCount || 0,
             unstableRate: MathUtils.calculateStandardDeviation(accuracies) * 10,
         };
+    }
+
+    /**
+     * Obtains the amount of slider ticks and ends hit in the replay.
+     *
+     * This requires `analyze()` to be called first and `beatmap` to be defined.
+     *
+     * @returns Slider hit information or `null` if the replay has not been analyzed or the beatmap is not defined.
+     */
+    obtainSliderHitInformation(): SliderHitInformation | null {
+        const { data, beatmap } = this;
+
+        if (!data || !beatmap) {
+            return null;
+        }
+
+        const sliderInformation: SliderHitInformation = {
+            tick: { obtained: 0, total: beatmap.hitObjects.sliderTicks },
+            end: { obtained: 0, total: beatmap.hitObjects.sliders },
+        };
+
+        for (let i = 0; i < data.hitObjectData.length; ++i) {
+            const object = beatmap.hitObjects.objects[i];
+            const objectData = data.hitObjectData[i];
+
+            if (
+                objectData.result === HitResult.miss ||
+                !(object instanceof Slider)
+            ) {
+                continue;
+            }
+
+            // Exclude the head circle.
+            for (let j = 1; j < object.nestedHitObjects.length; ++j) {
+                const nested = object.nestedHitObjects[j];
+
+                if (!objectData.tickset[j - 1]) {
+                    continue;
+                }
+
+                if (nested instanceof SliderTick) {
+                    ++sliderInformation.tick.obtained;
+                } else if (nested instanceof SliderTail) {
+                    ++sliderInformation.end.obtained;
+                }
+            }
+        }
+
+        return sliderInformation;
     }
 
     /**
