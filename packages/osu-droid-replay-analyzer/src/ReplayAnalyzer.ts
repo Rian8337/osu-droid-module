@@ -2,10 +2,12 @@ import {
     Accuracy,
     Beatmap,
     BeatmapDifficulty,
+    Circle,
     DroidAPIRequestBuilder,
     DroidHitWindow,
     DroidLegacyModConverter,
     DroidPlayableBeatmap,
+    HitWindow,
     MathUtils,
     Mod,
     ModAuto,
@@ -329,6 +331,94 @@ export class ReplayAnalyzer {
         }
 
         return sliderInformation;
+    }
+
+    /**
+     * Simulates a hit window for the replay.
+     *
+     * This does not account for required spins in a spinner.
+     *
+     * Requires `analyze()` to be called first and `beatmap` to be defined.
+     *
+     * @param hitWindow The hit window to simulate.
+     * @returns The accuracy of the replay based on the hit window, or `null` if the replay has not been analyzed or the beatmap is not defined.
+     */
+    simulateHitWindow(hitWindow: HitWindow): Accuracy | null {
+        const { data, beatmap } = this;
+
+        if (!data || !beatmap) {
+            return null;
+        }
+
+        const accuracy = new Accuracy({ n300: 0, n100: 0, n50: 0, nmiss: 0 });
+
+        for (let i = 0; i < data.hitObjectData.length; ++i) {
+            const object = beatmap.hitObjects.objects[i];
+            const objectData = data.hitObjectData[i];
+            const hitAccuracy = Math.abs(objectData.accuracy);
+
+            let { result } = objectData;
+
+            if (object instanceof Circle) {
+                if (hitAccuracy <= hitWindow.greatWindow) {
+                    result = HitResult.great;
+                } else if (hitAccuracy <= hitWindow.okWindow) {
+                    result = HitResult.good;
+                } else if (hitAccuracy <= hitWindow.mehWindow) {
+                    result = HitResult.meh;
+                } else {
+                    result = HitResult.miss;
+                }
+            } else if (object instanceof Slider) {
+                if (
+                    hitAccuracy <=
+                    Math.min(hitWindow.mehWindow, object.duration)
+                ) {
+                    let ticksObtained = 1;
+
+                    for (let j = 1; j < object.nestedHitObjects.length; ++j) {
+                        if (objectData.tickset[j - 1]) {
+                            ++ticksObtained;
+                        }
+                    }
+
+                    if (ticksObtained === object.nestedHitObjects.length) {
+                        result = HitResult.great;
+                    } else if (
+                        ticksObtained >=
+                        Math.trunc(object.nestedHitObjects.length / 2)
+                    ) {
+                        result = HitResult.good;
+                    } else if (ticksObtained > 0) {
+                        result = HitResult.meh;
+                    } else {
+                        result = HitResult.miss;
+                    }
+                } else {
+                    result = HitResult.miss;
+                }
+            }
+
+            switch (result) {
+                case HitResult.miss:
+                    ++accuracy.nmiss;
+                    break;
+
+                case HitResult.meh:
+                    ++accuracy.n50;
+                    break;
+
+                case HitResult.good:
+                    ++accuracy.n100;
+                    break;
+
+                case HitResult.great:
+                    ++accuracy.n300;
+                    break;
+            }
+        }
+
+        return accuracy;
     }
 
     /**
