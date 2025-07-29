@@ -17,7 +17,6 @@ export abstract class DroidTapEvaluator {
      * - and the strain time cap.
      *
      * @param current The current object.
-     * @param greatWindow The great hit window of the current object.
      * @param considerCheesability Whether to consider cheesability.
      * @param strainTimeCap The strain time to cap the object's strain time to.
      */
@@ -34,7 +33,6 @@ export abstract class DroidTapEvaluator {
             return 0;
         }
 
-        // Nerf doubletappable doubles.
         const doubletapness = considerCheesability
             ? 1 - current.doubletapness
             : 1;

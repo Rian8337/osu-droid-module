@@ -276,68 +276,40 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             );
         }
 
-        const { sliderCount, sliderFactor, aimDifficultSliderCount } =
+        const { aimDifficultSliderCount, sliderFactor } =
             this.difficultyAttributes;
 
-        if (sliderCount > 0) {
-            if (this.mode === Modes.droid) {
-                // We assume 15% of sliders in a beatmap are difficult since there's no way to tell from the performance calculator.
-                const estimateDifficultSliders = sliderCount * 0.15;
+        if (aimDifficultSliderCount > 0) {
+            let estimateImproperlyFollowedDifficultSliders: number;
 
-                const estimateSliderEndsDropped = MathUtils.clamp(
-                    Math.min(
-                        this.computedAccuracy.n100 +
-                            this.computedAccuracy.n50 +
-                            this.computedAccuracy.nmiss,
-                        maxCombo - combo,
-                    ),
+            if (this.usingClassicSliderAccuracy) {
+                // When the score is considered classic (regardless if it was made on old client or not),
+                // we consider all missing combo to be dropped difficult sliders.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    Math.min(this.totalImperfectHits, maxCombo - combo),
                     0,
-                    estimateDifficultSliders,
+                    aimDifficultSliderCount,
                 );
-
-                this.sliderNerfFactor =
-                    (1 - sliderFactor) *
-                        Math.pow(
-                            1 -
-                                estimateSliderEndsDropped /
-                                    estimateDifficultSliders,
-                            3,
-                        ) +
-                    sliderFactor;
             } else {
-                let estimateImproperlyFollowedDifficultSliders: number;
-
-                if (this.usingClassicSliderAccuracy) {
-                    // When the score is considered classic (regardless if it was made on old client or not),
-                    // we consider all missing combo to be dropped difficult sliders
-                    estimateImproperlyFollowedDifficultSliders =
-                        MathUtils.clamp(
-                            Math.min(this.totalImperfectHits, maxCombo - combo),
-                            0,
-                            aimDifficultSliderCount,
-                        );
-                } else {
-                    // We add tick misses here since they too mean that the player didn't follow the slider
-                    // properly. However aren't adding misses here because missing slider heads has a harsh
-                    // penalty by itself and doesn't mean that the rest of the slider wasn't followed properly.
-                    estimateImproperlyFollowedDifficultSliders =
-                        MathUtils.clamp(
-                            this.sliderEndsDropped + this.sliderTicksMissed,
-                            0,
-                            aimDifficultSliderCount,
-                        );
-                }
-
-                this.sliderNerfFactor =
-                    (1 - sliderFactor) *
-                        Math.pow(
-                            1 -
-                                estimateImproperlyFollowedDifficultSliders /
-                                    aimDifficultSliderCount,
-                            3,
-                        ) +
-                    sliderFactor;
+                // We add tick misses here since they too mean that the player didn't follow the slider
+                // properly. However aren't adding misses here because missing slider heads has a harsh
+                // penalty by itself and doesn't mean that the rest of the slider wasn't followed properly.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    this.sliderEndsDropped + this.sliderTicksMissed,
+                    0,
+                    aimDifficultSliderCount,
+                );
             }
+
+            this.sliderNerfFactor =
+                (1 - sliderFactor) *
+                    Math.pow(
+                        1 -
+                            estimateImproperlyFollowedDifficultSliders /
+                                aimDifficultSliderCount,
+                        3,
+                    ) +
+                sliderFactor;
         }
     }
 

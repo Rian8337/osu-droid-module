@@ -276,7 +276,10 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             );
         }
 
-        if (this.difficultyAttributes.aimDifficultSliderCount > 0) {
+        const { aimDifficultSliderCount, sliderFactor } =
+            this.difficultyAttributes;
+
+        if (aimDifficultSliderCount > 0) {
             let estimateImproperlyFollowedDifficultSliders: number;
 
             if (this.usingClassicSliderAccuracy) {
@@ -285,7 +288,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                 estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
                     Math.min(this.totalImperfectHits, maxCombo - combo),
                     0,
-                    this.difficultyAttributes.aimDifficultSliderCount,
+                    aimDifficultSliderCount,
                 );
             } else {
                 // We add tick misses here since they too mean that the player didn't follow the slider
@@ -294,20 +297,19 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                 estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
                     this.sliderEndsDropped + this.sliderTicksMissed,
                     0,
-                    this.difficultyAttributes.aimDifficultSliderCount,
+                    aimDifficultSliderCount,
                 );
             }
 
             this.sliderNerfFactor =
-                (1 - this.difficultyAttributes.sliderFactor) *
+                (1 - sliderFactor) *
                     Math.pow(
                         1 -
                             estimateImproperlyFollowedDifficultSliders /
-                                this.difficultyAttributes
-                                    .aimDifficultSliderCount,
+                                aimDifficultSliderCount,
                         3,
                     ) +
-                this.difficultyAttributes.sliderFactor;
+                sliderFactor;
         }
     }
 

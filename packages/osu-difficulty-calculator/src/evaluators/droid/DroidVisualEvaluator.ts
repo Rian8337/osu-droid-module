@@ -41,7 +41,7 @@ export abstract class DroidVisualEvaluator {
             return 0;
         }
 
-        // Start with base density and give global bonus for Hidden and Traceable.
+        // Start with base density and give global bonus for Hidden.
         // Add density caps for sanity.
         let strain: number;
 

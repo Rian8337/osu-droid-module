@@ -11,7 +11,8 @@ export abstract class DroidAimEvaluator {
     private static readonly velocityChangeMultiplier = 0.75;
     private static readonly wiggleMultiplier = 1.02;
 
-    private static readonly singleSpacingThreshold = 100;
+    private static readonly singleSpacingThreshold =
+        DroidDifficultyHitObject.normalizedDiameter;
 
     // 200 1/4 BPM delta time
     private static readonly minSpeedBonus = 75;
@@ -279,13 +280,14 @@ export abstract class DroidAimEvaluator {
                 Math.pow((this.minSpeedBonus - current.strainTime) / 40, 2);
         }
 
-        const travelDistance = current.previous(0)?.travelDistance ?? 0;
-        const shortDistancePenalty = Math.pow(
-            Math.min(
-                this.singleSpacingThreshold,
-                travelDistance + current.minimumJumpDistance,
-            ) / this.singleSpacingThreshold,
-            3.5,
+        const prev = current.previous(0);
+
+        // Punish low spacing as it is easier to aim.
+        const travelDistance = prev?.travelDistance ?? 0;
+        const distance = travelDistance + current.minimumJumpDistance;
+        const shortDistancePenalty = Math.min(
+            1,
+            Math.pow(distance / this.singleSpacingThreshold, 3.5),
         );
 
         return (200 * speedBonus * shortDistancePenalty) / current.strainTime;

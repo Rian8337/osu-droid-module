@@ -70,6 +70,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     protected override readonly mode = Modes.droid;
     protected override readonly maximumSliderRadius =
         DifficultyHitObject.normalizedRadius * 2;
+
     protected override get scalingFactor() {
         const radius = this.object.radius;
 

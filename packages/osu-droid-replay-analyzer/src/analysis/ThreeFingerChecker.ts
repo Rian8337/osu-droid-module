@@ -29,7 +29,7 @@ import { ThreeFingerInformation } from "./structures/ThreeFingerInformation";
 import { ThreeFingerObject } from "./structures/ThreeFingerObject";
 
 /**
- * Utility to check whether or not a beatmap is three-fingered for rebalance scores.
+ * Utility to check whether or not a beatmap is three-fingered for live scores.
  */
 export class ThreeFingerChecker {
     /**
@@ -134,11 +134,6 @@ export class ThreeFingerChecker {
 
         this.getAccurateBreakPoints();
         this.filterCursorInstances();
-
-        if (this.downCursorInstances.filter((v) => v.length > 0).length <= 3) {
-            return { is3Finger: false, penalty: 1 };
-        }
-
         this.getBeatmapSections();
         this.calculateNerfFactors();
 

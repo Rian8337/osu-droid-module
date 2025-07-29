@@ -1,14 +1,13 @@
 import {
-    ModRelax,
+    DroidHitWindow,
+    ErrorFunction,
     ModFlashlight,
+    ModPrecise,
+    ModRelax,
+    ModScoreV2,
     Modes,
     OsuHitWindow,
-    DroidHitWindow,
-    ModPrecise,
-    ErrorFunction,
-    ModScoreV2,
     PreciseDroidHitWindow,
-    MathUtils,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
@@ -249,30 +248,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             options?.visualSliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
-
-        const { maxCombo, aimDifficultSliderCount, sliderFactor } =
-            this.difficultyAttributes;
-
-        const combo = options?.combo ?? maxCombo - this.computedAccuracy.nmiss;
-
-        if (aimDifficultSliderCount > 0) {
-            // Consider all missing combo to be dropped difficult sliders.
-            const estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                Math.min(this.totalImperfectHits, maxCombo - combo),
-                0,
-                aimDifficultSliderCount,
-            );
-
-            this.sliderNerfFactor =
-                (1 - sliderFactor) *
-                    Math.pow(
-                        1 -
-                            estimateImproperlyFollowedDifficultSliders /
-                                aimDifficultSliderCount,
-                        3,
-                    ) +
-                sliderFactor;
-        }
     }
 
     /**
