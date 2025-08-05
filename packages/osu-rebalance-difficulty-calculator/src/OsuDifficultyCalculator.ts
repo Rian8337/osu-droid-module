@@ -208,7 +208,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.aimDifficulty = this.calculateRating(aim);
         attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countDifficultStrains();
+        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
@@ -232,7 +232,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.speedDifficulty = this.calculateRating(speed);
         attributes.speedNoteCount = speed.relevantNoteCount();
-        attributes.speedDifficultStrainCount = speed.countDifficultStrains();
+        attributes.speedDifficultStrainCount = speed.countTopWeightedStrains();
     }
 
     private populateFlashlightAttributes(

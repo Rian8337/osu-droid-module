@@ -152,6 +152,17 @@ export abstract class MathUtils {
     }
 
     /**
+     * Calculates an S-shaped {@link https://en.wikipedia.org/wiki/Logistic_function logistic function}.
+     *
+     * @param exponent The exponent to calculate the function for.
+     * @param maxValue The maximum value returnable by the function.
+     * @returns The output of the logistic function calculated at `exponent`.
+     */
+    static logistic(exponent: number, maxValue = 1): number {
+        return maxValue / (1 + Math.exp(exponent));
+    }
+
+    /**
      * Calculates an S-shaped {@link https://en.wikipedia.org/wiki/Logistic_function logistic function}
      * with offset at `x`.
      *
@@ -183,6 +194,28 @@ export abstract class MathUtils {
         x = this.reverseLerp(x, start, end);
 
         return x * x * (3 - 2 * x);
+    }
+
+    /// <summary>
+    ///
+    /// </summary>
+    /// <param name="x">Value to calculate the function for</param>
+    /// <param name="mean">Value of x, for which return value will be the highest (=1)</param>
+    /// <param name="width">Range [mean - width, mean + width] where function will change values</param>
+    /// <returns>The output of the smoothstep bell curve function of <paramref name="x"/></returns>
+    /**
+     * Calculates a {@link https://en.wikipedia.org/wiki/Smoothstep smoothstep bell curve} function that returns 1 for `x = mean`,
+     * and smoothly reducing it's value to 0 over width.
+     *
+     * @param x The value to calculate the function for.
+     * @param mean The value of x, for which the return value will be the highest (=1).
+     * @param width Range `[mean - width, mean + width]` where the function will change values.
+     */
+    static smoothstepBellCurve(x: number, mean = 0.5, width = 0.5): number {
+        x -= mean;
+        x = x > 0 ? width - x : width + x;
+
+        return this.smoothstep(x, 0, width);
     }
 
     /**

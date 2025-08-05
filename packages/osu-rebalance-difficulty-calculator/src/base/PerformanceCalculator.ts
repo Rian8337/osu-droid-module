@@ -27,6 +27,11 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     computedAccuracy = new Accuracy({});
 
     /**
+     * The calculated maximum combo.
+     */
+    combo = 0;
+
+    /**
      * The difficulty attributes that is being calculated.
      */
     readonly difficultyAttributes: T | CacheableDifficultyAttributes<T>;
@@ -196,7 +201,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
 
         const maxCombo = this.difficultyAttributes.maxCombo;
         const miss = this.computedAccuracy.nmiss;
-        let combo = options?.combo ?? maxCombo - miss;
+        this.combo = options?.combo ?? maxCombo - miss;
 
         if (
             options?.sliderEndsDropped !== undefined &&
@@ -212,16 +217,13 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         }
 
         // Ensure that combo is within possible bounds.
-        combo = MathUtils.clamp(
-            combo,
+        this.combo = MathUtils.clamp(
+            this.combo,
             0,
             maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
 
-        this.effectiveMissCount = this.calculateEffectiveMissCount(
-            combo,
-            maxCombo,
-        );
+        this.effectiveMissCount = this.calculateEffectiveMissCount(maxCombo);
 
         if (this.mods.has(ModNoFail)) {
             this.finalMultiplier *= Math.max(
@@ -240,30 +242,16 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         }
 
         if (this.mods.has(ModRelax)) {
-            // Graph: https://www.desmos.com/calculator/bc9eybdthb
+            const { overallDifficulty: od } = this.difficultyAttributes;
+
+            // Graph: https://www.desmos.com/calculator/vspzsop6td
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
-            const n100Multiplier = Math.max(
-                0,
-                this.difficultyAttributes.overallDifficulty > 0
-                    ? 1 -
-                          Math.pow(
-                              this.difficultyAttributes.overallDifficulty /
-                                  13.33,
-                              1.8,
-                          )
-                    : 1,
-            );
+            const n100Multiplier =
+                0.75 * Math.max(0, od > 0 ? 1 - od / 13.33 : 1);
 
             const n50Multiplier = Math.max(
                 0,
-                this.difficultyAttributes.overallDifficulty > 0.0
-                    ? 1 -
-                          Math.pow(
-                              this.difficultyAttributes.overallDifficulty /
-                                  13.33,
-                              5,
-                          )
-                    : 1,
+                od > 0 ? 1 - Math.pow(od / 13.33, 5) : 1,
             );
 
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
@@ -286,7 +274,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                 // When the score is considered classic (regardless if it was made on old client or not),
                 // we consider all missing combo to be dropped difficult sliders.
                 estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                    Math.min(this.totalImperfectHits, maxCombo - combo),
+                    Math.min(this.totalImperfectHits, maxCombo - this.combo),
                     0,
                     aimDifficultSliderCount,
                 );
@@ -338,10 +326,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     /**
      * Calculates the amount of misses + sliderbreaks from combo.
      */
-    private calculateEffectiveMissCount(
-        combo: number,
-        maxCombo: number,
-    ): number {
+    private calculateEffectiveMissCount(maxCombo: number): number {
         let missCount = this.computedAccuracy.nmiss;
 
         if (this.difficultyAttributes.sliderCount > 0) {
@@ -353,8 +338,8 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                 const fullComboThreshold =
                     maxCombo - 0.1 * this.difficultyAttributes.sliderCount;
 
-                if (combo < fullComboThreshold) {
-                    missCount = fullComboThreshold / Math.max(1, combo);
+                if (this.combo < fullComboThreshold) {
+                    missCount = fullComboThreshold / Math.max(1, this.combo);
                 }
 
                 // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
@@ -362,8 +347,8 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             } else {
                 const fullComboThreshold = maxCombo - this.sliderEndsDropped;
 
-                if (combo < fullComboThreshold) {
-                    missCount = fullComboThreshold / Math.max(1, combo);
+                if (this.combo < fullComboThreshold) {
+                    missCount = fullComboThreshold / Math.max(1, this.combo);
                 }
 
                 // Combine regular misses with tick misses, since tick misses break combo as well.

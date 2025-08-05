@@ -65,25 +65,12 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      */
     readonly timePreempt: number;
 
-    private readonly radiusBuffThreshold = 70;
-
     protected override readonly mode = Modes.droid;
     protected override readonly maximumSliderRadius =
         DifficultyHitObject.normalizedRadius * 2;
 
-    protected override get scalingFactor() {
-        const radius = this.object.radius;
-
-        // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
-        let scalingFactor = DifficultyHitObject.normalizedRadius / radius;
-
-        // High circle size (small CS) bonus
-        if (radius < this.radiusBuffThreshold) {
-            scalingFactor *=
-                1 + Math.pow((this.radiusBuffThreshold - radius) / 50, 2);
-        }
-
-        return scalingFactor;
+    override get smallCircleBonus(): number {
+        return Math.max(1, 1 + Math.pow((70 - this.object.radius) / 50, 2));
     }
 
     /**

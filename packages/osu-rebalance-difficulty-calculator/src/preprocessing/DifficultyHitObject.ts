@@ -130,6 +130,11 @@ export abstract class DifficultyHitObject {
     readonly fullGreatWindow: number;
 
     /**
+     * Selective bonus for beatmaps with higher circle size.
+     */
+    abstract get smallCircleBonus(): number;
+
+    /**
      * Other hitobjects in the beatmap, including this hitobject.
      */
     protected readonly hitObjects: readonly DifficultyHitObject[];
@@ -328,12 +333,8 @@ export abstract class DifficultyHitObject {
         return 1 - Math.pow(speedRatio, 1 - windowRatio);
     }
 
-    protected abstract get scalingFactor(): number;
-
     protected setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
-            this.calculateSliderCursorPosition();
-
             this.travelDistance = this.lazyTravelDistance;
 
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
@@ -364,8 +365,9 @@ export abstract class DifficultyHitObject {
             return;
         }
 
-        // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
-        const { scalingFactor } = this;
+        // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
+        const scalingFactor =
+            DifficultyHitObject.normalizedRadius / this.object.radius;
 
         const lastCursorPosition =
             this.lastDifficultyObject !== null

@@ -85,25 +85,30 @@ export abstract class DroidRhythmEvaluator {
             const prevDelta = prevObject.strainTime;
             const lastDelta = lastObject.strainTime;
 
-            // Calculate how much current delta difference deserves a rhythm bonus
-            // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200)
-            const deltaDifferenceRatio =
-                Math.min(prevDelta, currentDelta) /
-                Math.max(prevDelta, currentDelta);
+            // Calculate how much current delta difference deserves a rhythm bonus.
+            // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200).
+            const deltaDifference =
+                Math.max(prevDelta, currentDelta) /
+                Math.min(prevDelta, currentDelta);
+
+            // Take only the fractional part of the value since we are only interested in punishing multiples.
+            const deltaDifferenceFraction =
+                deltaDifference - Math.trunc(deltaDifference);
+
             const currentRatio =
                 1 +
                 this.rhythmRatioMultiplier *
                     Math.min(
                         0.5,
-                        Math.pow(Math.sin(Math.PI / deltaDifferenceRatio), 2),
+                        MathUtils.smoothstepBellCurve(deltaDifferenceFraction),
                     );
 
             // Reduce ratio bonus if delta difference is too big
-            const fraction = Math.max(
-                prevDelta / currentDelta,
-                currentDelta / prevDelta,
+            const differenceMultiplier = MathUtils.clamp(
+                2 - deltaDifference / 8,
+                0,
+                1,
             );
-            const fractionMultiplier = MathUtils.clamp(2 - fraction / 8, 0, 1);
 
             const windowPenalty = Math.min(
                 1,
@@ -114,7 +119,7 @@ export abstract class DroidRhythmEvaluator {
             );
 
             let effectiveRatio =
-                windowPenalty * currentRatio * fractionMultiplier;
+                windowPenalty * currentRatio * differenceMultiplier;
 
             if (firstDeltaSwitch) {
                 if (

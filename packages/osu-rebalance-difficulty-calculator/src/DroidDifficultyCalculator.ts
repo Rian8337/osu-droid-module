@@ -236,7 +236,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         attributes.aimDifficulty = this.calculateRating(aim);
         attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countDifficultStrains();
+        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
 
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
@@ -303,7 +303,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         attributes.tapDifficulty = this.calculateRating(tap);
-        attributes.tapDifficultStrainCount = tap.countDifficultStrains();
+        attributes.tapDifficultStrainCount = tap.countTopWeightedStrains();
 
         attributes.speedNoteCount = tap.relevantNoteCount();
         attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
@@ -422,7 +422,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         attributes.flashlightDifficulty = this.calculateRating(flashlight);
         attributes.flashlightDifficultStrainCount =
-            flashlight.countDifficultStrains();
+            flashlight.countTopWeightedStrains();
 
         if (attributes.flashlightDifficulty > 0) {
             attributes.flashlightSliderFactor =
@@ -450,7 +450,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         attributes.visualDifficulty = this.calculateRating(visual);
-        attributes.visualDifficultStrainCount = visual.countDifficultStrains();
+        attributes.visualDifficultStrainCount =
+            visual.countTopWeightedStrains();
 
         if (attributes.visualDifficulty > 0) {
             attributes.visualSliderFactor =

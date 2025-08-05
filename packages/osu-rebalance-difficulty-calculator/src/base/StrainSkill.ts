@@ -85,13 +85,17 @@ export abstract class StrainSkill extends Skill {
      *
      * The result is scaled by clock rate as it affects the total number of strains.
      */
-    countDifficultStrains(): number {
+    countTopWeightedStrains(): number {
         if (this.difficulty === 0) {
             return 0;
         }
 
         // This is what the top strain is if all strain values were identical.
         const consistentTopStrain = this.difficulty / 10;
+
+        if (consistentTopStrain === 0) {
+            return this._objectStrains.length;
+        }
 
         // Use a weighted sum of all strains.
         return this._objectStrains.reduce(

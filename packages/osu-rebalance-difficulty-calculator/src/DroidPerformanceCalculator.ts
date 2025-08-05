@@ -548,7 +548,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * Estimates the player's tap deviation based on the OD, number of circles and sliders,
+     * Estimates the player's deviation based on the OD, number of circles and sliders,
      * and number of 300s, 100s, 50s, and misses, assuming the player's mean hit error is 0.
      *
      * The estimation is consistent in that two SS scores on the same map
@@ -575,27 +575,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         const { n100, n50, nmiss } = this.computedAccuracy;
 
-        const circleCount = this.difficultyAttributes.hitCircleCount;
-        const missCountCircles = Math.min(nmiss, circleCount);
-        const mehCountCircles = Math.min(n50, circleCount - missCountCircles);
-        const okCountCircles = Math.min(
-            n100,
-            circleCount - missCountCircles - mehCountCircles,
-        );
-        const greatCountCircles = Math.max(
+        let objectCount = this.difficultyAttributes.hitCircleCount;
+
+        if (this.mods.has(ModScoreV2)) {
+            objectCount += this.difficultyAttributes.sliderCount;
+        }
+
+        const missCount = Math.min(nmiss, objectCount);
+        const mehCount = Math.min(n50, objectCount - missCount);
+        const okCount = Math.min(n100, objectCount - missCount - mehCount);
+        const greatCount = Math.max(
             0,
-            circleCount - missCountCircles - mehCountCircles - okCountCircles,
+            objectCount - missCount - mehCount - okCount,
         );
 
         // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
         // compute the deviation on circles.
-        if (greatCountCircles > 0) {
+        if (greatCount > 0) {
             // The probability that a player hits a circle is unknown, but we can estimate it to be
             // the number of greats on circles divided by the number of circles, and then add one
             // to the number of circles as a bias correction.
             const greatProbabilityCircle =
-                greatCountCircles /
-                (circleCount - missCountCircles - mehCountCircles + 1);
+                greatCount / (objectCount - missCount - mehCount + 1);
 
             // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
             // Begin with the normal distribution first.
@@ -627,10 +628,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
             // Find the total deviation.
             deviationOnCircles = Math.sqrt(
-                ((greatCountCircles + okCountCircles) *
-                    Math.pow(deviationOnCircles, 2) +
-                    mehCountCircles * mehVariance) /
-                    (greatCountCircles + okCountCircles + mehCountCircles),
+                ((greatCount + okCount) * Math.pow(deviationOnCircles, 2) +
+                    mehCount * mehVariance) /
+                    (greatCount + okCount + mehCount),
             );
 
             return deviationOnCircles;
@@ -640,10 +640,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Here, all that matters is whether or not the slider was missed, since it is impossible
         // to get a 100 or 50 on a slider by mis-tapping it.
         const sliderCount = this.difficultyAttributes.sliderCount;
-        const missCountSliders = Math.min(
-            sliderCount,
-            nmiss - missCountCircles,
-        );
+        const missCountSliders = Math.min(sliderCount, nmiss - missCount);
         const greatCountSliders = sliderCount - missCountSliders;
 
         // We only get here if nothing was hit. In this case, there is no estimate for deviation.
