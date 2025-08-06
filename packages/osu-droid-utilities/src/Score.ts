@@ -105,9 +105,18 @@ export class Score {
     sliderEndHits: number | null;
 
     /**
-     * The performance points of the play.
+     * The performance points value of the play.
+     *
+     * This is the final value, affected by {@link ppMultiplier}. To get the raw pp value, divide by said multiplier.
      */
     pp: number | null;
+
+    /**
+     * The pp multiplier of the play.
+     *
+     * This is applied directly to {@link pp} during calculation.
+     */
+    ppMultiplier: number | null;
 
     /**
      * The complete mod string of this score.
@@ -138,10 +147,11 @@ export class Score {
             nmiss: apiScore.miss,
         });
 
-        this.sliderTickHits = apiScore.slider_tick_hit;
-        this.sliderEndHits = apiScore.slider_end_hit;
+        this.sliderTickHits = apiScore.sliderTickHit;
+        this.sliderEndHits = apiScore.sliderEndHit;
         this.hash = apiScore.hash;
         this.pp = apiScore.pp;
+        this.ppMultiplier = apiScore.ppMultiplier;
     }
 
     /**

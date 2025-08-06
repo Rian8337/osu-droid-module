@@ -28,6 +28,7 @@ const apiMock: APIPlayer = {
             date: 1639619724,
             hash: "70b1226af3d8b76d859982b505c4ce11",
             pp: 1.5,
+            ppMultiplier: 1,
         },
         {
             id: 2,
@@ -47,6 +48,7 @@ const apiMock: APIPlayer = {
             date: 1636183419,
             hash: "0830b2d3a56b590b11910b26df3a2d84",
             pp: null,
+            ppMultiplier: null,
         },
     ],
 };
