@@ -20,11 +20,12 @@ const apiMock: APIScore = {
     good: 42,
     bad: 0,
     miss: 0,
-    slider_tick_hit: 1,
-    slider_end_hit: 1,
+    sliderTickHit: 1,
+    sliderEndHit: 1,
     date: 1639619724,
     hash: "70b1226af3d8b76d859982b505c4ce11",
     pp: 15.3,
+    ppMultiplier: 1.2,
 };
 
 test("Test fill information", () => {
@@ -43,6 +44,7 @@ test("Test fill information", () => {
     expect(score.mods.has(ModHidden)).toBe(true);
     expect(score.rank).toBe("S");
     expect(score.pp).toBe(15.3);
+    expect(score.ppMultiplier).toBe(1.2);
     expect(score.score).toBe(67030952);
     expect(score.sliderEndHits).toBe(1);
     expect(score.sliderTickHits).toBe(1);
