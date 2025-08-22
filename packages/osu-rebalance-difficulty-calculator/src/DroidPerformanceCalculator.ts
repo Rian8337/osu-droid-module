@@ -1,6 +1,7 @@
 import {
     DroidHitWindow,
     ErrorFunction,
+    Interpolation,
     ModFlashlight,
     ModPrecise,
     ModRelax,
@@ -346,6 +347,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                             ((2 * 300) / averageBPM),
                     )) +
             Math.pow(this.difficultyAttributes.vibroFactor, 6);
+
+        tapValue *= this.calculateTapHighDeviationNerf();
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
@@ -753,6 +756,42 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         );
 
         return deviation;
+    }
+
+    /**
+     * Calculates a multiplier for tap to account for improper tapping based on the deviation and tap difficulty.
+     *
+     * [Graph](https://www.desmos.com/calculator/2zswigxmmb)
+     */
+    private calculateTapHighDeviationNerf(): number {
+        if (this.tapDeviation == Number.POSITIVE_INFINITY) {
+            return 0;
+        }
+
+        const tapValue = this.baseValue(
+            this.difficultyAttributes.tapDifficulty,
+        );
+
+        // Decide a point where the PP value achieved compared to the tap deviation is assumed to be tapped
+        // improperly. Any PP above this point is considered "excess" tap difficulty. This is used to cause
+        // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
+        const excessTapDifficultyCutoff =
+            100 + 220 * Math.pow(22 / this.tapDeviation, 6.5);
+
+        if (tapValue <= excessTapDifficultyCutoff) {
+            return 1;
+        }
+
+        const scale = 50;
+        const adjustedTapValue =
+            scale *
+            (Math.log((tapValue - excessTapDifficultyCutoff) / scale + 1) +
+                excessTapDifficultyCutoff / scale);
+
+        // 220 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
+        const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 22, 27);
+
+        return Interpolation.lerp(adjustedTapValue, tapValue, t) / tapValue;
     }
 
     private getConvertedHitWindow() {
