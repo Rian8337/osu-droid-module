@@ -668,87 +668,91 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return Number.POSITIVE_INFINITY;
         }
 
-        const { speedNoteCount, clockRate } = this.difficultyAttributes;
+        const { clockRate, speedNoteCount } = this.difficultyAttributes;
         const hitWindow = this.getConvertedHitWindow();
 
         const hitWindow300 = hitWindow.greatWindow / clockRate;
         const hitWindow100 = hitWindow.okWindow / clockRate;
         const hitWindow50 = hitWindow.mehWindow / clockRate;
-
         const { n100, n50, nmiss } = this.computedAccuracy;
 
-        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
-        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
-        const speedNoteRatio = speedNoteCount / this.totalHits;
+        // Assume worst case - all non-300s happened in speed notes.
+        const relevantCountMiss = Math.min(nmiss, speedNoteCount);
 
-        const nonGreatCount = n100 + n50 + nmiss;
-        const nonGreatRatio =
-            1 -
-            (Math.pow(
-                Math.exp(Math.sqrt(hitWindow300)) + 1,
-                1 - speedNoteRatio,
-            ) -
-                1) /
-                Math.exp(Math.sqrt(hitWindow300));
+        const relevantCountMeh = Math.min(
+            n50,
+            speedNoteCount - relevantCountMiss,
+        );
+
+        const relevantCountOk = Math.min(
+            n100,
+            speedNoteCount - relevantCountMiss - relevantCountMeh,
+        );
 
         const relevantCountGreat = Math.max(
             0,
-            speedNoteCount - nonGreatCount * nonGreatRatio,
+            speedNoteCount -
+                relevantCountMiss -
+                relevantCountMeh -
+                relevantCountOk,
         );
-        const relevantCountOk = n100 * nonGreatRatio;
-        const relevantCountMeh = n50 * nonGreatRatio;
-        const relevantCountMiss = nmiss * nonGreatRatio;
 
-        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
-        // compute the deviation on circles.
-        if (relevantCountGreat > 0) {
-            // The probability that a player hits a circle is unknown, but we can estimate it to be
-            // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction.
-            const greatProbabilityCircle =
-                relevantCountGreat /
-                (speedNoteCount - relevantCountMiss - relevantCountMeh + 1);
-
-            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-            // Begin with the normal distribution first.
-            let deviationOnCircles =
-                hitWindow300 /
-                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-
-            deviationOnCircles *= Math.sqrt(
-                1 -
-                    (Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(
-                            -0.5 *
-                                Math.pow(hitWindow100 / deviationOnCircles, 2),
-                        )) /
-                        (deviationOnCircles *
-                            ErrorFunction.erf(
-                                hitWindow100 /
-                                    (Math.SQRT2 * deviationOnCircles),
-                            )),
-            );
-
-            // Then compute the variance for 50s.
-            const mehVariance =
-                (hitWindow50 * hitWindow50 +
-                    hitWindow100 * hitWindow50 +
-                    hitWindow100 * hitWindow100) /
-                3;
-
-            // Find the total deviation.
-            deviationOnCircles = Math.sqrt(
-                ((relevantCountGreat + relevantCountOk) *
-                    Math.pow(deviationOnCircles, 2) +
-                    relevantCountMeh * mehVariance) /
-                    (relevantCountGreat + relevantCountOk + relevantCountMeh),
-            );
-
-            return deviationOnCircles;
+        if (relevantCountGreat + relevantCountOk + relevantCountMeh <= 0) {
+            return Number.POSITIVE_INFINITY;
         }
 
-        return Number.POSITIVE_INFINITY;
+        // The sample proportion of successful hits.
+        const n = Math.max(1, relevantCountGreat + relevantCountOk);
+        const p = relevantCountGreat / n;
+
+        // 99% critical value for the normal distribution (one-tailed).
+        const z = 2.32634787404;
+
+        // We can be 99% confident that the population proportion is at least this value.
+        const pLowerBound = Math.min(
+            p,
+            (n * p + Math.pow(z, 2) / 2) / (n + Math.pow(z, 2)) -
+                (z / (n + Math.pow(z, 2))) *
+                    Math.sqrt(n * p * (1 - p) + Math.pow(z, 2) / 4),
+        );
+
+        let deviation: number;
+
+        // Tested maximum precision for the deviation calculation.
+        if (pLowerBound > 0.01) {
+            // Compute deviation assuming 300s and 109s are normally distributed.
+            deviation =
+                hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
+
+            // Subtract the deviation provided by tails that land outside the 100 hit window from the deviation computed above.
+            // This is equivalent to calculating the deviation of a normal distribution truncated at +-okHitWindow.
+            const hitWindow100TailAmount =
+                (Math.sqrt(2 / Math.PI) *
+                    hitWindow100 *
+                    Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))) /
+                (deviation *
+                    ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
+
+            deviation *= Math.sqrt(1 - hitWindow100TailAmount);
+        } else {
+            // A tested limit value for the case of a score only containing 100s.
+            deviation = hitWindow100 / Math.sqrt(3);
+        }
+
+        // Compute and add the variance for 50s, assuming that they are uniformly distriubted.
+        const mehVariance =
+            (hitWindow50 * hitWindow50 +
+                hitWindow100 * hitWindow50 +
+                hitWindow100 * hitWindow100) /
+            3;
+
+        deviation = Math.sqrt(
+            ((relevantCountGreat + relevantCountOk) * Math.pow(deviation, 2) +
+                relevantCountMeh * mehVariance) /
+                (relevantCountGreat + relevantCountOk + relevantCountMeh),
+        );
+
+        return deviation;
     }
 
     private getConvertedHitWindow() {
