@@ -761,7 +761,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     /**
      * Calculates a multiplier for tap to account for improper tapping based on the deviation and tap difficulty.
      *
-     * [Graph](https://www.desmos.com/calculator/2zswigxmmb)
+     * [Graph](https://www.desmos.com/calculator/z5l9ebrwpi)
      */
     private calculateTapHighDeviationNerf(): number {
         if (this.tapDeviation == Number.POSITIVE_INFINITY) {
@@ -776,7 +776,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // improperly. Any PP above this point is considered "excess" tap difficulty. This is used to cause
         // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
         const excessTapDifficultyCutoff =
-            100 + 220 * Math.pow(22 / this.tapDeviation, 6.5);
+            100 + 250 * Math.pow(25 / this.tapDeviation, 6.5);
 
         if (tapValue <= excessTapDifficultyCutoff) {
             return 1;
@@ -788,8 +788,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             (Math.log((tapValue - excessTapDifficultyCutoff) / scale + 1) +
                 excessTapDifficultyCutoff / scale);
 
-        // 220 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
-        const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 22, 27);
+        // 250 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible.
+        const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 25, 30);
 
         return Interpolation.lerp(adjustedTapValue, tapValue, t) / tapValue;
     }
