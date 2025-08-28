@@ -679,16 +679,31 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         const hitWindow50 = hitWindow.mehWindow / clockRate;
         const { n100, n50, nmiss } = this.computedAccuracy;
 
+        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
+        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
+        const speedNoteRatio = speedNoteCount / this.totalHits;
+        const nonGreatRatio =
+            1 -
+            (Math.pow(
+                Math.exp(Math.sqrt(hitWindow300)) + 1,
+                1 - speedNoteRatio,
+            ) -
+                1) /
+                Math.exp(Math.sqrt(hitWindow300));
+
         // Assume worst case - all non-300s happened in speed notes.
-        const relevantCountMiss = Math.min(nmiss, speedNoteCount);
+        const relevantCountMiss = Math.min(
+            nmiss * nonGreatRatio,
+            speedNoteCount,
+        );
 
         const relevantCountMeh = Math.min(
-            n50,
+            n50 * nonGreatRatio,
             speedNoteCount - relevantCountMiss,
         );
 
         const relevantCountOk = Math.min(
-            n100,
+            n100 * nonGreatRatio,
             speedNoteCount - relevantCountMiss - relevantCountMeh,
         );
 
