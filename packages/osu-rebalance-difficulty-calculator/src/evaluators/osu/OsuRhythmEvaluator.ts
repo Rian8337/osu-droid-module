@@ -9,7 +9,7 @@ export abstract class OsuRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
     private static readonly rhythmOverallMultiplier = 0.95;
-    private static readonly rhythmRatioMultiplier = 12;
+    private static readonly rhythmRatioMultiplier = 15;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -216,7 +216,8 @@ export abstract class OsuRhythmEvaluator {
         }
 
         return (
-            Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
+            (Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) *
+                (1 - current.doubletapness)) /
             2
         );
     }

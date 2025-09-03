@@ -26,14 +26,17 @@ export class DroidRhythm extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        this.currentRhythmMultiplier =
-            DroidRhythmEvaluator.evaluateDifficultyOf(
-                current,
-                this.useSliderAccuracy,
-            );
+        const rhythmMultiplier = DroidRhythmEvaluator.evaluateDifficultyOf(
+            current,
+            this.useSliderAccuracy,
+        );
+
+        const doubletapness = 1 - current.doubletapness;
 
         this.currentRhythmStrain *= this.strainDecay(current.deltaTime);
-        this.currentRhythmStrain += this.currentRhythmMultiplier - 1;
+        this.currentRhythmStrain += (rhythmMultiplier - 1) * doubletapness;
+
+        this.currentRhythmMultiplier = rhythmMultiplier * doubletapness;
 
         return this.currentRhythmStrain;
     }

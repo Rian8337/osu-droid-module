@@ -9,7 +9,7 @@ export abstract class DroidRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
     private static readonly rhythmOverallMultiplier = 0.95;
-    private static readonly rhythmRatioMultiplier = 12;
+    private static readonly rhythmRatioMultiplier = 15;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
