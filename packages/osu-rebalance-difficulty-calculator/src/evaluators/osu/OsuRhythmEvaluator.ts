@@ -62,9 +62,10 @@ export abstract class OsuRhythmEvaluator {
             // Either we're limited by time or limited by object count.
             const currentHistoricalDecay = Math.min(timeDecay, noteDecay);
 
-            const currentDelta = currentObject.strainTime;
-            const prevDelta = prevObject.strainTime;
-            const lastDelta = lastObject.strainTime;
+            // Use custom cap value to ensure that that at this point delta time is actually zero.
+            const currentDelta = Math.max(currentObject.deltaTime, 1e-7);
+            const prevDelta = Math.max(prevObject.deltaTime, 1e-7);
+            const lastDelta = Math.max(lastObject.deltaTime, 1e-7);
 
             // Calculate how much current delta difference deserves a rhythm bonus
             // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200)
