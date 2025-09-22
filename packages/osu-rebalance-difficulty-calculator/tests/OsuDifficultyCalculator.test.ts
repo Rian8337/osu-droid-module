@@ -181,13 +181,13 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         {
             noMod: {
                 aim: 15.652913200502999,
-                speed: 9.57790718814792,
-                total: 28.085025576215138,
+                speed: 9.147707107639256,
+                total: 27.88666075856254,
             },
             doubleTime: {
                 aim: 19.93136405079708,
-                speed: 11.405252358924004,
-                total: 35.402195385319104,
+                speed: 10.889022565922588,
+                total: 35.1936966285963,
             },
             flashlight: 101.51588631377724,
         },
