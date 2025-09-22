@@ -222,14 +222,8 @@ export abstract class DifficultyHitObject {
      * Computes the properties of this hitobject.
      *
      * @param clockRate The clock rate of the beatmap.
-     * @param hitObjects The hitobjects in the beatmap.
      */
-    computeProperties(
-        clockRate: number,
-        // Required for `DroidDifficultyHitObject` override.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        hitObjects: readonly PlaceableHitObject[],
-    ) {
+    computeProperties(clockRate: number) {
         this.calculateSliderCursorPosition();
         this.setDistances(clockRate);
     }

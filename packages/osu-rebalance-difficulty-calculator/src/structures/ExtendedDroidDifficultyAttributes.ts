@@ -17,7 +17,6 @@ export class ExtendedDroidDifficultyAttributes
     difficultSliders: DifficultSlider[] = [];
     aimNoteCount = 0;
     flashlightSliderFactor = 1;
-    visualSliderFactor = 1;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IExtendedDroidDifficultyAttributes>,
@@ -34,6 +33,5 @@ export class ExtendedDroidDifficultyAttributes
         this.aimNoteCount = cacheableAttributes.aimNoteCount;
         this.flashlightSliderFactor =
             cacheableAttributes.flashlightSliderFactor;
-        this.visualSliderFactor = cacheableAttributes.visualSliderFactor;
     }
 }

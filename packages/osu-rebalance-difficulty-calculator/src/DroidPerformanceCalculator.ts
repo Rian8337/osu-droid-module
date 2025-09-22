@@ -39,9 +39,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     flashlight = 0;
 
     /**
-     * The visual performance value.
+     * The reading performance value.
      */
-    visual = 0;
+    reading = 0;
 
     /**
      * The penalty used to penalize the tap performance value.
@@ -84,21 +84,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._flashlightSliderCheesePenalty;
     }
 
-    /**
-     * The penalty used to penalize the visual performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
-     */
-    get visualSliderCheesePenalty(): number {
-        return this._visualSliderCheesePenalty;
-    }
-
     protected override finalMultiplier = 1.25;
     protected override readonly mode = Modes.droid;
 
     private _aimSliderCheesePenalty = 1;
     private _flashlightSliderCheesePenalty = 1;
-    private _visualSliderCheesePenalty = 1;
 
     private _tapPenalty = 1;
     private _deviation = 0;
@@ -185,35 +175,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.total = this.calculateTotalValue();
     }
 
-    /**
-     * Applies a visual slider cheese penalty value to this calculator.
-     *
-     * The visual and total performance value will be recalculated afterwards.
-     *
-     * @param value The slider cheese penalty value. Must be between 0 and 1.
-     */
-    applyVisualSliderCheesePenalty(value: number): void {
-        if (value < 0) {
-            throw new RangeError(
-                "New visual slider cheese penalty must be greater than or equal to zero.",
-            );
-        }
-
-        if (value > 1) {
-            throw new RangeError(
-                "New visual slider cheese penalty must be less than or equal to one.",
-            );
-        }
-
-        if (value === this._visualSliderCheesePenalty) {
-            return;
-        }
-
-        this._visualSliderCheesePenalty = value;
-        this.visual = this.calculateVisualValue();
-        this.total = this.calculateTotalValue();
-    }
-
     protected override calculateValues(): void {
         this._deviation = this.calculateDeviation();
         this._tapDeviation = this.calculateTapDeviation();
@@ -222,7 +183,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.tap = this.calculateTapValue();
         this.accuracy = this.calculateAccuracyValue();
         this.flashlight = this.calculateFlashlightValue();
-        this.visual = this.calculateVisualValue();
+        this.reading = this.calculateReadingValue();
     }
 
     protected override calculateTotalValue(): number {
@@ -232,7 +193,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     Math.pow(this.tap, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.visual, 1.1),
+                    Math.pow(this.reading, 1.1),
                 1 / 1.1,
             ) * this.finalMultiplier
         );
@@ -245,8 +206,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
         this._flashlightSliderCheesePenalty =
             options?.flashlightSliderCheesePenalty ?? 1;
-        this._visualSliderCheesePenalty =
-            options?.visualSliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -438,31 +397,30 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * Calculates the visual performance value of the beatmap.
+     * Calculates the reading performance value of the beatmap.
      */
-    private calculateVisualValue(): number {
-        let visualValue =
-            Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
+    private calculateReadingValue(): number {
+        let readingValue = Math.pow(
+            Math.pow(this.difficultyAttributes.readingDifficulty, 2) * 25,
+            0.8,
+        );
 
-        visualValue *= Math.min(
+        readingValue *= Math.min(
             this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.visualDifficultStrainCount,
+                this.difficultyAttributes.readingDifficultNoteCount,
             ),
             this.proportionalMissPenalty,
         );
 
-        // Scale the visual value with estimated full combo deviation.
-        // As visual is easily "bypassable" with memorization, punish for memorization.
-        visualValue *= this.calculateDeviationBasedLengthScaling(
+        // Scale the reading value with estimated full combo deviation.
+        // As reading is easily "bypassable" with memorization, punish for memorization.
+        readingValue *= this.calculateDeviationBasedLengthScaling(
             undefined,
             true,
         );
 
-        // Scale the visual value with slider cheese penalty.
-        visualValue *= this._visualSliderCheesePenalty;
-
-        // Scale the visual value with deviation.
-        visualValue *=
+        // Scale the reading value with deviation.
+        readingValue *=
             1.05 *
             Math.pow(
                 ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
@@ -470,9 +428,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
 
         // OD 5 SS stays the same.
-        visualValue *= 0.98 + Math.pow(5, 2) / 2500;
+        readingValue *= 0.98 + Math.pow(5, 2) / 2500;
 
-        return visualValue;
+        return readingValue;
     }
 
     /**
@@ -841,8 +799,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             " acc, " +
             this.flashlight.toFixed(2) +
             " flashlight, " +
-            this.visual.toFixed(2) +
-            " visual)"
+            this.reading.toFixed(2) +
+            " reading)"
         );
     }
 }

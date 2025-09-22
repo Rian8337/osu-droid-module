@@ -150,7 +150,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 i - 1,
             );
 
-            difficultyObject.computeProperties(clockRate, objects);
+            difficultyObject.computeProperties(clockRate);
             difficultyObjects.push(difficultyObject);
         }
 
