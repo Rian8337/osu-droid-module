@@ -10,7 +10,7 @@ import {
     Utils,
     Vector2,
 } from "@rian8337/osu-base";
-import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
 import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
@@ -18,9 +18,9 @@ import { ReplayData } from "../data/ReplayData";
 import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
 
 /**
- * Utility to check whether relevant sliders in a beatmap are cheesed for live scores.
+ * Utility to check whether relevant sliders in a beatmap are cheesed for rebalance scores..
  */
-export class SliderCheeseChecker {
+export class RebalanceSliderCheeseChecker {
     /**
      * The beatmap that is being analyzed.
      */
@@ -34,7 +34,7 @@ export class SliderCheeseChecker {
     /**
      * The difficulty attributes of the beatmap.
      */
-    readonly difficultyAttributes: IExtendedDroidDifficultyAttributes;
+    readonly difficultyAttributes: IRebalanceExtendedDroidDifficultyAttributes;
 
     /**
      * The 50 osu!droid hit window of the analyzed beatmap.
@@ -51,7 +51,7 @@ export class SliderCheeseChecker {
     constructor(
         beatmap: DroidPlayableBeatmap,
         data: ReplayData,
-        difficultyAttributes: IExtendedDroidDifficultyAttributes,
+        difficultyAttributes: IRebalanceExtendedDroidDifficultyAttributes,
     ) {
         this.beatmap = beatmap;
         this.data = data;
@@ -71,8 +71,7 @@ export class SliderCheeseChecker {
         if (
             this.difficultyAttributes.difficultSliders.length === 0 ||
             (this.difficultyAttributes.sliderFactor === 1 &&
-                this.difficultyAttributes.flashlightSliderFactor === 1 &&
-                this.difficultyAttributes.visualSliderFactor === 1)
+                this.difficultyAttributes.flashlightSliderFactor === 1)
         ) {
             return {
                 aimPenalty: 1,
@@ -365,15 +364,7 @@ export class SliderCheeseChecker {
                     2,
                 ),
             ),
-            visualPenalty: Math.max(
-                this.difficultyAttributes.visualSliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.visualSliderFactor,
-                    2,
-                ),
-            ),
+            visualPenalty: 1,
         };
     }
 

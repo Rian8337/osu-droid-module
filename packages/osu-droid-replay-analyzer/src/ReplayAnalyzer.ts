@@ -58,6 +58,7 @@ import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
 import { SliderHitInformation } from "./data/SliderHitInformation";
+import { RebalanceSliderCheeseChecker } from "./analysis/RebalanceSliderCheeseChecker";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -489,11 +490,18 @@ export class ReplayAnalyzer {
 
         this.playableBeatmap ??= this.constructPlayableBeatmap();
 
-        const sliderCheeseChecker = new SliderCheeseChecker(
-            this.playableBeatmap,
-            this.data,
-            this.difficultyAttributes,
-        );
+        const sliderCheeseChecker =
+            this.difficultyAttributes.mode === "rebalance"
+                ? new RebalanceSliderCheeseChecker(
+                      this.playableBeatmap,
+                      this.data,
+                      this.difficultyAttributes,
+                  )
+                : new SliderCheeseChecker(
+                      this.playableBeatmap,
+                      this.data,
+                      this.difficultyAttributes,
+                  );
 
         this.sliderCheesePenalty = sliderCheeseChecker.check();
         this.hasBeenCheckedForSliderCheesing = true;

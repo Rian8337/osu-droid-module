@@ -11,6 +11,7 @@ export * from "./data/ExportedReplayJSONV3";
 export * from "./constants/HitResult";
 export * from "./constants/MovementType";
 export * from "./analysis/RebalanceThreeFingerChecker";
+export * from "./analysis/RebalanceSliderCheeseChecker";
 export * from "./ReplayAnalyzer";
 export * from "./data/ReplayData";
 export * from "./data/ReplayV3Data";
