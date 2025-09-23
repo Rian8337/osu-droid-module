@@ -19,7 +19,7 @@ export abstract class DroidReadingEvaluator {
     private static readonly hiddenMultiplier = 0.85;
     private static readonly densityMultiplier = 0.8;
     private static readonly densityDifficultyBase = 1.5;
-    private static readonly preemptBalancingFactor = 200000;
+    private static readonly preemptBalancingFactor = 250000;
     private static readonly preemptStartingPoint = 475; // AR 9.83 in milliseconds
 
     static evaluateDifficultyOf(
@@ -143,7 +143,7 @@ export abstract class DroidReadingEvaluator {
         }
 
         // Arbitrary curve for the base value preempt difficulty should have as approach rate increases.
-        // https://www.desmos.com/calculator/c175335a71
+        // https://www.desmos.com/calculator/wwhbwplgna
         const preemptDifficulty =
             (Math.pow(
                 (this.preemptStartingPoint -
