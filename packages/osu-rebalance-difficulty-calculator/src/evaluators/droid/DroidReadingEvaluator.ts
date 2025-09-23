@@ -239,6 +239,10 @@ export abstract class DroidReadingEvaluator {
                 break;
             }
 
+            if (prev.isOverlapping(true)) {
+                continue;
+            }
+
             yield prev;
         }
     }
@@ -262,6 +266,10 @@ export abstract class DroidReadingEvaluator {
                 current.startTime + current.timePreempt < next.startTime
             ) {
                 break;
+            }
+
+            if (next.isOverlapping(true)) {
+                continue;
             }
 
             const timeNerfFactor = this.getTimeNerfFactor(
