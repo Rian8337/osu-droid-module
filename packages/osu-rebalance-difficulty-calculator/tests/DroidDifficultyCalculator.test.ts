@@ -20,14 +20,14 @@ const testDiffCalc = (
             aim: number;
             tap: number;
             rhythm: number;
-            visual: number;
+            reading: number;
             total: number;
         }>;
         doubleTime: Readonly<{
             aim: number;
             tap: number;
             rhythm: number;
-            visual: number;
+            reading: number;
             total: number;
         }>;
         flashlight: number;
@@ -53,8 +53,8 @@ const testDiffCalc = (
 
         expect(noModAttributes.flashlightDifficulty).toBe(0);
 
-        expect(noModAttributes.visualDifficulty).toBeCloseTo(
-            ratings.noMod.visual,
+        expect(noModAttributes.readingDifficulty).toBeCloseTo(
+            ratings.noMod.reading,
             5,
         );
 
@@ -70,7 +70,7 @@ const testDiffCalc = (
             2,
         )} rhythm, ${noModAttributes.flashlightDifficulty.toFixed(
             2,
-        )} flashlight, ${noModAttributes.visualDifficulty.toFixed(2)} visual)`;
+        )} flashlight, ${noModAttributes.readingDifficulty.toFixed(2)} reading)`;
 
         expect(noModAttributes.toString()).toBe(str);
     });
@@ -98,8 +98,8 @@ const testDiffCalc = (
 
         expect(doubleTimeAttributes.flashlightDifficulty).toBe(0);
 
-        expect(doubleTimeAttributes.visualDifficulty).toBeCloseTo(
-            ratings.doubleTime.visual,
+        expect(doubleTimeAttributes.readingDifficulty).toBeCloseTo(
+            ratings.doubleTime.reading,
             5,
         );
 
@@ -161,15 +161,15 @@ describe("Test difficulty calculation sample beatmap 1", () => {
                 aim: 2.4955866774503237,
                 tap: 1.4808324669581225,
                 rhythm: 0.812969288725491,
-                visual: 0.8058573101651171,
-                total: 3.9986518471813386,
+                reading: 0.748850181759938,
+                total: 3.839902646612436,
             },
             doubleTime: {
                 aim: 3.4130382829133263,
                 tap: 2.1566276461936593,
                 rhythm: 0.9653275604053236,
-                visual: 0.9335735548334209,
-                total: 5.115018219447068,
+                reading: 2.068486199881045,
+                total: 5.365912478277665,
             },
             flashlight: 1.49048687715176,
         },
@@ -182,15 +182,15 @@ describe("Test difficulty calculation sample beatmap 2", () => {
             aim: 1.0321902692473548,
             tap: 0.9901723920963804,
             rhythm: 0.6119724587062164,
-            visual: 0.7697852202306008,
-            total: 2.877990831204595,
+            reading: 0.2934192795409531,
+            total: 2.147619951453794,
         },
         doubleTime: {
             aim: 1.4068939518492614,
             tap: 1.3845870791416075,
             rhythm: 0.7601331678413251,
-            visual: 0.8836520672102035,
-            total: 3.364633377884709,
+            reading: 0.41041299116151053,
+            total: 2.82072732639249,
         },
         flashlight: 0.43307010859578976,
     });
@@ -204,15 +204,15 @@ describe("Test difficulty calculation sample beatmap 3", () => {
                 aim: 2.900817545404419,
                 tap: 3.077838281377718,
                 rhythm: 1.222133428831228,
-                visual: 0.9873830353875928,
-                total: 5.7241071103853916,
+                reading: 1.513793779488283,
+                total: 5.755294431498623,
             },
             doubleTime: {
                 aim: 4.0162528796418675,
                 tap: 4.243266798331955,
                 rhythm: 1.358265932768112,
-                visual: 1.116628683694664,
-                total: 7.625250517924597,
+                reading: 3.250361788059994,
+                total: 7.914311748277573,
             },
             flashlight: 1.754257735959983,
         },
@@ -225,15 +225,15 @@ describe("Test difficulty calculation sample beatmap 4", () => {
             aim: 2.9399918814177752,
             tap: 1.4332013989674695,
             rhythm: 0.8164433750750241,
-            visual: 1.8169031691462392,
-            total: 4.975679691394483,
+            reading: 1.9824313471798514,
+            total: 4.6962288968251045,
         },
         doubleTime: {
             aim: 4.078958258899205,
             tap: 2.0374503948541545,
             rhythm: 0.9791548169336958,
-            visual: 2.5673424199987123,
-            total: 6.286424424995013,
+            reading: 4.867784838178375,
+            total: 6.789046596826308,
         },
         flashlight: 3.620236868634939,
     });
@@ -247,15 +247,15 @@ describe("Test difficulty calculation sample beatmap 5", () => {
                 aim: 844.2640840223498,
                 tap: 5.126547190285158,
                 rhythm: 0.58682378556379,
-                visual: 3.200879623877529,
-                total: 355.6453006269767,
+                reading: 564.1808298798749,
+                total: 356.15674486500234,
             },
             doubleTime: {
                 aim: 1084.8669568112875,
                 tap: 6.930544796727792,
                 rhythm: 0.6154594006084403,
-                visual: 4.112777563318753,
-                total: 434.6415655690156,
+                reading: 1166.634589815585,
+                total: 435.79802080846474,
             },
             flashlight: 10690.324875939152,
         },
@@ -268,14 +268,14 @@ describe("Test difficulty calculation sample beatmap 6", () => {
             aim: 0.0015345404825862288,
             tap: 0.18279086410430911,
             rhythm: 0,
-            visual: 0,
+            reading: 0,
             total: 0.31681941056355756,
         },
         doubleTime: {
             aim: 0.001879420585990258,
             tap: 0.2238721733489895,
             rhythm: 0,
-            visual: 0,
+            reading: 0,
             total: 0.3833987248977269,
         },
         flashlight: 0,
@@ -288,15 +288,15 @@ describe("Test difficulty calculation sample beatmap 7", () => {
             aim: 3.2174338650510528,
             tap: 2.535067079216332,
             rhythm: 1.4402127346126805,
-            visual: 1.070444039189942,
-            total: 5.342023651663691,
+            reading: 1.0115795752745613,
+            total: 5.215979938697696,
         },
         doubleTime: {
             aim: 4.567100605731228,
             tap: 3.745672783616189,
             rhythm: 1.599946939466027,
-            visual: 1.4110387697625595,
-            total: 7.335412930279687,
+            reading: 5.679486139088523,
+            total: 8.23023094252888,
         },
         flashlight: 3.0911649510908648,
     });
