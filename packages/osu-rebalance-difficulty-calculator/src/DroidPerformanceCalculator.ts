@@ -84,7 +84,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._flashlightSliderCheesePenalty;
     }
 
-    protected override finalMultiplier = 1.25;
+    protected override finalMultiplier = 1.24;
     protected override readonly mode = Modes.droid;
 
     private _aimSliderCheesePenalty = 1;
