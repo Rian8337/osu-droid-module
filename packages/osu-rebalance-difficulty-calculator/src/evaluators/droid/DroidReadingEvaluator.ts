@@ -143,14 +143,14 @@ export abstract class DroidReadingEvaluator {
         }
 
         // Arbitrary curve for the base value preempt difficulty should have as approach rate increases.
-        // https://www.desmos.com/calculator/urjnl7sau7
+        // https://www.desmos.com/calculator/hlhrwiptre
         const preemptDifficulty =
             (Math.pow(
                 (this.preemptStartingPoint -
                     current.timePreempt +
                     Math.abs(current.timePreempt - this.preemptStartingPoint)) /
                     2,
-                2.4,
+                2.3,
             ) /
                 this.preemptBalancingFactor) *
             constantAngleNerfFactor *
