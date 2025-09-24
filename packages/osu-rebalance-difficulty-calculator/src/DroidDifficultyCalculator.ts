@@ -95,14 +95,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.populateFlashlightAttributes(attributes, skills);
         this.populateReadingAttributes(attributes, skills);
 
-        if (beatmap.mods.has(ModRelax)) {
-            attributes.flashlightDifficulty *= 0.7;
-            attributes.readingDifficulty *= 0.7;
-        } else if (beatmap.mods.has(ModAutopilot)) {
-            attributes.flashlightDifficulty *= 0.3;
-            attributes.readingDifficulty *= 0.4;
-        }
-
         const aimPerformanceValue = this.basePerformanceValue(
             Math.pow(attributes.aimDifficulty, 0.8),
         );
