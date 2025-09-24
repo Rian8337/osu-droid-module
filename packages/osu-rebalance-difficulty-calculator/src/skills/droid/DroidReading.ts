@@ -15,7 +15,7 @@ export class DroidReading extends Skill {
     private readonly noteDifficulties: number[] = [];
 
     private readonly strainDecayBase = 0.8;
-    private readonly skillMultiplier = 2;
+    private readonly skillMultiplier = 1.85;
 
     private currentNoteDifficulty = 0;
 
@@ -40,9 +40,12 @@ export class DroidReading extends Skill {
                 this.mods,
             ) * this.skillMultiplier;
 
-        this.noteDifficulties.push(this.currentNoteDifficulty);
+        const difficulty =
+            this.currentNoteDifficulty * current.rhythmMultiplier;
 
-        this.saveToHitObject(current);
+        this.noteDifficulties.push(difficulty);
+
+        current.readingDifficulty = difficulty;
     }
 
     override difficultyValue(): number {
@@ -131,10 +134,6 @@ export class DroidReading extends Skill {
                 1.1 / (1 + Math.exp(-5 * (next / consistentTopNote - 1.15))),
             0,
         );
-    }
-
-    private saveToHitObject(current: DroidDifficultyHitObject) {
-        current.readingDifficulty = this.currentNoteDifficulty;
     }
 
     private strainDecay(ms: number): number {
