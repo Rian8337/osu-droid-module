@@ -15,7 +15,7 @@ export class DroidReading extends Skill {
     private readonly noteDifficulties: number[] = [];
 
     private readonly strainDecayBase = 0.8;
-    private readonly skillMultiplier = 1.85;
+    private readonly skillMultiplier = 1.8;
 
     private currentNoteDifficulty = 0;
 
