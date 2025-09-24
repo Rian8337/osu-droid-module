@@ -17,7 +17,9 @@ export class DroidReading extends Skill {
     private readonly strainDecayBase = 0.8;
     private readonly skillMultiplier = 2;
 
-    private currentDifficulty = 0;
+    private currentNoteDifficulty = 0;
+
+    private difficulty = 0;
     private noteWeightSum = 0;
 
     constructor(
@@ -29,16 +31,16 @@ export class DroidReading extends Skill {
     }
 
     override process(current: DroidDifficultyHitObject) {
-        this.currentDifficulty *= this.strainDecay(current.deltaTime);
+        this.currentNoteDifficulty *= this.strainDecay(current.deltaTime);
 
-        this.currentDifficulty +=
+        this.currentNoteDifficulty +=
             DroidReadingEvaluator.evaluateDifficultyOf(
                 current,
                 this.clockRate,
                 this.mods,
             ) * this.skillMultiplier;
 
-        this.noteDifficulties.push(this.currentDifficulty);
+        this.noteDifficulties.push(this.currentNoteDifficulty);
 
         this.saveToHitObject(current);
     }
@@ -81,7 +83,7 @@ export class DroidReading extends Skill {
 
         // Difficulty is the weighted sum of the highest notes.
         // We're sorting from highest to lowest note.
-        let difficulty = 0;
+        this.difficulty = 0;
         this.noteWeightSum = 0;
 
         for (let i = 0; i < peaks.length; ++i) {
@@ -97,26 +99,26 @@ export class DroidReading extends Skill {
             }
 
             this.noteWeightSum += weight;
-            difficulty += peaks[i] * weight;
+            this.difficulty += peaks[i] * weight;
         }
 
-        return difficulty;
+        return this.difficulty;
     }
 
     /**
      * Returns the number of relevant objects weighted against the top note.
      */
     countTopWeightedNotes(): number {
-        if (this.noteDifficulties.length === 0) {
+        if (
+            this.noteDifficulties.length === 0 ||
+            this.difficulty === 0 ||
+            this.noteWeightSum === 0
+        ) {
             return 0;
         }
 
         // What would the top note be if all note values were identical
-        const consistentTopNote = this.difficultyValue() / this.noteWeightSum;
-
-        if (this.noteWeightSum === 0) {
-            return 0;
-        }
+        const consistentTopNote = this.difficulty / this.noteWeightSum;
 
         if (consistentTopNote === 0) {
             return 0;
@@ -132,7 +134,7 @@ export class DroidReading extends Skill {
     }
 
     private saveToHitObject(current: DroidDifficultyHitObject) {
-        current.readingDifficulty = this.currentDifficulty;
+        current.readingDifficulty = this.currentNoteDifficulty;
     }
 
     private strainDecay(ms: number): number {
