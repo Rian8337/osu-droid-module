@@ -5,8 +5,8 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.5;
-    private static readonly acuteAngleMultiplier = 2.55;
+    private static readonly wideAngleMultiplier = 1.6;
+    private static readonly acuteAngleMultiplier = 2.4;
     private static readonly sliderMultiplier = 1.35;
     private static readonly velocityChangeMultiplier = 0.75;
     private static readonly wiggleMultiplier = 1.02;
