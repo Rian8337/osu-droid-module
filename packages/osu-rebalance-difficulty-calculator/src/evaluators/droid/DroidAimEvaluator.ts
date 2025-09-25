@@ -141,7 +141,7 @@ export abstract class DroidAimEvaluator {
                                 ),
                             ));
 
-                // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter
+                // Apply acute angle bonus for BPM above 300 1/2 and distance more than 1.25 diameter
                 acuteAngleBonus *=
                     angleBonus *
                     MathUtils.smootherstep(
@@ -151,8 +151,8 @@ export abstract class DroidAimEvaluator {
                     ) *
                     MathUtils.smootherstep(
                         current.lazyJumpDistance,
-                        diameter,
-                        diameter * 2,
+                        diameter * 1.25,
+                        diameter * 2.5,
                     );
             }
 
