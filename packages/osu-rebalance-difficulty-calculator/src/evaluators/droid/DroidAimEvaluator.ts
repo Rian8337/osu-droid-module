@@ -147,7 +147,7 @@ export abstract class DroidAimEvaluator {
                     MathUtils.smootherstep(
                         MathUtils.millisecondsToBPM(current.strainTime, 2),
                         300,
-                        400,
+                        450,
                     ) *
                     MathUtils.smootherstep(
                         current.lazyJumpDistance,
