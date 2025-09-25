@@ -14,6 +14,11 @@ export interface IExtendedDroidDifficultyAttributes
     mode: "rebalance";
 
     /**
+     * Possible sections at which the player can use two hands on.
+     */
+    possibleTwoHandedSections: HighStrainSection[];
+
+    /**
      * Possible sections at which the player can use three fingers on.
      */
     possibleThreeFingeredSections: HighStrainSection[];

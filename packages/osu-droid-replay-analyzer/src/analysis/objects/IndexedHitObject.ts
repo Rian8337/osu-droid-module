@@ -5,70 +5,42 @@ import { PlaceableHitObject, Vector2 } from "@rian8337/osu-base";
  */
 export class IndexedHitObject {
     /**
-     * The cursor index that hits the hitobject.
-     *
-     * If -1, the detection was unable to find any cursor that attempted to hit
-     * the hitobject or it did not meet the criteria for detection.
-     */
-    cursorIndex: number;
-
-    /**
-     * The group index of the cursor within the cursor index that hits the hitobject.
-     *
-     * If -1, the detection was unable to find any cursor that attempted to hit
-     * the hitobject or it did not meet the criteria for detection.
-     */
-    groupIndex: number;
-
-    /**
-     * The occurrence index within the group of the cursor within the cursor index that hits the hitobject.
-     *
-     * If -1, the detection was unable to find any cursor that attempted to hit
-     * the hitobject or it did not meet the criteria for detection.
-     */
-    occurrenceIndex: number;
-
-    /**
-     * The angle of the movement of the cursor towards the next hitobject.
-     */
-    angle: number | null;
-
-    /**
-     * If this is a slider, whether the slider was cheesed.
-     */
-    sliderCheesed = false;
-
-    /**
-     * The underlying difficulty hitobject.
-     */
-    readonly object: PlaceableHitObject;
-
-    /**
      * The position of the cursor at the end of this hitobject.
      *
      * Will be altered during detection.
      */
     endCursorPosition: Vector2;
 
-    /**
-     * Whether the hitobject is likely two-handed.
-     */
-    is2Handed: boolean;
-
-    /**
-     * @param object The underlying hitobject.
-     * @param cursorIndex The cursor index that moves towards the hitobject.
-     * @param groupIndex The group index of the cursor within the cursor index that hits the hitobject.
-     * @param occurrenceIndex The occurrence index within the group of the cursor within the cursor index that hits the hitobject.
-     * @param angle The angle of the movement of the cursor that moves towards the hitobject.
-     */
     constructor(
-        object: PlaceableHitObject,
-        cursorIndex: number,
-        groupIndex: number,
-        occurrenceIndex: number,
-        angle: number | null,
-        is2Handed: boolean,
+        /**
+         * The underlying hitobject.
+         */
+        readonly object: PlaceableHitObject,
+
+        /**
+         * The cursor index that moves towards the hitobject.
+         */
+        readonly cursorIndex: number,
+
+        /**
+         * The group index of the cursor within the cursor index that hits the hitobject.
+         */
+        readonly groupIndex: number,
+
+        /**
+         * The occurrence index within the group of the cursor within the cursor index that hits the hitobject.
+         */
+        readonly occurrenceIndex: number,
+
+        /**
+         * The angle of the movement of the cursor that moves towards the hitobject.
+         */
+        readonly angle: number | null,
+
+        /**
+         * Whether the hitobject is likely two-handed.
+         */
+        readonly is2Handed: boolean,
     ) {
         this.object = object;
         this.cursorIndex = cursorIndex;

@@ -13,6 +13,7 @@ export class ExtendedDroidDifficultyAttributes
     implements IExtendedDroidDifficultyAttributes
 {
     mode = "rebalance" as const;
+    possibleTwoHandedSections: HighStrainSection[] = [];
     possibleThreeFingeredSections: HighStrainSection[] = [];
     difficultSliders: DifficultSlider[] = [];
     aimNoteCount = 0;
@@ -27,6 +28,8 @@ export class ExtendedDroidDifficultyAttributes
             return;
         }
 
+        this.possibleTwoHandedSections =
+            cacheableAttributes.possibleTwoHandedSections;
         this.possibleThreeFingeredSections =
             cacheableAttributes.possibleThreeFingeredSections;
         this.difficultSliders = cacheableAttributes.difficultSliders;

@@ -1,7 +1,8 @@
 import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
-import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { DroidSnapAimEvaluator } from "../../evaluators/droid/DroidSnapAimEvaluator";
+import { DroidFlowAimEvaluator } from "../../evaluators/droid/DroidFlowAimEvaluator";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -13,7 +14,13 @@ export class DroidAim extends DroidSkill {
     protected override readonly starsPerDouble = 1.05;
 
     private readonly skillMultiplier = 26.5;
-    private currentAimStrain = 0;
+
+    private get currentAimStrain(): number {
+        return this.currentSnapAimStrain + this.currentFlowAimStrain;
+    }
+
+    private currentSnapAimStrain = 0;
+    private currentFlowAimStrain = 0;
 
     private readonly sliderStrains: number[] = [];
 
@@ -50,9 +57,16 @@ export class DroidAim extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        this.currentAimStrain *= this.strainDecay(current.deltaTime);
-        this.currentAimStrain +=
-            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
+        this.currentSnapAimStrain *= this.strainDecay(current.deltaTime);
+        this.currentSnapAimStrain +=
+            DroidSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplier;
+
+        this.currentFlowAimStrain *= this.strainDecay(current.deltaTime);
+        this.currentFlowAimStrain +=
+            DroidFlowAimEvaluator.evaluateDifficultyOf(current) *
             this.skillMultiplier;
 
         if (current.object instanceof Slider) {
@@ -84,6 +98,8 @@ export class DroidAim extends DroidSkill {
     ): void {
         if (this.withSliders) {
             current.aimStrainWithSliders = this.currentAimStrain;
+            current.snapAimStrain = this.currentSnapAimStrain;
+            current.flowAimStrain = this.currentFlowAimStrain;
         } else {
             current.aimStrainWithoutSliders = this.currentAimStrain;
         }

@@ -40,6 +40,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      */
     static readonly threeFingerStrainThreshold = 175;
 
+    /**
+     * The strain threshold to start detecting for possible two-handed section.
+     *
+     * Increasing this number will result in less sections being flagged.
+     */
+    static readonly twoHandStrainThreshold = 200;
+
     protected override readonly difficultyMultiplier = 0.18;
 
     constructor() {
@@ -224,9 +231,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         ) as DroidAim | undefined;
 
         if (!aim || !aimNoSlider || attributes.mods.has(ModAutopilot)) {
-            attributes.aimDifficulty = 0;
-            attributes.aimDifficultSliderCount = 0;
-            attributes.aimDifficultStrainCount = 0;
             return;
         }
 
@@ -238,16 +242,66 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             attributes.aimDifficulty *= 0.9;
         }
 
+        const { twoHandStrainThreshold } = DroidDifficultyCalculator;
+        const minSectionObjectCount = 5;
+
+        let inAimSection = false;
+        let firstAimObjectIndex = 0;
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
         for (let i = 0; i < objects.length; ++i) {
-            const object = objects[i];
-            const velocity = object.travelDistance / object.travelTime;
+            const current = objects[i];
+            const velocity = current.travelDistance / current.travelTime;
 
             if (velocity > 0) {
                 topDifficultSliders.push({
                     index: i,
                     velocity: velocity,
+                });
+            }
+
+            if (i < 2) {
+                continue;
+            }
+
+            if (
+                !inAimSection &&
+                current.snapAimStrain >= twoHandStrainThreshold
+            ) {
+                inAimSection = true;
+                firstAimObjectIndex = i;
+                continue;
+            }
+
+            if (
+                inAimSection &&
+                (current.snapAimStrain < twoHandStrainThreshold ||
+                    // Don't forget to manually add the last section, which would otherwise be ignored.
+                    i === objects.length - 1)
+            ) {
+                const lastAimObjectIndex =
+                    i - (i === objects.length - 1 ? 0 : 1);
+                inAimSection = false;
+
+                // Ignore sections that don't meet object count requirement.
+                if (i - firstAimObjectIndex < minSectionObjectCount) {
+                    continue;
+                }
+
+                attributes.possibleTwoHandedSections.push({
+                    firstObjectIndex: firstAimObjectIndex,
+                    lastObjectIndex: lastAimObjectIndex,
+                    sumStrain: Math.pow(
+                        objects
+                            .slice(firstAimObjectIndex, lastAimObjectIndex + 1)
+                            .reduce(
+                                (a, v) =>
+                                    a +
+                                    v.snapAimStrain / twoHandStrainThreshold,
+                                0,
+                            ),
+                        0.75,
+                    ),
                 });
             }
         }
@@ -299,12 +353,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         ) as DroidTap | undefined;
 
         if (!tap || attributes.mods.has(ModRelax)) {
-            attributes.tapDifficulty = 0;
-            attributes.tapDifficultStrainCount = 0;
-            attributes.speedNoteCount = 0;
-            attributes.averageSpeedDeltaTime = 0;
-            attributes.vibroFactor = 1;
-
             return;
         }
 
@@ -422,9 +470,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         ) as DroidFlashlight | undefined;
 
         if (!flashlight || !flashlightNoSliders) {
-            attributes.flashlightDifficulty = 0;
-            attributes.flashlightDifficultStrainCount = 0;
-            attributes.flashlightSliderFactor = 1;
             return;
         }
 
@@ -456,8 +501,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             | undefined;
 
         if (!reading) {
-            attributes.readingDifficulty = 0;
-            attributes.readingDifficultNoteCount = 0;
             return;
         }
 

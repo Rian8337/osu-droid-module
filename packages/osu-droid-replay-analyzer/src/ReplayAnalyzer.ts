@@ -151,9 +151,9 @@ export class ReplayAnalyzer {
     hasBeenCheckedForSliderCheesing = false;
 
     /**
-     * The amount of two-handed objects.
+     * The two-handedness factor of this replay.
      */
-    twoHandedNoteCount = 0;
+    twoHandedness = 1;
 
     private playableBeatmap?: DroidPlayableBeatmap;
     private bufferOffset = 0;
@@ -460,7 +460,12 @@ export class ReplayAnalyzer {
      * Requires `analyze()` to be called first as well as `beatmap` and `difficultyAttributes` to be defined.
      */
     checkFor2Hand(): void {
-        if (!this.beatmap || !this.difficultyAttributes || !this.data) {
+        if (
+            !this.beatmap ||
+            !this.difficultyAttributes ||
+            !this.data ||
+            this.difficultyAttributes.mode === "live"
+        ) {
             return;
         }
 
@@ -471,10 +476,11 @@ export class ReplayAnalyzer {
             this.difficultyAttributes,
             this.data,
         );
+
         const result = twoHandChecker.check();
 
-        this.is2Hand = result.is2Hand;
-        this.twoHandedNoteCount = result.twoHandedNoteCount;
+        this.is2Hand = result > 0.5;
+        this.twoHandedness = result;
         this.hasBeenCheckedFor2Hand = true;
     }
 
