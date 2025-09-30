@@ -17,11 +17,6 @@ export abstract class MathUtils {
         let min = Number.POSITIVE_INFINITY;
 
         for (const value of values) {
-            // Optimization - immediately return when the minimum is already negative infinity.
-            if (hasValue && min === Number.NEGATIVE_INFINITY) {
-                return min;
-            }
-
             hasValue = true;
 
             if (Number.isNaN(value)) {
@@ -51,11 +46,6 @@ export abstract class MathUtils {
         let max = Number.NEGATIVE_INFINITY;
 
         for (const value of values) {
-            // Optimization - immediately return when the maximum is already positive infinity.
-            if (hasValue && max === Number.POSITIVE_INFINITY) {
-                return max;
-            }
-
             hasValue = true;
 
             if (Number.isNaN(value)) {
