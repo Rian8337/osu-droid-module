@@ -27,7 +27,7 @@ export class DroidTap extends DroidSkill {
     }
 
     readonly considerCheesability: boolean;
-    private readonly strainTimeCap?: number;
+    readonly strainTimeCap?: number;
 
     constructor(
         mods: ModMap,
