@@ -9,6 +9,9 @@ test("Test min", () => {
     expect(MathUtils.min([-1, 5, Number.NEGATIVE_INFINITY])).toBe(
         Number.NEGATIVE_INFINITY,
     );
+    expect(
+        MathUtils.min([-1, 5, Number.NEGATIVE_INFINITY, Number.NaN]),
+    ).toBeNaN();
 });
 
 test("Test max", () => {
@@ -20,6 +23,9 @@ test("Test max", () => {
     expect(MathUtils.max([-1, 5, Number.POSITIVE_INFINITY])).toBe(
         Number.POSITIVE_INFINITY,
     );
+    expect(
+        MathUtils.max([-1, 5, Number.POSITIVE_INFINITY, Number.NaN]),
+    ).toBeNaN();
 });
 
 test("Test rounding", () => {
