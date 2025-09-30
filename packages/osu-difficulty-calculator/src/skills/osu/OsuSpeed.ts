@@ -1,4 +1,3 @@
-import { MathUtils } from "@rian8337/osu-base";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
@@ -17,24 +16,19 @@ export class OsuSpeed extends OsuSkill {
     private currentRhythm = 0;
 
     private readonly skillMultiplier = 1.46;
+    private maxStrain = 0;
 
     /**
      * The amount of notes that are relevant to the difficulty.
      */
     relevantNoteCount(): number {
-        if (this._objectStrains.length === 0) {
-            return 0;
-        }
-
-        const maxStrain = MathUtils.max(this._objectStrains);
-
-        if (maxStrain === 0) {
+        if (this._objectStrains.length === 0 || this.maxStrain === 0) {
             return 0;
         }
 
         return this._objectStrains.reduce(
             (total, next) =>
-                total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                total + 1 / (1 + Math.exp(-((next / this.maxStrain) * 12 - 6))),
             0,
         );
     }
@@ -51,7 +45,9 @@ export class OsuSpeed extends OsuSkill {
         this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(current);
 
         const strain = this.currentSpeedStrain * this.currentRhythm;
+
         this._objectStrains.push(strain);
+        this.maxStrain = Math.max(this.maxStrain, strain);
 
         return strain;
     }

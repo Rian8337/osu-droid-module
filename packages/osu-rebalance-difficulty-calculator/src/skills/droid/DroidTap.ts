@@ -1,4 +1,4 @@
-import { MathUtils, ModMap } from "@rian8337/osu-base";
+import { ModMap } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
@@ -18,6 +18,7 @@ export class DroidTap extends DroidSkill {
     private readonly skillMultiplier = 1.375;
 
     private readonly _objectDeltaTimes: number[] = [];
+    private maxStrain = 0;
 
     /**
      * The delta time of hitobjects.
@@ -44,19 +45,13 @@ export class DroidTap extends DroidSkill {
      * The amount of notes that are relevant to the difficulty.
      */
     relevantNoteCount(): number {
-        if (this._objectStrains.length === 0) {
-            return 0;
-        }
-
-        const maxStrain = MathUtils.max(this._objectStrains);
-
-        if (maxStrain === 0) {
+        if (this._objectStrains.length === 0 || this.maxStrain === 0) {
             return 0;
         }
 
         return this._objectStrains.reduce(
             (total, next) =>
-                total + 1 / (1 + Math.exp(-((next / maxStrain) * 12 - 6))),
+                total + 1 / (1 + Math.exp(-((next / this.maxStrain) * 12 - 6))),
             0,
         );
     }
@@ -65,13 +60,7 @@ export class DroidTap extends DroidSkill {
      * The delta time relevant to the difficulty.
      */
     relevantDeltaTime(): number {
-        if (this._objectStrains.length === 0) {
-            return 0;
-        }
-
-        const maxStrain = MathUtils.max(this._objectStrains);
-
-        if (maxStrain === 0) {
+        if (this._objectStrains.length === 0 || this.maxStrain === 0) {
             return 0;
         }
 
@@ -83,7 +72,8 @@ export class DroidTap extends DroidSkill {
                         (1 +
                             Math.exp(
                                 -(
-                                    (this._objectStrains[index] / maxStrain) *
+                                    (this._objectStrains[index] /
+                                        this.maxStrain) *
                                         25 -
                                     20
                                 ),
@@ -92,7 +82,8 @@ export class DroidTap extends DroidSkill {
             ) /
             this._objectStrains.reduce(
                 (total, next) =>
-                    total + 1 / (1 + Math.exp(-((next / maxStrain) * 25 - 20))),
+                    total +
+                    1 / (1 + Math.exp(-((next / this.maxStrain) * 25 - 20))),
                 0,
             )
         );
@@ -113,7 +104,10 @@ export class DroidTap extends DroidSkill {
 
         this._objectDeltaTimes.push(current.deltaTime);
 
-        return this.currentTapStrain * current.rhythmMultiplier;
+        const strain = this.currentTapStrain * this.currentRhythmMultiplier;
+        this.maxStrain = Math.max(this.maxStrain, strain);
+
+        return strain;
     }
 
     protected override calculateInitialStrain(
