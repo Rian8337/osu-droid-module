@@ -214,7 +214,7 @@ export class TwoHandChecker {
         // }
 
         return {
-            is2Hand: 0 > this.attributes.aimNoteCount * 0.15,
+            is2Hand: false, // 0 > this.attributes.aimNoteCount * 0.15,
             twoHandedNoteCount: 0,
         };
     }
