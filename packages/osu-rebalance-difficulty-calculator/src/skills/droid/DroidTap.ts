@@ -79,7 +79,7 @@ export class DroidTap extends DroidSkill {
             this._objectDeltaTimes.reduce(
                 (total, next, index) =>
                     total +
-                    (next * 1) /
+                    next /
                         (1 +
                             Math.exp(
                                 -(
