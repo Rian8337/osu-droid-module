@@ -24,13 +24,6 @@ export interface IExtendedDroidDifficultyAttributes
     difficultSliders: DifficultSlider[];
 
     /**
-     * The number of clickable objects weighted by difficulty.
-     *
-     * Related to aim difficulty.
-     */
-    aimNoteCount: number;
-
-    /**
      * Describes how much of flashlight difficulty is contributed to by hitcircles or sliders.
      *
      * A value closer to 1 indicates most of flashlight difficulty is contributed by hitcircles.
