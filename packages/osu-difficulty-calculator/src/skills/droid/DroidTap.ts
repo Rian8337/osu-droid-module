@@ -28,7 +28,7 @@ export class DroidTap extends DroidSkill {
     }
 
     readonly considerCheesability: boolean;
-    private readonly strainTimeCap?: number;
+    readonly strainTimeCap?: number;
 
     constructor(
         mods: ModMap,
@@ -104,7 +104,7 @@ export class DroidTap extends DroidSkill {
 
         this._objectDeltaTimes.push(current.deltaTime);
 
-        const strain = this.currentTapStrain * current.rhythmMultiplier;
+        const strain = this.currentTapStrain * this.currentRhythmMultiplier;
         this.maxStrain = Math.max(this.maxStrain, strain);
 
         return strain;

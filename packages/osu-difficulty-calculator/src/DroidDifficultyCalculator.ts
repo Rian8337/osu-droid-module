@@ -16,15 +16,14 @@ import {
 } from "@rian8337/osu-base";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { Skill } from "./base/Skill";
+import { StrainSkill } from "./base/StrainSkill";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
+import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
-import { DroidSkill } from "./skills/droid/DroidSkill";
 import { DroidTap } from "./skills/droid/DroidTap";
-import { DroidVisual } from "./skills/droid/DroidVisual";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
-import { StrainSkill } from "./base/StrainSkill";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -77,23 +76,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.sliderCount = beatmap.hitObjects.sliders;
         attributes.spinnerCount = beatmap.hitObjects.spinners;
 
+        let greatWindow: number;
+
+        if (attributes.mods.has(ModPrecise)) {
+            greatWindow = new PreciseDroidHitWindow(beatmap.difficulty.od)
+                .greatWindow;
+        } else {
+            greatWindow = new DroidHitWindow(beatmap.difficulty.od).greatWindow;
+        }
+
+        attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
+            greatWindow / attributes.clockRate,
+        );
+
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
         this.populateRhythmAttributes(attributes, skills);
         this.populateFlashlightAttributes(attributes, skills);
-        this.populateVisualAttributes(attributes, skills);
-
-        if (beatmap.mods.has(ModRelax)) {
-            attributes.aimDifficulty *= 0.9;
-            attributes.tapDifficulty = 0;
-            attributes.rhythmDifficulty = 0;
-            attributes.flashlightDifficulty *= 0.7;
-            attributes.visualDifficulty = 0;
-        } else if (beatmap.mods.has(ModAutopilot)) {
-            attributes.aimDifficulty = 0;
-            attributes.flashlightDifficulty *= 0.3;
-            attributes.visualDifficulty *= 0.8;
-        }
+        this.populateReadingAttributes(attributes, skills);
 
         const aimPerformanceValue = this.basePerformanceValue(
             Math.pow(attributes.aimDifficulty, 0.8),
@@ -106,14 +106,16 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const flashlightPerformanceValue =
             Math.pow(attributes.flashlightDifficulty, 1.6) * 25;
 
-        const visualPerformanceValue =
-            Math.pow(attributes.visualDifficulty, 1.6) * 22.5;
+        const readingPerformanceValue = Math.pow(
+            Math.pow(attributes.readingDifficulty, 2) * 25,
+            0.8,
+        );
 
         const basePerformanceValue = Math.pow(
             Math.pow(aimPerformanceValue, 1.1) +
                 Math.pow(tapPerformanceValue, 1.1) +
                 Math.pow(flashlightPerformanceValue, 1.1) +
-                Math.pow(visualPerformanceValue, 1.1),
+                Math.pow(readingPerformanceValue, 1.1),
             1 / 1.1,
         );
 
@@ -129,19 +131,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         } else {
             attributes.starRating = 0;
         }
-
-        let greatWindow: number;
-
-        if (attributes.mods.has(ModPrecise)) {
-            greatWindow = new PreciseDroidHitWindow(beatmap.difficulty.od)
-                .greatWindow;
-        } else {
-            greatWindow = new DroidHitWindow(beatmap.difficulty.od).greatWindow;
-        }
-
-        attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
-            greatWindow / attributes.clockRate,
-        );
 
         return attributes;
     }
@@ -169,18 +158,16 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 i - 1,
             );
 
-            difficultyObject.computeProperties(clockRate, objects);
+            difficultyObject.computeProperties(clockRate);
             difficultyObjects.push(difficultyObject);
         }
 
         return difficultyObjects;
     }
 
-    protected override createSkills(
-        beatmap: DroidPlayableBeatmap,
-    ): DroidSkill[] {
+    protected override createSkills(beatmap: DroidPlayableBeatmap): Skill[] {
         const { mods } = beatmap;
-        const skills: DroidSkill[] = [];
+        const skills: Skill[] = [];
 
         if (!mods.has(ModAutopilot)) {
             skills.push(new DroidAim(mods, true));
@@ -188,13 +175,20 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         if (!mods.has(ModRelax)) {
-            // Tap and visual skills depend on rhythm skill, so we put it first
+            // Tap skills depend on rhythm skill, so we put it first
             skills.push(new DroidRhythm(mods));
             skills.push(new DroidTap(mods, true));
             skills.push(new DroidTap(mods, false));
-            skills.push(new DroidVisual(mods, true));
-            skills.push(new DroidVisual(mods, false));
+            skills.push(new DroidTap(mods, true, 50));
         }
+
+        skills.push(
+            new DroidReading(
+                mods,
+                beatmap.speedMultiplier,
+                beatmap.hitObjects.objects,
+            ),
+        );
 
         if (mods.has(ModFlashlight)) {
             skills.push(new DroidFlashlight(mods, true));
@@ -230,13 +224,20 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (s) => s instanceof DroidAim && !s.withSliders,
         ) as DroidAim | undefined;
 
-        if (!aim || !aimNoSlider) {
+        if (!aim || !aimNoSlider || attributes.mods.has(ModAutopilot)) {
+            attributes.aimDifficulty = 0;
+            attributes.aimDifficultSliderCount = 0;
+            attributes.aimDifficultStrainCount = 0;
             return;
         }
 
         attributes.aimDifficulty = this.calculateRating(aim);
         attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countDifficultStrains();
+        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
+
+        if (attributes.mods.has(ModRelax)) {
+            attributes.aimDifficulty *= 0.9;
+        }
 
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
@@ -298,27 +299,30 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (s) => s instanceof DroidTap && s.considerCheesability,
         ) as DroidTap | undefined;
 
-        if (!tap) {
+        const tapVibro = skills.find(
+            (s) =>
+                s instanceof DroidTap &&
+                s.considerCheesability &&
+                s.strainTimeCap !== undefined,
+        ) as DroidTap | undefined;
+
+        if (!tap || !tapVibro || attributes.mods.has(ModRelax)) {
+            attributes.tapDifficulty = 0;
+            attributes.tapDifficultStrainCount = 0;
+            attributes.speedNoteCount = 0;
+            attributes.averageSpeedDeltaTime = 0;
+            attributes.vibroFactor = 1;
+
             return;
         }
 
         attributes.tapDifficulty = this.calculateRating(tap);
-        attributes.tapDifficultStrainCount = tap.countDifficultStrains();
+        attributes.tapDifficultStrainCount = tap.countTopWeightedStrains();
 
         attributes.speedNoteCount = tap.relevantNoteCount();
         attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
 
         if (attributes.tapDifficulty > 0) {
-            const tapVibro = new DroidTap(
-                attributes.mods,
-                true,
-                attributes.averageSpeedDeltaTime,
-            );
-
-            for (const object of objects) {
-                tapVibro.process(object);
-            }
-
             attributes.vibroFactor =
                 this.calculateRating(tapVibro) / attributes.tapDifficulty;
         }
@@ -397,11 +401,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             | DroidRhythm
             | undefined;
 
-        if (!rhythm) {
-            return;
-        }
-
-        attributes.rhythmDifficulty = this.calculateRating(rhythm);
+        attributes.rhythmDifficulty =
+            rhythm && !attributes.mods.has(ModRelax)
+                ? this.calculateRating(rhythm)
+                : 0;
     }
 
     private populateFlashlightAttributes(
@@ -417,12 +420,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         ) as DroidFlashlight | undefined;
 
         if (!flashlight || !flashlightNoSliders) {
+            attributes.flashlightDifficulty = 0;
+            attributes.flashlightDifficultStrainCount = 0;
+            attributes.flashlightSliderFactor = 1;
             return;
         }
 
         attributes.flashlightDifficulty = this.calculateRating(flashlight);
         attributes.flashlightDifficultStrainCount =
-            flashlight.countDifficultStrains();
+            flashlight.countTopWeightedStrains();
+
+        if (attributes.mods.has(ModRelax)) {
+            attributes.flashlightDifficulty *= 0.7;
+        } else if (attributes.mods.has(ModAutopilot)) {
+            attributes.flashlightDifficulty *= 0.4;
+        }
 
         if (attributes.flashlightDifficulty > 0) {
             attributes.flashlightSliderFactor =
@@ -433,31 +445,34 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
     }
 
-    private populateVisualAttributes(
+    private populateReadingAttributes(
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
     ) {
-        const visual = skills.find(
-            (s) => s instanceof DroidVisual && s.withSliders,
-        ) as DroidVisual | undefined;
+        const reading = skills.find((s) => s instanceof DroidReading) as
+            | DroidReading
+            | undefined;
 
-        const visualNoSliders = skills.find(
-            (s) => s instanceof DroidVisual && !s.withSliders,
-        ) as DroidVisual | undefined;
-
-        if (!visual || !visualNoSliders) {
+        if (!reading) {
+            attributes.readingDifficulty = 0;
+            attributes.readingDifficultNoteCount = 0;
             return;
         }
 
-        attributes.visualDifficulty = this.calculateRating(visual);
-        attributes.visualDifficultStrainCount = visual.countDifficultStrains();
+        attributes.readingDifficulty = this.calculateRating(reading);
+        attributes.readingDifficultNoteCount = reading.countTopWeightedNotes();
 
-        if (attributes.visualDifficulty > 0) {
-            attributes.visualSliderFactor =
-                this.calculateRating(visualNoSliders) /
-                attributes.visualDifficulty;
-        } else {
-            attributes.visualSliderFactor = 1;
+        if (attributes.mods.has(ModRelax)) {
+            attributes.readingDifficulty *= 0.7;
+        } else if (attributes.mods.has(ModAutopilot)) {
+            attributes.readingDifficulty *= 0.4;
         }
+
+        // Consider accuracy difficulty.
+        const ratingMultiplier =
+            0.75 +
+            Math.pow(Math.max(0, attributes.overallDifficulty), 2.2) / 800;
+
+        attributes.readingDifficulty *= Math.sqrt(ratingMultiplier);
     }
 }

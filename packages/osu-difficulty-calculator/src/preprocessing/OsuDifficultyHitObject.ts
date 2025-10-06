@@ -15,21 +15,9 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
      */
     flashlightStrain = 0;
 
-    private readonly radiusBuffThreshold = 30;
+    override get smallCircleBonus(): number {
+        return Math.max(1, 1 + (30 - this.object.radius) / 40);
+    }
 
     protected override readonly mode = Modes.osu;
-    protected override get scalingFactor() {
-        const radius = this.object.radius;
-
-        // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
-        let scalingFactor = DifficultyHitObject.normalizedRadius / radius;
-
-        // High circle size (small CS) bonus
-        if (radius < this.radiusBuffThreshold) {
-            scalingFactor *=
-                1 + Math.min(this.radiusBuffThreshold - radius, 5) / 50;
-        }
-
-        return scalingFactor;
-    }
 }

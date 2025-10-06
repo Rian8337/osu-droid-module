@@ -360,8 +360,13 @@ export abstract class DifficultyHitObject {
         }
 
         // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
-        const scalingFactor =
+        let scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
+
+        // High circle size (small CS) bonus
+        if (this.mode === Modes.osu && this.object.radius < 30) {
+            scalingFactor *= 1 + Math.min(30 - this.object.radius, 5) / 50;
+        }
 
         const lastCursorPosition =
             this.lastDifficultyObject !== null

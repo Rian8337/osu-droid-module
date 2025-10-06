@@ -85,7 +85,7 @@ export abstract class StrainSkill extends Skill {
      *
      * The result is scaled by clock rate as it affects the total number of strains.
      */
-    countDifficultStrains(): number {
+    countTopWeightedStrains(): number {
         if (this.difficulty === 0) {
             return 0;
         }

@@ -1,6 +1,7 @@
 import {
     DroidHitWindow,
     ErrorFunction,
+    Interpolation,
     ModFlashlight,
     ModPrecise,
     ModRelax,
@@ -38,9 +39,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     flashlight = 0;
 
     /**
-     * The visual performance value.
+     * The reading performance value.
      */
-    visual = 0;
+    reading = 0;
 
     /**
      * The penalty used to penalize the tap performance value.
@@ -83,21 +84,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._flashlightSliderCheesePenalty;
     }
 
-    /**
-     * The penalty used to penalize the visual performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
-     */
-    get visualSliderCheesePenalty(): number {
-        return this._visualSliderCheesePenalty;
-    }
-
     protected override finalMultiplier = 1.24;
     protected override readonly mode = Modes.droid;
 
     private _aimSliderCheesePenalty = 1;
     private _flashlightSliderCheesePenalty = 1;
-    private _visualSliderCheesePenalty = 1;
 
     private _tapPenalty = 1;
     private _deviation = 0;
@@ -184,35 +175,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.total = this.calculateTotalValue();
     }
 
-    /**
-     * Applies a visual slider cheese penalty value to this calculator.
-     *
-     * The visual and total performance value will be recalculated afterwards.
-     *
-     * @param value The slider cheese penalty value. Must be between 0 and 1.
-     */
-    applyVisualSliderCheesePenalty(value: number): void {
-        if (value < 0) {
-            throw new RangeError(
-                "New visual slider cheese penalty must be greater than or equal to zero.",
-            );
-        }
-
-        if (value > 1) {
-            throw new RangeError(
-                "New visual slider cheese penalty must be less than or equal to one.",
-            );
-        }
-
-        if (value === this._visualSliderCheesePenalty) {
-            return;
-        }
-
-        this._visualSliderCheesePenalty = value;
-        this.visual = this.calculateVisualValue();
-        this.total = this.calculateTotalValue();
-    }
-
     protected override calculateValues(): void {
         this._deviation = this.calculateDeviation();
         this._tapDeviation = this.calculateTapDeviation();
@@ -221,7 +183,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.tap = this.calculateTapValue();
         this.accuracy = this.calculateAccuracyValue();
         this.flashlight = this.calculateFlashlightValue();
-        this.visual = this.calculateVisualValue();
+        this.reading = this.calculateReadingValue();
     }
 
     protected override calculateTotalValue(): number {
@@ -231,7 +193,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     Math.pow(this.tap, 1.1) +
                     Math.pow(this.accuracy, 1.1) +
                     Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.visual, 1.1),
+                    Math.pow(this.reading, 1.1),
                 1 / 1.1,
             ) * this.finalMultiplier
         );
@@ -244,8 +206,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
         this._flashlightSliderCheesePenalty =
             options?.flashlightSliderCheesePenalty ?? 1;
-        this._visualSliderCheesePenalty =
-            options?.visualSliderCheesePenalty ?? 1;
 
         super.handleOptions(options);
     }
@@ -347,6 +307,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     )) +
             Math.pow(this.difficultyAttributes.vibroFactor, 6);
 
+        tapValue *= this.calculateTapHighDeviationNerf();
+
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
 
@@ -435,41 +397,36 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * Calculates the visual performance value of the beatmap.
+     * Calculates the reading performance value of the beatmap.
      */
-    private calculateVisualValue(): number {
-        let visualValue =
-            Math.pow(this.difficultyAttributes.visualDifficulty, 1.6) * 22.5;
+    private calculateReadingValue(): number {
+        let readingValue = Math.pow(
+            Math.pow(this.difficultyAttributes.readingDifficulty, 2) * 25,
+            0.8,
+        );
 
-        visualValue *= Math.min(
+        readingValue *= Math.min(
             this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.visualDifficultStrainCount,
+                this.difficultyAttributes.readingDifficultNoteCount,
             ),
             this.proportionalMissPenalty,
         );
 
-        // Scale the visual value with estimated full combo deviation.
-        // As visual is easily "bypassable" with memorization, punish for memorization.
-        visualValue *= this.calculateDeviationBasedLengthScaling(
+        // Scale the reading value with estimated full combo deviation.
+        // As reading is easily "bypassable" with memorization, punish for memorization.
+        readingValue *= this.calculateDeviationBasedLengthScaling(
             undefined,
             true,
         );
 
-        // Scale the visual value with slider cheese penalty.
-        visualValue *= this._visualSliderCheesePenalty;
-
-        // Scale the visual value with deviation.
-        visualValue *=
-            1.05 *
-            Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
-                0.775,
-            );
+        // Scale the reading value with deviation.
+        readingValue *=
+            1.05 * ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation));
 
         // OD 5 SS stays the same.
-        visualValue *= 0.98 + Math.pow(5, 2) / 2500;
+        readingValue *= 0.98 + Math.pow(5, 2) / 2500;
 
-        return visualValue;
+        return readingValue;
     }
 
     /**
@@ -548,7 +505,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * Estimates the player's tap deviation based on the OD, number of circles and sliders,
+     * Estimates the player's deviation based on the OD, number of circles and sliders,
      * and number of 300s, 100s, 50s, and misses, assuming the player's mean hit error is 0.
      *
      * The estimation is consistent in that two SS scores on the same map
@@ -575,27 +532,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         const { n100, n50, nmiss } = this.computedAccuracy;
 
-        const circleCount = this.difficultyAttributes.hitCircleCount;
-        const missCountCircles = Math.min(nmiss, circleCount);
-        const mehCountCircles = Math.min(n50, circleCount - missCountCircles);
-        const okCountCircles = Math.min(
-            n100,
-            circleCount - missCountCircles - mehCountCircles,
-        );
-        const greatCountCircles = Math.max(
+        let objectCount = this.difficultyAttributes.hitCircleCount;
+
+        if (this.mods.has(ModScoreV2)) {
+            objectCount += this.difficultyAttributes.sliderCount;
+        }
+
+        const missCount = Math.min(nmiss, objectCount);
+        const mehCount = Math.min(n50, objectCount - missCount);
+        const okCount = Math.min(n100, objectCount - missCount - mehCount);
+        const greatCount = Math.max(
             0,
-            circleCount - missCountCircles - mehCountCircles - okCountCircles,
+            objectCount - missCount - mehCount - okCount,
         );
 
         // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
         // compute the deviation on circles.
-        if (greatCountCircles > 0) {
+        if (greatCount > 0) {
             // The probability that a player hits a circle is unknown, but we can estimate it to be
             // the number of greats on circles divided by the number of circles, and then add one
             // to the number of circles as a bias correction.
             const greatProbabilityCircle =
-                greatCountCircles /
-                (circleCount - missCountCircles - mehCountCircles + 1);
+                greatCount / (objectCount - missCount - mehCount + 1);
 
             // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
             // Begin with the normal distribution first.
@@ -627,10 +585,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
             // Find the total deviation.
             deviationOnCircles = Math.sqrt(
-                ((greatCountCircles + okCountCircles) *
-                    Math.pow(deviationOnCircles, 2) +
-                    mehCountCircles * mehVariance) /
-                    (greatCountCircles + okCountCircles + mehCountCircles),
+                ((greatCount + okCount) * Math.pow(deviationOnCircles, 2) +
+                    mehCount * mehVariance) /
+                    (greatCount + okCount + mehCount),
             );
 
             return deviationOnCircles;
@@ -640,10 +597,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Here, all that matters is whether or not the slider was missed, since it is impossible
         // to get a 100 or 50 on a slider by mis-tapping it.
         const sliderCount = this.difficultyAttributes.sliderCount;
-        const missCountSliders = Math.min(
-            sliderCount,
-            nmiss - missCountCircles,
-        );
+        const missCountSliders = Math.min(sliderCount, nmiss - missCount);
         const greatCountSliders = sliderCount - missCountSliders;
 
         // We only get here if nothing was hit. In this case, there is no estimate for deviation.
@@ -671,20 +625,17 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return Number.POSITIVE_INFINITY;
         }
 
-        const { speedNoteCount, clockRate } = this.difficultyAttributes;
+        const { clockRate, speedNoteCount } = this.difficultyAttributes;
         const hitWindow = this.getConvertedHitWindow();
 
         const hitWindow300 = hitWindow.greatWindow / clockRate;
         const hitWindow100 = hitWindow.okWindow / clockRate;
         const hitWindow50 = hitWindow.mehWindow / clockRate;
-
         const { n100, n50, nmiss } = this.computedAccuracy;
 
         // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
         // Graph: https://www.desmos.com/calculator/iskvgjkxr4
         const speedNoteRatio = speedNoteCount / this.totalHits;
-
-        const nonGreatCount = n100 + n50 + nmiss;
         const nonGreatRatio =
             1 -
             (Math.pow(
@@ -694,64 +645,122 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 1) /
                 Math.exp(Math.sqrt(hitWindow300));
 
+        // Assume worst case - all non-300s happened in speed notes.
+        const relevantCountMiss = Math.min(
+            nmiss * nonGreatRatio,
+            speedNoteCount,
+        );
+
+        const relevantCountMeh = Math.min(
+            n50 * nonGreatRatio,
+            speedNoteCount - relevantCountMiss,
+        );
+
+        const relevantCountOk = Math.min(
+            n100 * nonGreatRatio,
+            speedNoteCount - relevantCountMiss - relevantCountMeh,
+        );
+
         const relevantCountGreat = Math.max(
             0,
-            speedNoteCount - nonGreatCount * nonGreatRatio,
+            speedNoteCount -
+                relevantCountMiss -
+                relevantCountMeh -
+                relevantCountOk,
         );
-        const relevantCountOk = n100 * nonGreatRatio;
-        const relevantCountMeh = n50 * nonGreatRatio;
-        const relevantCountMiss = nmiss * nonGreatRatio;
 
-        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
-        // compute the deviation on circles.
-        if (relevantCountGreat > 0) {
-            // The probability that a player hits a circle is unknown, but we can estimate it to be
-            // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction.
-            const greatProbabilityCircle =
-                relevantCountGreat /
-                (speedNoteCount - relevantCountMiss - relevantCountMeh + 1);
-
-            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-            // Begin with the normal distribution first.
-            let deviationOnCircles =
-                hitWindow300 /
-                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-
-            deviationOnCircles *= Math.sqrt(
-                1 -
-                    (Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(
-                            -0.5 *
-                                Math.pow(hitWindow100 / deviationOnCircles, 2),
-                        )) /
-                        (deviationOnCircles *
-                            ErrorFunction.erf(
-                                hitWindow100 /
-                                    (Math.SQRT2 * deviationOnCircles),
-                            )),
-            );
-
-            // Then compute the variance for 50s.
-            const mehVariance =
-                (hitWindow50 * hitWindow50 +
-                    hitWindow100 * hitWindow50 +
-                    hitWindow100 * hitWindow100) /
-                3;
-
-            // Find the total deviation.
-            deviationOnCircles = Math.sqrt(
-                ((relevantCountGreat + relevantCountOk) *
-                    Math.pow(deviationOnCircles, 2) +
-                    relevantCountMeh * mehVariance) /
-                    (relevantCountGreat + relevantCountOk + relevantCountMeh),
-            );
-
-            return deviationOnCircles;
+        if (relevantCountGreat + relevantCountOk + relevantCountMeh <= 0) {
+            return Number.POSITIVE_INFINITY;
         }
 
-        return Number.POSITIVE_INFINITY;
+        // The sample proportion of successful hits.
+        const n = Math.max(1, relevantCountGreat + relevantCountOk);
+        const p = relevantCountGreat / n;
+
+        // 99% critical value for the normal distribution (one-tailed).
+        const z = 2.32634787404;
+
+        // We can be 99% confident that the population proportion is at least this value.
+        const pLowerBound = Math.min(
+            p,
+            (n * p + Math.pow(z, 2) / 2) / (n + Math.pow(z, 2)) -
+                (z / (n + Math.pow(z, 2))) *
+                    Math.sqrt(n * p * (1 - p) + Math.pow(z, 2) / 4),
+        );
+
+        let deviation: number;
+
+        // Tested maximum precision for the deviation calculation.
+        if (pLowerBound > 0.01) {
+            // Compute deviation assuming 300s and 109s are normally distributed.
+            deviation =
+                hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
+
+            // Subtract the deviation provided by tails that land outside the 100 hit window from the deviation computed above.
+            // This is equivalent to calculating the deviation of a normal distribution truncated at +-okHitWindow.
+            const hitWindow100TailAmount =
+                (Math.sqrt(2 / Math.PI) *
+                    hitWindow100 *
+                    Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))) /
+                (deviation *
+                    ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
+
+            deviation *= Math.sqrt(1 - hitWindow100TailAmount);
+        } else {
+            // A tested limit value for the case of a score only containing 100s.
+            deviation = hitWindow100 / Math.sqrt(3);
+        }
+
+        // Compute and add the variance for 50s, assuming that they are uniformly distriubted.
+        const mehVariance =
+            (hitWindow50 * hitWindow50 +
+                hitWindow100 * hitWindow50 +
+                hitWindow100 * hitWindow100) /
+            3;
+
+        deviation = Math.sqrt(
+            ((relevantCountGreat + relevantCountOk) * Math.pow(deviation, 2) +
+                relevantCountMeh * mehVariance) /
+                (relevantCountGreat + relevantCountOk + relevantCountMeh),
+        );
+
+        return deviation;
+    }
+
+    /**
+     * Calculates a multiplier for tap to account for improper tapping based on the deviation and tap difficulty.
+     *
+     * [Graph](https://www.desmos.com/calculator/z5l9ebrwpi)
+     */
+    private calculateTapHighDeviationNerf(): number {
+        if (this.tapDeviation == Number.POSITIVE_INFINITY) {
+            return 0;
+        }
+
+        const tapValue = this.baseValue(
+            this.difficultyAttributes.tapDifficulty,
+        );
+
+        // Decide a point where the PP value achieved compared to the tap deviation is assumed to be tapped
+        // improperly. Any PP above this point is considered "excess" tap difficulty. This is used to cause
+        // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
+        const excessTapDifficultyCutoff =
+            100 + 250 * Math.pow(25 / this.tapDeviation, 6.5);
+
+        if (tapValue <= excessTapDifficultyCutoff) {
+            return 1;
+        }
+
+        const scale = 50;
+        const adjustedTapValue =
+            scale *
+            (Math.log((tapValue - excessTapDifficultyCutoff) / scale + 1) +
+                excessTapDifficultyCutoff / scale);
+
+        // 250 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible.
+        const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 25, 30);
+
+        return Interpolation.lerp(adjustedTapValue, tapValue, t) / tapValue;
     }
 
     private getConvertedHitWindow() {
@@ -786,8 +795,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             " acc, " +
             this.flashlight.toFixed(2) +
             " flashlight, " +
-            this.visual.toFixed(2) +
-            " visual)"
+            this.reading.toFixed(2) +
+            " reading)"
         );
     }
 }

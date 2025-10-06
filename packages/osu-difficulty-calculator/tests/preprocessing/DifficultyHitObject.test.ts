@@ -58,7 +58,7 @@ const createDifficultyHitObjects = () => {
             i - 1,
         );
 
-        difficultyObject.computeProperties(1, objects);
+        difficultyObject.computeProperties(1);
         difficultyObjects.push(difficultyObject);
     }
 

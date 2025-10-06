@@ -130,6 +130,11 @@ export abstract class DifficultyHitObject {
     readonly fullGreatWindow: number;
 
     /**
+     * Selective bonus for beatmaps with higher circle size.
+     */
+    abstract get smallCircleBonus(): number;
+
+    /**
      * Other hitobjects in the beatmap, including this hitobject.
      */
     protected readonly hitObjects: readonly DifficultyHitObject[];
@@ -217,14 +222,8 @@ export abstract class DifficultyHitObject {
      * Computes the properties of this hitobject.
      *
      * @param clockRate The clock rate of the beatmap.
-     * @param hitObjects The hitobjects in the beatmap.
      */
-    computeProperties(
-        clockRate: number,
-        // Required for `DroidDifficultyHitObject` override.
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        hitObjects: readonly PlaceableHitObject[],
-    ) {
+    computeProperties(clockRate: number) {
         this.calculateSliderCursorPosition();
         this.setDistances(clockRate);
     }
@@ -328,8 +327,6 @@ export abstract class DifficultyHitObject {
         return 1 - Math.pow(speedRatio, 1 - windowRatio);
     }
 
-    protected abstract get scalingFactor(): number;
-
     protected setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
             this.calculateSliderCursorPosition();
@@ -365,7 +362,13 @@ export abstract class DifficultyHitObject {
         }
 
         // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
-        const { scalingFactor } = this;
+        let scalingFactor =
+            DifficultyHitObject.normalizedRadius / this.object.radius;
+
+        // High circle size (small CS) bonus
+        if (this.mode === Modes.osu && this.object.radius < 30) {
+            scalingFactor *= 1 + Math.min(30 - this.object.radius, 5) / 50;
+        }
 
         const lastCursorPosition =
             this.lastDifficultyObject !== null

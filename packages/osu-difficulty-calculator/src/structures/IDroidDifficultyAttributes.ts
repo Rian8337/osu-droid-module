@@ -15,9 +15,9 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     rhythmDifficulty: number;
 
     /**
-     * The difficulty corresponding to the visual skill.
+     * The difficulty corresponding to the reading skill.
      */
-    visualDifficulty: number;
+    readingDifficulty: number;
 
     /**
      * The amount of strains that are considered difficult with respect to the tap skill.
@@ -30,9 +30,9 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     flashlightDifficultStrainCount: number;
 
     /**
-     * The amount of strains that are considered difficult with respect to the visual skill.
+     * The amount of notes that are considered difficult with respect to the reading skill.
      */
-    visualDifficultStrainCount: number;
+    readingDifficultNoteCount: number;
 
     /**
      * The average delta time of speed objects.
