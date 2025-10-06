@@ -71,13 +71,11 @@ export class SliderCheeseChecker {
         if (
             this.difficultyAttributes.difficultSliders.length === 0 ||
             (this.difficultyAttributes.sliderFactor === 1 &&
-                this.difficultyAttributes.flashlightSliderFactor === 1 &&
-                this.difficultyAttributes.visualSliderFactor === 1)
+                this.difficultyAttributes.flashlightSliderFactor === 1)
         ) {
             return {
                 aimPenalty: 1,
                 flashlightPenalty: 1,
-                visualPenalty: 1,
             };
         }
 
@@ -362,15 +360,6 @@ export class SliderCheeseChecker {
                     1 -
                         summedDifficultyRating *
                             this.difficultyAttributes.flashlightSliderFactor,
-                    2,
-                ),
-            ),
-            visualPenalty: Math.max(
-                this.difficultyAttributes.visualSliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.visualSliderFactor,
                     2,
                 ),
             ),

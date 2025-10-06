@@ -132,7 +132,6 @@ export class ReplayAnalyzer {
     sliderCheesePenalty: SliderCheeseInformation = {
         aimPenalty: 1,
         flashlightPenalty: 1,
-        visualPenalty: 1,
     };
 
     /**

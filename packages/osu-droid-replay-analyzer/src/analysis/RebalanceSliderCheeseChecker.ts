@@ -76,7 +76,6 @@ export class RebalanceSliderCheeseChecker {
             return {
                 aimPenalty: 1,
                 flashlightPenalty: 1,
-                visualPenalty: 1,
             };
         }
 
@@ -364,7 +363,6 @@ export class RebalanceSliderCheeseChecker {
                     2,
                 ),
             ),
-            visualPenalty: 1,
         };
     }
 
