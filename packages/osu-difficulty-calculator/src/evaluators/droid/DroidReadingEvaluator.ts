@@ -110,8 +110,8 @@ export abstract class DroidReadingEvaluator {
                             pastObjectDifficultyInfluence -
                             2,
                     ),
-                    2.2,
-                ) * 3.1;
+                    2.3,
+                ) * 3.2;
 
             hiddenDifficulty +=
                 (timeSpentInvisibleFactor + densityFactor) *
