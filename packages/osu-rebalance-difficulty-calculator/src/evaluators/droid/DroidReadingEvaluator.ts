@@ -16,7 +16,7 @@ export abstract class DroidReadingEvaluator {
     private static readonly distanceInfluenceThreshold =
         DroidDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circles distance between centers
 
-    private static readonly hiddenMultiplier = 0.25;
+    private static readonly hiddenMultiplier = 0.5;
     private static readonly densityMultiplier = 0.8;
     private static readonly densityDifficultyBase = 1.5;
     private static readonly preemptBalancingFactor = 220000;
@@ -110,8 +110,8 @@ export abstract class DroidReadingEvaluator {
                             pastObjectDifficultyInfluence -
                             2,
                     ),
-                    1.2,
-                ) * 1.5;
+                    1.5,
+                ) * 2;
 
             hiddenDifficulty +=
                 (timeSpentInvisibleFactor + densityFactor) *
