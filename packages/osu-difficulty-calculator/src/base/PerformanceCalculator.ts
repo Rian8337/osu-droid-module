@@ -244,45 +244,25 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         if (this.mods.has(ModRelax)) {
             const { overallDifficulty: od } = this.difficultyAttributes;
             let n100Multiplier: number;
-            let n50Multiplier: number;
 
             if (this.mode === Modes.droid) {
                 // Graph: https://www.desmos.com/calculator/vspzsop6td
                 // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
                 n100Multiplier =
                     0.75 * Math.max(0, od > 0 ? 1 - od / 13.33 : 1);
-
-                n50Multiplier = Math.max(
-                    0,
-                    od > 0 ? 1 - Math.pow(od / 13.33, 5) : 1,
-                );
             } else {
                 // Graph: https://www.desmos.com/calculator/bc9eybdthb
                 // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
                 n100Multiplier = Math.max(
                     0,
-                    this.difficultyAttributes.overallDifficulty > 0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyAttributes.overallDifficulty /
-                                      13.33,
-                                  1.8,
-                              )
-                        : 1,
-                );
-
-                n50Multiplier = Math.max(
-                    0,
-                    this.difficultyAttributes.overallDifficulty > 0
-                        ? 1 -
-                              Math.pow(
-                                  this.difficultyAttributes.overallDifficulty /
-                                      13.33,
-                                  5,
-                              )
-                        : 1,
+                    od > 0 ? 1 - Math.pow(od / 13.33, 1.8) : 1,
                 );
             }
+
+            const n50Multiplier = Math.max(
+                0,
+                od > 0 ? 1 - Math.pow(od / 13.33, 5) : 1,
+            );
 
             // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
             // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
