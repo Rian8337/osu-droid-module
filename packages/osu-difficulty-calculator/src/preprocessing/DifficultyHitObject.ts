@@ -329,8 +329,6 @@ export abstract class DifficultyHitObject {
 
     protected setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
-            this.calculateSliderCursorPosition();
-
             this.travelDistance = this.lazyTravelDistance;
 
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
@@ -361,7 +359,7 @@ export abstract class DifficultyHitObject {
             return;
         }
 
-        // We will scale distances by this factor, so we can assume a uniform CircleSize among beatmaps.
+        // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
         let scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
 
