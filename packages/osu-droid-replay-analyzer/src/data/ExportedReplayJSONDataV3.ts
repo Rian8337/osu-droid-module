@@ -9,4 +9,14 @@ export interface ExportedReplayJSONDataV3
      * The modifications that are used in the replay.
      */
     mods: string;
+
+    /**
+     * The amount of slider tick hits in the replay.
+     */
+    sliderTickHits: number | null;
+
+    /**
+     * The amount of slider end hits in the replay.
+     */
+    sliderEndHits: number | null;
 }
