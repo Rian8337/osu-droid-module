@@ -81,4 +81,9 @@ export interface IDifficultyAttributes {
      * The amount of strains that are considered difficult with respect to the aim skill.
      */
     aimDifficultStrainCount: number;
+
+    /**
+     * The amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    aimTopWeightedSliderFactor: number;
 }

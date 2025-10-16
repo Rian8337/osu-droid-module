@@ -1,4 +1,4 @@
-import { ModMap } from "@rian8337/osu-base";
+import { ModMap, Slider } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -17,11 +17,19 @@ export class DroidFlashlight extends DroidSkill {
     private currentFlashlightStrain = 0;
 
     readonly withSliders: boolean;
+    private readonly sliderStrains: number[] = [];
 
     constructor(mods: ModMap, withSliders: boolean) {
         super(mods);
 
         this.withSliders = withSliders;
+    }
+
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        return this.countTopWeightedSlidersImpl(this.sliderStrains);
     }
 
     protected override strainValueAt(
@@ -34,6 +42,10 @@ export class DroidFlashlight extends DroidSkill {
                 this.mods,
                 this.withSliders,
             ) * this.skillMultiplier;
+
+        if (current.object instanceof Slider) {
+            this.sliderStrains.push(this.currentFlashlightStrain);
+        }
 
         return this.currentFlashlightStrain;
     }

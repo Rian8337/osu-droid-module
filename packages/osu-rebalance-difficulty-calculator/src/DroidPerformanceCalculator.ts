@@ -218,12 +218,25 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
-        aimValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.aimDifficultStrainCount,
-            ),
-            this.proportionalMissPenalty,
-        );
+        if (this.effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this.effectiveMissCount + aimEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            aimValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    relevantMissCount,
+                    this.difficultyAttributes.aimDifficultStrainCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
 
         // Scale the aim value with estimated full combo deviation.
         aimValue *= this.calculateDeviationBasedLengthScaling();
@@ -254,9 +267,22 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private calculateTapValue(): number {
         let tapValue = this.baseValue(this.difficultyAttributes.tapDifficulty);
 
-        tapValue *= this.calculateStrainBasedMissPenalty(
-            this.difficultyAttributes.tapDifficultStrainCount,
-        );
+        if (this.effectiveMissCount > 0) {
+            const tapEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.tapTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this.effectiveMissCount + tapEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            tapValue *= this.calculateStrainBasedMissPenalty(
+                relevantMissCount,
+                this.difficultyAttributes.tapDifficultStrainCount,
+            );
+        }
 
         // Scale the tap value with estimated full combo deviation.
         // Consider notes that are difficult to tap with respect to other notes, but
@@ -370,12 +396,25 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         let flashlightValue =
             Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
 
-        flashlightValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.flashlightDifficultStrainCount,
-            ),
-            this.proportionalMissPenalty,
-        );
+        if (this.effectiveMissCount > 0) {
+            const flashlightEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.flashlightTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this.effectiveMissCount + flashlightEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            flashlightValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    relevantMissCount,
+                    this.difficultyAttributes.flashlightDifficultStrainCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
         flashlightValue *=
@@ -405,12 +444,25 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             0.8,
         );
 
-        readingValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.readingDifficultNoteCount,
-            ),
-            this.proportionalMissPenalty,
-        );
+        if (this.effectiveMissCount > 0) {
+            const readingEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.readingTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this.effectiveMissCount + readingEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            readingValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    relevantMissCount,
+                    this.difficultyAttributes.readingDifficultNoteCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
 
         // Scale the reading value with estimated full combo deviation.
         // As reading is easily "bypassable" with memorization, punish for memorization.

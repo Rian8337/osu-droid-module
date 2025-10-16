@@ -112,6 +112,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         aimValue *= this.calculateStrainBasedMissPenalty(
+            this.effectiveMissCount,
             this.difficultyAttributes.aimDifficultStrainCount,
         );
 
@@ -174,6 +175,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         speedValue *= lengthBonus;
 
         speedValue *= this.calculateStrainBasedMissPenalty(
+            this.effectiveMissCount,
             this.difficultyAttributes.speedDifficultStrainCount,
         );
 

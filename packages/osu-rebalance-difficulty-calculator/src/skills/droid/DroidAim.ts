@@ -42,6 +42,13 @@ export class DroidAim extends DroidSkill {
         );
     }
 
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        return this.countTopWeightedSlidersImpl(this.sliderStrains);
+    }
+
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {

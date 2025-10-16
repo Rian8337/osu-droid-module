@@ -3,6 +3,7 @@ import {
     MathUtils,
     ModMap,
     PlaceableHitObject,
+    Slider,
 } from "@rian8337/osu-base";
 import { DroidReadingEvaluator } from "../../evaluators/droid/DroidReadingEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -13,6 +14,7 @@ import { Skill } from "../../base/Skill";
  */
 export class DroidReading extends Skill {
     private readonly noteDifficulties: number[] = [];
+    private readonly sliderDifficulties: number[] = [];
 
     private readonly strainDecayBase = 0.8;
     private readonly skillMultiplier = 2;
@@ -44,6 +46,10 @@ export class DroidReading extends Skill {
             this.currentNoteDifficulty * current.rhythmMultiplier;
 
         this.noteDifficulties.push(difficulty);
+
+        if (current.object instanceof Slider) {
+            this.sliderDifficulties.push(difficulty);
+        }
 
         current.readingDifficulty = difficulty;
     }
@@ -133,6 +139,33 @@ export class DroidReading extends Skill {
                 total +
                 1.1 / (1 + Math.exp(-5 * (next / consistentTopNote - 1.15))),
             0,
+        );
+    }
+
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        if (this.sliderDifficulties.length === 0) {
+            return 0;
+        }
+
+        const consistentTopStrain = this.difficulty / 10;
+
+        if (consistentTopStrain === 0) {
+            return 0;
+        }
+
+        // Use a weighted sum of all strains. Constants are arbitrary and give nice values
+        return this.sliderDifficulties.reduce(
+            (total, next) =>
+                total +
+                MathUtils.offsetLogistic(
+                    next / consistentTopStrain,
+                    0.88,
+                    10,
+                    1.1,
+                ),
         );
     }
 

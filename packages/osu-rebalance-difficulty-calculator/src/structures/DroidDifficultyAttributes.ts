@@ -10,11 +10,14 @@ export class DroidDifficultyAttributes
     implements IDroidDifficultyAttributes
 {
     tapDifficulty = 0;
+    tapTopWeightedSliderFactor = 0;
     rhythmDifficulty = 0;
     readingDifficulty = 0;
     tapDifficultStrainCount = 0;
     flashlightDifficultStrainCount = 0;
+    flashlightTopWeightedSliderFactor = 0;
     readingDifficultNoteCount = 0;
+    readingTopWeightedSliderFactor = 0;
     averageSpeedDeltaTime = 0;
     vibroFactor = 1;
 
@@ -38,6 +41,12 @@ export class DroidDifficultyAttributes
             cacheableAttributes.readingDifficultNoteCount;
         this.averageSpeedDeltaTime = cacheableAttributes.averageSpeedDeltaTime;
         this.vibroFactor = cacheableAttributes.vibroFactor;
+        this.tapTopWeightedSliderFactor =
+            cacheableAttributes.tapTopWeightedSliderFactor;
+        this.flashlightTopWeightedSliderFactor =
+            cacheableAttributes.flashlightTopWeightedSliderFactor;
+        this.readingTopWeightedSliderFactor =
+            cacheableAttributes.readingTopWeightedSliderFactor;
     }
 
     override toString(): string {

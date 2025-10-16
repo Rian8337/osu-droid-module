@@ -1,4 +1,4 @@
-import { ModMap } from "@rian8337/osu-base";
+import { ModMap, Slider } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
@@ -18,6 +18,8 @@ export class DroidTap extends DroidSkill {
     private readonly skillMultiplier = 1.375;
 
     private readonly _objectDeltaTimes: number[] = [];
+    private readonly sliderStrains: number[] = [];
+
     private maxStrain = 0;
 
     /**
@@ -89,6 +91,13 @@ export class DroidTap extends DroidSkill {
         );
     }
 
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        return this.countTopWeightedSlidersImpl(this.sliderStrains);
+    }
+
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
@@ -106,6 +115,10 @@ export class DroidTap extends DroidSkill {
 
         const strain = this.currentTapStrain * this.currentRhythmMultiplier;
         this.maxStrain = Math.max(this.maxStrain, strain);
+
+        if (current.object instanceof Slider) {
+            this.sliderStrains.push(strain);
+        }
 
         return strain;
     }
