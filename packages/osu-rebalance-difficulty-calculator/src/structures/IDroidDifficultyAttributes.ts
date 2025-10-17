@@ -64,7 +64,7 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     vibroFactor: number;
 
     /**
-     * The maximum base score (exclusive of mod multipliers) obtainable on the beatmap.
+     * The maximum score obtainable on the beatmap.
      */
     maximumScore: number;
 }
