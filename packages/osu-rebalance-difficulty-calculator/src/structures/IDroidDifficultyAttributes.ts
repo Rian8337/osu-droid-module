@@ -62,4 +62,9 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
      * A value closer to 0 indicates most of tap difficulty is contributed by notes that are "vibroable".
      */
     vibroFactor: number;
+
+    /**
+     * The maximum base score (exclusive of mod multipliers) obtainable on the beatmap.
+     */
+    maximumScore: number;
 }

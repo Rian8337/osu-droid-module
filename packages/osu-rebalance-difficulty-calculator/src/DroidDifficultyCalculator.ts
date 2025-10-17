@@ -24,6 +24,7 @@ import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
+import { DroidScoreUtils } from "./utils/DroidScoreUtils";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -63,31 +64,38 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createDifficultyAttributes(
-        beatmap: DroidPlayableBeatmap,
+        beatmap: Beatmap,
+        playableBeatmap: DroidPlayableBeatmap,
         skills: Skill[],
         objects: DroidDifficultyHitObject[],
     ): ExtendedDroidDifficultyAttributes {
         const attributes = new ExtendedDroidDifficultyAttributes();
 
-        attributes.mods = beatmap.mods;
-        attributes.maxCombo = beatmap.maxCombo;
-        attributes.clockRate = beatmap.speedMultiplier;
-        attributes.hitCircleCount = beatmap.hitObjects.circles;
-        attributes.sliderCount = beatmap.hitObjects.sliders;
-        attributes.spinnerCount = beatmap.hitObjects.spinners;
+        attributes.mods = playableBeatmap.mods;
+        attributes.maxCombo = playableBeatmap.maxCombo;
+        attributes.clockRate = playableBeatmap.speedMultiplier;
+        attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
+        attributes.sliderCount = playableBeatmap.hitObjects.sliders;
+        attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
 
         let greatWindow: number;
 
         if (attributes.mods.has(ModPrecise)) {
-            greatWindow = new PreciseDroidHitWindow(beatmap.difficulty.od)
-                .greatWindow;
+            greatWindow = new PreciseDroidHitWindow(
+                playableBeatmap.difficulty.od,
+            ).greatWindow;
         } else {
-            greatWindow = new DroidHitWindow(beatmap.difficulty.od).greatWindow;
+            greatWindow = new DroidHitWindow(playableBeatmap.difficulty.od)
+                .greatWindow;
         }
 
         attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
             greatWindow / attributes.clockRate,
         );
+
+        attributes.maximumScore =
+            beatmap.maxDroidScore(playableBeatmap.mods) +
+            DroidScoreUtils.calculateMaximumSpinnerBonus(playableBeatmap);
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);

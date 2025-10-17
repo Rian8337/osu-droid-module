@@ -223,7 +223,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
 
-        this.effectiveMissCount = this.calculateComboBasedEstimatedMissCount();
+        this.effectiveMissCount = this.calculateEffectiveMissCount();
 
         if (this.mods.has(ModNoFail)) {
             this.finalMultiplier *= Math.max(
@@ -299,6 +299,13 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                     ) +
                 sliderFactor;
         }
+    }
+
+    /**
+     * Calculates the base effective miss count.
+     */
+    protected calculateEffectiveMissCount(): number {
+        return this.calculateComboBasedEstimatedMissCount();
     }
 
     /**

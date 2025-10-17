@@ -20,6 +20,9 @@ export class DroidDifficultyAttributes
     readingTopWeightedSliderFactor = 0;
     averageSpeedDeltaTime = 0;
     vibroFactor = 1;
+    nestedScorePerObject = 0;
+    maximumScore = 0;
+    baseScoreDifficultyMultiplier = 1;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
@@ -47,6 +50,7 @@ export class DroidDifficultyAttributes
             cacheableAttributes.flashlightTopWeightedSliderFactor;
         this.readingTopWeightedSliderFactor =
             cacheableAttributes.readingTopWeightedSliderFactor;
+        this.maximumScore = cacheableAttributes.maximumScore;
     }
 
     override toString(): string {

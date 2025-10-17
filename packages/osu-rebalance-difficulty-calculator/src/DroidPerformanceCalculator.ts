@@ -84,6 +84,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._flashlightSliderCheesePenalty;
     }
 
+    /**
+     * The total score achieved in the score.
+     */
+    get totalScore(): number | null {
+        return this._totalScore;
+    }
+
     protected override finalMultiplier = 1.24;
     protected override readonly mode = Modes.droid;
 
@@ -93,6 +100,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private _tapPenalty = 1;
     private _deviation = 0;
     private _tapDeviation = 0;
+    private _totalScore: number | null = null;
 
     /**
      * Applies a tap penalty value to this calculator.
@@ -186,6 +194,27 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.reading = this.calculateReadingValue();
     }
 
+    protected override calculateEffectiveMissCount(): number {
+        if (this.usingClassicSliderAccuracy && this.totalScore !== null) {
+            const remainingScore =
+                this.difficultyAttributes.maximumScore - this.totalScore;
+
+            // If there is less than one miss, let combo-based miss count decide whether this is full combo.
+            const scoreBasedMissCount = Math.max(
+                1,
+                (this.totalScore - remainingScore) / this.totalScore,
+            );
+
+            // Cap result by very harsh version of combo-based miss count.
+            return Math.min(
+                scoreBasedMissCount,
+                this.calculateMaximumComboBasedMissCount(),
+            );
+        }
+
+        return super.calculateEffectiveMissCount();
+    }
+
     protected override calculateTotalValue(): number {
         return (
             Math.pow(
@@ -206,6 +235,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
         this._flashlightSliderCheesePenalty =
             options?.flashlightSliderCheesePenalty ?? 1;
+        this._totalScore = options?.totalScore ?? null;
 
         super.handleOptions(options);
     }
@@ -833,6 +863,46 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 ),
             );
         }
+    }
+
+    private calculateMaximumComboBasedMissCount(): number {
+        let missCount = this.computedAccuracy.nmiss;
+        const { combo } = this;
+        const { sliderCount, maxCombo } = this.difficultyAttributes;
+
+        if (sliderCount <= 0) {
+            return missCount;
+        }
+
+        // Consider that full combo is maximum combo minus dropped slider tails since
+        // they don't contribute to combo but also don't break it.
+        // In classic scores, we can't know the amount of dropped sliders so we estimate
+        // to 10% of all sliders in the beatmap.
+        const fullComboThreshold = maxCombo - 0.1 * sliderCount;
+
+        if (combo < fullComboThreshold) {
+            missCount = Math.pow(fullComboThreshold / Math.max(1, combo), 2.5);
+        }
+
+        // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
+        missCount = Math.min(missCount, this.totalImperfectHits);
+
+        // Every slider has *at least* 2 combo attributed in classic mechanics.
+        // If they broke on a slider with a tick, then this still works since they would have lost at least 2 combo (the tick and the end).
+        // Using this as a max means a score that loses 1 combo on a map can't possibly have been a slider break.
+        // It must have been a slider end.
+        const maxPossibleSliderBreaks = Math.min(
+            sliderCount,
+            (maxCombo - combo) / 2,
+        );
+
+        const sliderBreaks = missCount - this.computedAccuracy.nmiss;
+
+        if (sliderBreaks > maxPossibleSliderBreaks) {
+            missCount = this.computedAccuracy.nmiss + maxPossibleSliderBreaks;
+        }
+
+        return missCount;
     }
 
     override toString(): string {

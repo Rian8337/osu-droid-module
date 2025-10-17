@@ -47,17 +47,18 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createDifficultyAttributes(
-        beatmap: OsuPlayableBeatmap,
+        beatmap: Beatmap,
+        playableBeatmap: OsuPlayableBeatmap,
         skills: Skill[],
     ): OsuDifficultyAttributes {
         const attributes = new OsuDifficultyAttributes();
 
-        attributes.mods = beatmap.mods;
-        attributes.maxCombo = beatmap.maxCombo;
-        attributes.clockRate = beatmap.speedMultiplier;
-        attributes.hitCircleCount = beatmap.hitObjects.circles;
-        attributes.sliderCount = beatmap.hitObjects.sliders;
-        attributes.spinnerCount = beatmap.hitObjects.spinners;
+        attributes.mods = playableBeatmap.mods;
+        attributes.maxCombo = playableBeatmap.maxCombo;
+        attributes.clockRate = playableBeatmap.speedMultiplier;
+        attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
+        attributes.sliderCount = playableBeatmap.hitObjects.sliders;
+        attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
 
         this.populateAimAttributes(attributes, skills);
         this.populateSpeedAttributes(attributes, skills);
@@ -107,7 +108,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         const preempt =
             BeatmapDifficulty.difficultyRange(
-                beatmap.difficulty.ar,
+                playableBeatmap.difficulty.ar,
                 HitObject.preemptMax,
                 HitObject.preemptMid,
                 HitObject.preemptMin,
@@ -120,7 +121,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             HitObject.preemptMin,
         );
 
-        const { greatWindow } = new OsuHitWindow(beatmap.difficulty.od);
+        const { greatWindow } = new OsuHitWindow(playableBeatmap.difficulty.od);
 
         attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
             greatWindow / attributes.clockRate,
