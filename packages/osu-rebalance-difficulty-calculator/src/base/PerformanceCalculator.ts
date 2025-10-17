@@ -223,7 +223,11 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
 
-        this.effectiveMissCount = this.calculateEffectiveMissCount();
+        this.effectiveMissCount = MathUtils.clamp(
+            this.calculateEffectiveMissCount(),
+            this.computedAccuracy.nmiss,
+            this.totalHits,
+        );
 
         if (this.mods.has(ModNoFail)) {
             this.finalMultiplier *= Math.max(
@@ -419,11 +423,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             );
         }
 
-        return MathUtils.clamp(
-            missCount,
-            this.computedAccuracy.nmiss,
-            this.totalHits,
-        );
+        return missCount;
     }
 
     /**
