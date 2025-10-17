@@ -121,7 +121,7 @@ export abstract class DroidReadingEvaluator {
 
             // Apply a soft cap to general Hidden reading to account for partial memorization.
             hiddenDifficulty =
-                Math.pow(hiddenDifficulty, 0.85) * this.hiddenMultiplier;
+                Math.pow(hiddenDifficulty, 0.8) * this.hiddenMultiplier;
 
             const prev = current.previous(0)!;
 
