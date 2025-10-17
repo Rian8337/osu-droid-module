@@ -1,4 +1,9 @@
-import { IBeatmap, Spinner } from "@rian8337/osu-base";
+import {
+    DroidPlayableBeatmap,
+    ModUtil,
+    Modes,
+    Spinner,
+} from "@rian8337/osu-base";
 
 export abstract class DroidScoreUtils {
     /**
@@ -7,12 +12,17 @@ export abstract class DroidScoreUtils {
      * @param beatmap The beatmap to calculate the maximum spinner bonus for.
      * @returns The maximum spinner bonus.
      */
-    static calculateMaximumSpinnerBonus(beatmap: IBeatmap): number {
+    static calculateMaximumSpinnerBonus(beatmap: DroidPlayableBeatmap): number {
         const { hitObjects } = beatmap;
 
         if (hitObjects.spinners === 0) {
             return 0;
         }
+
+        const scoreMultiplier = ModUtil.calculateScoreMultiplier(
+            beatmap.mods.values(),
+            Modes.droid,
+        );
 
         let bonus = 0;
 
@@ -41,12 +51,12 @@ export abstract class DroidScoreUtils {
 
             const maximumPossibleBonusSpins = Math.max(
                 0,
-                totalPossibleSpins - spinsRequiredBeforeBonus,
+                Math.floor(totalPossibleSpins - spinsRequiredBeforeBonus),
             );
 
             bonus += maximumPossibleBonusSpins * 1000;
         }
 
-        return bonus;
+        return Math.floor(bonus * scoreMultiplier);
     }
 }
