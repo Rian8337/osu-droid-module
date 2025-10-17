@@ -519,8 +519,21 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 1;
         }
 
+        const aimEstimatedSliderBreaks = this.calculateEstimatedSliderBreaks(
+            this.difficultyAttributes.aimTopWeightedSliderFactor,
+        );
+
+        const relevantMissCount = Math.min(
+            this.effectiveMissCount + aimEstimatedSliderBreaks,
+            this.totalImperfectHits + this.sliderTicksMissed,
+        );
+
+        if (relevantMissCount === 0) {
+            return 1;
+        }
+
         const missProportion =
-            (this.totalHits - this.effectiveMissCount) / (this.totalHits + 1);
+            (this.totalHits - relevantMissCount) / (this.totalHits + 1);
         const noMissProportion = this.totalHits / (this.totalHits + 1);
 
         return (
