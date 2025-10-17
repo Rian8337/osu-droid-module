@@ -70,8 +70,8 @@ export abstract class DroidReadingEvaluator {
 
         // Value higher note densities exponentially.
         let noteDensityDifficulty =
-            Math.pow(pastObjectDifficultyInfluence, 1.45) *
-            0.9 *
+            Math.pow(pastObjectDifficultyInfluence, 1.4) *
+            0.8 *
             constantAngleNerfFactor *
             velocityFactor;
 
@@ -110,8 +110,8 @@ export abstract class DroidReadingEvaluator {
                             pastObjectDifficultyInfluence -
                             2,
                     ),
-                    2.3,
-                ) * 3.2;
+                    2.2,
+                ) * 3.1;
 
             hiddenDifficulty +=
                 (timeSpentInvisibleFactor + densityFactor) *
