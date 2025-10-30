@@ -90,6 +90,7 @@ export * from "./mods/ModHalfTime";
 export * from "./mods/ModHardRock";
 export * from "./mods/ModHidden";
 export * from "./mods/ModMap";
+export * from "./mods/ModMagnetised";
 export * from "./mods/ModMirror";
 export * from "./mods/ModMuted";
 export * from "./mods/ModNightCore";

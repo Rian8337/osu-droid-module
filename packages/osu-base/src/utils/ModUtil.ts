@@ -20,6 +20,7 @@ import { ModGrow } from "../mods/ModGrow";
 import { ModHalfTime } from "../mods/ModHalfTime";
 import { ModHardRock } from "../mods/ModHardRock";
 import { ModHidden } from "../mods/ModHidden";
+import { ModMagnetised } from "../mods/ModMagnetised";
 import { ModMap } from "../mods/ModMap";
 import { ModMirror } from "../mods/ModMirror";
 import { ModMuted } from "../mods/ModMuted";
@@ -73,6 +74,7 @@ export abstract class ModUtil {
             ModMirror,
             ModGrow,
             ModDeflate,
+            ModMagnetised,
             ModDifficultyAdjust,
             ModFlashlight,
             ModSuddenDeath,
