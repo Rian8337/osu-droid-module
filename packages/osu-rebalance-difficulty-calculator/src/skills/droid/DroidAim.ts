@@ -2,6 +2,7 @@ import { ModMap, Slider } from "@rian8337/osu-base";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -26,6 +27,10 @@ export class DroidAim extends DroidSkill {
         this.withSliders = withSliders;
     }
 
+    static override difficultyToPerformance(difficulty: number): number {
+        return super.difficultyToPerformance(Math.pow(difficulty, 0.8));
+    }
+
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain.
      */
@@ -46,7 +51,10 @@ export class DroidAim extends DroidSkill {
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
      */
     countTopWeightedSliders(): number {
-        return this.countTopWeightedSlidersImpl(this.sliderStrains);
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderStrains,
+            this.difficulty,
+        );
     }
 
     protected override strainValueAt(

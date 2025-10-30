@@ -199,12 +199,13 @@ export abstract class DifficultyHitObject {
         this.fullGreatWindow /= clockRate;
         this.index = index;
 
-        // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
         this.startTime = object.startTime / clockRate;
         this.endTime = object.endTime / clockRate;
 
         if (lastObject) {
             this.deltaTime = this.startTime - lastObject.startTime / clockRate;
+
+            // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
             this.strainTime = Math.max(
                 this.deltaTime,
                 DifficultyHitObject.minDeltaTime,
@@ -307,15 +308,13 @@ export abstract class DifficultyHitObject {
      *
      * A value closer to 1 indicates a higher possibility.
      */
-    get doubletapness(): number {
-        const next = this.next(0);
-
-        if (!next) {
+    getDoubletapness(nextObj: this | null): number {
+        if (!nextObj) {
             return 0;
         }
 
         const currentDeltaTime = Math.max(1, this.deltaTime);
-        const nextDeltaTime = Math.max(1, next.deltaTime);
+        const nextDeltaTime = Math.max(1, nextObj.deltaTime);
         const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
         const speedRatio =
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
@@ -327,7 +326,7 @@ export abstract class DifficultyHitObject {
         return 1 - Math.pow(speedRatio, 1 - windowRatio);
     }
 
-    protected setDistances(clockRate: number) {
+    private setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
             this.travelDistance = this.lazyTravelDistance;
 
@@ -360,13 +359,8 @@ export abstract class DifficultyHitObject {
         }
 
         // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
-        let scalingFactor =
+        const scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
-
-        // High circle size (small CS) bonus
-        if (this.mode === Modes.osu && this.object.radius < 30) {
-            scalingFactor *= 1 + Math.min(30 - this.object.radius, 5) / 50;
-        }
 
         const lastCursorPosition =
             this.lastDifficultyObject !== null
@@ -462,17 +456,9 @@ export abstract class DifficultyHitObject {
 
             let lastRealTick: SliderTick | null = null;
 
-            for (let i = nestedObjects.length - 2; i > 0; --i) {
-                const current = nestedObjects[i];
-
-                if (current instanceof SliderTick) {
-                    lastRealTick = current;
-                    break;
-                }
-
-                if (current instanceof SliderRepeat) {
-                    // A repeat means the slider does not have a slider tick.
-                    break;
+            for (const object of nestedObjects) {
+                if (object instanceof SliderTick) {
+                    lastRealTick = object;
                 }
             }
 
@@ -492,9 +478,7 @@ export abstract class DifficultyHitObject {
 
                 nestedObjects = reordered;
             }
-        }
-
-        if (this.mode === Modes.droid) {
+        } else {
             // Temporary lazy end position until a real result can be derived.
             this.lazyEndPosition = this.object.stackedPosition;
 

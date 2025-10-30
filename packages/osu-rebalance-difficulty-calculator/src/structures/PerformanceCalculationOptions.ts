@@ -16,6 +16,8 @@ export interface PerformanceCalculationOptions {
 
     /**
      * The amount of misses achieved in the score.
+     *
+     * If {@link accPercent} is provided as an {@link Accuracy} object, this value will be ignored.
      */
     miss?: number;
 

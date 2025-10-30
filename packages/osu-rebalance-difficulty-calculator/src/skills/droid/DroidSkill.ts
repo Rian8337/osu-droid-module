@@ -70,33 +70,6 @@ export abstract class DroidSkill extends StrainSkill {
     }
 
     /**
-     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
-     */
-    protected countTopWeightedSlidersImpl(sliderStrains: number[]): number {
-        if (sliderStrains.length === 0) {
-            return 0;
-        }
-
-        const consistentTopStrain = this.difficulty / 10;
-
-        if (consistentTopStrain === 0) {
-            return 0;
-        }
-
-        // Use a weighted sum of all strains. Constants are arbitrary and give nice values
-        return sliderStrains.reduce(
-            (total, next) =>
-                total +
-                MathUtils.offsetLogistic(
-                    next / consistentTopStrain,
-                    0.88,
-                    10,
-                    1.1,
-                ),
-        );
-    }
-
-    /**
      * Gets the strain of a hitobject.
      *
      * @param current The hitobject to get the strain from.

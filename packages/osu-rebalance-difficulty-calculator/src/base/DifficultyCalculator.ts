@@ -13,6 +13,7 @@ import {
     ModRateAdjust,
     ModRelax,
     ModTimeRamp,
+    ModTraceable,
     PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
@@ -29,8 +30,6 @@ export abstract class DifficultyCalculator<
     THitObject extends DifficultyHitObject,
     TAttributes extends DifficultyAttributes,
 > {
-    protected abstract readonly difficultyMultiplier: number;
-
     /**
      * `Mod`s that adjust the difficulty of a beatmap.
      */
@@ -46,6 +45,7 @@ export abstract class DifficultyCalculator<
         ModAutopilot,
         ModMirror,
         ModRandom,
+        ModTraceable,
     ];
 
     /**
@@ -177,23 +177,4 @@ export abstract class DifficultyCalculator<
         beatmap: Beatmap,
         mods?: ModMap,
     ): TBeatmap;
-
-    /**
-     * Calculates the base rating of a `Skill`.
-     *
-     * @param skill The `Skill` to calculate the rating of.
-     * @returns The rating of the `Skill`.
-     */
-    protected calculateRating(skill: Skill): number {
-        return Math.sqrt(skill.difficultyValue()) * this.difficultyMultiplier;
-    }
-
-    /**
-     * Calculates the base performance value of a difficulty rating.
-     *
-     * @param rating The difficulty rating.
-     */
-    protected basePerformanceValue(rating: number): number {
-        return Math.pow(5 * Math.max(1, rating / 0.0675) - 4, 3) / 100000;
-    }
 }

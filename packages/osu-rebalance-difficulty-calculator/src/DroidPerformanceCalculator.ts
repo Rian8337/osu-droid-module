@@ -2,15 +2,20 @@ import {
     DroidHitWindow,
     ErrorFunction,
     Interpolation,
+    MathUtils,
     ModFlashlight,
+    ModNoFail,
     ModPrecise,
     ModRelax,
     ModScoreV2,
-    Modes,
     OsuHitWindow,
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { DroidAim } from "./skills/droid/DroidAim";
+import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
+import { DroidReading } from "./skills/droid/DroidReading";
+import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
@@ -91,110 +96,25 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._totalScore;
     }
 
-    protected override finalMultiplier = 1.24;
-    protected override readonly mode = Modes.droid;
+    /**
+     * The amount of misses, including slider breaks.
+     */
+    get effectiveMissCount(): number {
+        return this.effectiveMissCount;
+    }
+
+    static readonly finalMultiplier = 1.24;
 
     private _aimSliderCheesePenalty = 1;
     private _flashlightSliderCheesePenalty = 1;
 
+    private _effectiveMissCount = 0;
     private _tapPenalty = 1;
     private _deviation = 0;
     private _tapDeviation = 0;
     private _totalScore: number | null = null;
 
-    /**
-     * Applies a tap penalty value to this calculator.
-     *
-     * The tap and total performance value will be recalculated afterwards.
-     *
-     * @param value The tap penalty value. Must be greater than or equal to 1.
-     */
-    applyTapPenalty(value: number): void {
-        if (value < 1) {
-            throw new RangeError(
-                "New tap penalty must be greater than or equal to one.",
-            );
-        }
-
-        if (value === this._tapPenalty) {
-            return;
-        }
-
-        this._tapPenalty = value;
-        this.tap = this.calculateTapValue();
-        this.total = this.calculateTotalValue();
-    }
-
-    /**
-     * Applies an aim slider cheese penalty value to this calculator.
-     *
-     * The aim and total performance value will be recalculated afterwards.
-     *
-     * @param value The slider cheese penalty value. Must be between than 0 and 1.
-     */
-    applyAimSliderCheesePenalty(value: number): void {
-        if (value < 0) {
-            throw new RangeError(
-                "New aim slider cheese penalty must be greater than or equal to zero.",
-            );
-        }
-
-        if (value > 1) {
-            throw new RangeError(
-                "New aim slider cheese penalty must be less than or equal to one.",
-            );
-        }
-
-        if (value === this._aimSliderCheesePenalty) {
-            return;
-        }
-
-        this._aimSliderCheesePenalty = value;
-        this.aim = this.calculateAimValue();
-        this.total = this.calculateTotalValue();
-    }
-
-    /**
-     * Applies a flashlight slider cheese penalty value to this calculator.
-     *
-     * The flashlight and total performance value will be recalculated afterwards.
-     *
-     * @param value The slider cheese penalty value. Must be between 0 and 1.
-     */
-    applyFlashlightSliderCheesePenalty(value: number): void {
-        if (value < 0) {
-            throw new RangeError(
-                "New flashlight slider cheese penalty must be greater than or equal to zero.",
-            );
-        }
-
-        if (value > 1) {
-            throw new RangeError(
-                "New flashlight slider cheese penalty must be less than or equal to one.",
-            );
-        }
-
-        if (value === this._flashlightSliderCheesePenalty) {
-            return;
-        }
-
-        this._flashlightSliderCheesePenalty = value;
-        this.flashlight = this.calculateFlashlightValue();
-        this.total = this.calculateTotalValue();
-    }
-
-    protected override calculateValues(): void {
-        this._deviation = this.calculateDeviation();
-        this._tapDeviation = this.calculateTapDeviation();
-
-        this.aim = this.calculateAimValue();
-        this.tap = this.calculateTapValue();
-        this.accuracy = this.calculateAccuracyValue();
-        this.flashlight = this.calculateFlashlightValue();
-        this.reading = this.calculateReadingValue();
-    }
-
-    protected override calculateEffectiveMissCount(): number {
+    protected override calculateValues() {
         if (this.usingClassicSliderAccuracy && this.totalScore !== null) {
             const remainingScore =
                 this.difficultyAttributes.maximumScore - this.totalScore;
@@ -206,17 +126,63 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
 
             // Cap result by very harsh version of combo-based miss count.
-            return Math.min(
+            this._effectiveMissCount = Math.min(
                 scoreBasedMissCount,
                 this.calculateMaximumComboBasedMissCount(),
             );
+        } else {
+            this._effectiveMissCount =
+                this.calculateComboBasedEstimatedMissCount();
         }
 
-        return super.calculateEffectiveMissCount();
-    }
+        this._effectiveMissCount = MathUtils.clamp(
+            this._effectiveMissCount,
+            this.computedAccuracy.nmiss,
+            this.totalHits,
+        );
 
-    protected override calculateTotalValue(): number {
-        return (
+        let { finalMultiplier } = DroidPerformanceCalculator;
+
+        if (this.mods.has(ModNoFail)) {
+            finalMultiplier *= Math.max(
+                0.9,
+                1 - 0.02 * this._effectiveMissCount,
+            );
+        }
+
+        if (this.mods.has(ModRelax)) {
+            const { overallDifficulty: od } = this.difficultyAttributes;
+
+            // Graph: https://www.desmos.com/calculator/vspzsop6td
+            // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
+            const n100Multiplier =
+                0.75 * Math.max(0, od > 0 ? 1 - od / 13.33 : 1);
+
+            const n50Multiplier = Math.max(
+                0,
+                od > 0 ? 1 - Math.pow(od / 13.33, 5) : 1,
+            );
+
+            // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
+            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
+            this._effectiveMissCount = Math.min(
+                this._effectiveMissCount +
+                    this.computedAccuracy.n100 * n100Multiplier +
+                    this.computedAccuracy.n50 * n50Multiplier,
+                this.totalHits,
+            );
+        }
+
+        this._deviation = this.calculateDeviation();
+        this._tapDeviation = this.calculateTapDeviation();
+
+        this.aim = this.calculateAimValue();
+        this.tap = this.calculateTapValue();
+        this.accuracy = this.calculateAccuracyValue();
+        this.flashlight = this.calculateFlashlightValue();
+        this.reading = this.calculateReadingValue();
+
+        this.total =
             Math.pow(
                 Math.pow(this.aim, 1.1) +
                     Math.pow(this.tap, 1.1) +
@@ -224,18 +190,53 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     Math.pow(this.flashlight, 1.1) +
                     Math.pow(this.reading, 1.1),
                 1 / 1.1,
-            ) * this.finalMultiplier
-        );
+            ) * finalMultiplier;
+
+        this._deviation = this.calculateDeviation();
+        this._tapDeviation = this.calculateTapDeviation();
+
+        this.aim = this.calculateAimValue();
+        this.tap = this.calculateTapValue();
+        this.accuracy = this.calculateAccuracyValue();
+        this.flashlight = this.calculateFlashlightValue();
+        this.reading = this.calculateReadingValue();
+
+        this.total =
+            Math.pow(
+                Math.pow(this.aim, 1.1) +
+                    Math.pow(this.tap, 1.1) +
+                    Math.pow(this.accuracy, 1.1) +
+                    Math.pow(this.flashlight, 1.1) +
+                    Math.pow(this.reading, 1.1),
+                1 / 1.1,
+            ) * finalMultiplier;
     }
 
     protected override handleOptions(
         options?: PerformanceCalculationOptions,
     ): void {
-        this._tapPenalty = options?.tapPenalty ?? 1;
-        this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
-        this._flashlightSliderCheesePenalty =
-            options?.flashlightSliderCheesePenalty ?? 1;
-        this._totalScore = options?.totalScore ?? null;
+        this._tapPenalty = MathUtils.clamp(options?.tapPenalty ?? 1, 0, 1);
+
+        this._aimSliderCheesePenalty = MathUtils.clamp(
+            options?.aimSliderCheesePenalty ?? 1,
+            0,
+            1,
+        );
+
+        this._flashlightSliderCheesePenalty = MathUtils.clamp(
+            options?.flashlightSliderCheesePenalty ?? 1,
+            0,
+            1,
+        );
+
+        this._totalScore =
+            options?.totalScore !== undefined
+                ? MathUtils.clamp(
+                      options.totalScore,
+                      0,
+                      this.difficultyAttributes.maximumScore,
+                  )
+                : null;
 
         super.handleOptions(options);
     }
@@ -244,18 +245,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
-        let aimValue = this.baseValue(
+        let aimValue = DroidAim.difficultyToPerformance(
             Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
         );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const aimEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.aimTopWeightedSliderFactor,
                 );
 
             const relevantMissCount = Math.min(
-                this.effectiveMissCount + aimEstimatedSliderBreaks,
+                this._effectiveMissCount + aimEstimatedSliderBreaks,
                 this.totalImperfectHits + this.sliderTicksMissed,
             );
 
@@ -271,8 +272,44 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Scale the aim value with estimated full combo deviation.
         aimValue *= this.calculateDeviationBasedLengthScaling();
 
-        // Scale the aim value with slider factor to nerf very likely dropped sliderends.
-        aimValue *= this.sliderNerfFactor;
+        const { aimDifficultSliderCount, sliderFactor } =
+            this.difficultyAttributes;
+
+        if (aimDifficultSliderCount > 0) {
+            let estimateImproperlyFollowedDifficultSliders: number;
+
+            if (this.usingClassicSliderAccuracy) {
+                // When the score is considered classic (regardless if it was made on old client or not),
+                // we consider all missing combo to be dropped difficult sliders.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    Math.min(
+                        this.totalImperfectHits,
+                        this.difficultyAttributes.maxCombo - this.combo,
+                    ),
+                    0,
+                    aimDifficultSliderCount,
+                );
+            } else {
+                // We add tick misses here since they too mean that the player didn't follow the slider
+                // properly. However aren't adding misses here because missing slider heads has a harsh
+                // penalty by itself and doesn't mean that the rest of the slider wasn't followed properly.
+                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
+                    this.sliderEndsDropped + this.sliderTicksMissed,
+                    0,
+                    aimDifficultSliderCount,
+                );
+            }
+
+            aimValue *=
+                (1 - sliderFactor) *
+                    Math.pow(
+                        1 -
+                            estimateImproperlyFollowedDifficultSliders /
+                                aimDifficultSliderCount,
+                        3,
+                    ) +
+                sliderFactor;
+        }
 
         // Scale the aim value with slider cheese penalty.
         aimValue *= this._aimSliderCheesePenalty;
@@ -295,16 +332,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the tap performance value of the beatmap.
      */
     private calculateTapValue(): number {
-        let tapValue = this.baseValue(this.difficultyAttributes.tapDifficulty);
+        let tapValue = DroidTap.difficultyToPerformance(
+            this.difficultyAttributes.tapDifficulty,
+        );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const tapEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.tapTopWeightedSliderFactor,
                 );
 
             const relevantMissCount = Math.min(
-                this.effectiveMissCount + tapEstimatedSliderBreaks,
+                this._effectiveMissCount + tapEstimatedSliderBreaks,
                 this.totalImperfectHits + this.sliderTicksMissed,
             );
 
@@ -405,7 +444,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Penalize accuracy pp after the first miss.
         accuracyValue *= Math.pow(
             0.97,
-            Math.max(0, this.effectiveMissCount - 1),
+            Math.max(0, this._effectiveMissCount - 1),
         );
 
         if (this.mods.has(ModFlashlight)) {
@@ -423,17 +462,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        let flashlightValue =
-            Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
+        let flashlightValue = DroidFlashlight.difficultyToPerformance(
+            Math.pow(this.difficultyAttributes.flashlightDifficulty, 0.8),
+        );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const flashlightEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.flashlightTopWeightedSliderFactor,
                 );
 
             const relevantMissCount = Math.min(
-                this.effectiveMissCount + flashlightEstimatedSliderBreaks,
+                this._effectiveMissCount + flashlightEstimatedSliderBreaks,
                 this.totalImperfectHits + this.sliderTicksMissed,
             );
 
@@ -469,19 +509,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the reading performance value of the beatmap.
      */
     private calculateReadingValue(): number {
-        let readingValue = Math.pow(
-            Math.pow(this.difficultyAttributes.readingDifficulty, 2) * 25,
-            0.8,
+        let readingValue = DroidReading.difficultyToPerformance(
+            this.difficultyAttributes.readingDifficulty,
         );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const readingEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.readingTopWeightedSliderFactor,
                 );
 
             const relevantMissCount = Math.min(
-                this.effectiveMissCount + readingEstimatedSliderBreaks,
+                this._effectiveMissCount + readingEstimatedSliderBreaks,
                 this.totalImperfectHits + this.sliderTicksMissed,
             );
 
@@ -512,10 +551,32 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
+     * Calculates a strain-based miss penalty.
+     *
+     * Strain-based miss penalty assumes that a player will miss on the hardest parts of a map,
+     * so we use the amount of relatively difficult sections to adjust miss penalty
+     * to make it more punishing on maps with lower amount of hard sections.
+     */
+    private calculateStrainBasedMissPenalty(
+        missCount: number,
+        difficultStrainCount: number,
+    ): number {
+        if (missCount === 0) {
+            return 1;
+        }
+
+        return (
+            0.96 /
+            (missCount / (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
+                1)
+        );
+    }
+
+    /**
      * The object-based proportional miss penalty.
      */
     private get proportionalMissPenalty(): number {
-        if (this.effectiveMissCount === 0) {
+        if (this._effectiveMissCount === 0) {
             return 1;
         }
 
@@ -524,7 +585,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         );
 
         const relevantMissCount = Math.min(
-            this.effectiveMissCount + aimEstimatedSliderBreaks,
+            this._effectiveMissCount + aimEstimatedSliderBreaks,
             this.totalImperfectHits + this.sliderTicksMissed,
         );
 
@@ -832,7 +893,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        const tapValue = this.baseValue(
+        const tapValue = DroidTap.difficultyToPerformance(
             this.difficultyAttributes.tapDifficulty,
         );
 
@@ -878,6 +939,40 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
     }
 
+    private calculateEstimatedSliderBreaks(
+        topWeightedSliderFactor: number,
+    ): number {
+        const { n100 } = this.computedAccuracy;
+
+        if (!this.usingClassicSliderAccuracy || n100 === 0) {
+            return 0;
+        }
+
+        const missedComboPercent =
+            1 - this.combo / this.difficultyAttributes.maxCombo;
+        let estimatedSliderBreaks = Math.min(
+            n100,
+            this._effectiveMissCount * topWeightedSliderFactor,
+        );
+
+        // Scores with more Oks are more likely to have slider breaks.
+        const okAdjustment = (n100 - estimatedSliderBreaks + 0.5) / n100;
+
+        // There is a low probability of extra slider breaks on effective miss counts close to 1, as
+        // score based calculations are good at indicating if only a single break occurred.
+        estimatedSliderBreaks *= MathUtils.smoothstep(
+            this._effectiveMissCount,
+            1,
+            2,
+        );
+
+        return (
+            estimatedSliderBreaks *
+            okAdjustment *
+            MathUtils.offsetLogistic(missedComboPercent, 0.33, 15)
+        );
+    }
+
     private calculateMaximumComboBasedMissCount(): number {
         let missCount = this.computedAccuracy.nmiss;
         const { combo } = this;
@@ -918,6 +1013,64 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return missCount;
     }
 
+    /**
+     * Calculates the amount of misses + sliderbreaks from combo.
+     */
+    private calculateComboBasedEstimatedMissCount(): number {
+        let missCount = this.computedAccuracy.nmiss;
+        const { combo } = this;
+        const { sliderCount, maxCombo } = this.difficultyAttributes;
+
+        if (sliderCount <= 0) {
+            return missCount;
+        }
+
+        if (this.usingClassicSliderAccuracy) {
+            // Consider that full combo is maximum combo minus dropped slider tails since
+            // they don't contribute to combo but also don't break it.
+            // In classic scores, we can't know the amount of dropped sliders so we estimate
+            // to 10% of all sliders in the beatmap.
+            const fullComboThreshold = maxCombo - 0.1 * sliderCount;
+
+            if (combo < fullComboThreshold) {
+                missCount = fullComboThreshold / Math.max(1, combo);
+            }
+
+            // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
+            missCount = Math.min(missCount, this.totalImperfectHits);
+
+            // Every slider has *at least* 2 combo attributed in classic mechanics.
+            // If they broke on a slider with a tick, then this still works since they would have lost at least 2 combo (the tick and the end).
+            // Using this as a max means a score that loses 1 combo on a map can't possibly have been a slider break.
+            // It must have been a slider end.
+            const maxPossibleSliderBreaks = Math.min(
+                sliderCount,
+                (maxCombo - combo) / 2,
+            );
+
+            const sliderBreaks = missCount - this.computedAccuracy.nmiss;
+
+            if (sliderBreaks > maxPossibleSliderBreaks) {
+                missCount =
+                    this.computedAccuracy.nmiss + maxPossibleSliderBreaks;
+            }
+        } else {
+            const fullComboThreshold = maxCombo - this.sliderEndsDropped;
+
+            if (combo < fullComboThreshold) {
+                missCount = fullComboThreshold / Math.max(1, combo);
+            }
+
+            // Combine regular misses with tick misses, since tick misses break combo as well.
+            missCount = Math.min(
+                missCount,
+                this.sliderTicksMissed + this.computedAccuracy.nmiss,
+            );
+        }
+
+        return missCount;
+    }
+
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -927,7 +1080,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             this.tap.toFixed(2) +
             " tap, " +
             this.accuracy.toFixed(2) +
-            " acc, " +
+            " accuracy, " +
             this.flashlight.toFixed(2) +
             " flashlight, " +
             this.reading.toFixed(2) +

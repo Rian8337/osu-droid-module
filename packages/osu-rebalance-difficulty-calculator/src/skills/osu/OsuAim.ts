@@ -2,6 +2,7 @@ import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
 import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { OsuSkill } from "./OsuSkill";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -13,7 +14,7 @@ export class OsuAim extends OsuSkill {
     protected override readonly decayWeight = 0.9;
 
     private currentAimStrain = 0;
-    private readonly skillMultiplier = 25.6;
+    private readonly skillMultiplier = 26;
 
     private readonly sliderStrains: number[] = [];
 
@@ -44,6 +45,16 @@ export class OsuAim extends OsuSkill {
                 total +
                 1 / (1 + Math.exp(-((strain / maxSliderStrain) * 12 - 6))),
             0,
+        );
+    }
+
+    /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderStrains,
+            this.difficulty,
         );
     }
 

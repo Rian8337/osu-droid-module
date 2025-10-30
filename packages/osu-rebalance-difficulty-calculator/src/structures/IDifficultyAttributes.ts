@@ -83,7 +83,11 @@ export interface IDifficultyAttributes {
     aimDifficultStrainCount: number;
 
     /**
-     * The amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     * Describes how much of {@link aimDifficultStrainCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link aimDifficultStrainCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link aimDifficultStrainCount} is contributed by sliders.
      */
     aimTopWeightedSliderFactor: number;
 }

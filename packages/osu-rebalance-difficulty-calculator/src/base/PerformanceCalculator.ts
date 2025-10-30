@@ -1,13 +1,4 @@
-import {
-    Accuracy,
-    MathUtils,
-    ModMap,
-    ModNoFail,
-    ModRelax,
-    ModSpunOut,
-    ModUtil,
-    Modes,
-} from "@rian8337/osu-base";
+import { Accuracy, MathUtils, ModMap, ModUtil } from "@rian8337/osu-base";
 import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 import { IDifficultyAttributes } from "../structures/IDifficultyAttributes";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
@@ -42,23 +33,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     protected readonly mods: ModMap;
 
     /**
-     * The global multiplier to be applied to the final performance value.
-     *
-     * This is being adjusted to keep the final value scaled around what it used to be when changing things.
-     */
-    protected abstract finalMultiplier: number;
-
-    /**
-     * The gamemode to calculate for.
-     */
-    protected abstract readonly mode: Modes;
-
-    /**
-     * The amount of misses, including slider nested misses.
-     */
-    protected effectiveMissCount = 0;
-
-    /**
      * The amount of slider ends dropped in the score.
      */
     protected sliderEndsDropped = 0;
@@ -80,11 +54,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     }
 
     /**
-     * Nerf factor used for nerfing beatmaps with very likely dropped sliderends.
-     */
-    protected sliderNerfFactor = 1;
-
-    /**
      * @param difficultyAttributes The difficulty attributes to calculate.
      */
     constructor(difficultyAttributes: T | CacheableDifficultyAttributes<T>) {
@@ -103,10 +72,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      */
     calculate(options?: PerformanceCalculationOptions): this {
         this.handleOptions(options);
-
         this.calculateValues();
-
-        this.total = this.calculateTotalValue();
 
         return this;
     }
@@ -121,11 +87,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      * performance value of the beatmap and stores them in this instance.
      */
     protected abstract calculateValues(): void;
-
-    /**
-     * Calculates the total performance value of the beatmap and stores it in this instance.
-     */
-    protected abstract calculateTotalValue(): number;
 
     /**
      * The total hits that can be done in the beatmap.
@@ -158,13 +119,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             this.computedAccuracy.n50 +
             this.computedAccuracy.nmiss
         );
-    }
-
-    /**
-     * Calculates the base performance value of a star rating.
-     */
-    protected baseValue(stars: number): number {
-        return Math.pow(5 * Math.max(1, stars / 0.0675) - 4, 3) / 100000;
     }
 
     /**
@@ -222,208 +176,6 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             0,
             maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
-
-        this.effectiveMissCount = MathUtils.clamp(
-            this.calculateEffectiveMissCount(),
-            this.computedAccuracy.nmiss,
-            this.totalHits,
-        );
-
-        if (this.mods.has(ModNoFail)) {
-            this.finalMultiplier *= Math.max(
-                0.9,
-                1 - 0.02 * this.effectiveMissCount,
-            );
-        }
-
-        if (this.mods.has(ModSpunOut)) {
-            this.finalMultiplier *=
-                1 -
-                Math.pow(
-                    this.difficultyAttributes.spinnerCount / this.totalHits,
-                    0.85,
-                );
-        }
-
-        if (this.mods.has(ModRelax)) {
-            const { overallDifficulty: od } = this.difficultyAttributes;
-
-            // Graph: https://www.desmos.com/calculator/vspzsop6td
-            // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
-            const n100Multiplier =
-                0.75 * Math.max(0, od > 0 ? 1 - od / 13.33 : 1);
-
-            const n50Multiplier = Math.max(
-                0,
-                od > 0 ? 1 - Math.pow(od / 13.33, 5) : 1,
-            );
-
-            // As we're adding 100s and 50s to an approximated number of combo breaks, the result can be higher
-            // than total hits in specific scenarios (which breaks some calculations),  so we need to clamp it.
-            this.effectiveMissCount = Math.min(
-                this.effectiveMissCount +
-                    this.computedAccuracy.n100 * n100Multiplier +
-                    this.computedAccuracy.n50 * n50Multiplier,
-                this.totalHits,
-            );
-        }
-
-        const { aimDifficultSliderCount, sliderFactor } =
-            this.difficultyAttributes;
-
-        if (aimDifficultSliderCount > 0) {
-            let estimateImproperlyFollowedDifficultSliders: number;
-
-            if (this.usingClassicSliderAccuracy) {
-                // When the score is considered classic (regardless if it was made on old client or not),
-                // we consider all missing combo to be dropped difficult sliders.
-                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                    Math.min(this.totalImperfectHits, maxCombo - this.combo),
-                    0,
-                    aimDifficultSliderCount,
-                );
-            } else {
-                // We add tick misses here since they too mean that the player didn't follow the slider
-                // properly. However aren't adding misses here because missing slider heads has a harsh
-                // penalty by itself and doesn't mean that the rest of the slider wasn't followed properly.
-                estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                    this.sliderEndsDropped + this.sliderTicksMissed,
-                    0,
-                    aimDifficultSliderCount,
-                );
-            }
-
-            this.sliderNerfFactor =
-                (1 - sliderFactor) *
-                    Math.pow(
-                        1 -
-                            estimateImproperlyFollowedDifficultSliders /
-                                aimDifficultSliderCount,
-                        3,
-                    ) +
-                sliderFactor;
-        }
-    }
-
-    /**
-     * Calculates the base effective miss count.
-     */
-    protected calculateEffectiveMissCount(): number {
-        return this.calculateComboBasedEstimatedMissCount();
-    }
-
-    /**
-     * Calculates a strain-based miss penalty.
-     *
-     * Strain-based miss penalty assumes that a player will miss on the hardest parts of a map,
-     * so we use the amount of relatively difficult sections to adjust miss penalty
-     * to make it more punishing on maps with lower amount of hard sections.
-     */
-    protected calculateStrainBasedMissPenalty(
-        missCount: number,
-        difficultStrainCount: number,
-    ): number {
-        if (missCount === 0) {
-            return 1;
-        }
-
-        return (
-            0.96 /
-            (missCount / (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
-                1)
-        );
-    }
-
-    protected calculateEstimatedSliderBreaks(
-        topWeightedSliderFactor: number,
-    ): number {
-        const { n100 } = this.computedAccuracy;
-
-        if (!this.usingClassicSliderAccuracy || n100 === 0) {
-            return 0;
-        }
-
-        const missedComboPercent =
-            1 - this.combo / this.difficultyAttributes.maxCombo;
-        let estimatedSliderBreaks = Math.min(
-            n100,
-            this.effectiveMissCount * topWeightedSliderFactor,
-        );
-
-        // Scores with more Oks are more likely to have slider breaks.
-        const okAdjustment = (n100 - estimatedSliderBreaks + 0.5) / n100;
-
-        // There is a low probability of extra slider breaks on effective miss counts close to 1, as
-        // score based calculations are good at indicating if only a single break occurred.
-        estimatedSliderBreaks *= MathUtils.smoothstep(
-            this.effectiveMissCount,
-            1,
-            2,
-        );
-
-        return (
-            estimatedSliderBreaks *
-            okAdjustment *
-            MathUtils.offsetLogistic(missedComboPercent, 0.33, 15)
-        );
-    }
-
-    /**
-     * Calculates the amount of misses + sliderbreaks from combo.
-     */
-    private calculateComboBasedEstimatedMissCount(): number {
-        let missCount = this.computedAccuracy.nmiss;
-        const { combo } = this;
-        const { sliderCount, maxCombo } = this.difficultyAttributes;
-
-        if (sliderCount <= 0) {
-            return missCount;
-        }
-
-        if (this.usingClassicSliderAccuracy) {
-            // Consider that full combo is maximum combo minus dropped slider tails since
-            // they don't contribute to combo but also don't break it.
-            // In classic scores, we can't know the amount of dropped sliders so we estimate
-            // to 10% of all sliders in the beatmap.
-            const fullComboThreshold = maxCombo - 0.1 * sliderCount;
-
-            if (combo < fullComboThreshold) {
-                missCount = fullComboThreshold / Math.max(1, combo);
-            }
-
-            // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
-            missCount = Math.min(missCount, this.totalImperfectHits);
-
-            // Every slider has *at least* 2 combo attributed in classic mechanics.
-            // If they broke on a slider with a tick, then this still works since they would have lost at least 2 combo (the tick and the end).
-            // Using this as a max means a score that loses 1 combo on a map can't possibly have been a slider break.
-            // It must have been a slider end.
-            const maxPossibleSliderBreaks = Math.min(
-                sliderCount,
-                (maxCombo - combo) / 2,
-            );
-
-            const sliderBreaks = missCount - this.computedAccuracy.nmiss;
-
-            if (sliderBreaks > maxPossibleSliderBreaks) {
-                missCount =
-                    this.computedAccuracy.nmiss + maxPossibleSliderBreaks;
-            }
-        } else {
-            const fullComboThreshold = maxCombo - this.sliderEndsDropped;
-
-            if (combo < fullComboThreshold) {
-                missCount = fullComboThreshold / Math.max(1, combo);
-            }
-
-            // Combine regular misses with tick misses, since tick misses break combo as well.
-            missCount = Math.min(
-                missCount,
-                this.sliderTicksMissed + this.computedAccuracy.nmiss,
-            );
-        }
-
-        return missCount;
     }
 
     /**

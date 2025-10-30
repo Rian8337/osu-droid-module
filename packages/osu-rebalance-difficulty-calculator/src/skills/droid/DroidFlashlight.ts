@@ -3,6 +3,7 @@ import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlight
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
@@ -25,11 +26,18 @@ export class DroidFlashlight extends DroidSkill {
         this.withSliders = withSliders;
     }
 
+    static override difficultyToPerformance(difficulty: number): number {
+        return Math.pow(difficulty, 1.6) * 25;
+    }
+
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
      */
     countTopWeightedSliders(): number {
-        return this.countTopWeightedSlidersImpl(this.sliderStrains);
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderStrains,
+            this.difficulty,
+        );
     }
 
     protected override strainValueAt(

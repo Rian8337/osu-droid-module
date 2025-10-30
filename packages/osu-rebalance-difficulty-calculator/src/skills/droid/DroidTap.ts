@@ -2,6 +2,7 @@ import { ModMap, Slider } from "@rian8337/osu-base";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
@@ -95,7 +96,10 @@ export class DroidTap extends DroidSkill {
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
      */
     countTopWeightedSliders(): number {
-        return this.countTopWeightedSlidersImpl(this.sliderStrains);
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderStrains,
+            this.difficulty,
+        );
     }
 
     protected override strainValueAt(

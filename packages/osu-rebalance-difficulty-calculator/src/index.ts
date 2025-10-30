@@ -31,6 +31,7 @@ export * from "./preprocessing/OsuDifficultyHitObject";
 export * from "./skills/osu/OsuFlashlight";
 export * from "./evaluators/osu/OsuFlashlightEvaluator";
 export * from "./OsuPerformanceCalculator";
+export * from "./OsuRatingCalculator";
 export * from "./evaluators/osu/OsuRhythmEvaluator";
 export * from "./skills/osu/OsuSpeed";
 export * from "./evaluators/osu/OsuSpeedEvaluator";

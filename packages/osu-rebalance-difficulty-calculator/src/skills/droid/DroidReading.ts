@@ -8,6 +8,7 @@ import {
 import { DroidReadingEvaluator } from "../../evaluators/droid/DroidReadingEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { Skill } from "../../base/Skill";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to read every object in the map.
@@ -30,6 +31,16 @@ export class DroidReading extends Skill {
         private readonly hitObjects: readonly PlaceableHitObject[],
     ) {
         super(mods);
+    }
+
+    /**
+     * Converts a difficulty value to a performance value.
+     *
+     * @param difficulty The difficulty value to convert.
+     * @returns The performance value.
+     */
+    static difficultyToPerformance(difficulty: number): number {
+        return Math.pow(Math.pow(difficulty, 2) * 25, 0.8);
     }
 
     override process(current: DroidDifficultyHitObject) {
@@ -146,26 +157,9 @@ export class DroidReading extends Skill {
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
      */
     countTopWeightedSliders(): number {
-        if (this.sliderDifficulties.length === 0) {
-            return 0;
-        }
-
-        const consistentTopStrain = this.difficulty / 10;
-
-        if (consistentTopStrain === 0) {
-            return 0;
-        }
-
-        // Use a weighted sum of all strains. Constants are arbitrary and give nice values
-        return this.sliderDifficulties.reduce(
-            (total, next) =>
-                total +
-                MathUtils.offsetLogistic(
-                    next / consistentTopStrain,
-                    0.88,
-                    10,
-                    1.1,
-                ),
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderDifficulties,
+            this.difficulty,
         );
     }
 

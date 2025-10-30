@@ -14,6 +14,10 @@ export class OsuFlashlight extends OsuSkill {
     private currentFlashlightStrain = 0;
     private readonly skillMultiplier = 0.05512;
 
+    static override difficultyToPerformance(difficulty: number): number {
+        return Math.pow(difficulty, 2) * 25;
+    }
+
     override difficultyValue(): number {
         return this.strainPeaks.reduce((a, b) => a + b, 0);
     }

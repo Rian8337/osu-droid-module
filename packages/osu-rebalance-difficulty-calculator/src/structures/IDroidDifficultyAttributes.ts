@@ -25,7 +25,11 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     tapDifficultStrainCount: number;
 
     /**
-     * The amount of sliders that are considered difficult with respect to the tap skill, weighted by consistency.
+     * Describes how much of {@link tapDifficultStrainCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link tapDifficultStrainCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link tapDifficultStrainCount} is contributed by sliders.
      */
     tapTopWeightedSliderFactor: number;
 
@@ -35,7 +39,11 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     flashlightDifficultStrainCount: number;
 
     /**
-     * The amount of sliders that are considered difficult with respect to the flashlight skill, weighted by consistency.
+     * Describes how much of {@link flashlightDifficultStrainCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link flashlightDifficultStrainCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link flashlightDifficultStrainCount} is contributed by sliders.
      */
     flashlightTopWeightedSliderFactor: number;
 
@@ -45,7 +53,11 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     readingDifficultNoteCount: number;
 
     /**
-     * The amount of sliders that are considered difficult with respect to the reading skill, weighted by consistency.
+     * Describes how much of {@link readingDifficultNoteCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link readingDifficultNoteCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link readingDifficultNoteCount} is contributed by sliders.
      */
     readingTopWeightedSliderFactor: number;
 

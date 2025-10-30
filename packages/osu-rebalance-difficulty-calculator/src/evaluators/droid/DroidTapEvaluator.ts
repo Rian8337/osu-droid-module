@@ -34,7 +34,7 @@ export abstract class DroidTapEvaluator {
         }
 
         const doubletapness = considerCheesability
-            ? 1 - current.doubletapness
+            ? 1 - current.getDoubletapness(current.next(0))
             : 1;
 
         const strainTime =
