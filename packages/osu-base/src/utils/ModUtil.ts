@@ -9,6 +9,7 @@ import { Mod } from "../mods/Mod";
 import { ModApproachDifferent } from "../mods/ModApproachDifferent";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
+import { ModBlinds } from "../mods/ModBlinds";
 import { ModCustomSpeed } from "../mods/ModCustomSpeed";
 import { ModDeflate } from "../mods/ModDeflate";
 import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
@@ -76,6 +77,7 @@ export abstract class ModUtil {
             ModDeflate,
             ModMagnetised,
             ModDifficultyAdjust,
+            ModBlinds,
             ModFlashlight,
             ModSuddenDeath,
             ModPerfect,

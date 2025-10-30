@@ -1,6 +1,7 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
+import { ModBlinds } from "./ModBlinds";
 import { SerializedMod } from "./SerializedMod";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
@@ -40,6 +41,12 @@ export class ModFlashlight
         ModFlashlight.defaultFollowDelay,
         2,
     );
+
+    constructor() {
+        super();
+
+        this.incompatibleMods.add(ModBlinds);
+    }
 
     override copySettings(mod: SerializedMod): void {
         super.copySettings(mod);

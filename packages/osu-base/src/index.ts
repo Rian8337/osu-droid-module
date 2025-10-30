@@ -78,6 +78,7 @@ export * from "./mods/Mod";
 export * from "./mods/ModApproachDifferent";
 export * from "./mods/ModAuto";
 export * from "./mods/ModAutopilot";
+export * from "./mods/ModBlinds";
 export * from "./mods/ModCustomSpeed";
 export * from "./mods/ModDeflate";
 export * from "./mods/ModDifficultyAdjust";
