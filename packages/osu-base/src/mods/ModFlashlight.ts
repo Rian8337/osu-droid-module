@@ -32,7 +32,11 @@ export class ModFlashlight
     }
 
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1.12;
+
+    get osuScoreMultiplier(): number {
+        return this.usesDefaultSettings ? 1.12 : 1;
+    }
+
     readonly bitwise = 1 << 10;
 
     /**
