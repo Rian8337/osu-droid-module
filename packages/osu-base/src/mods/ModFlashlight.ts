@@ -20,11 +20,17 @@ export class ModFlashlight
     override readonly acronym = "FL";
     override readonly name = "Flashlight";
 
-    readonly droidRanked = true;
+    get droidRanked(): boolean {
+        return this.usesDefaultSettings;
+    }
+
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1.12;
 
-    readonly osuRanked = true;
+    get osuRanked(): boolean {
+        return this.usesDefaultSettings;
+    }
+
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1.12;
     readonly bitwise = 1 << 10;
