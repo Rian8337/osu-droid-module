@@ -245,32 +245,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
-        let aimValue = DroidAim.difficultyToPerformance(
-            this.difficultyAttributes.aimDifficulty,
-        );
-
-        if (this._effectiveMissCount > 0) {
-            const aimEstimatedSliderBreaks =
-                this.calculateEstimatedSliderBreaks(
-                    this.difficultyAttributes.aimTopWeightedSliderFactor,
-                );
-
-            const relevantMissCount = Math.min(
-                this._effectiveMissCount + aimEstimatedSliderBreaks,
-                this.totalImperfectHits + this.sliderTicksMissed,
-            );
-
-            aimValue *= Math.min(
-                this.calculateStrainBasedMissPenalty(
-                    relevantMissCount,
-                    this.difficultyAttributes.aimDifficultStrainCount,
-                ),
-                this.proportionalMissPenalty,
-            );
-        }
-
-        // Scale the aim value with estimated full combo deviation.
-        aimValue *= this.calculateDeviationBasedLengthScaling();
+        let { aimDifficulty } = this.difficultyAttributes;
 
         const { aimDifficultSliderCount, sliderFactor } =
             this.difficultyAttributes;
@@ -300,7 +275,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 );
             }
 
-            aimValue *=
+            aimDifficulty *=
                 (1 - sliderFactor) *
                     Math.pow(
                         1 -
@@ -310,6 +285,31 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     ) +
                 sliderFactor;
         }
+
+        let aimValue = DroidAim.difficultyToPerformance(aimDifficulty);
+
+        if (this._effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this._effectiveMissCount + aimEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            aimValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    relevantMissCount,
+                    this.difficultyAttributes.aimDifficultStrainCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
+
+        // Scale the aim value with estimated full combo deviation.
+        aimValue *= this.calculateDeviationBasedLengthScaling();
 
         // Scale the aim value with slider cheese penalty.
         aimValue *= this._aimSliderCheesePenalty;
