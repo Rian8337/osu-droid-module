@@ -246,7 +246,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      */
     private calculateAimValue(): number {
         let aimValue = DroidAim.difficultyToPerformance(
-            Math.pow(this.difficultyAttributes.aimDifficulty, 0.8),
+            this.difficultyAttributes.aimDifficulty,
         );
 
         if (this._effectiveMissCount > 0) {
