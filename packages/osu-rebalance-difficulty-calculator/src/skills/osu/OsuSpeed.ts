@@ -42,7 +42,7 @@ export class OsuSpeed extends OsuSkill {
      */
     countTopWeightedSliders(): number {
         return StrainUtils.countTopWeightedSliders(
-            this._objectStrains,
+            this.sliderStrains,
             this.difficulty,
         );
     }
