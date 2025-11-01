@@ -463,7 +463,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         let flashlightValue = DroidFlashlight.difficultyToPerformance(
-            Math.pow(this.difficultyAttributes.flashlightDifficulty, 0.8),
+            this.difficultyAttributes.flashlightDifficulty,
         );
 
         if (this._effectiveMissCount > 0) {
