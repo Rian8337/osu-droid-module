@@ -100,16 +100,16 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * The amount of misses, including slider breaks.
      */
     get effectiveMissCount(): number {
-        return this.effectiveMissCount;
+        return this._effectiveMissCount;
     }
 
     static readonly finalMultiplier = 1.24;
 
     private _aimSliderCheesePenalty = 1;
     private _flashlightSliderCheesePenalty = 1;
+    private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
-    private _tapPenalty = 1;
     private _deviation = 0;
     private _tapDeviation = 0;
     private _totalScore: number | null = null;
