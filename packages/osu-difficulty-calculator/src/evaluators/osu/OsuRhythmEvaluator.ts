@@ -8,8 +8,8 @@ import { Island } from "../base/Island";
 export abstract class OsuRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
-    private static readonly rhythmOverallMultiplier = 0.95;
-    private static readonly rhythmRatioMultiplier = 12;
+    private static readonly rhythmOverallMultiplier = 1;
+    private static readonly rhythmRatioMultiplier = 15;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -47,10 +47,11 @@ export abstract class OsuRhythmEvaluator {
             ++rhythmStart;
         }
 
+        let prevObject = current.previous(rhythmStart)!;
+        let lastObject = current.previous(rhythmStart + 1)!;
+
         for (let i = rhythmStart; i > 0; --i) {
             const currentObject = current.previous(i - 1)!;
-            const prevObject = current.previous(i)!;
-            const lastObject = current.previous(i + 1)!;
 
             // Scale note 0 to 1 from history to now.
             const timeDecay =
@@ -62,29 +63,35 @@ export abstract class OsuRhythmEvaluator {
             // Either we're limited by time or limited by object count.
             const currentHistoricalDecay = Math.min(timeDecay, noteDecay);
 
-            const currentDelta = currentObject.strainTime;
-            const prevDelta = prevObject.strainTime;
-            const lastDelta = lastObject.strainTime;
+            // Use custom cap value to ensure that that at this point delta time is actually zero.
+            const currentDelta = Math.max(currentObject.deltaTime, 1e-7);
+            const prevDelta = Math.max(prevObject.deltaTime, 1e-7);
+            const lastDelta = Math.max(lastObject.deltaTime, 1e-7);
 
             // Calculate how much current delta difference deserves a rhythm bonus
             // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200)
-            const deltaDifferenceRatio =
-                Math.min(prevDelta, currentDelta) /
-                Math.max(prevDelta, currentDelta);
+            const deltaDifference =
+                Math.max(prevDelta, currentDelta) /
+                Math.min(prevDelta, currentDelta);
+
+            // Take only the fractional part of the value since we are only interested in punishing multiples.
+            const deltaDifferenceFraction =
+                deltaDifference - Math.trunc(deltaDifference);
+
             const currentRatio =
                 1 +
                 this.rhythmRatioMultiplier *
                     Math.min(
                         0.5,
-                        Math.pow(Math.sin(Math.PI / deltaDifferenceRatio), 2),
+                        MathUtils.smoothstepBellCurve(deltaDifferenceFraction),
                     );
 
             // Reduce ratio bonus if delta difference is too big
-            const fraction = Math.max(
-                prevDelta / currentDelta,
-                currentDelta / prevDelta,
+            const differenceMultiplier = MathUtils.clamp(
+                2 - deltaDifference / 8,
+                0,
+                1,
             );
-            const fractionMultiplier = MathUtils.clamp(2 - fraction / 8, 0, 1);
 
             const windowPenalty = Math.min(
                 1,
@@ -95,7 +102,7 @@ export abstract class OsuRhythmEvaluator {
             );
 
             let effectiveRatio =
-                windowPenalty * currentRatio * fractionMultiplier;
+                windowPenalty * currentRatio * differenceMultiplier;
 
             if (firstDeltaSwitch) {
                 if (
@@ -175,7 +182,8 @@ export abstract class OsuRhythmEvaluator {
                     }
 
                     // Scale down the difficulty if the object is doubletappable.
-                    effectiveRatio *= 1 - prevObject.doubletapness * 0.75;
+                    effectiveRatio *=
+                        1 - prevObject.getDoubletapness(currentObject) * 0.75;
 
                     rhythmComplexitySum +=
                         Math.sqrt(effectiveRatio * startRatio) *
@@ -213,10 +221,14 @@ export abstract class OsuRhythmEvaluator {
 
                 island = new Island(currentDelta, deltaDifferenceEpsilon);
             }
+
+            lastObject = prevObject;
+            prevObject = currentObject;
         }
 
         return (
-            Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
+            (Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) *
+                (1 - current.getDoubletapness(current.next(0)))) /
             2
         );
     }

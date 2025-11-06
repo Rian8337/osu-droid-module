@@ -45,6 +45,16 @@ export abstract class StrainSkill extends Skill {
     private currentSectionPeak = 0;
     private currentSectionEnd = 0;
 
+    /**
+     * Converts a difficulty value to a performance value.
+     *
+     * @param difficulty The difficulty value to convert.
+     * @returns The performance value.
+     */
+    static difficultyToPerformance(difficulty: number): number {
+        return Math.pow(5 * Math.max(1, difficulty / 0.0675) - 4, 3) / 100000;
+    }
+
     override process(current: DifficultyHitObject): void {
         // The first object doesn't generate a strain, so we begin with an incremented section end
         if (current.index === 0) {

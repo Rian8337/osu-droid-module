@@ -1,6 +1,8 @@
+import { Slider } from "@rian8337/osu-base";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
+import { StrainUtils } from "../../utils/StrainUtils";
 import { OsuSkill } from "./OsuSkill";
 
 /**
@@ -15,7 +17,9 @@ export class OsuSpeed extends OsuSkill {
     private currentSpeedStrain = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 1.46;
+    private readonly skillMultiplier = 1.47;
+
+    private readonly sliderStrains: number[] = [];
     private maxStrain = 0;
 
     /**
@@ -34,6 +38,16 @@ export class OsuSpeed extends OsuSkill {
     }
 
     /**
+     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     */
+    countTopWeightedSliders(): number {
+        return StrainUtils.countTopWeightedSliders(
+            this.sliderStrains,
+            this.difficulty,
+        );
+    }
+
+    /**
      * @param current The hitobject to calculate.
      */
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
@@ -48,6 +62,10 @@ export class OsuSpeed extends OsuSkill {
 
         this._objectStrains.push(strain);
         this.maxStrain = Math.max(this.maxStrain, strain);
+
+        if (current.object instanceof Slider) {
+            this.sliderStrains.push(strain);
+        }
 
         return strain;
     }

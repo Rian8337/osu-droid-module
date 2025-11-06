@@ -40,7 +40,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
      */
     static readonly threeFingerStrainThreshold = 175;
 
-    protected override readonly difficultyMultiplier = 0.18;
+    private readonly difficultyMultiplier = 0.18;
 
     constructor() {
         super();
@@ -95,20 +95,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.populateFlashlightAttributes(attributes, skills);
         this.populateReadingAttributes(attributes, skills);
 
-        const aimPerformanceValue = this.basePerformanceValue(
-            Math.pow(attributes.aimDifficulty, 0.8),
+        const aimPerformanceValue = DroidAim.difficultyToPerformance(
+            attributes.aimDifficulty,
         );
 
-        const tapPerformanceValue = this.basePerformanceValue(
+        const tapPerformanceValue = DroidTap.difficultyToPerformance(
             attributes.tapDifficulty,
         );
 
         const flashlightPerformanceValue =
-            Math.pow(attributes.flashlightDifficulty, 1.6) * 25;
+            DroidFlashlight.difficultyToPerformance(
+                attributes.flashlightDifficulty,
+            );
 
-        const readingPerformanceValue = Math.pow(
-            Math.pow(attributes.readingDifficulty, 2) * 25,
-            0.8,
+        const readingPerformanceValue = DroidReading.difficultyToPerformance(
+            attributes.readingDifficulty,
         );
 
         const basePerformanceValue = Math.pow(
@@ -474,5 +475,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             Math.pow(Math.max(0, attributes.overallDifficulty), 2.2) / 800;
 
         attributes.readingDifficulty *= Math.sqrt(ratingMultiplier);
+    }
+
+    /**
+     * Calculates the base rating of a `Skill`.
+     *
+     * @param skill The `Skill` to calculate the rating of.
+     * @returns The rating of the `Skill`.
+     */
+    private calculateRating(skill: Skill): number {
+        return Math.sqrt(skill.difficultyValue()) * this.difficultyMultiplier;
     }
 }

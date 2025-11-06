@@ -66,10 +66,11 @@ export abstract class DroidRhythmEvaluator {
             ++rhythmStart;
         }
 
+        let prevObject = validPrevious[rhythmStart];
+        let lastObject = validPrevious[rhythmStart + 1];
+
         for (let i = rhythmStart; i > 0; --i) {
             const currentObject = validPrevious[i - 1];
-            const prevObject = validPrevious[i];
-            const lastObject = validPrevious[i + 1];
 
             // Scale note 0 to 1 from history to now.
             const timeDecay =
@@ -202,7 +203,9 @@ export abstract class DroidRhythmEvaluator {
                     }
 
                     // Scale down the difficulty if the object is doubletappable.
-                    effectiveRatio *= 1 - prevObject.doubletapness * 0.75;
+                    effectiveRatio *=
+                        1 -
+                        prevObject.getDoubletapness(prevObject.next(0)) * 0.75;
 
                     rhythmComplexitySum +=
                         Math.sqrt(effectiveRatio * startRatio) *
@@ -240,6 +243,9 @@ export abstract class DroidRhythmEvaluator {
 
                 island = new Island(currentDelta, deltaDifferenceEpsilon);
             }
+
+            lastObject = prevObject;
+            prevObject = currentObject;
         }
 
         return (

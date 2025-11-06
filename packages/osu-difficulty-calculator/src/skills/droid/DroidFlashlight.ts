@@ -24,6 +24,10 @@ export class DroidFlashlight extends DroidSkill {
         this.withSliders = withSliders;
     }
 
+    static override difficultyToPerformance(difficulty: number): number {
+        return Math.pow(difficulty, 1.6) * 25;
+    }
+
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {

@@ -10,12 +10,13 @@ export abstract class OsuSpeedEvaluator {
      *
      * About 1.25 circles distance between hitobject centers.
      */
-    private static readonly SINGLE_SPACING_THRESHOLD = 125;
+    private static readonly SINGLE_SPACING_THRESHOLD =
+        OsuDifficultyHitObject.normalizedDiameter * 1.25;
 
     // ~200 1/4 BPM streams
     private static readonly minSpeedBonus = 75;
 
-    private static readonly DISTANCE_MULTIPLIER = 0.9;
+    private static readonly DISTANCE_MULTIPLIER = 0.8;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -39,7 +40,7 @@ export abstract class OsuSpeedEvaluator {
         let strainTime = current.strainTime;
 
         // Nerf doubletappable doubles.
-        const doubletapness = 1 - current.doubletapness;
+        const doubletapness = 1 - current.getDoubletapness(current.next(0));
 
         // Cap deltatime to the OD 300 hitwindow.
         // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
@@ -70,6 +71,9 @@ export abstract class OsuSpeedEvaluator {
         let distanceBonus =
             Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
             this.DISTANCE_MULTIPLIER;
+
+        // Apply reduced small circle bonus because flow aim difficulty on small circles does not scale as hard as jumps.
+        distanceBonus *= Math.sqrt(current.smallCircleBonus);
 
         if (mods.has(ModAutopilot)) {
             distanceBonus = 0;

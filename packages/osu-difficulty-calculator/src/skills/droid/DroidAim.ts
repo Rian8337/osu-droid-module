@@ -26,6 +26,10 @@ export class DroidAim extends DroidSkill {
         this.withSliders = withSliders;
     }
 
+    static override difficultyToPerformance(difficulty: number): number {
+        return super.difficultyToPerformance(Math.pow(difficulty, 0.8));
+    }
+
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain.
      */

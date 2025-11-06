@@ -13,6 +13,7 @@ import {
     ModRateAdjust,
     ModRelax,
     ModTimeRamp,
+    ModTraceable,
     PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
@@ -29,8 +30,6 @@ export abstract class DifficultyCalculator<
     THitObject extends DifficultyHitObject,
     TAttributes extends DifficultyAttributes,
 > {
-    protected abstract readonly difficultyMultiplier: number;
-
     /**
      * `Mod`s that adjust the difficulty of a beatmap.
      */
@@ -41,6 +40,7 @@ export abstract class DifficultyCalculator<
         ModEasy,
         ModHardRock,
         ModFlashlight,
+        ModTraceable,
         ModHidden,
         ModRelax,
         ModAutopilot,
@@ -57,30 +57,14 @@ export abstract class DifficultyCalculator<
     abstract retainDifficultyAdjustmentMods(mods: Mod[]): Mod[];
 
     /**
-     * Calculates the difficulty of a `PlayableBeatmap`.
-     *
-     * @param beatmap The `PlayableBeatmap` whose difficulty is to be calculated.
-     * @returns A `DifficultyAttributes` object describing the difficulty of the `Beatmap`.
-     */
-    calculate(beatmap: TBeatmap): TAttributes;
-
-    /**
      * Calculates the difficulty of a `Beatmap` with specific `Mod`s.
      *
      * @param beatmap The `Beatmap` whose difficulty is to be calculated.
      * @param mods The `Mod`s to apply to the beatmap. Defaults to No Mod.
      * @returns A `DifficultyAttributes` object describing the difficulty of the `Beatmap`.
      */
-    calculate(beatmap: Beatmap, mods?: ModMap): TAttributes;
-
-    calculate(beatmap: Beatmap | TBeatmap, mods?: ModMap): TAttributes {
-        const playableBeatmap =
-            beatmap instanceof PlayableBeatmap
-                ? beatmap
-                : this.createPlayableBeatmapWithDifficultyAdjustmentMods(
-                      beatmap,
-                      mods,
-                  );
+    calculate(beatmap: Beatmap, mods?: ModMap): TAttributes {
+        const playableBeatmap = this.createPlayableBeatmap(beatmap, mods);
 
         const skills = this.createSkills(playableBeatmap);
         const objects = this.createDifficultyHitObjects(playableBeatmap);
@@ -122,10 +106,7 @@ export abstract class DifficultyCalculator<
         const playableBeatmap =
             beatmap instanceof PlayableBeatmap
                 ? beatmap
-                : this.createPlayableBeatmapWithDifficultyAdjustmentMods(
-                      beatmap,
-                      mods,
-                  );
+                : this.createPlayableBeatmap(beatmap, mods);
 
         const skills = this.createStrainPeakSkills(playableBeatmap);
         const objects = this.createDifficultyHitObjects(playableBeatmap);
@@ -194,42 +175,4 @@ export abstract class DifficultyCalculator<
         beatmap: Beatmap,
         mods?: ModMap,
     ): TBeatmap;
-
-    /**
-     * Calculates the base rating of a `Skill`.
-     *
-     * @param skill The `Skill` to calculate the rating of.
-     * @returns The rating of the `Skill`.
-     */
-    protected calculateRating(skill: Skill): number {
-        return Math.sqrt(skill.difficultyValue()) * this.difficultyMultiplier;
-    }
-
-    /**
-     * Calculates the base performance value of a difficulty rating.
-     *
-     * @param rating The difficulty rating.
-     */
-    protected basePerformanceValue(rating: number): number {
-        return Math.pow(5 * Math.max(1, rating / 0.0675) - 4, 3) / 100000;
-    }
-
-    private createPlayableBeatmapWithDifficultyAdjustmentMods(
-        beatmap: Beatmap,
-        mods?: ModMap,
-    ) {
-        const difficultyAdjustmentMods = this.retainDifficultyAdjustmentMods(
-            mods ? Array.from(mods.values()) : [],
-        );
-
-        return this.createPlayableBeatmap(
-            beatmap,
-            new ModMap(
-                difficultyAdjustmentMods.map((m) => [
-                    m.constructor as typeof Mod,
-                    m,
-                ]),
-            ),
-        );
-    }
 }

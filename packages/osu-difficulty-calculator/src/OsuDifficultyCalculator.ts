@@ -4,6 +4,7 @@ import {
     HitObject,
     Mod,
     ModAutopilot,
+    ModBlinds,
     ModFlashlight,
     ModMap,
     ModRelax,
@@ -11,15 +12,17 @@ import {
     OsuHitWindow,
     OsuPlayableBeatmap,
 } from "@rian8337/osu-base";
+import { OsuPerformanceCalculator } from "./OsuPerformanceCalculator";
+import { OsuRatingCalculator } from "./OsuRatingCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { Skill } from "./base/Skill";
+import { StrainSkill } from "./base/StrainSkill";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
 import { OsuSkill } from "./skills/osu/OsuSkill";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
-import { StrainSkill } from "./base/StrainSkill";
 
 /**
  * A difficulty calculator for osu!standard gamemode.
@@ -29,12 +32,12 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     OsuDifficultyHitObject,
     OsuDifficultyAttributes
 > {
-    protected override readonly difficultyMultiplier = 0.0675;
+    private readonly starRatingMultiplier = 0.0265;
 
     constructor() {
         super();
 
-        this.difficultyAdjustmentMods.push(ModTouchDevice);
+        this.difficultyAdjustmentMods.push(ModTouchDevice, ModBlinds);
     }
 
     override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {
@@ -52,79 +55,139 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     ): OsuDifficultyAttributes {
         const attributes = new OsuDifficultyAttributes();
 
+        if (beatmap.hitObjects.objects.length === 0) {
+            return attributes;
+        }
+
         attributes.mods = beatmap.mods;
         attributes.maxCombo = beatmap.maxCombo;
         attributes.clockRate = beatmap.speedMultiplier;
         attributes.hitCircleCount = beatmap.hitObjects.circles;
         attributes.sliderCount = beatmap.hitObjects.sliders;
         attributes.spinnerCount = beatmap.hitObjects.spinners;
+        attributes.drainRate = beatmap.difficulty.hp;
 
-        this.populateAimAttributes(attributes, skills);
-        this.populateSpeedAttributes(attributes, skills);
-        this.populateFlashlightAttributes(attributes, skills);
+        attributes.approachRate =
+            OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
+                beatmap.difficulty.ar,
+                attributes.clockRate,
+            );
 
-        if (attributes.mods.has(ModRelax)) {
-            attributes.aimDifficulty *= 0.9;
-            attributes.speedDifficulty = 0;
-            attributes.flashlightDifficulty *= 0.7;
-        } else if (attributes.mods.has(ModAutopilot)) {
-            attributes.aimDifficulty = 0;
-            attributes.speedDifficulty *= 0.5;
-            attributes.flashlightDifficulty *= 0.4;
-        }
+        attributes.overallDifficulty =
+            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
+                beatmap.difficulty.od,
+                attributes.clockRate,
+            );
 
-        const aimPerformanceValue = this.basePerformanceValue(
+        const aim = skills.find((s) => s instanceof OsuAim && s.withSliders) as
+            | OsuAim
+            | undefined;
+
+        const aimNoSlider = skills.find(
+            (s) => s instanceof OsuAim && !s.withSliders,
+        ) as OsuAim | undefined;
+
+        const speed = skills.find((s) => s instanceof OsuSpeed) as
+            | OsuSpeed
+            | undefined;
+
+        const flashlight = skills.find((s) => s instanceof OsuFlashlight) as
+            | OsuFlashlight
+            | undefined;
+
+        // Aim attributes
+        const aimDifficultyValue = aim?.difficultyValue() ?? 0;
+
+        attributes.aimDifficultSliderCount = aim?.countDifficultSliders() ?? 0;
+        attributes.aimDifficultStrainCount =
+            aim?.countTopWeightedStrains() ?? 0;
+
+        attributes.sliderFactor =
+            aimDifficultyValue > 0
+                ? OsuRatingCalculator.calculateDifficultyRating(
+                      aimNoSlider?.difficultyValue() ?? 0,
+                  ) /
+                  OsuRatingCalculator.calculateDifficultyRating(
+                      aimDifficultyValue,
+                  )
+                : 1;
+
+        const aimNoSliderTopWeightedSliderCount =
+            aimNoSlider?.countTopWeightedSliders() ?? 0;
+        const aimNoSliderDifficultStrainCount =
+            aimNoSlider?.countTopWeightedStrains() ?? 0;
+
+        attributes.aimTopWeightedSliderFactor =
+            aimNoSliderTopWeightedSliderCount /
+            Math.max(
+                1,
+                aimNoSliderDifficultStrainCount -
+                    aimNoSliderTopWeightedSliderCount,
+            );
+
+        // Speed attributes
+        const speedDifficultyValue = speed?.difficultyValue() ?? 0;
+
+        attributes.speedNoteCount = speed?.relevantNoteCount() ?? 0;
+        attributes.speedDifficultStrainCount =
+            speed?.countTopWeightedStrains() ?? 0;
+
+        const speedTopWeightedSliderCount =
+            speed?.countTopWeightedSliders() ?? 0;
+
+        attributes.speedTopWeightedSliderFactor =
+            speedTopWeightedSliderCount /
+            Math.max(
+                1,
+                attributes.speedDifficultStrainCount -
+                    speedTopWeightedSliderCount,
+            );
+
+        // Final rating
+        const mechanicalDifficultyRating =
+            this.calculateMechanicalDifficultyRating(
+                aimDifficultyValue,
+                speedDifficultyValue,
+            );
+
+        const ratingCalculator = new OsuRatingCalculator(
+            attributes.mods,
+            beatmap.hitObjects.objects.length,
+            attributes.approachRate,
+            attributes.overallDifficulty,
+            mechanicalDifficultyRating,
+            attributes.sliderFactor,
+        );
+
+        attributes.aimDifficulty =
+            ratingCalculator.computeAimRating(aimDifficultyValue);
+        attributes.speedDifficulty =
+            ratingCalculator.computeSpeedRating(speedDifficultyValue);
+        attributes.flashlightDifficulty =
+            ratingCalculator.computeFlashlightRating(
+                flashlight?.difficultyValue() ?? 0,
+            );
+
+        const baseAimPerformance = OsuAim.difficultyToPerformance(
             attributes.aimDifficulty,
         );
 
-        const speedPerformanceValue = this.basePerformanceValue(
+        const baseSpeedPerformance = OsuSpeed.difficultyToPerformance(
             attributes.speedDifficulty,
         );
 
-        const flashlightPerformanceValue =
-            Math.pow(attributes.flashlightDifficulty, 2) * 25;
+        const baseFlashlightPerformance = OsuFlashlight.difficultyToPerformance(
+            attributes.flashlightDifficulty,
+        );
 
-        const basePerformanceValue = Math.pow(
-            Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(speedPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1),
+        const basePerformance = Math.pow(
+            Math.pow(baseAimPerformance, 1.1) +
+                Math.pow(baseSpeedPerformance, 1.1) +
+                Math.pow(baseFlashlightPerformance, 1.1),
             1 / 1.1,
         );
 
-        if (basePerformanceValue > 1e-5) {
-            // Document for formula derivation:
-            // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
-            attributes.starRating =
-                Math.cbrt(1.15) *
-                0.027 *
-                (Math.cbrt(
-                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue,
-                ) +
-                    4);
-        } else {
-            attributes.starRating = 0;
-        }
-
-        const preempt =
-            BeatmapDifficulty.difficultyRange(
-                beatmap.difficulty.ar,
-                HitObject.preemptMax,
-                HitObject.preemptMid,
-                HitObject.preemptMin,
-            ) / attributes.clockRate;
-
-        attributes.approachRate = BeatmapDifficulty.inverseDifficultyRange(
-            preempt,
-            HitObject.preemptMax,
-            HitObject.preemptMid,
-            HitObject.preemptMin,
-        );
-
-        const { greatWindow } = new OsuHitWindow(beatmap.difficulty.od);
-
-        attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
-            greatWindow / attributes.clockRate,
-        );
+        attributes.starRating = this.calculateStarRating(basePerformance);
 
         return attributes;
     }
@@ -144,7 +207,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         for (let i = 1; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
                 objects[i],
-                objects[i - 1],
+                objects[i - 1] ?? null,
                 difficultyObjects,
                 clockRate,
                 i - 1,
@@ -190,63 +253,65 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         ];
     }
 
-    private populateAimAttributes(
-        attributes: OsuDifficultyAttributes,
-        skills: Skill[],
-    ) {
-        const aim = skills.find((s) => s instanceof OsuAim && s.withSliders) as
-            | OsuAim
-            | undefined;
+    private calculateMechanicalDifficultyRating(
+        aimDifficultyValue: number,
+        speedDifficultyValue: number,
+    ): number {
+        const aimValue = OsuSkill.difficultyToPerformance(
+            OsuRatingCalculator.calculateDifficultyRating(aimDifficultyValue),
+        );
 
-        const aimNoSlider = skills.find(
-            (s) => s instanceof OsuAim && !s.withSliders,
-        ) as OsuAim | undefined;
+        const speedValue = OsuSkill.difficultyToPerformance(
+            OsuRatingCalculator.calculateDifficultyRating(speedDifficultyValue),
+        );
 
-        if (!aim || !aimNoSlider) {
-            return;
-        }
+        const totalValue = Math.pow(
+            Math.pow(aimValue, 1.1) + Math.pow(speedValue, 1.1),
+            1 / 1.1,
+        );
 
-        attributes.aimDifficulty = this.calculateRating(aim);
-        attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
-
-        if (attributes.aimDifficulty > 0) {
-            attributes.sliderFactor =
-                this.calculateRating(aimNoSlider) / attributes.aimDifficulty;
-        } else {
-            attributes.sliderFactor = 1;
-        }
+        return this.calculateStarRating(totalValue);
     }
 
-    private populateSpeedAttributes(
-        attributes: OsuDifficultyAttributes,
-        skills: Skill[],
-    ) {
-        const speed = skills.find((s) => s instanceof OsuSpeed) as
-            | OsuSpeed
-            | undefined;
-
-        if (!speed) {
-            return;
+    private calculateStarRating(basePerformance: number): number {
+        if (basePerformance <= 1e-5) {
+            return 0;
         }
 
-        attributes.speedDifficulty = this.calculateRating(speed);
-        attributes.speedNoteCount = speed.relevantNoteCount();
-        attributes.speedDifficultStrainCount = speed.countTopWeightedStrains();
+        return (
+            Math.cbrt(OsuPerformanceCalculator.finalMultiplier) *
+            this.starRatingMultiplier *
+            (Math.cbrt((100000 / Math.pow(2, 1 / 1.1)) * basePerformance) + 4)
+        );
     }
 
-    private populateFlashlightAttributes(
-        attributes: OsuDifficultyAttributes,
-        skills: Skill[],
-    ) {
-        const flashlight = skills.find((s) => s instanceof OsuFlashlight) as
-            | OsuFlashlight
-            | undefined;
+    static calculateRateAdjustedApproachRate(
+        approachRate: number,
+        clockRate: number,
+    ): number {
+        const preempt =
+            BeatmapDifficulty.difficultyRange(
+                approachRate,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            ) / clockRate;
 
-        if (!flashlight) {
-            return;
-        }
+        return BeatmapDifficulty.inverseDifficultyRange(
+            preempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
+    }
 
-        attributes.flashlightDifficulty = this.calculateRating(flashlight);
+    static calculateRateAdjustedOverallDifficulty(
+        overallDifficulty: number,
+        clockRate: number,
+    ): number {
+        const greatWindow =
+            new OsuHitWindow(overallDifficulty).greatWindow / clockRate;
+
+        return OsuHitWindow.greatWindowToOD(greatWindow);
     }
 }

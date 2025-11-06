@@ -6,7 +6,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuAimEvaluator {
     private static readonly wideAngleMultiplier = 1.5;
-    private static readonly acuteAngleMultiplier = 2.6;
+    private static readonly acuteAngleMultiplier = 2.55;
     private static readonly sliderMultiplier = 1.35;
     private static readonly velocityChangeMultiplier = 0.75;
     private static readonly wiggleMultiplier = 1.02;
@@ -37,6 +37,7 @@ export abstract class OsuAimEvaluator {
         }
 
         const lastLast = current.previous(1)!;
+        const last2 = current.previous(2)!;
 
         const radius = OsuDifficultyHitObject.normalizedRadius;
         const diameter = OsuDifficultyHitObject.normalizedDiameter;
@@ -85,21 +86,49 @@ export abstract class OsuAimEvaluator {
         // Start strain with regular velocity.
         let strain = currentVelocity;
 
-        if (
-            // If rhythms are the same.
-            Math.max(current.strainTime, last.strainTime) <
-                1.25 * Math.min(current.strainTime, last.strainTime) &&
-            current.angle !== null &&
-            last.angle !== null
-        ) {
+        if (current.angle !== null && last.angle !== null) {
             const currentAngle = current.angle;
             const lastAngle = last.angle;
 
             // Rewarding angles, take the smaller velocity as base.
             const angleBonus = Math.min(currentVelocity, prevVelocity);
 
-            wideAngleBonus = this.calculateWideAngleBonus(current.angle);
-            acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
+            if (
+                // If rhythms are the same.
+                Math.max(current.strainTime, last.strainTime) <
+                1.25 * Math.min(current.strainTime, last.strainTime)
+            ) {
+                acuteAngleBonus = this.calculateAcuteAngleBonus(currentAngle);
+
+                // Penalize angle repetition.
+                acuteAngleBonus *=
+                    0.08 +
+                    0.92 *
+                        (1 -
+                            Math.min(
+                                acuteAngleBonus,
+                                Math.pow(
+                                    this.calculateAcuteAngleBonus(lastAngle),
+                                    3,
+                                ),
+                            ));
+
+                // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter
+                acuteAngleBonus *=
+                    angleBonus *
+                    MathUtils.smootherstep(
+                        MathUtils.millisecondsToBPM(current.strainTime, 2),
+                        300,
+                        400,
+                    ) *
+                    MathUtils.smootherstep(
+                        current.lazyJumpDistance,
+                        diameter,
+                        diameter * 2,
+                    );
+            }
+
+            wideAngleBonus = this.calculateWideAngleBonus(currentAngle);
 
             // Penalize angle repetition.
             wideAngleBonus *=
@@ -109,36 +138,10 @@ export abstract class OsuAimEvaluator {
                     Math.pow(this.calculateWideAngleBonus(lastAngle), 3),
                 );
 
-            acuteAngleBonus *=
-                0.08 +
-                0.92 *
-                    (1 -
-                        Math.min(
-                            acuteAngleBonus,
-                            Math.pow(
-                                this.calculateAcuteAngleBonus(lastAngle),
-                                3,
-                            ),
-                        ));
-
             // Apply full wide angle bonus for distance more than one diameter
             wideAngleBonus *=
                 angleBonus *
                 MathUtils.smootherstep(current.lazyJumpDistance, 0, diameter);
-
-            // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter
-            acuteAngleBonus *=
-                angleBonus *
-                MathUtils.smootherstep(
-                    MathUtils.millisecondsToBPM(current.strainTime, 2),
-                    300,
-                    400,
-                ) *
-                MathUtils.smootherstep(
-                    current.lazyJumpDistance,
-                    diameter,
-                    diameter * 2,
-                );
 
             // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
             // https://www.desmos.com/calculator/dp0v0nvowc
@@ -180,6 +183,19 @@ export abstract class OsuAimEvaluator {
                     MathUtils.degreesToRadians(110),
                     MathUtils.degreesToRadians(60),
                 );
+
+            if (last2 !== null) {
+                // If objects just go back and forth through a middle point - don't give as much wide bonus.
+                // Use previous(2) and previous(0) because angles calculation is done prevprev-prev-curr, so any
+                // object's angle's center point is always the previous object.
+                const distance = last2.object.stackedPosition.getDistance(
+                    last.object.stackedPosition,
+                );
+
+                if (distance < 1) {
+                    wideAngleBonus *= 1 - 0.35 * (1 - distance);
+                }
+            }
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
@@ -192,17 +208,17 @@ export abstract class OsuAimEvaluator {
                 current.strainTime;
 
             // Scale with ratio of difference compared to half the max distance.
-            const distanceRatio = Math.pow(
-                Math.sin(
-                    ((Math.PI / 2) * Math.abs(prevVelocity - currentVelocity)) /
-                        Math.max(prevVelocity, currentVelocity),
-                ),
-                2,
+            const distanceRatio = MathUtils.smoothstep(
+                Math.abs(prevVelocity - currentVelocity) /
+                    Math.max(prevVelocity, currentVelocity),
+                0,
+                1,
             );
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff = Math.min(
-                125 / Math.min(current.strainTime, last.strainTime),
+                (diameter * 1.25) /
+                    Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
 
@@ -222,13 +238,16 @@ export abstract class OsuAimEvaluator {
         }
 
         strain += wiggleBonus * this.wiggleMultiplier;
+        strain += velocityChangeBonus * this.velocityChangeMultiplier;
 
-        // Add in acute angle bonus or wide angle bonus + velocity change bonus, whichever is larger.
+        // Add in acute angle bonus or wide angle bonus, whichever is larger.
         strain += Math.max(
             acuteAngleBonus * this.acuteAngleMultiplier,
-            wideAngleBonus * this.wideAngleMultiplier +
-                velocityChangeBonus * this.velocityChangeMultiplier,
+            wideAngleBonus * this.wideAngleMultiplier,
         );
+
+        // Apply high circle size bonus
+        strain *= current.smallCircleBonus;
 
         // Add in additional slider velocity bonus.
         if (withSliders) {

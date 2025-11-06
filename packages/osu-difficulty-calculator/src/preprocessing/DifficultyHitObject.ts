@@ -307,15 +307,13 @@ export abstract class DifficultyHitObject {
      *
      * A value closer to 1 indicates a higher possibility.
      */
-    get doubletapness(): number {
-        const next = this.next(0);
-
-        if (!next) {
+    getDoubletapness(nextObj: this | null): number {
+        if (!nextObj) {
             return 0;
         }
 
         const currentDeltaTime = Math.max(1, this.deltaTime);
-        const nextDeltaTime = Math.max(1, next.deltaTime);
+        const nextDeltaTime = Math.max(1, nextObj.deltaTime);
         const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
         const speedRatio =
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
@@ -360,13 +358,8 @@ export abstract class DifficultyHitObject {
         }
 
         // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
-        let scalingFactor =
+        const scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
-
-        // High circle size (small CS) bonus
-        if (this.mode === Modes.osu && this.object.radius < 30) {
-            scalingFactor *= 1 + Math.min(30 - this.object.radius, 5) / 50;
-        }
 
         const lastCursorPosition =
             this.lastDifficultyObject !== null

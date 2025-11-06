@@ -30,6 +30,16 @@ export class DroidReading extends Skill {
         super(mods);
     }
 
+    /**
+     * Converts a difficulty value to a performance value.
+     *
+     * @param difficulty The difficulty value to convert.
+     * @returns The performance value.
+     */
+    static difficultyToPerformance(difficulty: number): number {
+        return Math.pow(Math.pow(difficulty, 2) * 25, 0.8);
+    }
+
     override process(current: DroidDifficultyHitObject) {
         this.currentNoteDifficulty *= this.strainDecay(current.deltaTime);
 
