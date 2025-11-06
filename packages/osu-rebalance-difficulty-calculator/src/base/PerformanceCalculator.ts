@@ -32,17 +32,25 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      */
     protected readonly mods: ModMap;
 
+    private _sliderEndsDropped = 0;
+
     /**
      * The amount of slider ends dropped in the score.
      */
-    protected sliderEndsDropped = 0;
+    protected get sliderEndsDropped(): number {
+        return this._sliderEndsDropped;
+    }
+
+    private _sliderTicksMissed = 0;
 
     /**
      * The amount of slider ticks missed in the score.
      *
      * This is used to calculate the slider accuracy.
      */
-    protected sliderTicksMissed = 0;
+    protected get sliderTicksMissed(): number {
+        return this._sliderTicksMissed;
+    }
 
     private _usingClassicSliderAccuracy = false;
 
@@ -162,12 +170,12 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             options?.sliderTicksMissed !== undefined
         ) {
             this._usingClassicSliderAccuracy = false;
-            this.sliderEndsDropped = options.sliderEndsDropped;
-            this.sliderTicksMissed = options.sliderTicksMissed;
+            this._sliderEndsDropped = options.sliderEndsDropped;
+            this._sliderTicksMissed = options.sliderTicksMissed;
         } else {
             this._usingClassicSliderAccuracy = true;
-            this.sliderEndsDropped = 0;
-            this.sliderTicksMissed = 0;
+            this._sliderEndsDropped = 0;
+            this._sliderTicksMissed = 0;
         }
 
         // Ensure that combo is within possible bounds.
