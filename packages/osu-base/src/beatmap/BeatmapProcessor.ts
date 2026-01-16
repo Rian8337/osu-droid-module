@@ -1,4 +1,4 @@
-import { Beatmap } from "./Beatmap";
+import { IBeatmap } from "./IBeatmap";
 import { Circle } from "./hitobjects/Circle";
 import { HitObject } from "./hitobjects/HitObject";
 import { Slider } from "./hitobjects/Slider";
@@ -13,9 +13,9 @@ export class BeatmapProcessor {
     /**
      * The beatmap to process. This should already be converted to the applicable mode.
      */
-    readonly beatmap: Beatmap;
+    readonly beatmap: IBeatmap;
 
-    constructor(beatmap: Beatmap) {
+    constructor(beatmap: IBeatmap) {
         this.beatmap = beatmap;
     }
 
