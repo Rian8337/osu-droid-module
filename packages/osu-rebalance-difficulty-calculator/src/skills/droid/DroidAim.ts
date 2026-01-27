@@ -33,10 +33,6 @@ export class DroidAim extends DroidSkill {
         this.withSliders = withSliders;
     }
 
-    static override difficultyToPerformance(difficulty: number): number {
-        return super.difficultyToPerformance(Math.pow(difficulty, 0.8));
-    }
-
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain.
      */
@@ -71,17 +67,23 @@ export class DroidAim extends DroidSkill {
         const decayAim = this.strainDecayAim(current.strainTime);
         const decaySpeed = this.strainDecaySpeed(current.strainTime);
 
+        const aimDifficulty = Math.pow(
+            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders),
+            0.8,
+        );
+
+        const speedDifficulty = Math.pow(
+            DroidSpeedAimEvaluator.evaluateDifficultyOf(current),
+            0.95,
+        );
+
         this.currentAimStrain *= decayAim;
         this.currentAimStrain +=
-            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
-            (1 - decayAim) *
-            this.skillMultiplierAim;
+            aimDifficulty * (1 - decayAim) * this.skillMultiplierAim;
 
         this.currentSpeedStrain *= decaySpeed;
         this.currentSpeedStrain +=
-            DroidSpeedAimEvaluator.evaluateDifficultyOf(current) *
-            (1 - decaySpeed) *
-            this.skillMultiplierSpeed;
+            speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
 
         const totalStrain = MathUtils.norm(
             this.meanExponent,
