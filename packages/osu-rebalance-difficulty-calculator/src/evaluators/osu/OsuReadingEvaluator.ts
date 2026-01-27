@@ -80,15 +80,6 @@ export abstract class OsuReadingEvaluator {
         );
     }
 
-    /// <summary>
-    /// Calculates the density difficulty of the current object and how hard it is to aim it because of it based on:
-    /// <list type="bullet">
-    /// <item><description>cursor velocity to the current object,</description></item>
-    /// <item><description>how many times the current object's angle was repeated,</description></item>
-    /// <item><description>density of objects visible when the current object appears,</description></item>
-    /// <item><description>density of objects visible when the current object needs to be clicked,</description></item>
-    /// </list>
-    /// </summary>
     /**
      * Calculates the density difficulty of the current object and how hard it is to aim it because of it based on:
      *
@@ -169,16 +160,6 @@ export abstract class OsuReadingEvaluator {
         return preemptDifficulty;
     }
 
-    /// <summary>
-    /// Calculates the difficulty of aiming the current object when the hidden mod is active based on:
-    /// <list type="bullet">
-    /// <item><description>cursor velocity to the current object,</description></item>
-    /// <item><description>time the current object spends invisible,</description></item>
-    /// <item><description>density of objects visible when the current object appears,</description></item>
-    /// <item><description>density of objects visible when the current object needs to be clicked,</description></item>
-    /// <item><description>how many times the current object's angle was repeated,</description></item>
-    /// <item><description>if the current object is perfectly stacked to the previous one</description></item>
-    /// </list>
     /// </summary>
     /**
      * Calculates the difficulty of aiming the current object when the Hidden mod is active based on:
