@@ -2,6 +2,7 @@ import {
     Beatmap,
     BeatmapDifficulty,
     HitObject,
+    MathUtils,
     Mod,
     ModAutopilot,
     ModBlinds,
@@ -181,11 +182,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             attributes.flashlightDifficulty,
         );
 
-        const basePerformance = Math.pow(
-            Math.pow(baseAimPerformance, 1.1) +
-                Math.pow(baseSpeedPerformance, 1.1) +
-                Math.pow(baseFlashlightPerformance, 1.1),
-            1 / 1.1,
+        const basePerformance = MathUtils.norm(
+            OsuPerformanceCalculator.normExponent,
+            baseAimPerformance,
+            baseSpeedPerformance,
+            baseFlashlightPerformance,
         );
 
         attributes.starRating = this.calculateStarRating(basePerformance);
@@ -266,9 +267,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             OsuRatingCalculator.calculateDifficultyRating(speedDifficultyValue),
         );
 
-        const totalValue = Math.pow(
-            Math.pow(aimValue, 1.1) + Math.pow(speedValue, 1.1),
-            1 / 1.1,
+        const totalValue = MathUtils.norm(
+            OsuPerformanceCalculator.normExponent,
+            aimValue,
+            speedValue,
         );
 
         return this.calculateStarRating(totalValue);

@@ -2,6 +2,7 @@ import {
     Beatmap,
     DroidHitWindow,
     DroidPlayableBeatmap,
+    MathUtils,
     Mod,
     ModAutopilot,
     ModFlashlight,
@@ -24,6 +25,7 @@ import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 import { DroidScoreUtils } from "./utils/DroidScoreUtils";
+import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -114,12 +116,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             attributes.readingDifficulty,
         );
 
-        const basePerformanceValue = Math.pow(
-            Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(tapPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1) +
-                Math.pow(readingPerformanceValue, 1.1),
-            1 / 1.1,
+        const basePerformanceValue = MathUtils.norm(
+            DroidPerformanceCalculator.normExponent,
+            aimPerformanceValue,
+            tapPerformanceValue,
+            flashlightPerformanceValue,
+            readingPerformanceValue,
         );
 
         if (basePerformanceValue > 1e-5) {

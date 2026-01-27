@@ -104,6 +104,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     static readonly finalMultiplier = 1.24;
+    static readonly normExponent = 1.1;
 
     private _aimSliderCheesePenalty = 1;
     private _flashlightSliderCheesePenalty = 1;
@@ -183,32 +184,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.reading = this.calculateReadingValue();
 
         this.total =
-            Math.pow(
-                Math.pow(this.aim, 1.1) +
-                    Math.pow(this.tap, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.reading, 1.1),
-                1 / 1.1,
-            ) * finalMultiplier;
-
-        this._deviation = this.calculateDeviation();
-        this._tapDeviation = this.calculateTapDeviation();
-
-        this.aim = this.calculateAimValue();
-        this.tap = this.calculateTapValue();
-        this.accuracy = this.calculateAccuracyValue();
-        this.flashlight = this.calculateFlashlightValue();
-        this.reading = this.calculateReadingValue();
-
-        this.total =
-            Math.pow(
-                Math.pow(this.aim, 1.1) +
-                    Math.pow(this.tap, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.reading, 1.1),
-                1 / 1.1,
+            MathUtils.norm(
+                DroidPerformanceCalculator.normExponent,
+                this.aim,
+                this.tap,
+                this.accuracy,
+                this.flashlight,
+                this.reading,
             ) * finalMultiplier;
     }
 

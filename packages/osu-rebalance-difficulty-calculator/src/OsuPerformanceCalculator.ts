@@ -52,6 +52,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     }
 
     static readonly finalMultiplier = 1.14;
+    static readonly normExponent = 1.1;
 
     private _effectiveMissCount = 0;
     private speedDeviation = 0;
@@ -112,12 +113,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.flashlight = this.calculateFlashlightValue();
 
         this.total =
-            Math.pow(
-                Math.pow(this.aim, 1.1) +
-                    Math.pow(this.speed, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1),
-                1 / 1.1,
+            MathUtils.norm(
+                OsuPerformanceCalculator.normExponent,
+                this.aim,
+                this.speed,
+                this.accuracy,
+                this.flashlight,
             ) * finalMultiplier;
     }
 
