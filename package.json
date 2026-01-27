@@ -12,6 +12,7 @@
     "publish-prerelease": "lerna publish --dist-tag beta",
     "test": "lerna run test"
   },
+  "packageManager": "pnpm@10.28.0",
   "devDependencies": {
     "@rollup/plugin-typescript": "^11.0.0",
     "@types/jest": "^29.5.1",
