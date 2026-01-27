@@ -240,14 +240,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             this.difficultyAttributes.speedDifficulty,
         );
 
-        // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
-        if (this.totalHits > 2000) {
-            lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
-        }
-
-        speedValue *= lengthBonus;
-
         if (this._effectiveMissCount > 0) {
             const speedEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(

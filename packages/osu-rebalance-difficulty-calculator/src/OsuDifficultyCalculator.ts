@@ -16,8 +16,8 @@ import {
 import { OsuPerformanceCalculator } from "./OsuPerformanceCalculator";
 import { OsuRatingCalculator } from "./OsuRatingCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
+import { IHasPeakDifficulty } from "./base/IHasPeakDifficulty";
 import { Skill } from "./base/Skill";
-import { StrainSkill } from "./base/StrainSkill";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
@@ -132,10 +132,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.speedNoteCount = speed?.relevantNoteCount() ?? 0;
         attributes.speedDifficultStrainCount =
-            speed?.countTopWeightedStrains() ?? 0;
+            speed?.countTopWeightedObjectDifficulties(speedDifficultyValue) ??
+            0;
 
         const speedTopWeightedSliderCount =
-            speed?.countTopWeightedSliders() ?? 0;
+            speed?.countTopWeightedSliders(speedDifficultyValue) ?? 0;
 
         attributes.speedTopWeightedSliderFactor =
             speedTopWeightedSliderCount /
@@ -222,9 +223,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         return difficultyObjects;
     }
 
-    protected override createSkills(beatmap: OsuPlayableBeatmap): OsuSkill[] {
+    protected override createSkills(beatmap: OsuPlayableBeatmap): Skill[] {
         const { mods } = beatmap;
-        const skills: OsuSkill[] = [];
+        const skills: Skill[] = [];
 
         if (!mods.has(ModAutopilot)) {
             skills.push(new OsuAim(mods, true));

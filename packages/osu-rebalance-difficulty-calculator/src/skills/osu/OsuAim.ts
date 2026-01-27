@@ -14,7 +14,7 @@ export class OsuAim extends OsuSkill {
     protected override readonly decayWeight = 0.9;
 
     private currentAimStrain = 0;
-    private readonly skillMultiplier = 26;
+    private readonly skillMultiplier = 26.7;
 
     private readonly sliderStrains: number[] = [];
 
