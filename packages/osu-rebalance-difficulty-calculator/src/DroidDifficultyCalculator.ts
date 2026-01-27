@@ -236,18 +236,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
+        const aimDifficultyValue = aim.difficultyValue();
+
         attributes.aimDifficulty = this.calculateRating(aim);
         attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
+        attributes.aimDifficultStrainCount =
+            aim.countTopWeightedStrains(aimDifficultyValue);
 
         if (attributes.mods.has(ModRelax)) {
             attributes.aimDifficulty *= 0.9;
         }
 
         const aimNoSliderTopWeightedSliderCount =
-            aimNoSlider.countTopWeightedSliders();
+            aimNoSlider.countTopWeightedSliders(aimDifficultyValue);
         const aimNoSliderDifficultStrainCount =
-            aimNoSlider.countTopWeightedStrains();
+            aimNoSlider.countTopWeightedStrains(aimDifficultyValue);
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
@@ -334,8 +337,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
+        const tapDifficultyValue = tap.difficultyValue();
+
         attributes.tapDifficulty = this.calculateRating(tap);
-        attributes.tapDifficultStrainCount = tap.countTopWeightedStrains();
+        attributes.tapDifficultStrainCount =
+            tap.countTopWeightedStrains(tapDifficultyValue);
 
         attributes.speedNoteCount = tap.relevantNoteCount();
         attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
@@ -345,7 +351,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 this.calculateRating(tapVibro) / attributes.tapDifficulty;
         }
 
-        const tapTopWeightedSliderCount = tap.countTopWeightedSliders();
+        const tapTopWeightedSliderCount =
+            tap.countTopWeightedSliders(tapDifficultyValue);
 
         attributes.tapTopWeightedSliderFactor =
             tapTopWeightedSliderCount /
@@ -453,14 +460,20 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
+        const flashlightDifficultyValue = flashlight.difficultyValue();
+
         attributes.flashlightDifficulty = this.calculateRating(flashlight);
         attributes.flashlightDifficultStrainCount =
-            flashlight.countTopWeightedStrains();
+            flashlight.countTopWeightedStrains(flashlightDifficultyValue);
 
         const flashlightNoSlidersTopWeightedSliderCount =
-            flashlightNoSliders.countTopWeightedSliders();
+            flashlightNoSliders.countTopWeightedSliders(
+                flashlightDifficultyValue,
+            );
         const flashlightNoSlidersDifficultStrainCount =
-            flashlightNoSliders.countTopWeightedStrains();
+            flashlightNoSliders.countTopWeightedStrains(
+                flashlightDifficultyValue,
+            );
 
         attributes.flashlightTopWeightedSliderFactor =
             flashlightNoSlidersTopWeightedSliderCount /

@@ -102,7 +102,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.aimDifficultSliderCount = aim?.countDifficultSliders() ?? 0;
         attributes.aimDifficultStrainCount =
-            aim?.countTopWeightedStrains() ?? 0;
+            aim?.countTopWeightedStrains(aimDifficultyValue) ?? 0;
 
         attributes.sliderFactor =
             aimDifficultyValue > 0
@@ -115,9 +115,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 : 1;
 
         const aimNoSliderTopWeightedSliderCount =
-            aimNoSlider?.countTopWeightedSliders() ?? 0;
+            aimNoSlider?.countTopWeightedSliders(aimDifficultyValue) ?? 0;
         const aimNoSliderDifficultStrainCount =
-            aimNoSlider?.countTopWeightedStrains() ?? 0;
+            aimNoSlider?.countTopWeightedStrains(aimDifficultyValue) ?? 0;
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /

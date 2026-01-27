@@ -56,11 +56,13 @@ export class OsuAim extends OsuSkill {
 
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     *
+     * @param difficultyValue The final difficulty value.
      */
-    countTopWeightedSliders(): number {
+    countTopWeightedSliders(difficultyValue: number): number {
         return StrainUtils.countTopWeightedSliders(
             this.sliderStrains,
-            this.difficulty,
+            difficultyValue,
         );
     }
 

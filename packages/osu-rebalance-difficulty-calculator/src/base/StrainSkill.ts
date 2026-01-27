@@ -32,8 +32,6 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
 
     protected readonly _objectStrains: number[] = [];
 
-    protected difficulty = 0;
-
     /**
      * The strains of hitobjects.
      */
@@ -99,14 +97,16 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
      * Returns the number of strains weighed against the top strain.
      *
      * The result is scaled by clock rate as it affects the total number of strains.
+     *
+     * @param difficultyValue The final difficulty value.
      */
-    countTopWeightedStrains(): number {
-        if (this.difficulty === 0) {
+    countTopWeightedStrains(difficultyValue: number): number {
+        if (difficultyValue === 0) {
             return 0;
         }
 
         // This is what the top strain is if all strain values were identical.
-        const consistentTopStrain = this.difficulty / 10;
+        const consistentTopStrain = difficultyValue / 10;
 
         if (consistentTopStrain === 0) {
             return this._objectStrains.length;

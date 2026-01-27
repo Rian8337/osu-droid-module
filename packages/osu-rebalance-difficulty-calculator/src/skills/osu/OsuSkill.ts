@@ -41,20 +41,20 @@ export abstract class OsuSkill extends StrainSkill {
 
         // Difficulty is the weighted sum of the highest strains from every section.
         // We're sorting from highest to lowest strain.
-        this.difficulty = 0;
+        let difficulty = 0;
         let weight = 1;
 
         for (const strain of strains) {
             const addition = strain * weight;
 
-            if (this.difficulty + addition === this.difficulty) {
+            if (difficulty + addition === difficulty) {
                 break;
             }
 
-            this.difficulty += addition;
+            difficulty += addition;
             weight *= this.decayWeight;
         }
 
-        return this.difficulty;
+        return difficulty;
     }
 }

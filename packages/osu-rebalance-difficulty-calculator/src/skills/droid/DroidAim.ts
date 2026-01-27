@@ -49,11 +49,13 @@ export class DroidAim extends DroidSkill {
 
     /**
      * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     *
+     * @param difficultyValue The final difficulty value.
      */
-    countTopWeightedSliders(): number {
+    countTopWeightedSliders(difficultyValue: number): number {
         return StrainUtils.countTopWeightedSliders(
             this.sliderStrains,
-            this.difficulty,
+            difficultyValue,
         );
     }
 
@@ -94,9 +96,6 @@ export class DroidAim extends DroidSkill {
         return this.currentAimStrain;
     }
 
-    /**
-     * @param current The hitobject to save to.
-     */
     protected override saveToHitObject(
         current: DroidDifficultyHitObject,
     ): void {
