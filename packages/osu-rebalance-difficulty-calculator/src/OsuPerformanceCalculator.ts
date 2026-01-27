@@ -117,14 +117,15 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.flashlight = this.calculateFlashlightValue();
         this.reading = this.calculateReadingValue();
 
+        const cognitionValue = MathUtils.norm(2, this.reading, this.flashlight);
+
         this.total =
             MathUtils.norm(
                 OsuPerformanceCalculator.normExponent,
                 this.aim,
                 this.speed,
                 this.accuracy,
-                this.flashlight,
-                this.reading,
+                cognitionValue,
             ) * finalMultiplier;
     }
 

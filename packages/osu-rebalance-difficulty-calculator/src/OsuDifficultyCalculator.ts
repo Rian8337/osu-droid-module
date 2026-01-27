@@ -193,12 +193,17 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             attributes.readingDifficulty,
         );
 
+        const baseCognitionPerformance = MathUtils.norm(
+            2,
+            baseReadingPerformance,
+            baseFlashlightPerformance,
+        );
+
         const basePerformance = MathUtils.norm(
             OsuPerformanceCalculator.normExponent,
             baseAimPerformance,
             baseSpeedPerformance,
-            baseFlashlightPerformance,
-            baseReadingPerformance,
+            baseCognitionPerformance,
         );
 
         attributes.starRating = this.calculateStarRating(basePerformance);
