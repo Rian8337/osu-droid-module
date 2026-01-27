@@ -1,4 +1,5 @@
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 import { Skill } from "./Skill";
 
 /**
@@ -25,6 +26,8 @@ export abstract class ObjectDifficultySkill
         const difficulty = this.objectDifficultyOf(current);
 
         this._objectDifficulties.push(difficulty);
+
+        this.saveToHitObject(current, difficulty);
     }
 
     /**
@@ -34,4 +37,15 @@ export abstract class ObjectDifficultySkill
      * @returns The difficulty of the {@link DifficultyHitObject}.
      */
     protected abstract objectDifficultyOf(current: DifficultyHitObject): number;
+
+    /**
+     * Saves the calculated difficulty to a {@link DifficultyHitObject}.
+     *
+     * @param current The {@link DifficultyHitObject} to save the difficulty to.
+     * @param difficulty The difficulty to save.
+     */
+    protected abstract saveToHitObject(
+        current: DifficultyHitObject,
+        difficulty: number,
+    ): void;
 }
