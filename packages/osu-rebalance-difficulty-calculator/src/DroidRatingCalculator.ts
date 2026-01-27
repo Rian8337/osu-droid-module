@@ -1,0 +1,87 @@
+import {
+    ModAutopilot,
+    ModFlashlight,
+    ModMap,
+    ModRelax,
+} from "@rian8337/osu-base";
+
+export class DroidRatingCalculator {
+    private static readonly difficultyMultiplier = 0.18;
+
+    constructor(
+        private readonly mods: ModMap,
+        private readonly totalHits: number,
+    ) {}
+
+    computeAimRating(aimDifficultyValue: number): number {
+        if (this.mods.has(ModAutopilot)) {
+            return 0;
+        }
+
+        let aimRating =
+            DroidRatingCalculator.calculateDifficultyRating(aimDifficultyValue);
+
+        if (this.mods.has(ModRelax)) {
+            aimRating *= 0.9;
+        }
+
+        return aimRating;
+    }
+
+    computeTapRating(tapDifficultyValue: number): number {
+        if (this.mods.has(ModRelax)) {
+            return 0;
+        }
+
+        const tapRating =
+            DroidRatingCalculator.calculateDifficultyRating(tapDifficultyValue);
+
+        return tapRating;
+    }
+
+    computeFlashlightRating(flashlightDifficultyValue: number): number {
+        if (!this.mods.has(ModFlashlight)) {
+            return 0;
+        }
+
+        let flashlightRating = DroidRatingCalculator.calculateDifficultyRating(
+            flashlightDifficultyValue,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            flashlightRating *= 0.7;
+        } else if (this.mods.has(ModAutopilot)) {
+            flashlightRating *= 0.4;
+        }
+
+        let ratingMultiplier = 1;
+
+        // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
+        ratingMultiplier *=
+            0.7 +
+            0.1 * Math.min(1, this.totalHits / 200) +
+            (this.totalHits > 200
+                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
+                : 0);
+
+        return flashlightRating * Math.sqrt(ratingMultiplier);
+    }
+
+    computeReadingRating(readingDifficultyValue: number): number {
+        let readingRating = DroidRatingCalculator.calculateDifficultyRating(
+            readingDifficultyValue,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            readingRating *= 0.7;
+        } else if (this.mods.has(ModAutopilot)) {
+            readingRating *= 0.4;
+        }
+
+        return readingRating;
+    }
+
+    static calculateDifficultyRating(difficultyValue: number): number {
+        return Math.sqrt(difficultyValue) * this.difficultyMultiplier;
+    }
+}

@@ -446,14 +446,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 );
         }
 
-        // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
-        flashlightValue *=
-            0.7 +
-            0.1 * Math.min(1, this.totalHits / 200) +
-            (this.totalHits > 200
-                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
-                : 0);
-
         // Scale the flashlight value with deviation.
         flashlightValue *= ErrorFunction.erf(
             50 / (Math.SQRT2 * this._deviation),
