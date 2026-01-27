@@ -326,7 +326,7 @@ export abstract class OsuReadingEvaluator {
             visibleObjectCount +=
                 hitObject.opacityAt(current.object.startTime) * timeNerfFactor;
 
-            hitObject = current.next(0);
+            hitObject = hitObject.next(0);
         }
 
         return visibleObjectCount;
