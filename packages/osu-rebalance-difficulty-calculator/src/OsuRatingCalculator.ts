@@ -27,10 +27,6 @@ export class OsuRatingCalculator {
         let aimRating =
             OsuRatingCalculator.calculateDifficultyRating(aimDifficultyValue);
 
-        if (this.mods.has(ModTouchDevice)) {
-            aimRating = Math.pow(aimRating, 0.8);
-        }
-
         if (this.mods.has(ModRelax)) {
             aimRating *= 0.9;
         }

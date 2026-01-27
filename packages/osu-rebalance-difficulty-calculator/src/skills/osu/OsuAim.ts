@@ -1,4 +1,4 @@
-import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModMap, ModTouchDevice, Slider } from "@rian8337/osu-base";
 import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { OsuSkill } from "./OsuSkill";
@@ -70,17 +70,26 @@ export class OsuAim extends OsuSkill {
         const decayAim = this.strainDecayAim(current.strainTime);
         const decaySpeed = this.strainDecaySpeed(current.strainTime);
 
+        let aimDifficulty = OsuAimEvaluator.evaluateDifficultyOf(
+            current,
+            this.withSliders,
+        );
+
+        let speedDifficulty =
+            OsuSpeedAimEvaluator.evaluateDifficultyOf(current);
+
+        if (this.mods.has(ModTouchDevice)) {
+            aimDifficulty = Math.pow(aimDifficulty, 0.8);
+            speedDifficulty = Math.pow(speedDifficulty, 0.95);
+        }
+
         this.currentAimStrain *= decayAim;
         this.currentAimStrain +=
-            OsuAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
-            (1 - decayAim) *
-            this.skillMultiplierAim;
+            aimDifficulty * (1 - decayAim) * this.skillMultiplierAim;
 
         this.currentSpeedStrain *= decaySpeed;
         this.currentSpeedStrain +=
-            OsuSpeedAimEvaluator.evaluateDifficultyOf(current) *
-            (1 - decaySpeed) *
-            this.skillMultiplierSpeed;
+            speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
 
         const totalStrain = MathUtils.norm(
             this.meanExponent,
