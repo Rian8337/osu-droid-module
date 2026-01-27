@@ -67,12 +67,7 @@ export class OsuRatingCalculator {
             speedRating *= 1 - magnetisedStrength * 0.3;
         }
 
-        let ratingMultiplier = 1;
-
-        ratingMultiplier *=
-            0.95 + Math.pow(Math.max(0, this.overallDifficulty), 2) / 750;
-
-        return speedRating * Math.cbrt(ratingMultiplier);
+        return speedRating;
     }
 
     computeFlashlightRating(flashlightDifficultyValue: number): number {

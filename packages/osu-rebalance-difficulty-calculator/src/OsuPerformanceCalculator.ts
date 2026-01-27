@@ -269,42 +269,21 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             speedValue *= 1 + this.calculateTraceableBonus();
         }
 
-        // Calculate accuracy assuming the worst case scenario.
-        const countGreat = this.computedAccuracy.n300;
-        const countOk = this.computedAccuracy.n100;
-        const countMeh = this.computedAccuracy.n50;
-
-        const relevantTotalDiff =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
-
-        const relevantAccuracy = new Accuracy(
-            this.difficultyAttributes.speedNoteCount > 0
-                ? {
-                      n300: Math.max(0, countGreat - relevantTotalDiff),
-                      n100: Math.max(
-                          0,
-                          countOk - Math.max(0, relevantTotalDiff - countGreat),
-                      ),
-                      n50: Math.max(
-                          0,
-                          countMeh -
-                              Math.max(
-                                  0,
-                                  relevantTotalDiff - countGreat - countOk,
-                              ),
-                      ),
-                  }
-                : // Set accuracy to 0.
-                  { n300: 0, nobjects: 1 },
-        );
-
         speedValue *= this.calculateSpeedHighDeviationNerf();
 
-        // Scale the speed value with accuracy and OD.
-        speedValue *= Math.pow(
-            (this.computedAccuracy.value() + relevantAccuracy.value()) / 2,
-            (14.5 - this.difficultyAttributes.overallDifficulty) / 2,
+        // An effective hit window is created based on the speed SR. The higher the speed difficulty, the shorter the hit window.
+        // For example, a speed SR of 3 leads to an effective hit window of 20ms, which is OD 10.
+        const effectiveHitWindow = Math.sqrt(
+            (30 * 60) / this.difficultyAttributes.speedDifficulty,
         );
+
+        // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
+        const effectiveAccuracy = ErrorFunction.erf(
+            effectiveHitWindow / this.speedDeviation,
+        );
+
+        // Scale speed value by normalized accuracy.
+        speedValue *= Math.pow(effectiveAccuracy, 2);
 
         return speedValue;
     }

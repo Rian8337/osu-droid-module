@@ -19,7 +19,7 @@ export class OsuAim extends OsuSkill {
 
     private readonly skillMultiplierAim = 26;
     private readonly skillMultiplierSpeed = 1.3;
-    private readonly skillMultiplierTotal = 1.02;
+    private readonly skillMultiplierTotal = 1.01;
     private readonly meanExponent = 1.2;
 
     private readonly sliderStrains: number[] = [];
