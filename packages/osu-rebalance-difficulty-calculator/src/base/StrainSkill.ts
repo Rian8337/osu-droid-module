@@ -1,15 +1,16 @@
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 import { Skill } from "./Skill";
 
 /**
  * Used to processes strain values of difficulty hitobjects, keep track of strain levels caused by the processed objects
  * and to calculate a final difficulty value representing the difficulty of hitting all the processed objects.
  */
-export abstract class StrainSkill extends Skill {
+export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
     /**
      * Strain peaks are stored here.
      */
-    readonly strainPeaks: number[] = [];
+    protected readonly strainPeaks: number[] = [];
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
@@ -38,6 +39,10 @@ export abstract class StrainSkill extends Skill {
      */
     get objectStrains(): readonly number[] {
         return this._objectStrains;
+    }
+
+    get peaks(): readonly number[] {
+        return this.strainPeaks;
     }
 
     private readonly sectionLength = 400;

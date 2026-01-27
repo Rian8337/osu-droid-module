@@ -4,13 +4,20 @@ import { Skill } from "./Skill";
 /**
  * Processes the difficulty of {@link DifficultyHitObject}s and keeps track of their individual difficulties.
  */
-export abstract class ObjectDifficultySkill extends Skill {
+export abstract class ObjectDifficultySkill
+    extends Skill
+    implements IHasPeakDifficulty
+{
     private _objectDifficulties: number[] = [];
 
     /**
      * The difficulties of {@link DifficultyHitObject}s, populated by {@link Skill.process}.
      */
     protected get objectDifficulties(): readonly number[] {
+        return this._objectDifficulties;
+    }
+
+    get peaks(): readonly number[] {
         return this._objectDifficulties;
     }
 

@@ -244,7 +244,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
     protected override createStrainPeakSkills(
         beatmap: OsuPlayableBeatmap,
-    ): StrainSkill[] {
+    ): (Skill & IHasPeakDifficulty)[] {
         const { mods } = beatmap;
 
         return [
