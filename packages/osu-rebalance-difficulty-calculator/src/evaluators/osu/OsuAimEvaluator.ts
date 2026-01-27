@@ -232,9 +232,9 @@ export abstract class OsuAimEvaluator {
             );
         }
 
-        if (last.travelTime) {
+        if (current.object instanceof Slider) {
             // Reward sliders based on velocity.
-            sliderBonus = last.travelDistance / last.travelTime;
+            sliderBonus = current.travelDistance / current.travelTime;
         }
 
         strain += wiggleBonus * this.wiggleMultiplier;

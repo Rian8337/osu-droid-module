@@ -259,9 +259,9 @@ export abstract class DroidAimEvaluator {
             );
         }
 
-        if (last.object instanceof Slider) {
+        if (current.object instanceof Slider) {
             // Reward sliders based on velocity.
-            sliderBonus = last.travelDistance / last.travelTime;
+            sliderBonus = current.travelDistance / current.travelTime;
         }
 
         strain += wiggleBonus * this.wiggleMultiplier;
