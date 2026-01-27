@@ -38,7 +38,8 @@ export class OsuDifficultyAttributes
             super.toString() +
             ` (${this.aimDifficulty.toFixed(2)} aim, ` +
             `${this.speedDifficulty.toFixed(2)} speed, ` +
-            `${this.flashlightDifficulty.toFixed(2)} flashlight)`
+            `${this.flashlightDifficulty.toFixed(2)} flashlight, ` +
+            `${this.readingDifficulty.toFixed(2)} reading)`
         );
     }
 }

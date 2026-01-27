@@ -752,7 +752,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             this.accuracy.toFixed(2) +
             " accuracy, " +
             this.flashlight.toFixed(2) +
-            " flashlight)"
+            " flashlight, " +
+            this.reading.toFixed(2) +
+            " reading)"
         );
     }
 }
