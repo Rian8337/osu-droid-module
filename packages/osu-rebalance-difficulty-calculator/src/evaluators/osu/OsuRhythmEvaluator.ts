@@ -227,8 +227,7 @@ export abstract class OsuRhythmEvaluator {
         }
 
         return (
-            (Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) *
-                (1 - current.getDoubletapness(current.next(0)))) /
+            Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
             2
         );
     }

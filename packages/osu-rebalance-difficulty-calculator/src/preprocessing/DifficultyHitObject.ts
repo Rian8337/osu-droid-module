@@ -318,9 +318,10 @@ export abstract class DifficultyHitObject {
         const deltaDifference = Math.abs(nextDeltaTime - currentDeltaTime);
         const speedRatio =
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
+
         const windowRatio = Math.pow(
             Math.min(1, currentDeltaTime / this.fullGreatWindow),
-            2,
+            5,
         );
 
         return 1 - Math.pow(speedRatio, 1 - windowRatio);

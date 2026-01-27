@@ -31,12 +31,10 @@ export class DroidRhythm extends DroidSkill {
             this.useSliderAccuracy,
         );
 
-        const doubletapness = 1 - current.getDoubletapness(current.next(0));
-
         this.currentRhythmStrain *= this.strainDecay(current.deltaTime);
-        this.currentRhythmStrain += (rhythmMultiplier - 1) * doubletapness;
+        this.currentRhythmStrain += rhythmMultiplier - 1;
 
-        this.currentRhythmMultiplier = rhythmMultiplier * doubletapness;
+        this.currentRhythmMultiplier = rhythmMultiplier;
 
         return this.currentRhythmStrain;
     }
