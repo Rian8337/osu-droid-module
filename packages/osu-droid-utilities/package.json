@@ -26,14 +26,14 @@
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
-        "prepublishOnly": "npm run build",
+        "prepublishOnly": "pnpm build",
         "test": "jest"
     },
     "bugs": {
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "^4.0.0-beta.85"
+        "@rian8337/osu-base": "workspace:*"
     },
     "publishConfig": {
         "access": "public"

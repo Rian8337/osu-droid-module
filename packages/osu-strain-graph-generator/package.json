@@ -26,16 +26,16 @@
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
-        "prepublishOnly": "npm run build",
+        "prepublishOnly": "pnpm build",
         "test": "echo \"No tests for this module\""
     },
     "bugs": {
         "url": "https://github.com/Rian8337/osu-droid-module/issues"
     },
     "dependencies": {
-        "@rian8337/osu-base": "^4.0.0-beta.85",
-        "@rian8337/osu-difficulty-calculator": "^4.0.0-beta.85",
-        "@rian8337/osu-rebalance-difficulty-calculator": "^4.0.0-beta.85",
+        "@rian8337/osu-base": "workspace:*",
+        "@rian8337/osu-difficulty-calculator": "workspace:*",
+        "@rian8337/osu-rebalance-difficulty-calculator": "workspace:*",
         "canvas": "^3.1.0"
     },
     "publishConfig": {

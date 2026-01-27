@@ -8,16 +8,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js v18
         uses: actions/setup-node@v2
         with:
           node-version: 18
+          cache: 'pnpm'
 
       - name: Install dependencies
-        run: npm i
+        run: pnpm i
 
       - name: ESLint
-        run: lerna run lint
+        run: pnpm lint
 
       - name: Tests
-        run: lerna run test
+        run: pnpm test

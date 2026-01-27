@@ -1,15 +1,12 @@
 {
   "name": "root",
   "private": true,
-  "workspaces": [
-    "packages/*"
-  ],
   "scripts": {
     "build": "lerna run build",
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
     "generate-docs": "cross-env NODE_OPTIONS=--max-old-space-size=4096 typedoc \"packages/*\"",
-    "generate-docs-windows": "rmdir docs /s /q & npm run generate-docs",
-    "generate-docs-linux": "rm -rf docs & npm run generate-docs",
+    "generate-docs-windows": "rmdir docs /s /q & pnpm generate-docs",
+    "generate-docs-linux": "rm -rf docs & pnpm generate-docs",
     "postinstall": "lerna run build",
     "publish-release": "lerna publish",
     "publish-prerelease": "lerna publish --dist-tag beta",

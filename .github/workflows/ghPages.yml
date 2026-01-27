@@ -17,16 +17,21 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
       - name: Install Node.js v18
         uses: actions/setup-node@v2
         with:
           node-version: 18
+          cache: 'pnpm'
 
       - name: Install main dependencies
-        run: npm i
+        shell: bash
+        run: pnpm i
 
       - name: Build website # This example project is built using npm and outputs the result to the 'build' folder. Replace with the commands required to build your project, or remove this step entirely if your site is pre-built.
-        run: npm run generate-docs-linux
+        run: pnpm generate-docs-linux
 
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4.3.3

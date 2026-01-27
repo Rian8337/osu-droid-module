@@ -22,7 +22,7 @@
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint --ext ts",
-        "prepublishOnly": "npm run build",
+        "prepublishOnly": "pnpm build",
         "test": "jest"
     },
     "repository": {
