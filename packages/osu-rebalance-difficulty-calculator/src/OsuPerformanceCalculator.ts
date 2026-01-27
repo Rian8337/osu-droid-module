@@ -652,18 +652,35 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     private calculateComboBasedEstimatedMissCount(): number {
         let missCount = this.computedAccuracy.nmiss;
         const { combo } = this;
-        const { sliderCount, maxCombo } = this.difficultyAttributes;
+        const { aimTopWeightedSliderFactor, sliderCount, maxCombo } =
+            this.difficultyAttributes;
 
         if (sliderCount <= 0) {
             return missCount;
         }
 
         if (this.usingClassicSliderAccuracy) {
+            // If sliders in the beatmap are hard, it's likely for player to drop sliderends.
+            // However, if the beatmap has easy sliders, it's more likely for player to sliderbreak.
+            const likelyMissedSliderendPortion =
+                0.04 +
+                0.06 * Math.pow(Math.min(aimTopWeightedSliderFactor, 1), 2);
+
             // Consider that full combo is maximum combo minus dropped slider tails since
             // they don't contribute to combo but also don't break it.
             // In classic scores, we can't know the amount of dropped sliders so we estimate
             // to 10% of all sliders in the beatmap.
-            const fullComboThreshold = maxCombo - 0.1 * sliderCount;
+            const fullComboThreshold =
+                maxCombo -
+                Math.min(
+                    // 4 is the minimum leniency baseline to ensure that dropping one (for few) sliderends will
+                    // not instantly be treated as a sliderbreak even in cases where the slider count is low.
+                    // 4 was picked because in a lot of short stream beatmaps with small amount of sliders, there
+                    // are 2-3 sliders on which sliderends are often dropped. This is a kind of optimization to
+                    // achieve the most accurate result on average.
+                    4 + likelyMissedSliderendPortion * sliderCount,
+                    sliderCount,
+                );
 
             if (combo < fullComboThreshold) {
                 missCount = fullComboThreshold / Math.max(1, combo);
