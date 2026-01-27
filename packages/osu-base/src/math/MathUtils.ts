@@ -153,6 +153,20 @@ export abstract class MathUtils {
     }
 
     /**
+     * Calculates the p-norm of an n-dimensional vector.
+     *
+     * @param p The order of the norm.
+     * @param coefficients The coefficients of the vector.
+     * @returns The p-norm of the vector.
+     */
+    static norm(p: number, ...coefficients: number[]): number {
+        return Math.pow(
+            coefficients.reduce((a, v) => a + Math.pow(v, p), 0),
+            1 / p,
+        );
+    }
+
+    /**
      * Calculates an S-shaped {@link https://en.wikipedia.org/wiki/Logistic_function logistic function}
      * with offset at `x`.
      *
