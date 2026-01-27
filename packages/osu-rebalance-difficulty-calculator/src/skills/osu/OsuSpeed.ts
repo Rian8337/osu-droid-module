@@ -14,7 +14,7 @@ export class OsuSpeed extends HarmonicSkill {
     private currentDifficulty = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 0.93;
+    private readonly skillMultiplier = 0.95;
     private readonly strainDecayBase = 0.3;
 
     private readonly sliderDifficulties: number[] = [];
@@ -78,7 +78,7 @@ export class OsuSpeed extends HarmonicSkill {
 
         this.currentDifficulty *= decay;
         this.currentDifficulty +=
-            OsuSpeedEvaluator.evaluateDifficultyOf(current, this.mods) *
+            OsuSpeedEvaluator.evaluateDifficultyOf(current) *
             (1 - decay) *
             this.skillMultiplier;
 

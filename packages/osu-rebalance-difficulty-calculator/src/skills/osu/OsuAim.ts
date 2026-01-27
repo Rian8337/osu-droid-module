@@ -3,6 +3,7 @@ import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { OsuSkill } from "./OsuSkill";
 import { StrainUtils } from "../../utils/StrainUtils";
+import { OsuSpeedAimEvaluator } from "../../evaluators/osu/OsuSpeedAimEvaluator";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -14,7 +15,12 @@ export class OsuAim extends OsuSkill {
     protected override readonly decayWeight = 0.9;
 
     private currentAimStrain = 0;
-    private readonly skillMultiplier = 26.7;
+    private currentSpeedStrain = 0;
+
+    private readonly skillMultiplierAim = 26;
+    private readonly skillMultiplierSpeed = 1.3;
+    private readonly skillMultiplierTotal = 1.02;
+    private readonly meanExponent = 1.2;
 
     private readonly sliderStrains: number[] = [];
 
@@ -59,41 +65,68 @@ export class OsuAim extends OsuSkill {
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
-        const decay = this.strainDecay(current.strainTime);
+        const decayAim = this.strainDecayAim(current.strainTime);
+        const decaySpeed = this.strainDecaySpeed(current.strainTime);
 
-        this.currentAimStrain *= decay;
+        this.currentAimStrain *= decayAim;
         this.currentAimStrain +=
             OsuAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
-            (1 - decay) *
-            this.skillMultiplier;
+            (1 - decayAim) *
+            this.skillMultiplierAim;
 
-        this._objectStrains.push(this.currentAimStrain);
+        this.currentSpeedStrain *= decaySpeed;
+        this.currentSpeedStrain +=
+            OsuSpeedAimEvaluator.evaluateDifficultyOf(current) *
+            (1 - decaySpeed) *
+            this.skillMultiplierSpeed;
+
+        const totalStrain = MathUtils.norm(
+            this.meanExponent,
+            this.currentAimStrain,
+            this.currentSpeedStrain,
+        );
+
+        this._objectStrains.push(totalStrain);
 
         if (current.object instanceof Slider) {
-            this.sliderStrains.push(this.currentAimStrain);
+            this.sliderStrains.push(totalStrain);
         }
 
-        return this.currentAimStrain;
+        return totalStrain * this.skillMultiplierTotal;
     }
 
     protected override calculateInitialStrain(
         time: number,
         current: OsuDifficultyHitObject,
     ): number {
-        return (
-            this.currentAimStrain *
-            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
+        const deltaTime = time - (current.previous(0)?.startTime ?? 0);
+
+        return MathUtils.norm(
+            this.meanExponent,
+            this.currentAimStrain * this.strainDecayAim(deltaTime),
+            this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
         );
     }
 
-    /**
-     * @param current The hitobject to save to.
-     */
-    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
+    protected override saveToHitObject(current: OsuDifficultyHitObject) {
+        const strain = MathUtils.norm(
+            this.meanExponent,
+            this.currentAimStrain,
+            this.currentSpeedStrain,
+        );
+
         if (this.withSliders) {
-            current.aimStrainWithSliders = this.currentAimStrain;
+            current.aimStrainWithSliders = strain;
         } else {
-            current.aimStrainWithoutSliders = this.currentAimStrain;
+            current.aimStrainWithoutSliders = strain;
         }
+    }
+
+    private strainDecayAim(ms: number): number {
+        return Math.pow(0.15, ms / 1000);
+    }
+
+    private strainDecaySpeed(ms: number): number {
+        return Math.pow(0.3, ms / 1000);
     }
 }

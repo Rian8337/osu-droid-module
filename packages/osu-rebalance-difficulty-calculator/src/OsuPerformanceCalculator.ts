@@ -173,7 +173,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         let aimValue = OsuAim.difficultyToPerformance(aimDifficulty);
 
         // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
+        let lengthBonus = 0.95 + 0.3 * Math.min(1, this.totalHits / 2000);
         if (this.totalHits > 2000) {
             lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
         }
