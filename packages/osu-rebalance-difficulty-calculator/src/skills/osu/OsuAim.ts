@@ -59,9 +59,12 @@ export class OsuAim extends OsuSkill {
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
-        this.currentAimStrain *= this.strainDecay(current.deltaTime);
+        const decay = this.strainDecay(current.strainTime);
+
+        this.currentAimStrain *= decay;
         this.currentAimStrain +=
             OsuAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
+            (1 - decay) *
             this.skillMultiplier;
 
         this._objectStrains.push(this.currentAimStrain);

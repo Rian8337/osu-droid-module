@@ -60,9 +60,12 @@ export class DroidAim extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        this.currentAimStrain *= this.strainDecay(current.deltaTime);
+        const decay = this.strainDecay(current.strainTime);
+
+        this.currentAimStrain *= decay;
         this.currentAimStrain +=
             DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders) *
+            (1 - decay) *
             this.skillMultiplier;
 
         if (current.object instanceof Slider) {

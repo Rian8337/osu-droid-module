@@ -282,6 +282,8 @@ export abstract class DroidAimEvaluator {
                 Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
         }
 
+        strain *= this.highBpmBonus(current.strainTime);
+
         return strain;
     }
 
@@ -331,5 +333,9 @@ export abstract class DroidAimEvaluator {
             MathUtils.degreesToRadians(140),
             MathUtils.degreesToRadians(40),
         );
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.15, ms / 1000));
     }
 }

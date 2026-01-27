@@ -105,13 +105,17 @@ export class DroidTap extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        this.currentTapStrain *= this.strainDecay(current.strainTime);
+        const decay = this.strainDecay(current.strainTime);
+
+        this.currentTapStrain *= decay;
         this.currentTapStrain +=
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
                 this.considerCheesability,
                 this.strainTimeCap,
-            ) * this.skillMultiplier;
+            ) *
+            (1 - decay) *
+            this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
 

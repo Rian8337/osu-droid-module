@@ -51,9 +51,12 @@ export class OsuSpeed extends OsuSkill {
      * @param current The hitobject to calculate.
      */
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
-        this.currentSpeedStrain *= this.strainDecay(current.strainTime);
+        const decay = this.strainDecay(current.strainTime);
+
+        this.currentSpeedStrain *= decay;
         this.currentSpeedStrain +=
             OsuSpeedEvaluator.evaluateDifficultyOf(current, this.mods) *
+            (1 - decay) *
             this.skillMultiplier;
 
         this.currentRhythm = OsuRhythmEvaluator.evaluateDifficultyOf(current);

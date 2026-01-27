@@ -80,10 +80,15 @@ export abstract class OsuSpeedEvaluator {
         }
 
         // Base difficulty with all bonuses
-        const difficulty =
-            ((1 + speedBonus + distanceBonus) * 1000) / strainTime;
+        let difficulty = ((1 + speedBonus + distanceBonus) * 1000) / strainTime;
+
+        difficulty *= this.highBpmBonus(current.strainTime);
 
         // Apply penalty if there's doubletappable doubles
         return difficulty * doubletapness;
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.3, ms / 1000));
     }
 }

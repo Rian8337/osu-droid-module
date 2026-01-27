@@ -53,6 +53,13 @@ export abstract class DroidTapEvaluator {
                 );
         }
 
-        return (speedBonus * Math.pow(doubletapness, 1.5) * 1000) / strainTime;
+        let strain = (speedBonus * 1000) / strainTime;
+        strain *= this.highBpmBonus(current.strainTime);
+
+        return strain * Math.pow(doubletapness, 1.5);
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.3, ms / 1000));
     }
 }
