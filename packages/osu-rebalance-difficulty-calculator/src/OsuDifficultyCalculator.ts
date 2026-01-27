@@ -21,7 +21,7 @@ import { Skill } from "./base/Skill";
 import { OsuDifficultyHitObject } from "./preprocessing/OsuDifficultyHitObject";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuFlashlight } from "./skills/osu/OsuFlashlight";
-import { OsuSkill } from "./skills/osu/OsuSkill";
+import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { OsuDifficultyAttributes } from "./structures/OsuDifficultyAttributes";
 
@@ -97,6 +97,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             | OsuFlashlight
             | undefined;
 
+        const reading = skills.find((s) => s instanceof OsuReading) as
+            | OsuReading
+            | undefined;
+
         // Aim attributes
         const aimDifficultyValue = aim?.difficultyValue() ?? 0;
 
@@ -146,20 +150,19 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                     speedTopWeightedSliderCount,
             );
 
-        // Final rating
-        const mechanicalDifficultyRating =
-            this.calculateMechanicalDifficultyRating(
-                aimDifficultyValue,
-                speedDifficultyValue,
-            );
+        // Reading attributes
+        const readingDifficultyValue = reading?.difficultyValue() ?? 0;
 
+        attributes.readingDifficultNoteCount =
+            reading?.countTopWeightedObjectDifficulties(
+                readingDifficultyValue,
+            ) ?? 0;
+
+        // Final rating
         const ratingCalculator = new OsuRatingCalculator(
             attributes.mods,
             playableBeatmap.hitObjects.objects.length,
-            attributes.approachRate,
             attributes.overallDifficulty,
-            mechanicalDifficultyRating,
-            attributes.sliderFactor,
         );
 
         attributes.aimDifficulty =
@@ -170,6 +173,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             ratingCalculator.computeFlashlightRating(
                 flashlight?.difficultyValue() ?? 0,
             );
+        attributes.readingDifficulty = ratingCalculator.computeReadingRating(
+            readingDifficultyValue,
+        );
 
         const baseAimPerformance = OsuAim.difficultyToPerformance(
             attributes.aimDifficulty,
@@ -183,11 +189,16 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             attributes.flashlightDifficulty,
         );
 
+        const baseReadingPerformance = OsuReading.difficultyToPerformance(
+            attributes.readingDifficulty,
+        );
+
         const basePerformance = MathUtils.norm(
             OsuPerformanceCalculator.normExponent,
             baseAimPerformance,
             baseSpeedPerformance,
             baseFlashlightPerformance,
+            baseReadingPerformance,
         );
 
         attributes.starRating = this.calculateStarRating(basePerformance);
@@ -236,6 +247,14 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             skills.push(new OsuSpeed(mods));
         }
 
+        skills.push(
+            new OsuReading(
+                mods,
+                beatmap.speedMultiplier,
+                beatmap.hitObjects.objects,
+            ),
+        );
+
         if (mods.has(ModFlashlight)) {
             skills.push(new OsuFlashlight(mods));
         }
@@ -256,36 +275,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         ];
     }
 
-    private calculateMechanicalDifficultyRating(
-        aimDifficultyValue: number,
-        speedDifficultyValue: number,
-    ): number {
-        const aimValue = OsuSkill.difficultyToPerformance(
-            OsuRatingCalculator.calculateDifficultyRating(aimDifficultyValue),
-        );
-
-        const speedValue = OsuSkill.difficultyToPerformance(
-            OsuRatingCalculator.calculateDifficultyRating(speedDifficultyValue),
-        );
-
-        const totalValue = MathUtils.norm(
-            OsuPerformanceCalculator.normExponent,
-            aimValue,
-            speedValue,
-        );
-
-        return this.calculateStarRating(totalValue);
-    }
-
     private calculateStarRating(basePerformance: number): number {
-        if (basePerformance <= 1e-5) {
-            return 0;
-        }
-
-        return (
-            Math.cbrt(OsuPerformanceCalculator.finalMultiplier) *
-            this.starRatingMultiplier *
-            (Math.cbrt((100000 / Math.pow(2, 1 / 1.1)) * basePerformance) + 4)
+        return Math.cbrt(
+            basePerformance * OsuPerformanceCalculator.finalMultiplier,
         );
     }
 

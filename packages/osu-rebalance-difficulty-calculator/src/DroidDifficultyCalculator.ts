@@ -512,26 +512,17 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
+        const readingDifficultyValue = reading.difficultyValue();
+
         attributes.readingDifficulty = this.calculateRating(reading);
-        attributes.readingDifficultNoteCount = reading.countTopWeightedNotes();
-        attributes.readingTopWeightedSliderFactor =
-            reading.countTopWeightedSliders();
+        attributes.readingDifficultNoteCount =
+            reading.countTopWeightedObjectDifficulties(readingDifficultyValue);
 
         if (attributes.mods.has(ModRelax)) {
             attributes.readingDifficulty *= 0.7;
         } else if (attributes.mods.has(ModAutopilot)) {
             attributes.readingDifficulty *= 0.4;
         }
-
-        const readingTopWeightedSliderCount = reading.countTopWeightedSliders();
-
-        attributes.readingTopWeightedSliderFactor =
-            readingTopWeightedSliderCount /
-            Math.max(
-                1,
-                attributes.readingDifficultNoteCount -
-                    readingTopWeightedSliderCount,
-            );
 
         // Consider accuracy difficulty.
         const ratingMultiplier =

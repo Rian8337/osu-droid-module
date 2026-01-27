@@ -6,7 +6,6 @@ import {
     ModAutopilot,
     ModBlinds,
     ModFlashlight,
-    ModHidden,
     ModNoFail,
     ModRelax,
     ModScoreV2,
@@ -16,9 +15,9 @@ import {
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuAim } from "./skills/osu/OsuAim";
+import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
-import { OsuRatingCalculator } from "./OsuRatingCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -43,6 +42,11 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
      * The flashlight performance value.
      */
     flashlight = 0;
+
+    /**
+     * The reading performance value.
+     */
+    reading = 0;
 
     /**
      * The amount of misses, including slider breaks.
@@ -111,6 +115,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.speed = this.calculateSpeedValue();
         this.accuracy = this.calculateAccuracyValue();
         this.flashlight = this.calculateFlashlightValue();
+        this.reading = this.calculateReadingValue();
 
         this.total =
             MathUtils.norm(
@@ -119,6 +124,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 this.speed,
                 this.accuracy,
                 this.flashlight,
+                this.reading,
             ) * finalMultiplier;
     }
 
@@ -211,10 +217,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         } else if (this.mods.has(ModTraceable)) {
             aimValue *=
                 1 +
-                OsuRatingCalculator.calculateVisibilityBonus(
-                    this.mods,
-                    this.difficultyAttributes.approachRate,
-                    undefined,
+                this.calculateTraceableBonus(
                     this.difficultyAttributes.sliderFactor,
                 );
         }
@@ -263,14 +266,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             // Increasing the speed value by object count for Blinds is not ideal, so the minimum buff is given.
             speedValue *= 1.12;
         } else if (this.mods.has(ModTraceable)) {
-            speedValue *=
-                1 +
-                OsuRatingCalculator.calculateVisibilityBonus(
-                    this.mods,
-                    this.difficultyAttributes.approachRate,
-                    undefined,
-                    this.difficultyAttributes.sliderFactor,
-                );
+            speedValue *= 1 + this.calculateTraceableBonus();
         }
 
         // Calculate accuracy assuming the worst case scenario.
@@ -348,7 +344,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         // Increasing the accuracy value by object count for Blinds isn't ideal, so the minimum buff is given.
         if (this.mods.has(ModBlinds)) {
             accuracyValue *= 1.14;
-        } else if (this.mods.has(ModHidden) || this.mods.has(ModTraceable)) {
+        } else if (this.mods.has(ModTraceable)) {
             // Decrease bonus for AR > 10.
             accuracyValue *=
                 1 +
@@ -410,6 +406,32 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         flashlightValue *= 0.5 + this.computedAccuracy.value() / 2;
 
         return flashlightValue;
+    }
+
+    /**
+     * Calculates the reading performance value of the beatmap.
+     */
+    private calculateReadingValue(): number {
+        let readingValue = OsuReading.difficultyToPerformance(
+            this.difficultyAttributes.readingDifficulty,
+        );
+
+        if (this.effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            readingValue *= this.calculateMissPenalty(
+                this.effectiveMissCount + aimEstimatedSliderBreaks,
+                this.difficultyAttributes.readingDifficultNoteCount,
+            );
+        }
+
+        // Scale the reading value with accuracy _harshly_.
+        readingValue *= Math.pow(this.computedAccuracy.value(), 3);
+
+        return readingValue;
     }
 
     /**
@@ -711,6 +733,32 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         return missCount;
+    }
+
+    private calculateTraceableBonus(sliderFactor = 1): number {
+        const { approachRate } = this.difficultyAttributes;
+
+        // Start from normal curve, rewarding lower AR up to AR7.
+        let traceableBonus = 0.025 * (12 - Math.max(approachRate, 7));
+
+        // We want to reward slider aim on low AR less.
+        const sliderVisibilityFactor = Math.pow(sliderFactor, 3);
+
+        // For AR up to 0 - reduce reward for very low ARs when object is visible.
+        if (approachRate < 7) {
+            traceableBonus +=
+                0.02 * (7 - Math.max(approachRate, 0)) * sliderVisibilityFactor;
+        }
+
+        // Starting from AR0 - cap values so they won't grow to infinity.
+        if (approachRate < 0) {
+            traceableBonus +=
+                0.01 *
+                (1 - Math.pow(1.5, approachRate)) *
+                sliderVisibilityFactor;
+        }
+
+        return traceableBonus;
     }
 
     override toString(): string {

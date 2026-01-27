@@ -11,6 +11,7 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
     maxCombo = 0;
     aimDifficulty = 0;
     flashlightDifficulty = 0;
+    readingDifficulty = 0;
     speedNoteCount = 0;
     sliderFactor = 1;
     clockRate = 1;
@@ -21,6 +22,7 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
     aimDifficultSliderCount = 0;
     aimDifficultStrainCount = 0;
     aimTopWeightedSliderFactor = 0;
+    readingDifficultNoteCount = 0;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IDifficultyAttributes>,
@@ -47,6 +49,9 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
             cacheableAttributes.aimDifficultStrainCount;
         this.aimTopWeightedSliderFactor =
             cacheableAttributes.aimTopWeightedSliderFactor;
+        this.readingDifficulty = cacheableAttributes.readingDifficulty;
+        this.readingDifficultNoteCount =
+            cacheableAttributes.readingDifficultNoteCount;
     }
 
     /**

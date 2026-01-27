@@ -24,7 +24,6 @@ export abstract class DroidReadingEvaluator {
 
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        clockRate: number,
         mods: ModMap,
     ): number {
         if (
@@ -89,7 +88,7 @@ export abstract class DroidReadingEvaluator {
 
         if (mods.has(ModHidden)) {
             const timeSpentInvisible =
-                this.getDurationSpentInvisible(current) / clockRate;
+                this.getDurationSpentInvisible(current) / current.clockRate;
 
             // Value time spent invisible exponentially.
             const timeSpentInvisibleFactor =

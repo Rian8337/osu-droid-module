@@ -5,14 +5,14 @@ import {
     PlaceableHitObject,
 } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
-import { DroidReadingEvaluator } from "../../evaluators/droid/DroidReadingEvaluator";
+import { OsuReadingEvaluator } from "../../evaluators/osu/OsuReadingEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
-import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * Represents the skill required to read every object in the beatmap.
  */
-export class DroidReading extends HarmonicSkill {
+export class OsuReading extends HarmonicSkill {
     private currentDifficulty = 0;
 
     private readonly skillMultiplier = 2.5;
@@ -27,12 +27,12 @@ export class DroidReading extends HarmonicSkill {
     }
 
     protected override objectDifficultyOf(
-        current: DroidDifficultyHitObject,
+        current: OsuDifficultyHitObject,
     ): number {
         this.currentDifficulty *= this.difficultyDecay(current.deltaTime);
 
         this.currentDifficulty +=
-            DroidReadingEvaluator.evaluateDifficultyOf(current, this.mods) *
+            OsuReadingEvaluator.evaluateDifficultyOf(current, this.mods) *
             this.skillMultiplier;
 
         return this.currentDifficulty;

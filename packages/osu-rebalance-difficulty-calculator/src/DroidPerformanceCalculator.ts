@@ -498,7 +498,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         if (this._effectiveMissCount > 0) {
             const readingEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
-                    this.difficultyAttributes.readingTopWeightedSliderFactor,
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
                 );
 
             const relevantMissCount = Math.min(
