@@ -53,8 +53,8 @@ export class OsuReading extends HarmonicSkill {
         ) {
             const scale = Math.log10(
                 Interpolation.lerp(
-                    0,
                     1,
+                    10,
                     MathUtils.clamp(i / reducedNoteCount, 0, 1),
                 ),
             );
