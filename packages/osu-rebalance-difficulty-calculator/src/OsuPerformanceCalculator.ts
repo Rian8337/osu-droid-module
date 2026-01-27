@@ -374,14 +374,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 );
         }
 
-        // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
-        flashlightValue *=
-            0.7 +
-            0.1 * Math.min(1, this.totalHits / 200) +
-            (this.totalHits > 200
-                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
-                : 0);
-
         // Scale the flashlight value with accuracy slightly.
         flashlightValue *= 0.5 + this.computedAccuracy.value() / 2;
 
