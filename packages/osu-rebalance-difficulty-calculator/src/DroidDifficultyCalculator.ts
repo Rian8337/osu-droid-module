@@ -308,10 +308,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
-                DroidRatingCalculator.calculateDifficultyRating(
+                DroidRatingCalculator.calculateMechanicalDifficultyRating(
                     aimNoSlider.difficultyValue(),
                 ) /
-                DroidRatingCalculator.calculateDifficultyRating(
+                DroidRatingCalculator.calculateMechanicalDifficultyRating(
                     aimDifficultyValue,
                 );
         } else {
@@ -448,7 +448,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         attributes.rhythmDifficulty =
             rhythm && !attributes.mods.has(ModRelax)
-                ? DroidRatingCalculator.calculateDifficultyRating(
+                ? DroidRatingCalculator.calculateMechanicalDifficultyRating(
                       rhythm.difficultyValue(),
                   )
                 : 0;

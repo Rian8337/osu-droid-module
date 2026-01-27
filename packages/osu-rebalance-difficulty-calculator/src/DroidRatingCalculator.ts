@@ -6,7 +6,8 @@ import {
 } from "@rian8337/osu-base";
 
 export class DroidRatingCalculator {
-    private static readonly difficultyMultiplier = 0.18;
+    private static readonly mechanicalDifficultyMultiplier = 0.18;
+    private static readonly cognitionDifficultyMultiplier = 0.0675;
 
     constructor(
         private readonly mods: ModMap,
@@ -19,7 +20,9 @@ export class DroidRatingCalculator {
         }
 
         let aimRating =
-            DroidRatingCalculator.calculateDifficultyRating(aimDifficultyValue);
+            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                aimDifficultyValue,
+            );
 
         if (this.mods.has(ModRelax)) {
             aimRating *= 0.9;
@@ -34,7 +37,9 @@ export class DroidRatingCalculator {
         }
 
         const tapRating =
-            DroidRatingCalculator.calculateDifficultyRating(tapDifficultyValue);
+            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                tapDifficultyValue,
+            );
 
         return tapRating;
     }
@@ -44,9 +49,10 @@ export class DroidRatingCalculator {
             return 0;
         }
 
-        let flashlightRating = DroidRatingCalculator.calculateDifficultyRating(
-            flashlightDifficultyValue,
-        );
+        let flashlightRating =
+            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                flashlightDifficultyValue,
+            );
 
         if (this.mods.has(ModRelax)) {
             flashlightRating *= 0.7;
@@ -68,9 +74,10 @@ export class DroidRatingCalculator {
     }
 
     computeReadingRating(readingDifficultyValue: number): number {
-        let readingRating = DroidRatingCalculator.calculateDifficultyRating(
-            readingDifficultyValue,
-        );
+        let readingRating =
+            DroidRatingCalculator.calculateCognitionDifficultyRating(
+                readingDifficultyValue,
+            );
 
         if (this.mods.has(ModRelax)) {
             readingRating *= 0.7;
@@ -81,7 +88,13 @@ export class DroidRatingCalculator {
         return readingRating;
     }
 
-    static calculateDifficultyRating(difficultyValue: number): number {
-        return Math.sqrt(difficultyValue) * this.difficultyMultiplier;
+    static calculateMechanicalDifficultyRating(
+        difficultyValue: number,
+    ): number {
+        return Math.sqrt(difficultyValue) * this.mechanicalDifficultyMultiplier;
+    }
+
+    static calculateCognitionDifficultyRating(difficultyValue: number): number {
+        return Math.sqrt(difficultyValue) * this.cognitionDifficultyMultiplier;
     }
 }
