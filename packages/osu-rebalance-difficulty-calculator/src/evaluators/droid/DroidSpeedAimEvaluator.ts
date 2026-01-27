@@ -1,17 +1,17 @@
 import { Spinner } from "@rian8337/osu-base";
-import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
- * An evaluator for calculating osu!standard speed aim difficulty.
+ * An evaluator for calculating osu!droid speed aim difficulty.
  */
-export abstract class OsuSpeedAimEvaluator {
+export abstract class DroidSpeedAimEvaluator {
     /**
      * Spacing threshold for a single hitobject spacing.
      *
      * About 1.25 circles distance between hitobject centers.
      */
     private static readonly singleSpacingThreshold =
-        OsuDifficultyHitObject.normalizedDiameter * 1.25;
+        DroidDifficultyHitObject.normalizedDiameter * 1.25;
 
     /**
      * Evaluates the difficulty of aiming the current object, based on:
@@ -20,7 +20,7 @@ export abstract class OsuSpeedAimEvaluator {
      *
      * @param current The current object.
      */
-    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
+    static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
