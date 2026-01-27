@@ -363,7 +363,7 @@ export abstract class DifficultyHitObject {
         const scalingFactor =
             DifficultyHitObject.normalizedRadius / this.object.radius;
 
-        const lastCursorPosition =
+        let lastCursorPosition =
             this.lastDifficultyObject !== null
                 ? this.getEndCursorPosition(this.lastDifficultyObject)
                 : this.lastObject.stackedPosition;
@@ -426,19 +426,69 @@ export abstract class DifficultyHitObject {
             this.lastLastDifficultyObject &&
             !(this.lastLastDifficultyObject.object instanceof Spinner)
         ) {
+            if (
+                this.lastDifficultyObject?.object instanceof Slider &&
+                this.lastDifficultyObject.travelDistance > 0
+            ) {
+                lastCursorPosition =
+                    this.lastDifficultyObject.object.stackedPosition;
+            }
+
             const lastLastCursorPosition = this.getEndCursorPosition(
                 this.lastLastDifficultyObject,
             );
 
-            const v1 = lastLastCursorPosition.subtract(
-                this.lastObject.stackedPosition,
+            const angle = this.calculateAngle(
+                this.object.stackedPosition,
+                lastCursorPosition,
+                lastLastCursorPosition,
             );
-            const v2 = this.object.stackedPosition.subtract(lastCursorPosition);
-            const dot = v1.dot(v2);
-            const det = v1.x * v2.y - v1.y * v2.x;
 
-            this.angle = Math.abs(Math.atan2(det, dot));
+            const sliderAngle = this.calculateSliderAngle(
+                this.lastDifficultyObject!,
+                lastLastCursorPosition,
+            );
+
+            this.angle = Math.min(angle, sliderAngle);
         }
+    }
+
+    private calculateAngle(
+        currentPosition: Vector2,
+        lastPosition: Vector2,
+        lastLastPosition: Vector2,
+    ): number {
+        const v1 = lastLastPosition.subtract(lastPosition);
+        const v2 = currentPosition.subtract(lastPosition);
+
+        const dot = v1.dot(v2);
+        const det = v1.x * v2.y - v1.y * v2.x;
+
+        return Math.abs(Math.atan2(det, dot));
+    }
+
+    private calculateSliderAngle(
+        lastDifficultyObject: this,
+        lastLastCursorPosition: Vector2,
+    ): number {
+        const lastCursorPosition =
+            this.getEndCursorPosition(lastDifficultyObject);
+
+        if (
+            lastDifficultyObject.object instanceof Slider &&
+            lastDifficultyObject.travelDistance > 0
+        ) {
+            const secondLastNestedObject =
+                lastDifficultyObject.object.nestedHitObjects.at(-2)!;
+
+            lastLastCursorPosition = secondLastNestedObject.stackedPosition;
+        }
+
+        return this.calculateAngle(
+            this.object.stackedPosition,
+            lastCursorPosition,
+            lastLastCursorPosition,
+        );
     }
 
     private calculateSliderCursorPosition() {

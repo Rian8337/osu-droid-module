@@ -7,7 +7,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
 export abstract class OsuAimEvaluator {
     private static readonly wideAngleMultiplier = 1.5;
     private static readonly acuteAngleMultiplier = 2.3;
-    private static readonly sliderMultiplier = 1.35;
+    private static readonly sliderMultiplier = 1.5;
     private static readonly velocityChangeMultiplier = 0.75;
     private static readonly wiggleMultiplier = 1.02;
 
