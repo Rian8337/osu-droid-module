@@ -42,11 +42,6 @@ export interface PerformanceCalculationOptions {
     aimSliderCheesePenalty?: number;
 
     /**
-     * The flashlight slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
-     */
-    flashlightSliderCheesePenalty?: number;
-
-    /**
      * The total score achieved in the score.
      */
     totalScore?: number;

@@ -81,15 +81,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * The penalty used to penalize the flashlight performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
-     */
-    get flashlightSliderCheesePenalty(): number {
-        return this._flashlightSliderCheesePenalty;
-    }
-
-    /**
      * The total score achieved in the score.
      */
     get totalScore(): number | null {
@@ -107,7 +98,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     static readonly normExponent = 1.1;
 
     private _aimSliderCheesePenalty = 1;
-    private _flashlightSliderCheesePenalty = 1;
     private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
@@ -201,12 +191,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         this._aimSliderCheesePenalty = MathUtils.clamp(
             options?.aimSliderCheesePenalty ?? 1,
-            0,
-            1,
-        );
-
-        this._flashlightSliderCheesePenalty = MathUtils.clamp(
-            options?.flashlightSliderCheesePenalty ?? 1,
             0,
             1,
         );
@@ -448,24 +432,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             this.difficultyAttributes.flashlightDifficulty,
         );
 
-        if (this._effectiveMissCount > 0) {
-            const flashlightEstimatedSliderBreaks =
-                this.calculateEstimatedSliderBreaks(
-                    this.difficultyAttributes.flashlightTopWeightedSliderFactor,
+        if (this.effectiveMissCount > 0) {
+            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
+            flashlightValue *=
+                0.97 *
+                Math.pow(
+                    1 -
+                        Math.pow(
+                            this.effectiveMissCount / this.totalHits,
+                            0.775,
+                        ),
+                    Math.pow(this.effectiveMissCount, 0.875),
                 );
-
-            const relevantMissCount = Math.min(
-                this._effectiveMissCount + flashlightEstimatedSliderBreaks,
-                this.totalImperfectHits + this.sliderTicksMissed,
-            );
-
-            flashlightValue *= Math.min(
-                this.calculateStrainBasedMissPenalty(
-                    relevantMissCount,
-                    this.difficultyAttributes.flashlightDifficultStrainCount,
-                ),
-                this.proportionalMissPenalty,
-            );
         }
 
         // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
@@ -475,9 +453,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             (this.totalHits > 200
                 ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
                 : 0);
-
-        // Scale the flashlight value with slider cheese penalty.
-        flashlightValue *= this._flashlightSliderCheesePenalty;
 
         // Scale the flashlight value with deviation.
         flashlightValue *= ErrorFunction.erf(

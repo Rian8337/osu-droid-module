@@ -13,8 +13,6 @@ export class DroidDifficultyAttributes
     tapTopWeightedSliderFactor = 0;
     rhythmDifficulty = 0;
     tapDifficultStrainCount = 0;
-    flashlightDifficultStrainCount = 0;
-    flashlightTopWeightedSliderFactor = 0;
     averageSpeedDeltaTime = 0;
     vibroFactor = 1;
     nestedScorePerObject = 0;
@@ -35,16 +33,12 @@ export class DroidDifficultyAttributes
         this.readingDifficulty = cacheableAttributes.readingDifficulty;
         this.tapDifficultStrainCount =
             cacheableAttributes.tapDifficultStrainCount;
-        this.flashlightDifficultStrainCount =
-            cacheableAttributes.flashlightDifficultStrainCount;
         this.readingDifficultNoteCount =
             cacheableAttributes.readingDifficultNoteCount;
         this.averageSpeedDeltaTime = cacheableAttributes.averageSpeedDeltaTime;
         this.vibroFactor = cacheableAttributes.vibroFactor;
         this.tapTopWeightedSliderFactor =
             cacheableAttributes.tapTopWeightedSliderFactor;
-        this.flashlightTopWeightedSliderFactor =
-            cacheableAttributes.flashlightTopWeightedSliderFactor;
         this.maximumScore = cacheableAttributes.maximumScore;
     }
 

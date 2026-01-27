@@ -196,8 +196,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
 
         if (mods.has(ModFlashlight)) {
-            skills.push(new DroidFlashlight(mods, true));
-            skills.push(new DroidFlashlight(mods, false));
+            skills.push(new DroidFlashlight(mods));
         }
 
         return skills;
@@ -212,7 +211,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             new DroidAim(mods, true),
             new DroidAim(mods, false),
             new DroidTap(mods, true),
-            new DroidFlashlight(mods, true),
+            new DroidFlashlight(mods),
         ];
     }
 
@@ -445,56 +444,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
     ) {
-        const flashlight = skills.find(
-            (s) => s instanceof DroidFlashlight && s.withSliders,
-        ) as DroidFlashlight | undefined;
+        const flashlight = skills.find((s) => s instanceof DroidFlashlight) as
+            | DroidFlashlight
+            | undefined;
 
-        const flashlightNoSliders = skills.find(
-            (s) => s instanceof DroidFlashlight && !s.withSliders,
-        ) as DroidFlashlight | undefined;
-
-        if (!flashlight || !flashlightNoSliders) {
+        if (!flashlight) {
             attributes.flashlightDifficulty = 0;
-            attributes.flashlightDifficultStrainCount = 0;
-            attributes.flashlightSliderFactor = 1;
             return;
         }
 
-        const flashlightDifficultyValue = flashlight.difficultyValue();
-
         attributes.flashlightDifficulty = this.calculateRating(flashlight);
-        attributes.flashlightDifficultStrainCount =
-            flashlight.countTopWeightedStrains(flashlightDifficultyValue);
-
-        const flashlightNoSlidersTopWeightedSliderCount =
-            flashlightNoSliders.countTopWeightedSliders(
-                flashlightDifficultyValue,
-            );
-        const flashlightNoSlidersDifficultStrainCount =
-            flashlightNoSliders.countTopWeightedStrains(
-                flashlightDifficultyValue,
-            );
-
-        attributes.flashlightTopWeightedSliderFactor =
-            flashlightNoSlidersTopWeightedSliderCount /
-            Math.max(
-                1,
-                flashlightNoSlidersDifficultStrainCount -
-                    flashlightNoSlidersTopWeightedSliderCount,
-            );
 
         if (attributes.mods.has(ModRelax)) {
             attributes.flashlightDifficulty *= 0.7;
         } else if (attributes.mods.has(ModAutopilot)) {
             attributes.flashlightDifficulty *= 0.4;
-        }
-
-        if (attributes.flashlightDifficulty > 0) {
-            attributes.flashlightSliderFactor =
-                this.calculateRating(flashlightNoSliders) /
-                attributes.flashlightDifficulty;
-        } else {
-            attributes.flashlightSliderFactor = 1;
         }
     }
 

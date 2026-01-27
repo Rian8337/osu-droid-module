@@ -22,13 +22,4 @@ export interface IExtendedDroidDifficultyAttributes
      * Sliders that are considered difficult.
      */
     difficultSliders: DifficultSlider[];
-
-    /**
-     * Describes how much of flashlight difficulty is contributed to by hitcircles or sliders.
-     *
-     * A value closer to 1 indicates most of flashlight difficulty is contributed by hitcircles.
-     *
-     * A value closer to 0 indicates most of flashlight difficulty is contributed by sliders.
-     */
-    flashlightSliderFactor: number;
 }

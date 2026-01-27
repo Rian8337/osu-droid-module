@@ -70,8 +70,7 @@ export class RebalanceSliderCheeseChecker {
     check(): SliderCheeseInformation {
         if (
             this.difficultyAttributes.difficultSliders.length === 0 ||
-            (this.difficultyAttributes.sliderFactor === 1 &&
-                this.difficultyAttributes.flashlightSliderFactor === 1)
+            this.difficultyAttributes.sliderFactor === 1
         ) {
             return {
                 aimPenalty: 1,
@@ -354,15 +353,7 @@ export class RebalanceSliderCheeseChecker {
                     2,
                 ),
             ),
-            flashlightPenalty: Math.max(
-                this.difficultyAttributes.flashlightSliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.flashlightSliderFactor,
-                    2,
-                ),
-            ),
+            flashlightPenalty: 1,
         };
     }
 

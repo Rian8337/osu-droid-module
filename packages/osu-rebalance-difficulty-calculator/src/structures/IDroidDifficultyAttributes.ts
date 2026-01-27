@@ -29,20 +29,6 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     tapTopWeightedSliderFactor: number;
 
     /**
-     * The amount of strains that are considered difficult with respect to the flashlight skill.
-     */
-    flashlightDifficultStrainCount: number;
-
-    /**
-     * Describes how much of {@link flashlightDifficultStrainCount} is contributed to by circles or sliders.
-     *
-     * A value closer to 0 indicates most of {@link flashlightDifficultStrainCount} is contributed by circles.
-     *
-     * A value closer to infinity indicates most of {@link flashlightDifficultStrainCount} is contributed by sliders.
-     */
-    flashlightTopWeightedSliderFactor: number;
-
-    /**
      * The average delta time of speed objects.
      */
     averageSpeedDeltaTime: number;

@@ -1,9 +1,7 @@
-import { ModMap, Slider } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
-import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
@@ -17,29 +15,8 @@ export class DroidFlashlight extends DroidSkill {
     private readonly skillMultiplier = 0.023;
     private currentFlashlightStrain = 0;
 
-    readonly withSliders: boolean;
-    private readonly sliderStrains: number[] = [];
-
-    constructor(mods: ModMap, withSliders: boolean) {
-        super(mods);
-
-        this.withSliders = withSliders;
-    }
-
     static override difficultyToPerformance(difficulty: number): number {
         return Math.pow(difficulty, 1.6) * 25;
-    }
-
-    /**
-     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
-     *
-     * @param difficultyValue The final difficulty value.
-     */
-    countTopWeightedSliders(difficultyValue: number): number {
-        return StrainUtils.countTopWeightedSliders(
-            this.sliderStrains,
-            difficultyValue,
-        );
     }
 
     protected override strainValueAt(
@@ -47,15 +24,8 @@ export class DroidFlashlight extends DroidSkill {
     ): number {
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
-            DroidFlashlightEvaluator.evaluateDifficultyOf(
-                current,
-                this.mods,
-                this.withSliders,
-            ) * this.skillMultiplier;
-
-        if (current.object instanceof Slider) {
-            this.sliderStrains.push(this.currentFlashlightStrain);
-        }
+            DroidFlashlightEvaluator.evaluateDifficultyOf(current, this.mods) *
+            this.skillMultiplier;
 
         return this.currentFlashlightStrain;
     }
@@ -74,15 +44,8 @@ export class DroidFlashlight extends DroidSkill {
         return this.currentFlashlightStrain;
     }
 
-    protected override saveToHitObject(
-        current: DroidDifficultyHitObject,
-    ): void {
-        if (this.withSliders) {
-            current.flashlightStrainWithSliders = this.currentFlashlightStrain;
-        } else {
-            current.flashlightStrainWithoutSliders =
-                this.currentFlashlightStrain;
-        }
+    protected override saveToHitObject(current: DroidDifficultyHitObject) {
+        current.flashlightStrain = this.currentFlashlightStrain;
     }
 
     override difficultyValue(): number {

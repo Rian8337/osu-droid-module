@@ -15,7 +15,6 @@ export class ExtendedDroidDifficultyAttributes
     mode = "rebalance" as const;
     possibleThreeFingeredSections: HighStrainSection[] = [];
     difficultSliders: DifficultSlider[] = [];
-    flashlightSliderFactor = 1;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IExtendedDroidDifficultyAttributes>,
@@ -29,7 +28,5 @@ export class ExtendedDroidDifficultyAttributes
         this.possibleThreeFingeredSections =
             cacheableAttributes.possibleThreeFingeredSections;
         this.difficultSliders = cacheableAttributes.difficultSliders;
-        this.flashlightSliderFactor =
-            cacheableAttributes.flashlightSliderFactor;
     }
 }
