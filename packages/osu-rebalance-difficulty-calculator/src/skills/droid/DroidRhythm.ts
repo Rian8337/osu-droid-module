@@ -1,21 +1,21 @@
 import { ModMap, ModScoreV2 } from "@rian8337/osu-base";
+import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { DroidRhythmEvaluator } from "../../evaluators/droid/DroidRhythmEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { DroidSkill } from "./DroidSkill";
 
 /**
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
-export class DroidRhythm extends DroidSkill {
-    protected override readonly reducedSectionCount = 5;
-    protected override readonly reducedSectionBaseline = 0.75;
-    protected override readonly strainDecayBase = 0.3;
-    protected override readonly starsPerDouble = 1.75;
+export class DroidRhythm extends HarmonicSkill {
+    protected override readonly decayExponent = 0.8;
+
+    private readonly skillMultiplier = 7.5;
+    private readonly strainDecayBase = 0.3;
+
+    private currentRhythmDifficulty = 0;
+    private currentRhythmMultiplier = 0;
 
     private readonly useSliderAccuracy: boolean;
-
-    private currentRhythmStrain = 0;
-    private currentRhythmMultiplier = 1;
 
     constructor(mods: ModMap) {
         super(mods);
@@ -23,7 +23,7 @@ export class DroidRhythm extends DroidSkill {
         this.useSliderAccuracy = mods.has(ModScoreV2);
     }
 
-    protected override strainValueAt(
+    protected override objectDifficultyOf(
         current: DroidDifficultyHitObject,
     ): number {
         const rhythmMultiplier = DroidRhythmEvaluator.evaluateDifficultyOf(
@@ -31,32 +31,21 @@ export class DroidRhythm extends DroidSkill {
             this.useSliderAccuracy,
         );
 
-        this.currentRhythmStrain *= this.strainDecay(current.deltaTime);
-        this.currentRhythmStrain += rhythmMultiplier - 1;
+        this.currentRhythmDifficulty *= this.strainDecay(current.strainTime);
+        this.currentRhythmDifficulty +=
+            (rhythmMultiplier - 1) * this.skillMultiplier;
 
         this.currentRhythmMultiplier = rhythmMultiplier;
 
-        return this.currentRhythmStrain;
+        return this.currentRhythmDifficulty;
     }
 
-    protected override calculateInitialStrain(
-        time: number,
-        current: DroidDifficultyHitObject,
-    ): number {
-        return (
-            this.currentRhythmStrain *
-            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
-        );
-    }
-
-    protected override getObjectStrain(): number {
-        return this.currentRhythmStrain;
-    }
-
-    protected override saveToHitObject(
-        current: DroidDifficultyHitObject,
-    ): void {
-        current.rhythmStrain = this.currentRhythmStrain;
+    protected override saveToHitObject(current: DroidDifficultyHitObject) {
+        current.rhythmDifficulty = this.currentRhythmDifficulty;
         current.rhythmMultiplier = this.currentRhythmMultiplier;
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 }

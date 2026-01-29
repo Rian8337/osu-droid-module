@@ -44,6 +44,16 @@ export class DroidRatingCalculator {
         return tapRating;
     }
 
+    computeRhythmRating(rhythmDifficultyValue: number): number {
+        if (this.mods.has(ModRelax)) {
+            return 0;
+        }
+
+        return DroidRatingCalculator.calculateHarmonicDifficultyRating(
+            rhythmDifficultyValue,
+        );
+    }
+
     computeFlashlightRating(flashlightDifficultyValue: number): number {
         if (!this.mods.has(ModFlashlight)) {
             return 0;

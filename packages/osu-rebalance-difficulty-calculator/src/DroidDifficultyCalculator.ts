@@ -104,7 +104,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             ratingCalculator,
         );
 
-        this.populateRhythmAttributes(attributes, skills);
+        this.populateRhythmAttributes(attributes, skills, ratingCalculator);
         this.populateFlashlightAttributes(attributes, skills, ratingCalculator);
         this.populateReadingAttributes(attributes, skills, ratingCalculator);
 
@@ -441,17 +441,15 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     private populateRhythmAttributes(
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
+        ratingCalculator: DroidRatingCalculator,
     ) {
         const rhythm = skills.find((s) => s instanceof DroidRhythm) as
             | DroidRhythm
             | undefined;
 
-        attributes.rhythmDifficulty =
-            rhythm && !attributes.mods.has(ModRelax)
-                ? DroidRatingCalculator.calculateStrainBasedDifficultyRating(
-                      rhythm.difficultyValue(),
-                  )
-                : 0;
+        attributes.rhythmDifficulty = ratingCalculator.computeRhythmRating(
+            rhythm?.difficultyValue() ?? 0,
+        );
     }
 
     private populateFlashlightAttributes(
