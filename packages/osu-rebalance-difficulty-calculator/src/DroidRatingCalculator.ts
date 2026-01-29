@@ -20,7 +20,7 @@ export class DroidRatingCalculator {
         }
 
         let aimRating =
-            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+            DroidRatingCalculator.calculateStrainBasedDifficultyRating(
                 aimDifficultyValue,
             );
 
@@ -37,7 +37,7 @@ export class DroidRatingCalculator {
         }
 
         const tapRating =
-            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+            DroidRatingCalculator.calculateHarmonicDifficultyRating(
                 tapDifficultyValue,
             );
 
@@ -50,7 +50,7 @@ export class DroidRatingCalculator {
         }
 
         let flashlightRating =
-            DroidRatingCalculator.calculateMechanicalDifficultyRating(
+            DroidRatingCalculator.calculateStrainBasedDifficultyRating(
                 flashlightDifficultyValue,
             );
 
@@ -75,7 +75,7 @@ export class DroidRatingCalculator {
 
     computeReadingRating(readingDifficultyValue: number): number {
         let readingRating =
-            DroidRatingCalculator.calculateCognitionDifficultyRating(
+            DroidRatingCalculator.calculateHarmonicDifficultyRating(
                 readingDifficultyValue,
             );
 
@@ -88,13 +88,13 @@ export class DroidRatingCalculator {
         return readingRating;
     }
 
-    static calculateMechanicalDifficultyRating(
+    static calculateStrainBasedDifficultyRating(
         difficultyValue: number,
     ): number {
         return Math.sqrt(difficultyValue) * this.mechanicalDifficultyMultiplier;
     }
 
-    static calculateCognitionDifficultyRating(difficultyValue: number): number {
+    static calculateHarmonicDifficultyRating(difficultyValue: number): number {
         return Math.sqrt(difficultyValue) * this.cognitionDifficultyMultiplier;
     }
 }

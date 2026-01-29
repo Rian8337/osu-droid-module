@@ -1,34 +1,25 @@
-import { ModMap, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { DroidSkill } from "./DroidSkill";
-import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
  */
-export class DroidTap extends DroidSkill {
-    protected override readonly reducedSectionCount = 10;
-    protected override readonly reducedSectionBaseline = 0.75;
-    protected override readonly strainDecayBase = 0.3;
-    protected override readonly starsPerDouble = 1.1;
+export class DroidTap extends HarmonicSkill {
+    protected override readonly harmonicScale = 20;
+    protected override readonly decayExponent = 0.85;
 
-    private currentTapStrain = 0;
+    private readonly skillMultiplier = 0.93;
+    private readonly strainDecayBase = 0.3;
+
+    private currentTapDifficulty = 0;
     private currentRhythmMultiplier = 0;
 
-    private readonly skillMultiplier = 1.375;
+    private readonly objectDeltaTimes: number[] = [];
+    private readonly sliderDifficulties: number[] = [];
 
-    private readonly _objectDeltaTimes: number[] = [];
-    private readonly sliderStrains: number[] = [];
-
-    private maxStrain = 0;
-
-    /**
-     * The delta time of hitobjects.
-     */
-    get objectDeltaTimes(): readonly number[] {
-        return this._objectDeltaTimes;
-    }
+    private maxDifficulty = 0;
 
     readonly considerCheesability: boolean;
     readonly strainTimeCap?: number;
@@ -48,13 +39,14 @@ export class DroidTap extends DroidSkill {
      * The amount of notes that are relevant to the difficulty.
      */
     relevantNoteCount(): number {
-        if (this._objectStrains.length === 0 || this.maxStrain === 0) {
+        if (this.objectDifficulties.length === 0 || this.maxDifficulty === 0) {
             return 0;
         }
 
-        return this._objectStrains.reduce(
+        return this.objectDifficulties.reduce(
             (total, next) =>
-                total + 1 / (1 + Math.exp(-((next / this.maxStrain) * 12 - 6))),
+                total +
+                1 / (1 + Math.exp(-((next / this.maxDifficulty) * 12 - 6))),
             0,
         );
     }
@@ -63,54 +55,79 @@ export class DroidTap extends DroidSkill {
      * The delta time relevant to the difficulty.
      */
     relevantDeltaTime(): number {
-        if (this._objectStrains.length === 0 || this.maxStrain === 0) {
+        if (this.objectDifficulties.length === 0 || this.maxDifficulty === 0) {
             return 0;
         }
 
         return (
-            this._objectDeltaTimes.reduce(
+            this.objectDeltaTimes.reduce(
                 (total, next, index) =>
                     total +
                     next /
                         (1 +
                             Math.exp(
                                 -(
-                                    (this._objectStrains[index] /
-                                        this.maxStrain) *
+                                    (this.objectDifficulties[index] /
+                                        this.maxDifficulty) *
                                         25 -
                                     20
                                 ),
                             )),
                 0,
             ) /
-            this._objectStrains.reduce(
+            this.objectDifficulties.reduce(
                 (total, next) =>
                     total +
-                    1 / (1 + Math.exp(-((next / this.maxStrain) * 25 - 20))),
+                    1 /
+                        (1 +
+                            Math.exp(-((next / this.maxDifficulty) * 25 - 20))),
                 0,
             )
         );
     }
 
     /**
-     * Obtains the amount of sliders that are considered difficult in terms of relative strain, weighted by consistency.
+     * Obtains the amount of sliders that are considered difficult in terms of relative difficulty, weighted by consistency.
      *
      * @param difficultyValue The final difficulty value.
      */
     countTopWeightedSliders(difficultyValue: number): number {
-        return StrainUtils.countTopWeightedSliders(
-            this.sliderStrains,
-            difficultyValue,
+        if (this.sliderDifficulties.length === 0) {
+            return 0;
+        }
+
+        if (this.noteWeightSum === 0) {
+            return 0;
+        }
+
+        // What would the top note be if all note values were identical
+        const consistentTopNote = difficultyValue / this.noteWeightSum;
+
+        if (consistentTopNote === 0) {
+            return 0;
+        }
+
+        // Use a weighted sum of all notes. Constants are arbitrary and give nice values
+        return this.sliderDifficulties.reduce(
+            (total, next) =>
+                total +
+                MathUtils.offsetLogistic(
+                    next / consistentTopNote,
+                    0.88,
+                    10,
+                    1.1,
+                ),
+            0,
         );
     }
 
-    protected override strainValueAt(
+    protected override objectDifficultyOf(
         current: DroidDifficultyHitObject,
     ): number {
         const decay = this.strainDecay(current.strainTime);
 
-        this.currentTapStrain *= decay;
-        this.currentTapStrain +=
+        this.currentTapDifficulty *= decay;
+        this.currentTapDifficulty +=
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
                 this.considerCheesability,
@@ -121,49 +138,36 @@ export class DroidTap extends DroidSkill {
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
 
-        this._objectDeltaTimes.push(current.deltaTime);
+        this.objectDeltaTimes.push(current.deltaTime);
 
-        const strain = this.currentTapStrain * this.currentRhythmMultiplier;
-        this.maxStrain = Math.max(this.maxStrain, strain);
+        const difficulty =
+            this.currentTapDifficulty * this.currentRhythmMultiplier;
+
+        this.maxDifficulty = Math.max(this.maxDifficulty, difficulty);
 
         if (current.object instanceof Slider) {
-            this.sliderStrains.push(strain);
+            this.sliderDifficulties.push(difficulty);
         }
 
-        return strain;
+        return difficulty;
     }
 
-    protected override calculateInitialStrain(
-        time: number,
-        current: DroidDifficultyHitObject,
-    ): number {
-        return (
-            this.currentTapStrain *
-            this.currentRhythmMultiplier *
-            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
-        );
-    }
-
-    protected override getObjectStrain(): number {
-        return this.currentTapStrain * this.currentRhythmMultiplier;
-    }
-
-    /**
-     * @param current The hitobject to save to.
-     */
-    protected override saveToHitObject(
-        current: DroidDifficultyHitObject,
-    ): void {
+    protected override saveToHitObject(current: DroidDifficultyHitObject) {
         if (this.strainTimeCap !== undefined) {
             return;
         }
 
-        const strain = this.currentTapStrain * this.currentRhythmMultiplier;
+        const difficulty =
+            this.currentTapDifficulty * this.currentRhythmMultiplier;
 
         if (this.considerCheesability) {
-            current.tapStrain = strain;
+            current.tapDifficulty = difficulty;
         } else {
-            current.originalTapStrain = strain;
+            current.originalTapDifficulty = difficulty;
         }
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 }

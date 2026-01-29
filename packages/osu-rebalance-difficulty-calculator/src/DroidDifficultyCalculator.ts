@@ -14,9 +14,11 @@ import {
     OsuHitWindow,
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
+import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
+import { DroidRatingCalculator } from "./DroidRatingCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
+import { IHasPeakDifficulty } from "./base/IHasPeakDifficulty";
 import { Skill } from "./base/Skill";
-import { StrainSkill } from "./base/StrainSkill";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
@@ -25,8 +27,6 @@ import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
 import { DroidScoreUtils } from "./utils/DroidScoreUtils";
-import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
-import { DroidRatingCalculator } from "./DroidRatingCalculator";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -209,7 +209,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     protected override createStrainPeakSkills(
         beatmap: DroidPlayableBeatmap,
-    ): StrainSkill[] {
+    ): (Skill & IHasPeakDifficulty)[] {
         const { mods } = beatmap;
 
         return [
@@ -308,10 +308,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
-                DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                DroidRatingCalculator.calculateStrainBasedDifficultyRating(
                     aimNoSlider.difficultyValue(),
                 ) /
-                DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                DroidRatingCalculator.calculateStrainBasedDifficultyRating(
                     aimDifficultyValue,
                 );
         } else {
@@ -351,7 +351,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.tapDifficulty =
             ratingCalculator.computeTapRating(tapDifficultyValue);
         attributes.tapDifficultStrainCount =
-            tap.countTopWeightedStrains(tapDifficultyValue);
+            tap.countTopWeightedObjectDifficulties(tapDifficultyValue);
 
         attributes.speedNoteCount = tap.relevantNoteCount();
         attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
@@ -384,7 +384,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             if (
                 !inSpeedSection &&
-                current.originalTapStrain >= threeFingerStrainThreshold
+                current.originalTapDifficulty >= threeFingerStrainThreshold
             ) {
                 inSpeedSection = true;
                 firstSpeedObjectIndex = i;
@@ -400,7 +400,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             if (
                 inSpeedSection &&
-                (current.originalTapStrain < threeFingerStrainThreshold ||
+                (current.originalTapDifficulty < threeFingerStrainThreshold ||
                     // Stop speed section on slowing down 1/2 rhythm change or anything slower.
                     (prevDelta < currentDelta && deltaRatio <= 0.5) ||
                     // Don't forget to manually add the last section, which would otherwise be ignored.
@@ -427,7 +427,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                             .reduce(
                                 (a, v) =>
                                     a +
-                                    v.originalTapStrain /
+                                    v.originalTapDifficulty /
                                         threeFingerStrainThreshold,
                                 0,
                             ),
@@ -448,7 +448,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         attributes.rhythmDifficulty =
             rhythm && !attributes.mods.has(ModRelax)
-                ? DroidRatingCalculator.calculateMechanicalDifficultyRating(
+                ? DroidRatingCalculator.calculateStrainBasedDifficultyRating(
                       rhythm.difficultyValue(),
                   )
                 : 0;

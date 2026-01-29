@@ -26,6 +26,7 @@ export abstract class DroidTapEvaluator {
         strainTimeCap?: number,
     ): number {
         if (
+            current.index < 0 ||
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
             current.isOverlapping(false)
