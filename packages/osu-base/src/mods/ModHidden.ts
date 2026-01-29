@@ -6,6 +6,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModApproachDifferent } from "./ModApproachDifferent";
+import { ModFreezeFrame } from "./ModFreezeFrame";
 import { ModTraceable } from "./ModTraceable";
 import { SerializedMod } from "./SerializedMod";
 import { BooleanModSetting } from "./settings/BooleanModSetting";
@@ -53,7 +54,10 @@ export class ModHidden
     constructor() {
         super();
 
-        this.incompatibleMods.add(ModTraceable).add(ModApproachDifferent);
+        this.incompatibleMods
+            .add(ModTraceable)
+            .add(ModApproachDifferent)
+            .add(ModFreezeFrame);
     }
 
     get droidScoreMultiplier(): number {

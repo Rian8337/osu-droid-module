@@ -6,6 +6,7 @@ import { Mod } from "./Mod";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { ModApproachDifferent } from "./ModApproachDifferent";
+import { ModHidden } from "./ModHidden";
 
 /**
  * Represents the Freeze Frame mod.
@@ -31,7 +32,7 @@ export class ModFreezeFrame
     constructor() {
         super();
 
-        this.incompatibleMods.add(ModApproachDifferent);
+        this.incompatibleMods.add(ModApproachDifferent).add(ModHidden);
     }
 
     private lastNewComboTime = 0;
