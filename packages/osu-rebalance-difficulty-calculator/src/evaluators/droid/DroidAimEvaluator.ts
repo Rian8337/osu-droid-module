@@ -249,14 +249,14 @@ export abstract class DroidAimEvaluator {
             wideAngleBonus * this.wideAngleMultiplier,
         );
 
-        // Apply high circle size bonus
-        strain *= current.smallCircleBonus;
-
         // Add in additional slider velocity bonus.
         if (withSliders) {
             strain +=
                 Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
         }
+
+        // Apply high circle size bonus
+        strain *= current.smallCircleBonus;
 
         strain *= this.highBpmBonus(current.strainTime);
 

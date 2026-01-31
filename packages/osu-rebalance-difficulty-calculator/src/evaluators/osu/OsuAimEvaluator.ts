@@ -246,13 +246,13 @@ export abstract class OsuAimEvaluator {
             wideAngleBonus * this.wideAngleMultiplier,
         );
 
-        // Apply high circle size bonus
-        strain *= current.smallCircleBonus;
-
         // Add in additional slider velocity bonus.
         if (withSliders) {
             strain += sliderBonus * this.sliderMultiplier;
         }
+
+        // Apply high circle size bonus
+        strain *= current.smallCircleBonus;
 
         strain *= this.highBpmBonus(current.strainTime);
 
