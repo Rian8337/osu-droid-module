@@ -277,10 +277,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         speedValue *= this.calculateSpeedHighDeviationNerf();
 
         // An effective hit window is created based on the speed SR. The higher the speed difficulty, the shorter the hit window.
-        // For example, a speed SR of 3 leads to an effective hit window of 20ms, which is OD 10.
-        const effectiveHitWindow = Math.sqrt(
-            (30 * 60) / this.difficultyAttributes.speedDifficulty,
-        );
+        // For example, a speed SR of 4 leads to an effective hit window of 20ms, which is OD 10.
+        const effectiveHitWindow =
+            20 * Math.pow(4 / this.difficultyAttributes.speedDifficulty, 0.35);
 
         // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
         const effectiveAccuracy = ErrorFunction.erf(
