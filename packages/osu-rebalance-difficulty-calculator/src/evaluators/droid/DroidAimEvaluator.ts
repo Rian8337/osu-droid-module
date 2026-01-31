@@ -258,7 +258,10 @@ export abstract class DroidAimEvaluator {
         // Apply high circle size bonus
         strain *= current.smallCircleBonus;
 
-        strain *= this.highBpmBonus(current.strainTime);
+        strain *= this.highBpmBonus(
+            current.strainTime,
+            current.lazyJumpDistance,
+        );
 
         return strain;
     }
@@ -279,7 +282,16 @@ export abstract class DroidAimEvaluator {
         );
     }
 
-    private static highBpmBonus(ms: number): number {
-        return 1 / (1 - Math.pow(0.15, ms / 1000));
+    private static highBpmBonus(ms: number, distance: number): number {
+        return (
+            (1 / (1 - Math.pow(0.15, ms / 1000))) *
+            // Decrease bonus for distances less than radius. These patterns have little to no aim difficulty,
+            // and some of them may have inflated bonus due to incredibly short delta times (e.g., doubles).
+            MathUtils.smootherstep(
+                distance,
+                0,
+                DroidDifficultyHitObject.normalizedRadius,
+            )
+        );
     }
 }
