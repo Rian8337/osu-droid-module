@@ -300,7 +300,7 @@ export abstract class HitObject {
             this.hitWindow.overallDifficulty = difficulty.od;
         }
 
-        this.timePreempt = BeatmapDifficulty.difficultyRange(
+        this.timePreempt = BeatmapDifficulty.difficultyRangeInt(
             difficulty.ar,
             HitObject.preemptMax,
             HitObject.preemptMid,

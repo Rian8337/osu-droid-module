@@ -91,8 +91,7 @@ export class BeatmapProcessor {
                     }
 
                     const stackThreshold =
-                        objectN.timePreempt *
-                        this.beatmap.general.stackLeniency;
+                        this.calculateStackThreshold(objectN);
 
                     if (
                         objectN.startTime - stackBaseObject.endTime >
@@ -151,8 +150,7 @@ export class BeatmapProcessor {
                 continue;
             }
 
-            const stackThreshold =
-                objectI.timePreempt * this.beatmap.general.stackLeniency;
+            const stackThreshold = this.calculateStackThreshold(objectI);
 
             // If this object is a hit circle, then we enter this "special" case.
             // It either ends with a stack of hit circles only, or a stack of hit circles that are underneath a slider.
@@ -164,7 +162,13 @@ export class BeatmapProcessor {
                         continue;
                     }
 
-                    if (objectI.startTime - objectN.endTime > stackThreshold) {
+                    // Truncation to integer is required to match osu!stable - both quantities being subtracted there
+                    // are integers.
+                    if (
+                        Math.trunc(objectI.startTime) -
+                            Math.trunc(objectN.endTime) >
+                        stackThreshold
+                    ) {
                         // We are no longer within stacking range of the previous object.
                         break;
                     }
@@ -257,8 +261,7 @@ export class BeatmapProcessor {
 
             let startTime = currentObject.endTime;
             let sliderStack = 0;
-            const stackThreshold =
-                currentObject.timePreempt * this.beatmap.general.stackLeniency;
+            const stackThreshold = this.calculateStackThreshold(currentObject);
 
             for (let j = i + 1; j < objects.length; ++j) {
                 if (objects[j].startTime - stackThreshold > startTime) {
@@ -290,5 +293,20 @@ export class BeatmapProcessor {
                 }
             }
         }
+    }
+
+    /**
+     * Truncation of {@link HitObject.timePreempt} to an integer, as well as keeping the result as a float,
+     * are both done for the purposes of osu!stable compatibility.
+     *
+     * Note that top-level objects {@link HitObject.timePreempt} is supposed to be integral anyway; see
+     * {@link HitObject.applyDefaults} using `BeatmapDifficulty.difficultyRangeInt` when calculating it.
+     *
+     * Slider ticks and end circles are the exception to that, but they do not matter for stacking.
+     */
+    private calculateStackThreshold(object: HitObject): number {
+        return (
+            Math.trunc(object.timePreempt) * this.beatmap.general.stackLeniency
+        );
     }
 }

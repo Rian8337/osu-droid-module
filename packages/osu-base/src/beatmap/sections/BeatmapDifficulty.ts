@@ -53,6 +53,7 @@ export class BeatmapDifficulty {
      * @param min Minimum of the resulting range which will be achieved by a difficulty value of 0.
      * @param mid Midpoint of the resulting range which will be achieved by a difficulty value of 5.
      * @param max Maximum of the resulting range which will be achieved by a difficulty value of 10.
+     * @returns The value to which the difficulty value maps in the specified range.
      */
     static difficultyRange(
         difficulty: number,
@@ -70,6 +71,27 @@ export class BeatmapDifficulty {
             default:
                 return mid;
         }
+    }
+
+    /**
+     * Maps a difficulty value [0, 10] to a two-piece linear range of values. Floors the value to an integer,
+     * usually to match osu!stable specifications.
+     *
+     * @param difficulty The difficulty value to be mapped.
+     * @param min Minimum of the resulting range which will be achieved by a difficulty value of 0.
+     * @param mid Midpoint of the resulting range which will be achieved by a difficulty value of 5.
+     * @param max Maximum of the resulting range which will be achieved by a difficulty value of 10.
+     * @returns The value to which the difficulty value maps in the specified range.
+     */
+    static difficultyRangeInt(
+        difficulty: number,
+        min: number,
+        mid: number,
+        max: number,
+    ): number {
+        return Math.trunc(
+            BeatmapDifficulty.difficultyRange(difficulty, min, mid, max),
+        );
     }
 
     /**
