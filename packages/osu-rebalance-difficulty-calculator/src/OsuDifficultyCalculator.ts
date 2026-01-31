@@ -2,6 +2,7 @@ import {
     Beatmap,
     BeatmapDifficulty,
     HitObject,
+    Interpolation,
     MathUtils,
     Mod,
     ModAutopilot,
@@ -193,11 +194,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             attributes.readingDifficulty,
         );
 
-        const baseCognitionPerformance = MathUtils.norm(
-            2,
-            baseReadingPerformance,
-            baseFlashlightPerformance,
-        );
+        const baseCognitionPerformance =
+            OsuDifficultyCalculator.sumCognitionDifficulty(
+                baseReadingPerformance,
+                baseFlashlightPerformance,
+            );
 
         const basePerformance = MathUtils.norm(
             OsuPerformanceCalculator.normExponent,
@@ -284,6 +285,21 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         return Math.cbrt(
             basePerformance * OsuPerformanceCalculator.finalMultiplier,
         );
+    }
+
+    static sumCognitionDifficulty(reading: number, flashlight: number): number {
+        // Base LP summed value, accounting for beatmap being partially memorized with FL.
+        const cognition = MathUtils.norm(2, reading, flashlight);
+
+        // Increase FL bonus when it's lower than reading to avoid situations
+        // where high reading difficulty makes FL give practically 0 bonus.
+        return flashlight >= reading
+            ? cognition
+            : Interpolation.lerp(
+                  reading + flashlight,
+                  cognition,
+                  flashlight / reading,
+              );
     }
 
     static calculateRateAdjustedApproachRate(

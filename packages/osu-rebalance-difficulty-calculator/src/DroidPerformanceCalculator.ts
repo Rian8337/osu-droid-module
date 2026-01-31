@@ -18,6 +18,7 @@ import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -173,14 +174,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.flashlight = this.calculateFlashlightValue();
         this.reading = this.calculateReadingValue();
 
+        const cognitionValue = DroidDifficultyCalculator.sumCognitionDifficulty(
+            this.reading,
+            this.flashlight,
+        );
+
         this.total =
             MathUtils.norm(
                 DroidPerformanceCalculator.normExponent,
                 this.aim,
                 this.tap,
                 this.accuracy,
-                this.flashlight,
-                this.reading,
+                cognitionValue,
             ) * finalMultiplier;
     }
 

@@ -18,6 +18,7 @@ import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
+import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -117,7 +118,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.flashlight = this.calculateFlashlightValue();
         this.reading = this.calculateReadingValue();
 
-        const cognitionValue = MathUtils.norm(2, this.reading, this.flashlight);
+        const cognitionValue = OsuDifficultyCalculator.sumCognitionDifficulty(
+            this.reading,
+            this.flashlight,
+        );
 
         this.total =
             MathUtils.norm(

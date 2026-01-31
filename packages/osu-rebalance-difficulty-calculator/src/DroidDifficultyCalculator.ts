@@ -2,6 +2,7 @@ import {
     Beatmap,
     DroidHitWindow,
     DroidPlayableBeatmap,
+    Interpolation,
     MathUtils,
     Mod,
     ModAutopilot,
@@ -125,11 +126,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             attributes.readingDifficulty,
         );
 
-        const baseCognitionPerformance = MathUtils.norm(
-            2,
-            baseReadingPerformance,
-            baseFlashlightPerformance,
-        );
+        const baseCognitionPerformance =
+            DroidDifficultyCalculator.sumCognitionDifficulty(
+                baseReadingPerformance,
+                baseFlashlightPerformance,
+            );
 
         const basePerformance = MathUtils.norm(
             DroidPerformanceCalculator.normExponent,
@@ -495,5 +496,20 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         attributes.readingDifficultNoteCount =
             reading.countTopWeightedObjectDifficulties(readingDifficultyValue);
+    }
+
+    static sumCognitionDifficulty(reading: number, flashlight: number): number {
+        // Base LP summed value, accounting for beatmap being partially memorized with FL.
+        const cognition = MathUtils.norm(2, reading, flashlight);
+
+        // Increase FL bonus when it's lower than reading to avoid situations
+        // where high reading difficulty makes FL give practically 0 bonus.
+        return flashlight >= reading
+            ? cognition
+            : Interpolation.lerp(
+                  reading + flashlight,
+                  cognition,
+                  flashlight / reading,
+              );
     }
 }
