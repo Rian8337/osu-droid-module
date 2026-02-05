@@ -3,6 +3,7 @@
   "private": true,
   "scripts": {
     "build": "lerna run build",
+    "lint": "lerna run lint",
     "format-code": "npx prettier -w --loglevel=silent \"packages/**\"",
     "generate-docs": "cross-env NODE_OPTIONS=--max-old-space-size=4096 typedoc \"packages/*\"",
     "generate-docs-windows": "rmdir docs /s /q & pnpm generate-docs",
