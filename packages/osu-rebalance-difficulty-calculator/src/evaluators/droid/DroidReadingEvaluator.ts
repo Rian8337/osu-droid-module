@@ -302,6 +302,11 @@ export abstract class DroidReadingEvaluator {
                 break;
             }
 
+            if (hitObject.isOverlapping(true)) {
+                hitObject = hitObject.next(0);
+                continue;
+            }
+
             const timeBetweenCurrAndLoopObj =
                 hitObject.startTime - current.startTime;
             const timeNerfFactor = this.getTimeNerfFactor(
@@ -332,7 +337,9 @@ export abstract class DroidReadingEvaluator {
         while (currentTimeGap < this.minimumAngleRelevancyTime) {
             const loopObj = current.previous(index);
 
-            if (loopObj === null) break;
+            if (loopObj === null) {
+                break;
+            }
 
             // Account less for objects that are close to the time limit.
             const longIntervalFactor =
