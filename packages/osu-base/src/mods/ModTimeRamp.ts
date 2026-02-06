@@ -1,4 +1,4 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
 import { Interpolation } from "../math/Interpolation";
 import { MathUtils } from "../math/MathUtils";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
@@ -63,7 +63,7 @@ export abstract class ModTimeRamp
             (settings?.finalRate as number | undefined) ?? this.finalRate.value;
     }
 
-    applyToBeatmap(beatmap: Beatmap): void {
+    applyToBeatmap(beatmap: IBeatmap): void {
         this.initialRateTime = beatmap.hitObjects.objects.at(0)?.startTime ?? 0;
 
         this.finalRateTime = Interpolation.lerp(

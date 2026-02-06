@@ -1,12 +1,12 @@
+import { IBeatmap } from "../beatmap/IBeatmap";
+import { Circle } from "../beatmap/hitobjects/Circle";
+import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
-import { Beatmap } from "../beatmap/Beatmap";
+import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModFacilitatesAdjustment } from "./IModFacilitatesAdjustment";
 import { Mod } from "./Mod";
-import { CircleSizeCalculator } from "../utils/CircleSizeCalculator";
-import { Circle } from "../beatmap/hitobjects/Circle";
-import { HitObject } from "../beatmap/hitobjects/HitObject";
 
 /**
  * Represents the Replay V6 mod.
@@ -35,7 +35,7 @@ export class ModReplayV6
 
     readonly facilitateAdjustment = true;
 
-    applyToBeatmap(beatmap: Beatmap) {
+    applyToBeatmap(beatmap: IBeatmap) {
         const { objects } = beatmap.hitObjects;
 
         if (objects.length === 0) {

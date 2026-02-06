@@ -1,10 +1,10 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
+import { HitObject } from "../beatmap/hitobjects/HitObject";
+import { Slider } from "../beatmap/hitobjects/Slider";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
-import { HitObject } from "../beatmap/hitobjects/HitObject";
-import { Slider } from "../beatmap/hitobjects/Slider";
 import { ModApproachDifferent } from "./ModApproachDifferent";
 import { ModHidden } from "./ModHidden";
 
@@ -37,7 +37,7 @@ export class ModFreezeFrame
 
     private lastNewComboTime = 0;
 
-    applyToBeatmap(beatmap: Beatmap) {
+    applyToBeatmap(beatmap: IBeatmap) {
         this.lastNewComboTime = 0;
 
         for (const hitObject of beatmap.hitObjects) {

@@ -1,13 +1,13 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
 
 /**
- * An interface for `Mod`s that applies changes to a `Beatmap` after conversion and post-processing has completed.
+ * An interface for `Mod`s that applies changes to an `IBeatmap` after conversion and post-processing has completed.
  */
 export interface IModApplicableToBeatmap {
     /**
-     * Applies this `IModApplicableToBeatmap` to a `Beatmap`.
+     * Applies this `IModApplicableToBeatmap` to an `IBeatmap`.
      *
-     * @param beatmap The `Beatmap` to apply to.
+     * @param beatmap The `IBeatmap` to apply to.
      */
-    applyToBeatmap(beatmap: Beatmap): void;
+    applyToBeatmap(beatmap: IBeatmap): void;
 }

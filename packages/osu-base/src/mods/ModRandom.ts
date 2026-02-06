@@ -1,4 +1,4 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { Random } from "../math/Random";
 import { HitObjectGenerationUtils } from "../utils/HitObjectGenerationUtils";
@@ -74,7 +74,7 @@ export class ModRandom
         }
     }
 
-    applyToBeatmap(beatmap: Beatmap) {
+    applyToBeatmap(beatmap: IBeatmap) {
         this.seed.value ??= Math.floor(Math.random() * 2147483647);
         this.random = new Random(this.seed.value);
 
@@ -214,7 +214,7 @@ export class ModRandom
      * Determines whether a new section should be started at the current [HitObject].
      */
     private shouldStartNewSection(
-        beatmap: Beatmap,
+        beatmap: IBeatmap,
         positionInfos: HitObjectPositionInfo[],
         i: number,
     ): boolean {

@@ -1,4 +1,4 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
@@ -76,7 +76,7 @@ export class ModHidden
             this.onlyFadeApproachCircles.value;
     }
 
-    applyToBeatmap(beatmap: Beatmap): void {
+    applyToBeatmap(beatmap: IBeatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {
             hitObject.timeFadeIn =
                 hitObject.timePreempt * ModHidden.fadeInDurationMultiplier;

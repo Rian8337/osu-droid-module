@@ -1,4 +1,4 @@
-import { Beatmap } from "../beatmap/Beatmap";
+import { IBeatmap } from "../beatmap/IBeatmap";
 import { Circle } from "../beatmap/hitobjects/Circle";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
@@ -316,13 +316,13 @@ export abstract class HitObjectGenerationUtils {
     /**
      * Determines whether a {@link HitObject} is on a beat.
      *
-     * @param beatmap The {@link Beatmap} the {@link HitObject} is a part of.
+     * @param beatmap The {@link IBeatmap} the {@link HitObject} is a part of.
      * @param hitObject The {@link HitObject} to check.
      * @param downbeatsOnly If `true`, whether this method only returns `true` is on a downbeat.
      * @return `true` if the {@link HitObject} is on a (down-)beat, `false` otherwise.
      */
     static isHitObjectOnBeat(
-        beatmap: Beatmap,
+        beatmap: IBeatmap,
         hitObject: HitObject,
         downbeatsOnly = false,
     ): boolean {
