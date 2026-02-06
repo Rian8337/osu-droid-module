@@ -28,6 +28,7 @@ export default defineConfig(
     },
     {
         files: ["**/*.ts"],
+        ignores: ["**/*.d.ts"],
         extends: [
             ...tseslint.configs.strictTypeChecked,
             ...tseslint.configs.stylisticTypeChecked,
