@@ -30,6 +30,13 @@ export class EffectControlPoint extends ControlPoint {
     }
 
     override toString(): string {
-        return "{ time: " + this.time + ", " + "kiai: " + this.isKiai + " }";
+        return (
+            "{ time: " +
+            this.time.toString() +
+            ", " +
+            "kiai: " +
+            this.isKiai.toString() +
+            " }"
+        );
     }
 }

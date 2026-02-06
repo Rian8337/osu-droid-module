@@ -25,6 +25,7 @@ export class Vector4 {
     w: number;
 
     constructor(value: number);
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     constructor(xz: number, yw: number);
     constructor(x: number, y: number, z: number, w: number);
     constructor(xOrValueOrXZ: number, yOrYW?: number, z?: number, w?: number) {

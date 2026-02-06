@@ -15,17 +15,21 @@ export class BeatmapEditorDecoder extends SectionDecoder<Beatmap> {
                     .split(",")
                     .map((v) => this.tryParseInt(v));
                 break;
+
             case "DistanceSpacing":
                 this.target.editor.distanceSnap = this.tryParseFloat(p[1]);
                 break;
+
             case "BeatDivisor":
                 this.target.editor.beatDivisor = this.tryParseFloat(p[1]);
                 break;
+
             case "GridSize":
-                this.target.editor.gridSize = <EditorGridSize>(
-                    this.tryParseInt(p[1])
-                );
+                this.target.editor.gridSize = this.tryParseInt(
+                    p[1],
+                ) as EditorGridSize;
                 break;
+
             case "TimelineZoom":
                 this.target.editor.timelineZoom = this.tryParseFloat(p[1]);
                 break;

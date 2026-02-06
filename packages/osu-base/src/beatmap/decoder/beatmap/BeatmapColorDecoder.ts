@@ -31,6 +31,7 @@ export class BeatmapColorDecoder extends SectionDecoder<Beatmap> {
             case "SliderTrackOverride":
                 this.target.colors.sliderTrackOverride = color;
                 break;
+
             case "SliderBorder":
                 this.target.colors.sliderBorder = color;
                 break;

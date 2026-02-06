@@ -3,10 +3,7 @@ import {
     DifficultyControlPointManager,
 } from "../../../src";
 
-const createControlPoint = (
-    time: number = 1000,
-    speedMultiplier: number = 0.5
-) =>
+const createControlPoint = (time = 1000, speedMultiplier = 0.5) =>
     new DifficultyControlPoint({
         time: time,
         speedMultiplier: speedMultiplier,
@@ -132,7 +129,7 @@ describe("Test removing control points", () => {
             const manager = new DifficultyControlPointManager();
 
             expect(manager.remove(createControlPoint(undefined, 1))).toBe(
-                false
+                false,
             );
         });
     });

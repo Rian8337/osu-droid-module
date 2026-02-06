@@ -6,7 +6,6 @@ export class Island {
     deltaCount = 0;
 
     constructor(epsilon: number);
-    constructor(delta: number, deltaDifferenceEpsilon: number);
     constructor(delta: number, deltaDifferenceEpsilon?: number) {
         if (deltaDifferenceEpsilon === undefined) {
             this.deltaDifferenceEpsilon = delta;

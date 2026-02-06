@@ -22,10 +22,10 @@ export class BeatmapColorEncoder extends BeatmapBaseEncoder {
         for (let i = 0; i < colors.combo.length; ++i) {
             const color = colors.combo[i];
 
-            this.write(`Combo${i + 1}: `);
-            this.write(`${color.r},`);
-            this.write(`${color.g},`);
-            this.write(`${color.b}`);
+            this.write(`Combo${(i + 1).toString()}: `);
+            this.write(`${color.r.toString()},`);
+            this.write(`${color.g.toString()},`);
+            this.write(color.b.toString());
             this.writeLine();
         }
     }

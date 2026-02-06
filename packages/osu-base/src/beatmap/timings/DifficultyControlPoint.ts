@@ -36,12 +36,12 @@ export class DifficultyControlPoint extends ControlPoint {
     override toString(): string {
         return (
             "{ time: " +
-            this.time +
+            this.time.toString() +
             ", " +
             "speed multiplier: " +
             this.speedMultiplier.toFixed(2) +
             ", generate ticks: " +
-            this.generateTicks +
+            this.generateTicks.toString() +
             " }"
         );
     }

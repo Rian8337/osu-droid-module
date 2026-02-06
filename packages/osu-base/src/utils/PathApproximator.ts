@@ -68,7 +68,7 @@ export abstract class PathApproximator {
             const rightChild =
                 freeBuffers.length > 0
                     ? freeBuffers.pop()!
-                    : new Array(count + 1);
+                    : new Array<Vector2>(count + 1);
 
             this.bezierSubdivide(
                 parent,

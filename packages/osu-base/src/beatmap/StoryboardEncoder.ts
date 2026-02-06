@@ -19,7 +19,7 @@ export class StoryboardEncoder extends Encoder<
 
     private readonly encodeSections: boolean;
 
-    constructor(target: Storyboard, encodeSections: boolean = true) {
+    constructor(target: Storyboard, encodeSections = true) {
         super(target);
 
         this.encodeSections = encodeSections;

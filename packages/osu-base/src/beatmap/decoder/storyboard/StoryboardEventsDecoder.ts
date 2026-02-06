@@ -65,11 +65,11 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
         if (depth === 0) {
             this.storyboardSprite = null;
 
-            switch (this.setPosition(s[0])) {
+            switch (this.setPosition(s[0]) as StoryboardEventType) {
                 case StoryboardEventType.sprite: {
                     this.storyboardSprite = new StoryboardSprite(
                         this.cleanFilename(this.setPosition(s[3])),
-                        <Anchor>this.setPosition(s[2]),
+                        this.setPosition(s[2]) as Anchor,
                         new Vector2(
                             this.tryParseFloat(
                                 this.setPosition(s[4]),
@@ -85,7 +85,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     );
 
                     this.target
-                        .getLayer(<StoryboardLayerType>this.setPosition(s[1]))
+                        .getLayer(this.setPosition(s[1]) as StoryboardLayerType)
                         .elements.push(this.storyboardSprite);
                     break;
                 }
@@ -107,7 +107,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
 
                     this.storyboardSprite = new StoryboardAnimation(
                         this.cleanFilename(this.setPosition(s[3])),
-                        <Anchor>this.setPosition(s[2]),
+                        this.setPosition(s[2]) as Anchor,
                         new Vector2(
                             this.tryParseFloat(
                                 this.setPosition(s[4]),
@@ -126,14 +126,14 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     );
 
                     this.target
-                        .getLayer(<StoryboardLayerType>this.setPosition(s[1]))
+                        .getLayer(this.setPosition(s[1]) as StoryboardLayerType)
                         .elements.push(this.storyboardSprite);
                     break;
                 }
 
                 case StoryboardEventType.sample:
                     this.target
-                        .getLayer(<StoryboardLayerType>this.setPosition(s[2]))
+                        .getLayer(this.setPosition(s[2]) as StoryboardLayerType)
                         .elements.push(
                             new StoryboardSample(
                                 this.cleanFilename(this.setPosition(s[3])),
@@ -155,7 +155,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                 this.timelineGroup = this.storyboardSprite?.timelineGroup;
             }
 
-            switch (this.setPosition(s[0])) {
+            switch (this.setPosition(s[0]) as StoryboardCommandType) {
                 case StoryboardCommandType.trigger:
                     this.timelineGroup = this.storyboardSprite?.addTrigger(
                         this.setPosition(s[1]),
@@ -186,13 +186,14 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                         s[3] = this.setPosition(s[2]);
                     }
 
-                    const easing = <Easing>(
-                        this.tryParseInt(this.setPosition(s[1]))
-                    );
+                    const easing = this.tryParseInt(
+                        this.setPosition(s[1]),
+                    ) as Easing;
+
                     const startTime = this.tryParseInt(this.setPosition(s[2]));
                     const endTime = this.tryParseInt(this.setPosition(s[3]));
 
-                    switch (s[0]) {
+                    switch (s[0] as StoryboardCommandType) {
                         case StoryboardCommandType.fade: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
@@ -385,7 +386,11 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                         }
 
                         case StoryboardCommandType.parameter:
-                            switch (this.setPosition(s[4])) {
+                            switch (
+                                this.setPosition(
+                                    s[4],
+                                ) as StoryboardParameterCommandType
+                            ) {
                                 case StoryboardParameterCommandType.blendingMode:
                                     this.timelineGroup?.blendingParameters.add(
                                         easing,

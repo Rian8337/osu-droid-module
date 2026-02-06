@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-literal-enum-member */
+
 /**
  * Effects that can occur in an effect control point.
  */

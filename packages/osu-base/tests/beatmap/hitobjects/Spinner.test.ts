@@ -1,6 +1,6 @@
 import { ObjectTypes, Spinner, Vector2 } from "../../../src";
 
-const createSpinner = (duration: number = 100) => {
+const createSpinner = (duration = 100) => {
     return new Spinner({
         startTime: 1000,
         type: ObjectTypes.spinner,

@@ -17,6 +17,7 @@ export class ModSetting<T = unknown> {
     /**
      * The formatter to display the value of this `ModSetting`.
      */
+    // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
     protected readonly displayFormatter: (value: T) => string = (v) => `${v}`;
 
     private _defaultValue: T;

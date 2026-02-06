@@ -265,7 +265,7 @@ describe("Test hitobject counters", () => {
 
 describe("Test hit object samples", () => {
     test("v3 file format", () => {
-        const circle = <Circle>v3Beatmap.hitObjects.objects[0];
+        const circle = v3Beatmap.hitObjects.objects[0] as Circle;
 
         const [firstSample, lastSample] = circle.samples as BankHitSampleInfo[];
 
@@ -283,7 +283,7 @@ describe("Test hit object samples", () => {
     });
 
     test("v14 file format", () => {
-        const slider = <Slider>v14Beatmap.hitObjects.objects[1];
+        const slider = v14Beatmap.hitObjects.objects[1] as Slider;
 
         const [firstSample, lastSample] = slider.samples as BankHitSampleInfo[];
 
@@ -303,7 +303,7 @@ describe("Test hit object samples", () => {
 
 describe("Test hit object per-node samples", () => {
     test("v3 file format", () => {
-        const slider = <Slider>v3Beatmap.hitObjects.objects[19];
+        const slider = v3Beatmap.hitObjects.objects[19] as Slider;
 
         for (const nodeSample of slider.nodeSamples) {
             const [firstSample] = nodeSample as BankHitSampleInfo[];
@@ -317,7 +317,7 @@ describe("Test hit object per-node samples", () => {
     });
 
     test("v14 file format", () => {
-        const slider = <Slider>v14Beatmap.hitObjects.objects[1];
+        const slider = v14Beatmap.hitObjects.objects[1] as Slider;
 
         for (const nodeSample of slider.nodeSamples) {
             const [firstSample, lastSample] = nodeSample as BankHitSampleInfo[];

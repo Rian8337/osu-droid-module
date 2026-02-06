@@ -182,10 +182,7 @@ export abstract class CircleSizeCalculator {
      * @param applyFudge Whether to apply a fudge that was historically applied to osu!standard. Defaults to `false`.
      * @returns The osu!standard scale of the given circle size.
      */
-    static standardCSToStandardScale(
-        cs: number,
-        applyFudge: boolean = false,
-    ): number {
+    static standardCSToStandardScale(cs: number, applyFudge = false): number {
         return (
             ((1 - (0.7 * (cs - 5)) / 5) / 2) *
             (applyFudge ? this.brokenGamefieldRoundingAllowance : 1)
@@ -201,7 +198,7 @@ export abstract class CircleSizeCalculator {
      */
     static standardScaleToStandardCS(
         scale: number,
-        applyFudge: boolean = false,
+        applyFudge = false,
     ): number {
         // Inverse operation: https://www.desmos.com/calculator/74xr7tcmek
         return (
@@ -225,7 +222,7 @@ export abstract class CircleSizeCalculator {
      */
     static standardRadiusToStandardCS(
         radius: number,
-        applyFudge: boolean = false,
+        applyFudge = false,
     ): number {
         return this.standardScaleToStandardCS(
             radius / HitObject.baseRadius,
@@ -242,7 +239,7 @@ export abstract class CircleSizeCalculator {
      */
     static standardScaleToOldDroidScale(
         scale: number,
-        applyFudge: boolean = false,
+        applyFudge = false,
     ): number {
         return this.standardRadiusToOldDroidScale(
             (HitObject.baseRadius * scale) /

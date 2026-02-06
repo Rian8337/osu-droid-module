@@ -23,7 +23,7 @@ export class NullableIntegerModSetting extends RangeConstrainedModSetting<
 
         if (min > max) {
             throw new RangeError(
-                `The minimum value (${min}) must be less than or equal to the maximum value (${max}).`,
+                `The minimum value (${min.toString()}) must be less than or equal to the maximum value (${max.toString()}).`,
             );
         }
 
@@ -32,7 +32,7 @@ export class NullableIntegerModSetting extends RangeConstrainedModSetting<
             (defaultValue < min || defaultValue > max)
         ) {
             throw new RangeError(
-                `The default value (${defaultValue}) must be between the minimum (${min}) and maximum (${max}) values.`,
+                `The default value (${defaultValue.toString()}) must be between the minimum (${min.toString()}) and maximum (${max.toString()}) values.`,
             );
         }
     }

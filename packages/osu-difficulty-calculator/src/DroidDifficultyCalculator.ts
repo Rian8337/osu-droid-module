@@ -398,9 +398,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
     ) {
-        const rhythm = skills.find((s) => s instanceof DroidRhythm) as
-            | DroidRhythm
-            | undefined;
+        const rhythm = skills.find((s) => s instanceof DroidRhythm);
 
         attributes.rhythmDifficulty =
             rhythm && !attributes.mods.has(ModRelax)
@@ -450,9 +448,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
     ) {
-        const reading = skills.find((s) => s instanceof DroidReading) as
-            | DroidReading
-            | undefined;
+        const reading = skills.find((s) => s instanceof DroidReading);
 
         if (!reading) {
             attributes.readingDifficulty = 0;

@@ -22,7 +22,7 @@ export class BeatmapEncoder extends Encoder<Beatmap, BeatmapBaseEncoder> {
     private readonly latestVersion = 14;
 
     protected override encodeInternal(): void {
-        this.writeLine(`osu file format v${this.latestVersion}`);
+        this.writeLine(`osu file format v${this.latestVersion.toString()}`);
 
         this.writeLine();
 

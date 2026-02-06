@@ -14,7 +14,7 @@ export abstract class HitSampleInfo {
      */
     abstract get lookupNames(): string[];
 
-    constructor(volume: number = 0) {
+    constructor(volume = 0) {
         this.volume = volume;
     }
 }

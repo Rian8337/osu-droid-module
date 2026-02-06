@@ -103,8 +103,13 @@ describe("Test slider position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(Modes.droid));
-            test("osu!standard gamemode", () => executeTest(Modes.osu));
+            test("osu!droid gamemode", () => {
+                executeTest(Modes.droid);
+            });
+
+            test("osu!standard gamemode", () => {
+                executeTest(Modes.osu);
+            });
         });
     });
 
@@ -163,8 +168,13 @@ describe("Test slider position", () => {
                 );
             };
 
-            test("osu!droid gamemode", () => executeTest(Modes.droid));
-            test("osu!standard gamemode", () => executeTest(Modes.osu));
+            test("osu!droid gamemode", () => {
+                executeTest(Modes.droid);
+            });
+
+            test("osu!standard gamemode", () => {
+                executeTest(Modes.osu);
+            });
         });
     });
 });

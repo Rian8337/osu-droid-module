@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-literal-enum-member */
+
 /**
  * Represents available hitsound types.
  */

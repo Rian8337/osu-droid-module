@@ -30,7 +30,7 @@ export class CursorOccurrence {
      * Returns a string representation of this `CursorOccurrence`.
      */
     toString(): string {
-        let str = `${this.time}ms `;
+        let str = `${this.time.toString()}ms `;
 
         switch (this.id) {
             case MovementType.down:

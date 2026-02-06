@@ -270,21 +270,21 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
      * The decoded beatmap from beatmap decoder.
      */
     get beatmap(): If<THasBeatmap, Beatmap> {
-        return <If<THasBeatmap, Beatmap>>this.cachedBeatmap;
+        return this.cachedBeatmap as If<THasBeatmap, Beatmap>;
     }
 
     /**
      * The osu! site link to this beatmap.
      */
     get beatmapLink(): string {
-        return `https://osu.ppy.sh/b/${this.beatmapId}`;
+        return `https://osu.ppy.sh/b/${this.beatmapId.toString()}`;
     }
 
     /**
      * The osu! site link to this beatmapset.
      */
     get beatmapSetLink(): string {
-        return `https://osu.ppy.sh/s/${this.beatmapSetId}`;
+        return `https://osu.ppy.sh/s/${this.beatmapSetId.toString()}`;
     }
 
     private cachedBeatmap: Beatmap | null = null;
@@ -330,9 +330,9 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
             throw new Error("osu! API error");
         }
 
-        const mapinfo: OsuAPIResponse = JSON.parse(
-            result.data.toString("utf-8"),
-        )[0];
+        const mapinfo = (
+            JSON.parse(result.data.toString("utf-8")) as OsuAPIResponse[]
+        ).at(0);
 
         if (!mapinfo) {
             return null;
@@ -446,7 +446,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
         const padDateNumber = (num: number) => num.toString().padStart(2, "0");
 
         const convertDate = (date: Date) =>
-            `${date.getUTCFullYear()}-${padDateNumber(
+            `${date.getUTCFullYear().toString()}-${padDateNumber(
                 date.getUTCMonth() + 1,
             )}-${padDateNumber(date.getUTCDate())} ${padDateNumber(
                 date.getUTCHours(),
@@ -465,7 +465,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
             beatmap_id: this.beatmapId.toString(),
             beatmapset_id: this.beatmapSetId.toString(),
             bpm: this.bpm.toString(),
-            creator: this.creator.toString(),
+            creator: this.creator,
             creator_id: this.creatorId.toString(),
             difficultyrating: this.totalDifficulty?.toString() ?? null,
             diff_aim: this.aimDifficulty?.toString() ?? null,
@@ -475,13 +475,13 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
             diff_approach: this.ar.toString(),
             diff_drain: this.hp.toString(),
             hit_length: this.hitLength.toString(),
-            source: this.source.toString(),
+            source: this.source,
             genre_id: this.genre.toString(),
             language_id: this.language.toString(),
-            title: this.title.toString(),
+            title: this.title,
             total_length: this.totalLength.toString(),
-            version: this.version.toString(),
-            file_md5: this.hash.toString(),
+            version: this.version,
+            file_md5: this.hash,
             // Guaranteed to be osu!standard for the time being.
             mode: "0",
             tags: this.tags.join(" "),
@@ -520,7 +520,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
             return;
         }
 
-        const url = `https://osu.ppy.sh/osu/${this.beatmapId}`;
+        const url = `https://osu.ppy.sh/osu/${this.beatmapId.toString()}`;
 
         return fetch(url)
             .then(async (res) => {
@@ -532,9 +532,10 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
 
                 this.cachedBeatmap = new BeatmapDecoder().decode(text).result;
             })
-            .catch((e: Error) => {
+            .catch((e: unknown) => {
                 console.error(
-                    `Request to ${url} failed with the following error: ${e.message}; aborting`,
+                    `Request to ${url} failed with an error, aborting`,
+                    e,
                 );
             });
     }
@@ -554,6 +555,6 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
      * Returns a string representative of the class.
      */
     toString(): string {
-        return `${this.fullTitle}\nCS: ${this.cs} - AR: ${this.ar} - OD: ${this.od} - HP: ${this.hp}\nBPM: ${this.bpm} - Length: ${this.hitLength}/${this.totalLength} - Max Combo: ${this.maxCombo}\nLast Update: ${this.lastUpdate}`;
+        return `${this.fullTitle}\nCS: ${this.cs.toString()} - AR: ${this.ar.toString()} - OD: ${this.od.toString()} - HP: ${this.hp.toString()}\nBPM: ${this.bpm.toString()} - Length: ${this.hitLength.toString()}/${this.totalLength.toString()} - Max Combo: ${this.maxCombo?.toString() ?? "N/A"}\nLast Update: ${this.lastUpdate.toUTCString()}`;
     }
 }

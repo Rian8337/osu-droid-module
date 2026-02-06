@@ -63,10 +63,10 @@ export default async function (
         Math.ceil(beatmap.hitObjects.objects[0].startTime / sectionLength) *
         sectionLength;
 
-    const strainInformations: {
+    const strainInformations = new Array<{
         readonly time: number;
         readonly strain: number;
-    }[] = new Array(
+    }>(
         Math.max(
             strainPeaks.aimWithSliders.length,
             strainPeaks.speed.length,
@@ -127,12 +127,12 @@ export default async function (
         background:
             options?.beatmapsetID !== undefined
                 ? await loadImage(
-                      `https://assets.ppy.sh/beatmaps/${options.beatmapsetID}/covers/cover.jpg`,
+                      `https://assets.ppy.sh/beatmaps/${options.beatmapsetID.toString()}/covers/cover.jpg`,
                   ).catch(() => undefined)
                 : undefined,
         xLabel: options?.showTimeLabel ? "Time" : "",
         yLabel: options?.drawStrainAxis
-            ? options?.showStrainLabel
+            ? options.showStrainLabel
                 ? "Strain"
                 : ""
             : undefined,

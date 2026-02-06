@@ -12,10 +12,12 @@ test("Test string concatenation", () => {
         1000,
         0,
         1,
-        StoryboardCommandType.movementX
+        StoryboardCommandType.movementX,
     );
 
-    expect(command.toString()).toBe(`0 -> 1000, 0 -> 1 ${Easing.in}`);
+    expect(command.toString()).toBe(
+        `0 -> 1000, 0 -> 1 ${Easing.in.toString()}`,
+    );
 });
 
 test("Test isParameter typeguard", () => {
@@ -25,7 +27,7 @@ test("Test isParameter typeguard", () => {
         1000,
         0,
         1,
-        StoryboardCommandType.movementX
+        StoryboardCommandType.movementX,
     );
 
     expect(command.isParameter()).toBe(false);
@@ -37,7 +39,7 @@ test("Test isParameter typeguard", () => {
         0,
         1,
         StoryboardCommandType.movementX,
-        StoryboardParameterCommandType.blendingMode
+        StoryboardParameterCommandType.blendingMode,
     );
 
     expect(command.isParameter()).toBe(true);

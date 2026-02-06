@@ -1,6 +1,9 @@
 import { MathUtils } from "../math/MathUtils";
 
-interface AccuracyInformation {
+/**
+ * Basic information for accuracy calculation.
+ */
+export interface AccuracyInformation {
     /**
      * The amount of objects in the beatmap.
      */

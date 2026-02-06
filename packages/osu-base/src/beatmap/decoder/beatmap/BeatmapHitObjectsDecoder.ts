@@ -59,7 +59,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             ),
         );
 
-        const soundType = <HitSoundType>this.tryParseInt(s[4]);
+        const soundType = this.tryParseInt(s[4]) as HitSoundType;
         const bankInfo = new SampleBankInfo();
 
         let object: PlaceableHitObject | null = null;
@@ -109,7 +109,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
             const points = [new Vector2(0, 0)];
             const pointSplit = this.setPosition(s[5]).split("|");
-            let pathType = <PathType>pointSplit.shift()!;
+            let pathType = pointSplit.shift()! as PathType;
 
             for (const point of pointSplit) {
                 const temp = point.split(":");
@@ -201,7 +201,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 const adds = s[8].split("|");
 
                 for (let i = 0; i < Math.min(adds.length, nodes); ++i) {
-                    nodeSoundTypes[i] = <HitSoundType>parseInt(adds[i]);
+                    nodeSoundTypes[i] = parseInt(adds[i]) as HitSoundType;
                 }
             }
 
@@ -350,9 +350,9 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         const s = str.split(":");
 
-        bankInfo.normal = <SampleBank>parseInt(s[0]);
+        bankInfo.normal = parseInt(s[0]) as SampleBank;
 
-        const addBank = <SampleBank>parseInt(s[1]);
+        const addBank = parseInt(s[1]) as SampleBank;
         bankInfo.add = addBank === SampleBank.none ? bankInfo.normal : addBank;
 
         if (s.length > 2) {

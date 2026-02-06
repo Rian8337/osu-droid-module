@@ -183,10 +183,7 @@ export class ThreeFingerChecker {
             }
 
             this.breakPointAccurateTimes.push(
-                new BreakPoint({
-                    startTime: timeBefore,
-                    endTime: timeAfter,
-                }),
+                new BreakPoint(timeBefore, timeAfter),
             );
         }
     }

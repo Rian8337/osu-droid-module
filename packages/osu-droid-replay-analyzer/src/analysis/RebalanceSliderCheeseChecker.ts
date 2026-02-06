@@ -105,7 +105,7 @@ export class RebalanceSliderCheeseChecker {
                 continue;
             }
 
-            const object = <Slider>objects[difficultSlider.index];
+            const object = objects[difficultSlider.index] as Slider;
             const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.

@@ -15,8 +15,8 @@ export abstract class ZeroCrossingBracketing {
     static expand(
         f: (x: number) => number,
         bounds: RootBounds,
-        factor: number = 1.6,
-        maxIterations: number = 50,
+        factor = 1.6,
+        maxIterations = 50,
     ): boolean {
         const originalUpperBound = bounds.upperBound;
         const originalLowerBound = bounds.lowerBound;
@@ -55,7 +55,7 @@ export abstract class ZeroCrossingBracketing {
     static reduce(
         f: (x: number) => number,
         bounds: RootBounds,
-        subdivisions: number = 1000,
+        subdivisions = 1000,
     ): boolean {
         const originalUpperBound = bounds.upperBound;
         const originalLowerBound = bounds.lowerBound;
@@ -106,9 +106,9 @@ export abstract class ZeroCrossingBracketing {
     static expandReduce(
         f: (x: number) => number,
         bounds: RootBounds,
-        expansionFactor: number = 1.6,
-        expansionMaxIterations: number = 50,
-        reduceSubdivisions: number = 100,
+        expansionFactor = 1.6,
+        expansionMaxIterations = 50,
+        reduceSubdivisions = 100,
     ): boolean {
         return (
             this.expand(f, bounds, expansionFactor, expansionMaxIterations) ||

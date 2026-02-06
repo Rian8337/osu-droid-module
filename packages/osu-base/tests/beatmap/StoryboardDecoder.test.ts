@@ -16,7 +16,7 @@ const getStoryboard = (path: string): Storyboard => {
     return new StoryboardDecoder().decode(
         readFileSync(join(process.cwd(), "tests", "files", path), {
             encoding: "utf8",
-        })
+        }),
     ).result;
 };
 
@@ -24,8 +24,8 @@ describe("Test decode storyboard events", () => {
     const storyboard = getStoryboard(
         join(
             "beatmaps",
-            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu"
-        )
+            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu",
+        ),
     );
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
@@ -90,27 +90,27 @@ describe("Test decode storyboard events", () => {
         const spriteCount = background.elements.filter(
             (x) =>
                 x instanceof StoryboardSprite &&
-                !(x instanceof StoryboardAnimation)
+                !(x instanceof StoryboardAnimation),
         ).length;
         const animationCount = background.elements.filter(
-            (x) => x instanceof StoryboardAnimation
+            (x) => x instanceof StoryboardAnimation,
         ).length;
         const sampleCount = background.elements.filter(
-            (x) => x instanceof StoryboardSample
+            (x) => x instanceof StoryboardSample,
         ).length;
 
         expect(spriteCount).toBe(15);
         expect(animationCount).toBe(1);
         expect(sampleCount).toBe(0);
         expect(background.elements.length).toBe(
-            spriteCount + animationCount + sampleCount
+            spriteCount + animationCount + sampleCount,
         );
     });
 
     test("Test sprite", () => {
-        const sprite = <StoryboardSprite>background.elements[0];
+        const sprite = background.elements[0] as StoryboardSprite;
 
-        expect(sprite).not.toBeUndefined();
+        expect(sprite).toBeDefined();
         expect(sprite.hasCommands).toBe(true);
         expect(sprite.initialPosition).toEqual(new Vector2(320, 240));
         expect(sprite.origin).toBe(Anchor.center);
@@ -118,11 +118,11 @@ describe("Test decode storyboard events", () => {
     });
 
     test("Test animation", () => {
-        const animation = <StoryboardAnimation>(
-            background.elements.find((x) => x instanceof StoryboardAnimation)
-        );
+        const animation = background.elements.find(
+            (x) => x instanceof StoryboardAnimation,
+        )!;
 
-        expect(animation).not.toBeUndefined();
+        expect(animation).toBeDefined();
         expect(animation.endTime).toBe(141175);
         expect(animation.frameCount).toBe(10);
         expect(animation.frameDelay).toBe(30);
@@ -137,7 +137,7 @@ describe("Test decode storyboard events", () => {
 
 test("Test out of order start times", () => {
     const storyboard = getStoryboard(
-        join("storyboards", "out-of-order-starttimes.osb")
+        join("storyboards", "out-of-order-starttimes.osb"),
     );
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
@@ -152,40 +152,40 @@ test("Test out of order start times", () => {
 
 test("Test decode variable with suffix", () => {
     const storyboard = getStoryboard(
-        join("storyboards", "variable-with-suffix.osb")
+        join("storyboards", "variable-with-suffix.osb"),
     );
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
 
-    expect((<StoryboardSprite>background.elements[0]).initialPosition.x).toBe(
-        3456
+    expect((background.elements[0] as StoryboardSprite).initialPosition.x).toBe(
+        3456,
     );
 });
 
 test("Test decode out of range loop animation type", () => {
     const storyboard = getStoryboard(
-        join("storyboards", "animation-types.osb")
+        join("storyboards", "animation-types.osb"),
     );
 
     const foreground = storyboard.getLayer(StoryboardLayerType.foreground);
 
-    expect((<StoryboardAnimation>foreground.elements[0]).loopType).toBe(
-        AnimationLoopType.loopForever
+    expect((foreground.elements[0] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopForever,
     );
-    expect((<StoryboardAnimation>foreground.elements[1]).loopType).toBe(
-        AnimationLoopType.loopOnce
+    expect((foreground.elements[1] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopOnce,
     );
-    expect((<StoryboardAnimation>foreground.elements[2]).loopType).toBe(
-        AnimationLoopType.loopForever
+    expect((foreground.elements[2] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopForever,
     );
-    expect((<StoryboardAnimation>foreground.elements[3]).loopType).toBe(
-        AnimationLoopType.loopOnce
+    expect((foreground.elements[3] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopOnce,
     );
-    expect((<StoryboardAnimation>foreground.elements[4]).loopType).toBe(
-        AnimationLoopType.loopForever
+    expect((foreground.elements[4] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopForever,
     );
-    expect((<StoryboardAnimation>foreground.elements[5]).loopType).toBe(
-        AnimationLoopType.loopForever
+    expect((foreground.elements[5] as StoryboardAnimation).loopType).toBe(
+        AnimationLoopType.loopForever,
     );
 });
 
@@ -198,25 +198,25 @@ test("Test decode loop count", () => {
     const background = storyboard.getLayer(StoryboardLayerType.background);
 
     // Stable ensures that any loop command executes at least once, even if the loop count specified in the .osb is zero or negative.
-    const zeroTimes = <StoryboardSprite>(
-        background.elements.find((s) => s.path === "zero-times.png")
-    );
+    const zeroTimes = background.elements.find(
+        (s) => s.path === "zero-times.png",
+    ) as StoryboardSprite;
     expect(zeroTimes.endTime).toBe(1000 + loopDuration);
 
-    const oneTime = <StoryboardSprite>(
-        background.elements.find((s) => s.path === "one-time.png")
-    );
+    const oneTime = background.elements.find(
+        (s) => s.path === "one-time.png",
+    ) as StoryboardSprite;
     expect(oneTime.endTime).toBe(4000 + loopDuration);
 
-    const manyTimes = <StoryboardSprite>(
-        background.elements.find((s) => s.path === "many-times.png")
-    );
+    const manyTimes = background.elements.find(
+        (s) => s.path === "many-times.png",
+    ) as StoryboardSprite;
     expect(manyTimes.endTime).toBe(9000 + 40 * loopDuration);
 });
 
 test("Test earliest start time with loop alphas", () => {
     const storyboard = getStoryboard(
-        join("storyboards", "loop-containing-earlier-non-zero-fade.osb")
+        join("storyboards", "loop-containing-earlier-non-zero-fade.osb"),
     );
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
@@ -230,7 +230,7 @@ test("Test earliest start time with loop alphas", () => {
 
 test("Test correct animation start time", () => {
     const storyboard = getStoryboard(
-        join("storyboards", "animation-starts-before-alpha.osb")
+        join("storyboards", "animation-starts-before-alpha.osb"),
     );
 
     const background = storyboard.getLayer(StoryboardLayerType.background);
@@ -238,6 +238,6 @@ test("Test correct animation start time", () => {
 
     expect(background.elements[0].startTime).toBe(2000);
     expect(
-        (<StoryboardAnimation>background.elements[0]).earliestTransformTime
+        (background.elements[0] as StoryboardAnimation).earliestTransformTime,
     ).toBe(1000);
 });

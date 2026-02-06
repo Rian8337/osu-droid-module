@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-literal-enum-member */
+
 /**
  * Represents the grid size setting in the editor.
  */

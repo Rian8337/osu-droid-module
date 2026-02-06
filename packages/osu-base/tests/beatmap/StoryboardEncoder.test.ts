@@ -16,12 +16,12 @@ const decoder = new StoryboardDecoder().decode(
             "tests",
             "files",
             "beatmaps",
-            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu"
+            "Himeringo - Yotsuya-san ni Yoroshiku (RLC) [Winber1's Extreme].osu",
         ),
         {
             encoding: "utf8",
-        }
-    )
+        },
+    ),
 );
 
 const encoder = new StoryboardEncoder(decoder.result).encode();
@@ -29,7 +29,7 @@ const encoder = new StoryboardEncoder(decoder.result).encode();
 writeFileSync(
     join(process.cwd(), "tests", "files", "storyboards", "testStoryboard.osb"),
     encoder.result,
-    { encoding: "utf8" }
+    { encoding: "utf8" },
 );
 
 const original = decoder.result;
@@ -40,20 +40,20 @@ const encodedBackground = encoded.getLayer(StoryboardLayerType.background);
 
 test("Test layer count", () => {
     expect(Object.keys(encoded.layers).length).toBe(
-        Object.keys(original.layers).length
+        Object.keys(original.layers).length,
     );
 });
 
 test("Test background layer equality", () => {
     expect(encodedBackground.depth).toBe(originalBackground.depth);
     expect(encodedBackground.elements.length).toBe(
-        originalBackground.elements.length
+        originalBackground.elements.length,
     );
     expect(encodedBackground.visibleWhenFailing).toBe(
-        originalBackground.visibleWhenFailing
+        originalBackground.visibleWhenFailing,
     );
     expect(encodedBackground.visibleWhenPassing).toBe(
-        originalBackground.visibleWhenFailing
+        originalBackground.visibleWhenFailing,
     );
     expect(encodedBackground.name).toBe(originalBackground.name);
 });
@@ -65,10 +65,10 @@ test("Test fail layer equality", () => {
     expect(encodedFail.depth).toBe(originalFail.depth);
     expect(encodedFail.elements.length).toBe(originalFail.elements.length);
     expect(encodedFail.visibleWhenFailing).toBe(
-        originalFail.visibleWhenFailing
+        originalFail.visibleWhenFailing,
     );
     expect(encodedFail.visibleWhenPassing).toBe(
-        originalFail.visibleWhenPassing
+        originalFail.visibleWhenPassing,
     );
     expect(encodedFail.name).toBe(originalFail.name);
 });
@@ -80,29 +80,29 @@ test("Test pass layer equality", () => {
     expect(encodedPass.depth).toBe(originalPass.depth);
     expect(encodedPass.elements.length).toBe(originalPass.elements.length);
     expect(encodedPass.visibleWhenFailing).toBe(
-        originalPass.visibleWhenFailing
+        originalPass.visibleWhenFailing,
     );
     expect(encodedPass.visibleWhenPassing).toBe(
-        originalPass.visibleWhenPassing
+        originalPass.visibleWhenPassing,
     );
     expect(encodedPass.name).toBe(originalPass.name);
 });
 
 test("Test foreground layer equality", () => {
     const originalForeground = original.getLayer(
-        StoryboardLayerType.foreground
+        StoryboardLayerType.foreground,
     );
     const encodedForeground = encoded.getLayer(StoryboardLayerType.foreground);
 
     expect(encodedForeground.depth).toBe(originalForeground.depth);
     expect(encodedForeground.elements.length).toBe(
-        originalForeground.elements.length
+        originalForeground.elements.length,
     );
     expect(encodedForeground.visibleWhenFailing).toBe(
-        originalForeground.visibleWhenFailing
+        originalForeground.visibleWhenFailing,
     );
     expect(encodedForeground.visibleWhenPassing).toBe(
-        originalForeground.visibleWhenPassing
+        originalForeground.visibleWhenPassing,
     );
     expect(encodedForeground.name).toBe(originalForeground.name);
 });
@@ -112,13 +112,13 @@ test("Test overlay equality", () => {
     const encodedOverlay = encoded.getLayer(StoryboardLayerType.overlay);
     expect(encodedOverlay.depth).toBe(originalOverlay.depth);
     expect(encodedOverlay.elements.length).toBe(
-        originalOverlay.elements.length
+        originalOverlay.elements.length,
     );
     expect(encodedOverlay.visibleWhenFailing).toBe(
-        originalOverlay.visibleWhenFailing
+        originalOverlay.visibleWhenFailing,
     );
     expect(encodedOverlay.visibleWhenPassing).toBe(
-        originalOverlay.visibleWhenPassing
+        originalOverlay.visibleWhenPassing,
     );
     expect(encodedOverlay.name).toBe(originalOverlay.name);
 });
@@ -126,64 +126,64 @@ test("Test overlay equality", () => {
 test("Test element count equality", () => {
     const originalSpriteCount = originalBackground.elements.filter(
         (x) =>
-            x instanceof StoryboardSprite && !(x instanceof StoryboardAnimation)
+            x instanceof StoryboardSprite &&
+            !(x instanceof StoryboardAnimation),
     ).length;
     const originalAnimationCount = originalBackground.elements.filter(
-        (x) => x instanceof StoryboardAnimation
+        (x) => x instanceof StoryboardAnimation,
     ).length;
     const originalSampleCount = originalBackground.elements.filter(
-        (x) => x instanceof StoryboardSample
+        (x) => x instanceof StoryboardSample,
     ).length;
 
     const encodedSpriteCount = encodedBackground.elements.filter(
         (x) =>
-            x instanceof StoryboardSprite && !(x instanceof StoryboardAnimation)
+            x instanceof StoryboardSprite &&
+            !(x instanceof StoryboardAnimation),
     ).length;
     const encodedAnimationCount = encodedBackground.elements.filter(
-        (x) => x instanceof StoryboardAnimation
+        (x) => x instanceof StoryboardAnimation,
     ).length;
     const encodedSampleCount = encodedBackground.elements.filter(
-        (x) => x instanceof StoryboardSample
+        (x) => x instanceof StoryboardSample,
     ).length;
 
     expect(encodedSpriteCount).toBe(originalSpriteCount);
     expect(encodedAnimationCount).toBe(originalAnimationCount);
     expect(encodedSampleCount).toBe(originalSampleCount);
     expect(encodedBackground.elements.length).toBe(
-        encodedSpriteCount + encodedAnimationCount + encodedSampleCount
+        encodedSpriteCount + encodedAnimationCount + encodedSampleCount,
     );
 });
 
 test("Test sprite equality", () => {
-    const originalSprite = <StoryboardSprite>originalBackground.elements[0];
-    const encodedSprite = <StoryboardSprite>encodedBackground.elements[0];
+    const originalSprite = originalBackground.elements[0] as StoryboardSprite;
+    const encodedSprite = encodedBackground.elements[0] as StoryboardSprite;
 
-    expect(encodedSprite).not.toBeUndefined();
+    expect(encodedSprite).toBeDefined();
     expect(encodedSprite.hasCommands).toBe(originalSprite.hasCommands);
     expect(encodedSprite.initialPosition).toEqual(
-        originalSprite.initialPosition
+        originalSprite.initialPosition,
     );
     expect(encodedSprite.origin).toBe(originalSprite.origin);
     expect(encodedSprite.path).toBe(originalSprite.path);
 });
 
 test("Test animation equality", () => {
-    const originalAnimation = <StoryboardAnimation>(
-        originalBackground.elements.find(
-            (x) => x instanceof StoryboardAnimation
-        )
-    );
-    const encodedAnimation = <StoryboardAnimation>(
-        encodedBackground.elements.find((x) => x instanceof StoryboardAnimation)
-    );
+    const originalAnimation = originalBackground.elements.find(
+        (x) => x instanceof StoryboardAnimation,
+    )!;
+    const encodedAnimation = encodedBackground.elements.find(
+        (x) => x instanceof StoryboardAnimation,
+    )!;
 
-    expect(encodedAnimation).not.toBeUndefined();
+    expect(encodedAnimation).toBeDefined();
     expect(encodedAnimation.endTime).toBe(originalAnimation.endTime);
     expect(encodedAnimation.frameCount).toBe(originalAnimation.frameCount);
     expect(encodedAnimation.frameDelay).toBe(originalAnimation.frameDelay);
     expect(encodedAnimation.hasCommands).toBe(originalAnimation.hasCommands);
     expect(encodedAnimation.initialPosition).toEqual(
-        originalAnimation.initialPosition
+        originalAnimation.initialPosition,
     );
     expect(encodedAnimation.loopType).toBe(originalAnimation.loopType);
     expect(encodedAnimation.origin).toBe(originalAnimation.origin);

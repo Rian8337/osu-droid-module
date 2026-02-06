@@ -17,14 +17,17 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
             case "0":
                 this.parseBackground(s);
                 break;
+
             case "1":
             case "Video":
                 this.parseVideo(s);
                 break;
+
             case "2":
             case "Break":
                 this.parseBreak(s);
                 break;
+
             default:
                 this.storyboardLines.push(line);
         }
@@ -53,14 +56,14 @@ export class BeatmapEventsDecoder extends SectionDecoder<Beatmap> {
 
     private parseBreak(s: string[]): void {
         this.target.events.breaks.push(
-            new BreakPoint({
-                startTime: this.target.getOffsetTime(
+            new BreakPoint(
+                this.target.getOffsetTime(
                     this.tryParseInt(this.setPosition(s[1])),
                 ),
-                endTime: this.target.getOffsetTime(
+                this.target.getOffsetTime(
                     this.tryParseInt(this.setPosition(s[2])),
                 ),
-            }),
+            ),
         );
     }
 }

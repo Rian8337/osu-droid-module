@@ -15,7 +15,7 @@ import {
 const beatmapControlPoints = new BeatmapControlPoints();
 const difficulty = new BeatmapDifficulty();
 
-const createCircle = (startTime: number = 1000) => {
+const createCircle = (startTime = 1000) => {
     const circle = new Circle({
         startTime: startTime,
         position: new Vector2(0, 0),
@@ -26,7 +26,7 @@ const createCircle = (startTime: number = 1000) => {
     return circle;
 };
 
-const createSlider = (startTime: number = 1000) => {
+const createSlider = (startTime = 1000) => {
     const controlPoints = [new Vector2(0, 0), new Vector2(200, 0)];
 
     // Will generate 1 slider tick and repetitions by default

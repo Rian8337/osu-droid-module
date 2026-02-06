@@ -150,7 +150,7 @@ export class CommandTimelineGroup {
      */
     getCommands<T>(
         timelineSelector: CommandTimelineSelector<T>,
-        offset: number = 0,
+        offset = 0,
     ): Command<T>[] {
         const timeline: CommandTimeline<T> = timelineSelector(this);
 

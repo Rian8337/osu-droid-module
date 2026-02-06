@@ -18,7 +18,7 @@ export class DecimalModSetting extends NumberModSetting {
     set precision(value: number | null) {
         if (value !== null && value < 0) {
             throw new RangeError(
-                `The precision (${value}) must be greater than or equal to 0.`,
+                `The precision (${value.toString()}) must be greater than or equal to 0.`,
             );
         }
 
@@ -50,7 +50,7 @@ export class DecimalModSetting extends NumberModSetting {
 
         if (precision !== null && precision < 0) {
             throw new RangeError(
-                `The precision (${precision}) must be greater than or equal to 0.`,
+                `The precision (${precision.toString()}) must be greater than or equal to 0.`,
             );
         }
 

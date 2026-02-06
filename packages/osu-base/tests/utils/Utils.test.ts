@@ -32,5 +32,7 @@ test("Test array initializer", () => {
 });
 
 test("Test sleeping function", () => {
-    expect(async () => await Utils.sleep(1)).not.toThrow();
+    expect(async () => {
+        await Utils.sleep(1);
+    }).not.toThrow();
 });

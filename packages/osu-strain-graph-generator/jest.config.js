@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 const base = require("../../jest.config.base.js");
 const pack = require("./package.json");
 

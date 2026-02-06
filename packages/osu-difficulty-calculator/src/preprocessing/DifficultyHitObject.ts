@@ -240,7 +240,9 @@ export abstract class DifficultyHitObject {
      */
     previous(backwardsIndex: number): this | null {
         return (
-            (this.hitObjects[this.index - backwardsIndex - 1] as this) ?? null
+            (this.hitObjects[this.index - backwardsIndex - 1] as
+                | this
+                | undefined) ?? null
         );
     }
 
@@ -256,7 +258,9 @@ export abstract class DifficultyHitObject {
      */
     next(forwardsIndex: number): this | null {
         return (
-            (this.hitObjects[this.index + forwardsIndex + 1] as this) ?? null
+            (this.hitObjects[this.index + forwardsIndex + 1] as
+                | this
+                | undefined) ?? null
         );
     }
 

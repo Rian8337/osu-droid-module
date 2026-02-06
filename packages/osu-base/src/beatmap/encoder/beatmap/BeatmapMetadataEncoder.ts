@@ -34,12 +34,12 @@ export class BeatmapMetadataEncoder extends BeatmapBaseEncoder {
             this.writeLine(`Tags: ${metadata.tags.join(" ")}`);
         }
 
-        if ((metadata.beatmapId ?? -1) > 0) {
-            this.writeLine(`BeatmapID: ${metadata.beatmapId}`);
+        if (metadata.beatmapId !== undefined && metadata.beatmapId > 0) {
+            this.writeLine(`BeatmapID: ${metadata.beatmapId.toString()}`);
         }
 
-        if ((metadata.beatmapSetId ?? -1) > 0) {
-            this.writeLine(`BeatmapSetID: ${metadata.beatmapSetId}`);
+        if (metadata.beatmapSetId !== undefined && metadata.beatmapSetId > 0) {
+            this.writeLine(`BeatmapSetID: ${metadata.beatmapSetId.toString()}`);
         }
     }
 }

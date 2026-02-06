@@ -45,7 +45,8 @@ export class StoryboardSprite extends StoryboardElement {
             readonly isZeroStartValue: boolean;
         }[] = [];
 
-        let command = this.timelineGroup.alpha.commands[0];
+        let command = this.timelineGroup.alpha.commands.at(0);
+
         if (command) {
             alphaCommands.push({
                 startTime: command.startTime,
@@ -54,7 +55,8 @@ export class StoryboardSprite extends StoryboardElement {
         }
 
         for (const l of this.loops) {
-            command = l.alpha.commands[0];
+            command = l.alpha.commands.at(0);
+
             if (command) {
                 alphaCommands.push({
                     startTime: command.startTime + l.loopStartTime,
@@ -158,6 +160,6 @@ export class StoryboardSprite extends StoryboardElement {
     }
 
     override toString(): string {
-        return `${this.path}, ${this.origin}, ${this.initialPosition}`;
+        return `${this.path}, ${this.origin}, ${this.initialPosition.toString()}`;
     }
 }

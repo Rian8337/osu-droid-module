@@ -53,6 +53,7 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
      */
     toCacheableAttributes(): CacheableDifficultyAttributes<this> {
         return {
+            // eslint-disable-next-line @typescript-eslint/no-misused-spread
             ...this,
             mods: this.mods.serializeMods(),
         };

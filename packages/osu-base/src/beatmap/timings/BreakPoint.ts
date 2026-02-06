@@ -24,16 +24,16 @@ export class BreakPoint {
         return this.endTime - this.startTime;
     }
 
-    constructor(values: { startTime: number; endTime: number }) {
-        this.startTime = values.startTime;
-        this.endTime = values.endTime;
+    constructor(startTime: number, endTime: number) {
+        this.startTime = startTime;
+        this.endTime = endTime;
     }
 
     /**
      * Returns a string representation of the class.
      */
     toString(): string {
-        return `Start time: ${this.startTime}, end time: ${this.endTime}, duration: ${this.duration}`;
+        return `Start time: ${this.startTime.toString()}, end time: ${this.endTime.toString()}, duration: ${this.duration.toString()}`;
     }
 
     /**

@@ -28,7 +28,7 @@ export class CommandTrigger extends CommandTimelineGroup {
         triggerName: string,
         startTime: number,
         endTime: number,
-        groupNumber: number
+        groupNumber: number,
     ) {
         super();
 
@@ -39,6 +39,6 @@ export class CommandTrigger extends CommandTimelineGroup {
     }
 
     override toString(): string {
-        return `${this.triggerName} ${this.triggerStartTime} -> ${this.triggerEndTime} (${this.groupNumber})`;
+        return `${this.triggerName} ${this.triggerStartTime.toString()} -> ${this.triggerEndTime.toString()} (${this.groupNumber.toString()})`;
     }
 }

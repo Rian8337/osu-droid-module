@@ -1,8 +1,11 @@
 import { NumberModSetting } from "../../../src";
 
 test("Test boundaries", () => {
-    const expectThrows = (action: () => void) =>
-        expect(() => action()).toThrow();
+    const expectThrows = (action: () => void) => {
+        expect(() => {
+            action();
+        }).toThrow();
+    };
 
     // Test min > max
     expectThrows(

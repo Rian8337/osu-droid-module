@@ -1,4 +1,3 @@
-import { Vector2 } from "../../math/Vector2";
 import { HitObject } from "./HitObject";
 
 /**
@@ -9,17 +8,7 @@ import { HitObject } from "./HitObject";
  * rectangle).
  */
 export class Circle extends HitObject {
-    constructor(values: {
-        startTime: number;
-        newCombo?: boolean;
-        comboOffset?: number;
-        type?: number;
-        position: Vector2;
-    }) {
-        super(values);
-    }
-
     override toString(): string {
-        return `Position: [${this._position.x}, ${this._position.y}]`;
+        return `Position: [${this.position.x.toString()}, ${this.position.y.toString()}]`;
     }
 }

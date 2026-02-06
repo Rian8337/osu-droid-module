@@ -90,17 +90,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             (s) => s instanceof OsuAim && !s.withSliders,
         ) as OsuAim | undefined;
 
-        const speed = skills.find((s) => s instanceof OsuSpeed) as
-            | OsuSpeed
-            | undefined;
-
-        const flashlight = skills.find((s) => s instanceof OsuFlashlight) as
-            | OsuFlashlight
-            | undefined;
-
-        const reading = skills.find((s) => s instanceof OsuReading) as
-            | OsuReading
-            | undefined;
+        const speed = skills.find((s) => s instanceof OsuSpeed);
+        const flashlight = skills.find((s) => s instanceof OsuFlashlight);
+        const reading = skills.find((s) => s instanceof OsuReading);
 
         // Aim attributes
         const aimDifficultyValue = aim?.difficultyValue() ?? 0;

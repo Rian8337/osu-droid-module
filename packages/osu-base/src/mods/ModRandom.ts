@@ -263,7 +263,7 @@ export class ModRandom
         const settings: string[] = [];
 
         if (this.seed.value !== null) {
-            settings.push(`seed: ${this.seed.value}`);
+            settings.push(`seed: ${this.seed.value.toString()}`);
         }
 
         settings.push(

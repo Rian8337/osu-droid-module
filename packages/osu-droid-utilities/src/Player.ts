@@ -20,7 +20,7 @@ export class Player {
      * The avatar URL of the player.
      */
     get avatarUrl(): string {
-        return `https://osudroid.moe/user/avatar?id=${this.id}`;
+        return `https://osudroid.moe/user/avatar?id=${this.id.toString()}`;
     }
 
     /**
@@ -103,7 +103,7 @@ export class Player {
         let response: APIPlayer;
 
         try {
-            response = JSON.parse(result.data.toString("utf-8"));
+            response = JSON.parse(result.data.toString("utf-8")) as APIPlayer;
         } catch {
             return null;
         }
@@ -119,6 +119,6 @@ export class Player {
      * Returns a string representative of the class.
      */
     toString(): string {
-        return `Username: ${this.username}\nUID: ${this.id}\nRank: ${this.rank}\nScore: ${this.score}\nPlay count: ${this.playCount}`;
+        return `Username: ${this.username}\nUID: ${this.id.toString()}\nRank: ${this.rank.toString()}\nScore: ${this.score.toString()}\nPlay count: ${this.playCount.toString()}`;
     }
 }

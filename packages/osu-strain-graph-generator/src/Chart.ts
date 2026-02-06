@@ -192,9 +192,7 @@ export class Chart implements ChartInitializer {
         c.beginPath();
         c.moveTo(data[0].x * this.scaleX, data[0].y * this.scaleY);
 
-        for (let n = 0; n < data.length; ++n) {
-            const point = data[n];
-
+        for (const point of data) {
             // Data segment
             c.lineTo(point.x * this.scaleX, point.y * this.scaleY);
             c.stroke();
@@ -234,7 +232,11 @@ export class Chart implements ChartInitializer {
         c.strokeStyle = c.fillStyle = color;
 
         c.beginPath();
-        data.forEach((d) => c.lineTo(d.x * this.scaleX, d.y * this.scaleY));
+
+        data.forEach((d) => {
+            c.lineTo(d.x * this.scaleX, d.y * this.scaleY);
+        });
+
         c.stroke();
         c.lineTo(data.at(-1)!.x * this.scaleX, 0);
         c.lineTo(0, 0);

@@ -85,14 +85,11 @@ export class Beatmap implements IBeatmap {
         // The last playable time in the beatmap - the last timing point extends to this time.
         // Note: This is more accurate and may present different results because osu-stable didn't have the ability to calculate slider durations in this context.
         const lastTime =
-            this.hitObjects.objects[this.hitObjects.objects.length - 1]
-                ?.endTime ??
-            this.controlPoints.timing.points[
-                this.controlPoints.timing.points.length - 1
-            ]?.time ??
+            this.hitObjects.objects.at(-1)?.endTime ??
+            this.controlPoints.timing.points.at(-1)?.time ??
             0;
 
-        const mostCommon: { beatLength: number; duration: number } =
+        const mostCommon =
             // Construct a set of {beatLength, duration} objects for each individual timing point.
             this.controlPoints.timing.points
                 .map((t, i, a) => {
@@ -113,7 +110,7 @@ export class Beatmap implements IBeatmap {
                 // Get the most common one, or 0 as a suitable default.
                 .sort((a, b) => b.duration - a.duration)[0];
 
-        return mostCommon?.beatLength ?? 0;
+        return mostCommon.beatLength;
     }
 
     getOffsetTime(time: number): number {
@@ -325,13 +322,13 @@ export class Beatmap implements IBeatmap {
         processor.preProcess();
 
         // Compute default values for hit objects, including creating nested hit objects in-case they're needed.
-        converted.hitObjects.objects.forEach((hitObject) =>
+        converted.hitObjects.objects.forEach((hitObject) => {
             hitObject.applyDefaults(
                 converted.controlPoints,
                 converted.difficulty,
                 mode,
-            ),
-        );
+            );
+        });
 
         mods.forEach((mod) => {
             if (mod.isApplicableToHitObject()) {
@@ -380,25 +377,25 @@ export class Beatmap implements IBeatmap {
             "\n" +
             "\n" +
             "AR" +
-            MathUtils.round(this.difficulty.ar, 2) +
+            MathUtils.round(this.difficulty.ar, 2).toString() +
             " " +
             "OD" +
-            MathUtils.round(this.difficulty.od, 2) +
+            MathUtils.round(this.difficulty.od, 2).toString() +
             " " +
             "CS" +
-            MathUtils.round(this.difficulty.cs, 2) +
+            MathUtils.round(this.difficulty.cs, 2).toString() +
             " " +
             "HP" +
-            MathUtils.round(this.difficulty.hp, 2) +
+            MathUtils.round(this.difficulty.hp, 2).toString() +
             "\n" +
-            this.hitObjects.circles +
+            this.hitObjects.circles.toString() +
             " circles, " +
-            this.hitObjects.sliders +
+            this.hitObjects.sliders.toString() +
             " sliders, " +
-            this.hitObjects.spinners +
+            this.hitObjects.spinners.toString() +
             " spinners" +
             "\n" +
-            this.maxCombo +
+            this.maxCombo.toString() +
             " max combo";
         return res;
     }

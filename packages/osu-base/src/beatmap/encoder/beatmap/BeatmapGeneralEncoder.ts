@@ -15,16 +15,16 @@ export class BeatmapGeneralEncoder extends BeatmapBaseEncoder {
             this.writeLine(`AudioFilename: ${general.audioFilename}`);
         }
 
-        this.writeLine(`AudioLeadIn: ${general.audioLeadIn}`);
-        this.writeLine(`PreviewTime: ${general.previewTime}`);
-        this.writeLine(`Countdown: ${general.countdown}`);
+        this.writeLine(`AudioLeadIn: ${general.audioLeadIn.toString()}`);
+        this.writeLine(`PreviewTime: ${general.previewTime.toString()}`);
+        this.writeLine(`Countdown: ${general.countdown.toString()}`);
         this.writeLine(
             `SampleSet: ${this.sampleBankToString(general.sampleBank)}`,
         );
-        this.writeLine(`StackLeniency: ${general.stackLeniency}`);
-        this.writeLine(`Mode: ${general.mode}`);
+        this.writeLine(`StackLeniency: ${general.stackLeniency.toString()}`);
+        this.writeLine(`Mode: ${general.mode.toString()}`);
         this.writeLine(
-            `LetterboxInBreaks: ${general.letterBoxInBreaks ? 1 : 0}`,
+            `LetterboxInBreaks: ${general.letterBoxInBreaks ? "1" : "0"}`,
         );
 
         if (general.epilepsyWarning) {
@@ -32,11 +32,13 @@ export class BeatmapGeneralEncoder extends BeatmapBaseEncoder {
         }
 
         if (general.countdownOffset > 0) {
-            this.writeLine(`CountdownOffset: ${general.countdownOffset}`);
+            this.writeLine(
+                `CountdownOffset: ${general.countdownOffset.toString()}`,
+            );
         }
 
         this.writeLine(
-            `WidescreenStoryboard: ${general.widescreenStoryboard ? 1 : 0}`,
+            `WidescreenStoryboard: ${general.widescreenStoryboard ? "1" : "0"}`,
         );
 
         if (general.samplesMatchPlaybackRate) {

@@ -23,7 +23,7 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
     set precision(value: number | null) {
         if (value !== null && value < 0) {
             throw new RangeError(
-                `The precision (${value}) must be greater than or equal to 0.`,
+                `The precision (${value.toString()}) must be greater than or equal to 0.`,
             );
         }
 
@@ -59,13 +59,13 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
 
         if (min > max) {
             throw new RangeError(
-                `The minimum value (${min}) must be less than or equal to the maximum value (${max}).`,
+                `The minimum value (${min.toString()}) must be less than or equal to the maximum value (${max.toString()}).`,
             );
         }
 
         if (step < 0) {
             throw new RangeError(
-                `The step size (${step}) must be greater than or equal to 0.`,
+                `The step size (${step.toString()}) must be greater than or equal to 0.`,
             );
         }
 
@@ -74,7 +74,7 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
             (defaultValue < min || defaultValue > max)
         ) {
             throw new RangeError(
-                `The default value (${defaultValue}) must be between the minimum (${min}) and maximum (${max}) values.`,
+                `The default value (${defaultValue.toString()}) must be between the minimum (${min.toString()}) and maximum (${max.toString()}) values.`,
             );
         }
 

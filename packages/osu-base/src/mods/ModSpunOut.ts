@@ -11,11 +11,6 @@ export class ModSpunOut extends Mod implements IModApplicableToOsuStable {
     readonly osuRanked = true;
     readonly bitwise = 1 << 12;
 
-    get isOsuRelevant(): boolean {
-        return true;
-    }
-
-    get osuScoreMultiplier(): number {
-        return 0.9;
-    }
+    readonly isOsuRelevant = true;
+    readonly osuScoreMultiplier = 0.9;
 }

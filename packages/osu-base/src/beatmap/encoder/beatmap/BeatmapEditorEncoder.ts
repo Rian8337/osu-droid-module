@@ -15,9 +15,9 @@ export class BeatmapEditorEncoder extends BeatmapBaseEncoder {
             this.writeLine(editor.bookmarks.join());
         }
 
-        this.writeLine(`DistanceSpacing: ${editor.distanceSnap}`);
-        this.writeLine(`BeatDivisor: ${editor.beatDivisor}`);
-        this.writeLine(`GridSize: ${editor.gridSize}`);
-        this.writeLine(`TimelineZoom: ${editor.timelineZoom}`);
+        this.writeLine(`DistanceSpacing: ${editor.distanceSnap.toString()}`);
+        this.writeLine(`BeatDivisor: ${editor.beatDivisor.toString()}`);
+        this.writeLine(`GridSize: ${editor.gridSize.toString()}`);
+        this.writeLine(`TimelineZoom: ${editor.timelineZoom.toString()}`);
     }
 }

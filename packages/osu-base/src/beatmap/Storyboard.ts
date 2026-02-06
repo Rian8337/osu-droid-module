@@ -22,7 +22,7 @@ export class Storyboard {
     /**
      * Whether the storyboard can fall back to skin sprites in case no matching storyboard sprites are found.
      */
-    useSkinSprites: boolean = false;
+    useSkinSprites = false;
 
     /**
      * The variables of the storyboard.
@@ -91,7 +91,7 @@ export class Storyboard {
 
     getLayer(
         type: StoryboardLayerType,
-        createIfNotAvailable: boolean = true,
+        createIfNotAvailable = true,
     ): StoryboardLayer | null {
         let layer = this.layers[type];
 

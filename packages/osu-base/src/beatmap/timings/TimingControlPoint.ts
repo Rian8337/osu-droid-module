@@ -33,13 +33,13 @@ export class TimingControlPoint extends ControlPoint {
     override toString(): string {
         return (
             "{ time: " +
-            this.time +
+            this.time.toString() +
             ", " +
             "ms_per_beat: " +
             this.msPerBeat.toFixed(2) +
             ", " +
             "timeSignature: " +
-            this.timeSignature +
+            this.timeSignature.toString() +
             " }"
         );
     }

@@ -86,14 +86,14 @@ export abstract class SectionDecoder<T> {
      * @param str The string to parse.
      * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
      * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
-     * @param allowNaN Whether to allow NaN.
+     * @param allowNaN Whether to allow NaN. Defaults to `false`.
      * @returns The parsed integer.
      */
     protected tryParseInt(
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
         max: number = ParserConstants.MAX_PARSE_VALUE,
-        allowNaN: boolean = false,
+        allowNaN = false,
     ): number {
         const num = parseInt(str);
 
@@ -120,14 +120,14 @@ export abstract class SectionDecoder<T> {
      * @param str The string to parse.
      * @param min The minimum threshold. Defaults to `-ParserConstants.MAX_PARSE_VALUE`.
      * @param max The maximum threshold. Defaults to `ParserConstants.MAX_PARSE_VALUE`.
-     * @param allowNaN Whether to allow NaN.
+     * @param allowNaN Whether to allow NaN. Defaults to `false`.
      * @returns The parsed float.
      */
     protected tryParseFloat(
         str: string,
         min: number = -ParserConstants.MAX_PARSE_VALUE,
         max: number = ParserConstants.MAX_PARSE_VALUE,
-        allowNaN: boolean = false,
+        allowNaN = false,
     ): number {
         const num = parseFloat(str);
 

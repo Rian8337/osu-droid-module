@@ -101,12 +101,18 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     }
 
     override previous(backwardsIndex: number): this | null {
-        return (this.hitObjects[this.index - backwardsIndex] as this) ?? null;
+        return (
+            (this.hitObjects[this.index - backwardsIndex] as
+                | this
+                | undefined) ?? null
+        );
     }
 
     override next(forwardsIndex: number): this | null {
         return (
-            (this.hitObjects[this.index + forwardsIndex + 2] as this) ?? null
+            (this.hitObjects[this.index + forwardsIndex + 2] as
+                | this
+                | undefined) ?? null
         );
     }
 

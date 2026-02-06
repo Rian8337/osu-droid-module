@@ -24,7 +24,7 @@ export class RGBColor {
      */
     a: number;
 
-    constructor(r: number, g: number, b: number, a: number = 1) {
+    constructor(r: number, g: number, b: number, a = 1) {
         this.r = MathUtils.clamp(r, 0, 255);
         this.g = MathUtils.clamp(g, 0, 255);
         this.b = MathUtils.clamp(b, 0, 255);
@@ -36,9 +36,9 @@ export class RGBColor {
      */
     toString(): string {
         if (this.a === 1) {
-            return `${this.r},${this.g},${this.b}`;
+            return `${this.r.toString()},${this.g.toString()},${this.b.toString()}`;
         } else {
-            return `${this.r},${this.g},${this.b},${this.a}`;
+            return `${this.r.toString()},${this.g.toString()},${this.b.toString()},${this.a.toString()}`;
         }
     }
 

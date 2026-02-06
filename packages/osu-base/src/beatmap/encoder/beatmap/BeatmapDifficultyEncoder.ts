@@ -11,11 +11,15 @@ export class BeatmapDifficultyEncoder extends BeatmapBaseEncoder {
 
         const { difficulty } = this.map;
 
-        this.writeLine(`HPDrainRate: ${difficulty.hp}`);
-        this.writeLine(`CircleSize: ${difficulty.cs}`);
-        this.writeLine(`OverallDifficulty: ${difficulty.od}`);
-        this.writeLine(`ApproachRate: ${difficulty.ar}`);
-        this.writeLine(`SliderMultiplier: ${difficulty.sliderMultiplier}`);
-        this.writeLine(`SliderTickRate: ${difficulty.sliderTickRate}`);
+        this.writeLine(`HPDrainRate: ${difficulty.hp.toString()}`);
+        this.writeLine(`CircleSize: ${difficulty.cs.toString()}`);
+        this.writeLine(`OverallDifficulty: ${difficulty.od.toString()}`);
+        this.writeLine(`ApproachRate: ${difficulty.ar.toString()}`);
+        this.writeLine(
+            `SliderMultiplier: ${difficulty.sliderMultiplier.toString()}`,
+        );
+        this.writeLine(
+            `SliderTickRate: ${difficulty.sliderTickRate.toString()}`,
+        );
     }
 }

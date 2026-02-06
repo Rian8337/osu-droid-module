@@ -5,14 +5,17 @@ export abstract class BaseEncoder {
     /**
      * The target of the encoding process.
      */
-    protected result: string = "";
+    protected result = "";
 
     /**
-     * Whether sections should be encoded. Defaults to `true`.
+     * Whether sections should be encoded.
      */
     readonly encodeSections: boolean;
 
-    constructor(encodeSections: boolean = true) {
+    /**
+     * @param encodeSections Whether sections should be encoded. Defaults to `true`.
+     */
+    constructor(encodeSections = true) {
         this.encodeSections = encodeSections;
     }
 
@@ -46,7 +49,7 @@ export abstract class BaseEncoder {
      *
      * @param line The line to write.
      */
-    protected writeLine(line: string = ""): void {
+    protected writeLine(line = ""): void {
         this.write(line);
         this.write("\n");
     }

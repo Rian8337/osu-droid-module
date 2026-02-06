@@ -175,8 +175,8 @@ export class CursorOccurrenceGroup {
      * Returns a string representation of this `CursorOccurrenceGroup`.
      */
     toString(): string {
-        return `Down: ${this.down.time}ms (${this.down.position.x.toFixed(2)}, ${this.down.position.y.toFixed(2)}) | Moves: ${this.moves.length} | Up: ${
-            this.up ? `${this.up.time}ms` : "N/A"
+        return `Down: ${this.down.time.toString()}ms (${this.down.position.x.toFixed(2)}, ${this.down.position.y.toFixed(2)}) | Moves: ${this.moves.length.toString()} | Up: ${
+            this.up ? `${this.up.time.toString()}ms` : "N/A"
         }`;
     }
 }

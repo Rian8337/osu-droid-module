@@ -22,10 +22,10 @@ export abstract class Brent {
     static findRootExpand(
         f: (x: number) => number,
         bounds: RootBounds,
-        accuracy: number = 1e-8,
-        maxIterations: number = 100,
-        expandFactor: number = 1.6,
-        maxExpandIterations: number = 100,
+        accuracy = 1e-8,
+        maxIterations = 100,
+        expandFactor = 1.6,
+        maxExpandIterations = 100,
     ): number {
         ZeroCrossingBracketing.expandReduce(
             f,
@@ -49,8 +49,8 @@ export abstract class Brent {
     static findRoot(
         f: (x: number) => number,
         bounds: RootBounds,
-        accuracy: number = 1e-8,
-        maxIterations: number = 100,
+        accuracy = 1e-8,
+        maxIterations = 100,
     ): number {
         const root = this.tryFindRoot(f, bounds, accuracy, maxIterations);
 

@@ -10,7 +10,7 @@ export abstract class StoryboardBaseEncoder extends BaseEncoder {
      */
     readonly storyboard: Storyboard;
 
-    constructor(storyboard: Storyboard, encodeSections: boolean = true) {
+    constructor(storyboard: Storyboard, encodeSections = true) {
         super(encodeSections);
 
         this.storyboard = storyboard;

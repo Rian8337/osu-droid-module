@@ -571,7 +571,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      */
     private calculateDeviationBasedLengthScaling(
         objectCount: number = this.totalHits,
-        punishForMemorization: boolean = false,
+        punishForMemorization = false,
     ): number {
         // Assume a sample proportion of hits for a full combo to be `(n - 0.5) / n` due to
         // continuity correction, where `n` is the object count.

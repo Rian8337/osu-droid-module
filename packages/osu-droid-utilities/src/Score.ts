@@ -185,7 +185,7 @@ export class Score {
         let response: APIScore[];
 
         try {
-            response = JSON.parse(result.data.toString("utf-8"));
+            response = JSON.parse(result.data.toString("utf-8")) as APIScore[];
         } catch {
             return null;
         }
@@ -201,6 +201,6 @@ export class Score {
      * Returns a string representative of the class.
      */
     toString(): string {
-        return `Player: ${this.username}, uid: ${this.uid}, title: ${this.title}, score: ${this.score}, combo: ${this.combo}, rank: ${this.rank}, acc: ${this.accuracy}%, date: ${this.date}, mods: ${this.mods}, hash: ${this.hash}`;
+        return `Player: ${this.username}, uid: ${this.uid.toString()}, title: ${this.title}, score: ${this.score.toString()}, combo: ${this.combo.toString()}, rank: ${this.rank}, acc: ${(this.accuracy.value() * 100).toFixed(2)}%, date: ${this.date.toString()}, mods: ${ModUtil.modsToOrderedString(this.mods)}, hash: ${this.hash}`;
     }
 }

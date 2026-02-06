@@ -26,21 +26,21 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
     /**
      * @param str The string to decode.
      * @param mode The mode to parse the beatmap as. Defaults to osu!standard.
-     * @param parseStoryboard Whether to parse the beatmap's storyboard.
+     * @param parseStoryboard Whether to parse the beatmap's storyboard. Defaults to `true`.
      */
     override decode(
         str: string,
-        mode: Modes = Modes.osu,
-        parseStoryboard: boolean = true,
+        mode = Modes.osu,
+        parseStoryboard = true,
     ): this {
         super.decode(str);
 
         this.finalResult.mode = mode;
 
         if (parseStoryboard) {
-            const eventsDecoder = <BeatmapEventsDecoder>(
-                this.decoders[BeatmapSection.events]
-            );
+            const eventsDecoder = this.decoders[
+                BeatmapSection.events
+            ] as BeatmapEventsDecoder;
 
             if (eventsDecoder.storyboardLines.length > 0) {
                 this.finalResult.events.storyboard = new StoryboardDecoder(

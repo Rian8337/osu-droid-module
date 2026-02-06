@@ -79,13 +79,13 @@ export class SampleControlPoint extends ControlPoint {
     override toString(): string {
         return (
             "{ time: " +
-            this.time +
+            this.time.toString() +
             ", " +
             "sample bank: " +
-            this.sampleBank +
+            this.sampleBank.toString() +
             ", " +
             "sample volume: " +
-            this.sampleVolume +
+            this.sampleVolume.toString() +
             " }"
         );
     }

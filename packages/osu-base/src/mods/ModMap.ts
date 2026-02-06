@@ -20,7 +20,7 @@ export class ModMap extends Map<typeof Mod, Mod> {
         super();
 
         if (Array.isArray(iterable)) {
-            for (const [key, value] of iterable) {
+            for (const [key, value] of iterable as [typeof Mod, Mod][]) {
                 // Ensure the mod type corresponds to the mod instance.
                 if (key !== value.constructor) {
                     throw new TypeError(
@@ -47,6 +47,7 @@ export class ModMap extends Map<typeof Mod, Mod> {
      * @param key The `Mod` type to check for.
      * @returns Whether the `Mod` type is present in this map.
      */
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     override has(key: typeof Mod): boolean;
 
     override has(keyOrValue: typeof Mod | Mod): boolean {
@@ -80,6 +81,7 @@ export class ModMap extends Map<typeof Mod, Mod> {
      * @param value The `Mod` to insert.
      * @returns The existing `Mod` instance if it was already present, or `null` if it was not.
      */
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     override set<T extends Mod>(value: T): T | null;
 
     override set<T extends Mod>(keyOrValue: (new () => T) | T): T | null {

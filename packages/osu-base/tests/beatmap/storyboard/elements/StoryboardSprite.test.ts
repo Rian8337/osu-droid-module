@@ -1,12 +1,7 @@
 import { Anchor, Easing, StoryboardSprite, Vector2 } from "../../../../src";
 
-const createSprite = () => {
-    return new StoryboardSprite(
-        "sprite",
-        Anchor.bottomCenter,
-        new Vector2(50, 50)
-    );
-};
+const createSprite = () =>
+    new StoryboardSprite("sprite", Anchor.bottomCenter, new Vector2(50));
 
 test("Test adding loop command", () => {
     const sprite = createSprite();
@@ -147,6 +142,6 @@ test("Test string concatenation", () => {
     const sprite = createSprite();
 
     expect(sprite.toString()).toBe(
-        `sprite, ${Anchor.bottomCenter}, ${new Vector2(50, 50)}`
+        `sprite, ${Anchor.bottomCenter}, ${new Vector2(50).toString()}`,
     );
 });

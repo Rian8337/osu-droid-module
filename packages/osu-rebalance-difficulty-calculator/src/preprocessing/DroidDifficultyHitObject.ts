@@ -3,7 +3,6 @@ import {
     ModMap,
     ModTraceable,
     Modes,
-    PlaceableHitObject,
     Spinner,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
@@ -36,25 +35,6 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
         return Math.max(1, 1 + Math.pow((70 - this.object.radius) / 50, 2));
     }
 
-    /**
-     * Note: You **must** call `computeProperties` at some point due to how TypeScript handles
-     * overridden properties (see [this](https://github.com/microsoft/TypeScript/issues/1617) GitHub issue).
-     *
-     * @param object The underlying hitobject.
-     * @param lastObject The hitobject before this hitobject.
-     * @param difficultyHitObjects All difficulty hitobjects in the processed beatmap.
-     * @param clockRate The clock rate of the beatmap.
-     */
-    constructor(
-        object: PlaceableHitObject,
-        lastObject: PlaceableHitObject | null,
-        difficultyHitObjects: readonly DifficultyHitObject[],
-        clockRate: number,
-        index: number,
-    ) {
-        super(object, lastObject, difficultyHitObjects, clockRate, index);
-    }
-
     override opacityAt(time: number, mods?: ModMap): number {
         // Traceable hides the primary piece of a hit circle (that is, its body), so consider it as fully invisible.
         if (this.object instanceof Circle && mods?.has(ModTraceable)) {
@@ -65,12 +45,18 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     }
 
     override previous(backwardsIndex: number): this | null {
-        return (this.hitObjects[this.index - backwardsIndex] as this) ?? null;
+        return (
+            (this.hitObjects[this.index - backwardsIndex] as
+                | this
+                | undefined) ?? null
+        );
     }
 
     override next(forwardsIndex: number): this | null {
         return (
-            (this.hitObjects[this.index + forwardsIndex + 2] as this) ?? null
+            (this.hitObjects[this.index + forwardsIndex + 2] as
+                | this
+                | undefined) ?? null
         );
     }
 

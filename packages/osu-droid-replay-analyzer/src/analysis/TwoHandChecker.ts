@@ -9,6 +9,7 @@ import {
     ModHardRock,
     ModPrecise,
     OsuHitWindow,
+    PlaceableHitObject,
     Playfield,
     PreciseDroidHitWindow,
     Slider,
@@ -742,7 +743,10 @@ export class TwoHandChecker {
             return this.getCursorPositionForObjectStart(objectIndex);
         }
 
-        const nextObject = this.beatmap.hitObjects.objects[objectIndex - 1];
+        const nextObject = this.beatmap.hitObjects.objects[objectIndex - 1] as
+            | PlaceableHitObject
+            | undefined;
+
         let objectEndPosition = object.stackedEndPosition;
 
         if (object.distance > 0 && nextObject) {

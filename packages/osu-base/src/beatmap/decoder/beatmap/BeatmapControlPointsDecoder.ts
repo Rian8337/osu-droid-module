@@ -44,7 +44,7 @@ export class BeatmapControlPointsDecoder extends SectionDecoder<Beatmap> {
 
         let sampleSet = this.target.general.sampleBank;
         if (s.length >= 4) {
-            sampleSet = <SampleBank>this.tryParseInt(this.setPosition(s[3]));
+            sampleSet = this.tryParseInt(this.setPosition(s[3])) as SampleBank;
         }
 
         let customSampleBank = 0;

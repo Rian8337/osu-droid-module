@@ -24,7 +24,7 @@ export class FileHitSampleInfo extends HitSampleInfo {
         return names;
     }
 
-    constructor(filename: string, volume: number = 0) {
+    constructor(filename: string, volume = 0) {
         super(volume);
 
         this.filename = filename;

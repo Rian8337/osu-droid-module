@@ -55,7 +55,7 @@ export class Command<T> {
         startValue: T,
         endValue: T,
         type: StoryboardCommandType,
-        parameterType?: StoryboardParameterCommandType
+        parameterType?: StoryboardParameterCommandType,
     ) {
         this.easing = easing;
         this.startTime = startTime;
@@ -76,6 +76,7 @@ export class Command<T> {
     }
 
     toString(): string {
-        return `${this.startTime} -> ${this.endTime}, ${this.startValue} -> ${this.endValue} ${this.easing}`;
+        // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
+        return `${this.startTime.toString()} -> ${this.endTime.toString()}, ${this.startValue} -> ${this.endValue} ${this.easing.toString()}`;
     }
 }

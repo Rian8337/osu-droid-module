@@ -107,5 +107,7 @@ export abstract class HarmonicSkill extends ObjectDifficultySkill {
      * @param difficulties The difficulties of {@link DifficultyHitObject}s to transform.
      */
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    protected applyDifficultyTransformation(difficulties: number[]) {}
+    protected applyDifficultyTransformation(difficulties: number[]) {
+        // Do nothing by default.
+    }
 }

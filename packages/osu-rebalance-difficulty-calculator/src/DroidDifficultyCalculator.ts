@@ -444,9 +444,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         skills: Skill[],
         ratingCalculator: DroidRatingCalculator,
     ) {
-        const rhythm = skills.find((s) => s instanceof DroidRhythm) as
-            | DroidRhythm
-            | undefined;
+        const rhythm = skills.find((s) => s instanceof DroidRhythm);
 
         attributes.rhythmDifficulty = ratingCalculator.computeRhythmRating(
             rhythm?.difficultyValue() ?? 0,
@@ -458,9 +456,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         skills: Skill[],
         ratingCalculator: DroidRatingCalculator,
     ) {
-        const flashlight = skills.find((s) => s instanceof DroidFlashlight) as
-            | DroidFlashlight
-            | undefined;
+        const flashlight = skills.find((s) => s instanceof DroidFlashlight);
 
         if (!flashlight) {
             attributes.flashlightDifficulty = 0;
@@ -478,9 +474,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         skills: Skill[],
         ratingCalculator: DroidRatingCalculator,
     ) {
-        const reading = skills.find((s) => s instanceof DroidReading) as
-            | DroidReading
-            | undefined;
+        const reading = skills.find((s) => s instanceof DroidReading);
 
         if (!reading) {
             attributes.readingDifficulty = 0;

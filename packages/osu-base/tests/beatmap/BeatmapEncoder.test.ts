@@ -130,8 +130,8 @@ test("Test counters", () => {
 });
 
 test("Test hit object samples", () => {
-    const originalSlider = <Slider>originalBeatmap.hitObjects.objects[1];
-    const parsedSlider = <Slider>parsedBeatmap.hitObjects.objects[1];
+    const originalSlider = originalBeatmap.hitObjects.objects[1] as Slider;
+    const parsedSlider = parsedBeatmap.hitObjects.objects[1] as Slider;
 
     const [originalFirstBank, originalSecondBank] =
         originalSlider.samples as BankHitSampleInfo[];
@@ -156,8 +156,8 @@ test("Test hit object samples", () => {
 });
 
 test("Test hit object per-node samples", () => {
-    const originalSlider = <Slider>originalBeatmap.hitObjects.objects[1];
-    const parsedSlider = <Slider>parsedBeatmap.hitObjects.objects[1];
+    const originalSlider = originalBeatmap.hitObjects.objects[1] as Slider;
+    const parsedSlider = parsedBeatmap.hitObjects.objects[1] as Slider;
 
     expect(parsedSlider.nodeSamples.length).toBe(
         originalSlider.nodeSamples.length,

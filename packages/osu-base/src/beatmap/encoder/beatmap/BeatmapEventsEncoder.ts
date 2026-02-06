@@ -16,20 +16,22 @@ export class BeatmapEventsEncoder extends BeatmapBaseEncoder {
 
         if (events.background) {
             this.writeLine(
-                `0,0,"${events.background.filename}",${events.background.offset.x},${events.background.offset.y}`,
+                `0,0,"${events.background.filename}",${events.background.offset.x.toString()},${events.background.offset.y.toString()}`,
             );
         }
 
         if (events.video) {
             this.writeLine(
-                `Video,${events.video.startTime},"${events.video.filename}",${events.video.offset.x},${events.video.offset.y}`,
+                `Video,${events.video.startTime.toString()},"${events.video.filename}",${events.video.offset.x.toString()},${events.video.offset.y.toString()}`,
             );
         }
 
         this.writeLine("//Break Periods");
 
         for (const b of events.breaks) {
-            this.writeLine(`2,${b.startTime},${b.endTime}`);
+            this.writeLine(
+                `2,${b.startTime.toString()},${b.endTime.toString()}`,
+            );
         }
 
         if (this.map.events.storyboard) {

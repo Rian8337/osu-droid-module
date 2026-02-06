@@ -327,9 +327,9 @@ export class Slider extends HitObject {
 
         this.createNestedHitObjects(controlPoints);
 
-        this.nestedHitObjects.forEach((v) =>
-            v.applyDefaults(controlPoints, difficulty, mode),
-        );
+        this.nestedHitObjects.forEach((v) => {
+            v.applyDefaults(controlPoints, difficulty, mode);
+        });
     }
 
     override applySamples(controlPoints: BeatmapControlPoints): void {
@@ -608,7 +608,7 @@ export class Slider extends HitObject {
 
         const bankSamples = this.samples.filter(
             (v) => v instanceof BankHitSampleInfo,
-        ) as BankHitSampleInfo[];
+        );
         const normalSample =
             bankSamples.find((v) => v.name === BankHitSampleInfo.HIT_NORMAL) ??
             bankSamples.at(0);
@@ -648,10 +648,6 @@ export class Slider extends HitObject {
     }
 
     override toString(): string {
-        return `Position: [${this.position.x}, ${this.position.y}], distance: ${
-            this.path.expectedDistance
-        }, repeat count: ${this.repeatCount}, slider ticks: ${
-            this.nestedHitObjects.filter((v) => v instanceof SliderTick).length
-        }`;
+        return `Position: [${this.position.x.toString()}, ${this.position.y.toString()}], distance: ${this.path.expectedDistance.toString()}, repeat count: ${this.repeatCount.toString()}, slider ticks: ${this.ticks.toString()}`;
     }
 }

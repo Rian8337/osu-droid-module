@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/prefer-literal-enum-member */
+
 /**
  * Bitmask constant of object types. This is needed as osu! uses bits to determine object types.
  */

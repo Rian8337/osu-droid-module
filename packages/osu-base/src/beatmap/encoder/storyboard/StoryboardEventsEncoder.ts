@@ -46,7 +46,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         super.write(this.encodeVariables(line));
     }
 
-    protected override writeLine(line: string = ""): void {
+    protected override writeLine(line = ""): void {
         super.writeLine(this.encodeVariables(line));
     }
 
@@ -71,24 +71,24 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
                 this.write(`${layerType},`);
                 this.write(`${element.origin},`);
                 this.write(`"${element.path}",`);
-                this.write(`${element.initialPosition},`);
-                this.write(`${element.frameCount},`);
-                this.write(`${element.frameDelay},`);
-                this.writeLine(`${element.loopType}`);
+                this.write(`${element.initialPosition.toString()},`);
+                this.write(`${element.frameCount.toString()},`);
+                this.write(`${element.frameDelay.toString()},`);
+                this.writeLine(element.loopType.toString());
                 this.encodeElement(element);
             } else if (element instanceof StoryboardSprite) {
                 this.write(`${StoryboardEventType.sprite},`);
                 this.write(`${layerType},`);
                 this.write(`${element.origin},`);
                 this.write(`"${element.path}",`);
-                this.writeLine(`${element.initialPosition}`);
+                this.writeLine(element.initialPosition.toString());
                 this.encodeElement(element);
             } else if (element instanceof StoryboardSample) {
                 this.write(`${StoryboardEventType.sample},`);
-                this.write(`${element.startTime},`);
+                this.write(`${element.startTime.toString()},`);
                 this.write(`${layerType},`);
                 this.write(`"${element.path}",`);
-                this.writeLine(`${element.volume}`);
+                this.writeLine(element.volume.toString());
             }
         }
     }
@@ -109,22 +109,22 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         if (group instanceof CommandLoop) {
             this.write(" ");
             this.write(`${StoryboardCommandType.loop},`);
-            this.write(`${group.startTime},`);
-            this.write(`${group.totalIterations}`);
+            this.write(`${group.startTime.toString()},`);
+            this.write(group.totalIterations.toString());
         } else if (group instanceof CommandTrigger) {
             this.write(" ");
             this.write(`${StoryboardCommandType.trigger},`);
-            this.write(`${group.triggerName}`);
+            this.write(group.triggerName);
 
             if (group.triggerEndTime !== Number.MAX_SAFE_INTEGER) {
                 this.write(",");
-                this.write(`${group.triggerStartTime},`);
-                this.write(`${group.triggerEndTime}`);
+                this.write(`${group.triggerStartTime.toString()},`);
+                this.write(group.triggerEndTime.toString());
             }
 
             if (group.groupNumber !== 0) {
                 this.write(",");
-                this.write(`${group.groupNumber}`);
+                this.write(group.groupNumber.toString());
             }
         }
 
@@ -148,10 +148,12 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     private encodeCommand<T>(command: Command<T>): void {
         this.write(" ");
         this.write(`${command.type},`);
-        this.write(`${command.easing},`);
-        this.write(`${command.startTime},`);
+        this.write(`${command.easing.toString()},`);
+        this.write(`${command.startTime.toString()},`);
         this.write(
-            command.startTime !== command.endTime ? `${command.endTime}` : "",
+            command.startTime !== command.endTime
+                ? command.endTime.toString()
+                : "",
         );
         this.write(",");
 

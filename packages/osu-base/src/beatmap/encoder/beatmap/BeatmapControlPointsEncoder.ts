@@ -45,19 +45,21 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
         )) {
             // If the group contains a timing control point, it needs to be output separately.
             if (group.timing) {
-                this.write(`${group.timing.time},`);
-                this.write(`${group.timing.msPerBeat},`);
+                this.write(`${group.timing.time.toString()},`);
+                this.write(`${group.timing.msPerBeat.toString()},`);
                 this.outputControlPointGroup(group, true);
             }
 
             // Output any remaining effects as secondary non-timing control point.
-            this.write(`${group.time},`);
+            this.write(`${group.time.toString()},`);
 
             const difficultyPoint =
                 group.difficulty ??
                 this.map.controlPoints.difficulty.controlPointAt(group.time);
 
-            this.write(`${-100 / difficultyPoint.speedMultiplier},`);
+            this.write(
+                `${(-100 / difficultyPoint.speedMultiplier).toString()},`,
+            );
             this.outputControlPointGroup(group, false);
         }
     }
@@ -130,12 +132,10 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
         }
 
         this.write(
-            `${
-                (
-                    group.timing ??
-                    this.map.controlPoints.timing.controlPointAt(group.time)
-                ).timeSignature
-            },`,
+            `${(
+                group.timing ??
+                this.map.controlPoints.timing.controlPointAt(group.time)
+            ).timeSignature.toString()},`,
         );
         this.write(`${samplePoint.sampleBank.toString()},`);
         this.write(`${samplePoint.customSampleBank.toString()},`);

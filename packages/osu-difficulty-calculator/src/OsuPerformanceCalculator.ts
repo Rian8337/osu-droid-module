@@ -337,6 +337,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         const realAccuracy = new Accuracy({
+            // eslint-disable-next-line @typescript-eslint/no-misused-spread
             ...this.computedAccuracy,
             n300: this.computedAccuracy.n300 - (this.totalHits - ncircles),
         });

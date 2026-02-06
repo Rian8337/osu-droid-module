@@ -11,7 +11,7 @@ export abstract class BeatmapBaseEncoder extends BaseEncoder {
      */
     readonly map: Beatmap;
 
-    constructor(map: Beatmap, encodeSections: boolean = true) {
+    constructor(map: Beatmap, encodeSections = true) {
         super(encodeSections);
 
         this.map = map;
@@ -26,10 +26,13 @@ export abstract class BeatmapBaseEncoder extends BaseEncoder {
         switch (sampleBank) {
             case SampleBank.normal:
                 return "Normal";
+
             case SampleBank.soft:
                 return "Soft";
+
             case SampleBank.drum:
                 return "Drum";
+
             default:
                 return "None";
         }

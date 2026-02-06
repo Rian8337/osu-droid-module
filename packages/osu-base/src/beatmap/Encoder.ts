@@ -51,7 +51,7 @@ export abstract class Encoder<T, E extends BaseEncoder> {
      *
      * @param line The line to write.
      */
-    protected writeLine(line: string = ""): void {
+    protected writeLine(line = ""): void {
         this.finalResult += line + "\n";
     }
 

@@ -59,7 +59,9 @@ export class BankHitSampleInfo extends HitSampleInfo {
         }
 
         if (this.customSampleBank >= 2) {
-            names.push(`${prefix}-${this.name}${this.customSampleBank}`);
+            names.push(
+                `${prefix}-${this.name}${this.customSampleBank.toString()}`,
+            );
         }
 
         names.push(`${prefix}-${this.name}`, this.name);
@@ -70,9 +72,9 @@ export class BankHitSampleInfo extends HitSampleInfo {
     constructor(
         name: string,
         bank: SampleBank = SampleBank.none,
-        customSampleBank: number = 0,
-        volume: number = 0,
-        isLayered: boolean = false,
+        customSampleBank = 0,
+        volume = 0,
+        isLayered = false,
     ) {
         super(volume);
 

@@ -23,10 +23,10 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
     }
 
     private encodeHitObject(object: PlaceableHitObject): void {
-        this.write(`${object.position.x},`);
-        this.write(`${object.position.y},`);
-        this.write(`${object.startTime},`);
-        this.write(`${object.type},`);
+        this.write(`${object.position.x.toString()},`);
+        this.write(`${object.position.y.toString()},`);
+        this.write(`${object.startTime.toString()},`);
+        this.write(`${object.type.toString()},`);
         this.write(`${this.samplesToHitSoundType(object.samples).toString()},`);
 
         if (object instanceof Slider) {
@@ -34,7 +34,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
             this.write(this.getSampleBank(object.samples));
         } else {
             if (object instanceof Spinner) {
-                this.write(`${object.endTime},`);
+                this.write(`${object.endTime.toString()},`);
             }
 
             this.write(this.getSampleBank(object.samples));
@@ -78,12 +78,14 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
                 slider.position,
             );
 
-            this.write(`${realPosition.x}:${realPosition.y}`);
+            this.write(
+                `${realPosition.x.toString()}:${realPosition.y.toString()}`,
+            );
             this.write(i != slider.path.controlPoints.length - 1 ? "|" : ",");
         }
 
-        this.write(`${slider.repeatCount + 1},`);
-        this.write(`${slider.path.expectedDistance},`);
+        this.write(`${slider.spanCount.toString()},`);
+        this.write(`${slider.path.expectedDistance.toString()},`);
 
         // edgeSamples
         for (let i = 0; i < slider.nodeSamples.length; ++i) {
@@ -100,10 +102,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         }
     }
 
-    private getSampleBank(
-        samples: HitSampleInfo[],
-        banksOnly: boolean = false,
-    ): string {
+    private getSampleBank(samples: HitSampleInfo[], banksOnly = false): string {
         const normalBank =
             (
                 samples.find(
@@ -123,18 +122,18 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
                 ) as BankHitSampleInfo | undefined
             )?.bank ?? SampleBank.none;
 
-        let sampleBankString = `${normalBank}:${addBank}`;
+        let sampleBankString = `${normalBank.toString()}:${addBank.toString()}`;
 
         if (!banksOnly) {
-            const firstSample = samples[0];
+            const firstSample = samples.at(0);
 
             sampleBankString += ":";
             sampleBankString += `${
                 firstSample instanceof BankHitSampleInfo
-                    ? firstSample.customSampleBank
-                    : 0
+                    ? firstSample.customSampleBank.toString()
+                    : "0"
             }:`;
-            sampleBankString += `${firstSample?.volume ?? 100}:`;
+            sampleBankString += `${(firstSample?.volume ?? 100).toString()}:`;
 
             if (firstSample instanceof FileHitSampleInfo) {
                 sampleBankString += `${this.sampleBankToString(
@@ -150,6 +149,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
         switch (sampleBank) {
             case SampleBank.none:
                 return "";
+
             default:
                 return super.sampleBankToString(sampleBank);
         }

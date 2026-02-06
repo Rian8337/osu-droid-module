@@ -3,7 +3,8 @@ import { RequestResponse } from "./RequestResponse";
 /**
  * The base of API request builders.
  */
-export abstract class APIRequestBuilder<Params extends string = string> {
+// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-parameters
+export abstract class APIRequestBuilder<TEndpoint extends string> {
     /**
      * The main point of API host.
      */
@@ -48,7 +49,7 @@ export abstract class APIRequestBuilder<Params extends string = string> {
      *
      * @param endpoint The endpoint to set.
      */
-    setEndpoint(endpoint: Params): this {
+    setEndpoint(endpoint: TEndpoint): this {
         this.endpoint = endpoint;
 
         return this;
@@ -100,30 +101,33 @@ export abstract class APIRequestBuilder<Params extends string = string> {
 
                     if (res.status >= 500 && this.fetchAttempts < 5) {
                         console.error(
-                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts} attempts so far; retrying`,
+                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts.toString()} attempts so far; retrying`,
                         );
 
-                        return resolve(this.sendRequest());
+                        resolve(this.sendRequest());
+                        return;
                     }
 
                     this.fetchAttempts = 0;
 
-                    return resolve({
+                    resolve({
                         data: Buffer.from(await res.arrayBuffer()),
                         statusCode: res.status,
                     });
                 })
-                .catch((e: Error) => {
+                .catch((e: unknown) => {
                     console.error(
-                        `Request to ${url} failed with the following error: ${e.message}; ${this.fetchAttempts} attempts so far; aborting`,
+                        `Request to ${url} failed with the following error: ${(e as Error).message}; ${this.fetchAttempts.toString()} attempts so far; aborting`,
                     );
 
                     this.fetchAttempts = 0;
 
-                    return resolve({
+                    resolve({
                         data: Buffer.from([]),
                         statusCode: 400,
                     });
+
+                    return;
                 });
         });
     }

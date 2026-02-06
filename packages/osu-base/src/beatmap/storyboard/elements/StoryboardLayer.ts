@@ -33,8 +33,8 @@ export class StoryboardLayer {
     constructor(
         name: StoryboardLayerType,
         depth: number,
-        visibleWhenPassing: boolean = true,
-        visibleWhenFailing: boolean = true
+        visibleWhenPassing = true,
+        visibleWhenFailing = true,
     ) {
         this.name = name;
         this.depth = depth;

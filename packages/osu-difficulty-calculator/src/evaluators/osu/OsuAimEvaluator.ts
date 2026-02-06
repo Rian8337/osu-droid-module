@@ -31,13 +31,13 @@ export abstract class OsuAimEvaluator {
         if (
             current.object instanceof Spinner ||
             current.index <= 1 ||
-            last?.object instanceof Spinner
+            last.object instanceof Spinner
         ) {
             return 0;
         }
 
         const lastLast = current.previous(1)!;
-        const last2 = current.previous(2)!;
+        const last2 = current.previous(2);
 
         const radius = OsuDifficultyHitObject.normalizedRadius;
         const diameter = OsuDifficultyHitObject.normalizedDiameter;

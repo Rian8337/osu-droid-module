@@ -13,7 +13,9 @@ export class Vector2 {
     y: number;
 
     constructor(value: number);
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     constructor(x: number, y: number);
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
     constructor(other: Vector2);
     constructor(valueOrXOrOther: number | Vector2, y?: number) {
         if (valueOrXOrOther instanceof Vector2) {
@@ -157,6 +159,6 @@ export class Vector2 {
      * Returns a string representation of the vector.
      */
     toString(): string {
-        return `${this.x},${this.y}`;
+        return `${this.x.toString()},${this.y.toString()}`;
     }
 }
