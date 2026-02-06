@@ -256,7 +256,6 @@ export abstract class DroidReadingEvaluator {
         current: DroidDifficultyHitObject,
     ): number {
         let visibleObjectCount = 0;
-        let index = 0;
         let next = current.next(0);
 
         while (next) {
@@ -269,6 +268,7 @@ export abstract class DroidReadingEvaluator {
             }
 
             if (next.isOverlapping(true)) {
+                next = next.next(0);
                 continue;
             }
 
@@ -280,7 +280,7 @@ export abstract class DroidReadingEvaluator {
                 next.opacityAt(current.object.startTime, this.emptyModMap) *
                 timeNerfFactor;
 
-            next = current.next(++index);
+            next = next.next(0);
         }
 
         return visibleObjectCount;
