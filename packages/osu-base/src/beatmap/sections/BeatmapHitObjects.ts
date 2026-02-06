@@ -6,7 +6,7 @@ import { Spinner } from "../hitobjects/Spinner";
 /**
  * Contains information about hit objects of a beatmap.
  */
-export class BeatmapHitObjects {
+export class BeatmapHitObjects implements Iterable<PlaceableHitObject> {
     /**
      * The objects of the beatmap.
      */
