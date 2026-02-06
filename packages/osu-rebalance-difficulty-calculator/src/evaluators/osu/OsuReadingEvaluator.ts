@@ -183,12 +183,8 @@ export abstract class OsuReadingEvaluator {
             return 0;
         }
 
-        const timeSpentInvisible =
-            current.durationSpentInvisible / current.clockRate;
-
-        // Value time spent invisible exponentially.
-        const timeSpentInvisibleFactor =
-            Math.pow(timeSpentInvisible, 2.2) * 0.022;
+        // Higher preempt means that time spent invisible is higher too, we want to reward that.
+        const preemptFactor = Math.pow(current.timePreempt, 2.2) * 0.01;
 
         // Account for both past and current densities.
         const densityFactor =
@@ -198,7 +194,7 @@ export abstract class OsuReadingEvaluator {
             ) * 3;
 
         let hiddenDifficulty =
-            (timeSpentInvisibleFactor + densityFactor) *
+            (preemptFactor + densityFactor) *
             constantAngleNerfFactor *
             velocity *
             0.01;
@@ -328,7 +324,9 @@ export abstract class OsuReadingEvaluator {
         while (currentTimeGap < this.minimumAngleRelevancyTime) {
             const loopObj = current.previous(index);
 
-            if (loopObj === null) break;
+            if (loopObj === null) {
+                break;
+            }
 
             // Account less for objects that are close to the time limit.
             const longIntervalFactor =

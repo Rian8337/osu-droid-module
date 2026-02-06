@@ -353,26 +353,6 @@ export abstract class DifficultyHitObject {
         return 1 - Math.pow(speedRatio, 1 - windowRatio);
     }
 
-    /**
-     * The amount of time that this {@link DifficultyHitObject} spends invisible with the Hidden mod
-     * at the current preempt.
-     */
-    get durationSpentInvisible(): number {
-        const fadeOutStartTime =
-            this.object.startTime -
-            this.object.timePreempt +
-            this.object.timeFadeIn;
-
-        const fadeOutDuration =
-            this.object.timePreempt * ModHidden.fadeOutDurationMultiplier;
-
-        return (
-            fadeOutStartTime +
-            fadeOutDuration -
-            (this.object.startTime - this.object.timePreempt)
-        );
-    }
-
     private setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
             this.travelDistance = this.lazyTravelDistance;

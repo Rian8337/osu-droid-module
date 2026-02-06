@@ -187,12 +187,8 @@ export abstract class DroidReadingEvaluator {
             return 0;
         }
 
-        const timeSpentInvisible =
-            current.durationSpentInvisible / current.clockRate;
-
-        // Value time spent invisible exponentially.
-        const timeSpentInvisibleFactor =
-            Math.pow(timeSpentInvisible, 2.2) * 0.022;
+        // Higher preempt means that time spent invisible is higher too, we want to reward that.
+        const preemptFactor = Math.pow(current.timePreempt, 2.2) * 0.01;
 
         // Account for both past and current densities.
         const densityFactor =
@@ -202,7 +198,7 @@ export abstract class DroidReadingEvaluator {
             ) * 3;
 
         let hiddenDifficulty =
-            (timeSpentInvisibleFactor + densityFactor) *
+            (preemptFactor + densityFactor) *
             constantAngleNerfFactor *
             velocity *
             0.01;
