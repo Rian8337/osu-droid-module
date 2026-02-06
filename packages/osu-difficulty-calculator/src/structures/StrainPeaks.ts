@@ -5,17 +5,20 @@ export interface StrainPeaks {
     /**
      * The strain peaks of aim difficulty if sliders are considered.
      */
-    aimWithSliders: number[];
+    aimWithSliders: readonly number[];
+
     /**
      * The strain peaks of aim difficulty if sliders are not considered.
      */
-    aimWithoutSliders: number[];
+    aimWithoutSliders: readonly number[];
+
     /**
      * The strain peaks of speed difficulty.
      */
-    speed: number[];
+    speed: readonly number[];
+
     /**
      * The strain peaks of flashlight difficulty.
      */
-    flashlight: number[];
+    flashlight: readonly number[];
 }
