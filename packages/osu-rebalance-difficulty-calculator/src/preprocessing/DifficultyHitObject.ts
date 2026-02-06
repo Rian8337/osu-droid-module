@@ -126,6 +126,12 @@ export abstract class DifficultyHitObject {
     readonly strainTime: number;
 
     /**
+     * The amount of milliseconds elapsed between the last {@link DifficultyHitObject}'s {@link endTime} and
+     * this {@link DifficultyHitObject}'s {@link startTime} capped to a minimum of {@link minDeltaTime}ms.
+     */
+    readonly lastObjectEndDeltaTime: number;
+
+    /**
      * Adjusted start time of the hitobject, taking speed multiplier into account.
      */
     readonly startTime: number;
@@ -233,9 +239,15 @@ export abstract class DifficultyHitObject {
                 this.deltaTime,
                 DifficultyHitObject.minDeltaTime,
             );
+
+            this.lastObjectEndDeltaTime = Math.max(
+                this.startTime - lastObject.endTime / clockRate,
+                DifficultyHitObject.minDeltaTime,
+            );
         } else {
             this.deltaTime = 0;
             this.strainTime = 0;
+            this.lastObjectEndDeltaTime = 0;
         }
 
         this.lastDifficultyObject = this.previous(0);
@@ -376,6 +388,8 @@ export abstract class DifficultyHitObject {
             );
         }
 
+        this.minimumJumpTime = this.strainTime;
+
         // We don't need to calculate either angle or distance when one of the last->curr objects is a spinner.
         if (
             !this.lastObject ||
@@ -397,7 +411,6 @@ export abstract class DifficultyHitObject {
         this.lazyJumpDistance = this.object.stackedPosition
             .scale(scalingFactor)
             .subtract(lastCursorPosition.scale(scalingFactor)).length;
-        this.minimumJumpTime = this.strainTime;
         this.minimumJumpDistance = this.lazyJumpDistance;
 
         if (

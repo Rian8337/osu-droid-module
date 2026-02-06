@@ -8,7 +8,7 @@ import { Island } from "../base/Island";
 export abstract class DroidRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
-    private static readonly rhythmOverallMultiplier = 0.95;
+    private static readonly rhythmOverallMultiplier = 0.9;
     private static readonly rhythmRatioMultiplier = 30;
 
     /**
@@ -72,6 +72,10 @@ export abstract class DroidRhythmEvaluator {
         for (let i = rhythmStart; i > 0; --i) {
             const currentObject = validPrevious[i - 1];
 
+            if (currentObject.object instanceof Spinner) {
+                continue;
+            }
+
             // Scale note 0 to 1 from history to now.
             const timeDecay =
                 (this.historyTimeMax -
@@ -93,18 +97,6 @@ export abstract class DroidRhythmEvaluator {
                 Math.max(prevDelta, currentDelta) /
                 Math.min(prevDelta, currentDelta);
 
-            // Take only the fractional part of the value since we are only interested in punishing multiples.
-            const deltaDifferenceFraction =
-                deltaDifference - Math.trunc(deltaDifference);
-
-            const currentRatio =
-                1 +
-                this.rhythmRatioMultiplier *
-                    Math.min(
-                        0.5,
-                        MathUtils.smoothstepBellCurve(deltaDifferenceFraction),
-                    );
-
             // Reduce ratio bonus if delta difference is too big
             const differenceMultiplier = MathUtils.clamp(
                 2 - deltaDifference / 8,
@@ -121,7 +113,31 @@ export abstract class DroidRhythmEvaluator {
             );
 
             let effectiveRatio =
-                windowPenalty * currentRatio * differenceMultiplier;
+                windowPenalty *
+                this.getEffectiveRatio(deltaDifference) *
+                differenceMultiplier;
+
+            // If the previous object is a slider, it might be easier to tap since you do not have to do a whole tapping motion.
+            // While a full deltatime might end up some weird ratio, the "unpress->tap" motion might be simple.
+            // For example, a slider-circle-circle pattern should be evaluated as a regular triple and not as a single->double.
+            if (prevObject.object instanceof Slider) {
+                const sliderLazyEndDelta = currentObject.minimumJumpTime;
+                const sliderLazyEndDeltaDifference =
+                    Math.max(sliderLazyEndDelta, currentDelta) /
+                    Math.min(sliderLazyEndDelta, currentDelta);
+
+                const sliderRealEndDelta = currentObject.lastObjectEndDeltaTime;
+                const sliderRealEndDeltaDifference =
+                    Math.max(sliderRealEndDelta, currentDelta) /
+                    Math.min(sliderRealEndDelta, currentDelta);
+
+                const sliderEffectiveRatio = Math.min(
+                    this.getEffectiveRatio(sliderLazyEndDeltaDifference),
+                    this.getEffectiveRatio(sliderRealEndDeltaDifference),
+                );
+
+                effectiveRatio = Math.min(sliderEffectiveRatio, effectiveRatio);
+            }
 
             if (firstDeltaSwitch) {
                 if (
@@ -130,18 +146,12 @@ export abstract class DroidRhythmEvaluator {
                     // Island is still progressing, count size.
                     island.addDelta(currentDelta);
                 } else {
-                    if (!useSliderAccuracy) {
-                        // BPM change is into slider, this is easy acc window.
-                        if (currentObject.object instanceof Slider) {
-                            effectiveRatio /= 8;
-                        }
-
-                        // BPM change was from a slider, this is easier typically than circle -> circle.
-                        // Unintentional side effect is that bursts with kicksliders at the ends might have lower difficulty
-                        // than bursts without sliders.
-                        if (prevObject.object instanceof Slider) {
-                            effectiveRatio *= 0.3;
-                        }
+                    if (
+                        !useSliderAccuracy &&
+                        currentObject.object instanceof Slider
+                    ) {
+                        // BPM change is into slider, this is easy accuracy window.
+                        effectiveRatio /= 2;
                     }
 
                     // Repeated island polarity (2 -> 4, 3 -> 5).
@@ -250,6 +260,21 @@ export abstract class DroidRhythmEvaluator {
         return (
             Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
             2
+        );
+    }
+
+    private static getEffectiveRatio(deltaDifference: number): number {
+        // Take only the fractional part of the value since we are only interested in punishing multiples.
+        const deltaDifferenceFraction =
+            deltaDifference - Math.trunc(deltaDifference);
+
+        return (
+            1 +
+            this.rhythmRatioMultiplier *
+                Math.min(
+                    0.5,
+                    MathUtils.smoothstepBellCurve(deltaDifferenceFraction),
+                )
         );
     }
 }
