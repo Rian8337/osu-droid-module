@@ -10,7 +10,7 @@ export class DroidTap extends HarmonicSkill {
     protected override readonly harmonicScale = 20;
     protected override readonly decayExponent = 0.85;
 
-    private readonly skillMultiplier = 0.93;
+    private readonly skillMultiplier = 1.035;
     private readonly strainDecayBase = 0.3;
 
     private currentTapDifficulty = 0;

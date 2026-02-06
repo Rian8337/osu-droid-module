@@ -1,5 +1,6 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { DroidSpeedAimEvaluator } from "./DroidSpeedAimEvaluator";
 
 /**
  * An evaluator for calculating osu!droid Aim skill.
@@ -142,10 +143,14 @@ export abstract class DroidAimEvaluator {
                     Math.pow(this.calculateWideAngleBonus(lastAngle), 3),
                 );
 
-            // Apply full wide angle bonus for distance more than one diameter
+            // Apply full wide angle bonus for distance more than singleSpacingThreshold
             wideAngleBonus *=
                 angleBonus *
-                MathUtils.smootherstep(current.lazyJumpDistance, 0, diameter);
+                MathUtils.smootherstep(
+                    current.lazyJumpDistance,
+                    0,
+                    DroidSpeedAimEvaluator.singleSpacingThreshold,
+                );
 
             // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
             // https://www.desmos.com/calculator/dp0v0nvowc

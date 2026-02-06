@@ -10,7 +10,7 @@ export abstract class OsuSpeedAimEvaluator {
      *
      * About 1.25 circles distance between hitobject centers.
      */
-    private static readonly singleSpacingThreshold =
+    static readonly singleSpacingThreshold =
         OsuDifficultyHitObject.normalizedDiameter * 1.25;
 
     /**
