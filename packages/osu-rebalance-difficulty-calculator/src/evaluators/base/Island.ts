@@ -6,6 +6,8 @@ export class Island {
     deltaCount = 0;
 
     constructor(epsilon: number);
+    // eslint-disable-next-line @typescript-eslint/unified-signatures
+    constructor(delta: number, deltaDifferenceEpsilon: number);
     constructor(delta: number, deltaDifferenceEpsilon?: number) {
         if (deltaDifferenceEpsilon === undefined) {
             this.deltaDifferenceEpsilon = delta;
