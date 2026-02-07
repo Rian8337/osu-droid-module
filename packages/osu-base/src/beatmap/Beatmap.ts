@@ -107,10 +107,11 @@ export class Beatmap implements IBeatmap {
                         duration: nextTime - currentTime,
                     };
                 })
-                // Get the most common one, or 0 as a suitable default.
-                .sort((a, b) => b.duration - a.duration)[0];
+                .sort((a, b) => b.duration - a.duration)
+                .at(0);
 
-        return mostCommon.beatLength;
+        // Get the most common one, or 0 as a suitable default.
+        return mostCommon?.beatLength ?? 0;
     }
 
     getOffsetTime(time: number): number {
