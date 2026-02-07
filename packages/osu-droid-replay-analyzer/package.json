@@ -26,7 +26,7 @@
     },
     "scripts": {
         "build": "rollup -c ../../rollup.config.mjs",
-        "lint": "eslint --ext ts",
+        "lint": "eslint 'src/**/*.ts'",
         "prepublishOnly": "pnpm build",
         "test": "echo \"No tests for this module\""
     },
