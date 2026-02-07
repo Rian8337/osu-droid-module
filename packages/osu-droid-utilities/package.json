@@ -27,7 +27,7 @@
         "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint 'src/**/*.ts'",
         "prepublishOnly": "pnpm build",
-        "test": "jest"
+        "test": "jest --silent"
     },
     "bugs": {
         "url": "https://github.com/Rian8337/osu-droid-module/issues"

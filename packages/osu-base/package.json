@@ -23,7 +23,7 @@
         "build": "rollup -c ../../rollup.config.mjs",
         "lint": "eslint 'src/**/*.ts'",
         "prepublishOnly": "pnpm build",
-        "test": "jest"
+        "test": "jest --silent"
     },
     "repository": {
         "type": "git",
