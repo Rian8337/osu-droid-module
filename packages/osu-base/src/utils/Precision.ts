@@ -13,6 +13,50 @@ export abstract class Precision {
      * @param value2 The second number.
      * @param acceptableDifference The acceptable difference as threshold. Default is `Precision.FLOAT_EPSILON = 1e-3`.
      */
+    static almostEquals(
+        value1: number,
+        value2: number,
+        acceptableDifference?: number,
+    ): boolean;
+
+    /**
+     * Checks if two vectors are equal with a given tolerance.
+     *
+     * @param vec1 The first vector.
+     * @param vec2 The second vector.
+     * @param acceptableDifference The acceptable difference as threshold. Default is `Precision.FLOAT_EPSILON = 1e-3`.
+     */
+    static almostEquals(
+        vec1: Vector2,
+        vec2: Vector2,
+        acceptableDifference?: number,
+    ): boolean;
+
+    static almostEquals(
+        value1: number | Vector2,
+        value2: number | Vector2,
+        acceptableDifference = this.FLOAT_EPSILON,
+    ): boolean {
+        if (value1 instanceof Vector2 && value2 instanceof Vector2) {
+            return (
+                this.almostEquals(value1.x, value2.x, acceptableDifference) &&
+                this.almostEquals(value1.y, value2.y, acceptableDifference)
+            );
+        } else {
+            return (
+                Math.abs((value1 as number) - (value2 as number)) <=
+                acceptableDifference
+            );
+        }
+    }
+
+    /**
+     * Checks if two numbers are equal with a given tolerance.
+     *
+     * @param value1 The first number.
+     * @param value2 The second number.
+     * @param acceptableDifference The acceptable difference as threshold. Default is `Precision.FLOAT_EPSILON = 1e-3`.
+     */
     static almostEqualsNumber(
         value1: number,
         value2: number,
