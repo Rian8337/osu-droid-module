@@ -238,7 +238,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         if (!aim || !aimNoSlider || attributes.mods.has(ModAutopilot)) {
             attributes.aimDifficulty = 0;
             attributes.aimDifficultSliderCount = 0;
-            attributes.aimDifficultStrainCount = 0;
+            attributes.aimMissPenaltyCoefficientA = 0;
+            attributes.aimMissPenaltyCoefficientB = 0;
+            attributes.aimMissPenaltyCoefficientC = 0;
             return;
         }
 
@@ -248,13 +250,21 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             ratingCalculator.computeAimRating(aimDifficultyValue);
 
         attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount =
-            aim.countTopWeightedStrains(aimDifficultyValue);
+
+        const [
+            firstCoefficient = 0,
+            secondCoefficient = 0,
+            thirdCoefficient = 0,
+        ] = aim.calculateMissPenaltyCoefficients();
+
+        attributes.aimMissPenaltyCoefficientA = firstCoefficient;
+        attributes.aimMissPenaltyCoefficientB = secondCoefficient;
+        attributes.aimMissPenaltyCoefficientC = thirdCoefficient;
 
         const aimNoSliderTopWeightedSliderCount =
             aimNoSlider.countTopWeightedSliders(aimDifficultyValue);
         const aimNoSliderDifficultStrainCount =
-            aimNoSlider.countTopWeightedStrains(aimDifficultyValue);
+            aimNoSlider.countTopWeightedNoteDifficulties(aimDifficultyValue);
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
@@ -309,10 +319,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
-                DroidRatingCalculator.calculateStrainBasedDifficultyRating(
+                DroidRatingCalculator.calculateNoteBasedDifficultyRating(
                     aimNoSlider.difficultyValue(),
                 ) /
-                DroidRatingCalculator.calculateStrainBasedDifficultyRating(
+                DroidRatingCalculator.calculateNoteBasedDifficultyRating(
                     aimDifficultyValue,
                 );
         } else {

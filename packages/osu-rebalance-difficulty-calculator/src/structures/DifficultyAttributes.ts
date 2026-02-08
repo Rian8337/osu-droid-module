@@ -20,7 +20,6 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
     sliderCount = 0;
     spinnerCount = 0;
     aimDifficultSliderCount = 0;
-    aimDifficultStrainCount = 0;
     aimTopWeightedSliderFactor = 0;
     readingDifficultNoteCount = 0;
 
@@ -45,8 +44,6 @@ export abstract class DifficultyAttributes implements IDifficultyAttributes {
         this.spinnerCount = cacheableAttributes.spinnerCount;
         this.aimDifficultSliderCount =
             cacheableAttributes.aimDifficultSliderCount;
-        this.aimDifficultStrainCount =
-            cacheableAttributes.aimDifficultStrainCount;
         this.aimTopWeightedSliderFactor =
             cacheableAttributes.aimTopWeightedSliderFactor;
         this.readingDifficulty = cacheableAttributes.readingDifficulty;

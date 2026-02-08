@@ -22,6 +22,11 @@ export interface IOsuDifficultyAttributes extends IDifficultyAttributes {
     speedDifficulty: number;
 
     /**
+     * The amount of strains that are considered difficult with respect to the aim skill.
+     */
+    aimDifficultStrainCount: number;
+
+    /**
      * The amount of strains that are considered difficult with respect to the speed skill.
      */
     speedDifficultStrainCount: number;

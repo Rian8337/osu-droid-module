@@ -17,7 +17,9 @@ export class DroidDifficultyAttributes
     vibroFactor = 1;
     nestedScorePerObject = 0;
     maximumScore = 0;
-    baseScoreDifficultyMultiplier = 1;
+    aimMissPenaltyCoefficientA = 0;
+    aimMissPenaltyCoefficientB = 0;
+    aimMissPenaltyCoefficientC = 0;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
@@ -40,6 +42,12 @@ export class DroidDifficultyAttributes
         this.tapTopWeightedSliderFactor =
             cacheableAttributes.tapTopWeightedSliderFactor;
         this.maximumScore = cacheableAttributes.maximumScore;
+        this.aimMissPenaltyCoefficientA =
+            cacheableAttributes.aimMissPenaltyCoefficientA;
+        this.aimMissPenaltyCoefficientB =
+            cacheableAttributes.aimMissPenaltyCoefficientB;
+        this.aimMissPenaltyCoefficientC =
+            cacheableAttributes.aimMissPenaltyCoefficientC;
     }
 
     override toString(): string {

@@ -83,11 +83,6 @@ export interface IDifficultyAttributes {
     aimDifficultSliderCount: number;
 
     /**
-     * The amount of strains that are considered difficult with respect to the aim skill.
-     */
-    aimDifficultStrainCount: number;
-
-    /**
      * The amount of notes that are considered difficult with respect to the reading skill.
      */
     readingDifficultNoteCount: number;

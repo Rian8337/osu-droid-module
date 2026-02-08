@@ -46,4 +46,19 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
      * The maximum score obtainable on the beatmap.
      */
     maximumScore: number;
+
+    /**
+     * The first coefficient used in the aim miss penalty calculation formula.
+     */
+    aimMissPenaltyCoefficientA: number;
+
+    /**
+     * The second coefficient used in the aim miss penalty calculation formula.
+     */
+    aimMissPenaltyCoefficientB: number;
+
+    /**
+     * The third coefficient used in the aim miss penalty calculation formula.
+     */
+    aimMissPenaltyCoefficientC: number;
 }

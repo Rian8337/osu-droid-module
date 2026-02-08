@@ -12,6 +12,7 @@ export class OsuDifficultyAttributes
     approachRate = 0;
     drainRate = 0;
     speedDifficulty = 0;
+    aimDifficultStrainCount = 0;
     speedDifficultStrainCount = 0;
     speedTopWeightedSliderFactor = 0;
 
@@ -27,6 +28,8 @@ export class OsuDifficultyAttributes
         this.approachRate = cacheableAttributes.approachRate;
         this.drainRate = cacheableAttributes.drainRate;
         this.speedDifficulty = cacheableAttributes.speedDifficulty;
+        this.aimDifficultStrainCount =
+            cacheableAttributes.aimDifficultStrainCount;
         this.speedDifficultStrainCount =
             cacheableAttributes.speedDifficultStrainCount;
         this.speedTopWeightedSliderFactor =

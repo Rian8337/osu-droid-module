@@ -1,29 +1,24 @@
-import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { ErrorFunction, MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { TimeSkill } from "../../base/TimeSkill";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
-import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { DroidSkill } from "./DroidSkill";
-import { StrainUtils } from "../../utils/StrainUtils";
 import { DroidSpeedAimEvaluator } from "../../evaluators/droid/DroidSpeedAimEvaluator";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
+import { StrainUtils } from "../../utils/StrainUtils";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
-export class DroidAim extends DroidSkill {
-    protected override readonly strainDecayBase = 0.15;
-    protected override readonly reducedSectionCount = 10;
-    protected override readonly reducedSectionBaseline = 0.75;
-    protected override readonly starsPerDouble = 1.05;
-
+export class DroidAim extends TimeSkill {
     private currentAimStrain = 0;
     private currentSpeedStrain = 0;
 
-    private readonly skillMultiplierAim = 26;
-    private readonly skillMultiplierSpeed = 1.3;
-    private readonly skillMultiplierTotal = 1.02;
+    private readonly skillMultiplierAim = 130;
+    private readonly skillMultiplierSpeed = 6.5;
+    private readonly skillMultiplierTotal = 0.98;
     private readonly meanExponent = 1.2;
 
-    private readonly sliderStrains: number[] = [];
-    private maxSliderStrain = 0;
+    private readonly sliderDifficulties: number[] = [];
+    private maxSliderDifficulty = 0;
 
     readonly withSliders: boolean;
 
@@ -34,17 +29,24 @@ export class DroidAim extends DroidSkill {
     }
 
     /**
-     * Obtains the amount of sliders that are considered difficult in terms of relative strain.
+     * Obtains the amount of sliders that are considered difficult in terms of relative difficulty.
      */
     countDifficultSliders(): number {
-        if (this.sliderStrains.length === 0 || this.maxSliderStrain === 0) {
+        if (
+            this.sliderDifficulties.length === 0 ||
+            this.maxSliderDifficulty === 0
+        ) {
             return 0;
         }
 
-        return this.sliderStrains.reduce(
+        return this.sliderDifficulties.reduce(
             (total, strain) =>
                 total +
-                1 / (1 + Math.exp(-((strain / this.maxSliderStrain) * 12 - 6))),
+                1 /
+                    (1 +
+                        Math.exp(
+                            -((strain / this.maxSliderDifficulty) * 12 - 6),
+                        )),
             0,
         );
     }
@@ -56,12 +58,27 @@ export class DroidAim extends DroidSkill {
      */
     countTopWeightedSliders(difficultyValue: number): number {
         return StrainUtils.countTopWeightedSliders(
-            this.sliderStrains,
+            this.sliderDifficulties,
             difficultyValue,
         );
     }
 
-    protected override strainValueAt(
+    protected override calculateHitProbability(
+        skill: number,
+        difficulty: number,
+    ): number {
+        if (difficulty <= 0) {
+            return 1;
+        }
+
+        if (skill <= 0) {
+            return 0;
+        }
+
+        return ErrorFunction.erf(skill / (Math.SQRT2 * difficulty));
+    }
+
+    protected override objectDifficultyOf(
         current: DroidDifficultyHitObject,
     ): number {
         const decayAim = this.strainDecayAim(current.strainTime);
@@ -92,42 +109,25 @@ export class DroidAim extends DroidSkill {
         );
 
         if (current.object instanceof Slider) {
-            this.sliderStrains.push(totalStrain);
+            this.sliderDifficulties.push(totalStrain);
 
-            this.maxSliderStrain = Math.max(this.maxSliderStrain, totalStrain);
+            this.maxSliderDifficulty = Math.max(
+                this.maxSliderDifficulty,
+                totalStrain,
+            );
         }
 
         return totalStrain * this.skillMultiplierTotal;
     }
 
-    protected override calculateInitialStrain(
-        time: number,
+    protected override saveToHitObject(
         current: DroidDifficultyHitObject,
-    ): number {
-        const deltaTime = time - (current.previous(0)?.startTime ?? 0);
-
-        return MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain * this.strainDecayAim(deltaTime),
-            this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
-        );
-    }
-
-    protected override getObjectStrain(): number {
-        return MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain,
-            this.currentSpeedStrain,
-        );
-    }
-
-    protected override saveToHitObject(current: DroidDifficultyHitObject) {
-        const strain = this.getObjectStrain();
-
+        difficulty: number,
+    ) {
         if (this.withSliders) {
-            current.aimStrainWithSliders = strain;
+            current.aimStrainWithSliders = difficulty;
         } else {
-            current.aimStrainWithoutSliders = strain;
+            current.aimStrainWithoutSliders = difficulty;
         }
     }
 

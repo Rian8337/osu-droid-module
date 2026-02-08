@@ -19,6 +19,7 @@ import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
+import { PolynomialPenaltyUtils } from "./utils/PolynomialPenaltyUtils";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -270,10 +271,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 this.totalImperfectHits + this.sliderTicksMissed,
             );
 
+            const {
+                aimMissPenaltyCoefficientA,
+                aimMissPenaltyCoefficientB,
+                aimMissPenaltyCoefficientC,
+            } = this.difficultyAttributes;
+
+            const coefficients = [
+                aimMissPenaltyCoefficientA,
+                aimMissPenaltyCoefficientB,
+                aimMissPenaltyCoefficientC,
+                // We can derive the fourth coefficient from the first third, since at x = 1 our polynomial is equal to the sum of the
+                // coefficients, and the relevant miss count there is log(totalHits - 1) since our polynomial uses log miss counts.
+                Math.log(this.totalHits + 1) -
+                    aimMissPenaltyCoefficientA -
+                    aimMissPenaltyCoefficientB -
+                    aimMissPenaltyCoefficientC,
+            ];
+
             aimValue *= Math.min(
-                this.calculateStrainBasedMissPenalty(
+                this.calculatePolynomialMissPenalty(
                     relevantMissCount,
-                    this.difficultyAttributes.aimDifficultStrainCount,
+                    coefficients,
                 ),
                 this.proportionalMissPenalty,
             );
@@ -523,6 +542,27 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             0.96 /
             (missCount / (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
                 1)
+        );
+    }
+
+    /**
+     * Calculates a polynomial-based miss penalty.
+     *
+     * Due to the unavailability of miss location, the following formulas assume that a player missed on the hardest parts of a beatmap.
+     * With the curve fitted miss penalty, we use a pre-computed curve of skill levels for each miss count, raised to the power of 1.5 as
+     * the multiple of the exponents on star rating and pp. This power should be changed if either SR or pp begin to use a different exponent.
+     */
+    private calculatePolynomialMissPenalty(
+        missCount: number,
+        coefficients: readonly number[],
+    ): number {
+        return Math.pow(
+            1 -
+                PolynomialPenaltyUtils.getPenaltyAt(
+                    coefficients,
+                    Math.log(missCount + 1),
+                ),
+            1.5,
         );
     }
 
