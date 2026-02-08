@@ -151,7 +151,7 @@ export abstract class PathApproximator {
         // If we have a degenerate triangle where a side-length is almost zero, then give up and fall
         // back to a more numerically stable method.
         if (
-            Precision.almostEqualsNumber(
+            Precision.almostEquals(
                 0,
                 (b.y - a.y) * (c.x - a.x) - (b.x - a.x) * (c.y - a.y),
             )

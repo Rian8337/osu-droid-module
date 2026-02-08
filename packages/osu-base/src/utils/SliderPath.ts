@@ -280,7 +280,7 @@ export class SliderPath {
         const d1 = this.cumulativeLength[i];
 
         // Avoid division by and almost-zero number in case two points are extremely close to each other.
-        if (Precision.almostEqualsNumber(d0, d1)) {
+        if (Precision.almostEquals(d0, d1)) {
             return p0;
         }
 

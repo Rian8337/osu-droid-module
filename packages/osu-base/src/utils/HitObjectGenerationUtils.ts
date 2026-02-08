@@ -493,7 +493,7 @@ export abstract class HitObjectGenerationUtils {
             Math.atan2(centerOfMassModified.y, centerOfMassModified.x) -
             Math.atan2(centerOfMassOriginal.y, centerOfMassOriginal.x);
 
-        if (!Precision.almostEqualsNumber(relativeRotation, 0)) {
+        if (!Precision.almostEquals(relativeRotation, 0)) {
             this.rotateSlider(current.hitObject, relativeRotation);
         }
     }

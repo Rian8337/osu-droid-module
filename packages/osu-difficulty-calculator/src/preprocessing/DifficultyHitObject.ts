@@ -498,7 +498,7 @@ export abstract class DifficultyHitObject {
             // Stop here if the slider has too short duration, allowing the player to essentially
             // complete the slider without movement, making travel distance and time irrelevant.
             if (
-                Precision.almostEqualsNumber(
+                Precision.almostEquals(
                     this.object.startTime,
                     this.object.endTime,
                 )

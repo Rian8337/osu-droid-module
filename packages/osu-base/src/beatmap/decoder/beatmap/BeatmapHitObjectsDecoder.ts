@@ -148,7 +148,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                     if (points.length !== 3) {
                         pathType = PathType.Bezier;
                     } else if (
-                        Precision.almostEqualsNumber(
+                        Precision.almostEquals(
                             0,
                             (points[1].y - points[0].y) *
                                 (points[2].x - points[0].x) -
