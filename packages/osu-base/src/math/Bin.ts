@@ -48,6 +48,7 @@ export class Bin {
         for (let noteIndex = 0; noteIndex < difficulties.length; ++noteIndex) {
             const timeBinIndex =
                 timeDimensionLength * (times[noteIndex] / endTime);
+
             const difficultyBinIndex =
                 difficultyDimensionLength *
                     (difficulties[noteIndex] / maxDifficulty) -
@@ -84,6 +85,7 @@ export class Bin {
             bins[
                 difficultyDimensionLength * timeLower + difficultyUpper
             ].noteCount += (1 - timeWeight) * difficultyWeight;
+
             bins[
                 difficultyDimensionLength * timeUpper + difficultyUpper
             ].noteCount += timeWeight * difficultyWeight;
