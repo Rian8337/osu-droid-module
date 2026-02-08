@@ -1,4 +1,4 @@
-import { MathUtils, Polynomial } from "@rian8337/osu-base";
+import { MathUtils, Polynomial, Utils } from "@rian8337/osu-base";
 
 /**
  * Represents a polynomial fitted to a given set of points.
@@ -40,7 +40,7 @@ export abstract class PolynomialPenaltyUtils {
             (a, b) => b - a,
         );
 
-        const coefficients = new Array<number>(4);
+        const coefficients = Utils.initializeArray(4, 0);
 
         coefficients[3] = endPoint;
 
