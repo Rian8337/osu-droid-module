@@ -12,7 +12,7 @@ export abstract class ObjectDifficultySkill
     private _objectDifficulties: number[] = [];
 
     /**
-     * The difficulties of {@link DifficultyHitObject}s, populated by {@link Skill.process}.
+     * The difficulties of {@link DifficultyHitObject}s, populated by {@link Skill#process}.
      */
     protected get objectDifficulties(): readonly number[] {
         return this._objectDifficulties;
