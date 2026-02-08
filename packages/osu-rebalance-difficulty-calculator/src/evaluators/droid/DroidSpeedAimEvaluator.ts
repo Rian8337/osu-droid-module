@@ -21,7 +21,7 @@ export abstract class DroidSpeedAimEvaluator {
      * @param current The current object.
      */
     static evaluateDifficultyOf(current: DroidDifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
+        if (current.index < 0 || current.object instanceof Spinner) {
             return 0;
         }
 
