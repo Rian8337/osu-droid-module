@@ -74,6 +74,7 @@ export * from "./mods/IModFacilitatesAdjustment";
 export * from "./mods/IModRequiresOriginalBeatmap";
 export * from "./mods/IMigratableDroidMod";
 export * from "./math/Interpolation";
+export * from "./math/IterativePoissonBinomial";
 export * from "./online/MapInfo";
 export * from "./math/MathUtils";
 export * from "./mods/Mod";
