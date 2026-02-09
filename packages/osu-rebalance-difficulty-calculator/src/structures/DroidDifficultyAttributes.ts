@@ -15,9 +15,7 @@ export class DroidDifficultyAttributes
     tapDifficultStrainCount = 0;
     averageSpeedDeltaTime = 0;
     vibroFactor = 1;
-    nestedScorePerObject = 0;
     maximumScore = 0;
-    baseScoreDifficultyMultiplier = 1;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
