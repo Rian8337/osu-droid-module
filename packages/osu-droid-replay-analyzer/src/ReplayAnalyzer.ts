@@ -623,7 +623,10 @@ export class ReplayAnalyzer {
             } else {
                 resultObject.convertedMods = this.convertDroidMods(
                     resultObject.replayVersion,
-                    Object.values(rawObject[6] as Record<string, string>),
+                    Object.values(
+                        (rawObject[6] as { elements: Record<string, string> })
+                            .elements,
+                    ),
                 );
 
                 if (resultObject.replayVersion >= 4) {
