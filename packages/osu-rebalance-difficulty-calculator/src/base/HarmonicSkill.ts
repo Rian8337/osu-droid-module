@@ -100,6 +100,7 @@ export abstract class HarmonicSkill extends ObjectDifficultySkill {
                     10,
                     1.1,
                 ),
+            0,
         );
     }
 
