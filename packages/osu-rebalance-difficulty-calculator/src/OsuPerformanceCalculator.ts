@@ -59,6 +59,13 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     static readonly finalMultiplier = 1.14;
     static readonly normExponent = 1.1;
 
+    private greatWindow = 0;
+    private okWindow = 0;
+    private mehWindow = 0;
+
+    private approachRate = 0;
+    private overallDifficulty = 0;
+
     private _effectiveMissCount = 0;
     private speedDeviation = 0;
 
@@ -71,6 +78,13 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         let { finalMultiplier } = OsuPerformanceCalculator;
 
+        const {
+            spinnerCount,
+            approachRate: ar,
+            overallDifficulty: od,
+            clockRate,
+        } = this.difficultyAttributes;
+
         if (this.mods.has(ModNoFail)) {
             finalMultiplier *= Math.max(
                 0.9,
@@ -80,16 +94,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         if (this.mods.has(ModSpunOut)) {
             finalMultiplier *=
-                1 -
-                Math.pow(
-                    this.difficultyAttributes.spinnerCount / this.totalHits,
-                    0.85,
-                );
+                1 - Math.pow(spinnerCount / this.totalHits, 0.85);
         }
 
         if (this.mods.has(ModRelax)) {
-            const { overallDifficulty: od } = this.difficultyAttributes;
-
             // Graph: https://www.desmos.com/calculator/vspzsop6td
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
             const n100Multiplier =
@@ -109,6 +117,24 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 this.totalHits,
             );
         }
+
+        const hitWindow = new OsuHitWindow(od);
+
+        this.greatWindow = hitWindow.greatWindow / clockRate;
+        this.okWindow = hitWindow.okWindow / clockRate;
+        this.mehWindow = hitWindow.mehWindow / clockRate;
+
+        this.approachRate =
+            OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
+                ar,
+                clockRate,
+            );
+
+        this.overallDifficulty =
+            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
+                od,
+                clockRate,
+            );
 
         this.speedDeviation = this.calculateSpeedDeviation();
 
@@ -317,7 +343,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
         let accuracyValue =
-            Math.pow(1.52163, this.difficultyAttributes.overallDifficulty) *
+            Math.pow(1.52163, this.overallDifficulty) *
             // It is possible to reach a negative accuracy with this formula. Cap it at zero - zero points.
             Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
             2.83;
@@ -332,12 +358,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             // Decrease bonus for AR > 10.
             accuracyValue *=
                 1 +
-                0.08 *
-                    Interpolation.reverseLerp(
-                        this.difficultyAttributes.approachRate,
-                        11.5,
-                        10,
-                    );
+                0.08 * Interpolation.reverseLerp(this.approachRate, 11.5, 10);
         }
 
         if (this.mods.has(ModFlashlight)) {
@@ -496,19 +517,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return Number.POSITIVE_INFINITY;
         }
 
-        // Obtain the great, ok, and meh windows.
-        const { clockRate, overallDifficulty } = this.difficultyAttributes;
-
-        const hitWindow = new OsuHitWindow(
-            OsuHitWindow.greatWindowToOD(
-                // Convert current OD to non clock rate-adjusted OD.
-                new OsuHitWindow(overallDifficulty).greatWindow * clockRate,
-            ),
-        );
-
-        const greatWindow = hitWindow.greatWindow / clockRate;
-        const okWindow = hitWindow.okWindow / clockRate;
-        const mehWindow = hitWindow.mehWindow / clockRate;
+        const { greatWindow, okWindow, mehWindow } = this;
 
         // The sample proportion of successful hits.
         const n = Math.max(1, relevantCountGreat + relevantCountOk);
@@ -613,6 +622,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         const missedComboPercent =
             1 - this.combo / this.difficultyAttributes.maxCombo;
+
         let estimatedSliderBreaks = Math.min(
             n100,
             this._effectiveMissCount * topWeightedSliderFactor,
@@ -642,6 +652,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     private calculateComboBasedEstimatedMissCount(): number {
         let missCount = this.computedAccuracy.nmiss;
         const { combo } = this;
+
         const { aimTopWeightedSliderFactor, sliderCount, maxCombo } =
             this.difficultyAttributes;
 

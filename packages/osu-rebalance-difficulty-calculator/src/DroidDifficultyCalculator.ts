@@ -1,6 +1,5 @@
 import {
     Beatmap,
-    DroidHitWindow,
     DroidPlayableBeatmap,
     MathUtils,
     Mod,
@@ -11,8 +10,6 @@ import {
     ModRelax,
     ModReplayV6,
     ModScoreV2,
-    OsuHitWindow,
-    PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
 import { DroidRatingCalculator } from "./DroidRatingCalculator";
@@ -65,21 +62,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
         attributes.sliderCount = playableBeatmap.hitObjects.sliders;
         attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
-
-        let greatWindow: number;
-
-        if (attributes.mods.has(ModPrecise)) {
-            greatWindow = new PreciseDroidHitWindow(
-                playableBeatmap.difficulty.od,
-            ).greatWindow;
-        } else {
-            greatWindow = new DroidHitWindow(playableBeatmap.difficulty.od)
-                .greatWindow;
-        }
-
-        attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
-            greatWindow / attributes.clockRate,
-        );
+        attributes.overallDifficulty = playableBeatmap.difficulty.od;
 
         attributes.maximumScore =
             beatmap.maxDroidScore(playableBeatmap.mods) +

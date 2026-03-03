@@ -307,6 +307,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const greatWindow =
             new OsuHitWindow(overallDifficulty).greatWindow / clockRate;
 
-        return OsuHitWindow.greatWindowToOD(greatWindow);
+        return (79.5 - greatWindow) / 6;
     }
 }

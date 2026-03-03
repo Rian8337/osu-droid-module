@@ -8,17 +8,16 @@ import {
     ModPrecise,
     ModRelax,
     ModScoreV2,
-    OsuHitWindow,
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
-import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
@@ -874,21 +873,21 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     private getConvertedHitWindow() {
-        const hitWindow300 = new OsuHitWindow(
-            this.difficultyAttributes.overallDifficulty,
-        ).greatWindow;
+        const { overallDifficulty, clockRate } = this.difficultyAttributes;
 
         if (this.mods.has(ModPrecise)) {
+            const hitWindow300 = new PreciseDroidHitWindow(overallDifficulty)
+                .greatWindow;
+
             return new PreciseDroidHitWindow(
-                PreciseDroidHitWindow.greatWindowToOD(
-                    hitWindow300 * this.difficultyAttributes.clockRate,
-                ),
+                PreciseDroidHitWindow.greatWindowToOD(hitWindow300 * clockRate),
             );
         } else {
+            const hitWindow300 = new DroidHitWindow(overallDifficulty)
+                .greatWindow;
+
             return new DroidHitWindow(
-                DroidHitWindow.greatWindowToOD(
-                    hitWindow300 * this.difficultyAttributes.clockRate,
-                ),
+                DroidHitWindow.greatWindowToOD(hitWindow300 * clockRate),
             );
         }
     }

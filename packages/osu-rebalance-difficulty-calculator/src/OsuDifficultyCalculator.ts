@@ -67,19 +67,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
         attributes.sliderCount = playableBeatmap.hitObjects.sliders;
         attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
+        attributes.approachRate = playableBeatmap.difficulty.ar;
+        attributes.overallDifficulty = playableBeatmap.difficulty.od;
         attributes.drainRate = playableBeatmap.difficulty.hp;
-
-        attributes.approachRate =
-            OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
-                playableBeatmap.difficulty.ar,
-                attributes.clockRate,
-            );
-
-        attributes.overallDifficulty =
-            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
-                playableBeatmap.difficulty.od,
-                attributes.clockRate,
-            );
 
         const aim = skills.find((s) => s instanceof OsuAim && s.withSliders) as
             | OsuAim
@@ -95,6 +85,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         // Aim attributes
         const aimDifficultyValue = aim?.difficultyValue() ?? 0;
+        const aimNoSliderDifficultyValue = aimNoSlider?.difficultyValue() ?? 0;
 
         attributes.aimDifficultSliderCount = aim?.countDifficultSliders() ?? 0;
         attributes.aimDifficultStrainCount =
@@ -103,7 +94,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         attributes.sliderFactor =
             aimDifficultyValue > 0
                 ? OsuRatingCalculator.calculateDifficultyRating(
-                      aimNoSlider?.difficultyValue() ?? 0,
+                      aimNoSliderDifficultyValue,
                   ) /
                   OsuRatingCalculator.calculateDifficultyRating(
                       aimDifficultyValue,
@@ -111,9 +102,11 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
                 : 1;
 
         const aimNoSliderTopWeightedSliderCount =
-            aimNoSlider?.countTopWeightedSliders(aimDifficultyValue) ?? 0;
+            aimNoSlider?.countTopWeightedSliders(aimNoSliderDifficultyValue) ??
+            0;
         const aimNoSliderDifficultStrainCount =
-            aimNoSlider?.countTopWeightedStrains(aimDifficultyValue) ?? 0;
+            aimNoSlider?.countTopWeightedStrains(aimNoSliderDifficultyValue) ??
+            0;
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
@@ -154,7 +147,10 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const ratingCalculator = new OsuRatingCalculator(
             attributes.mods,
             playableBeatmap.hitObjects.objects.length,
-            attributes.overallDifficulty,
+            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
+                playableBeatmap.difficulty.od,
+                playableBeatmap.speedMultiplier,
+            ),
         );
 
         attributes.aimDifficulty =
@@ -321,6 +317,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const greatWindow =
             new OsuHitWindow(overallDifficulty).greatWindow / clockRate;
 
-        return OsuHitWindow.greatWindowToOD(greatWindow);
+        return (79.5 - greatWindow) / 6;
     }
 }

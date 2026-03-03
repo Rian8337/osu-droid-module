@@ -11,8 +11,8 @@ import {
     ModReplayV6,
     ModScoreV2,
     ModTraceable,
-    OsuHitWindow,
     PreciseDroidHitWindow,
+    UnadjustedOsuHitWindow,
 } from "@rian8337/osu-base";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { Skill } from "./base/Skill";
@@ -75,19 +75,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.hitCircleCount = beatmap.hitObjects.circles;
         attributes.sliderCount = beatmap.hitObjects.sliders;
         attributes.spinnerCount = beatmap.hitObjects.spinners;
-
-        let greatWindow: number;
-
-        if (attributes.mods.has(ModPrecise)) {
-            greatWindow = new PreciseDroidHitWindow(beatmap.difficulty.od)
-                .greatWindow;
-        } else {
-            greatWindow = new DroidHitWindow(beatmap.difficulty.od).greatWindow;
-        }
-
-        attributes.overallDifficulty = OsuHitWindow.greatWindowToOD(
-            greatWindow / attributes.clockRate,
-        );
+        attributes.overallDifficulty = beatmap.difficulty.od;
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
@@ -466,9 +454,23 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         }
 
         // Consider accuracy difficulty.
+        let greatWindow: number;
+
+        if (attributes.mods.has(ModPrecise)) {
+            greatWindow = new PreciseDroidHitWindow(
+                attributes.overallDifficulty,
+            ).greatWindow;
+        } else {
+            greatWindow = new DroidHitWindow(attributes.overallDifficulty)
+                .greatWindow;
+        }
+
+        const overallDifficulty = UnadjustedOsuHitWindow.greatWindowToOD(
+            greatWindow / attributes.clockRate,
+        );
+
         const ratingMultiplier =
-            0.75 +
-            Math.pow(Math.max(0, attributes.overallDifficulty), 2.2) / 800;
+            0.75 + Math.pow(Math.max(0, overallDifficulty), 2.2) / 800;
 
         attributes.readingDifficulty *= Math.sqrt(ratingMultiplier);
     }
