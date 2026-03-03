@@ -23,13 +23,6 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
      */
     protected abstract readonly reducedSectionBaseline: number;
 
-    /**
-     * Determines how quickly strain decays for the given skill.
-     *
-     * For example, a value of 0.15 indicates that strain decays to 15% of its original value in one second.
-     */
-    protected abstract readonly strainDecayBase: number;
-
     protected readonly _objectStrains: number[] = [];
 
     /**
@@ -119,15 +112,6 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
                 1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
             0,
         );
-    }
-
-    /**
-     * Calculates strain decay for a specified time frame.
-     *
-     * @param ms The time frame to calculate.
-     */
-    protected strainDecay(ms: number): number {
-        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 
     /**

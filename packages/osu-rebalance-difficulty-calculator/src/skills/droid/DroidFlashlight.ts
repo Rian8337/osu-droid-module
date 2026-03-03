@@ -7,7 +7,6 @@ import { DroidSkill } from "./DroidSkill";
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class DroidFlashlight extends DroidSkill {
-    protected override readonly strainDecayBase = 0.15;
     protected override readonly reducedSectionCount = 0;
     protected override readonly reducedSectionBaseline = 1;
     protected override readonly starsPerDouble = 1.06;
@@ -52,5 +51,9 @@ export class DroidFlashlight extends DroidSkill {
         return (
             this.strainPeaks.reduce((a, v) => a + v, 0) * this.starsPerDouble
         );
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(0.15, ms / 1000);
     }
 }

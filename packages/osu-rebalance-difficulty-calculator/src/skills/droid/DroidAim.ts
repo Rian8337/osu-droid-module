@@ -9,7 +9,6 @@ import { DroidSpeedAimEvaluator } from "../../evaluators/droid/DroidSpeedAimEval
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class DroidAim extends DroidSkill {
-    protected override readonly strainDecayBase = 0.15;
     protected override readonly reducedSectionCount = 10;
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly starsPerDouble = 1.05;
