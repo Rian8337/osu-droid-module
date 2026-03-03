@@ -408,13 +408,14 @@ export abstract class DifficultyHitObject {
                 : this.lastObject.stackedPosition;
 
         this.jumpDistance =
-            this.lastObject.stackedPosition.subtract(
+            this.lastObject.stackedPosition.getDistance(
                 this.object.stackedPosition,
-            ).length * scalingFactor;
+            ) * scalingFactor;
 
-        this.lazyJumpDistance = this.object.stackedPosition
-            .scale(scalingFactor)
-            .subtract(lastCursorPosition.scale(scalingFactor)).length;
+        this.lazyJumpDistance =
+            this.object.stackedPosition.getDistance(lastCursorPosition) *
+            scalingFactor;
+
         this.minimumJumpDistance = this.lazyJumpDistance;
 
         if (
