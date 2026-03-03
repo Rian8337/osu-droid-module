@@ -17,8 +17,8 @@ export class DroidAim extends DroidSkill {
     private currentAimStrain = 0;
     private currentSpeedStrain = 0;
 
-    private readonly skillMultiplierAim = 25.85;
-    private readonly skillMultiplierSpeed = 1.35;
+    private readonly skillMultiplierAim = 25;
+    private readonly skillMultiplierSpeed = 1.4;
     private readonly skillMultiplierTotal = 1;
     private readonly meanExponent = 1.2;
 

@@ -8,8 +8,8 @@ import { Island } from "../base/Island";
 export abstract class DroidRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
-    private static readonly rhythmOverallMultiplier = 0.9;
-    private static readonly rhythmRatioMultiplier = 30;
+    private static readonly rhythmOverallMultiplier = 0.8;
+    private static readonly rhythmRatioMultiplier = 32;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated

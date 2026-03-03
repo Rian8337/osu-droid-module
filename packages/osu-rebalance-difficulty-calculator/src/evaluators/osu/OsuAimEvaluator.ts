@@ -7,9 +7,12 @@ import { OsuSpeedAimEvaluator } from "./OsuSpeedAimEvaluator";
  */
 export abstract class OsuAimEvaluator {
     private static readonly wideAngleMultiplier = 1.5;
-    private static readonly acuteAngleMultiplier = 2.3;
+    private static readonly acuteAngleMultiplier = 2.6;
     private static readonly sliderMultiplier = 1.5;
-    private static readonly velocityChangeMultiplier = 0.75;
+    private static readonly velocityChangeMultiplier = 0.9;
+
+    // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
+    // Refer to the desmos link above the wiggle bonus calculation.
     private static readonly wiggleMultiplier = 1.02;
 
     /**
