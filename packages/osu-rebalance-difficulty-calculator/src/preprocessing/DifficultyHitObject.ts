@@ -371,20 +371,10 @@ export abstract class DifficultyHitObject {
 
     private setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
-            this.travelDistance = this.lazyTravelDistance;
-
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
-            if (this.mode === Modes.droid) {
-                this.travelDistance *= Math.pow(
-                    1 + this.object.repeatCount / 4,
-                    1 / 4,
-                );
-            } else {
-                this.travelDistance *= Math.pow(
-                    1 + this.object.repeatCount / 2.5,
-                    1 / 2.5,
-                );
-            }
+            this.travelDistance =
+                this.lazyTravelDistance *
+                Math.max(1, Math.pow(this.object.repeatCount, 0.2));
 
             this.travelTime = Math.max(
                 this.lazyTravelTime / clockRate,

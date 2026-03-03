@@ -8,7 +8,7 @@ import { DroidSpeedAimEvaluator } from "./DroidSpeedAimEvaluator";
 export abstract class DroidAimEvaluator {
     private static readonly wideAngleMultiplier = 1.6;
     private static readonly acuteAngleMultiplier = 2.4;
-    private static readonly sliderMultiplier = 1.5;
+    private static readonly sliderMultiplier = 2.9;
     private static readonly velocityChangeMultiplier = 0.9;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
@@ -52,19 +52,12 @@ export abstract class DroidAimEvaluator {
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (last.object instanceof Slider && withSliders) {
-            // Calculate the slider velocity from slider head to slider end.
-            const travelVelocity = last.travelDistance / last.travelTime;
+            const sliderDistance =
+                last.lazyTravelDistance + current.lazyJumpDistance;
 
-            // Calculate the movement velocity from slider end to current object.
-            const movementVelocity =
-                current.minimumJumpTime !== 0
-                    ? current.minimumJumpDistance / current.minimumJumpTime
-                    : 0;
-
-            // Take the larger total combined velocity.
             currentVelocity = Math.max(
                 currentVelocity,
-                movementVelocity + travelVelocity,
+                sliderDistance / current.strainTime,
             );
         }
 
@@ -72,17 +65,12 @@ export abstract class DroidAimEvaluator {
         let prevVelocity = last.lazyJumpDistance / last.strainTime;
 
         if (lastLast.object instanceof Slider && withSliders) {
-            const travelVelocity =
-                lastLast.travelDistance / lastLast.travelTime;
-
-            const movementVelocity =
-                last.minimumJumpTime !== 0
-                    ? last.minimumJumpDistance / last.minimumJumpTime
-                    : 0;
+            const sliderDistance =
+                lastLast.lazyTravelDistance + last.lazyJumpDistance;
 
             prevVelocity = Math.max(
                 prevVelocity,
-                movementVelocity + travelVelocity,
+                sliderDistance / last.strainTime,
             );
         }
 
