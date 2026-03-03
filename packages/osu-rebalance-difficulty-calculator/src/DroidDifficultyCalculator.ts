@@ -492,6 +492,14 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     static sumCognitionDifficulty(reading: number, flashlight: number): number {
+        if (reading <= 0) {
+            return flashlight;
+        }
+
+        if (flashlight <= 0) {
+            return reading;
+        }
+
         return MathUtils.norm(
             DroidPerformanceCalculator.normExponent,
             reading,

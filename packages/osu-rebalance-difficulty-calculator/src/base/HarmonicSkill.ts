@@ -44,6 +44,10 @@ export abstract class HarmonicSkill extends ObjectDifficultySkill {
         // These notes will not contribute to the difficulty.
         const difficulties = this.objectDifficulties.filter((d) => d > 0);
 
+        if (difficulties.length === 0) {
+            return 0;
+        }
+
         this.applyDifficultyTransformation(difficulties);
 
         let difficulty = 0;

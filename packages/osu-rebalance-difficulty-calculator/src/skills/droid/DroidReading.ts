@@ -39,10 +39,6 @@ export class DroidReading extends HarmonicSkill {
     }
 
     protected override applyDifficultyTransformation(difficulties: number[]) {
-        if (difficulties.length === 0) {
-            return;
-        }
-
         // Assume the first few seconds are completely memorized.
         const reducedNoteCount = this.calculateReducedNoteCount();
 
