@@ -214,7 +214,7 @@ export abstract class OsuReadingEvaluator {
         ) {
             // Perfect stacks are harder the less time between notes.
             hiddenDifficulty +=
-                (this.hiddenMultiplier * 7500) /
+                (this.hiddenMultiplier * 2500) /
                 Math.pow(current.strainTime, 1.5);
         }
 

@@ -218,7 +218,7 @@ export abstract class DroidReadingEvaluator {
             prev.startTime + prev.timePreempt > current.startTime
         ) {
             hiddenDifficulty +=
-                (this.hiddenMultiplier * 7500) /
+                (this.hiddenMultiplier * 2500) /
                 // Perfect stacks are harder the less time between notes.
                 Math.pow(current.strainTime, 1.5);
         }
