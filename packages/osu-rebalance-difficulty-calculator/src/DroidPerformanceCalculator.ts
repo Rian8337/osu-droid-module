@@ -399,9 +399,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             : this.difficultyAttributes.hitCircleCount;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
-        accuracyValue *= Math.min(
-            1.15,
-            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000)),
+        accuracyValue *= Math.pow(
+            Math.log(1 + ((Math.E - 1) * ncircles) / 1000),
+            ncircles < 1000 ? 0.5 : 0.25,
         );
 
         // Scale the accuracy value with rhythm complexity.

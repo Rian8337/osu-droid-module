@@ -184,7 +184,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         let aimValue = OsuAim.difficultyToPerformance(aimDifficulty);
 
         // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.3 * Math.min(1, this.totalHits / 2000);
+        let lengthBonus = 0.95 + 0.35 * Math.min(1, this.totalHits / 2000);
         if (this.totalHits > 2000) {
             lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
         }
@@ -322,8 +322,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
             2.83;
 
-        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
-        accuracyValue *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
+        accuracyValue *= Math.pow(ncircles / 1000, ncircles < 1000 ? 0.3 : 0.1);
 
         // Increasing the accuracy value by object count for Blinds isn't ideal, so the minimum buff is given.
         if (this.mods.has(ModBlinds)) {
