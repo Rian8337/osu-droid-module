@@ -36,11 +36,11 @@ export abstract class DroidSpeedAimEvaluator {
         // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
         let distanceBonus = Math.pow(
             distance / this.singleSpacingThreshold,
-            3.95,
+            2.9,
         );
 
         // Apply reduced small circle bonus because flow aim difficulty on small circles doesn't scale as hard as jumps
-        distanceBonus *= Math.sqrt(current.smallCircleBonus);
+        distanceBonus *= Math.pow(current.smallCircleBonus, 0.7);
 
         let strain = (distanceBonus * 1000) / current.strainTime;
 

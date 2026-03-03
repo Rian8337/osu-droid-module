@@ -24,8 +24,7 @@ export class OsuRatingCalculator {
             return 0;
         }
 
-        let aimRating =
-            OsuRatingCalculator.calculateDifficultyRating(aimDifficultyValue);
+        let aimRating = Math.pow(aimDifficultyValue, 0.58) * 0.0346;
 
         if (this.mods.has(ModRelax)) {
             aimRating *= 0.9;

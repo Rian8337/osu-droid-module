@@ -11,7 +11,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
     speedStrain = 0;
 
     override get smallCircleBonus(): number {
-        return Math.max(1, 1 + (30 - this.object.radius) / 40);
+        return Math.max(1, 1 + (30 - this.object.radius) / 60);
     }
 
     protected override readonly mode = Modes.osu;
