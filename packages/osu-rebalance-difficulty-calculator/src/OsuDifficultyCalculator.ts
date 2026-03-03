@@ -33,8 +33,6 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     OsuDifficultyHitObject,
     OsuDifficultyAttributes
 > {
-    private readonly starRatingMultiplier = 0.0265;
-
     constructor() {
         super();
 
@@ -214,7 +212,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         for (let i = 1; i < objects.length; ++i) {
             const difficultyObject = new OsuDifficultyHitObject(
                 objects[i],
-                objects[i - 1] ?? null,
+                objects[i - 1],
                 difficultyObjects,
                 clockRate,
                 i - 1,
