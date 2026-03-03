@@ -11,26 +11,34 @@ export class BeatmapDifficultyDecoder extends SectionDecoder<Beatmap> {
 
         switch (p[0]) {
             case "CircleSize":
-                this.target.difficulty.cs = this.tryParseFloat(
-                    this.setPosition(p[1]),
+                this.target.difficulty.cs = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0,
+                    10,
                 );
                 break;
 
             case "OverallDifficulty":
-                this.target.difficulty.od = this.tryParseFloat(
-                    this.setPosition(p[1]),
+                this.target.difficulty.od = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0,
+                    10,
                 );
                 break;
 
             case "ApproachRate":
-                this.target.difficulty.ar = this.tryParseFloat(
-                    this.setPosition(p[1]),
+                this.target.difficulty.ar = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0,
+                    10,
                 );
                 break;
 
             case "HPDrainRate":
-                this.target.difficulty.hp = this.tryParseFloat(
-                    this.setPosition(p[1]),
+                this.target.difficulty.hp = MathUtils.clamp(
+                    this.tryParseFloat(this.setPosition(p[1])),
+                    0,
+                    10,
                 );
                 break;
 
