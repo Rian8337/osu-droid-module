@@ -29,6 +29,7 @@ export class OsuAim extends OsuSkill {
     private readonly meanExponent = 1.2;
 
     private readonly sliderStrains: number[] = [];
+    private maxSliderStrain = 0;
 
     readonly withSliders: boolean;
 
@@ -42,20 +43,14 @@ export class OsuAim extends OsuSkill {
      * Obtains the amount of sliders that are considered difficult in terms of relative strain.
      */
     countDifficultSliders(): number {
-        if (this.sliderStrains.length === 0) {
-            return 0;
-        }
-
-        const maxSliderStrain = MathUtils.max(this.sliderStrains);
-
-        if (maxSliderStrain === 0) {
+        if (this.sliderStrains.length === 0 || this.maxSliderStrain === 0) {
             return 0;
         }
 
         return this.sliderStrains.reduce(
             (total, strain) =>
                 total +
-                1 / (1 + Math.exp(-((strain / maxSliderStrain) * 12 - 6))),
+                1 / (1 + Math.exp(-((strain / this.maxSliderStrain) * 12 - 6))),
             0,
         );
     }
@@ -112,6 +107,7 @@ export class OsuAim extends OsuSkill {
 
         if (current.object instanceof Slider) {
             this.sliderStrains.push(totalStrain);
+            this.maxSliderStrain = Math.max(this.maxSliderStrain, totalStrain);
         }
 
         return totalStrain;
