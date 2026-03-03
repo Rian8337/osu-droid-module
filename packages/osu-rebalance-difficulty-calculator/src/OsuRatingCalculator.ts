@@ -134,9 +134,9 @@ export class OsuRatingCalculator {
         }
 
         if (this.mods.has(ModRelax)) {
-            readingRating *= 0.7;
+            readingRating *= 0.6;
         } else if (this.mods.has(ModAutopilot)) {
-            readingRating *= 0.4;
+            readingRating *= 0.3;
         }
 
         if (this.mods.has(ModMagnetised)) {

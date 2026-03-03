@@ -1,4 +1,4 @@
-import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModMap, ModRelax, Slider } from "@rian8337/osu-base";
 import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
@@ -72,10 +72,12 @@ export class DroidAim extends DroidSkill {
             0.8,
         );
 
-        const speedDifficulty = Math.pow(
-            DroidSpeedAimEvaluator.evaluateDifficultyOf(current),
-            0.95,
-        );
+        const speedDifficulty = !this.mods.has(ModRelax)
+            ? Math.pow(
+                  DroidSpeedAimEvaluator.evaluateDifficultyOf(current),
+                  0.95,
+              )
+            : 0;
 
         this.currentAimStrain *= decayAim;
         this.currentAimStrain +=

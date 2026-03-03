@@ -1,4 +1,10 @@
-import { MathUtils, ModMap, ModTouchDevice, Slider } from "@rian8337/osu-base";
+import {
+    MathUtils,
+    ModMap,
+    ModRelax,
+    ModTouchDevice,
+    Slider,
+} from "@rian8337/osu-base";
 import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { OsuSkill } from "./OsuSkill";
@@ -81,6 +87,10 @@ export class OsuAim extends OsuSkill {
         if (this.mods.has(ModTouchDevice)) {
             aimDifficulty = Math.pow(aimDifficulty, 0.8);
             speedDifficulty = Math.pow(speedDifficulty, 0.95);
+        }
+
+        if (this.mods.has(ModRelax)) {
+            speedDifficulty = 0;
         }
 
         this.currentAimStrain *= decayAim;
