@@ -87,19 +87,19 @@ export class DroidAim extends DroidSkill {
         this.currentSpeedStrain +=
             speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
 
-        const totalStrain = MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain,
-            this.currentSpeedStrain,
-        );
+        const totalStrain =
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain,
+                this.currentSpeedStrain,
+            ) * this.skillMultiplierTotal;
 
         if (current.object instanceof Slider) {
             this.sliderStrains.push(totalStrain);
-
             this.maxSliderStrain = Math.max(this.maxSliderStrain, totalStrain);
         }
 
-        return totalStrain * this.skillMultiplierTotal;
+        return totalStrain;
     }
 
     protected override calculateInitialStrain(
@@ -108,18 +108,22 @@ export class DroidAim extends DroidSkill {
     ): number {
         const deltaTime = time - (current.previous(0)?.startTime ?? 0);
 
-        return MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain * this.strainDecayAim(deltaTime),
-            this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
+        return (
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain * this.strainDecayAim(deltaTime),
+                this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
+            ) * this.skillMultiplierTotal
         );
     }
 
     protected override getObjectStrain(): number {
-        return MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain,
-            this.currentSpeedStrain,
+        return (
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain,
+                this.currentSpeedStrain,
+            ) * this.skillMultiplierTotal
         );
     }
 

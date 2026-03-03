@@ -101,11 +101,12 @@ export class OsuAim extends OsuSkill {
         this.currentSpeedStrain +=
             speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
 
-        const totalStrain = MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain,
-            this.currentSpeedStrain,
-        );
+        const totalStrain =
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain,
+                this.currentSpeedStrain,
+            ) * this.skillMultiplierTotal;
 
         this._objectStrains.push(totalStrain);
 
@@ -113,7 +114,7 @@ export class OsuAim extends OsuSkill {
             this.sliderStrains.push(totalStrain);
         }
 
-        return totalStrain * this.skillMultiplierTotal;
+        return totalStrain;
     }
 
     protected override calculateInitialStrain(
@@ -122,19 +123,22 @@ export class OsuAim extends OsuSkill {
     ): number {
         const deltaTime = time - (current.previous(0)?.startTime ?? 0);
 
-        return MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain * this.strainDecayAim(deltaTime),
-            this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
+        return (
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain * this.strainDecayAim(deltaTime),
+                this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
+            ) * this.skillMultiplierTotal
         );
     }
 
     protected override saveToHitObject(current: OsuDifficultyHitObject) {
-        const strain = MathUtils.norm(
-            this.meanExponent,
-            this.currentAimStrain,
-            this.currentSpeedStrain,
-        );
+        const strain =
+            MathUtils.norm(
+                this.meanExponent,
+                this.currentAimStrain,
+                this.currentSpeedStrain,
+            ) * this.skillMultiplierTotal;
 
         if (this.withSliders) {
             current.aimStrainWithSliders = strain;
