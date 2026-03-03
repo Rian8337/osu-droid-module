@@ -146,10 +146,13 @@ export abstract class DroidAimEvaluator {
             // Apply full wide angle bonus for distance more than singleSpacingThreshold
             wideAngleBonus *=
                 angleBonus *
-                MathUtils.smootherstep(
-                    current.lazyJumpDistance,
-                    0,
-                    DroidSpeedAimEvaluator.singleSpacingThreshold,
+                Math.pow(
+                    MathUtils.smootherstep(
+                        current.lazyJumpDistance,
+                        0,
+                        DroidSpeedAimEvaluator.singleSpacingThreshold,
+                    ),
+                    3,
                 );
 
             // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
