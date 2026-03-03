@@ -407,11 +407,10 @@ export abstract class ModUtil {
                 break;
 
             case Modes.osu: {
-                const hitWindow = new OsuHitWindow(difficulty.od);
+                const greatWindow =
+                    new OsuHitWindow(difficulty.od).greatWindow / rate;
 
-                difficulty.od = OsuHitWindow.greatWindowToOD(
-                    hitWindow.greatWindow / rate,
-                );
+                difficulty.od = (79.5 - greatWindow) / 6;
 
                 break;
             }
