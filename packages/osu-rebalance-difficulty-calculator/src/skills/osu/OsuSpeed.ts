@@ -46,14 +46,14 @@ export class OsuSpeed extends HarmonicSkill {
             return 0;
         }
 
-        if (this.noteWeightSum == 0) {
+        if (this.noteWeightSum === 0) {
             return 0;
         }
 
         // What would the top note be if all note values were identical
         const consistentTopNote = difficultyValue / this.noteWeightSum;
 
-        if (consistentTopNote == 0) {
+        if (consistentTopNote === 0) {
             return 0;
         }
 

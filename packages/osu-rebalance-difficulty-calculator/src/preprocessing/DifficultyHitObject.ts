@@ -55,6 +55,11 @@ export abstract class DifficultyHitObject {
     rhythmMultiplier = 0;
 
     /**
+     * The normalized distance from the start position of the previous hitobject to the start position of this hitobject.
+     */
+    jumpDistance = 0;
+
+    /**
      * The normalized distance from the "lazy" end position of the previous hitobject to the start position of this hitobject.
      *
      * The "lazy" end position is the position at which the cursor ends up if the previous hitobject is followed with as minimal movement as possible (i.e. on the edge of slider follow circles).
@@ -374,7 +379,7 @@ export abstract class DifficultyHitObject {
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
             this.travelDistance =
                 this.lazyTravelDistance *
-                Math.max(1, Math.pow(this.object.repeatCount, 0.2));
+                Math.max(1, Math.pow(this.object.repeatCount, 0.3));
 
             this.travelTime = Math.max(
                 this.lazyTravelTime / clockRate,
@@ -401,6 +406,11 @@ export abstract class DifficultyHitObject {
             this.lastDifficultyObject !== null
                 ? this.getEndCursorPosition(this.lastDifficultyObject)
                 : this.lastObject.stackedPosition;
+
+        this.jumpDistance =
+            this.lastObject.stackedPosition.subtract(
+                this.object.stackedPosition,
+            ).length * scalingFactor;
 
         this.lazyJumpDistance = this.object.stackedPosition
             .scale(scalingFactor)

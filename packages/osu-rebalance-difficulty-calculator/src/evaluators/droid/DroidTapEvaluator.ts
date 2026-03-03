@@ -1,4 +1,4 @@
-import { Spinner, ErrorFunction } from "@rian8337/osu-base";
+import { Spinner, ErrorFunction, MathUtils } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -6,7 +6,7 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  */
 export abstract class DroidTapEvaluator {
     // ~200 1/4 BPM streams
-    private static readonly minSpeedBonus = 75;
+    private static readonly minSpeedBonus = 200;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -45,11 +45,15 @@ export abstract class DroidTapEvaluator {
                 : current.strainTime;
         let speedBonus = 1;
 
-        if (strainTime < this.minSpeedBonus) {
+        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
                 Math.pow(
-                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
+                    ErrorFunction.erf(
+                        (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
+                            strainTime) /
+                            40,
+                    ),
                     2,
                 );
         }

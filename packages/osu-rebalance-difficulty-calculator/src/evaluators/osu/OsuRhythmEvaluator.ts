@@ -27,7 +27,11 @@ export abstract class OsuRhythmEvaluator {
 
         let island = new Island(deltaDifferenceEpsilon);
         let previousIsland = new Island(deltaDifferenceEpsilon);
-        const islandCounts = new Map<Island, number>();
+
+        const islandCounts: {
+            readonly island: Island;
+            count: number;
+        }[] = [];
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
@@ -152,28 +156,22 @@ export abstract class OsuRhythmEvaluator {
                         effectiveRatio /= 2;
                     }
 
-                    let islandFound = false;
+                    const islandCount = islandCounts.find((x) =>
+                        x.island.equals(island),
+                    );
 
-                    for (const [currentIsland, count] of islandCounts) {
-                        if (!island.equals(currentIsland)) {
-                            continue;
-                        }
-
-                        islandFound = true;
-                        let islandCount = count;
-
+                    if (islandCount) {
+                        // Only add island to island counts if they're going one after another.
                         if (previousIsland.equals(island)) {
-                            // Only add island to island counts if they're going one after another.
-                            ++islandCount;
-                            islandCounts.set(currentIsland, islandCount);
+                            ++islandCount.count;
                         }
 
                         // Repeated island (ex: triplet -> triplet).
                         // Graph: https://www.desmos.com/calculator/pj7an56zwf
                         effectiveRatio *= Math.min(
-                            3 / islandCount,
+                            3 / islandCount.count,
                             Math.pow(
-                                1 / islandCount,
+                                1 / islandCount.count,
                                 MathUtils.offsetLogistic(
                                     island.delta,
                                     58.33,
@@ -182,12 +180,8 @@ export abstract class OsuRhythmEvaluator {
                                 ),
                             ),
                         );
-
-                        break;
-                    }
-
-                    if (!islandFound) {
-                        islandCounts.set(island, 1);
+                    } else {
+                        islandCounts.push({ island, count: 1 });
                     }
 
                     // Scale down the difficulty if the object is doubletappable.

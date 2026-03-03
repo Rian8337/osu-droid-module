@@ -47,7 +47,11 @@ export abstract class OsuAimEvaluator {
         const diameter = OsuDifficultyHitObject.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
-        let currentVelocity = current.lazyJumpDistance / current.strainTime;
+        const currentDistance = withSliders
+            ? current.lazyJumpDistance
+            : current.jumpDistance;
+
+        let currentVelocity = currentDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
         if (last.object instanceof Slider && withSliders) {
@@ -61,7 +65,11 @@ export abstract class OsuAimEvaluator {
         }
 
         // As above, do the same for the previous hitobject.
-        let prevVelocity = last.lazyJumpDistance / last.strainTime;
+        const prevDistance = withSliders
+            ? last.lazyJumpDistance
+            : last.jumpDistance;
+
+        let prevVelocity = prevDistance / last.strainTime;
 
         if (lastLast.object instanceof Slider && withSliders) {
             const sliderDistance =
@@ -118,7 +126,7 @@ export abstract class OsuAimEvaluator {
                         400,
                     ) *
                     MathUtils.smootherstep(
-                        current.lazyJumpDistance,
+                        currentDistance,
                         diameter,
                         diameter * 2,
                     );
@@ -139,7 +147,7 @@ export abstract class OsuAimEvaluator {
                 angleBonus *
                 Math.pow(
                     MathUtils.smootherstep(
-                        current.lazyJumpDistance,
+                        currentDistance,
                         0,
                         OsuSpeedAimEvaluator.singleSpacingThreshold,
                     ),
@@ -150,14 +158,10 @@ export abstract class OsuAimEvaluator {
             // https://www.desmos.com/calculator/dp0v0nvowc
             wiggleBonus =
                 angleBonus *
-                MathUtils.smootherstep(
-                    current.lazyJumpDistance,
-                    radius,
-                    diameter,
-                ) *
+                MathUtils.smootherstep(currentDistance, radius, diameter) *
                 Math.pow(
                     MathUtils.reverseLerp(
-                        current.lazyJumpDistance,
+                        currentDistance,
                         diameter * 3,
                         diameter,
                     ),
@@ -168,17 +172,9 @@ export abstract class OsuAimEvaluator {
                     MathUtils.degreesToRadians(110),
                     MathUtils.degreesToRadians(60),
                 ) *
-                MathUtils.smootherstep(
-                    last.lazyJumpDistance,
-                    radius,
-                    diameter,
-                ) *
+                MathUtils.smootherstep(prevDistance, radius, diameter) *
                 Math.pow(
-                    MathUtils.reverseLerp(
-                        last.lazyJumpDistance,
-                        diameter * 3,
-                        diameter,
-                    ),
+                    MathUtils.reverseLerp(prevDistance, diameter * 3, diameter),
                     1.8,
                 ) *
                 MathUtils.smootherstep(
@@ -202,13 +198,15 @@ export abstract class OsuAimEvaluator {
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
-            // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
-            prevVelocity =
-                (last.lazyJumpDistance + lastLast.travelDistance) /
-                last.strainTime;
-            currentVelocity =
-                (current.lazyJumpDistance + last.travelDistance) /
-                current.strainTime;
+            if (withSliders) {
+                // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
+                prevVelocity =
+                    (last.lazyJumpDistance + lastLast.travelDistance) /
+                    last.strainTime;
+                currentVelocity =
+                    (current.lazyJumpDistance + last.travelDistance) /
+                    current.strainTime;
+            }
 
             // Scale with ratio of difference compared to half the max distance.
             const distanceRatio = MathUtils.smoothstep(

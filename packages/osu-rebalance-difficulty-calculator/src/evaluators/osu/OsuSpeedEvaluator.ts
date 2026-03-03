@@ -6,7 +6,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuSpeedEvaluator {
     // ~200 1/4 BPM streams
-    private static readonly minSpeedBonus = 75;
+    private static readonly minSpeedBonus = 200;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -38,9 +38,15 @@ export abstract class OsuSpeedEvaluator {
         let speedBonus = 0;
 
         // Add additional scaling bonus for streams/bursts higher than 200bpm
-        if (strainTime < this.minSpeedBonus) {
+        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
             speedBonus =
-                0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
+                0.75 *
+                Math.pow(
+                    (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
+                        strainTime) /
+                        40,
+                    2,
+                );
         }
 
         // Base difficulty with all bonuses
