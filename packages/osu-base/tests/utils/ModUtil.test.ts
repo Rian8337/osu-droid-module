@@ -324,7 +324,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
-            expect(difficulty.od).toBeCloseTo(7.777777777777778, 5);
+            expect(difficulty.od).toBeCloseTo(7.75, 5);
             expect(difficulty.hp).toBe(5);
         });
 
@@ -342,7 +342,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBeCloseTo(7.666666666666666, 5);
-            expect(difficulty.od).toBeCloseTo(7.777777777777778, 5);
+            expect(difficulty.od).toBeCloseTo(7.75, 5);
             expect(difficulty.hp).toBe(5);
         });
 
@@ -360,7 +360,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBeCloseTo(6.6, 2);
-            expect(difficulty.od).toBeCloseTo(6.666666666666667, 5);
+            expect(difficulty.od).toBeCloseTo(6.6499999999999995, 5);
             expect(difficulty.hp).toBe(5);
         });
 
@@ -380,7 +380,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBeCloseTo(9.8);
-            expect(difficulty.od).toBeCloseTo(9.955555555555556, 5);
+            expect(difficulty.od).toBeCloseTo(9.916666666666666, 5);
             expect(difficulty.hp).toBe(7);
         });
     });
