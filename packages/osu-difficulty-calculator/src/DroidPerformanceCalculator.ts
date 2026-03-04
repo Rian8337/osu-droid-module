@@ -580,7 +580,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         const { clockRate } = this.difficultyAttributes;
-        const hitWindow = this.getConvertedHitWindow();
+        const hitWindow = this.getHitWindow();
 
         const hitWindow300 = hitWindow.greatWindow / clockRate;
         const hitWindow100 = hitWindow.okWindow / clockRate;
@@ -682,7 +682,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         const { clockRate, speedNoteCount } = this.difficultyAttributes;
-        const hitWindow = this.getConvertedHitWindow();
+        const hitWindow = this.getHitWindow();
 
         const hitWindow300 = hitWindow.greatWindow / clockRate;
         const hitWindow100 = hitWindow.okWindow / clockRate;
@@ -819,24 +819,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return Interpolation.lerp(adjustedTapValue, tapValue, t) / tapValue;
     }
 
-    private getConvertedHitWindow() {
-        const { overallDifficulty, clockRate } = this.difficultyAttributes;
+    private getHitWindow() {
+        const { overallDifficulty } = this.difficultyAttributes;
 
-        if (this.mods.has(ModPrecise)) {
-            const hitWindow300 = new PreciseDroidHitWindow(overallDifficulty)
-                .greatWindow;
-
-            return new PreciseDroidHitWindow(
-                PreciseDroidHitWindow.greatWindowToOD(hitWindow300 * clockRate),
-            );
-        } else {
-            const hitWindow300 = new DroidHitWindow(overallDifficulty)
-                .greatWindow;
-
-            return new DroidHitWindow(
-                DroidHitWindow.greatWindowToOD(hitWindow300 * clockRate),
-            );
-        }
+        return this.mods.has(ModPrecise)
+            ? new PreciseDroidHitWindow(overallDifficulty)
+            : new DroidHitWindow(overallDifficulty);
     }
 
     override toString(): string {
