@@ -3,6 +3,7 @@ import {
     EmptyHitWindow,
     OsuHitWindow,
     PreciseDroidHitWindow,
+    UnadjustedOsuHitWindow,
 } from "../../src";
 
 describe("Test osu!droid OD to hit window conversion without PR mod", () => {
@@ -157,73 +158,73 @@ describe("Test osu!standard OD to hit window conversion", () => {
     test("OD 10", () => {
         const hitWindow = new OsuHitWindow(10);
 
-        expect(hitWindow.greatWindow).toBeCloseTo(20);
-        expect(hitWindow.okWindow).toBeCloseTo(60);
-        expect(hitWindow.mehWindow).toBeCloseTo(100);
+        expect(hitWindow.greatWindow).toBeCloseTo(19.5);
+        expect(hitWindow.okWindow).toBeCloseTo(59.5);
+        expect(hitWindow.mehWindow).toBeCloseTo(99.5);
     });
 
     test("OD 8.2", () => {
         const hitWindow = new OsuHitWindow(8.2);
 
-        expect(hitWindow.greatWindow).toBeCloseTo(30.8);
-        expect(hitWindow.okWindow).toBeCloseTo(74.4);
-        expect(hitWindow.mehWindow).toBeCloseTo(118);
+        expect(hitWindow.greatWindow).toBeCloseTo(29.5);
+        expect(hitWindow.okWindow).toBeCloseTo(73.5);
+        expect(hitWindow.mehWindow).toBeCloseTo(117.5);
     });
 
     test("OD 6.5", () => {
         const hitWindow = new OsuHitWindow(6.5);
 
-        expect(hitWindow.greatWindow).toBeCloseTo(41);
-        expect(hitWindow.okWindow).toBeCloseTo(88);
-        expect(hitWindow.mehWindow).toBeCloseTo(135);
+        expect(hitWindow.greatWindow).toBeCloseTo(40.5);
+        expect(hitWindow.okWindow).toBeCloseTo(87.5);
+        expect(hitWindow.mehWindow).toBeCloseTo(134.5);
     });
 
     test("OD 3.7", () => {
         const hitWindow = new OsuHitWindow(3.7);
 
-        expect(hitWindow.greatWindow).toBeCloseTo(57.8);
-        expect(hitWindow.okWindow).toBeCloseTo(110.4);
-        expect(hitWindow.mehWindow).toBeCloseTo(163);
+        expect(hitWindow.greatWindow).toBeCloseTo(56.5);
+        expect(hitWindow.okWindow).toBeCloseTo(109.5);
+        expect(hitWindow.mehWindow).toBeCloseTo(162.5);
     });
 
     test("OD -1.6", () => {
         const hitWindow = new OsuHitWindow(-1.6);
 
-        expect(hitWindow.greatWindow).toBeCloseTo(89.6);
-        expect(hitWindow.okWindow).toBeCloseTo(152.8);
-        expect(hitWindow.mehWindow).toBeCloseTo(216);
+        expect(hitWindow.greatWindow).toBeCloseTo(88.5);
+        expect(hitWindow.okWindow).toBeCloseTo(151.5);
+        expect(hitWindow.mehWindow).toBeCloseTo(215.5);
     });
 });
 
-describe("Test osu!standard hit window to OD conversion", () => {
+describe("Test unadjusted osu!standard hit window to OD conversion", () => {
     test("OD 10", () => {
-        expect(OsuHitWindow.greatWindowToOD(20)).toBeCloseTo(10);
-        expect(OsuHitWindow.okWindowToOD(60)).toBeCloseTo(10);
-        expect(OsuHitWindow.mehWindowToOD(100)).toBeCloseTo(10);
+        expect(UnadjustedOsuHitWindow.greatWindowToOD(20)).toBeCloseTo(10);
+        expect(UnadjustedOsuHitWindow.okWindowToOD(60)).toBeCloseTo(10);
+        expect(UnadjustedOsuHitWindow.mehWindowToOD(100)).toBeCloseTo(10);
     });
 
     test("OD 8.2", () => {
-        expect(OsuHitWindow.greatWindowToOD(30.8)).toBeCloseTo(8.2);
-        expect(OsuHitWindow.okWindowToOD(74.4)).toBeCloseTo(8.2);
-        expect(OsuHitWindow.mehWindowToOD(118)).toBeCloseTo(8.2);
+        expect(UnadjustedOsuHitWindow.greatWindowToOD(30.8)).toBeCloseTo(8.2);
+        expect(UnadjustedOsuHitWindow.okWindowToOD(74.4)).toBeCloseTo(8.2);
+        expect(UnadjustedOsuHitWindow.mehWindowToOD(118)).toBeCloseTo(8.2);
     });
 
     test("OD 6.5", () => {
-        expect(OsuHitWindow.greatWindowToOD(41)).toBeCloseTo(6.5);
-        expect(OsuHitWindow.okWindowToOD(88)).toBeCloseTo(6.5);
-        expect(OsuHitWindow.mehWindowToOD(135)).toBeCloseTo(6.5);
+        expect(UnadjustedOsuHitWindow.greatWindowToOD(41)).toBeCloseTo(6.5);
+        expect(UnadjustedOsuHitWindow.okWindowToOD(88)).toBeCloseTo(6.5);
+        expect(UnadjustedOsuHitWindow.mehWindowToOD(135)).toBeCloseTo(6.5);
     });
 
     test("OD 3.7", () => {
-        expect(OsuHitWindow.greatWindowToOD(57.8)).toBeCloseTo(3.7);
-        expect(OsuHitWindow.okWindowToOD(110.4)).toBeCloseTo(3.7);
-        expect(OsuHitWindow.mehWindowToOD(163)).toBeCloseTo(3.7);
+        expect(UnadjustedOsuHitWindow.greatWindowToOD(57.8)).toBeCloseTo(3.7);
+        expect(UnadjustedOsuHitWindow.okWindowToOD(110.4)).toBeCloseTo(3.7);
+        expect(UnadjustedOsuHitWindow.mehWindowToOD(163)).toBeCloseTo(3.7);
     });
 
     test("OD -1.6", () => {
-        expect(OsuHitWindow.greatWindowToOD(89.6)).toBeCloseTo(-1.6);
-        expect(OsuHitWindow.okWindowToOD(152.8)).toBeCloseTo(-1.6);
-        expect(OsuHitWindow.mehWindowToOD(216)).toBeCloseTo(-1.6);
+        expect(UnadjustedOsuHitWindow.greatWindowToOD(89.6)).toBeCloseTo(-1.6);
+        expect(UnadjustedOsuHitWindow.okWindowToOD(152.8)).toBeCloseTo(-1.6);
+        expect(UnadjustedOsuHitWindow.mehWindowToOD(216)).toBeCloseTo(-1.6);
     });
 });
 
