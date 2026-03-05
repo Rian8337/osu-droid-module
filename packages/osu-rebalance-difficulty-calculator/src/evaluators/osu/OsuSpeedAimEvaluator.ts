@@ -50,6 +50,6 @@ export abstract class OsuSpeedAimEvaluator {
     }
 
     private static highBpmBonus(ms: number): number {
-        return 1 / (1 - Math.pow(0.3, ms / 1000));
+        return 1 / (1 - Math.pow(0.3, Math.pow(ms / 1000, 0.9)));
     }
 }

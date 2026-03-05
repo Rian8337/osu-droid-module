@@ -6,9 +6,9 @@ import { DroidSpeedAimEvaluator } from "./DroidSpeedAimEvaluator";
  * An evaluator for calculating osu!droid Aim skill.
  */
 export abstract class DroidAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.5;
-    private static readonly acuteAngleMultiplier = 2.4;
-    private static readonly sliderMultiplier = 2;
+    private static readonly wideAngleMultiplier = 1.35;
+    private static readonly acuteAngleMultiplier = 2.5;
+    private static readonly sliderMultiplier = 1.9;
     private static readonly velocityChangeMultiplier = 1.1;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.

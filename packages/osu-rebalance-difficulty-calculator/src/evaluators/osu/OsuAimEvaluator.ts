@@ -6,9 +6,9 @@ import { OsuSpeedAimEvaluator } from "./OsuSpeedAimEvaluator";
  * An evaluator for calculating osu!standard Aim skill.
  */
 export abstract class OsuAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.4;
-    private static readonly acuteAngleMultiplier = 2.6;
-    private static readonly sliderMultiplier = 2;
+    private static readonly wideAngleMultiplier = 1.35;
+    private static readonly acuteAngleMultiplier = 2.5;
+    private static readonly sliderMultiplier = 1.9;
     private static readonly velocityChangeMultiplier = 1.1;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
@@ -283,7 +283,7 @@ export abstract class OsuAimEvaluator {
 
     private static highBpmBonus(ms: number, distance: number): number {
         return (
-            (1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.75)))) *
+            (1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.65)))) *
             // Decrease bonus for distances less than radius. These patterns have little to no aim difficulty,
             // and some of them may have inflated bonus due to incredibly short delta times (e.g., doubles).
             MathUtils.smootherstep(
