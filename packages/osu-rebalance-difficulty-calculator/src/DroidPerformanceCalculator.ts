@@ -495,7 +495,11 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the reading value with deviation.
         readingValue *=
-            1.05 * ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation));
+            1.025 *
+            Math.pow(
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
+                1.25,
+            );
 
         // OD 5 SS stays the same.
         readingValue *= 0.98 + Math.pow(5, 2) / 2500;
