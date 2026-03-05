@@ -7,6 +7,7 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * Represents the skill required to properly follow a beatmap's rhythm.
  */
 export class DroidRhythm extends HarmonicSkill {
+    protected override readonly harmonicScale = 25;
     protected override readonly decayExponent = 0.8;
 
     private readonly skillMultiplier = 7.5;
