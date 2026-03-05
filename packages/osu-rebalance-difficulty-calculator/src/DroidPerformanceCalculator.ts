@@ -292,9 +292,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 0.475,
             );
 
-        // OD 7 SS stays the same.
-        aimValue *= 0.98 + Math.pow(7, 2) / 2500;
-
         return aimValue;
     }
 
@@ -376,9 +373,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
-
-        // OD 8 SS stays the same.
-        tapValue *= 0.95 + Math.pow(8, 2) / 750;
 
         return tapValue;
     }
@@ -500,9 +494,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
                 1.25,
             );
-
-        // OD 5 SS stays the same.
-        readingValue *= 0.98 + Math.pow(5, 2) / 2500;
 
         return readingValue;
     }
