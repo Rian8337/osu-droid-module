@@ -146,7 +146,7 @@ export abstract class OsuAimEvaluator {
             wideAngleBonus *=
                 angleBonus *
                 Math.pow(
-                    MathUtils.smootherstep(
+                    MathUtils.smoothstep(
                         currentDistance,
                         0,
                         OsuSpeedAimEvaluator.singleSpacingThreshold,
