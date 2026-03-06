@@ -13,10 +13,10 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
 export abstract class DroidReadingEvaluator {
     private static readonly readingWindowSize = 3000; // 3 seconds
     private static readonly distanceInfluenceThreshold =
-        DroidDifficultyHitObject.normalizedDiameter * 1.5; // 1.5 circles distance between centers
+        DroidDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circles distance between centers
     private static readonly hiddenMultiplier = 0.28;
     private static readonly densityMultiplier = 2.4;
-    private static readonly densityDifficultyBase = 2.5;
+    private static readonly densityDifficultyBase = 1.5;
     private static readonly preemptBalancingFactor = 140000;
     private static readonly preemptStartingPoint = 500; // AR 9.66 in milliseconds
     private static readonly minimumAngleRelevancyTime = 2000; // 2 seconds
@@ -132,7 +132,7 @@ export abstract class DroidReadingEvaluator {
 
         // Apply a soft cap to general density reading to account for partial memorization.
         noteDensityDifficulty =
-            Math.pow(noteDensityDifficulty, 0.45) * this.densityMultiplier;
+            Math.sqrt(noteDensityDifficulty) * this.densityMultiplier;
 
         return noteDensityDifficulty;
     }
