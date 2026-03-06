@@ -79,7 +79,7 @@ export class OsuAim extends OsuSkill {
             OsuSpeedAimEvaluator.evaluateDifficultyOf(current);
 
         if (this.mods.has(ModTouchDevice)) {
-            aimDifficulty = Math.pow(aimDifficulty, 0.8);
+            aimDifficulty = Math.pow(aimDifficulty, 0.76);
             speedDifficulty = Math.pow(speedDifficulty, 0.95);
         }
 

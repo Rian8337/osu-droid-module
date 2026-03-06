@@ -68,7 +68,7 @@ export class DroidAim extends DroidSkill {
 
         const aimDifficulty = Math.pow(
             DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders),
-            0.8,
+            0.76,
         );
 
         const speedDifficulty = !this.mods.has(ModRelax)
