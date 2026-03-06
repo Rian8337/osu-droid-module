@@ -39,8 +39,8 @@ export abstract class OsuSpeedAimEvaluator {
             2.9,
         );
 
-        // Apply reduced small circle bonus because flow aim difficulty on small circles doesn't scale as hard as jumps
-        distanceBonus *= Math.pow(current.smallCircleBonus, 0.7);
+        // Apply increased high circle size bonus
+        distanceBonus *= Math.pow(current.smallCircleBonus, 1.5);
 
         let strain = (distanceBonus * 1000) / current.strainTime;
 
