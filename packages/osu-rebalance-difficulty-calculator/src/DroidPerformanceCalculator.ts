@@ -323,10 +323,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Scale the tap value with estimated full combo deviation.
         // Consider notes that are difficult to tap with respect to other notes, but
         // also cap the note count to prevent buffing filler patterns.
-        tapValue *= this.calculateDeviationBasedLengthScaling(
-            Math.min(
-                this.difficultyAttributes.speedNoteCount,
-                this.totalHits / 1.45,
+        tapValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(
+                Math.min(
+                    this.difficultyAttributes.speedNoteCount,
+                    this.totalHits / 1.45,
+                ),
             ),
         );
 
@@ -482,9 +485,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the reading value with estimated full combo deviation.
         // As reading is easily "bypassable" with memorization, punish for memorization.
-        readingValue *= this.calculateDeviationBasedLengthScaling(
-            undefined,
-            true,
+        readingValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(undefined, true),
         );
 
         // Scale the reading value with deviation.
