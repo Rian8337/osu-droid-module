@@ -216,9 +216,8 @@ export abstract class DroidReadingEvaluator {
         // time the previous object was clicked.
         if (
             current.lazyJumpDistance === 0 &&
-            current.opacityAt(prev.object.startTime + prev.timePreempt, mods) ==
-                0 &&
-            prev.startTime + prev.timePreempt > current.startTime
+            current.opacityAt(prev.object.startTime, mods) == 0 &&
+            prev.startTime < current.startTime - current.timePreempt
         ) {
             hiddenDifficulty +=
                 (this.hiddenMultiplier * 2500) /
@@ -273,7 +272,7 @@ export abstract class DroidReadingEvaluator {
                 current.startTime - hitObject.startTime >
                     this.readingWindowSize ||
                 // Current object not visible at the time object needs to be clicked
-                hitObject.startTime + hitObject.timePreempt < current.startTime
+                hitObject.startTime < current.startTime - current.timePreempt
             ) {
                 break;
             }
