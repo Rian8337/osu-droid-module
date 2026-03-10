@@ -213,7 +213,9 @@ export abstract class OsuReadingEvaluator {
             current.lazyJumpDistance === 0 &&
             current.opacityAt(prev.object.startTime + prev.timePreempt, mods) ==
                 0 &&
-            prev.startTime + prev.timePreempt > current.startTime
+            // At the same time, we only want to buff them if the current note is already
+            // animating at the time the previous note was clicked.
+            prev.startTime > current.startTime - current.timePreempt
         ) {
             // Perfect stacks are harder the less time between notes.
             hiddenDifficulty +=

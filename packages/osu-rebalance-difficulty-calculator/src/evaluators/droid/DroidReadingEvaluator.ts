@@ -212,12 +212,14 @@ export abstract class DroidReadingEvaluator {
 
         const prev = current.previous(0)!;
 
-        // Buff perfect stacks only if the current object is completely invisible at the
-        // time the previous object was clicked.
+        // Buff perfect stacks only if current note is completely invisible at the time the
+        // previous note was clicked.
         if (
             current.lazyJumpDistance === 0 &&
             current.opacityAt(prev.object.startTime, mods) == 0 &&
-            prev.startTime < current.startTime - current.timePreempt
+            // At the same time, we only want to buff them if the current note is already
+            // animating at the time the previous note was clicked.
+            prev.startTime > current.startTime - current.timePreempt
         ) {
             hiddenDifficulty +=
                 (this.hiddenMultiplier * 2500) /
