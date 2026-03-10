@@ -183,7 +183,10 @@ export abstract class DroidReadingEvaluator {
         velocity: number,
         constantAngleNerfFactor: number,
     ): number {
-        if (!mods.has(ModHidden)) {
+        if (
+            !mods.has(ModHidden) ||
+            mods.get(ModHidden)?.onlyFadeApproachCircles
+        ) {
             return 0;
         }
 
