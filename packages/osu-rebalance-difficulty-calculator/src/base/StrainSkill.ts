@@ -16,12 +16,12 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
      * This is done in order to decrease their impact on the overall difficulty of the map for this skill.
      */
-    protected abstract readonly reducedSectionCount: number;
+    protected readonly reducedSectionCount: number = 10;
 
     /**
      * The baseline multiplier applied to the section with the biggest strain.
      */
-    protected abstract readonly reducedSectionBaseline: number;
+    protected readonly reducedSectionBaseline: number = 0.75;
 
     protected readonly _objectStrains: number[] = [];
 

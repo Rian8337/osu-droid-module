@@ -9,7 +9,7 @@ export abstract class OsuSkill extends StrainSkill {
     /**
      * The weight by which each strain value decays.
      */
-    protected abstract readonly decayWeight: number;
+    protected readonly decayWeight: number = 0.9;
 
     override difficultyValue(): number {
         const strains = this.strainPeaks.slice().sort((a, b) => b - a);

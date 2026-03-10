@@ -15,10 +15,6 @@ import { OsuSpeedAimEvaluator } from "../../evaluators/osu/OsuSpeedAimEvaluator"
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class OsuAim extends OsuSkill {
-    protected override readonly reducedSectionCount = 10;
-    protected override readonly reducedSectionBaseline = 0.75;
-    protected override readonly decayWeight = 0.9;
-
     private currentAimStrain = 0;
     private currentSpeedStrain = 0;
 
