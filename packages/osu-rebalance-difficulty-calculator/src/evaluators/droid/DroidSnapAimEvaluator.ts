@@ -186,7 +186,7 @@ export abstract class DroidSnapAimEvaluator {
                 );
 
                 if (distance < 1) {
-                    wideAngleBonus *= 1 - 0.35 * (1 - distance);
+                    wideAngleBonus *= 1 - 0.55 * (1 - distance);
                 }
             }
         }
