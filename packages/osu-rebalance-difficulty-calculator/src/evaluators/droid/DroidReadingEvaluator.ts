@@ -269,7 +269,7 @@ export abstract class DroidReadingEvaluator {
             const hitObject = current.previous(i);
 
             if (
-                hitObject === null ||
+                !hitObject ||
                 current.startTime - hitObject.startTime >
                     this.readingWindowSize ||
                 // Current object not visible at the time object needs to be clicked
@@ -336,7 +336,7 @@ export abstract class DroidReadingEvaluator {
         while (currentTimeGap < this.minimumAngleRelevancyTime) {
             const loopObj = current.previous(index);
 
-            if (loopObj === null) {
+            if (!loopObj) {
                 break;
             }
 
