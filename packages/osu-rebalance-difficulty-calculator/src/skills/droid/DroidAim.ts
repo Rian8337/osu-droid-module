@@ -64,14 +64,15 @@ export class DroidAim extends DroidSkill {
     ): number {
         const decay = this.strainDecay(current.strainTime);
 
-        const snapDifficulty =
-            Math.pow(
-                DroidSnapAimEvaluator.evaluateDifficultyOf(
-                    current,
-                    this.withSliders,
-                ),
-                0.89,
+        let snapDifficulty =
+            DroidSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
             ) * this.skillMultiplierSnap;
+
+        // Invert rating summation to obtain a more accurate TD adjustment.
+        snapDifficulty =
+            Math.pow(0.086, (0.8 - 1) / 0.62) * Math.pow(snapDifficulty, 0.8);
 
         const agilityDifficulty = !this.mods.has(ModRelax)
             ? DroidAgilityEvaluator.evaluateDifficultyOf(current) *
