@@ -1,9 +1,10 @@
 import { MathUtils, ModMap, ModRelax, Slider } from "@rian8337/osu-base";
-import { DroidAimEvaluator } from "../../evaluators/droid/DroidAimEvaluator";
+import { DroidSnapAimEvaluator } from "../../evaluators/droid/DroidSnapAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { DroidSkill } from "./DroidSkill";
 import { StrainUtils } from "../../utils/StrainUtils";
-import { DroidSpeedAimEvaluator } from "../../evaluators/droid/DroidSpeedAimEvaluator";
+import { DroidAgilityEvaluator } from "../../evaluators/droid/DroidAgilityEvaluator";
+import { DroidFlowAimEvaluator } from "../../evaluators/droid/DroidFlowAimEvaluator";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -12,10 +13,10 @@ export class DroidAim extends DroidSkill {
     protected override readonly starsPerDouble = 1.05;
 
     private currentAimStrain = 0;
-    private currentSpeedStrain = 0;
 
-    private readonly skillMultiplierAim = 65.2;
-    private readonly skillMultiplierSpeed = 2.8;
+    private readonly skillMultiplierSnap = 65.2;
+    private readonly skillMultiplierAgility = 2.7;
+    private readonly skillMultiplierFlow = 262;
     private readonly skillMultiplierTotal = 1;
     private readonly meanExponent = 1.2;
 
@@ -61,67 +62,63 @@ export class DroidAim extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
-        const decayAim = this.strainDecayAim(current.strainTime);
-        const decaySpeed = this.strainDecaySpeed(current.strainTime);
+        const decay = this.strainDecay(current.strainTime);
 
-        const aimDifficulty = Math.pow(
-            DroidAimEvaluator.evaluateDifficultyOf(current, this.withSliders),
-            0.76,
-        );
+        const snapDifficulty =
+            Math.pow(
+                DroidSnapAimEvaluator.evaluateDifficultyOf(
+                    current,
+                    this.withSliders,
+                ),
+                0.89,
+            ) * this.skillMultiplierSnap;
 
-        const speedDifficulty = !this.mods.has(ModRelax)
-            ? Math.pow(
-                  DroidSpeedAimEvaluator.evaluateDifficultyOf(current),
-                  0.95,
-              )
+        const agilityDifficulty = !this.mods.has(ModRelax)
+            ? DroidAgilityEvaluator.evaluateDifficultyOf(current) *
+              this.skillMultiplierAgility
             : 0;
 
-        this.currentAimStrain *= decayAim;
-        this.currentAimStrain +=
-            aimDifficulty * (1 - decayAim) * this.skillMultiplierAim;
+        const flowDifficulty =
+            Math.pow(
+                DroidFlowAimEvaluator.evaluateDifficultyOf(
+                    current,
+                    this.withSliders,
+                ),
+                1.1,
+            ) * this.skillMultiplierFlow;
 
-        this.currentSpeedStrain *= decaySpeed;
-        this.currentSpeedStrain +=
-            speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
+        const totalDifficulty = this.calculateTotalValue(
+            snapDifficulty,
+            agilityDifficulty,
+            flowDifficulty,
+        );
 
-        const totalStrain =
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain,
-                this.currentSpeedStrain,
-            ) * this.skillMultiplierTotal;
+        this.currentAimStrain *= decay;
+        this.currentAimStrain += totalDifficulty * (1 - decay);
 
         if (current.object instanceof Slider) {
-            this.sliderStrains.push(totalStrain);
-            this.maxSliderStrain = Math.max(this.maxSliderStrain, totalStrain);
+            this.sliderStrains.push(this.currentAimStrain);
+            this.maxSliderStrain = Math.max(
+                this.maxSliderStrain,
+                this.currentAimStrain,
+            );
         }
 
-        return totalStrain;
+        return this.currentAimStrain;
     }
 
     protected override calculateInitialStrain(
         time: number,
         current: DroidDifficultyHitObject,
     ): number {
-        const deltaTime = time - (current.previous(0)?.startTime ?? 0);
-
         return (
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain * this.strainDecayAim(deltaTime),
-                this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
-            ) * this.skillMultiplierTotal
+            this.currentAimStrain *
+            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
         );
     }
 
     protected override getObjectStrain(): number {
-        return (
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain,
-                this.currentSpeedStrain,
-            ) * this.skillMultiplierTotal
-        );
+        return this.currentAimStrain;
     }
 
     protected override saveToHitObject(current: DroidDifficultyHitObject) {
@@ -134,11 +131,61 @@ export class DroidAim extends DroidSkill {
         }
     }
 
-    private strainDecayAim(ms: number): number {
-        return Math.pow(0.15, ms / 1000);
+    private calculateTotalValue(
+        snapDifficulty: number,
+        agilityDifficulty: number,
+        flowDifficulty: number,
+    ): number {
+        // We compare flow to combined snap and agility because snap by itself does not have enough difficulty
+        // to be above flow on streams. Agility, on the other hand, is supposed to measure the rate of cursor
+        // velocity changes while snapping. This means snapping every circle on a stream requires an enormous
+        // amount of agility at which point it is easier to flow.
+        const combinedSnapDifficulty = MathUtils.norm(
+            this.meanExponent,
+            snapDifficulty,
+            agilityDifficulty,
+        );
+
+        const pSnap = this.calculateSnapFlowProbability(
+            flowDifficulty / combinedSnapDifficulty,
+        );
+
+        const pFlow = 1 - pSnap;
+
+        const totalDifficulty =
+            combinedSnapDifficulty * pSnap + flowDifficulty * pFlow;
+
+        return totalDifficulty * this.skillMultiplierTotal;
     }
 
-    private strainDecaySpeed(ms: number): number {
-        return Math.pow(0.3, ms / 1000);
+    /**
+     * Converts the ratio of snap to flow into the probability of snapping or flowing.
+     *
+     * Constraints:
+     * - `P(snap) + P(flow) = 1` (the object is always either snapped or flowed)
+     * - `P(snap) = f(snap / flow)` and `P(flow) = f(flow/snap)` (i.e., snap and flow are symmetric and
+     * reversible). This means `f(x) + f(1/x) = 1`
+     * - `0 <= f(x) <= 1` (cannot have negative or greater than 100% probability of snapping or flowing)
+     *
+     * This logistic function is a solution, which fits nicely with the general idea of interpolation and
+     * provides a tuneable constant.
+     *
+     * @param ratio The ratio.
+     * @returns The probability.
+     */
+    private calculateSnapFlowProbability(ratio: number): number {
+        if (ratio === 0) {
+            return 0;
+        }
+
+        if (Number.isNaN(ratio)) {
+            return 1;
+        }
+
+        return MathUtils.logistic(-7.27 * Math.log(ratio));
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(0.15, ms / 1000);
     }
 }

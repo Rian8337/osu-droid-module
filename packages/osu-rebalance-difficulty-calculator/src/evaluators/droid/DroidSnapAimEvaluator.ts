@@ -1,15 +1,14 @@
-import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
-import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { OsuSpeedAimEvaluator } from "./OsuSpeedAimEvaluator";
+import { MathUtils, Slider, Spinner } from "@rian8337/osu-base";
+import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
- * An evaluator for calculating osu!standard Aim skill.
+ * An evaluator for calculating osu!droid snap aim difficulty.
  */
-export abstract class OsuAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.35;
+export abstract class DroidSnapAimEvaluator {
+    private static readonly wideAngleMultiplier = 1.3;
     private static readonly acuteAngleMultiplier = 2.5;
     private static readonly sliderMultiplier = 1.9;
-    private static readonly velocityChangeMultiplier = 1.1;
+    private static readonly velocityChangeMultiplier = 1;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
     // Refer to the desmos link above the wiggle bonus calculation.
@@ -27,24 +26,25 @@ export abstract class OsuAimEvaluator {
      * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
-        current: OsuDifficultyHitObject,
+        current: DroidDifficultyHitObject,
         withSliders: boolean,
     ): number {
-        const last = current.previous(0)!;
-
         if (
             current.object instanceof Spinner ||
+            // Exclude overlapping objects that can be tapped at once.
+            current.isOverlapping(true) ||
             current.index <= 1 ||
-            last.object instanceof Spinner
+            current.previous(0)?.object instanceof Spinner
         ) {
             return 0;
         }
 
+        const last = current.previous(0)!;
         const lastLast = current.previous(1)!;
         const last2 = current.previous(2);
 
-        const radius = OsuDifficultyHitObject.normalizedRadius;
-        const diameter = OsuDifficultyHitObject.normalizedDiameter;
+        const radius = DroidDifficultyHitObject.normalizedRadius;
+        const diameter = DroidDifficultyHitObject.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         const currentDistance = withSliders
@@ -97,14 +97,13 @@ export abstract class OsuAimEvaluator {
             // Rewarding angles, take the smaller velocity as base.
             const angleBonus = Math.min(currentVelocity, prevVelocity);
 
+            // If rhythms are the same.
             if (
-                // If rhythms are the same.
                 Math.max(current.strainTime, last.strainTime) <
                 1.25 * Math.min(current.strainTime, last.strainTime)
             ) {
-                acuteAngleBonus = this.calculateAcuteAngleBonus(currentAngle);
+                acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
 
-                // Penalize angle repetition.
                 acuteAngleBonus *=
                     0.08 +
                     0.92 *
@@ -117,22 +116,22 @@ export abstract class OsuAimEvaluator {
                                 ),
                             ));
 
-                // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter
+                // Apply acute angle bonus for BPM above 300 1/2.
                 acuteAngleBonus *=
                     angleBonus *
                     MathUtils.smootherstep(
                         MathUtils.millisecondsToBPM(current.strainTime, 2),
                         300,
-                        400,
+                        450,
                     ) *
                     MathUtils.smootherstep(
-                        currentDistance,
-                        diameter,
+                        current.lazyJumpDistance,
+                        0,
                         diameter * 2,
                     );
             }
 
-            wideAngleBonus = this.calculateWideAngleBonus(currentAngle);
+            wideAngleBonus = this.calculateWideAngleBonus(current.angle);
 
             // Penalize angle repetition.
             wideAngleBonus *=
@@ -143,16 +142,7 @@ export abstract class OsuAimEvaluator {
                 );
 
             // Apply full wide angle bonus for distance more than singleSpacingThreshold
-            wideAngleBonus *=
-                angleBonus *
-                Math.pow(
-                    MathUtils.smoothstep(
-                        currentDistance,
-                        0,
-                        OsuSpeedAimEvaluator.singleSpacingThreshold,
-                    ),
-                    3,
-                );
+            wideAngleBonus *= angleBonus;
 
             // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
             // https://www.desmos.com/calculator/dp0v0nvowc
@@ -218,8 +208,7 @@ export abstract class OsuAimEvaluator {
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff = Math.min(
-                (diameter * 1.25) /
-                    Math.min(current.strainTime, last.strainTime),
+                125 / Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
 
@@ -250,8 +239,7 @@ export abstract class OsuAimEvaluator {
         // Add in additional slider velocity bonus.
         if (withSliders) {
             strain +=
-                (sliderBonus < 1 ? sliderBonus : Math.pow(sliderBonus, 0.75)) *
-                this.sliderMultiplier;
+                Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
         }
 
         // Apply high circle size bonus
@@ -273,7 +261,7 @@ export abstract class OsuAimEvaluator {
         );
     }
 
-    private static calculateAcuteAngleBonus(angle: number): number {
+    static calculateAcuteAngleBonus(angle: number): number {
         return MathUtils.smoothstep(
             angle,
             MathUtils.degreesToRadians(140),
@@ -283,13 +271,13 @@ export abstract class OsuAimEvaluator {
 
     private static highBpmBonus(ms: number, distance: number): number {
         return (
-            (1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.65)))) *
+            (1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.75)))) *
             // Decrease bonus for distances less than radius. These patterns have little to no aim difficulty,
             // and some of them may have inflated bonus due to incredibly short delta times (e.g., doubles).
             MathUtils.smootherstep(
                 distance,
                 0,
-                OsuDifficultyHitObject.normalizedRadius,
+                DroidDifficultyHitObject.normalizedRadius,
             )
         );
     }

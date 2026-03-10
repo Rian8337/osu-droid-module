@@ -14,7 +14,7 @@ export class OsuSpeed extends HarmonicSkill {
     private currentDifficulty = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 1.07;
+    private readonly skillMultiplier = 1.05;
     private readonly strainDecayBase = 0.3;
 
     private readonly sliderDifficulties: number[] = [];

@@ -118,7 +118,23 @@ export abstract class DifficultyHitObject {
      *
      * Calculated as the angle between the circles (current-2, current-1, current).
      */
-    angle: number | null = null;
+    angleSigned: number | null = null;
+
+    /**
+     * Unsigned angle the player has to take to hit this hitobject.
+     *
+     * Calculated as the angle between the circles (current-2, current-1, current).
+     */
+    get angle(): number | null {
+        return this.angleSigned !== null ? Math.abs(this.angleSigned) : null;
+    }
+
+    /**
+     * Rotation velocity the player has to take to hit this hitobject.
+     *
+     * Calculated as the angle between the circles (current-2, current-1, current).
+     */
+    angularVelocity: number | null = null;
 
     /**
      * The amount of milliseconds elapsed between this hitobject and the last hitobject.
@@ -493,7 +509,20 @@ export abstract class DifficultyHitObject {
                 lastLastCursorPosition,
             );
 
-            this.angle = Math.min(angle, sliderAngle);
+            this.angleSigned =
+                Math.abs(angle) <= Math.abs(sliderAngle) ? angle : sliderAngle;
+
+            if (this.lastLastDifficultyObject.angle !== null) {
+                const angleDifference = Math.abs(
+                    this.angle! - this.lastLastDifficultyObject.angle,
+                );
+
+                const angleDifferenceAdjusted =
+                    Math.sin(angleDifference / 2) * 180;
+
+                this.angularVelocity =
+                    angleDifferenceAdjusted / (this.strainTime * 0.1);
+            }
         }
     }
 
@@ -508,7 +537,7 @@ export abstract class DifficultyHitObject {
         const dot = v1.dot(v2);
         const det = v1.x * v2.y - v1.y * v2.x;
 
-        return Math.abs(Math.atan2(det, dot));
+        return Math.atan2(det, dot);
     }
 
     private calculateSliderAngle(

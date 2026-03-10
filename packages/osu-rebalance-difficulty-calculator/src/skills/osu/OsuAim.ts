@@ -5,21 +5,22 @@ import {
     ModTouchDevice,
     Slider,
 } from "@rian8337/osu-base";
-import { OsuAimEvaluator } from "../../evaluators/osu/OsuAimEvaluator";
+import { OsuAgilityEvaluator } from "../../evaluators/osu/OsuAgilityEvaluator";
+import { OsuFlowAimEvaluator } from "../../evaluators/osu/OsuFlowAimEvaluator";
+import { OsuSnapAimEvaluator } from "../../evaluators/osu/OsuSnapAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { OsuSkill } from "./OsuSkill";
 import { StrainUtils } from "../../utils/StrainUtils";
-import { OsuSpeedAimEvaluator } from "../../evaluators/osu/OsuSpeedAimEvaluator";
+import { OsuSkill } from "./OsuSkill";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class OsuAim extends OsuSkill {
     private currentAimStrain = 0;
-    private currentSpeedStrain = 0;
 
-    private readonly skillMultiplierAim = 65.2;
-    private readonly skillMultiplierSpeed = 2.8;
+    private readonly skillMultiplierSnap = 65.2;
+    private readonly skillMultiplierAgility = 2.7;
+    private readonly skillMultiplierFlow = 262;
     private readonly skillMultiplierTotal = 1;
     private readonly meanExponent = 1.2;
 
@@ -63,86 +64,130 @@ export class OsuAim extends OsuSkill {
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
-        const decayAim = this.strainDecayAim(current.strainTime);
-        const decaySpeed = this.strainDecaySpeed(current.strainTime);
+        const decay = this.strainDecay(current.strainTime);
 
-        let aimDifficulty = OsuAimEvaluator.evaluateDifficultyOf(
-            current,
-            this.withSliders,
-        );
+        let snapDifficulty =
+            OsuSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierSnap;
 
-        let speedDifficulty =
-            OsuSpeedAimEvaluator.evaluateDifficultyOf(current);
+        let agilityDifficulty =
+            OsuAgilityEvaluator.evaluateDifficultyOf(current) *
+            this.skillMultiplierAgility;
+
+        let flowDifficulty =
+            OsuFlowAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierFlow;
 
         if (this.mods.has(ModTouchDevice)) {
-            aimDifficulty = Math.pow(aimDifficulty, 0.76);
-            speedDifficulty = Math.pow(speedDifficulty, 0.95);
+            // We do not adjust agility here since agility represents TD difficulty in a decent enough way.
+            snapDifficulty = Math.pow(snapDifficulty, 0.89);
+            flowDifficulty = Math.pow(flowDifficulty, 1.1);
         }
 
         if (this.mods.has(ModRelax)) {
-            speedDifficulty = 0;
+            agilityDifficulty = 0;
+            flowDifficulty *= 0.1;
         }
 
-        this.currentAimStrain *= decayAim;
-        this.currentAimStrain +=
-            aimDifficulty * (1 - decayAim) * this.skillMultiplierAim;
+        const totalDifficulty = this.calculateTotalValue(
+            snapDifficulty,
+            agilityDifficulty,
+            flowDifficulty,
+        );
 
-        this.currentSpeedStrain *= decaySpeed;
-        this.currentSpeedStrain +=
-            speedDifficulty * (1 - decaySpeed) * this.skillMultiplierSpeed;
+        this.currentAimStrain *= decay;
+        this.currentAimStrain += totalDifficulty * (1 - decay);
 
-        const totalStrain =
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain,
-                this.currentSpeedStrain,
-            ) * this.skillMultiplierTotal;
-
-        this._objectStrains.push(totalStrain);
+        this._objectStrains.push(this.currentAimStrain);
 
         if (current.object instanceof Slider) {
-            this.sliderStrains.push(totalStrain);
-            this.maxSliderStrain = Math.max(this.maxSliderStrain, totalStrain);
+            this.sliderStrains.push(this.currentAimStrain);
+            this.maxSliderStrain = Math.max(
+                this.maxSliderStrain,
+                this.currentAimStrain,
+            );
         }
 
-        return totalStrain;
+        return this.currentAimStrain;
     }
 
     protected override calculateInitialStrain(
         time: number,
         current: OsuDifficultyHitObject,
     ): number {
-        const deltaTime = time - (current.previous(0)?.startTime ?? 0);
-
         return (
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain * this.strainDecayAim(deltaTime),
-                this.currentSpeedStrain * this.strainDecaySpeed(deltaTime),
-            ) * this.skillMultiplierTotal
+            this.currentAimStrain *
+            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
         );
     }
 
     protected override saveToHitObject(current: OsuDifficultyHitObject) {
-        const strain =
-            MathUtils.norm(
-                this.meanExponent,
-                this.currentAimStrain,
-                this.currentSpeedStrain,
-            ) * this.skillMultiplierTotal;
-
         if (this.withSliders) {
-            current.aimStrainWithSliders = strain;
+            current.aimStrainWithSliders = this.currentAimStrain;
         } else {
-            current.aimStrainWithoutSliders = strain;
+            current.aimStrainWithoutSliders = this.currentAimStrain;
         }
     }
 
-    private strainDecayAim(ms: number): number {
-        return Math.pow(0.15, ms / 1000);
+    private calculateTotalValue(
+        snapDifficulty: number,
+        agilityDifficulty: number,
+        flowDifficulty: number,
+    ): number {
+        // We compare flow to combined snap and agility because snap by itself does not have enough difficulty
+        // to be above flow on streams. Agility, on the other hand, is supposed to measure the rate of cursor
+        // velocity changes while snapping. This means snapping every circle on a stream requires an enormous
+        // amount of agility at which point it is easier to flow.
+        const combinedSnapDifficulty = MathUtils.norm(
+            this.meanExponent,
+            snapDifficulty,
+            agilityDifficulty,
+        );
+
+        const pSnap = this.calculateSnapFlowProbability(
+            flowDifficulty / combinedSnapDifficulty,
+        );
+
+        const pFlow = 1 - pSnap;
+
+        const totalDifficulty =
+            combinedSnapDifficulty * pSnap + flowDifficulty * pFlow;
+
+        return totalDifficulty * this.skillMultiplierTotal;
     }
 
-    private strainDecaySpeed(ms: number): number {
-        return Math.pow(0.3, ms / 1000);
+    /**
+     * Converts the ratio of snap to flow into the probability of snapping or flowing.
+     *
+     * Constraints:
+     * - `P(snap) + P(flow) = 1` (the object is always either snapped or flowed)
+     * - `P(snap) = f(snap / flow)` and `P(flow) = f(flow/snap)` (i.e., snap and flow are symmetric and
+     * reversible). This means `f(x) + f(1/x) = 1`
+     * - `0 <= f(x) <= 1` (cannot have negative or greater than 100% probability of snapping or flowing)
+     *
+     * This logistic function is a solution, which fits nicely with the general idea of interpolation and
+     * provides a tuneable constant.
+     *
+     * @param ratio The ratio.
+     * @returns The probability.
+     */
+    private calculateSnapFlowProbability(ratio: number): number {
+        if (ratio === 0) {
+            return 0;
+        }
+
+        if (Number.isNaN(ratio)) {
+            return 1;
+        }
+
+        return MathUtils.logistic(-7.27 * Math.log(ratio));
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(0.15, ms / 1000);
     }
 }
