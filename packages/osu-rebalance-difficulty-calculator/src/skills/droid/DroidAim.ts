@@ -14,10 +14,10 @@ export class DroidAim extends DroidSkill {
 
     private currentAimStrain = 0;
 
-    private readonly skillMultiplierSnap = 65.2;
-    private readonly skillMultiplierAgility = 2.7;
-    private readonly skillMultiplierFlow = 262;
-    private readonly skillMultiplierTotal = 1;
+    private readonly skillMultiplierSnap = 71;
+    private readonly skillMultiplierAgility = 2;
+    private readonly skillMultiplierFlow = 238;
+    private readonly skillMultiplierTotal = 1.1;
     private readonly meanExponent = 1.2;
 
     private readonly sliderStrains: number[] = [];

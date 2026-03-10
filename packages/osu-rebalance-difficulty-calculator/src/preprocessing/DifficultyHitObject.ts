@@ -137,6 +137,12 @@ export abstract class DifficultyHitObject {
     angularVelocity: number | null = null;
 
     /**
+     * Angle of the vector created between current and current-1 normalized to consider
+     * symmetrical vectors in any axis to be the same angle.
+     */
+    normalizedVectorAngle: number | null = null;
+
+    /**
      * The amount of milliseconds elapsed between this hitobject and the last hitobject.
      */
     readonly deltaTime: number;
@@ -507,6 +513,13 @@ export abstract class DifficultyHitObject {
             const sliderAngle = this.calculateSliderAngle(
                 this.lastDifficultyObject!,
                 lastLastCursorPosition,
+            );
+
+            const v = this.object.stackedPosition.subtract(lastCursorPosition);
+
+            this.normalizedVectorAngle = Math.atan2(
+                Math.abs(v.y),
+                Math.abs(v.x),
             );
 
             this.angleSigned =

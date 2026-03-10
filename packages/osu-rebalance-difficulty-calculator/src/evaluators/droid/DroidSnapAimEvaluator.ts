@@ -5,14 +5,18 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid snap aim difficulty.
  */
 export abstract class DroidSnapAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.3;
-    private static readonly acuteAngleMultiplier = 2.5;
-    private static readonly sliderMultiplier = 1.9;
-    private static readonly velocityChangeMultiplier = 1;
+    private static readonly wideAngleMultiplier = 1.05;
+    private static readonly acuteAngleMultiplier = 2.41;
+    private static readonly sliderMultiplier = 1.5;
+    private static readonly velocityChangeMultiplier = 0.9;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
     // Refer to the desmos link above the wiggle bonus calculation.
     private static readonly wiggleMultiplier = 1.02;
+
+    private static readonly angleRepetitionNoteLimit = 6;
+    private static readonly maximumRepetitionNerf = 0.15;
+    private static readonly maximumVectorInfluence = 0.5;
 
     /**
      * Evaluates the difficulty of aiming the current object, based on:
@@ -279,6 +283,88 @@ export abstract class DroidSnapAimEvaluator {
                 0,
                 DroidDifficultyHitObject.normalizedRadius,
             )
+        );
+    }
+
+    private static calculateVectorAngleRepetition(
+        current: DroidDifficultyHitObject,
+        prev: DroidDifficultyHitObject,
+    ): number {
+        if (current.angle === null || prev.angle === null) {
+            return 1;
+        }
+
+        let constantAngleCount = 0;
+
+        for (let i = 0; i < this.angleRepetitionNoteLimit; ++i) {
+            const loopObj = current.previous(i);
+
+            if (!loopObj) {
+                break;
+            }
+
+            // Only consider vectors in the same jump section, as stopping to change rhythm ruins momentum.
+            if (
+                Math.max(current.strainTime, prev.strainTime) >
+                1.1 * Math.min(current.strainTime, prev.strainTime)
+            ) {
+                break;
+            }
+
+            if (
+                loopObj.normalizedVectorAngle !== null &&
+                current.normalizedVectorAngle !== null
+            ) {
+                const angleDifference = Math.abs(
+                    current.normalizedVectorAngle -
+                        loopObj.normalizedVectorAngle,
+                );
+
+                // Refer to this Desmos for tuning.
+                // Constants need to be precise so that values stay within the range of 0 and 1.
+                // https://www.desmos.com/calculator/a8jesv5sv2
+                constantAngleCount += Math.cos(
+                    8 *
+                        Math.min(
+                            MathUtils.degreesToRadians(11.25),
+                            angleDifference,
+                        ),
+                );
+            }
+        }
+
+        const vectorRepetition = Math.pow(
+            Math.min(0.5 / constantAngleCount, 1),
+            2,
+        );
+
+        const stackFactor = MathUtils.smootherstep(
+            current.lazyJumpDistance,
+            0,
+            DroidDifficultyHitObject.normalizedDiameter,
+        );
+
+        const angleDifferenceAdjusted = Math.cos(
+            2 *
+                Math.min(
+                    MathUtils.degreesToRadians(45),
+                    Math.abs(current.angle - prev.angle) * stackFactor,
+                ),
+        );
+
+        const baseNerf =
+            1 -
+            this.maximumRepetitionNerf *
+                this.calculateAcuteAngleBonus(prev.angle) *
+                angleDifferenceAdjusted;
+
+        return Math.pow(
+            baseNerf +
+                (1 - baseNerf) *
+                    vectorRepetition *
+                    this.maximumVectorInfluence *
+                    stackFactor,
+            2,
         );
     }
 }
