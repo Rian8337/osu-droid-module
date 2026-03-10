@@ -185,7 +185,7 @@ export abstract class DroidReadingEvaluator {
     ): number {
         if (
             !mods.has(ModHidden) ||
-            mods.get(ModHidden)?.onlyFadeApproachCircles
+            mods.get(ModHidden)?.onlyFadeApproachCircles.value
         ) {
             return 0;
         }

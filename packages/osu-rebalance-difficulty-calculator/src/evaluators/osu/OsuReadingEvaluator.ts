@@ -181,7 +181,7 @@ export abstract class OsuReadingEvaluator {
     ): number {
         if (
             !mods.has(ModHidden) ||
-            mods.get(ModHidden)?.onlyFadeApproachCircles
+            mods.get(ModHidden)?.onlyFadeApproachCircles.value
         ) {
             return 0;
         }
