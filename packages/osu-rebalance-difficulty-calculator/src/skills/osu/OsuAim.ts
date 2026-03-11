@@ -9,7 +9,6 @@ import { OsuAgilityEvaluator } from "../../evaluators/osu/OsuAgilityEvaluator";
 import { OsuFlowAimEvaluator } from "../../evaluators/osu/OsuFlowAimEvaluator";
 import { OsuSnapAimEvaluator } from "../../evaluators/osu/OsuSnapAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { StrainUtils } from "../../utils/StrainUtils";
 import { OsuSkill } from "./OsuSkill";
 
 /**
@@ -57,9 +56,27 @@ export class OsuAim extends OsuSkill {
      * @param difficultyValue The final difficulty value.
      */
     countTopWeightedSliders(difficultyValue: number): number {
-        return StrainUtils.countTopWeightedSliders(
-            this.sliderStrains,
-            difficultyValue,
+        if (this.sliderStrains.length === 0) {
+            return 0;
+        }
+
+        const consistentTopStrain = difficultyValue * (1 - this.decayWeight);
+
+        if (consistentTopStrain === 0) {
+            return 0;
+        }
+
+        // Use a weighted sum of all strains. Constants are arbitrary and give nice values
+        return this.sliderStrains.reduce(
+            (total, next) =>
+                total +
+                MathUtils.offsetLogistic(
+                    next / consistentTopStrain,
+                    0.88,
+                    10,
+                    1.1,
+                ),
+            0,
         );
     }
 
