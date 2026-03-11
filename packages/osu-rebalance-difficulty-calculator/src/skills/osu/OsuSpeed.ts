@@ -9,12 +9,12 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export class OsuSpeed extends HarmonicSkill {
     protected override readonly harmonicScale = 20;
-    protected override readonly decayExponent = 0.85;
+    protected override readonly decayExponent = 0.9;
 
     private currentDifficulty = 0;
     private currentRhythm = 0;
 
-    private readonly skillMultiplier = 1.05;
+    private readonly skillMultiplier = 1.15;
     private readonly strainDecayBase = 0.3;
 
     private readonly sliderDifficulties: number[] = [];

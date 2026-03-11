@@ -8,9 +8,8 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  */
 export class DroidTap extends HarmonicSkill {
     protected override readonly harmonicScale = 20;
-    protected override readonly decayExponent = 0.85;
 
-    private readonly skillMultiplier = 1.05;
+    private readonly skillMultiplier = 1.15;
     private readonly strainDecayBase = 0.3;
 
     private currentTapDifficulty = 0;

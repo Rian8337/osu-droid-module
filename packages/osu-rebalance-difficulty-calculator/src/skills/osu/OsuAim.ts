@@ -20,7 +20,7 @@ export class OsuAim extends OsuSkill {
 
     private readonly skillMultiplierSnap = 71;
     private readonly skillMultiplierAgility = 2;
-    private readonly skillMultiplierFlow = 238;
+    private readonly skillMultiplierFlow = 244;
     private readonly skillMultiplierTotal = 1.1;
     private readonly meanExponent = 1.2;
 
