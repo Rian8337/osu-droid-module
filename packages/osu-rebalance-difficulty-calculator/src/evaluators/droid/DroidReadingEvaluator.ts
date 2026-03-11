@@ -17,7 +17,7 @@ export abstract class DroidReadingEvaluator {
     private static readonly hiddenMultiplier = 0.28;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
-    private static readonly preemptBalancingFactor = 140000;
+    private static readonly preemptBalancingFactor = 150000;
     private static readonly preemptStartingPoint = 500; // AR 9.66 in milliseconds
     private static readonly minimumAngleRelevancyTime = 2000; // 2 seconds
     private static readonly maximumAngleRelevancyTime = 200;
