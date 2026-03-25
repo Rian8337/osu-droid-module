@@ -130,13 +130,6 @@ export abstract class DifficultyHitObject {
     }
 
     /**
-     * Rotation velocity the player has to take to hit this hitobject.
-     *
-     * Calculated as the angle between the circles (current-2, current-1, current).
-     */
-    angularVelocity: number | null = null;
-
-    /**
      * Angle of the vector created between current and current-1 normalized to consider
      * symmetrical vectors in any axis to be the same angle.
      */
@@ -524,18 +517,6 @@ export abstract class DifficultyHitObject {
 
             this.angleSigned =
                 Math.abs(angle) <= Math.abs(sliderAngle) ? angle : sliderAngle;
-
-            if (this.lastLastDifficultyObject.angle !== null) {
-                const angleDifference = Math.abs(
-                    this.angle! - this.lastLastDifficultyObject.angle,
-                );
-
-                const angleDifferenceAdjusted =
-                    Math.sin(angleDifference / 2) * 180;
-
-                this.angularVelocity =
-                    angleDifferenceAdjusted / (this.strainTime * 0.1);
-            }
         }
     }
 

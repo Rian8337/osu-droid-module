@@ -44,7 +44,6 @@ export abstract class DroidSnapAimEvaluator {
         }
 
         const last = current.previous(0)!;
-        const lastLast = current.previous(1)!;
         const last2 = current.previous(2);
 
         const radius = DroidDifficultyHitObject.normalizedRadius;
@@ -68,23 +67,11 @@ export abstract class DroidSnapAimEvaluator {
             );
         }
 
-        // As above, do the same for the previous hitobject.
         const prevDistance = withSliders
             ? last.lazyJumpDistance
             : last.jumpDistance;
 
-        let prevVelocity = prevDistance / last.strainTime;
-
-        if (lastLast.object instanceof Slider && withSliders) {
-            const sliderDistance =
-                lastLast.lazyTravelDistance + last.lazyJumpDistance;
-
-            prevVelocity = Math.max(
-                prevVelocity,
-                sliderDistance / last.strainTime,
-            );
-        }
-
+        const prevVelocity = prevDistance / last.strainTime;
         let wideAngleBonus = 0;
         let acuteAngleBonus = 0;
         let sliderBonus = 0;
@@ -194,9 +181,6 @@ export abstract class DroidSnapAimEvaluator {
         if (Math.max(prevVelocity, currentVelocity)) {
             if (withSliders) {
                 // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
-                prevVelocity =
-                    (last.lazyJumpDistance + lastLast.travelDistance) /
-                    last.strainTime;
                 currentVelocity =
                     (current.lazyJumpDistance + last.travelDistance) /
                     current.strainTime;

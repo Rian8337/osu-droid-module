@@ -44,11 +44,12 @@ export abstract class OsuFlowAimEvaluator {
             );
         }
 
-        let prevVelocity = prevDistance / last.strainTime;
+        const prevVelocity = prevDistance / last.strainTime;
         let flowDifficulty = currentVelocity;
 
         // Apply high circle size bonus to the base velocity.
-        flowDifficulty *= current.smallCircleBonus;
+        // We use reduced CS bonus here because the bonus was made for an evaluator with a different d/t scaling.
+        flowDifficulty *= Math.pow(current.smallCircleBonus, 0.75);
 
         // Rhythm changes are harder to flow.
         flowDifficulty *=
@@ -63,9 +64,15 @@ export abstract class OsuFlowAimEvaluator {
                 ),
             );
 
-        if (current.angularVelocity !== null) {
+        if (current.angle !== null && last.angle !== null) {
             // Low angular velocity (consistent angles) is easier to follow than erratic flow.
-            flowDifficulty *= 0.8 + Math.sqrt(current.angularVelocity / 270);
+            const angleDifference = Math.abs(current.angle - last.angle);
+            const angleDifferenceAdjusted = Math.sin(angleDifference / 2) * 180;
+
+            const angularVelocity =
+                angleDifferenceAdjusted / (current.strainTime * 0.1);
+
+            flowDifficulty *= 0.8 + Math.sqrt(angularVelocity / 270);
         }
 
         // If all three notes overlap, do not reward bonuses as there is no required additional movement.
@@ -91,7 +98,6 @@ export abstract class OsuFlowAimEvaluator {
         if (Math.max(prevVelocity, currentVelocity)) {
             if (withSliders) {
                 currentVelocity = currentDistance / current.strainTime;
-                prevVelocity = prevDistance / last.strainTime;
             }
 
             // Scale with ratio of difference compared to 0.5 * max distance.
@@ -112,10 +118,11 @@ export abstract class OsuFlowAimEvaluator {
             flowDifficulty +=
                 overlapVelocityBuff *
                 distanceRatio *
+                overlappedNotesWeight *
                 this.velocityChangeMultiplier;
         }
 
-        if (current.object instanceof Slider) {
+        if (current.object instanceof Slider && withSliders) {
             // Include slider velocity to make velocity more consistent with snap.
             flowDifficulty += current.travelDistance / current.travelTime;
         }

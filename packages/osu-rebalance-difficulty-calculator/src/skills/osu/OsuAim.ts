@@ -18,8 +18,8 @@ export class OsuAim extends OsuSkill {
     private currentAimStrain = 0;
 
     private readonly skillMultiplierSnap = 71;
-    private readonly skillMultiplierAgility = 2;
-    private readonly skillMultiplierFlow = 244;
+    private readonly skillMultiplierAgility = 2.5;
+    private readonly skillMultiplierFlow = 245;
     private readonly skillMultiplierTotal = 1.1;
     private readonly meanExponent = 1.2;
 
@@ -106,8 +106,7 @@ export class OsuAim extends OsuSkill {
         }
 
         if (this.mods.has(ModRelax)) {
-            agilityDifficulty = 0;
-            flowDifficulty *= 0.1;
+            agilityDifficulty *= 0.3;
         }
 
         const totalDifficulty = this.calculateTotalValue(

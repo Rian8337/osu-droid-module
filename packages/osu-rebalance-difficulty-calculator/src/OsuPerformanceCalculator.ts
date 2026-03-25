@@ -446,11 +446,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 1;
         }
 
-        return (
-            0.96 /
-            (missCount / (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
-                1)
-        );
+        // https://www.desmos.com/calculator/naggvbcz0a
+        return 0.93 / (missCount / (4 * Math.log(difficultStrainCount)) + 1);
     }
 
     /**

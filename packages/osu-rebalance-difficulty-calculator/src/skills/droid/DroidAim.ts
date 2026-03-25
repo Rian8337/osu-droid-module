@@ -14,8 +14,8 @@ export class DroidAim extends DroidSkill {
     private currentAimStrain = 0;
 
     private readonly skillMultiplierSnap = 71;
-    private readonly skillMultiplierAgility = 2;
-    private readonly skillMultiplierFlow = 244;
+    private readonly skillMultiplierAgility = 2.5;
+    private readonly skillMultiplierFlow = 245;
     private readonly skillMultiplierTotal = 1.1;
     private readonly meanExponent = 1.2;
 
@@ -92,10 +92,9 @@ export class DroidAim extends DroidSkill {
             Math.pow(0.102 * Math.pow(10, 0.62), (0.8 - 1) / 0.62) *
             Math.pow(snapDifficulty, 0.8);
 
-        const agilityDifficulty = !this.mods.has(ModRelax)
-            ? DroidAgilityEvaluator.evaluateDifficultyOf(current) *
-              this.skillMultiplierAgility
-            : 0;
+        let agilityDifficulty =
+            DroidAgilityEvaluator.evaluateDifficultyOf(current) *
+            this.skillMultiplierAgility;
 
         const flowDifficulty =
             Math.pow(
@@ -105,6 +104,10 @@ export class DroidAim extends DroidSkill {
                 ),
                 1.1,
             ) * this.skillMultiplierFlow;
+
+        if (this.mods.has(ModRelax)) {
+            agilityDifficulty *= 0.3;
+        }
 
         const totalDifficulty = this.calculateTotalValue(
             snapDifficulty,

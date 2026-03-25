@@ -28,6 +28,7 @@ export abstract class DroidAgilityEvaluator {
 
         let strain = (distanceScaled * 1000) / current.strainTime;
 
+        strain *= current.smallCircleBonus;
         strain *= this.highBpmBonus(current.strainTime);
 
         return (
@@ -41,6 +42,6 @@ export abstract class DroidAgilityEvaluator {
     }
 
     private static highBpmBonus(ms: number): number {
-        return 1 / (1 - Math.pow(0.3, Math.pow(ms / 1000, 0.9)));
+        return 1 / (1 - Math.pow(0.15, ms / 1000));
     }
 }
