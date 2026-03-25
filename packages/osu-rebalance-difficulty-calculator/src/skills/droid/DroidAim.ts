@@ -89,7 +89,7 @@ export class DroidAim extends DroidSkill {
 
         // Invert rating summation to obtain a more accurate TD adjustment.
         snapDifficulty =
-            Math.pow(0.102 * Math.pow(10, 0.62), (0.8 - 1) / 0.62) *
+            Math.pow(0.0975 * Math.pow(10, 0.63), (0.8 - 1) / 0.63) *
             Math.pow(snapDifficulty, 0.8);
 
         let agilityDifficulty =
