@@ -215,6 +215,8 @@ export abstract class DroidSnapAimEvaluator {
             sliderBonus = current.travelDistance / current.travelTime;
         }
 
+        strain *= this.calculateVectorAngleRepetition(current, last);
+
         strain += wiggleBonus * this.wiggleMultiplier;
         strain += velocityChangeBonus * this.velocityChangeMultiplier;
 
