@@ -208,6 +208,6 @@ export class DroidAim extends DroidSkill {
     }
 
     private strainDecay(ms: number): number {
-        return Math.pow(0.15, ms / 1000);
+        return Math.pow(0.2, ms / 1000);
     }
 }
