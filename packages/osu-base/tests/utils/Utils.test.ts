@@ -31,6 +31,18 @@ test("Test array initializer", () => {
     expect(arr.every((m) => m === 5)).toBe(true);
 });
 
+test.each([
+    [(x: number) => x - 5, true, 2],
+    [(x: number) => x - 6, false, 3],
+    [(x: number) => x - 0, false, 0],
+    [(x: number) => x - 10, false, 5],
+])("Test binary search: %s", (predicate, found, index) => {
+    expect(Utils.binarySearch([1, 3, 5, 7, 9], predicate)).toEqual({
+        found,
+        index,
+    });
+});
+
 test("Test sleeping function", async () => {
     jest.useFakeTimers();
 
