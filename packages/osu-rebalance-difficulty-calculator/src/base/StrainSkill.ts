@@ -51,34 +51,6 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
         return Math.pow(5 * Math.max(1, difficulty / 0.0675) - 4, 3) / 100000;
     }
 
-    override process(current: DifficultyHitObject): void {
-        // The first object doesn't generate a strain, so we begin with an incremented section end
-        if (current.index === 0) {
-            this.currentSectionEnd = this.calculateCurrentSectionStart(current);
-        }
-
-        while (current.startTime > this.currentSectionEnd) {
-            this.saveCurrentPeak();
-            this.startNewSectionFrom(this.currentSectionEnd, current);
-            this.currentSectionEnd += this.sectionLength;
-        }
-
-        // Ignore the first hitobject.
-        this.currentStrain = this.strainValueAt(current);
-
-        this.saveToHitObject(current);
-
-        this.currentSectionPeak = Math.max(
-            this.currentStrain,
-            this.currentSectionPeak,
-        );
-
-        if (!current.next(0)) {
-            // Don't forget to save the last strain peak, which would otherwise be ignored.
-            this.saveCurrentPeak();
-        }
-    }
-
     /**
      * Saves the current peak strain level to the list of strain peaks, which will be used to calculate an overall difficulty.
      */
@@ -112,6 +84,36 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
                 1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
             0,
         );
+    }
+
+    protected override processInternal(current: DifficultyHitObject): number {
+        // The first object doesn't generate a strain, so we begin with an incremented section end
+        if (current.index === 0) {
+            this.currentSectionEnd = this.calculateCurrentSectionStart(current);
+        }
+
+        while (current.startTime > this.currentSectionEnd) {
+            this.saveCurrentPeak();
+            this.startNewSectionFrom(this.currentSectionEnd, current);
+            this.currentSectionEnd += this.sectionLength;
+        }
+
+        // Ignore the first hitobject.
+        this.currentStrain = this.strainValueAt(current);
+
+        this.saveToHitObject(current);
+
+        this.currentSectionPeak = Math.max(
+            this.currentStrain,
+            this.currentSectionPeak,
+        );
+
+        if (!current.next(0)) {
+            // Don't forget to save the last strain peak, which would otherwise be ignored.
+            this.saveCurrentPeak();
+        }
+
+        return this.currentStrain;
     }
 
     /**
