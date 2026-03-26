@@ -10,6 +10,15 @@ export abstract class Skill {
      */
     protected readonly mods: ModMap;
 
+    private _objectDifficulties: number[] = [];
+
+    /**
+     * The difficulties of {@link DifficultyHitObject}s, populated by {@link Skill.process}.
+     */
+    protected get objectDifficulties(): readonly number[] {
+        return this._objectDifficulties;
+    }
+
     constructor(mods: ModMap) {
         this.mods = mods;
     }
@@ -20,10 +29,21 @@ export abstract class Skill {
      *
      * @param current The hitobject to process.
      */
-    abstract process(current: DifficultyHitObject): void;
+    process(current: DifficultyHitObject): void {
+        const difficultyValue = this.processInternal(current);
+
+        this._objectDifficulties.push(difficultyValue);
+    }
 
     /**
      * Returns the calculated difficulty value representing all hitobjects that have been processed up to this point.
      */
     abstract difficultyValue(): number;
+
+    /**
+     * Calculates the difficulty value of a hitobject and stores the value in it.
+     *
+     * @param current The hitobject to process.
+     */
+    protected abstract processInternal(current: DifficultyHitObject): number;
 }

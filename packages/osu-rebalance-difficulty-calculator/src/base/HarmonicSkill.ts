@@ -1,10 +1,15 @@
 import { MathUtils } from "@rian8337/osu-base";
-import { ObjectDifficultySkill } from "./ObjectDifficultySkill";
+import { Skill } from "./Skill";
+import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 
 /**
  * A skill that calculates the difficulty of {@link DifficultyHitObject}s using harmonic summation.
  */
-export abstract class HarmonicSkill extends ObjectDifficultySkill {
+export abstract class HarmonicSkill
+    extends Skill
+    implements IHasPeakDifficulty
+{
     private _noteWeightSum = 0;
 
     /**
@@ -30,6 +35,10 @@ export abstract class HarmonicSkill extends ObjectDifficultySkill {
      * Values closer to 1 decay faster, whilst lower values give more weight to easier {@link DifficultyHitObject}s.
      */
     protected readonly decayExponent: number = 0.9;
+
+    get peaks(): readonly number[] {
+        return this.objectDifficulties;
+    }
 
     static difficultyToPerformance(difficulty: number): number {
         return 4 * Math.pow(difficulty, 3);
@@ -115,4 +124,30 @@ export abstract class HarmonicSkill extends ObjectDifficultySkill {
     protected applyDifficultyTransformation(difficulties: number[]) {
         // Do nothing by default.
     }
+
+    protected override processInternal(current: DifficultyHitObject): number {
+        const difficultyValue = this.objectDifficultyOf(current);
+
+        this.saveToHitObject(current, difficultyValue);
+
+        return difficultyValue;
+    }
+
+    /**
+     * Calculates the difficulty value of a {@link DifficultyHitObject}. This value is calculated with or without respect to previous objects.
+     *
+     * @param current The {@link DifficultyHitObject} for which the difficulty value should be calculated.
+     */
+    protected abstract objectDifficultyOf(current: DifficultyHitObject): number;
+
+    /**
+     * Saves the calculated difficulty to a {@link DifficultyHitObject}.
+     *
+     * @param current The {@link DifficultyHitObject} to save the difficulty to.
+     * @param difficulty The difficulty to save.
+     */
+    protected abstract saveToHitObject(
+        current: DifficultyHitObject,
+        difficulty: number,
+    ): void;
 }
