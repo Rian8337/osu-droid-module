@@ -30,6 +30,10 @@ export abstract class Skill {
      * @param current The hitobject to process.
      */
     process(current: DifficultyHitObject): void {
+        if (current.index < 0) {
+            return;
+        }
+
         const difficultyValue = this.processInternal(current);
 
         this.saveToHitObject(current, difficultyValue);
