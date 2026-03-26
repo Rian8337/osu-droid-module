@@ -334,6 +334,10 @@ export abstract class DroidReadingEvaluator {
         let index = 0;
         let currentTimeGap = 0;
 
+        let loopObjPrev0 = current;
+        let loopObjPrev1: DroidDifficultyHitObject | null = null;
+        let loopObjPrev2: DroidDifficultyHitObject | null = null;
+
         while (currentTimeGap < this.minimumAngleRelevancyTime) {
             const loopObj = current.previous(index);
 
@@ -352,6 +356,49 @@ export abstract class DroidReadingEvaluator {
 
             if (loopObj.angle !== null && current.angle !== null) {
                 const angleDifference = Math.abs(current.angle - loopObj.angle);
+                let angleDifferenceAlternating = Math.PI;
+
+                if (
+                    loopObjPrev0.angle !== null &&
+                    typeof loopObjPrev1?.angle === "number" &&
+                    typeof loopObjPrev2?.angle === "number"
+                ) {
+                    angleDifferenceAlternating = Math.abs(
+                        loopObjPrev1.angle - loopObj.angle,
+                    );
+
+                    angleDifferenceAlternating += Math.abs(
+                        loopObjPrev2.angle - loopObjPrev0.angle,
+                    );
+
+                    let weight = 1;
+
+                    // Be sure that one of the angles is very sharp, when other is wide.
+                    weight *= Interpolation.reverseLerp(
+                        MathUtils.radiansToDegrees(
+                            Math.min(loopObj.angle, loopObjPrev0.angle),
+                        ),
+                        20,
+                        5,
+                    );
+
+                    weight *= Interpolation.reverseLerp(
+                        MathUtils.radiansToDegrees(
+                            Math.max(loopObj.angle, loopObjPrev0.angle),
+                        ),
+                        60,
+                        120,
+                    );
+
+                    // Interpolate between max angle difference and rescaled alternating difference, with
+                    // harsher scaling compared to normal difference.
+                    angleDifferenceAlternating = Interpolation.lerp(
+                        Math.PI,
+                        0.1 * angleDifferenceAlternating,
+                        weight,
+                    );
+                }
+
                 const stackFactor = MathUtils.smootherstep(
                     loopObj.lazyJumpDistance,
                     0,
@@ -363,13 +410,20 @@ export abstract class DroidReadingEvaluator {
                         3 *
                             Math.min(
                                 MathUtils.degreesToRadians(30),
-                                angleDifference * stackFactor,
+                                Math.min(
+                                    angleDifference,
+                                    angleDifferenceAlternating,
+                                ) * stackFactor,
                             ),
                     ) * longIntervalFactor;
             }
 
             currentTimeGap = current.startTime - loopObj.startTime;
             index++;
+
+            loopObjPrev2 = loopObjPrev1;
+            loopObjPrev1 = loopObjPrev0;
+            loopObjPrev0 = loopObj;
         }
 
         return MathUtils.clamp(2 / constantAngleCount, 0.2, 1);
