@@ -126,11 +126,7 @@ export abstract class HarmonicSkill
     }
 
     protected override processInternal(current: DifficultyHitObject): number {
-        const difficultyValue = this.objectDifficultyOf(current);
-
-        this.saveToHitObject(current, difficultyValue);
-
-        return difficultyValue;
+        return this.objectDifficultyOf(current);
     }
 
     /**
@@ -139,15 +135,4 @@ export abstract class HarmonicSkill
      * @param current The {@link DifficultyHitObject} for which the difficulty value should be calculated.
      */
     protected abstract objectDifficultyOf(current: DifficultyHitObject): number;
-
-    /**
-     * Saves the calculated difficulty to a {@link DifficultyHitObject}.
-     *
-     * @param current The {@link DifficultyHitObject} to save the difficulty to.
-     * @param difficulty The difficulty to save.
-     */
-    protected abstract saveToHitObject(
-        current: DifficultyHitObject,
-        difficulty: number,
-    ): void;
 }

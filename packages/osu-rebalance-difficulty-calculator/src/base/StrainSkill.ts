@@ -101,7 +101,7 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
         // Ignore the first hitobject.
         this.currentStrain = this.strainValueAt(current);
 
-        this.saveToHitObject(current);
+        this.saveToHitObject(current, this.currentStrain);
 
         this.currentSectionPeak = Math.max(
             this.currentStrain,
@@ -137,11 +137,6 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
      * @param current The hitobject to calculate.
      */
     protected abstract strainValueAt(current: DifficultyHitObject): number;
-
-    /**
-     * Saves the current strain to a hitobject.
-     */
-    protected abstract saveToHitObject(current: DifficultyHitObject): void;
 
     /**
      * Retrieves the peak strain at a point in time.
