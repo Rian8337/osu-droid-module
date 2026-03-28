@@ -56,7 +56,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         return this._effectiveMissCount;
     }
 
-    static readonly finalMultiplier = 1.14;
+    static readonly finalMultiplier = 1.12;
     static readonly normExponent = 1.1;
 
     private greatWindow = 0;
