@@ -19,7 +19,7 @@ export class DroidRatingCalculator {
             return 0;
         }
 
-        let aimRating = Math.pow(aimDifficultyValue, 0.63) * 0.0975;
+        let aimRating = Math.pow(aimDifficultyValue, 0.63) * 0.02275;
 
         if (this.mods.has(ModRelax)) {
             aimRating *= 0.9;
