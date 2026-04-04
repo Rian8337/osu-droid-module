@@ -23,7 +23,7 @@ export class OsuAim extends VariableLengthStrainSkill {
     private readonly skillMultiplierAgility = 2.35;
     private readonly skillMultiplierFlow = 245;
     private readonly skillMultiplierTotal = 1.12;
-    private readonly meanExponent = 1.2;
+    private readonly combinedSnapMeanExponent = 1.2;
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
@@ -96,31 +96,21 @@ export class OsuAim extends VariableLengthStrainSkill {
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
         const decay = this.strainDecay(current.strainTime);
 
-        let snapDifficulty =
+        const snapDifficulty =
             OsuSnapAimEvaluator.evaluateDifficultyOf(
                 current,
                 this.withSliders,
             ) * this.skillMultiplierSnap;
 
-        let agilityDifficulty =
+        const agilityDifficulty =
             OsuAgilityEvaluator.evaluateDifficultyOf(current) *
             this.skillMultiplierAgility;
 
-        let flowDifficulty =
+        const flowDifficulty =
             OsuFlowAimEvaluator.evaluateDifficultyOf(
                 current,
                 this.withSliders,
             ) * this.skillMultiplierFlow;
-
-        if (this.mods.has(ModTouchDevice)) {
-            // We do not adjust agility here since agility represents TD difficulty in a decent enough way.
-            snapDifficulty = Math.pow(snapDifficulty, 0.89);
-            flowDifficulty = Math.pow(flowDifficulty, 1.1);
-        }
-
-        if (this.mods.has(ModRelax)) {
-            agilityDifficulty *= 0.3;
-        }
 
         const totalDifficulty = this.calculateTotalValue(
             snapDifficulty,
@@ -169,8 +159,8 @@ export class OsuAim extends VariableLengthStrainSkill {
         // to be above flow on streams. Agility, on the other hand, is supposed to measure the rate of cursor
         // velocity changes while snapping. This means snapping every circle on a stream requires an enormous
         // amount of agility at which point it is easier to flow.
-        const combinedSnapDifficulty = MathUtils.norm(
-            this.meanExponent,
+        let combinedSnapDifficulty = MathUtils.norm(
+            this.combinedSnapMeanExponent,
             snapDifficulty,
             agilityDifficulty,
         );
@@ -178,6 +168,22 @@ export class OsuAim extends VariableLengthStrainSkill {
         const pSnap = this.calculateSnapFlowProbability(
             flowDifficulty / combinedSnapDifficulty,
         );
+
+        if (this.mods.has(ModTouchDevice)) {
+            // We do not adjust agility here since agility represents TD difficulty in a decent enough way.
+            snapDifficulty = Math.pow(snapDifficulty, 0.89);
+
+            combinedSnapDifficulty = MathUtils.norm(
+                this.combinedSnapMeanExponent,
+                snapDifficulty,
+                agilityDifficulty,
+            );
+        }
+
+        if (this.mods.has(ModRelax)) {
+            combinedSnapDifficulty *= 0.75;
+            flowDifficulty *= 0.6;
+        }
 
         const pFlow = 1 - pSnap;
 

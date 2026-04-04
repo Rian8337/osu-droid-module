@@ -26,10 +26,6 @@ export class OsuRatingCalculator {
 
         let aimRating = Math.pow(aimDifficultyValue, 0.63) * 0.02275;
 
-        if (this.mods.has(ModRelax)) {
-            aimRating *= 0.9;
-        }
-
         if (this.mods.has(ModMagnetised)) {
             const magnetisedStrength =
                 this.mods.get(ModMagnetised)!.attractionStrength.value;

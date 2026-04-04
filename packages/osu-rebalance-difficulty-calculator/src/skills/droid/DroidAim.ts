@@ -97,33 +97,21 @@ export class DroidAim extends VariableLengthStrainSkill {
     ): number {
         const decay = this.strainDecay(current.strainTime);
 
-        let snapDifficulty =
+        const snapDifficulty =
             DroidSnapAimEvaluator.evaluateDifficultyOf(
                 current,
                 this.withSliders,
             ) * this.skillMultiplierSnap;
 
-        // Invert rating summation to obtain a more accurate TD adjustment.
-        snapDifficulty =
-            Math.pow(0.02275 * Math.pow(10, 0.63), (0.8 - 1) / 0.63) *
-            Math.pow(snapDifficulty, 0.8);
-
-        let agilityDifficulty =
+        const agilityDifficulty =
             DroidAgilityEvaluator.evaluateDifficultyOf(current) *
             this.skillMultiplierAgility;
 
         const flowDifficulty =
-            Math.pow(
-                DroidFlowAimEvaluator.evaluateDifficultyOf(
-                    current,
-                    this.withSliders,
-                ),
-                1.1,
+            DroidFlowAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
             ) * this.skillMultiplierFlow;
-
-        if (this.mods.has(ModRelax)) {
-            agilityDifficulty *= 0.3;
-        }
 
         const totalDifficulty = this.calculateTotalValue(
             snapDifficulty,
@@ -175,7 +163,8 @@ export class DroidAim extends VariableLengthStrainSkill {
         // to be above flow on streams. Agility, on the other hand, is supposed to measure the rate of cursor
         // velocity changes while snapping. This means snapping every circle on a stream requires an enormous
         // amount of agility at which point it is easier to flow.
-        const combinedSnapDifficulty = MathUtils.norm(
+
+        let combinedSnapDifficulty = MathUtils.norm(
             this.meanExponent,
             snapDifficulty,
             agilityDifficulty,
@@ -186,6 +175,22 @@ export class DroidAim extends VariableLengthStrainSkill {
         );
 
         const pFlow = 1 - pSnap;
+
+        // Invert rating summation to obtain a more accurate TD adjustment.
+        snapDifficulty =
+            Math.pow(0.02275 * Math.pow(10, 0.63), (0.8 - 1) / 0.63) *
+            Math.pow(snapDifficulty, 0.8);
+
+        combinedSnapDifficulty = MathUtils.norm(
+            this.meanExponent,
+            snapDifficulty,
+            agilityDifficulty,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            combinedSnapDifficulty *= 0.75;
+            flowDifficulty *= 0.6;
+        }
 
         const totalDifficulty =
             combinedSnapDifficulty * pSnap + flowDifficulty * pFlow;
