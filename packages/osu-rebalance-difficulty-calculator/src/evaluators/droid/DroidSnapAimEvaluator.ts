@@ -72,29 +72,31 @@ export abstract class DroidSnapAimEvaluator {
             : last.jumpDistance;
 
         const prevVelocity = prevDistance / last.strainTime;
-        let wideAngleBonus = 0;
-        let acuteAngleBonus = 0;
-        let sliderBonus = 0;
-        let velocityChangeBonus = 0;
-        let wiggleBonus = 0;
 
         // Start strain with regular velocity.
         let strain = currentVelocity;
+
+        strain *= this.calculateVectorAngleRepetition(current, last);
 
         if (current.angle !== null && last.angle !== null) {
             const currentAngle = current.angle;
             const lastAngle = last.angle;
 
             // Rewarding angles, take the smaller velocity as base.
-            const angleBonus = Math.min(currentVelocity, prevVelocity);
+            const velocityInfluence = Math.min(currentVelocity, prevVelocity);
+
+            let acuteAngleBonus = 0;
 
             // If rhythms are the same.
             if (
                 Math.max(current.strainTime, last.strainTime) <
                 1.25 * Math.min(current.strainTime, last.strainTime)
             ) {
-                acuteAngleBonus = this.calculateAcuteAngleBonus(current.angle);
+                acuteAngleBonus = this.calculateAcuteAngleAcuteness(
+                    current.angle,
+                );
 
+                // Penalize angle repetition. It is important to do it _before_ multiplying by anything because we compare raw acuteness here.
                 acuteAngleBonus *=
                     0.08 +
                     0.92 *
@@ -102,14 +104,16 @@ export abstract class DroidSnapAimEvaluator {
                             Math.min(
                                 acuteAngleBonus,
                                 Math.pow(
-                                    this.calculateAcuteAngleBonus(lastAngle),
+                                    this.calculateAcuteAngleAcuteness(
+                                        lastAngle,
+                                    ),
                                     3,
                                 ),
                             ));
 
                 // Apply acute angle bonus for BPM above 300 1/2.
                 acuteAngleBonus *=
-                    angleBonus *
+                    velocityInfluence *
                     MathUtils.smootherstep(
                         MathUtils.millisecondsToBPM(current.strainTime, 2),
                         300,
@@ -122,23 +126,44 @@ export abstract class DroidSnapAimEvaluator {
                     );
             }
 
-            wideAngleBonus = this.calculateWideAngleBonus(current.angle);
+            let wideAngleBonus = this.calculateWideAngleAcuteness(
+                current.angle,
+            );
 
-            // Penalize angle repetition.
+            // Penalize angle repetition. It is important to do it _before_ multiplying by velocity because we compare raw wideness here.
             wideAngleBonus *=
                 1 -
                 Math.min(
                     wideAngleBonus,
-                    Math.pow(this.calculateWideAngleBonus(lastAngle), 3),
+                    Math.pow(this.calculateWideAngleAcuteness(lastAngle), 3),
                 );
 
             // Apply full wide angle bonus for distance more than singleSpacingThreshold
-            wideAngleBonus *= angleBonus;
+            wideAngleBonus *= velocityInfluence;
+
+            if (last2 !== null) {
+                // If objects just go back and forth through a middle point - don't give as much wide bonus.
+                // Use previous(2) and previous(0) because angles calculation is done prevprev-prev-curr, so any
+                // object's angle's center point is always the previous object.
+                const distance = last2.object.stackedPosition.getDistance(
+                    last.object.stackedPosition,
+                );
+
+                if (distance < 1) {
+                    wideAngleBonus *= 1 - 0.55 * (1 - distance);
+                }
+            }
+
+            // Add in acute angle bonus or wide angle bonus, whichever is larger.
+            strain += Math.max(
+                acuteAngleBonus * this.acuteAngleMultiplier,
+                wideAngleBonus * this.wideAngleMultiplier,
+            );
 
             // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
             // https://www.desmos.com/calculator/dp0v0nvowc
-            wiggleBonus =
-                angleBonus *
+            strain +=
+                velocityInfluence *
                 MathUtils.smootherstep(currentDistance, radius, diameter) *
                 Math.pow(
                     MathUtils.reverseLerp(
@@ -162,20 +187,8 @@ export abstract class DroidSnapAimEvaluator {
                     lastAngle,
                     MathUtils.degreesToRadians(110),
                     MathUtils.degreesToRadians(60),
-                );
-
-            if (last2 !== null) {
-                // If objects just go back and forth through a middle point - don't give as much wide bonus.
-                // Use previous(2) and previous(0) because angles calculation is done prevprev-prev-curr, so any
-                // object's angle's center point is always the previous object.
-                const distance = last2.object.stackedPosition.getDistance(
-                    last.object.stackedPosition,
-                );
-
-                if (distance < 1) {
-                    wideAngleBonus *= 1 - 0.55 * (1 - distance);
-                }
-            }
+                ) *
+                this.wiggleMultiplier;
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
@@ -200,7 +213,7 @@ export abstract class DroidSnapAimEvaluator {
                 Math.abs(prevVelocity - currentVelocity),
             );
 
-            velocityChangeBonus = overlapVelocityBuff * distanceRatio;
+            let velocityChangeBonus = overlapVelocityBuff * distanceRatio;
 
             // Penalize for rhythm changes.
             velocityChangeBonus *= Math.pow(
@@ -208,26 +221,14 @@ export abstract class DroidSnapAimEvaluator {
                     Math.max(current.strainTime, last.strainTime),
                 2,
             );
+
+            strain += velocityChangeBonus * this.velocityChangeMultiplier;
         }
 
-        if (current.object instanceof Slider) {
+        if (current.object instanceof Slider && withSliders) {
             // Reward sliders based on velocity.
-            sliderBonus = current.travelDistance / current.travelTime;
-        }
+            const sliderBonus = current.travelDistance / current.travelTime;
 
-        strain *= this.calculateVectorAngleRepetition(current, last);
-
-        strain += wiggleBonus * this.wiggleMultiplier;
-        strain += velocityChangeBonus * this.velocityChangeMultiplier;
-
-        // Add in acute angle bonus or wide angle bonus, whichever is larger.
-        strain += Math.max(
-            acuteAngleBonus * this.acuteAngleMultiplier,
-            wideAngleBonus * this.wideAngleMultiplier,
-        );
-
-        // Add in additional slider velocity bonus.
-        if (withSliders) {
             strain +=
                 Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
         }
@@ -243,7 +244,7 @@ export abstract class DroidSnapAimEvaluator {
         return strain;
     }
 
-    private static calculateWideAngleBonus(angle: number): number {
+    private static calculateWideAngleAcuteness(angle: number): number {
         return MathUtils.smoothstep(
             angle,
             MathUtils.degreesToRadians(40),
@@ -251,7 +252,7 @@ export abstract class DroidSnapAimEvaluator {
         );
     }
 
-    static calculateAcuteAngleBonus(angle: number): number {
+    static calculateAcuteAngleAcuteness(angle: number): number {
         return MathUtils.smoothstep(
             angle,
             MathUtils.degreesToRadians(140),
@@ -341,7 +342,7 @@ export abstract class DroidSnapAimEvaluator {
         const baseNerf =
             1 -
             this.maximumRepetitionNerf *
-                this.calculateAcuteAngleBonus(prev.angle) *
+                this.calculateAcuteAngleAcuteness(prev.angle) *
                 angleDifferenceAdjusted;
 
         return Math.pow(

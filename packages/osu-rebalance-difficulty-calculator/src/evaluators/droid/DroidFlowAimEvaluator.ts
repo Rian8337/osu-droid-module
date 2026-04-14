@@ -91,7 +91,9 @@ export abstract class DroidFlowAimEvaluator {
             // Square root velocity to ensure acute angle switches in streams are not assessed as harder than snap.
             flowDifficulty +=
                 Math.sqrt(currentVelocity) *
-                DroidSnapAimEvaluator.calculateAcuteAngleBonus(current.angle) *
+                DroidSnapAimEvaluator.calculateAcuteAngleAcuteness(
+                    current.angle,
+                ) *
                 overlappedNotesWeight;
         }
 

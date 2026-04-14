@@ -91,7 +91,9 @@ export abstract class OsuFlowAimEvaluator {
             // Square root velocity to ensure acute angle switches in streams are not assessed as harder than snap.
             flowDifficulty +=
                 Math.sqrt(currentVelocity) *
-                OsuSnapAimEvaluator.calculateAcuteAngleBonus(current.angle) *
+                OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(
+                    current.angle,
+                ) *
                 overlappedNotesWeight;
         }
 
