@@ -333,44 +333,60 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             ),
         );
 
-        // Normalize the deviation to 300 BPM.
-        const normalizedDeviation =
-            this.tapDeviation *
-            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
-        // We expect the player to get 7500/x deviation when doubletapping x BPM.
-        // Using this expectation, we penalize scores with deviation above 25.
-        const averageBPM =
-            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-        const adjustedDeviation =
-            normalizedDeviation *
-            (1 +
-                1 /
-                    (1 +
-                        Math.exp(
-                            -(normalizedDeviation - 7500 / averageBPM) /
-                                ((2 * 300) / averageBPM),
-                        )));
+        // // Normalize the deviation to 300 BPM.
+        // const normalizedDeviation =
+        //     this.tapDeviation *
+        //     Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
+        // // We expect the player to get 7500/x deviation when doubletapping x BPM.
+        // // Using this expectation, we penalize scores with deviation above 25.
+        // const averageBPM =
+        //     60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
+        // const adjustedDeviation =
+        //     normalizedDeviation *
+        //     (1 +
+        //         1 /
+        //             (1 +
+        //                 Math.exp(
+        //                     -(normalizedDeviation - 7500 / averageBPM) /
+        //                         ((2 * 300) / averageBPM),
+        //                 )));
 
-        // Scale the tap value with tap deviation.
-        tapValue *=
-            1.05 *
-            Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
-                0.6,
-            );
+        // // Scale the tap value with tap deviation.
+        // tapValue *=
+        //     1.05 *
+        //     Math.pow(
+        //         ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
+        //         0.6,
+        //     );
 
-        // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
-        // Higher BPMs require more precise tapping. When the deviation is too high,
-        // it can be assumed that the player taps invariant to rhythm.
-        // We harshen the punishment for such scenario.
-        tapValue *=
-            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
-                (1 +
-                    Math.exp(
-                        (this._tapDeviation - 7500 / averageBPM) /
-                            ((2 * 300) / averageBPM),
-                    )) +
-            Math.pow(this.difficultyAttributes.vibroFactor, 6);
+        // // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
+        // // Higher BPMs require more precise tapping. When the deviation is too high,
+        // // it can be assumed that the player taps invariant to rhythm.
+        // // We harshen the punishment for such scenario.
+        // tapValue *=
+        //     (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
+        //         (1 +
+        //             Math.exp(
+        //                 (this._tapDeviation - 7500 / averageBPM) /
+        //                     ((2 * 300) / averageBPM),
+        //             )) +
+        //     Math.pow(this.difficultyAttributes.vibroFactor, 6);
+
+        // An effective hit window is created based on the tap SR. The higher the tap difficulty, the shorter the hit window.
+        // For example, a tap SR of 4 leads to an effective hit window of 25ms, which is OD 10 with Precise mod.
+        const effectiveHitWindow =
+            (25 * 4) / this.difficultyAttributes.tapDifficulty;
+
+        // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
+        const effectiveAccuracy = ErrorFunction.erf(
+            effectiveHitWindow / this._tapDeviation,
+        );
+
+        console.log("Effective hit window:", effectiveHitWindow);
+        console.log("Effective accuracy:", effectiveAccuracy);
+
+        // Scale the tap value with normalized accuracy.
+        tapValue *= Math.pow(effectiveAccuracy, 2);
 
         tapValue *= this.calculateTapHighDeviationNerf();
 
