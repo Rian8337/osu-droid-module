@@ -227,7 +227,10 @@ export abstract class DroidSnapAimEvaluator {
 
         if (current.object instanceof Slider && withSliders) {
             // Reward sliders based on velocity.
-            const sliderBonus = current.travelDistance / current.travelTime;
+            let sliderBonus = current.travelDistance / current.travelTime;
+
+            sliderBonus =
+                sliderBonus < 1 ? sliderBonus : Math.pow(sliderBonus, 0.75);
 
             strain +=
                 Math.pow(1 + sliderBonus * this.sliderMultiplier, 1.25) - 1;
