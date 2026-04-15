@@ -58,10 +58,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * The estimated aim deviation of the score.
+     * The estimated deviation of the score.
      */
-    get aimDeviation(): number {
-        return this._aimDeviation;
+    get deviation(): number {
+        return this._deviation;
     }
 
     /**
@@ -101,7 +101,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
-    private _aimDeviation = 0;
+    private _deviation = 0;
     private _tapDeviation = 0;
     private _totalScore: number | null = null;
 
@@ -164,7 +164,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
         }
 
-        this._aimDeviation = this.calculateAimDeviation();
+        this._deviation = this.calculateAimDeviation();
         this._tapDeviation = this.calculateTapDeviation();
 
         this.aim = this.calculateAimValue();
@@ -288,7 +288,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         aimValue *=
             1.025 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._aimDeviation)),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
                 0.475,
             );
 
@@ -404,7 +404,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        let accuracyValue = 650 * Math.exp(-0.1 * this._aimDeviation);
+        let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
 
         const ncircles = this.mods.has(ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
@@ -465,7 +465,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the flashlight value with deviation.
         flashlightValue *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._aimDeviation),
+            50 / (Math.SQRT2 * this._deviation),
         );
 
         return flashlightValue;
@@ -510,7 +510,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         readingValue *=
             1.025 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._aimDeviation)),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
                 1.25,
             );
 
