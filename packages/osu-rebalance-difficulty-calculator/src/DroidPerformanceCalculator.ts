@@ -382,9 +382,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             effectiveHitWindow / this._tapDeviation,
         );
 
-        console.log("Effective hit window:", effectiveHitWindow);
-        console.log("Effective accuracy:", effectiveAccuracy);
-
         // Scale the tap value with normalized accuracy.
         tapValue *= Math.pow(effectiveAccuracy, 2);
 
