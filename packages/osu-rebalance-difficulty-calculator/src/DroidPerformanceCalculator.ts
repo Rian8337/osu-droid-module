@@ -58,10 +58,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * The estimated deviation of the score.
+     * The estimated aim deviation of the score.
      */
-    get deviation(): number {
-        return this._deviation;
+    get aimDeviation(): number {
+        return this._aimDeviation;
     }
 
     /**
@@ -101,7 +101,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
-    private _deviation = 0;
+    private _aimDeviation = 0;
     private _tapDeviation = 0;
     private _totalScore: number | null = null;
 
@@ -164,7 +164,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
         }
 
-        this._deviation = this.calculateDeviation();
+        this._aimDeviation = this.calculateAimDeviation();
         this._tapDeviation = this.calculateTapDeviation();
 
         this.aim = this.calculateAimValue();
@@ -288,7 +288,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         aimValue *=
             1.025 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._aimDeviation)),
                 0.475,
             );
 
@@ -388,7 +388,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
+        let accuracyValue = 650 * Math.exp(-0.1 * this._aimDeviation);
 
         const ncircles = this.mods.has(ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
@@ -449,7 +449,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the flashlight value with deviation.
         flashlightValue *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._deviation),
+            50 / (Math.SQRT2 * this._aimDeviation),
         );
 
         return flashlightValue;
@@ -494,7 +494,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         readingValue *=
             1.025 *
             Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._aimDeviation)),
                 1.25,
             );
 
@@ -622,106 +622,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      *
      * Inaccuracies are capped to the number of circles in the map.
      */
-    private calculateDeviation(): number {
-        if (this.totalSuccessfulHits === 0) {
-            return Number.POSITIVE_INFINITY;
-        }
-
-        const { clockRate } = this.difficultyAttributes;
-        const hitWindow = this.getHitWindow();
-
-        const hitWindow300 = hitWindow.greatWindow / clockRate;
-        const hitWindow100 = hitWindow.okWindow / clockRate;
-        const hitWindow50 = hitWindow.mehWindow / clockRate;
-
-        const { n100, n50, nmiss } = this.computedAccuracy;
-
-        let objectCount = this.difficultyAttributes.hitCircleCount;
-
-        if (this.mods.has(ModScoreV2)) {
-            objectCount += this.difficultyAttributes.sliderCount;
-        }
-
-        const missCount = Math.min(nmiss, objectCount);
-        const mehCount = Math.min(n50, objectCount - missCount);
-        const okCount = Math.min(n100, objectCount - missCount - mehCount);
-        const greatCount = Math.max(
-            0,
-            objectCount - missCount - mehCount - okCount,
-        );
-
-        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
-        // compute the deviation on circles.
-        if (greatCount > 0) {
-            // The probability that a player hits a circle is unknown, but we can estimate it to be
-            // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction.
-            const greatProbabilityCircle =
-                greatCount / (objectCount - missCount - mehCount + 1);
-
-            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-            // Begin with the normal distribution first.
-            let deviationOnCircles =
-                hitWindow300 /
-                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-
-            deviationOnCircles *= Math.sqrt(
-                1 -
-                    (Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(
-                            -0.5 *
-                                Math.pow(hitWindow100 / deviationOnCircles, 2),
-                        )) /
-                        (deviationOnCircles *
-                            ErrorFunction.erf(
-                                hitWindow100 /
-                                    (Math.SQRT2 * deviationOnCircles),
-                            )),
-            );
-
-            // Then compute the variance for 50s.
-            const mehVariance =
-                (hitWindow50 * hitWindow50 +
-                    hitWindow100 * hitWindow50 +
-                    hitWindow100 * hitWindow100) /
-                3;
-
-            // Find the total deviation.
-            deviationOnCircles = Math.sqrt(
-                ((greatCount + okCount) * Math.pow(deviationOnCircles, 2) +
-                    mehCount * mehVariance) /
-                    (greatCount + okCount + mehCount),
-            );
-
-            return deviationOnCircles;
-        }
-
-        // If there are more non-300s than there are circles, compute the deviation on sliders instead.
-        // Here, all that matters is whether or not the slider was missed, since it is impossible
-        // to get a 100 or 50 on a slider by mis-tapping it.
-        const sliderCount = this.difficultyAttributes.sliderCount;
-        const missCountSliders = Math.min(sliderCount, nmiss - missCount);
-        const greatCountSliders = sliderCount - missCountSliders;
-
-        // We only get here if nothing was hit. In this case, there is no estimate for deviation.
-        // Note that this is never negative, so checking if this is only equal to 0 makes sense.
-        if (greatCountSliders === 0) {
-            return Number.POSITIVE_INFINITY;
-        }
-
-        const greatProbabilitySlider = greatCountSliders / (sliderCount + 1);
-
-        return (
-            hitWindow50 /
-            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilitySlider))
+    private calculateAimDeviation(): number {
+        return this.calculateDeviation(
+            this.computedAccuracy.n300,
+            this.computedAccuracy.n100,
+            this.computedAccuracy.n50,
         );
     }
 
     /**
-     * Does the same as {@link calculateDeviation}, but only for notes and inaccuracies that are relevant to tap difficulty.
+     * Does the same as {@link calculateAimDeviation}, but only for notes and inaccuracies that are relevant to tap difficulty.
      *
-     * Treats all difficult speed notes as circles, so this method can sometimes return a lower deviation than {@link calculateDeviation}.
+     * Treats all difficult speed notes as circles, so this method can sometimes return a lower deviation than {@link calculateAimDeviation}.
      * This is fine though, since this method is only used to scale tap pp.
      */
     private calculateTapDeviation(): number {
@@ -729,39 +641,24 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return Number.POSITIVE_INFINITY;
         }
 
-        const { clockRate, speedNoteCount } = this.difficultyAttributes;
-        const hitWindow = this.getHitWindow();
-
-        const hitWindow300 = hitWindow.greatWindow / clockRate;
-        const hitWindow100 = hitWindow.okWindow / clockRate;
-        const hitWindow50 = hitWindow.mehWindow / clockRate;
-        const { n100, n50, nmiss } = this.computedAccuracy;
-
-        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
-        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
-        const speedNoteRatio = speedNoteCount / this.totalHits;
-        const nonGreatRatio =
-            1 -
-            (Math.pow(
-                Math.exp(Math.sqrt(hitWindow300)) + 1,
-                1 - speedNoteRatio,
-            ) -
-                1) /
-                Math.exp(Math.sqrt(hitWindow300));
+        // Calculate accuracy assuming the worst case scenario.
+        const speedNoteCount =
+            this.difficultyAttributes.speedNoteCount +
+            (this.totalHits - this.difficultyAttributes.speedNoteCount) * 0.1;
 
         // Assume worst case - all non-300s happened in speed notes.
         const relevantCountMiss = Math.min(
-            nmiss * nonGreatRatio,
+            this.computedAccuracy.nmiss,
             speedNoteCount,
         );
 
         const relevantCountMeh = Math.min(
-            n50 * nonGreatRatio,
+            this.computedAccuracy.n50,
             speedNoteCount - relevantCountMiss,
         );
 
         const relevantCountOk = Math.min(
-            n100 * nonGreatRatio,
+            this.computedAccuracy.n100,
             speedNoteCount - relevantCountMiss - relevantCountMeh,
         );
 
@@ -773,9 +670,37 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 relevantCountOk,
         );
 
+        return this.calculateDeviation(
+            relevantCountGreat,
+            relevantCountOk,
+            relevantCountMeh,
+        );
+    }
+
+    /**
+     * Estimates the player's tap deviation based on the OD, given number of greats, oks, mehs and misses,
+     * assuming the player's mean hit error is 0. The estimation is consistent in that two SS scores on the
+     * same map with the same settings will always return the same deviation.
+     *
+     * Misses are ignored because they are usually due to misaiming.
+     *
+     * Greats and oks are assumed to follow a normal distribution, whereas mehs are assumed to follow a uniform distribution.
+     */
+    private calculateDeviation(
+        relevantCountGreat: number,
+        relevantCountOk: number,
+        relevantCountMeh: number,
+    ): number {
         if (relevantCountGreat + relevantCountOk + relevantCountMeh <= 0) {
             return Number.POSITIVE_INFINITY;
         }
+
+        const { clockRate } = this.difficultyAttributes;
+        const hitWindow = this.getHitWindow();
+
+        const greatWindow = hitWindow.greatWindow / clockRate;
+        const okWindow = hitWindow.okWindow / clockRate;
+        const mehWindow = hitWindow.mehWindow / clockRate;
 
         // The sample proportion of successful hits.
         const n = Math.max(1, relevantCountGreat + relevantCountOk);
@@ -798,28 +723,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         if (pLowerBound > 0.01) {
             // Compute deviation assuming 300s and 109s are normally distributed.
             deviation =
-                hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
+                greatWindow / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
 
             // Subtract the deviation provided by tails that land outside the 100 hit window from the deviation computed above.
             // This is equivalent to calculating the deviation of a normal distribution truncated at +-okHitWindow.
-            const hitWindow100TailAmount =
+            const okWindowTailAmount =
                 (Math.sqrt(2 / Math.PI) *
-                    hitWindow100 *
-                    Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))) /
+                    okWindow *
+                    Math.exp(-0.5 * Math.pow(okWindow / deviation, 2))) /
                 (deviation *
-                    ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
+                    ErrorFunction.erf(okWindow / (Math.SQRT2 * deviation)));
 
-            deviation *= Math.sqrt(1 - hitWindow100TailAmount);
+            deviation *= Math.sqrt(1 - okWindowTailAmount);
         } else {
             // A tested limit value for the case of a score only containing 100s.
-            deviation = hitWindow100 / Math.sqrt(3);
+            deviation = okWindow / Math.sqrt(3);
         }
 
         // Compute and add the variance for 50s, assuming that they are uniformly distriubted.
         const mehVariance =
-            (hitWindow50 * hitWindow50 +
-                hitWindow100 * hitWindow50 +
-                hitWindow100 * hitWindow100) /
+            (mehWindow * mehWindow +
+                okWindow * mehWindow +
+                okWindow * okWindow) /
             3;
 
         deviation = Math.sqrt(
