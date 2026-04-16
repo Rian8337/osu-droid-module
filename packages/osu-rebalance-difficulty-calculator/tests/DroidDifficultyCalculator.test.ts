@@ -158,14 +158,14 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
             noMod: {
-                aim: 1.8755734878476487,
+                aim: 1.8808193467820746,
                 tap: 1.4861690081466008,
                 rhythm: 0.5515188197970847,
                 reading: 0.07695011080513633,
                 total: 3.5902463981438104,
             },
             doubleTime: {
-                aim: 2.503801511345331,
+                aim: 2.5144089042686892,
                 tap: 2.2141035566243876,
                 rhythm: 0.7025281672223836,
                 reading: 1.1752764485284175,
@@ -179,14 +179,14 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 0.9181416783984382,
+            aim: 0.92106310889849,
             tap: 0.9150804416694979,
             rhythm: 0.5265188449053216,
             reading: 0,
             total: 1.9285678480960102,
         },
         doubleTime: {
-            aim: 1.1962872479220656,
+            aim: 1.2014105332505964,
             tap: 1.3374710324874384,
             rhythm: 0.7119226151592367,
             reading: 0,
@@ -201,14 +201,14 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noMod: {
-                aim: 2.152164099010688,
+                aim: 2.1547190479856346,
                 tap: 3.107495964185826,
                 rhythm: 0.9759452397034242,
                 reading: 0.5689463434296888,
                 total: 5.739704568749863,
             },
             doubleTime: {
-                aim: 2.91158968650565,
+                aim: 2.9150890963794276,
                 tap: 4.439212961020259,
                 rhythm: 1.1635304560352293,
                 reading: 1.4623238912486354,
@@ -222,14 +222,14 @@ describe("Test difficulty calculation sample beatmap 3", () => {
 describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
-            aim: 2.53606444009117,
+            aim: 2.537730627132887,
             tap: 1.4622090118933708,
             rhythm: 0.8880426334870366,
             reading: 0.2116746922113603,
             total: 4.527230865516677,
         },
         doubleTime: {
-            aim: 3.326795913081782,
+            aim: 3.3298104208165458,
             tap: 2.1479463107534054,
             rhythm: 1.171851780179697,
             reading: 2.2455583156824224,
@@ -244,14 +244,14 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 11.45119286302359,
+                aim: 11.509426093190548,
                 tap: 6.067918864797471,
                 rhythm: 0.7805023266359234,
                 reading: 13.813563298117595,
                 total: 27.18797446572159,
             },
             doubleTime: {
-                aim: 13.179283056495265,
+                aim: 13.243253750613396,
                 tap: 8.55647618227254,
                 rhythm: 0.8941621906254504,
                 reading: 22.429521950274125,
@@ -285,14 +285,14 @@ describe("Test difficulty calculation sample beatmap 6", () => {
 describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
-            aim: 2.5191876260543147,
+            aim: 2.5351115906187407,
             tap: 2.629161749803558,
             rhythm: 0.9637354496718581,
             reading: 0.2727672802745354,
             total: 5.4194348465012805,
         },
         doubleTime: {
-            aim: 3.5042407504875093,
+            aim: 3.5311161117907632,
             tap: 3.9547748212631593,
             rhythm: 1.173830622055246,
             reading: 2.75740135279834,
