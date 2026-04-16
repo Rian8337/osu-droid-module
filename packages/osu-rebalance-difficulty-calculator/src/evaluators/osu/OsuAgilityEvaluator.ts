@@ -1,4 +1,4 @@
-import { MathUtils, Spinner } from "@rian8337/osu-base";
+import { Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -6,7 +6,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuAgilityEvaluator {
     private static readonly distanceCap =
-        OsuDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circle distance between centers.
+        OsuDifficultyHitObject.normalizedDiameter * 1.2;
 
     /**
      * Evaluates the difficulty of fast aiming the current object.
@@ -31,14 +31,7 @@ export abstract class OsuAgilityEvaluator {
         strain *= Math.pow(current.smallCircleBonus, 1.5);
         strain *= this.highBpmBonus(current.strainTime);
 
-        return (
-            strain *
-            MathUtils.smootherstep(
-                distance,
-                0,
-                OsuDifficultyHitObject.normalizedRadius,
-            )
-        );
+        return strain;
     }
 
     private static highBpmBonus(ms: number): number {

@@ -6,7 +6,7 @@ import { OsuSnapAimEvaluator } from "./OsuSnapAimEvaluator";
  * An evaluator for calculating osu!standard flow aim difficulty.
  */
 export abstract class OsuFlowAimEvaluator {
-    private static readonly velocityChangeMultiplier = 2;
+    private static readonly velocityChangeMultiplier = 0.52;
 
     static evaluateDifficultyOf(
         current: OsuDifficultyHitObject,
@@ -129,9 +129,19 @@ export abstract class OsuFlowAimEvaluator {
             flowDifficulty += current.travelDistance / current.travelTime;
         }
 
-        // The final difficulty is being raised to a power because flow difficulty scales harder with both high
+        // The final velocity is being raised to a power because flow difficulty scales harder with both high
         // distance and time, and we want to account for that.
-        return Math.pow(flowDifficulty, 1.45);
+        flowDifficulty = Math.pow(flowDifficulty, 1.45);
+
+        // Reduce difficulty for low spacing since spacing below radius is always to be flowed.
+        return (
+            flowDifficulty *
+            MathUtils.smootherstep(
+                currentDistance,
+                0,
+                OsuDifficultyHitObject.normalizedRadius,
+            )
+        );
     }
 
     private static calculateOverlapFactor(

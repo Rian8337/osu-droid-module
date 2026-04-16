@@ -1,4 +1,4 @@
-import { MathUtils, Spinner } from "@rian8337/osu-base";
+import { Spinner } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -6,7 +6,7 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  */
 export abstract class DroidAgilityEvaluator {
     private static readonly distanceCap =
-        DroidDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circle distance between centers.
+        DroidDifficultyHitObject.normalizedDiameter * 1.2;
 
     /**
      * Evaluates the difficulty of fast aiming the current object.
@@ -31,14 +31,7 @@ export abstract class DroidAgilityEvaluator {
         strain *= Math.pow(current.smallCircleBonus, 1.5);
         strain *= this.highBpmBonus(current.strainTime);
 
-        return (
-            strain *
-            MathUtils.smootherstep(
-                distance,
-                0,
-                DroidDifficultyHitObject.normalizedRadius,
-            )
-        );
+        return strain;
     }
 
     private static highBpmBonus(ms: number): number {

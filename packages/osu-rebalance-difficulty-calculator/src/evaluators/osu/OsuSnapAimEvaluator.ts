@@ -235,10 +235,7 @@ export abstract class OsuSnapAimEvaluator {
         // Apply high circle size bonus
         strain *= current.smallCircleBonus;
 
-        strain *= this.highBpmBonus(
-            current.strainTime,
-            current.lazyJumpDistance,
-        );
+        strain *= this.highBpmBonus(current.strainTime);
 
         return strain;
     }
@@ -259,17 +256,8 @@ export abstract class OsuSnapAimEvaluator {
         );
     }
 
-    private static highBpmBonus(ms: number, distance: number): number {
-        return (
-            (1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.65)))) *
-            // Decrease bonus for distances less than radius. These patterns have little to no aim difficulty,
-            // and some of them may have inflated bonus due to incredibly short delta times (e.g., doubles).
-            MathUtils.smootherstep(
-                distance,
-                0,
-                OsuDifficultyHitObject.normalizedRadius,
-            )
-        );
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.03, Math.pow(ms / 1000, 0.65)));
     }
 
     private static calculateVectorAngleRepetition(
