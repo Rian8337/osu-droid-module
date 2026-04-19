@@ -47,15 +47,13 @@ export class DroidReading extends HarmonicSkill {
             i < Math.min(difficulties.length, reducedNoteCount);
             ++i
         ) {
-            const scale = Math.log10(
+            difficulties[i] *= Math.log10(
                 Interpolation.lerp(
                     1,
                     10,
                     MathUtils.clamp(i / reducedNoteCount, 0, 1),
                 ),
             );
-
-            difficulties[i] *= Interpolation.lerp(0, 1, scale);
         }
     }
 
