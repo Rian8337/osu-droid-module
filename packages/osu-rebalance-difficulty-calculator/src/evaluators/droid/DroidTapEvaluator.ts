@@ -18,12 +18,10 @@ export abstract class DroidTapEvaluator {
      *
      * @param current The current object.
      * @param considerCheesability Whether to consider cheesability.
-     * @param strainTimeCap The strain time to cap the object's strain time to.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         considerCheesability: boolean,
-        strainTimeCap?: number,
     ): number {
         if (
             current.index < 0 ||
@@ -38,27 +36,24 @@ export abstract class DroidTapEvaluator {
             ? 1 - current.getDoubletapness(current.next(0))
             : 1;
 
-        const strainTime =
-            strainTimeCap !== undefined
-                ? // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
-                  Math.max(50, strainTimeCap, current.strainTime)
-                : current.strainTime;
         let speedBonus = 1;
 
-        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
+        if (
+            MathUtils.millisecondsToBPM(current.strainTime) > this.minSpeedBonus
+        ) {
             speedBonus +=
                 0.75 *
                 Math.pow(
                     ErrorFunction.erf(
                         (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
-                            strainTime) /
+                            current.strainTime) /
                             40,
                     ),
                     2,
                 );
         }
 
-        let strain = (speedBonus * 1000) / strainTime;
+        let strain = (speedBonus * 1000) / current.strainTime;
         strain *= this.highBpmBonus(current.strainTime);
 
         return strain * Math.pow(doubletapness, 1.5);

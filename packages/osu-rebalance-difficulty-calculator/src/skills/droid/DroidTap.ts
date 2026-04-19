@@ -15,23 +15,16 @@ export class DroidTap extends HarmonicSkill {
     private currentTapDifficulty = 0;
     private currentRhythmMultiplier = 0;
 
-    private readonly objectDeltaTimes: number[] = [];
     private readonly sliderDifficulties: number[] = [];
 
     private maxDifficulty = 0;
 
     readonly considerCheesability: boolean;
-    readonly strainTimeCap?: number;
 
-    constructor(
-        mods: ModMap,
-        considerCheesability: boolean,
-        strainTimeCap?: number,
-    ) {
+    constructor(mods: ModMap, considerCheesability: boolean) {
         super(mods);
 
         this.considerCheesability = considerCheesability;
-        this.strainTimeCap = strainTimeCap;
     }
 
     /**
@@ -47,41 +40,6 @@ export class DroidTap extends HarmonicSkill {
                 total +
                 1 / (1 + Math.exp(-((next / this.maxDifficulty) * 12 - 6))),
             0,
-        );
-    }
-
-    /**
-     * The delta time relevant to the difficulty.
-     */
-    relevantDeltaTime(): number {
-        if (this.objectDifficulties.length === 0 || this.maxDifficulty === 0) {
-            return 0;
-        }
-
-        return (
-            this.objectDeltaTimes.reduce(
-                (total, next, index) =>
-                    total +
-                    next /
-                        (1 +
-                            Math.exp(
-                                -(
-                                    (this.objectDifficulties[index] /
-                                        this.maxDifficulty) *
-                                        25 -
-                                    20
-                                ),
-                            )),
-                0,
-            ) /
-            this.objectDifficulties.reduce(
-                (total, next) =>
-                    total +
-                    1 /
-                        (1 +
-                            Math.exp(-((next / this.maxDifficulty) * 25 - 20))),
-                0,
-            )
         );
     }
 
@@ -130,14 +88,11 @@ export class DroidTap extends HarmonicSkill {
             DroidTapEvaluator.evaluateDifficultyOf(
                 current,
                 this.considerCheesability,
-                this.strainTimeCap,
             ) *
             (1 - decay) *
             this.skillMultiplier;
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
-
-        this.objectDeltaTimes.push(current.deltaTime);
 
         const difficulty =
             this.currentTapDifficulty * this.currentRhythmMultiplier;
@@ -152,10 +107,6 @@ export class DroidTap extends HarmonicSkill {
     }
 
     protected override saveToHitObject(current: DroidDifficultyHitObject) {
-        if (this.strainTimeCap !== undefined) {
-            return;
-        }
-
         const difficulty =
             this.currentTapDifficulty * this.currentRhythmMultiplier;
 

@@ -13,8 +13,6 @@ export class DroidDifficultyAttributes
     tapTopWeightedSliderFactor = 0;
     rhythmDifficulty = 0;
     tapDifficultStrainCount = 0;
-    averageSpeedDeltaTime = 0;
-    vibroFactor = 1;
     maximumScore = 0;
 
     constructor(
@@ -33,8 +31,6 @@ export class DroidDifficultyAttributes
             cacheableAttributes.tapDifficultStrainCount;
         this.readingDifficultNoteCount =
             cacheableAttributes.readingDifficultNoteCount;
-        this.averageSpeedDeltaTime = cacheableAttributes.averageSpeedDeltaTime;
-        this.vibroFactor = cacheableAttributes.vibroFactor;
         this.tapTopWeightedSliderFactor =
             cacheableAttributes.tapTopWeightedSliderFactor;
         this.maximumScore = cacheableAttributes.maximumScore;

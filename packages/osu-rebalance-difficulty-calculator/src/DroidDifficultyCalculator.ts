@@ -172,7 +172,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             skills.push(new DroidRhythm(mods));
             skills.push(new DroidTap(mods, true));
             skills.push(new DroidTap(mods, false));
-            skills.push(new DroidTap(mods, true, 50));
         }
 
         skills.push(
@@ -312,19 +311,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (s) => s instanceof DroidTap && s.considerCheesability,
         ) as DroidTap | undefined;
 
-        const tapVibro = skills.find(
-            (s) =>
-                s instanceof DroidTap &&
-                s.considerCheesability &&
-                s.strainTimeCap !== undefined,
-        ) as DroidTap | undefined;
-
-        if (!tap || !tapVibro || attributes.mods.has(ModRelax)) {
+        if (!tap || attributes.mods.has(ModRelax)) {
             attributes.tapDifficulty = 0;
             attributes.tapDifficultStrainCount = 0;
             attributes.speedNoteCount = 0;
-            attributes.averageSpeedDeltaTime = 0;
-            attributes.vibroFactor = 1;
 
             return;
         }
@@ -337,13 +327,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             tap.countTopWeightedObjectDifficulties(tapDifficultyValue);
 
         attributes.speedNoteCount = tap.relevantNoteCount();
-        attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
-
-        if (attributes.tapDifficulty > 0) {
-            attributes.vibroFactor =
-                ratingCalculator.computeTapRating(tapVibro.difficultyValue()) /
-                attributes.tapDifficulty;
-        }
 
         const tapTopWeightedSliderCount =
             tap.countTopWeightedSliders(tapDifficultyValue);
