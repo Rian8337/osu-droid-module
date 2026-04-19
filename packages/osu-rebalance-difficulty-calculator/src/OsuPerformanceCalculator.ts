@@ -720,26 +720,34 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     }
 
     private calculateTraceableBonus(sliderFactor = 1): number {
-        const { approachRate } = this.difficultyAttributes;
+        // We want to reward slider aim less, more so at lower AR.
+        const highApproachRateSliderVisibilityFactor =
+            0.5 + Math.pow(sliderFactor, 6) / 2;
+
+        const lowApproachRateSliderVisibilityFactor = Math.pow(sliderFactor, 6);
+
+        let traceableBonus = 0.0275;
 
         // Start from normal curve, rewarding lower AR up to AR7.
-        let traceableBonus = 0.025 * (12 - Math.max(approachRate, 7));
-
-        // We want to reward slider aim on low AR less.
-        const sliderVisibilityFactor = Math.pow(sliderFactor, 3);
+        traceableBonus +=
+            0.025 *
+            (12.0 - Math.max(this.approachRate, 7)) *
+            highApproachRateSliderVisibilityFactor;
 
         // For AR up to 0 - reduce reward for very low ARs when object is visible.
-        if (approachRate < 7) {
+        if (this.approachRate < 7) {
             traceableBonus +=
-                0.02 * (7 - Math.max(approachRate, 0)) * sliderVisibilityFactor;
+                0.025 *
+                (7 - Math.max(this.approachRate, 0)) *
+                lowApproachRateSliderVisibilityFactor;
         }
 
         // Starting from AR0 - cap values so they won't grow to infinity.
-        if (approachRate < 0) {
+        if (this.approachRate < 0) {
             traceableBonus +=
-                0.01 *
-                (1 - Math.pow(1.5, approachRate)) *
-                sliderVisibilityFactor;
+                0.025 *
+                (1 - Math.pow(1.5, this.approachRate)) *
+                lowApproachRateSliderVisibilityFactor;
         }
 
         return traceableBonus;
