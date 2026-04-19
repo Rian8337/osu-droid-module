@@ -443,14 +443,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     this.difficultyAttributes.aimTopWeightedSliderFactor,
                 );
 
-            const relevantMissCount = Math.min(
-                this._effectiveMissCount + readingEstimatedSliderBreaks,
-                this.totalImperfectHits + this.sliderTicksMissed,
-            );
-
             readingValue *= Math.min(
                 this.calculateStrainBasedMissPenalty(
-                    relevantMissCount,
+                    this._effectiveMissCount + readingEstimatedSliderBreaks,
                     this.difficultyAttributes.readingDifficultNoteCount,
                 ),
                 this.proportionalMissPenalty,
