@@ -279,8 +279,8 @@ export abstract class OsuSnapAimEvaluator {
 
             // Only consider vectors in the same jump section, as stopping to change rhythm ruins momentum.
             if (
-                Math.max(current.strainTime, prev.strainTime) >
-                1.1 * Math.min(current.strainTime, prev.strainTime)
+                Math.max(current.strainTime, loopObj.strainTime) >
+                1.1 * Math.min(current.strainTime, loopObj.strainTime)
             ) {
                 break;
             }
