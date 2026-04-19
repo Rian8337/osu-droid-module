@@ -169,6 +169,8 @@ export class OsuAim extends VariableLengthStrainSkill {
             flowDifficulty / combinedSnapDifficulty,
         );
 
+        const pFlow = 1 - pSnap;
+
         if (this.mods.has(ModTouchDevice)) {
             // We do not adjust agility here since agility represents TD difficulty in a decent enough way.
             snapDifficulty = Math.pow(snapDifficulty, 0.89);
@@ -184,8 +186,6 @@ export class OsuAim extends VariableLengthStrainSkill {
             combinedSnapDifficulty *= 0.75;
             flowDifficulty *= 0.6;
         }
-
-        const pFlow = 1 - pSnap;
 
         const totalDifficulty =
             combinedSnapDifficulty * pSnap + flowDifficulty * pFlow;
