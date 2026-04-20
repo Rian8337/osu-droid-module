@@ -5,7 +5,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  * An evaluator for calculating osu!standard snap aim difficulty.
  */
 export abstract class OsuSnapAimEvaluator {
-    private static readonly wideAngleMultiplier = 1.05;
+    private static readonly wideAngleMultiplier = 9.67;
     private static readonly acuteAngleMultiplier = 2.41;
     private static readonly sliderMultiplier = 1.5;
     private static readonly velocityChangeMultiplier = 0.9;
@@ -135,8 +135,31 @@ export abstract class OsuSnapAimEvaluator {
                             ),
                         ));
 
-            // Apply full wide angle bonus.
-            wideAngleBonus *= velocityInfluence;
+            // Rescale velocity for wide angle bonus.
+            const wideAngleTimeScale = 1.45;
+
+            let wideAngleCurrentVelocity =
+                currentDistance /
+                Math.pow(current.strainTime, wideAngleTimeScale);
+
+            const wideAnglePrevVelocity =
+                prevDistance / Math.pow(last.strainTime, wideAngleTimeScale);
+
+            if (last.object instanceof Slider && withSliders) {
+                const sliderDistance =
+                    last.lazyTravelDistance + current.lazyJumpDistance;
+
+                wideAngleCurrentVelocity = Math.max(
+                    wideAngleCurrentVelocity,
+                    sliderDistance /
+                        Math.pow(current.strainTime, wideAngleTimeScale),
+                );
+            }
+
+            wideAngleBonus *= Math.min(
+                wideAngleCurrentVelocity,
+                wideAnglePrevVelocity,
+            );
 
             if (last2 !== null) {
                 // If objects just go back and forth through a middle point - don't give as much wide bonus.
