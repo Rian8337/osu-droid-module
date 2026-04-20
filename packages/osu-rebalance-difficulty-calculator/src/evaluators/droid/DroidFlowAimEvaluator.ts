@@ -6,7 +6,7 @@ import { DroidSnapAimEvaluator } from "./DroidSnapAimEvaluator";
  * An evaluator for calculating osu!droid flow aim difficulty.
  */
 export abstract class DroidFlowAimEvaluator {
-    private static readonly velocityChangeMultiplier = 2;
+    private static readonly velocityChangeMultiplier = 0.52;
 
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,

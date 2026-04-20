@@ -235,7 +235,8 @@ export abstract class DroidSnapAimEvaluator {
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff = Math.min(
-                125 / Math.min(current.strainTime, last.strainTime),
+                (diameter * 1.25) /
+                    Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
 
