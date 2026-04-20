@@ -847,7 +847,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // It must have been a slider end.
         const maxPossibleSliderBreaks = Math.min(
             sliderCount,
-            (maxCombo - combo) / 2,
+            Math.trunc((maxCombo - combo) / 2),
         );
 
         const sliderBreaks = missCount - this.computedAccuracy.nmiss;
@@ -908,7 +908,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             // It must have been a slider end.
             const maxPossibleSliderBreaks = Math.min(
                 sliderCount,
-                (maxCombo - combo) / 2,
+                Math.trunc((maxCombo - combo) / 2),
             );
 
             const sliderBreaks = missCount - this.computedAccuracy.nmiss;
