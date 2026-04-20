@@ -130,8 +130,8 @@ describe("Test difficulty calculation sample beatmap 1", () => {
             doubleTime: {
                 aim: 3.5893750877493287,
                 speed: 2.337673672371777,
-                reading: 1.4772685355001338,
-                total: 6.401267082470251,
+                reading: 1.4773583874100473,
+                total: 6.401283126272627,
             },
             flashlight: 1.5766361804020608,
         },
@@ -143,14 +143,14 @@ describe("Test difficulty calculation sample beatmap 2", () => {
         noMod: {
             aim: 1.3324006408424178,
             speed: 0.9290863290257275,
-            reading: 0.5704105992919944,
-            total: 2.413729556820173,
+            reading: 0.5705737258226313,
+            total: 2.413760325901023,
         },
         doubleTime: {
             aim: 1.8415224524681688,
             speed: 1.3436134272768423,
-            reading: 0.533617959409663,
-            total: 3.3397491510578496,
+            reading: 0.5345661314231405,
+            total: 3.3398219721906037,
         },
         flashlight: 0.40181332763095984,
     });
@@ -163,14 +163,14 @@ describe("Test difficulty calculation sample beatmap 3", () => {
             noMod: {
                 aim: 3.205459634225374,
                 speed: 3.0594757299311444,
-                reading: 1.1144274808831478,
-                total: 6.406522768499555,
+                reading: 1.1152578238615487,
+                total: 6.406600217726923,
             },
             doubleTime: {
                 aim: 4.492827179064484,
                 speed: 4.621840264530277,
-                reading: 1.9881301028600875,
-                total: 9.360814975750497,
+                reading: 1.9892087967145595,
+                total: 9.3609741849305,
             },
             flashlight: 1.826929496301562,
         },
@@ -182,14 +182,14 @@ describe("Test difficulty calculation sample beatmap 4", () => {
         noMod: {
             aim: 4.774127045272475,
             speed: 1.4636175043551052,
-            reading: 0.8560009989150408,
-            total: 7.9261645071902,
+            reading: 0.8562246734214298,
+            total: 7.926171473424857,
         },
         doubleTime: {
             aim: 6.008107030894814,
             speed: 2.150435802695784,
-            reading: 2.971914185119748,
-            total: 10.282775108216786,
+            reading: 2.9724699491462965,
+            total: 10.282941645389378,
         },
         flashlight: 2.9220600698216836,
     });
@@ -202,14 +202,14 @@ describe("Test difficulty calculation sample beatmap 5", () => {
             noMod: {
                 aim: 41.115431447583546,
                 speed: 9.325775471086825,
-                reading: 10.375580687733235,
-                total: 68.14900111078613,
+                reading: 10.375682010537227,
+                total: 68.1490080608621,
             },
             doubleTime: {
                 aim: 47.64923015197187,
                 speed: 11.385125029348524,
-                reading: 24.471954156493968,
-                total: 81.29049691807107,
+                reading: 24.472325015381102,
+                total: 81.29061894838566,
             },
             flashlight: 38.8798121476072,
         },
@@ -245,8 +245,8 @@ describe("Test difficulty calculation sample beatmap 7", () => {
         doubleTime: {
             aim: 6.617778957673831,
             speed: 3.962385339790621,
-            reading: 3.994017812978627,
-            total: 12.009370407531561,
+            reading: 3.9941741120341905,
+            total: 12.009435080897752,
         },
         flashlight: 4.075576247071868,
     });
