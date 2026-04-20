@@ -284,6 +284,10 @@ export abstract class DroidReadingEvaluator {
                 break;
             }
 
+            if (hitObject.isOverlapping(true)) {
+                continue;
+            }
+
             yield hitObject;
         }
     }

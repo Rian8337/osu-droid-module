@@ -114,7 +114,9 @@ export class DroidReading extends HarmonicSkill {
 
         let reducedNoteCount = 0;
 
-        for (const object of this.hitObjects) {
+        for (let i = 1; i < this.hitObjects.length; ++i) {
+            const object = this.hitObjects[i];
+
             if (object.startTime / this.clockRate > reducedDuration) {
                 break;
             }
