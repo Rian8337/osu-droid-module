@@ -18,7 +18,7 @@ export class OsuFlashlight extends OsuSkill {
     }
 
     override difficultyValue(): number {
-        return this.strainPeaks.reduce((a, b) => a + b, 0);
+        return this.currentStrainPeaks.reduce((a, b) => a + b, 0);
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {

@@ -23,7 +23,7 @@ export abstract class DroidSkill extends StrainSkill {
     }
 
     override difficultyValue(): number {
-        const strains = this.strainPeaks.slice();
+        const strains = this.currentStrainPeaks;
 
         if (this.reducedSectionCount > 0) {
             strains.sort((a, b) => b - a);
