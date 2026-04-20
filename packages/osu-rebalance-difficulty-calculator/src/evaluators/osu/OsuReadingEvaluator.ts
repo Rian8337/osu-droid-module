@@ -72,12 +72,17 @@ export abstract class OsuReadingEvaluator {
             current.timePreempt,
         );
 
-        return MathUtils.norm(
+        let difficulty = MathUtils.norm(
             1.5,
             preemptDifficulty,
             hiddenDifficulty,
             noteDensityDifficulty,
         );
+
+        // Having less time to process information is harder.
+        difficulty *= this.highBpmBonus(current.strainTime);
+
+        return difficulty;
     }
 
     /**
@@ -430,5 +435,9 @@ export abstract class OsuReadingEvaluator {
             0,
             1,
         );
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.8, ms / 1000));
     }
 }

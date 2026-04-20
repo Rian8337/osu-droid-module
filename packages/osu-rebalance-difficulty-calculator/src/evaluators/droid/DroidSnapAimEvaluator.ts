@@ -132,11 +132,16 @@ export abstract class DroidSnapAimEvaluator {
 
             // Penalize angle repetition. It is important to do it _before_ multiplying by velocity because we compare raw wideness here.
             wideAngleBonus *=
-                1 -
-                Math.min(
-                    wideAngleBonus,
-                    Math.pow(this.calculateWideAngleAcuteness(lastAngle), 3),
-                );
+                0.25 +
+                0.75 *
+                    (1 -
+                        Math.min(
+                            wideAngleBonus,
+                            Math.pow(
+                                this.calculateWideAngleAcuteness(lastAngle),
+                                3,
+                            ),
+                        ));
 
             // Rescale velocity for wide angle bonus.
             const wideAngleTimeScale = 1.45;
@@ -217,9 +222,7 @@ export abstract class DroidSnapAimEvaluator {
         if (Math.max(prevVelocity, currentVelocity)) {
             if (withSliders) {
                 // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
-                currentVelocity =
-                    (current.lazyJumpDistance + last.travelDistance) /
-                    current.strainTime;
+                currentVelocity = currentDistance / current.strainTime;
             }
 
             // Scale with ratio of difference compared to half the max distance.

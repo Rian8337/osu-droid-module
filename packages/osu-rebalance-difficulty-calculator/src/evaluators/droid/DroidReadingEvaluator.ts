@@ -77,12 +77,17 @@ export abstract class DroidReadingEvaluator {
             current.timePreempt,
         );
 
-        return MathUtils.norm(
+        let difficulty = MathUtils.norm(
             1.5,
             preemptDifficulty,
             hiddenDifficulty,
             noteDensityDifficulty,
         );
+
+        // Having less time to process information is harder.
+        difficulty *= this.highBpmBonus(current.strainTime);
+
+        return difficulty;
     }
 
     /**
@@ -132,7 +137,7 @@ export abstract class DroidReadingEvaluator {
 
         // Apply a soft cap to general density reading to account for partial memorization.
         noteDensityDifficulty =
-            Math.sqrt(noteDensityDifficulty) * this.densityMultiplier;
+            Math.pow(noteDensityDifficulty, 0.45) * this.densityMultiplier;
 
         return noteDensityDifficulty;
     }
@@ -438,5 +443,9 @@ export abstract class DroidReadingEvaluator {
             0,
             1,
         );
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.8, ms / 1000));
     }
 }

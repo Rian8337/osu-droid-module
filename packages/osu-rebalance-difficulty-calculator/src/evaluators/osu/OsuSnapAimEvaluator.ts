@@ -214,9 +214,7 @@ export abstract class OsuSnapAimEvaluator {
         if (Math.max(prevVelocity, currentVelocity)) {
             if (withSliders) {
                 // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
-                currentVelocity =
-                    (current.lazyJumpDistance + last.travelDistance) /
-                    current.strainTime;
+                currentVelocity = currentDistance / current.strainTime;
             }
 
             // Scale with ratio of difference compared to half the max distance.

@@ -1,6 +1,7 @@
 import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { Island } from "../base/Island";
+import { IslandCounter } from "../base/IslandCounter";
 
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
@@ -31,10 +32,7 @@ export abstract class DroidRhythmEvaluator {
 
         let island = new Island(deltaDifferenceEpsilon);
         let previousIsland = new Island(deltaDifferenceEpsilon);
-        const islandCounts: {
-            readonly island: Island;
-            count: number;
-        }[] = [];
+        const islandCounts: IslandCounter[] = [];
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
@@ -202,7 +200,7 @@ export abstract class DroidRhythmEvaluator {
                             ),
                         );
                     } else {
-                        islandCounts.push({ island, count: 1 });
+                        islandCounts.push(new IslandCounter(island, 1));
                     }
 
                     // Scale down the difficulty if the object is doubletappable.

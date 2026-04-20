@@ -86,7 +86,7 @@ export abstract class DroidFlowAimEvaluator {
             overlappedNotesWeight = 1 - o1 * o2 * o3;
         }
 
-        if (current.angle !== null && last.angle !== null) {
+        if (current.angle !== null) {
             // Acute angles are hard to flow.
             // Square root velocity to ensure acute angle switches in streams are not assessed as harder than snap.
             flowDifficulty +=

@@ -18,11 +18,11 @@ import { StrainPeak } from "../../structures/StrainPeak";
 export class DroidAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
-    private readonly skillMultiplierSnap = 71;
+    private readonly skillMultiplierSnap = 70.9;
     private readonly skillMultiplierAgility = 2.35;
-    private readonly skillMultiplierFlow = 245;
+    private readonly skillMultiplierFlow = 243;
     private readonly skillMultiplierTotal = 1.12;
-    private readonly meanExponent = 1.2;
+    private readonly combinedSnapNormExponent = 1.2;
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
@@ -33,7 +33,7 @@ export class DroidAim extends VariableLengthStrainSkill {
     /**
      * The baseline multiplier applied to the section with the biggest strain.
      */
-    private readonly reducedSectionBaseline = 0.727;
+    private readonly reducedStrainBaseline = 0.727;
 
     private readonly sliderStrains: number[] = [];
     private maxSliderStrain = 0;
@@ -165,7 +165,7 @@ export class DroidAim extends VariableLengthStrainSkill {
         // amount of agility at which point it is easier to flow.
 
         let combinedSnapDifficulty = MathUtils.norm(
-            this.meanExponent,
+            this.combinedSnapNormExponent,
             snapDifficulty,
             agilityDifficulty,
         );
@@ -182,7 +182,7 @@ export class DroidAim extends VariableLengthStrainSkill {
             Math.pow(snapDifficulty, 0.8);
 
         combinedSnapDifficulty = MathUtils.norm(
-            this.meanExponent,
+            this.combinedSnapNormExponent,
             snapDifficulty,
             agilityDifficulty,
         );
@@ -304,7 +304,7 @@ export class DroidAim extends VariableLengthStrainSkill {
                     new StrainPeak(
                         strain.value *
                             Interpolation.lerp(
-                                this.reducedSectionBaseline,
+                                this.reducedStrainBaseline,
                                 1,
                                 scale,
                             ),

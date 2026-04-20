@@ -26,13 +26,47 @@ export class OsuReading extends HarmonicSkill {
         super(mods);
     }
 
+    override countTopWeightedObjectDifficulties(
+        difficultyValue: number,
+    ): number {
+        if (difficultyValue === 0) {
+            return 0;
+        }
+
+        if (this.noteWeightSum === 0) {
+            return 0;
+        }
+
+        // This is what the top object difficulty is if all object difficulties were identical.
+        const consistentTopNote = difficultyValue / this.noteWeightSum;
+
+        if (consistentTopNote === 0) {
+            return 0;
+        }
+
+        return this.objectDifficulties.reduce(
+            (total, next) =>
+                total +
+                MathUtils.offsetLogistic(
+                    next / consistentTopNote,
+                    1.15,
+                    5,
+                    1.1,
+                ),
+            0,
+        );
+    }
+
     protected override objectDifficultyOf(
         current: OsuDifficultyHitObject,
     ): number {
-        this.currentDifficulty *= this.difficultyDecay(current.deltaTime);
+        const decay = this.difficultyDecay(current.deltaTime);
+
+        this.currentDifficulty *= decay;
 
         this.currentDifficulty +=
             OsuReadingEvaluator.evaluateDifficultyOf(current, this.mods) *
+            (1 - decay) *
             this.skillMultiplier;
 
         return this.currentDifficulty;

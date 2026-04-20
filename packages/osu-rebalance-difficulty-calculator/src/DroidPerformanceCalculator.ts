@@ -142,7 +142,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         if (this.mods.has(ModRelax)) {
-            const { overallDifficulty: od } = this.difficultyAttributes;
+            // Relax scaling was made for osu!standard overall difficulty, so we need to obtain it.
+            const hitWindow = this.getHitWindow();
+            const greatWindow =
+                hitWindow.greatWindow / this.difficultyAttributes.clockRate;
+
+            const od = (79.5 - greatWindow) / 6;
 
             // Graph: https://www.desmos.com/calculator/vspzsop6td
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
