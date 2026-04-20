@@ -187,16 +187,6 @@ export abstract class VariableLengthStrainSkill
             });
         }
 
-        if (!current.next(0)) {
-            // Don't forget to save the last strain peak, which would otherwise be ignored.
-            this.strainPeaks.push(
-                new StrainPeak(
-                    this.currentSectionPeak,
-                    this.currentSectionEnd - this.currentSectionBegin,
-                ),
-            );
-        }
-
         return currentStrain;
     }
 
