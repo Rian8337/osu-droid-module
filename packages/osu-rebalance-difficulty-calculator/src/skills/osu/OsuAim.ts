@@ -260,7 +260,7 @@ export class OsuAim extends VariableLengthStrainSkill {
     private getReducedStrainPeaks(): StrainPeak[] {
         // Sections with 0 strain are excluded to avoid worst-case time complexity of the following sort (e.g. /b/2351871).
         // These sections will not contribute to the difficulty.
-        const strains = this.getCurrentStrainPeaks()
+        const strains = this.currentStrainPeaks
             .filter((s) => s.value > 0)
             .sort((a, b) => b.value - a.value);
 

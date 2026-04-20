@@ -59,7 +59,7 @@ export abstract class VariableLengthStrainSkill
      * Obtains the live strain peaks for each {@link maxSectionLength} of the beatmap, including the
      * peak of the current section.
      */
-    getCurrentStrainPeaks(): StrainPeak[] {
+    get currentStrainPeaks(): StrainPeak[] {
         return this.strainPeaks.concat(
             new StrainPeak(
                 this.currentSectionPeak,
@@ -71,7 +71,7 @@ export abstract class VariableLengthStrainSkill
     override difficultyValue(): number {
         // Sections with 0 strain are excluded to avoid worst-case time complexity of the following sort (e.g. /b/2351871).
         // These sections will not contribute to the difficulty.
-        const strains = this.getCurrentStrainPeaks()
+        const strains = this.currentStrainPeaks
             .filter((s) => s.value > 0)
             .sort((a, b) => {
                 if (a.value === b.value) {
