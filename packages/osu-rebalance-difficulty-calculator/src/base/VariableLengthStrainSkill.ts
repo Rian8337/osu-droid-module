@@ -42,7 +42,7 @@ export abstract class VariableLengthStrainSkill
     private readonly strainPeaks: StrainPeak[] = [];
 
     get peaks(): readonly number[] {
-        return this.strainPeaks.map((s) => s.value);
+        return this.currentStrainPeaks.map((s) => s.value);
     }
 
     /**
