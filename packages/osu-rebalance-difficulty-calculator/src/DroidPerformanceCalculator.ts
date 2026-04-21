@@ -283,35 +283,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
         }
 
-        // Assume a sample proportion of hits for a full combo to be `(n - 0.5) / n` due to
-        // continuity correction, where `n` is the object count.
-        const totalHitsProportion = (this.totalHits - 0.5) / this.totalHits;
-
-        // Keeping `x` notes as the benchmark, assume that a player will retry a beatmap
-        // `max(1, x/n)` times relative to an `x`-note beatmap.
-        const benchmarkNotes = 700;
-
-        // Calculate the proportion equivalent to the bottom half of retry count percentile of
-        // scores and take it as the player's "real" proportion.
-        const retryProportion =
-            totalHitsProportion +
-            Math.sqrt(
-                (2 * totalHitsProportion * (1 - totalHitsProportion)) /
-                    this.totalHits,
-            ) *
-                ErrorFunction.erfInv(
-                    1 / Math.max(1, benchmarkNotes / this.totalHits) - 1,
-                );
-
-        // Using the proportion, we calculate the deviation based off that proportion and again
-        // compared to the hit deviation for proportion `(n - 0.5) / n`. This allows us to scale
-        // the aim value based on how retry-heavy the score is.
-        aimValue *= Math.max(
-            0,
-            ErrorFunction.erfInv(retryProportion) /
-                ErrorFunction.erfInv((benchmarkNotes - 0.5) / benchmarkNotes) ||
-                0,
-        );
+        // Scale the aim value with estimated full combo deviation.
+        aimValue *= this.calculateDeviationBasedLengthScaling();
 
         // Scale the aim value with slider cheese penalty.
         aimValue *= this._aimSliderCheesePenalty;
@@ -351,6 +324,19 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 this.difficultyAttributes.tapDifficultStrainCount,
             );
         }
+
+        // Scale the tap value with estimated full combo deviation.
+        // Consider notes that are difficult to tap with respect to other notes, but
+        // also cap the note count to prevent buffing filler patterns.
+        tapValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(
+                Math.min(
+                    this.difficultyAttributes.speedNoteCount,
+                    this.totalHits / 1.45,
+                ),
+            ),
+        );
 
         // An effective hit window is created based on the tap SR. The higher the tap difficulty, the shorter the hit window.
         // For example, a tap SR of 4 leads to an effective hit window of 25ms, which is OD 10 with Precise mod.
@@ -471,6 +457,13 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
         }
 
+        // Scale the reading value with estimated full combo deviation.
+        // As reading is easily "bypassable" with memorization, punish for memorization.
+        readingValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(undefined, true),
+        );
+
         // Scale the reading value with deviation.
         readingValue *=
             1.025 *
@@ -534,6 +527,59 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             // note, 90% misses is deliberately only hitting 1 note every 10 notes).
             Math.pow(missProportion, 8)
         );
+    }
+
+    /**
+     * Calculates the object-based length scaling based on the deviation of a player for a full
+     * combo in this beatmap, taking retries into account.
+     *
+     * @param objectCount The amount of objects to be considered. Defaults to the amount of
+     * objects in this beatmap.
+     * @param punishForMemorization Whether to punish the deviation for memorization. Defaults to `false`.
+     */
+    private calculateDeviationBasedLengthScaling(
+        objectCount: number = this.totalHits,
+        punishForMemorization = false,
+    ): number {
+        // Assume a sample proportion of hits for a full combo to be `(n - 0.5) / n` due to
+        // continuity correction, where `n` is the object count.
+        const calculateProportion = (notes: number): number =>
+            (notes - 0.5) / notes;
+
+        // Keeping `x` notes as the benchmark, assume that a player will retry a beatmap
+        // `max(1, x/n)` times relative to an `x`-note beatmap.
+        const benchmarkNotes = 700;
+
+        // Calculate the proportion equivalent to the bottom half of retry count percentile of
+        // scores and take it as the player's "real" proportion.
+        const retryProportion = (
+            proportion: number,
+            notes: number,
+            tries: number,
+        ) =>
+            proportion +
+            Math.sqrt((2 * proportion * (1 - proportion)) / notes) *
+                ErrorFunction.erfInv(1 / tries - 1);
+
+        // Using the proportion, we calculate the deviation based off that proportion and again
+        // compared to the hit deviation for proportion `(n - 0.5) / n`.
+        let multiplier = Math.max(
+            0,
+            ErrorFunction.erfInv(
+                retryProportion(
+                    calculateProportion(objectCount),
+                    objectCount,
+                    Math.max(1, benchmarkNotes / objectCount),
+                ),
+            ) / ErrorFunction.erfInv(calculateProportion(benchmarkNotes)) || 0,
+        );
+
+        // Punish for memorization if needed.
+        if (punishForMemorization) {
+            multiplier *= Math.min(1, Math.sqrt(objectCount / benchmarkNotes));
+        }
+
+        return multiplier;
     }
 
     /**
