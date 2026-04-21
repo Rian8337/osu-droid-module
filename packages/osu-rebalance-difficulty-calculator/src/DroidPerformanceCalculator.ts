@@ -443,26 +443,19 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         );
 
         if (this._effectiveMissCount > 0) {
-            const readingEstimatedSliderBreaks =
+            const aimEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.aimTopWeightedSliderFactor,
                 );
 
             readingValue *= Math.min(
                 this.calculateStrainBasedMissPenalty(
-                    this._effectiveMissCount + readingEstimatedSliderBreaks,
+                    this._effectiveMissCount + aimEstimatedSliderBreaks,
                     this.difficultyAttributes.readingDifficultNoteCount,
                 ),
                 this.proportionalMissPenalty,
             );
         }
-
-        // Scale the reading value with estimated full combo deviation.
-        // As reading is easily "bypassable" with memorization, punish for memorization.
-        readingValue *= Math.min(
-            1,
-            this.calculateDeviationBasedLengthScaling(undefined, true),
-        );
 
         // Scale the reading value with deviation.
         readingValue *=
