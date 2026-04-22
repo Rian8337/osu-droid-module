@@ -21,7 +21,7 @@ export class OsuAim extends VariableLengthStrainSkill {
 
     private readonly skillMultiplierSnap = 70.9;
     private readonly skillMultiplierAgility = 2.35;
-    private readonly skillMultiplierFlow = 243;
+    private readonly skillMultiplierFlow = 242;
     private readonly skillMultiplierTotal = 1.12;
     private readonly combinedSnapNormExponent = 1.2;
 

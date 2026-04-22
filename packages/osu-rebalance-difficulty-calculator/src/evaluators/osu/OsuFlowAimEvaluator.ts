@@ -88,9 +88,8 @@ export abstract class OsuFlowAimEvaluator {
 
         if (current.angle !== null) {
             // Acute angles are hard to flow.
-            // Square root velocity to ensure acute angle switches in streams are not assessed as harder than snap.
             flowDifficulty +=
-                Math.sqrt(currentVelocity) *
+                currentVelocity *
                 OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(
                     current.angle,
                 ) *
