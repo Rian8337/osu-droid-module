@@ -38,7 +38,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     override get smallCircleBonus(): number {
         return Math.max(
             1,
-            1 + Math.pow(Math.max(0, 70 - this.object.radius) / 60, 2),
+            1 + Math.pow(Math.max(0, 65 - this.object.radius) / 40, 2),
         );
     }
 
