@@ -777,21 +777,23 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private calculateEstimatedSliderBreaks(
         topWeightedSliderFactor: number,
     ): number {
-        const { n100 } = this.computedAccuracy;
+        const nonMissMistakes =
+            this.computedAccuracy.n100 + this.computedAccuracy.n50;
 
-        if (!this.usingClassicSliderAccuracy || n100 === 0) {
+        if (!this.usingClassicSliderAccuracy || nonMissMistakes === 0) {
             return 0;
         }
 
         const missedComboPercent =
             1 - this.combo / this.difficultyAttributes.maxCombo;
         let estimatedSliderBreaks = Math.min(
-            n100,
+            nonMissMistakes,
             this._effectiveMissCount * topWeightedSliderFactor,
         );
 
-        // Scores with more Oks are more likely to have slider breaks.
-        const okAdjustment = (n100 - estimatedSliderBreaks + 0.5) / n100;
+        // Scores with more Oks and Mehs are more likely to have slider breaks.
+        const nonMissMistakeAdjustment =
+            (nonMissMistakes - estimatedSliderBreaks + 0.5) / nonMissMistakes;
 
         // There is a low probability of extra slider breaks on effective miss counts close to 1, as
         // score based calculations are good at indicating if only a single break occurred.
@@ -803,7 +805,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         return (
             estimatedSliderBreaks *
-            okAdjustment *
+            nonMissMistakeAdjustment *
             MathUtils.offsetLogistic(missedComboPercent, 0.33, 15)
         );
     }
