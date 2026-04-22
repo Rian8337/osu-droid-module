@@ -44,7 +44,7 @@ export abstract class DroidFlashlightEvaluator {
             return 0;
         }
 
-        const scalingFactor = 52 / current.object.radius;
+        const scalingFactor = current.normalizedRadius / current.object.radius;
         let smallDistNerf = 1;
         let cumulativeStrainTime = 0;
         let result = 0;
