@@ -12,8 +12,6 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuReadingEvaluator {
     private static readonly readingWindowSize = 3000; // 3 seconds
-    private static readonly distanceInfluenceThreshold =
-        OsuDifficultyHitObject.normalizedDiameter * 1.5; // 1.5 circles distance between centers
     private static readonly hiddenMultiplier = 0.28;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
@@ -33,6 +31,9 @@ export abstract class OsuReadingEvaluator {
             return 0;
         }
 
+        // 1.5 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.5;
+
         const next = current.next(0);
 
         // Only allow velocity to buff
@@ -43,14 +44,19 @@ export abstract class OsuReadingEvaluator {
 
         const currentVisibleObjectDensity =
             this.retrieveCurrentVisibleObjectDensity(current);
+
         const pastObjectDifficultyInfluence =
-            this.getPastObjectDifficultyInfluence(current);
+            this.getPastObjectDifficultyInfluence(
+                current,
+                distanceInfluenceThreshold,
+            );
 
         const constantAngleNerfFactor =
             this.getConstantAngleNerfFactor(current);
 
         const noteDensityDifficulty = this.calculateDensityDifficulty(
             next,
+            distanceInfluenceThreshold,
             velocity,
             constantAngleNerfFactor,
             pastObjectDifficultyInfluence,
@@ -95,6 +101,7 @@ export abstract class OsuReadingEvaluator {
      */
     private static calculateDensityDifficulty(
         next: OsuDifficultyHitObject | null,
+        distanceInfluenceThreshold: number,
         velocity: number,
         constantAngleNerfFactor: number,
         pastObjectDifficultyInfluence: number,
@@ -110,7 +117,7 @@ export abstract class OsuReadingEvaluator {
             futureObjectDifficultyInfluence *= MathUtils.smootherstep(
                 next.lazyJumpDistance,
                 15,
-                this.distanceInfluenceThreshold,
+                distanceInfluenceThreshold,
             );
         }
 
@@ -233,6 +240,7 @@ export abstract class OsuReadingEvaluator {
 
     private static getPastObjectDifficultyInfluence(
         current: OsuDifficultyHitObject,
+        distanceInfluenceThreshold: number,
     ): number {
         let pastObjectDifficultyInfluence = 0;
 
@@ -244,7 +252,7 @@ export abstract class OsuReadingEvaluator {
             loopDifficulty *= MathUtils.smootherstep(
                 loopObj.lazyJumpDistance,
                 15,
-                this.distanceInfluenceThreshold,
+                distanceInfluenceThreshold,
             );
 
             // Account less for objects close to the max reading window.
@@ -399,7 +407,7 @@ export abstract class OsuReadingEvaluator {
                 const stackFactor = MathUtils.smootherstep(
                     loopObj.lazyJumpDistance,
                     0,
-                    OsuDifficultyHitObject.normalizedRadius,
+                    current.normalizedRadius,
                 );
 
                 constantAngleCount +=

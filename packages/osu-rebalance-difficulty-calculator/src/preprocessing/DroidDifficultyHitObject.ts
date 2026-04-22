@@ -27,9 +27,13 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      */
     rhythmDifficulty = 0;
 
+    override readonly normalizedRadius = 50;
+
     protected override readonly mode = Modes.droid;
-    protected override readonly maximumSliderRadius =
-        DifficultyHitObject.normalizedRadius * 2;
+
+    protected override get maximumSliderRadius(): number {
+        return this.normalizedRadius * 2;
+    }
 
     override get smallCircleBonus(): number {
         return Math.max(1, 1 + Math.pow((70 - this.object.radius) / 60, 2));

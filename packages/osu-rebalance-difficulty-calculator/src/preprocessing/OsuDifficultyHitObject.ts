@@ -14,5 +14,7 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
         return Math.max(1, 1 + (30 - this.object.radius) / 70);
     }
 
+    override readonly normalizedRadius = 50;
+
     protected override readonly mode = Modes.osu;
 }

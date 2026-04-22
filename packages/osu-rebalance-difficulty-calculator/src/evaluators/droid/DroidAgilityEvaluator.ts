@@ -5,9 +5,6 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid agility aim difficulty.
  */
 export abstract class DroidAgilityEvaluator {
-    private static readonly distanceCap =
-        DroidDifficultyHitObject.normalizedDiameter * 1.2;
-
     /**
      * Evaluates the difficulty of fast aiming the current object.
      *
@@ -23,8 +20,8 @@ export abstract class DroidAgilityEvaluator {
         const travelDistance = prev?.lazyTravelDistance ?? 0;
         const distance = travelDistance + current.lazyJumpDistance;
 
-        const distanceScaled =
-            Math.min(distance, this.distanceCap) / this.distanceCap;
+        const distanceCap = current.normalizedDiameter * 1.2;
+        const distanceScaled = Math.min(distance, distanceCap) / distanceCap;
 
         let strain = (distanceScaled * 1000) / current.strainTime;
 

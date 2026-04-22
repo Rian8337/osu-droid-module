@@ -46,8 +46,8 @@ export abstract class DroidSnapAimEvaluator {
         const last = current.previous(0)!;
         const last2 = current.previous(2);
 
-        const radius = DroidDifficultyHitObject.normalizedRadius;
-        const diameter = DroidDifficultyHitObject.normalizedDiameter;
+        const radius = current.normalizedRadius;
+        const diameter = current.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         const currentDistance = withSliders
@@ -346,7 +346,7 @@ export abstract class DroidSnapAimEvaluator {
         const stackFactor = MathUtils.smootherstep(
             current.lazyJumpDistance,
             0,
-            DroidDifficultyHitObject.normalizedDiameter,
+            current.normalizedDiameter,
         );
 
         const angleDifferenceAdjusted = Math.cos(

@@ -12,8 +12,6 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  */
 export abstract class DroidReadingEvaluator {
     private static readonly readingWindowSize = 3000; // 3 seconds
-    private static readonly distanceInfluenceThreshold =
-        DroidDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circles distance between centers
     private static readonly hiddenMultiplier = 0.28;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
@@ -40,6 +38,9 @@ export abstract class DroidReadingEvaluator {
 
         const next = current.next(0);
 
+        // 1.25 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.25;
+
         // Only allow velocity to buff
         const velocity = Math.max(
             1,
@@ -48,14 +49,19 @@ export abstract class DroidReadingEvaluator {
 
         const currentVisibleObjectDensity =
             this.retrieveCurrentVisibleObjectDensity(current);
+
         const pastObjectDifficultyInfluence =
-            this.getPastObjectDifficultyInfluence(current);
+            this.getPastObjectDifficultyInfluence(
+                current,
+                distanceInfluenceThreshold,
+            );
 
         const constantAngleNerfFactor =
             this.getConstantAngleNerfFactor(current);
 
         const noteDensityDifficulty = this.calculateDensityDifficulty(
             next,
+            distanceInfluenceThreshold,
             velocity,
             constantAngleNerfFactor,
             pastObjectDifficultyInfluence,
@@ -100,6 +106,7 @@ export abstract class DroidReadingEvaluator {
      */
     private static calculateDensityDifficulty(
         next: DroidDifficultyHitObject | null,
+        distanceInfluenceThreshold: number,
         velocity: number,
         constantAngleNerfFactor: number,
         pastObjectDifficultyInfluence: number,
@@ -115,7 +122,7 @@ export abstract class DroidReadingEvaluator {
             futureObjectDifficultyInfluence *= MathUtils.smootherstep(
                 next.lazyJumpDistance,
                 15,
-                this.distanceInfluenceThreshold,
+                distanceInfluenceThreshold,
             );
         }
 
@@ -237,6 +244,7 @@ export abstract class DroidReadingEvaluator {
 
     private static getPastObjectDifficultyInfluence(
         current: DroidDifficultyHitObject,
+        distanceInfluenceThreshold: number,
     ): number {
         let pastObjectDifficultyInfluence = 0;
 
@@ -248,7 +256,7 @@ export abstract class DroidReadingEvaluator {
             loopDifficulty *= MathUtils.smootherstep(
                 loopObj.lazyJumpDistance,
                 15,
-                this.distanceInfluenceThreshold,
+                distanceInfluenceThreshold,
             );
 
             // Account less for objects close to the max reading window.
@@ -411,7 +419,7 @@ export abstract class DroidReadingEvaluator {
                 const stackFactor = MathUtils.smootherstep(
                     loopObj.lazyJumpDistance,
                     0,
-                    DroidDifficultyHitObject.normalizedRadius,
+                    current.normalizedRadius,
                 );
 
                 constantAngleCount +=

@@ -189,21 +189,24 @@ export abstract class DifficultyHitObject {
     /**
      * The normalized radius of the hitobject.
      */
-    static readonly normalizedRadius: number = 50;
+    abstract readonly normalizedRadius: number;
 
     /**
      * The normalized diameter of the hitobject.
      */
-    static get normalizedDiameter() {
+    get normalizedDiameter() {
         return this.normalizedRadius * 2;
     }
 
     protected abstract readonly mode: Modes;
 
-    protected readonly maximumSliderRadius: number =
-        DifficultyHitObject.normalizedRadius * 2.4;
-    protected readonly assumedSliderRadius =
-        DifficultyHitObject.normalizedRadius * 1.8;
+    protected get maximumSliderRadius(): number {
+        return this.normalizedRadius * 2.4;
+    }
+
+    protected get assumedSliderRadius(): number {
+        return this.normalizedRadius * 1.8;
+    }
 
     /**
      * The lowest possible delta time value.
@@ -414,8 +417,7 @@ export abstract class DifficultyHitObject {
         }
 
         // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
-        const scalingFactor =
-            DifficultyHitObject.normalizedRadius / this.object.radius;
+        const scalingFactor = this.normalizedRadius / this.object.radius;
 
         let lastCursorPosition =
             this.lastDifficultyObject !== null
@@ -627,8 +629,7 @@ export abstract class DifficultyHitObject {
         );
 
         let currentCursorPosition = this.object.stackedPosition;
-        const scalingFactor =
-            DifficultyHitObject.normalizedRadius / this.object.radius;
+        const scalingFactor = this.normalizedRadius / this.object.radius;
 
         for (let i = 1; i < nestedObjects.length; ++i) {
             const currentMovementObject = nestedObjects[i];
@@ -659,7 +660,7 @@ export abstract class DifficultyHitObject {
                 currentMovementLength = scalingFactor * currentMovement.length;
             } else if (currentMovementObject instanceof SliderRepeat) {
                 // For a slider repeat, assume a tighter movement threshold to better assess repeat sliders.
-                requiredMovement = DifficultyHitObject.normalizedRadius;
+                requiredMovement = this.normalizedRadius;
             }
 
             if (currentMovementLength > requiredMovement) {

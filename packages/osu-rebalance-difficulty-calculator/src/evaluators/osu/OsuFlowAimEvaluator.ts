@@ -111,7 +111,7 @@ export abstract class OsuFlowAimEvaluator {
 
             // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
             const overlapVelocityBuff = Math.min(
-                (OsuDifficultyHitObject.normalizedDiameter * 1.25) /
+                (current.normalizedDiameter * 1.25) /
                     Math.min(current.strainTime, last.strainTime),
                 Math.abs(prevVelocity - currentVelocity),
             );
@@ -135,11 +135,7 @@ export abstract class OsuFlowAimEvaluator {
         // Reduce difficulty for low spacing since spacing below radius is always to be flowed.
         return (
             flowDifficulty *
-            MathUtils.smootherstep(
-                currentDistance,
-                0,
-                OsuDifficultyHitObject.normalizedRadius,
-            )
+            MathUtils.smootherstep(currentDistance, 0, current.normalizedRadius)
         );
     }
 

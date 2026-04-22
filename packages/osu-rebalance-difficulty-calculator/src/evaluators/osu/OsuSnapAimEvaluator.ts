@@ -45,8 +45,8 @@ export abstract class OsuSnapAimEvaluator {
 
         const last2 = current.previous(2);
 
-        const radius = OsuDifficultyHitObject.normalizedRadius;
-        const diameter = OsuDifficultyHitObject.normalizedDiameter;
+        const radius = current.normalizedRadius;
+        const diameter = current.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         const currentDistance = withSliders
@@ -336,7 +336,7 @@ export abstract class OsuSnapAimEvaluator {
         const stackFactor = MathUtils.smootherstep(
             current.lazyJumpDistance,
             0,
-            OsuDifficultyHitObject.normalizedDiameter,
+            current.normalizedDiameter,
         );
 
         const angleDifferenceAdjusted = Math.cos(
