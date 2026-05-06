@@ -1,4 +1,4 @@
-import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
+import { Spinner, Slider, MathUtils, Interpolation } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { Island } from "../base/Island";
 import { IslandCounter } from "../base/IslandCounter";
@@ -9,8 +9,8 @@ import { IslandCounter } from "../base/IslandCounter";
 export abstract class DroidRhythmEvaluator {
     private static readonly historyTimeMax = 5000; // 5 seconds of calculateRhythmBonus max.
     private static readonly historyObjectsMax = 32;
-    private static readonly rhythmOverallMultiplier = 0.8;
-    private static readonly rhythmRatioMultiplier = 32;
+    private static readonly rhythmOverallMultiplier = 0.95;
+    private static readonly rhythmRatioMultiplier = 26;
 
     /**
      * Calculates a rhythm multiplier for the difficulty of the tap associated
@@ -92,6 +92,10 @@ export abstract class DroidRhythmEvaluator {
             const prevDelta = Math.max(prevObject.deltaTime, 1e-7);
             const lastDelta = Math.max(lastObject.deltaTime, 1e-7);
 
+            if (island.delta == Number.MAX_SAFE_INTEGER) {
+                island = new Island(currentDelta, deltaDifferenceEpsilon);
+            }
+
             // Calculate how much current delta difference deserves a rhythm bonus.
             // This function is meant to reduce rhythm bonus for deltas that are multiples of each other (i.e. 100 and 200).
             const deltaDifference =
@@ -140,13 +144,17 @@ export abstract class DroidRhythmEvaluator {
                 effectiveRatio = Math.min(sliderEffectiveRatio, effectiveRatio);
             }
 
+            const isSpeedingUp =
+                prevDelta > currentDelta + deltaDifferenceEpsilon;
+
+            if (Math.abs(prevDelta - currentDelta) < deltaDifferenceEpsilon) {
+                island.addDelta(currentDelta);
+            }
+
             if (firstDeltaSwitch) {
                 if (
-                    Math.abs(prevDelta - currentDelta) < deltaDifferenceEpsilon
+                    Math.abs(prevDelta - currentDelta) > deltaDifferenceEpsilon
                 ) {
-                    // Island is still progressing, count size.
-                    island.addDelta(currentDelta);
-                } else {
                     if (
                         !useSliderAccuracy &&
                         currentObject.object instanceof Slider
@@ -175,6 +183,10 @@ export abstract class DroidRhythmEvaluator {
                         effectiveRatio /= 2;
                     }
 
+                    if (isSpeedingUp) {
+                        effectiveRatio *= 0.65;
+                    }
+
                     const islandCount = islandCounts.find((x) =>
                         x.island.equals(island),
                     );
@@ -199,7 +211,7 @@ export abstract class DroidRhythmEvaluator {
                                 ),
                             ),
                         );
-                    } else {
+                    } else if (island.deltaCount > 0) {
                         islandCounts.push(new IslandCounter(island, 1));
                     }
 
@@ -247,6 +259,13 @@ export abstract class DroidRhythmEvaluator {
             lastObject = prevObject;
             prevObject = currentObject;
         }
+
+        // If the current island is long we don't want the sum to have as big of an effect.
+        rhythmComplexitySum *= Interpolation.reverseLerp(
+            island.deltaCount,
+            22,
+            3,
+        );
 
         return (
             Math.sqrt(4 + rhythmComplexitySum * this.rhythmOverallMultiplier) /
