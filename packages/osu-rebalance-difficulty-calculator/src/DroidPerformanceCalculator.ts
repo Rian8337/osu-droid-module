@@ -339,9 +339,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         );
 
         // An effective hit window is created based on the tap SR. The higher the tap difficulty, the shorter the hit window.
-        // For example, a tap SR of 4 leads to an effective hit window of 25ms, which is OD 10 with Precise mod.
+        // For example, a tap SR of 4 leads to an effective hit window of 35ms.
         const effectiveHitWindow =
-            25 * Math.pow(4 / this.difficultyAttributes.tapDifficulty, 1.5);
+            35 * Math.pow(4 / this.difficultyAttributes.tapDifficulty, 1.8);
 
         // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
         const effectiveAccuracy = ErrorFunction.erf(
