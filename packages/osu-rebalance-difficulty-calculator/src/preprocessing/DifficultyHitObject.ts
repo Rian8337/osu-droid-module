@@ -1,5 +1,6 @@
 import {
     HitObject,
+    Interpolation,
     MathUtils,
     Modes,
     ModHidden,
@@ -389,7 +390,16 @@ export abstract class DifficultyHitObject {
             5,
         );
 
-        return 1 - Math.pow(speedRatio, 1 - windowRatio);
+        const distanceFactor = Math.pow(
+            Interpolation.reverseLerp(
+                this.lazyJumpDistance,
+                this.normalizedDiameter,
+                this.normalizedRadius,
+            ),
+            2,
+        );
+
+        return 1 - Math.pow(speedRatio, distanceFactor * (1 - windowRatio));
     }
 
     private setDistances(clockRate: number) {
