@@ -123,15 +123,15 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         {
             noMod: {
                 aim: 2.5721536156648033,
-                speed: 1.5594303200510715,
+                speed: 1.5650343060239142,
                 reading: 0.6705964087940639,
-                total: 4.485186517132253,
+                total: 4.487763647289929,
             },
             doubleTime: {
                 aim: 3.5884193163903206,
-                speed: 2.337673672371777,
+                speed: 2.3491617611521516,
                 reading: 1.4773583874100473,
-                total: 6.399968329658838,
+                total: 6.4058926423545,
             },
             flashlight: 1.5766361804020608,
         },
@@ -142,15 +142,15 @@ describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
             aim: 1.3344691674034885,
-            speed: 0.9290863290257275,
+            speed: 0.928124837622926,
             reading: 0.5705737258226313,
-            total: 2.416506560019136,
+            total: 2.4159517483744426,
         },
         doubleTime: {
             aim: 1.842738253858526,
-            speed: 1.3436134272768423,
+            speed: 1.3341969647348997,
             reading: 0.5345661314231405,
-            total: 3.3414315093010076,
+            total: 3.3354381263273565,
         },
         flashlight: 0.40181332763095984,
     });
@@ -162,15 +162,15 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         {
             noMod: {
                 aim: 3.2043661316062746,
-                speed: 3.0594757299311444,
+                speed: 3.040644949386902,
                 reading: 1.1152578238615487,
-                total: 6.405442907841661,
+                total: 6.387597994348068,
             },
             doubleTime: {
                 aim: 4.491000278788023,
-                speed: 4.621840264530277,
+                speed: 4.5937671362271235,
                 reading: 1.9892087967145595,
-                total: 9.359217199196495,
+                total: 9.330481753465296,
             },
             flashlight: 1.826929496301562,
         },
@@ -181,15 +181,15 @@ describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
             aim: 4.774105111930683,
-            speed: 1.4636175043551052,
+            speed: 1.4344004281432805,
             reading: 0.8562246734214298,
-            total: 7.926135900404736,
+            total: 7.923081830294855,
         },
         doubleTime: {
             aim: 6.007904086675195,
-            speed: 2.150435802695784,
+            speed: 2.100325253798781,
             reading: 2.9724699491462965,
-            total: 10.282634738100066,
+            total: 10.275685024592827,
         },
         flashlight: 2.9220600698216836,
     });
@@ -201,15 +201,15 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         {
             noMod: {
                 aim: 41.11401554338809,
-                speed: 9.325775471086825,
+                speed: 9.399846680595523,
                 reading: 10.375682010537227,
-                total: 68.14670294054763,
+                total: 68.15071475171197,
             },
             doubleTime: {
                 aim: 47.64727560481594,
-                speed: 11.385125029348524,
+                speed: 11.410750203861472,
                 reading: 24.472325015381102,
-                total: 81.28764121829431,
+                total: 81.28909569918147,
             },
             flashlight: 38.8798121476072,
         },
@@ -238,15 +238,15 @@ describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
             aim: 5.252141129299716,
-            speed: 2.649323006275907,
+            speed: 2.623024402978355,
             reading: 1.3617170625915516,
-            total: 8.951397022810282,
+            total: 8.943161430994099,
         },
         doubleTime: {
             aim: 6.61522280224243,
-            speed: 3.962385339790621,
+            speed: 3.927855375324828,
             reading: 3.9941741120341905,
-            total: 12.006056946648552,
+            total: 11.992141321056907,
         },
         flashlight: 4.075576247071868,
     });
