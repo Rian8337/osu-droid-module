@@ -1,3 +1,5 @@
+import { HitResult } from "../constants/HitResult";
+
 /**
  * Represents a hit window.
  */
@@ -33,4 +35,27 @@ export abstract class HitWindow {
      * The meh (50) window of this `HitWindow`.
      */
     abstract get mehWindow(): number;
+
+    /**
+     * Retrieves the hit window for a {@link HitResult}. This is the number of +/- milliseconds
+     * allowed for the requested result (so the actual hittable range is double this).
+     *
+     * @param result The {@link HitResult} to retrieve the hit window for.
+     * @returns The hit window for the requested {@link HitResult}.
+     */
+    hitWindowFor(result: HitResult): number {
+        switch (result) {
+            case HitResult.great:
+                return this.greatWindow;
+
+            case HitResult.good:
+                return this.okWindow;
+
+            case HitResult.meh:
+                return this.mehWindow;
+
+            case HitResult.miss:
+                return HitWindow.missWindow;
+        }
+    }
 }

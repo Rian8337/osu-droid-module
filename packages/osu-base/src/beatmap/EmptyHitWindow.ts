@@ -21,4 +21,8 @@ export class EmptyHitWindow extends HitWindow {
     override get mehWindow(): number {
         return 0;
     }
+
+    override hitWindowFor(): number {
+        return 0;
+    }
 }
