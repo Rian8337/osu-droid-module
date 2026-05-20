@@ -1,5 +1,7 @@
 /**
- * The result of a hit in an osu!droid replay.
+ * The result of a hit.
+ *
+ * Underlying numbers mirror values in an osu!droid replay.
  */
 export enum HitResult {
     /**
@@ -10,15 +12,15 @@ export enum HitResult {
     /**
      * Meh (50).
      */
-    meh = 2,
+    meh,
 
     /**
      * Good (100).
      */
-    good = 3,
+    good,
 
     /**
      * Great (300).
      */
-    great = 4,
+    great,
 }

@@ -3,6 +3,7 @@ import {
     Circle,
     DroidHitWindow,
     DroidPlayableBeatmap,
+    HitResult,
     HitWindow,
     Interpolation,
     MathUtils,
@@ -18,7 +19,6 @@ import {
 } from "@rian8337/osu-base";
 import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";

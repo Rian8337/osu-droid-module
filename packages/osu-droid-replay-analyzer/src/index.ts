@@ -8,7 +8,6 @@ export * from "./data/ExportedReplayJSONDataV3";
 export * from "./data/ExportedReplayJSONV1";
 export * from "./data/ExportedReplayJSONV2";
 export * from "./data/ExportedReplayJSONV3";
-export * from "./constants/HitResult";
 export * from "./constants/MovementType";
 export * from "./analysis/RebalanceThreeFingerChecker";
 export * from "./analysis/RebalanceSliderCheeseChecker";

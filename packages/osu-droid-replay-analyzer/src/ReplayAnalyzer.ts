@@ -7,6 +7,7 @@ import {
     DroidHitWindow,
     DroidLegacyModConverter,
     DroidPlayableBeatmap,
+    HitResult,
     HitWindow,
     MathUtils,
     Mod,
@@ -46,12 +47,12 @@ import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficulty
 import * as javaDeserialization from "java-deserialization";
 import { Readable } from "stream";
 import { Parse } from "unzipper";
+import { RebalanceSliderCheeseChecker } from "./analysis/RebalanceSliderCheeseChecker";
 import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChecker";
 import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker } from "./analysis/TwoHandChecker";
 import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
-import { HitResult } from "./constants/HitResult";
 import { MovementType } from "./constants/MovementType";
 import { CursorData } from "./data/CursorData";
 import { ReplayData } from "./data/ReplayData";
@@ -59,7 +60,6 @@ import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
 import { SliderHitInformation } from "./data/SliderHitInformation";
-import { RebalanceSliderCheeseChecker } from "./analysis/RebalanceSliderCheeseChecker";
 
 export interface HitErrorInformation {
     negativeAvg: number;

@@ -1,6 +1,7 @@
 import {
     DroidHitWindow,
     DroidPlayableBeatmap,
+    HitResult,
     Interpolation,
     ModHardRock,
     ModPrecise,
@@ -11,7 +12,6 @@ import {
     Vector2,
 } from "@rian8337/osu-base";
 import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
-import { HitResult } from "../constants/HitResult";
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";

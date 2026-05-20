@@ -77,6 +77,7 @@ export * from "./constants/BeatmapOverlayPosition";
 export * from "./constants/Easing";
 export * from "./constants/EditorGridSize";
 export * from "./constants/GameMode";
+export * from "./constants/HitResult";
 export * from "./constants/HitSoundType";
 export * from "./constants/Modes";
 export * from "./constants/ObjectTypes";

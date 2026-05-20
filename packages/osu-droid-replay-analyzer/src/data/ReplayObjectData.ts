@@ -1,4 +1,4 @@
-import { HitResult } from "../constants/HitResult";
+import { HitResult } from "@rian8337/osu-base";
 
 /**
  * Represents a hitobject in an osu!droid replay.
