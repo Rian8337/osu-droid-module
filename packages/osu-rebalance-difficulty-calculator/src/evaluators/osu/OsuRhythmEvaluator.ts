@@ -1,4 +1,10 @@
-import { Spinner, Slider, MathUtils, Interpolation } from "@rian8337/osu-base";
+import {
+    Spinner,
+    Slider,
+    MathUtils,
+    Interpolation,
+    HitResult,
+} from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { Island } from "../base/Island";
 import { IslandCounter } from "../base/IslandCounter";
@@ -23,7 +29,8 @@ export abstract class OsuRhythmEvaluator {
             return 0;
         }
 
-        const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
+        const deltaDifferenceEpsilon =
+            current.hitWindowFor(HitResult.great) * 0.3;
         let rhythmComplexitySum = 0;
 
         let island = new Island(deltaDifferenceEpsilon);

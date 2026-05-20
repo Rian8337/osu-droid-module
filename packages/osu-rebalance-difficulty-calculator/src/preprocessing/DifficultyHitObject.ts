@@ -165,11 +165,6 @@ export abstract class DifficultyHitObject {
     readonly endTime: number;
 
     /**
-     * The full great window of the hitobject.
-     */
-    readonly fullGreatWindow: number;
-
-    /**
      * Adjusted preempt time of the hitobject, taking speed multiplier into account.
      */
     readonly timePreempt: number;
@@ -249,15 +244,6 @@ export abstract class DifficultyHitObject {
         this.lastObject = lastObject;
         this.hitObjects = difficultyHitObjects;
         this.clockRate = clockRate;
-
-        if (object instanceof Slider) {
-            this.fullGreatWindow =
-                (object.head.hitWindow?.greatWindow ?? 1200) * 2;
-        } else {
-            this.fullGreatWindow = (object.hitWindow?.greatWindow ?? 1200) * 2;
-        }
-
-        this.fullGreatWindow /= clockRate;
         this.index = index;
 
         this.startTime = object.startTime / clockRate;
@@ -395,7 +381,7 @@ export abstract class DifficultyHitObject {
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
 
         const windowRatio = Math.pow(
-            Math.min(1, currentDeltaTime / this.fullGreatWindow),
+            Math.min(1, currentDeltaTime / this.hitWindowFor(HitResult.great)),
             5,
         );
 
@@ -414,7 +400,7 @@ export abstract class DifficultyHitObject {
     /**
      * Retrieves the full rate-adjusted hit window for a {@link HitResult}.
      */
-    hitWindow(result: HitResult): number {
+    hitWindowFor(result: HitResult): number {
         return (2 * this.rawHitWindow.hitWindowFor(result)) / this.clockRate;
     }
 
