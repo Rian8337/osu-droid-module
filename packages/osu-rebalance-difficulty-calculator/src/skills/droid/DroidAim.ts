@@ -1,6 +1,7 @@
 import {
     Interpolation,
     MathUtils,
+    ModAutopilot,
     ModMap,
     ModRelax,
     Slider,
@@ -95,35 +96,19 @@ export class DroidAim extends VariableLengthStrainSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
+        if (this.mods.has(ModAutopilot)) {
+            return 0;
+        }
+
         const decay = this.strainDecay(current.strainTime);
 
-        const snapDifficulty =
-            DroidSnapAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierSnap;
-
-        const agilityDifficulty =
-            DroidAgilityEvaluator.evaluateDifficultyOf(current) *
-            this.skillMultiplierAgility;
-
-        const flowDifficulty =
-            DroidFlowAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierFlow;
-
-        const totalDifficulty = this.calculateTotalValue(
-            snapDifficulty,
-            agilityDifficulty,
-            flowDifficulty,
-        );
-
         this.currentStrain *= decay;
-        this.currentStrain += totalDifficulty * (1 - decay);
+        this.currentStrain +=
+            this.calculateAdjustedDifficulty(current) * (1 - decay);
 
         if (current.object instanceof Slider) {
             this.sliderStrains.push(this.currentStrain);
+
             this.maxSliderStrain = Math.max(
                 this.maxSliderStrain,
                 this.currentStrain,
@@ -152,6 +137,32 @@ export class DroidAim extends VariableLengthStrainSkill {
         } else {
             current.aimStrainWithoutSliders = difficulty;
         }
+    }
+
+    private calculateAdjustedDifficulty(
+        current: DroidDifficultyHitObject,
+    ): number {
+        const snapDifficulty =
+            DroidSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierSnap;
+
+        const agilityDifficulty =
+            DroidAgilityEvaluator.evaluateDifficultyOf(current) *
+            this.skillMultiplierAgility;
+
+        const flowDifficulty =
+            DroidFlowAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierFlow;
+
+        return this.calculateTotalValue(
+            snapDifficulty,
+            agilityDifficulty,
+            flowDifficulty,
+        );
     }
 
     private calculateTotalValue(

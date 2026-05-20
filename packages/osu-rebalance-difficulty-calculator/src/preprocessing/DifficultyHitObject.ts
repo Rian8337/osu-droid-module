@@ -1,5 +1,7 @@
 import {
     HitObject,
+    HitResult,
+    HitWindow,
     Interpolation,
     MathUtils,
     Modes,
@@ -181,6 +183,13 @@ export abstract class DifficultyHitObject {
      * Selective bonus for beatmaps with higher circle size.
      */
     abstract get smallCircleBonus(): number;
+
+    /**
+     * This {@link DifficultyHitObject}'s immediate overall difficulty value calculated from the raw hitwindow.
+     */
+    get overallDifficulty(): number {
+        return this.rawHitWindow.overallDifficulty;
+    }
 
     /**
      * Other hitobjects in the beatmap, including this hitobject.
@@ -400,6 +409,24 @@ export abstract class DifficultyHitObject {
         );
 
         return 1 - Math.pow(speedRatio, distanceFactor * (1 - windowRatio));
+    }
+
+    /**
+     * Retrieves the full rate-adjusted hit window for a {@link HitResult}.
+     */
+    hitWindow(result: HitResult): number {
+        return (2 * this.rawHitWindow.hitWindowFor(result)) / this.clockRate;
+    }
+
+    /**
+     * The {@link HitWindow} for this {@link DifficultyHitObject}.
+     */
+    protected get rawHitWindow(): HitWindow {
+        if (this.object instanceof Slider) {
+            return this.object.head.hitWindow!;
+        }
+
+        return this.object.hitWindow!;
     }
 
     private setDistances(clockRate: number) {

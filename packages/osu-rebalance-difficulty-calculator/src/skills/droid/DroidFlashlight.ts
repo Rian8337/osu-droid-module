@@ -1,3 +1,4 @@
+import { ModMap } from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -16,6 +17,13 @@ export class DroidFlashlight extends DroidSkill {
 
     static override difficultyToPerformance(difficulty: number): number {
         return Math.pow(difficulty, 1.6) * 25;
+    }
+
+    constructor(
+        mods: ModMap,
+        private readonly totalObjects: number,
+    ) {
+        super(mods);
     }
 
     protected override strainValueAt(
@@ -48,10 +56,19 @@ export class DroidFlashlight extends DroidSkill {
     }
 
     override difficultyValue(): number {
-        return (
+        let sum =
             this.currentStrainPeaks.reduce((a, v) => a + v, 0) *
-            this.starsPerDouble
-        );
+            this.starsPerDouble;
+
+        // Account for shorter beatmaps having a higher ratio of 0 combo/100 combo flashlight radius.
+        sum *=
+            0.7 +
+            0.1 * Math.min(1, this.totalObjects / 200) +
+            (this.totalObjects > 200
+                ? 0.2 * Math.min(1, (this.totalObjects - 200) / 200)
+                : 0);
+
+        return sum;
     }
 
     private strainDecay(ms: number): number {

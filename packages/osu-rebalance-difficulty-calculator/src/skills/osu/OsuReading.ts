@@ -1,7 +1,11 @@
 import {
     Interpolation,
     MathUtils,
+    ModAutopilot,
+    ModMagnetised,
     ModMap,
+    ModRelax,
+    ModTouchDevice,
     PlaceableHitObject,
 } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
@@ -65,7 +69,7 @@ export class OsuReading extends HarmonicSkill {
         this.currentDifficulty *= decay;
 
         this.currentDifficulty +=
-            OsuReadingEvaluator.evaluateDifficultyOf(current, this.mods) *
+            this.calculateAdjustedDifficulty(current) *
             (1 - decay) *
             this.skillMultiplier;
 
@@ -96,6 +100,38 @@ export class OsuReading extends HarmonicSkill {
         difficulty: number,
     ) {
         current.readingDifficulty = difficulty;
+    }
+
+    private calculateAdjustedDifficulty(
+        current: OsuDifficultyHitObject,
+    ): number {
+        let difficulty = OsuReadingEvaluator.evaluateDifficultyOf(
+            current,
+            this.mods,
+        );
+
+        if (this.mods.has(ModTouchDevice)) {
+            difficulty = Math.pow(difficulty, 0.89);
+        }
+
+        if (this.mods.has(ModMagnetised)) {
+            const magnetisedStrength =
+                this.mods.get(ModMagnetised)!.attractionStrength.value;
+
+            difficulty *= 1 - magnetisedStrength;
+        }
+
+        if (this.mods.has(ModRelax)) {
+            difficulty *= 0.4;
+        } else if (this.mods.has(ModAutopilot)) {
+            difficulty *= 0.1;
+        }
+
+        difficulty *=
+            0.825 +
+            Math.pow(Math.max(0, current.overallDifficulty), 2.2) / 1125;
+
+        return difficulty;
     }
 
     private calculateReducedNoteCount(): number {

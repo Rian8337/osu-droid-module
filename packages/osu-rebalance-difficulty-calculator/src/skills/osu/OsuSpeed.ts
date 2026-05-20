@@ -1,4 +1,4 @@
-import { MathUtils, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModAutopilot, ModRelax, Slider } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { OsuRhythmEvaluator } from "../../evaluators/osu/OsuRhythmEvaluator";
 import { OsuSpeedEvaluator } from "../../evaluators/osu/OsuSpeedEvaluator";
@@ -73,11 +73,15 @@ export class OsuSpeed extends HarmonicSkill {
     protected override objectDifficultyOf(
         current: OsuDifficultyHitObject,
     ): number {
+        if (this.mods.has(ModRelax)) {
+            return 0;
+        }
+
         const decay = this.strainDecay(current.strainTime);
 
         this.currentDifficulty *= decay;
         this.currentDifficulty +=
-            OsuSpeedEvaluator.evaluateDifficultyOf(current) *
+            this.calculateAdjustedDifficulty(current) *
             (1 - decay) *
             this.skillMultiplier;
 
@@ -95,6 +99,18 @@ export class OsuSpeed extends HarmonicSkill {
     protected override saveToHitObject(current: OsuDifficultyHitObject) {
         current.speedStrain = this.currentDifficulty * this.currentRhythm;
         current.rhythmMultiplier = this.currentRhythm;
+    }
+
+    private calculateAdjustedDifficulty(
+        current: OsuDifficultyHitObject,
+    ): number {
+        let difficulty = OsuSpeedEvaluator.evaluateDifficultyOf(current);
+
+        if (this.mods.has(ModAutopilot)) {
+            difficulty *= 0.5;
+        }
+
+        return difficulty;
     }
 
     private strainDecay(ms: number): number {

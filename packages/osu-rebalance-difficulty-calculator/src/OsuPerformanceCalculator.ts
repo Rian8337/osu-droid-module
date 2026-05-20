@@ -1,6 +1,8 @@
 import {
     Accuracy,
+    BeatmapDifficulty,
     ErrorFunction,
+    HitObject,
     Interpolation,
     MathUtils,
     ModAutopilot,
@@ -14,11 +16,11 @@ import {
     OsuHitWindow,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
-import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
@@ -124,17 +126,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.okWindow = hitWindow.okWindow / clockRate;
         this.mehWindow = hitWindow.mehWindow / clockRate;
 
-        this.approachRate =
-            OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
-                ar,
-                clockRate,
-            );
+        this.approachRate = this.calculateRateAdjustedApproachRate(
+            ar,
+            clockRate,
+        );
 
-        this.overallDifficulty =
-            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
-                od,
-                clockRate,
-            );
+        this.overallDifficulty = (79.5 - this.greatWindow) / 6;
 
         this.speedDeviation = this.calculateSpeedDeviation();
 
@@ -753,6 +750,26 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         return traceableBonus;
+    }
+
+    private calculateRateAdjustedApproachRate(
+        approachRate: number,
+        clockRate: number,
+    ): number {
+        const preempt =
+            BeatmapDifficulty.difficultyRange(
+                approachRate,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            ) / clockRate;
+
+        return BeatmapDifficulty.inverseDifficultyRange(
+            preempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
     }
 
     override toString(): string {

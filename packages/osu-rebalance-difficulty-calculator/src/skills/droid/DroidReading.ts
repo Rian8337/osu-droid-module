@@ -1,7 +1,9 @@
 import {
     Interpolation,
     MathUtils,
+    ModAutopilot,
     ModMap,
+    ModRelax,
     PlaceableHitObject,
 } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
@@ -65,7 +67,7 @@ export class DroidReading extends HarmonicSkill {
         this.currentDifficulty *= decay;
 
         this.currentDifficulty +=
-            DroidReadingEvaluator.evaluateDifficultyOf(current, this.mods) *
+            this.calculateAdjustedDifficulty(current) *
             (1 - decay) *
             this.skillMultiplier;
 
@@ -96,6 +98,23 @@ export class DroidReading extends HarmonicSkill {
         difficulty: number,
     ) {
         current.readingDifficulty = difficulty;
+    }
+
+    private calculateAdjustedDifficulty(
+        current: DroidDifficultyHitObject,
+    ): number {
+        let difficulty = DroidReadingEvaluator.evaluateDifficultyOf(
+            current,
+            this.mods,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            difficulty *= 0.4;
+        } else if (this.mods.has(ModAutopilot)) {
+            difficulty *= 0.1;
+        }
+
+        return difficulty;
     }
 
     private calculateReducedNoteCount(): number {

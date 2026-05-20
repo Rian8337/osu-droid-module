@@ -1,4 +1,4 @@
-import { MathUtils, ModMap, Slider } from "@rian8337/osu-base";
+import { MathUtils, ModMap, ModRelax, Slider } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -81,6 +81,10 @@ export class DroidTap extends HarmonicSkill {
     protected override objectDifficultyOf(
         current: DroidDifficultyHitObject,
     ): number {
+        if (this.mods.has(ModRelax)) {
+            return 0;
+        }
+
         const decay = this.strainDecay(current.strainTime);
 
         this.currentTapDifficulty *= decay;

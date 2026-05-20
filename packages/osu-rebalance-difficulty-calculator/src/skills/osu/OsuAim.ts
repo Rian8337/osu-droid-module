@@ -1,6 +1,8 @@
 import {
     Interpolation,
     MathUtils,
+    ModAutopilot,
+    ModMagnetised,
     ModMap,
     ModRelax,
     ModTouchDevice,
@@ -94,32 +96,15 @@ export class OsuAim extends VariableLengthStrainSkill {
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
+        if (this.mods.has(ModAutopilot)) {
+            return 0;
+        }
+
         const decay = this.strainDecay(current.strainTime);
 
-        const snapDifficulty =
-            OsuSnapAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierSnap;
-
-        const agilityDifficulty =
-            OsuAgilityEvaluator.evaluateDifficultyOf(current) *
-            this.skillMultiplierAgility;
-
-        const flowDifficulty =
-            OsuFlowAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierFlow;
-
-        const totalDifficulty = this.calculateTotalValue(
-            snapDifficulty,
-            agilityDifficulty,
-            flowDifficulty,
-        );
-
         this.currentStrain *= decay;
-        this.currentStrain += totalDifficulty * (1 - decay);
+        this.currentStrain +=
+            this.calculateAdjustedDifficulty(current) * (1 - decay);
 
         if (current.object instanceof Slider) {
             this.sliderStrains.push(this.currentStrain);
@@ -148,6 +133,44 @@ export class OsuAim extends VariableLengthStrainSkill {
         } else {
             current.aimStrainWithoutSliders = this.currentStrain;
         }
+    }
+
+    private calculateAdjustedDifficulty(
+        current: OsuDifficultyHitObject,
+    ): number {
+        const snapDifficulty =
+            OsuSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierSnap;
+
+        const agilityDifficulty =
+            OsuAgilityEvaluator.evaluateDifficultyOf(current) *
+            this.skillMultiplierAgility;
+
+        const flowDifficulty =
+            OsuFlowAimEvaluator.evaluateDifficultyOf(
+                current,
+                this.withSliders,
+            ) * this.skillMultiplierFlow;
+
+        let totalDifficulty = this.calculateTotalValue(
+            snapDifficulty,
+            agilityDifficulty,
+            flowDifficulty,
+        );
+
+        if (this.mods.has(ModMagnetised)) {
+            const magnetisedStrength =
+                this.mods.get(ModMagnetised)!.attractionStrength.value;
+
+            totalDifficulty *= 1 - magnetisedStrength;
+        }
+
+        totalDifficulty *=
+            0.985 + Math.pow(Math.max(0, current.overallDifficulty), 2) / 4000;
+
+        return totalDifficulty;
     }
 
     private calculateTotalValue(
