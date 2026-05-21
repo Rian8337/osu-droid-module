@@ -9,6 +9,7 @@ import { DroidPlayableBeatmap } from "./DroidPlayableBeatmap";
 import { IBeatmap } from "./IBeatmap";
 import { OsuPlayableBeatmap } from "./OsuPlayableBeatmap";
 import { Slider } from "./hitobjects/Slider";
+import { Spinner } from "./hitobjects/Spinner";
 import { BeatmapColor } from "./sections/BeatmapColor";
 import { BeatmapControlPoints } from "./sections/BeatmapControlPoints";
 import { BeatmapDifficulty } from "./sections/BeatmapDifficulty";
@@ -141,30 +142,53 @@ export class Beatmap implements IBeatmap {
         let combo = 0;
         let score = 0;
 
+        // Spinners need non-rate adjusted to calculate required spins.
+        const nonRateAdjustedDifficulty = new BeatmapDifficulty(
+            this.difficulty,
+        );
+
+        if (mods) {
+            ModUtil.applyModsToBeatmapDifficulty(
+                nonRateAdjustedDifficulty,
+                Modes.droid,
+                mods,
+            );
+        }
+
         for (const object of this.hitObjects.objects) {
-            if (!(object instanceof Slider)) {
+            if (object instanceof Slider) {
+                const { ticks } = object;
+
+                // Apply slider head.
+                score += 30;
+                ++combo;
+
+                // Apply slider repeats.
+                score += 30 * object.repeatCount;
+                combo += object.repeatCount;
+
+                // Apply slider ticks.
+                score += 10 * ticks;
+                combo += ticks;
+
+                // Apply slider end.
                 score += Math.floor(
                     300 + (300 * combo * difficultyMultiplier) / 25,
                 );
                 ++combo;
-                continue;
+            } else if (object instanceof Spinner) {
+                // For each required rotations, a spinner tick (100 score) is awarded, but does not contribute to combo.
+                const minRps = 2 + (2 * nonRateAdjustedDifficulty.od) / 10;
+
+                const requiredRotations = Math.trunc(
+                    (minRps * object.duration) / 1000,
+                );
+
+                for (let i = 0; i < requiredRotations; ++i) {
+                    score += 100;
+                }
             }
 
-            const { ticks } = object;
-
-            // Apply slider head.
-            score += 30;
-            ++combo;
-
-            // Apply slider repeats.
-            score += 30 * object.repeatCount;
-            combo += object.repeatCount;
-
-            // Apply slider ticks.
-            score += 10 * ticks;
-            combo += ticks;
-
-            // Apply slider end.
             score += Math.floor(
                 300 + (300 * combo * difficultyMultiplier) / 25,
             );
@@ -214,32 +238,55 @@ export class Beatmap implements IBeatmap {
         let combo = 0;
         let score = 0;
 
+        // Spinners need non-rate adjusted to calculate required spins.
+        const nonRateAdjustedDifficulty = new BeatmapDifficulty(
+            this.difficulty,
+        );
+
+        if (mods) {
+            ModUtil.applyModsToBeatmapDifficulty(
+                nonRateAdjustedDifficulty,
+                Modes.osu,
+                mods,
+            );
+        }
+
         for (const object of this.hitObjects.objects) {
-            if (!(object instanceof Slider)) {
-                score += Math.floor(
-                    300 +
-                        (300 * combo * difficultyMultiplier * scoreMultiplier) /
-                            25,
-                );
+            if (object instanceof Slider) {
+                const { ticks } = object;
+
+                // Apply slider head.
+                score += 30;
                 ++combo;
-                continue;
+
+                // Apply slider repeats.
+                score += 30 * object.repeatCount;
+                combo += object.repeatCount;
+
+                // Apply slider ticks.
+                score += 10 * ticks;
+                combo += ticks;
+
+                // Apply slider end.
+                score += 30;
+            } else if (object instanceof Spinner) {
+                // For each required rotations, a spinner tick (100 score) is awarded, but does not contribute to combo.
+                const minRps = BeatmapDifficulty.difficultyRange(
+                    nonRateAdjustedDifficulty.od,
+                    90,
+                    150,
+                    225,
+                );
+
+                const requiredRotations = Math.trunc(
+                    (minRps * object.duration) / 1000,
+                );
+
+                for (let i = 0; i < requiredRotations; ++i) {
+                    score += 100;
+                }
             }
 
-            const { ticks } = object;
-
-            // Apply slider head.
-            score += 30;
-            ++combo;
-
-            // Apply slider repeats.
-            score += 30 * object.repeatCount;
-            combo += object.repeatCount;
-
-            // Apply slider ticks.
-            score += 10 * ticks;
-            combo += ticks;
-
-            // Apply slider end.
             score += Math.floor(
                 300 +
                     (300 * combo * difficultyMultiplier * scoreMultiplier) / 25,
