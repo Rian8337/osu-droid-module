@@ -49,9 +49,13 @@ export abstract class DroidScoreUtils {
             const totalPossibleSpins =
                 secondsDuration * maximumRotationsPerSecond;
 
+            // In osu!droid, spinner bonus points are awarded for each full rotation every nth spin after the required spins.
+            // For example, if a spinner requires 5.6 spins before bonus, the first bonus will be awarded at 6 spins instead
+            // of 6.6 spins.
             const maximumPossibleBonusSpins = Math.max(
                 0,
-                Math.floor(totalPossibleSpins - spinsRequiredBeforeBonus),
+                Math.floor(totalPossibleSpins) -
+                    Math.ceil(spinsRequiredBeforeBonus),
             );
 
             bonus += maximumPossibleBonusSpins * 1000;
