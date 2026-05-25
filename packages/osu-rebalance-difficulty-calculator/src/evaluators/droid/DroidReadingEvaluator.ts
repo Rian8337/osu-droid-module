@@ -15,7 +15,7 @@ export abstract class DroidReadingEvaluator {
     private static readonly hiddenMultiplier = 0.28;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
-    private static readonly preemptBalancingFactor = 150000;
+    private static readonly preemptBalancingFactor = 140000;
     private static readonly preemptStartingPoint = 500; // AR 9.66 in milliseconds
     private static readonly minimumAngleRelevancyTime = 2000; // 2 seconds
     private static readonly maximumAngleRelevancyTime = 200;
@@ -27,19 +27,14 @@ export abstract class DroidReadingEvaluator {
         current: DroidDifficultyHitObject,
         mods: ModMap,
     ): number {
-        if (
-            current.object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(true) ||
-            current.index <= 0
-        ) {
+        if (current.object instanceof Spinner || current.index === 0) {
             return 0;
         }
 
-        const next = current.next(0);
+        // 1.5 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.5;
 
-        // 1.25 circles distance between centers
-        const distanceInfluenceThreshold = current.normalizedDiameter * 1.25;
+        const next = current.next(0);
 
         // Only allow velocity to buff
         const velocity = Math.max(
@@ -233,9 +228,9 @@ export abstract class DroidReadingEvaluator {
             // animating at the time the previous note was clicked.
             prev.startTime > current.startTime - current.timePreempt
         ) {
+            // Perfect stacks are harder the less time between notes.
             hiddenDifficulty +=
                 (this.hiddenMultiplier * 2500) /
-                // Perfect stacks are harder the less time between notes.
                 Math.pow(current.strainTime, 1.5);
         }
 

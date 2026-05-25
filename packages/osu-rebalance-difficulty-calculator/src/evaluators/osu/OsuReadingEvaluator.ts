@@ -112,7 +112,7 @@ export abstract class OsuReadingEvaluator {
             currentVisibleObjectDensity,
         );
 
-        if (next != null) {
+        if (next !== null) {
             // Reduce difficulty if movement to next object is small.
             futureObjectDifficultyInfluence *= MathUtils.smootherstep(
                 next.lazyJumpDistance,
@@ -172,7 +172,6 @@ export abstract class OsuReadingEvaluator {
         return preemptDifficulty;
     }
 
-    /// </summary>
     /**
      * Calculates the difficulty of aiming the current object when the Hidden mod is active based on:
      *
@@ -223,8 +222,7 @@ export abstract class OsuReadingEvaluator {
         // Buff perfect stacks only if current note is completely invisible at the time you click the previous note.
         if (
             current.lazyJumpDistance === 0 &&
-            current.opacityAt(prev.object.startTime + prev.timePreempt, mods) ==
-                0 &&
+            current.opacityAt(prev.object.startTime, mods) == 0 &&
             // At the same time, we only want to buff them if the current note is already
             // animating at the time the previous note was clicked.
             prev.startTime > current.startTime - current.timePreempt
@@ -283,7 +281,7 @@ export abstract class OsuReadingEvaluator {
                 current.startTime - hitObject.startTime >
                     this.readingWindowSize ||
                 // Current object not visible at the time object needs to be clicked
-                hitObject.startTime + hitObject.timePreempt < current.startTime
+                hitObject.startTime < current.startTime - current.timePreempt
             ) {
                 break;
             }
@@ -299,7 +297,6 @@ export abstract class OsuReadingEvaluator {
         current: OsuDifficultyHitObject,
     ): number {
         let visibleObjectCount = 0;
-
         let hitObject = current.next(0);
 
         while (hitObject !== null) {
