@@ -223,7 +223,7 @@ export abstract class DroidReadingEvaluator {
         // previous note was clicked.
         if (
             current.lazyJumpDistance === 0 &&
-            current.opacityAt(prev.object.startTime, mods) == 0 &&
+            current.opacityAt(prev.object.startTime, mods) === 0 &&
             // At the same time, we only want to buff them if the current note is already
             // animating at the time the previous note was clicked.
             prev.startTime > current.startTime - current.timePreempt
