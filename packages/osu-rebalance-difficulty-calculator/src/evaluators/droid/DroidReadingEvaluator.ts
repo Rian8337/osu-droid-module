@@ -31,8 +31,8 @@ export abstract class DroidReadingEvaluator {
             return 0;
         }
 
-        // 1.5 circles distance between centers
-        const distanceInfluenceThreshold = current.normalizedDiameter * 1.5;
+        // 1.25 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.25;
 
         const next = current.next(0);
 
