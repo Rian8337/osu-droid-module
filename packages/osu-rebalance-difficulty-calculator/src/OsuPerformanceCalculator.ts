@@ -358,10 +358,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 0.08 * Interpolation.reverseLerp(this.approachRate, 11.5, 10);
         }
 
-        if (this.mods.has(ModFlashlight)) {
-            accuracyValue *= 1.02;
-        }
-
         return accuracyValue;
     }
 

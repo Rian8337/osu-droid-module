@@ -393,10 +393,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             Math.max(0, this._effectiveMissCount - 1),
         );
 
-        if (this.mods.has(ModFlashlight)) {
-            accuracyValue *= 1.02;
-        }
-
         return accuracyValue;
     }
 

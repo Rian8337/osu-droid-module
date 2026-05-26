@@ -21,7 +21,7 @@ export class OsuFlashlight extends OsuSkill {
     protected override readonly decayWeight = 1;
 
     private currentFlashlightStrain = 0;
-    private readonly skillMultiplier = 0.056;
+    private readonly skillMultiplier = 0.058;
 
     static override difficultyToPerformance(difficulty: number): number {
         return Math.pow(difficulty, 2) * 25;
