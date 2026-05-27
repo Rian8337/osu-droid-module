@@ -152,6 +152,10 @@ export class ModDifficultyAdjust
         return multiplier;
     }
 
+    get migrationDroidScoreMultiplier() {
+        return this.droidScoreMultiplier;
+    }
+
     applyFromBeatmap(beatmap: Beatmap) {
         this.cs.defaultValue = beatmap.difficulty.cs;
         this.ar.defaultValue = beatmap.difficulty.ar;

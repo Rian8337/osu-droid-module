@@ -31,6 +31,7 @@ export class ModHardRock
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1.06;
+    readonly migrationDroidScoreMultiplier = 1.06;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;

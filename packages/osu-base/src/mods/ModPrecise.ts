@@ -20,6 +20,7 @@ export class ModPrecise
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1.06;
+    readonly migrationDroidScoreMultiplier = 1.06;
 
     applyToHitObject(mode: Modes, hitObject: HitObject): void {
         if (mode !== Modes.droid || hitObject instanceof Spinner) {

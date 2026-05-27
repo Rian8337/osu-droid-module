@@ -34,4 +34,8 @@ export class ModOldNightCore extends ModNightCore {
     override get droidScoreMultiplier(): number {
         return 1.12;
     }
+
+    override get migrationDroidScoreMultiplier(): number {
+        return this.droidScoreMultiplier;
+    }
 }

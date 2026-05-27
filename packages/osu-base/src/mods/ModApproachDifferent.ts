@@ -20,6 +20,7 @@ export class ModApproachDifferent
 
     readonly droidRanked = false;
     readonly droidScoreMultiplier = 1;
+    readonly migrationDroidScoreMultiplier = 1;
     readonly isDroidRelevant = true;
 
     readonly osuRanked = false;

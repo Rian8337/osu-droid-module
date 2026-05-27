@@ -16,6 +16,7 @@ export class ModTraceable
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1.06;
+    readonly migrationDroidScoreMultiplier = 1.06;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;

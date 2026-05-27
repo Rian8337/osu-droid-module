@@ -23,6 +23,7 @@ export class ModReallyEasy
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 0.4;
+    readonly migrationDroidScoreMultiplier = 0.4;
 
     applyToDifficultyWithMods(
         mode: Modes,

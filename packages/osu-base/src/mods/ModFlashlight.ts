@@ -26,6 +26,7 @@ export class ModFlashlight
 
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1.12;
+    readonly migrationDroidScoreMultiplier = 1.12;
 
     get osuRanked(): boolean {
         return this.usesDefaultSettings;

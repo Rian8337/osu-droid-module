@@ -64,6 +64,10 @@ export class ModHidden
         return this.usesDefaultSettings ? 1.06 : 1;
     }
 
+    get migrationDroidScoreMultiplier(): number {
+        return this.droidScoreMultiplier;
+    }
+
     get osuScoreMultiplier(): number {
         return this.usesDefaultSettings ? 1.06 : 1;
     }

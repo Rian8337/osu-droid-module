@@ -24,6 +24,13 @@ export abstract class ModRateAdjust
     }
 
     /**
+     * The generic osu!droid migration score multiplier of this `Mod`.
+     */
+    protected get migrationDroidScoreMultiplier(): number {
+        return this.droidScoreMultiplier;
+    }
+
+    /**
      * Generic getter to determine if this `ModRateAdjust` is relevant.
      */
     protected get isRelevant(): boolean {

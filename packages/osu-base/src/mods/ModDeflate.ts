@@ -16,6 +16,7 @@ export class ModDeflate
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1;
+    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;

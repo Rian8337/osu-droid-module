@@ -15,6 +15,7 @@ export class ModScoreV2
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1;
+    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;

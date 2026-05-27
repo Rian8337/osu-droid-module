@@ -26,6 +26,7 @@ export class ModEasy
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 0.5;
+    readonly migrationDroidScoreMultiplier = 0.5;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;

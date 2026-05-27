@@ -34,6 +34,10 @@ export class ModNightCore
         return super.droidScoreMultiplier;
     }
 
+    override get migrationDroidScoreMultiplier(): number {
+        return super.migrationDroidScoreMultiplier;
+    }
+
     get isOsuRelevant(): boolean {
         return this.isRelevant;
     }

@@ -32,6 +32,7 @@ export class ModReplayV6
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1;
+    readonly migrationDroidScoreMultiplier = 1;
 
     readonly facilitateAdjustment = true;
 

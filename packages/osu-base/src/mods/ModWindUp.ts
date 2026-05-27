@@ -24,6 +24,10 @@ export class ModWindUp
         return super.droidScoreMultiplier;
     }
 
+    override get migrationDroidScoreMultiplier(): number {
+        return super.migrationDroidScoreMultiplier;
+    }
+
     override readonly initialRate = new DecimalModSetting(
         "Initial rate",
         "The starting speed of the track.",

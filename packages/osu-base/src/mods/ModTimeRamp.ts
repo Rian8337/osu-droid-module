@@ -41,6 +41,13 @@ export abstract class ModTimeRamp
         );
     }
 
+    /**
+     * The generic osu!droid migration score multiplier of this `Mod`.
+     */
+    protected get migrationDroidScoreMultiplier(): number {
+        return this.droidScoreMultiplier;
+    }
+
     private initialRateTime = 0;
     private finalRateTime = 0;
 

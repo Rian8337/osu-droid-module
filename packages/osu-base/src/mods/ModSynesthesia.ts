@@ -15,6 +15,7 @@ export class ModSynesthesia
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 0.8;
+    readonly migrationDroidScoreMultiplier = 0.8;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;

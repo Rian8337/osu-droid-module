@@ -26,6 +26,7 @@ export class ModSmallCircle
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
     readonly droidScoreMultiplier = 1;
+    readonly migrationDroidScoreMultiplier = 1;
 
     migrateDroidMod(
         difficulty: BeatmapDifficulty,
