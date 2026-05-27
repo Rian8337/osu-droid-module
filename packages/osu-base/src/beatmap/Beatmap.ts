@@ -126,7 +126,11 @@ export class Beatmap implements IBeatmap {
      */
     maxDroidScore(mods?: ModMap): number {
         const scoreMultiplier = mods
-            ? ModUtil.calculateScoreMultiplier(mods.values(), Modes.droid, this)
+            ? ModUtil.calculateScoreMultiplier(
+                  mods.values(),
+                  Modes.droid,
+                  this.difficulty,
+              )
             : 1;
 
         if (mods?.has(ModScoreV2)) {
@@ -210,7 +214,11 @@ export class Beatmap implements IBeatmap {
         let difficultyMultiplier = 2;
 
         const scoreMultiplier = mods
-            ? ModUtil.calculateScoreMultiplier(mods.values(), Modes.osu, this)
+            ? ModUtil.calculateScoreMultiplier(
+                  mods.values(),
+                  Modes.osu,
+                  this.difficulty,
+              )
             : 1;
 
         if (mods?.has(ModScoreV2)) {

@@ -1,4 +1,3 @@
-import { Beatmap } from "../beatmap/Beatmap";
 import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { Slider } from "../beatmap/hitobjects/Slider";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
@@ -7,7 +6,7 @@ import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficulty
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
-import { IModRequiresOriginalBeatmap } from "./IModRequiresOriginalBeatmap";
+import { IModRequiresBeatmapDifficulty } from "./IModRequiresBeatmapDifficulty";
 import { Mod } from "./Mod";
 import { ModEasy } from "./ModEasy";
 import { ModHardRock } from "./ModHardRock";
@@ -28,7 +27,7 @@ export class ModDifficultyAdjust
         IModApplicableToOsu,
         IModApplicableToDifficultyWithMods,
         IModApplicableToHitObjectWithMods,
-        IModRequiresOriginalBeatmap
+        IModRequiresBeatmapDifficulty
 {
     override readonly acronym = "DA";
     override readonly name = "Difficulty Adjust";
@@ -156,11 +155,11 @@ export class ModDifficultyAdjust
         return this.droidScoreMultiplier;
     }
 
-    applyFromBeatmap(beatmap: Beatmap) {
-        this.cs.defaultValue = beatmap.difficulty.cs;
-        this.ar.defaultValue = beatmap.difficulty.ar;
-        this.od.defaultValue = beatmap.difficulty.od;
-        this.hp.defaultValue = beatmap.difficulty.hp;
+    applyFromBeatmapDifficulty(difficulty: BeatmapDifficulty) {
+        this.cs.defaultValue = difficulty.cs;
+        this.ar.defaultValue = difficulty.ar;
+        this.od.defaultValue = difficulty.od;
+        this.hp.defaultValue = difficulty.hp;
     }
 
     applyToDifficultyWithMods(

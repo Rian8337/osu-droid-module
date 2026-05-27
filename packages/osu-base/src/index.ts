@@ -111,7 +111,7 @@ export * from "./mods/IModApplicableToOsu";
 export * from "./mods/IModApplicableToOsuStable";
 export * from "./mods/IModApplicableToTrackRate";
 export * from "./mods/IModFacilitatesAdjustment";
-export * from "./mods/IModRequiresOriginalBeatmap";
+export * from "./mods/IModRequiresBeatmapDifficulty";
 export * from "./mods/Mod";
 export * from "./mods/ModApproachDifferent";
 export * from "./mods/ModAuto";

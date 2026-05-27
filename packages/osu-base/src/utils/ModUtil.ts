@@ -1,4 +1,3 @@
-import { Beatmap } from "../beatmap/Beatmap";
 import { DroidHitWindow } from "../beatmap/DroidHitWindow";
 import { OsuHitWindow } from "../beatmap/OsuHitWindow";
 import { PreciseDroidHitWindow } from "../beatmap/PreciseDroidHitWindow";
@@ -131,22 +130,22 @@ export abstract class ModUtil {
      *
      * @param mods The mods to calculate the score multiplier for.
      * @param mode The game mode to calculate the score multiplier for.
-     * @param beatmap The beatmap the mods are applied to. Needed for some mods to have an effect on
+     * @param difficulty The `BeatmapDifficulty` to apply to the mods. Needed for some mods to have an effect on
      * score multiplier (i.e., `ModDifficultyAdjust`).
      * @returns The score multiplier.
      */
     static calculateScoreMultiplier(
         mods: Iterable<Mod>,
         mode: Modes,
-        beatmap?: Beatmap,
+        difficulty?: BeatmapDifficulty,
     ): number {
         // In osu!droid, rate-adjusting mods combine their track rate multipliers together, then bunched together.
         let totalRateAdjustTrackRateMultiplier = 1;
         let scoreMultiplier = 1;
 
         for (const mod of mods) {
-            if (mod.requiresOriginalBeatmap() && beatmap) {
-                mod.applyFromBeatmap(beatmap);
+            if (mod.requiresBeatmapDifficulty() && difficulty) {
+                mod.applyFromBeatmapDifficulty(difficulty);
             }
 
             if (mode === Modes.droid && mod instanceof ModRateAdjust) {
