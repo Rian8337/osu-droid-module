@@ -59,6 +59,19 @@ export class ModFlashlight
         2,
     );
 
+    /**
+     * The multiplier applied to the default Flashlight size.
+     */
+    readonly sizeMultiplier = new DecimalModSetting(
+        "Flashlight size",
+        "The multiplier applied to the default Flashlight size.",
+        1,
+        0.5,
+        2,
+        0.1,
+        1,
+    );
+
     constructor() {
         super();
 
@@ -71,17 +84,24 @@ export class ModFlashlight
         this.followDelay.value =
             (mod.settings?.areaFollowDelay as number | undefined) ??
             this.followDelay.value;
+
+        this.sizeMultiplier.value =
+            (mod.settings?.sizeMultiplier as number | undefined) ??
+            this.sizeMultiplier.value;
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
-        return { areaFollowDelay: this.followDelay.value };
+        return {
+            areaFollowDelay: this.followDelay.value,
+            sizeMultiplier: this.sizeMultiplier.value,
+        };
     }
 
     override toString(): string {
-        if (this.followDelay.value === ModFlashlight.defaultFollowDelay) {
+        if (this.usesDefaultSettings) {
             return super.toString();
         }
 
-        return `${super.toString()} (${this.followDelay.toDisplayString()}s follow delay)`;
+        return `${super.toString()} (${this.followDelay.toDisplayString()}s follow delay, ${this.sizeMultiplier.toDisplayString()}x size)`;
     }
 }
