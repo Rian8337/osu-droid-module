@@ -15,7 +15,7 @@ import { ModReallyEasy } from "./ModReallyEasy";
 import { ModReplayV6 } from "./ModReplayV6";
 import { ModSmallCircle } from "./ModSmallCircle";
 import { SerializedMod } from "./SerializedMod";
-import { NullableDecimalModSetting } from "./settings/NullableDecimalModSetting";
+import { DifficultyAdjustModSetting } from "./settings/DifficultyAdjustModSetting";
 
 /**
  * Represents the Difficulty Adjust mod.
@@ -41,10 +41,9 @@ export class ModDifficultyAdjust
     /**
      * The circle size to enforce.
      */
-    readonly cs = new NullableDecimalModSetting(
+    readonly cs = new DifficultyAdjustModSetting(
         "Circle size",
         "The circle size to enforce.",
-        null,
         0,
         15,
         0.1,
@@ -54,10 +53,9 @@ export class ModDifficultyAdjust
     /**
      * The approach rate to enforce.
      */
-    readonly ar = new NullableDecimalModSetting(
+    readonly ar = new DifficultyAdjustModSetting(
         "Approach rate",
         "The approach rate to enforce.",
-        null,
         0,
         11,
         0.1,
@@ -67,10 +65,9 @@ export class ModDifficultyAdjust
     /**
      * The overall difficulty to enforce.
      */
-    readonly od = new NullableDecimalModSetting(
+    readonly od = new DifficultyAdjustModSetting(
         "Overall difficulty",
         "The overall difficulty to enforce.",
-        null,
         0,
         11,
         0.1,
@@ -80,10 +77,9 @@ export class ModDifficultyAdjust
     /**
      * The health drain rate to enforce.
      */
-    readonly hp = new NullableDecimalModSetting(
+    readonly hp = new DifficultyAdjustModSetting(
         "Health drain",
         "The health drain to enforce.",
-        null,
         0,
         11,
         0.1,
@@ -116,10 +112,44 @@ export class ModDifficultyAdjust
     override copySettings(mod: SerializedMod): void {
         super.copySettings(mod);
 
-        this.cs.value = (mod.settings?.cs ?? null) as number | null;
-        this.ar.value = (mod.settings?.ar ?? null) as number | null;
-        this.od.value = (mod.settings?.od ?? null) as number | null;
-        this.hp.value = (mod.settings?.hp ?? null) as number | null;
+        if (mod.settings?.cs !== undefined) {
+            this.copySetting(this.cs, mod.settings.cs);
+        }
+
+        if (mod.settings?.ar !== undefined) {
+            this.copySetting(this.ar, mod.settings.ar);
+        }
+
+        if (mod.settings?.od !== undefined) {
+            this.copySetting(this.od, mod.settings.od);
+        }
+
+        if (mod.settings?.hp !== undefined) {
+            this.copySetting(this.hp, mod.settings.hp);
+        }
+    }
+
+    private copySetting(setting: DifficultyAdjustModSetting, data: unknown) {
+        if (typeof data === "number") {
+            setting.value = data;
+            setting.originalValue = null;
+        } else if (typeof data === "object" && data !== null) {
+            const { original, adjusted } = data as Record<
+                string,
+                number | undefined | null
+            >;
+
+            setting.value = typeof adjusted === "number" ? adjusted : null;
+
+            const originalValue =
+                typeof original === "number" ? original : null;
+
+            setting.originalValue = originalValue;
+
+            if (originalValue !== null) {
+                setting.defaultValue = originalValue;
+            }
+        }
     }
 
     get isDroidRelevant(): boolean {
@@ -156,10 +186,10 @@ export class ModDifficultyAdjust
     }
 
     applyFromBeatmapDifficulty(difficulty: BeatmapDifficulty) {
-        this.cs.defaultValue = difficulty.cs;
-        this.ar.defaultValue = difficulty.ar;
-        this.od.defaultValue = difficulty.od;
-        this.hp.defaultValue = difficulty.hp;
+        this.cs.originalValue = difficulty.cs;
+        this.ar.originalValue = difficulty.ar;
+        this.od.originalValue = difficulty.od;
+        this.hp.originalValue = difficulty.hp;
     }
 
     applyToDifficultyWithMods(
@@ -242,20 +272,32 @@ export class ModDifficultyAdjust
 
         const settings: Record<string, unknown> = {};
 
-        if (this.cs.value !== null) {
-            settings.cs = this.cs.value;
+        if (!this.cs.isDefault) {
+            settings.cs = {
+                original: this.cs.defaultValue,
+                adjusted: this.cs.value,
+            };
         }
 
-        if (this.ar.value !== null) {
-            settings.ar = this.ar.value;
+        if (!this.ar.isDefault) {
+            settings.ar = {
+                original: this.ar.defaultValue,
+                adjusted: this.ar.value,
+            };
         }
 
-        if (this.od.value !== null) {
-            settings.od = this.od.value;
+        if (!this.od.isDefault) {
+            settings.od = {
+                original: this.od.defaultValue,
+                adjusted: this.od.value,
+            };
         }
 
-        if (this.hp.value !== null) {
-            settings.hp = this.hp.value;
+        if (!this.hp.isDefault) {
+            settings.hp = {
+                original: this.hp.defaultValue,
+                adjusted: this.hp.value,
+            };
         }
 
         return settings;

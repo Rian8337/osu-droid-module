@@ -156,6 +156,7 @@ export * from "./mods/ModWindUp";
 export * from "./mods/SerializedMod";
 export * from "./mods/settings/BooleanModSetting";
 export * from "./mods/settings/DecimalModSetting";
+export * from "./mods/settings/DifficultyAdjustModSetting";
 export * from "./mods/settings/IntegerModSetting";
 export * from "./mods/settings/ModSetting";
 export * from "./mods/settings/ModSettingValueChange";
