@@ -139,6 +139,56 @@ export abstract class ModUtil {
         mode: Modes,
         difficulty?: BeatmapDifficulty,
     ): number {
+        return this.calculateScoreMultiplierInternal(
+            mods,
+            mode,
+            (mod) => {
+                switch (mode) {
+                    case Modes.droid:
+                        return mod.isApplicableToDroid()
+                            ? mod.droidScoreMultiplier
+                            : 1;
+
+                    case Modes.osu:
+                        return mod.isApplicableToOsuStable()
+                            ? mod.osuScoreMultiplier
+                            : 1;
+
+                    default:
+                        return 1;
+                }
+            },
+            (helper) => helper.droidScoreMultiplier,
+            difficulty,
+        );
+    }
+
+    /**
+     * Calculates the score multiplier for the selected `Mod`s using `Mod.migrationDroidScoreMultiplier` instead of
+     * `Mod.droidScoreMultiplier`. Use this when reverse-engineering raw scores from stored effective scores during migration.
+     *
+     * @param mods The selected `Mod`s.
+     * @return The migration score multiplier.
+     */
+    static calculateMigrationScoreMultiplier(mods: Iterable<Mod>): number {
+        return this.calculateScoreMultiplierInternal(
+            mods,
+            Modes.droid,
+            (mod) =>
+                mod.isApplicableToDroid()
+                    ? mod.migrationDroidScoreMultiplier
+                    : 1,
+            (helper) => helper.migrationDroidScoreMultiplier,
+        );
+    }
+
+    private static calculateScoreMultiplierInternal(
+        mods: Iterable<Mod>,
+        mode: Modes,
+        modSelector: (mod: Mod) => number,
+        rateAdjustSelector: (rateAdjustHelper: ModRateAdjustHelper) => number,
+        difficulty?: BeatmapDifficulty,
+    ): number {
         // In osu!droid, rate-adjusting mods combine their track rate multipliers together, then bunched together.
         let totalRateAdjustTrackRateMultiplier = 1;
         let scoreMultiplier = 1;
@@ -152,19 +202,7 @@ export abstract class ModUtil {
                 totalRateAdjustTrackRateMultiplier *=
                     mod.trackRateMultiplier.value;
             } else {
-                switch (mode) {
-                    case Modes.droid:
-                        if (mod.isApplicableToDroid()) {
-                            scoreMultiplier *= mod.droidScoreMultiplier;
-                        }
-                        break;
-
-                    case Modes.osu:
-                        if (mod.isApplicableToOsuStable()) {
-                            scoreMultiplier *= mod.osuScoreMultiplier;
-                        }
-                        break;
-                }
+                scoreMultiplier *= modSelector(mod);
             }
         }
 
@@ -173,7 +211,7 @@ export abstract class ModUtil {
                 totalRateAdjustTrackRateMultiplier,
             );
 
-            scoreMultiplier *= rateAdjustHelper.droidScoreMultiplier;
+            scoreMultiplier *= rateAdjustSelector(rateAdjustHelper);
         }
 
         return scoreMultiplier;
