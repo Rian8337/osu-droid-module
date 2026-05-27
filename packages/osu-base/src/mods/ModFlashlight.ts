@@ -25,8 +25,14 @@ export class ModFlashlight
     }
 
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1.12;
-    readonly migrationDroidScoreMultiplier = 1.12;
+
+    get droidScoreMultiplier(): number {
+        return this.usesDefaultSettings ? 1.12 : 1;
+    }
+
+    get migrationDroidScoreMultiplier(): number {
+        return this.droidScoreMultiplier;
+    }
 
     get osuRanked(): boolean {
         return this.usesDefaultSettings;
