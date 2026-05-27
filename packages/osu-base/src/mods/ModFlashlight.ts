@@ -3,6 +3,7 @@ import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModBlinds } from "./ModBlinds";
 import { SerializedMod } from "./SerializedMod";
+import { BooleanModSetting } from "./settings/BooleanModSetting";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
@@ -72,6 +73,15 @@ export class ModFlashlight
         1,
     );
 
+    /**
+     * Whether to decrease the Flashlight size as combo increases.
+     */
+    readonly comboBasedSize = new BooleanModSetting(
+        "Change size based on combo",
+        "Whether to decrease the Flashlight size as combo increases.",
+        true,
+    );
+
     constructor() {
         super();
 
@@ -88,12 +98,17 @@ export class ModFlashlight
         this.sizeMultiplier.value =
             (mod.settings?.sizeMultiplier as number | undefined) ??
             this.sizeMultiplier.value;
+
+        this.comboBasedSize.value =
+            (mod.settings?.comboBasedSize as boolean | undefined) ??
+            this.comboBasedSize.value;
     }
 
     protected override serializeSettings(): Record<string, unknown> | null {
         return {
             areaFollowDelay: this.followDelay.value,
             sizeMultiplier: this.sizeMultiplier.value,
+            comboBasedSize: this.comboBasedSize.value,
         };
     }
 
@@ -102,6 +117,6 @@ export class ModFlashlight
             return super.toString();
         }
 
-        return `${super.toString()} (${this.followDelay.toDisplayString()}s follow delay, ${this.sizeMultiplier.toDisplayString()}x size)`;
+        return `${super.toString()} (${this.followDelay.toDisplayString()}s follow delay, ${this.sizeMultiplier.toDisplayString()}x size, ${this.comboBasedSize.value ? "decrease" : "no"} size change with combo)`;
     }
 }
