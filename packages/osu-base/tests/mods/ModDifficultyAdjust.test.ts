@@ -7,6 +7,7 @@ import {
     ModMap,
     ModReallyEasy,
     ModReplayV6,
+    ModUtil,
     Modes,
     ObjectTypes,
     PathType,
@@ -14,6 +15,34 @@ import {
     SliderPath,
     Vector2,
 } from "../../src";
+
+function setOriginals(
+    mod: ModDifficultyAdjust,
+    options: { cs?: number; ar?: number; od?: number; hp?: number },
+) {
+    if (options.cs !== undefined) {
+        mod.cs.defaultValue = options.cs;
+        mod.cs.originalValue = options.cs;
+    }
+    if (options.ar !== undefined) {
+        mod.ar.defaultValue = options.ar;
+        mod.ar.originalValue = options.ar;
+    }
+    if (options.od !== undefined) {
+        mod.od.defaultValue = options.od;
+        mod.od.originalValue = options.od;
+    }
+    if (options.hp !== undefined) {
+        mod.hp.defaultValue = options.hp;
+        mod.hp.originalValue = options.hp;
+    }
+}
+
+function roundTrip(mod: ModDifficultyAdjust): ModDifficultyAdjust {
+    return ModUtil.deserializeMods(ModUtil.serializeMods([mod])).get(
+        ModDifficultyAdjust,
+    )!;
+}
 
 test("Test beatmap setting override without additional mods", () => {
     const difficulty = new BeatmapDifficulty();
@@ -160,22 +189,6 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override w
     expect(tick.timeFadeIn).toBeCloseTo(600);
 });
 
-test("Test serialization", () => {
-    const mod = new ModDifficultyAdjust();
-
-    expect(mod.serialize().settings).toBeUndefined();
-
-    mod.cs.value = 4;
-    mod.ar.value = 9;
-
-    expect(mod.serialize().settings).toEqual({ cs: 4, ar: 9 });
-
-    mod.od.value = 8;
-    mod.hp.value = 6;
-
-    expect(mod.serialize().settings).toEqual({ cs: 4, ar: 9, od: 8, hp: 6 });
-});
-
 test("Test equals", () => {
     const mod1 = new ModDifficultyAdjust({
         cs: 4,
@@ -220,4 +233,113 @@ test("Test toString", () => {
     mod.hp.value = 6;
 
     expect(mod.toString()).toBe("DA (CS4.0, AR9.0, OD8.0, HP6.0)");
+});
+
+test("Test serialization embeds original value", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.od.value = 9;
+    setOriginals(mod, { cs: 4, od: 8 });
+
+    const settings = mod.serialize().settings!;
+
+    const csSetting = settings.cs as { adjusted: number; original: number | null };
+    expect(csSetting.adjusted).toBe(7);
+    expect(csSetting.original).toBe(4);
+
+    const odSetting = settings.od as { adjusted: number; original: number | null };
+    expect(odSetting.adjusted).toBe(9);
+    expect(odSetting.original).toBe(8);
+});
+
+test("Test serialization writes null original when beatmap is unknown", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+
+    const settings = mod.serialize().settings!;
+
+    const csSetting = settings.cs as { adjusted: number; original: number | null };
+    expect(csSetting.adjusted).toBe(7);
+    expect(csSetting.original).toBeNull();
+});
+
+test("Test deserialization of new format", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.od.value = 9;
+    setOriginals(mod, { cs: 4, od: 8 });
+
+    const deserialized = roundTrip(mod);
+
+    expect(deserialized.cs.value).toBe(7);
+    expect(deserialized.cs.originalValue).toBe(4);
+    expect(deserialized.od.value).toBe(9);
+    expect(deserialized.od.originalValue).toBe(8);
+});
+
+test("Test deserialization of old scalar format", () => {
+    const json = `[{"acronym":"DA","settings":{"cs":7.0,"od":9.0}}]`;
+    const deserialized = ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
+
+    expect(deserialized.cs.value).toBe(7);
+    expect(deserialized.cs.originalValue).toBeNull();
+    expect(deserialized.od.value).toBe(9);
+    expect(deserialized.od.originalValue).toBeNull();
+});
+
+test("Test deserialization of new format with null original", () => {
+    const json = `[{"acronym":"DA","settings":{"cs":{"adjusted":7.0,"original":null}}}]`;
+    const deserialized = ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
+
+    expect(deserialized.cs.value).toBe(7);
+    expect(deserialized.cs.originalValue).toBeNull();
+});
+
+test("Test score multiplier uses embedded original", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.od.value = 9;
+    setOriginals(mod, { cs: 4, od: 8 });
+
+    const csDiff = 7 - 4;
+    const odDiff = 9 - 8;
+    const expected =
+        (1 + 0.0075 * Math.pow(csDiff, 1.5)) *
+        (1 + 0.005 * Math.pow(odDiff, 1.3));
+
+    expect(mod.droidScoreMultiplier).toBeCloseTo(expected, 10);
+});
+
+test("Test score multiplier is 1 without original or default", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.od.value = 9;
+
+    expect(mod.droidScoreMultiplier).toBe(1);
+});
+
+test("Test score multiplier falls back to defaultValue when original is absent", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.cs.defaultValue = 4;
+
+    const diff = 7 - 4;
+    const expected = 1 + 0.0075 * Math.pow(diff, 1.5);
+
+    expect(mod.droidScoreMultiplier).toBeCloseTo(expected, 10);
+});
+
+test("Test copySettings preserves original values", () => {
+    const mod = new ModDifficultyAdjust();
+    mod.cs.value = 7;
+    mod.od.value = 9;
+    setOriginals(mod, { cs: 4, od: 8 });
+
+    const copy = new ModDifficultyAdjust();
+    copy.copySettings(mod.serialize());
+
+    expect(copy.cs.value).toBe(7);
+    expect(copy.cs.originalValue).toBe(4);
+    expect(copy.od.value).toBe(9);
+    expect(copy.od.originalValue).toBe(8);
 });
