@@ -256,13 +256,18 @@ export class ReplayAnalyzer {
 
             const { accuracy } = v;
 
-            if (
-                o instanceof Slider &&
-                // Do not include slider breaks.
-                (-mehWindow > accuracy ||
-                    accuracy > Math.min(mehWindow, o.duration))
-            ) {
-                continue;
+            // Do not include slider breaks.
+            if (o instanceof Slider) {
+                let lateHitThreshold = mehWindow;
+
+                // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+                if (this.data.replayVersion < 8) {
+                    lateHitThreshold = Math.min(mehWindow, o.duration);
+                }
+
+                if (-mehWindow > accuracy || accuracy > lateHitThreshold) {
+                    continue;
+                }
             }
 
             accuracies.push(accuracy);
