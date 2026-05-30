@@ -3,18 +3,16 @@ import { ModRandom } from "../../src";
 test("Test serialization", () => {
     const random = new ModRandom();
 
-    expect(random.serialize().settings).toEqual({ angleSharpness: 7 });
+    expect(random.serialize().settings).toBeUndefined();
 
     random.angleSharpness.value = 8;
-
     expect(random.serialize().settings).toEqual({ angleSharpness: 8 });
 
     random.seed.value = 100;
+    expect(random.serialize().settings).toEqual({ seed: 100, angleSharpness: 8 });
 
-    expect(random.serialize().settings).toEqual({
-        angleSharpness: 8,
-        seed: 100,
-    });
+    random.angleSharpness.value = 7;
+    expect(random.serialize().settings).toEqual({ seed: 100 });
 });
 
 test("Test equals", () => {

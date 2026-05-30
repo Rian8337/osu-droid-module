@@ -7,8 +7,29 @@ import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModHardRock } from "./ModHardRock";
-import { SerializedMod } from "./SerializedMod";
 import { ModSetting } from "./settings/ModSetting";
+
+// Serializes Axes as a 0-indexed ordinal to match the Kotlin EnumModSetting format:
+// Axes.x (1) -> 0, Axes.y (2) -> 1, Axes.both (3) -> 2.
+class AxesModSetting extends ModSetting<Exclude<Axes, Axes.none>> {
+    override load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (typeof stored === "number") {
+            this.value = (stored + 1) as Exclude<Axes, Axes.none>;
+        }
+    }
+
+    override save(settings: Record<string, unknown>): void {
+        if (this.key !== null) {
+            settings[this.key] = this.value - 1;
+        }
+    }
+}
 
 /**
  * Represents the Mirror mod.
@@ -35,9 +56,10 @@ export class ModMirror
     /**
      * The axes to reflect the `HitObject`s along.
      */
-    readonly flippedAxes = new ModSetting<Exclude<Axes, Axes.none>>(
+    readonly flippedAxes = new AxesModSetting(
         "Flipped axes",
         "The axes to reflect the hit objects along.",
+        "flippedAxes",
         Axes.x,
     );
 
@@ -45,24 +67,6 @@ export class ModMirror
         super();
 
         this.incompatibleMods.add(ModHardRock);
-    }
-
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        switch (mod.settings?.flippedAxes) {
-            case 0:
-                this.flippedAxes.value = Axes.x;
-                break;
-
-            case 1:
-                this.flippedAxes.value = Axes.y;
-                break;
-
-            case 2:
-                this.flippedAxes.value = Axes.both;
-                break;
-        }
     }
 
     applyToHitObject(_: Modes, hitObject: HitObject): void {
@@ -88,10 +92,6 @@ export class ModMirror
                 );
                 break;
         }
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return { flippedAxes: this.flippedAxes.value - 1 };
     }
 
     override toString(): string {

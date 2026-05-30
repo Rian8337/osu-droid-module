@@ -8,7 +8,6 @@ import { Mod } from "./Mod";
 import { ModApproachDifferent } from "./ModApproachDifferent";
 import { ModFreezeFrame } from "./ModFreezeFrame";
 import { ModTraceable } from "./ModTraceable";
-import { SerializedMod } from "./SerializedMod";
 import { BooleanModSetting } from "./settings/BooleanModSetting";
 
 /**
@@ -47,6 +46,7 @@ export class ModHidden
      */
     readonly onlyFadeApproachCircles = new BooleanModSetting(
         "Only fade approach circles",
+        "onlyFadeApproachCircles",
         "The main object body will not fade when enabled.",
         false,
     );
@@ -72,14 +72,6 @@ export class ModHidden
         return this.usesDefaultSettings ? 1.06 : 1;
     }
 
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        this.onlyFadeApproachCircles.value =
-            (mod.settings?.onlyFadeApproachCircles as boolean | undefined) ??
-            this.onlyFadeApproachCircles.value;
-    }
-
     applyToBeatmap(beatmap: IBeatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {
             hitObject.timeFadeIn =
@@ -91,12 +83,6 @@ export class ModHidden
         };
 
         beatmap.hitObjects.objects.forEach(applyFadeInAdjustment);
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return this.onlyFadeApproachCircles.value
-            ? { onlyFadeApproachCircles: this.onlyFadeApproachCircles.value }
-            : null;
     }
 
     override toString(): string {

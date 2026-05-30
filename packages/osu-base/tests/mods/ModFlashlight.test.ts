@@ -2,10 +2,23 @@ import { ModFlashlight } from "../../src";
 
 test("Test serialization", () => {
     const mod = new ModFlashlight();
-    expect(mod.serialize().settings).toEqual({ areaFollowDelay: 0.12 });
+    expect(mod.serialize().settings).toBeUndefined();
 
     mod.followDelay.value = 0.36;
     expect(mod.serialize().settings).toEqual({ areaFollowDelay: 0.36 });
+
+    mod.sizeMultiplier.value = 1.5;
+    expect(mod.serialize().settings).toEqual({
+        areaFollowDelay: 0.36,
+        sizeMultiplier: 1.5,
+    });
+
+    mod.comboBasedSize.value = false;
+    expect(mod.serialize().settings).toEqual({
+        areaFollowDelay: 0.36,
+        sizeMultiplier: 1.5,
+        comboBasedSize: false,
+    });
 });
 
 test("Test equals", () => {

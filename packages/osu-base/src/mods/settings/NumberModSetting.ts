@@ -9,13 +9,14 @@ export class NumberModSetting extends RangeConstrainedModSetting<number> {
 
     constructor(
         name: string,
+        key: string | null,
         description: string,
         defaultValue: number,
         min: number,
         max: number,
         step: number,
     ) {
-        super(name, description, defaultValue, min, max, step);
+        super(name, key, description, defaultValue, min, max, step);
 
         if (min > max) {
             throw new RangeError(
@@ -33,6 +34,18 @@ export class NumberModSetting extends RangeConstrainedModSetting<number> {
             throw new RangeError(
                 `The default value (${defaultValue.toString()}) must be between the minimum (${min.toString()}) and maximum (${max.toString()}) values.`,
             );
+        }
+    }
+
+    override load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (typeof stored === "number") {
+            this.value = stored;
         }
     }
 

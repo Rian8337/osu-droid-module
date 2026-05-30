@@ -48,6 +48,7 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
 
     constructor(
         name: string,
+        key: string | null,
         description: string,
         defaultValue: number | null,
         min = -Number.MAX_VALUE,
@@ -55,7 +56,7 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
         step = 0,
         precision: number | null = null,
     ) {
-        super(name, description, defaultValue, min, max, step);
+        super(name, key, description, defaultValue, min, max, step);
 
         if (min > max) {
             throw new RangeError(
@@ -97,5 +98,25 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
         }
 
         return processedValue;
+    }
+
+    override load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (stored === null || stored === undefined) {
+            this.value = null;
+        } else if (typeof stored === "number") {
+            this.value = stored;
+        }
+    }
+
+    override save(settings: Record<string, unknown>): void {
+        if (this.key !== null) {
+            settings[this.key] = this.value;
+        }
     }
 }

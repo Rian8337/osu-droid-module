@@ -14,12 +14,13 @@ export class NullableIntegerModSetting extends RangeConstrainedModSetting<
 
     constructor(
         name: string,
+        key: string | null,
         description: string,
         defaultValue: number | null,
         min = -2147483648,
         max = 2147483647,
     ) {
-        super(name, description, defaultValue, min, max, 1);
+        super(name, key, description, defaultValue, min, max, 1);
 
         if (min > max) {
             throw new RangeError(
@@ -34,6 +35,26 @@ export class NullableIntegerModSetting extends RangeConstrainedModSetting<
             throw new RangeError(
                 `The default value (${defaultValue.toString()}) must be between the minimum (${min.toString()}) and maximum (${max.toString()}) values.`,
             );
+        }
+    }
+
+    override load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (stored === null || stored === undefined) {
+            this.value = null;
+        } else if (typeof stored === "number") {
+            this.value = stored;
+        }
+    }
+
+    override save(settings: Record<string, unknown>): void {
+        if (this.key !== null) {
+            settings[this.key] = this.value;
         }
     }
 

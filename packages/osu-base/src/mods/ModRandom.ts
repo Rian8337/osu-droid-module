@@ -8,7 +8,7 @@ import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
-import { SerializedMod } from "./SerializedMod";
+
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 import { NullableIntegerModSetting } from "./settings/NullableIntegerModSetting";
 
@@ -41,9 +41,11 @@ export class ModRandom
      */
     readonly seed = new NullableIntegerModSetting(
         "Seed",
+        "seed",
         "Use a custom seed instead of a random one.",
         null,
         0,
+        2147483647,
     );
 
     /**
@@ -51,6 +53,7 @@ export class ModRandom
      */
     readonly angleSharpness = new DecimalModSetting(
         "Angle sharpness",
+        "angleSharpness",
         "Defines how sharp the angles of hit objects should be.",
         7,
         1,
@@ -60,20 +63,6 @@ export class ModRandom
     );
 
     private random: Random | null = null;
-
-    override copySettings(mod: SerializedMod) {
-        super.copySettings(mod);
-
-        const { settings } = mod;
-
-        if (typeof settings?.seed === "number") {
-            this.seed.value = settings.seed;
-        }
-
-        if (typeof settings?.angleSharpness === "number") {
-            this.angleSharpness.value = settings.angleSharpness;
-        }
-    }
 
     applyToBeatmap(beatmap: IBeatmap) {
         this.seed.value ??= Math.floor(Math.random() * 2147483647);
@@ -145,18 +134,6 @@ export class ModRandom
         for (let i = 0; i < repositionedHitObjects.length; ++i) {
             beatmap.hitObjects.objects[i] = repositionedHitObjects[i];
         }
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        const settings: Record<string, unknown> = {};
-
-        if (this.seed.value !== null) {
-            settings.seed = this.seed.value;
-        }
-
-        settings.angleSharpness = this.angleSharpness.value;
-
-        return settings;
     }
 
     private getRandomOffset(stdDev: number): number {

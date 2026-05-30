@@ -1,7 +1,6 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { ModRateAdjust } from "./ModRateAdjust";
-import { SerializedMod } from "./SerializedMod";
 
 /**
  * Represents the Custom Speed mod.
@@ -17,14 +16,6 @@ export class ModCustomSpeed
 
     readonly droidRanked = true;
     readonly osuRanked = false;
-
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        this.trackRateMultiplier.value =
-            (mod.settings?.rateMultiplier as number | undefined) ??
-            this.trackRateMultiplier.value;
-    }
 
     get isDroidRelevant(): boolean {
         return this.isRelevant;
@@ -52,10 +43,6 @@ export class ModCustomSpeed
         return this.trackRateMultiplier.value >= 1
             ? 1 + value / 5
             : 0.6 + value;
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return { rateMultiplier: this.trackRateMultiplier.value };
     }
 
     override toString(): string {

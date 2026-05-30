@@ -15,6 +15,13 @@ export class ModSetting<T = unknown> {
     readonly description: string;
 
     /**
+     * The key used to load and save this `ModSetting` from a serialized settings object.
+     *
+     * If `null`, this `ModSetting` will not be loaded or saved automatically.
+     */
+    readonly key: string | null;
+
+    /**
      * The formatter to display the value of this `ModSetting`.
      */
     // eslint-disable-next-line @typescript-eslint/restrict-template-expressions
@@ -64,11 +71,45 @@ export class ModSetting<T = unknown> {
         return this._value === this.defaultValue;
     }
 
-    constructor(name: string, description: string, defaultValue: T) {
+    constructor(
+        name: string,
+        key: string | null,
+        description: string,
+        defaultValue: T,
+    ) {
         this.name = name;
+        this.key = key;
         this.description = description;
         this._defaultValue = defaultValue;
         this._value = defaultValue;
+    }
+
+    /**
+     * Loads the value of this `ModSetting` from a serialized settings object.
+     *
+     * @param settings The settings object to load from.
+     */
+    load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (stored !== undefined && stored !== null) {
+            this.value = stored as T;
+        }
+    }
+
+    /**
+     * Saves the value of this `ModSetting` to a serialized settings object.
+     *
+     * @param settings The settings object to save to.
+     */
+    save(settings: Record<string, unknown>): void {
+        if (this.key !== null) {
+            settings[this.key] = this.value;
+        }
     }
 
     /**

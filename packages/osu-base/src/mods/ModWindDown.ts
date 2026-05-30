@@ -30,6 +30,7 @@ export class ModWindDown
 
     override readonly initialRate = new DecimalModSetting(
         "Initial rate",
+        "initialRate",
         "The starting speed of the track.",
         1,
         0.51,
@@ -40,6 +41,7 @@ export class ModWindDown
 
     override readonly finalRate = new DecimalModSetting(
         "Final rate",
+        "finalRate",
         "The final speed to ramp to.",
         0.75,
         0.5,

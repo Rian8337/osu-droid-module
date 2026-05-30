@@ -42,6 +42,7 @@ export abstract class ModRateAdjust
 
         this.trackRateMultiplier = new DecimalModSetting(
             "Track rate multiplier",
+            "rateMultiplier",
             "The multiplier for the track's playback rate after applying this mod.",
             trackRateMultiplier,
             0.5,

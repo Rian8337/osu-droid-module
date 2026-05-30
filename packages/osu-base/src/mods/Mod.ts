@@ -96,16 +96,18 @@ export abstract class Mod {
      * Serializes this `Mod` to a `SerializedMod`.
      */
     serialize(): SerializedMod {
-        const serialized = {
-            acronym: this.acronym,
-            settings: this.serializeSettings() ?? undefined,
-        } satisfies SerializedMod;
+        const settings: Record<string, unknown> = {};
 
-        if (!serialized.settings) {
-            delete serialized.settings;
+        for (const setting of this.settings) {
+            if (!setting.isDefault) {
+                setting.save(settings);
+            }
         }
 
-        return serialized;
+        return {
+            acronym: this.acronym,
+            ...(Object.keys(settings).length > 0 && { settings }),
+        };
     }
 
     /**
@@ -119,6 +121,12 @@ export abstract class Mod {
             throw new TypeError(
                 `Cannot copy settings from ${mod.acronym} to ${this.acronym}`,
             );
+        }
+
+        const settings = mod.settings ?? {};
+
+        for (const setting of this.settings) {
+            setting.load(settings);
         }
     }
 
@@ -206,15 +214,6 @@ export abstract class Mod {
      */
     requiresBeatmapDifficulty(): this is this & IModRequiresBeatmapDifficulty {
         return "applyFromBeatmapDifficulty" in this;
-    }
-
-    /**
-     * Serializes the settings of this `Mod` to an object that can be converted to a JSON.
-     *
-     * @returns The serialized settings of this `Mod`, or `null` if there are no settings.
-     */
-    protected serializeSettings(): Record<string, unknown> | null {
-        return null;
     }
 
     /**

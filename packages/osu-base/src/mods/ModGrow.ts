@@ -24,6 +24,7 @@ export class ModGrow
 
     override readonly startScale = new DecimalModSetting(
         "Start scale",
+        "startScale",
         "The initial size multiplier applied to all hit objects.",
         0.5,
         0,

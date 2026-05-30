@@ -6,4 +6,16 @@ import { ModSetting } from "./ModSetting";
 export class BooleanModSetting extends ModSetting<boolean> {
     override readonly displayFormatter: (value: boolean) => string = (v) =>
         v ? "Enabled" : "Disabled";
+
+    override load(settings: Record<string, unknown>): void {
+        if (this.key === null) {
+            return;
+        }
+
+        const stored = settings[this.key];
+
+        if (typeof stored === "boolean") {
+            this.value = stored;
+        }
+    }
 }

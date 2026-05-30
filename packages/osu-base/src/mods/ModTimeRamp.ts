@@ -4,7 +4,7 @@ import { MathUtils } from "../math/MathUtils";
 import { IModApplicableToBeatmap } from "./IModApplicableToBeatmap";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
-import { SerializedMod } from "./SerializedMod";
+
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
@@ -57,19 +57,6 @@ export abstract class ModTimeRamp
         this.incompatibleMods.add(ModTimeRamp);
     }
 
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        const { settings } = mod;
-
-        this.initialRate.value =
-            (settings?.initialRate as number | undefined) ??
-            this.initialRate.value;
-
-        this.finalRate.value =
-            (settings?.finalRate as number | undefined) ?? this.finalRate.value;
-    }
-
     applyToBeatmap(beatmap: IBeatmap): void {
         this.initialRateTime = beatmap.hitObjects.objects.at(0)?.startTime ?? 0;
 
@@ -97,13 +84,6 @@ export abstract class ModTimeRamp
 
     private calculateScoreMultiplierAt(rate: number): number {
         return rate > 1 ? 1 + (rate - 1) * 0.24 : Math.pow(0.3, (1 - rate) * 4);
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return {
-            initialRate: this.initialRate.value,
-            finalRate: this.finalRate.value,
-        };
     }
 
     override toString(): string {

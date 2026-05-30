@@ -2,7 +2,7 @@ import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { Mod } from "./Mod";
 import { ModBlinds } from "./ModBlinds";
-import { SerializedMod } from "./SerializedMod";
+
 import { BooleanModSetting } from "./settings/BooleanModSetting";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
@@ -52,6 +52,7 @@ export class ModFlashlight
      */
     readonly followDelay = new DecimalModSetting(
         "Flashlight follow delay",
+        "areaFollowDelay",
         "The amount of seconds until the Flashlight follow area reaches the cursor.",
         ModFlashlight.defaultFollowDelay,
         ModFlashlight.defaultFollowDelay,
@@ -65,6 +66,7 @@ export class ModFlashlight
      */
     readonly sizeMultiplier = new DecimalModSetting(
         "Flashlight size",
+        "sizeMultiplier",
         "The multiplier applied to the default Flashlight size.",
         1,
         0.5,
@@ -78,6 +80,7 @@ export class ModFlashlight
      */
     readonly comboBasedSize = new BooleanModSetting(
         "Change size based on combo",
+        "comboBasedSize",
         "Whether to decrease the Flashlight size as combo increases.",
         true,
     );
@@ -88,35 +91,27 @@ export class ModFlashlight
         this.incompatibleMods.add(ModBlinds);
     }
 
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        this.followDelay.value =
-            (mod.settings?.areaFollowDelay as number | undefined) ??
-            this.followDelay.value;
-
-        this.sizeMultiplier.value =
-            (mod.settings?.sizeMultiplier as number | undefined) ??
-            this.sizeMultiplier.value;
-
-        this.comboBasedSize.value =
-            (mod.settings?.comboBasedSize as boolean | undefined) ??
-            this.comboBasedSize.value;
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return {
-            areaFollowDelay: this.followDelay.value,
-            sizeMultiplier: this.sizeMultiplier.value,
-            comboBasedSize: this.comboBasedSize.value,
-        };
-    }
-
     override toString(): string {
         if (this.usesDefaultSettings) {
             return super.toString();
         }
 
-        return `${super.toString()} (${this.followDelay.toDisplayString()}s follow delay, ${this.sizeMultiplier.toDisplayString()}x size, ${this.comboBasedSize.value ? "decrease" : "no"} size change with combo)`;
+        const parts: string[] = [];
+
+        if (!this.followDelay.isDefault) {
+            parts.push(`${this.followDelay.toDisplayString()}s follow delay`);
+        }
+
+        if (!this.sizeMultiplier.isDefault) {
+            parts.push(`${this.sizeMultiplier.toDisplayString()}x size`);
+        }
+
+        if (!this.comboBasedSize.isDefault) {
+            parts.push(
+                `${this.comboBasedSize.value ? "decrease" : "no"} size change with combo`,
+            );
+        }
+
+        return `${super.toString()} (${parts.join(", ")})`;
     }
 }

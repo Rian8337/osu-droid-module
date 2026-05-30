@@ -6,11 +6,12 @@ import { NumberModSetting } from "./NumberModSetting";
 export class IntegerModSetting extends NumberModSetting {
     constructor(
         name: string,
+        key: string | null,
         description: string,
         defaultValue: number,
         min = -2147483648,
         max = 2147483647,
     ) {
-        super(name, description, defaultValue, min, max, 1);
+        super(name, key, description, defaultValue, min, max, 1);
     }
 }

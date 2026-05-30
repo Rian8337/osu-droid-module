@@ -1,6 +1,5 @@
 import { Mod } from "./Mod";
 import { ModTraceable } from "./ModTraceable";
-import { SerializedMod } from "./SerializedMod";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
@@ -21,19 +20,5 @@ export abstract class ModObjectScaleTween extends Mod {
         super();
 
         this.incompatibleMods.add(ModObjectScaleTween).add(ModTraceable);
-    }
-
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        const { settings } = mod;
-
-        this.startScale.value =
-            (settings?.startScale as number | undefined) ??
-            this.startScale.value;
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return { startScale: this.startScale.value };
     }
 }

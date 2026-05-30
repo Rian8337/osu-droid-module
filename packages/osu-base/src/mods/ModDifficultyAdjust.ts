@@ -14,7 +14,7 @@ import { ModMap } from "./ModMap";
 import { ModReallyEasy } from "./ModReallyEasy";
 import { ModReplayV6 } from "./ModReplayV6";
 import { ModSmallCircle } from "./ModSmallCircle";
-import { SerializedMod } from "./SerializedMod";
+
 import { DifficultyAdjustModSetting } from "./settings/DifficultyAdjustModSetting";
 
 /**
@@ -43,6 +43,7 @@ export class ModDifficultyAdjust
      */
     readonly cs = new DifficultyAdjustModSetting(
         "Circle size",
+        "cs",
         "The circle size to enforce.",
         0,
         15,
@@ -55,6 +56,7 @@ export class ModDifficultyAdjust
      */
     readonly ar = new DifficultyAdjustModSetting(
         "Approach rate",
+        "ar",
         "The approach rate to enforce.",
         0,
         11,
@@ -67,6 +69,7 @@ export class ModDifficultyAdjust
      */
     readonly od = new DifficultyAdjustModSetting(
         "Overall difficulty",
+        "od",
         "The overall difficulty to enforce.",
         0,
         11,
@@ -79,6 +82,7 @@ export class ModDifficultyAdjust
      */
     readonly hp = new DifficultyAdjustModSetting(
         "Health drain",
+        "hp",
         "The health drain to enforce.",
         0,
         11,
@@ -107,49 +111,6 @@ export class ModDifficultyAdjust
         this.ar.value = this.ar.defaultValue = values?.ar ?? null;
         this.od.value = this.od.defaultValue = values?.od ?? null;
         this.hp.value = this.hp.defaultValue = values?.hp ?? null;
-    }
-
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        if (mod.settings?.cs !== undefined) {
-            this.copySetting(this.cs, mod.settings.cs);
-        }
-
-        if (mod.settings?.ar !== undefined) {
-            this.copySetting(this.ar, mod.settings.ar);
-        }
-
-        if (mod.settings?.od !== undefined) {
-            this.copySetting(this.od, mod.settings.od);
-        }
-
-        if (mod.settings?.hp !== undefined) {
-            this.copySetting(this.hp, mod.settings.hp);
-        }
-    }
-
-    private copySetting(setting: DifficultyAdjustModSetting, data: unknown) {
-        if (typeof data === "number") {
-            setting.value = data;
-            setting.originalValue = null;
-        } else if (typeof data === "object" && data !== null) {
-            const { original, adjusted } = data as Record<
-                string,
-                number | undefined | null
-            >;
-
-            setting.value = typeof adjusted === "number" ? adjusted : null;
-
-            const originalValue =
-                typeof original === "number" ? original : null;
-
-            setting.originalValue = originalValue;
-
-            if (originalValue !== null) {
-                setting.defaultValue = originalValue;
-            }
-        }
     }
 
     get isDroidRelevant(): boolean {
@@ -263,44 +224,6 @@ export class ModDifficultyAdjust
         }
 
         return super.isCompatibleWith(other);
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        if (!this.isRelevant) {
-            return null;
-        }
-
-        const settings: Record<string, unknown> = {};
-
-        if (!this.cs.isDefault) {
-            settings.cs = {
-                original: this.cs.defaultValue,
-                adjusted: this.cs.value,
-            };
-        }
-
-        if (!this.ar.isDefault) {
-            settings.ar = {
-                original: this.ar.defaultValue,
-                adjusted: this.ar.value,
-            };
-        }
-
-        if (!this.od.isDefault) {
-            settings.od = {
-                original: this.od.defaultValue,
-                adjusted: this.od.value,
-            };
-        }
-
-        if (!this.hp.isDefault) {
-            settings.hp = {
-                original: this.hp.defaultValue,
-                adjusted: this.hp.value,
-            };
-        }
-
-        return settings;
     }
 
     private applyFadeAdjustment(hitObject: HitObject, mods: ModMap) {

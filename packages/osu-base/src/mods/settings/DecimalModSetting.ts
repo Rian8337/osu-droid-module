@@ -39,6 +39,7 @@ export class DecimalModSetting extends NumberModSetting {
 
     constructor(
         name: string,
+        key: string | null,
         description: string,
         defaultValue: number,
         min = -Number.MAX_VALUE,
@@ -46,7 +47,7 @@ export class DecimalModSetting extends NumberModSetting {
         step = 0,
         precision: number | null = null,
     ) {
-        super(name, description, defaultValue, min, max, step);
+        super(name, key, description, defaultValue, min, max, step);
 
         if (precision !== null && precision < 0) {
             throw new RangeError(

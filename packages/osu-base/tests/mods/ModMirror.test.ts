@@ -3,14 +3,16 @@ import { Axes, ModMirror } from "../../src";
 test("Test serialization", () => {
     const mod = new ModMirror();
 
-    mod.flippedAxes.value = Axes.x;
-    expect(mod.serialize().settings).toEqual({ flippedAxes: 0 });
+    expect(mod.serialize().settings).toBeUndefined();
 
     mod.flippedAxes.value = Axes.y;
     expect(mod.serialize().settings).toEqual({ flippedAxes: 1 });
 
     mod.flippedAxes.value = Axes.both;
     expect(mod.serialize().settings).toEqual({ flippedAxes: 2 });
+
+    mod.flippedAxes.value = Axes.x;
+    expect(mod.serialize().settings).toBeUndefined();
 });
 
 test("Test equals", () => {

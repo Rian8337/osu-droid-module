@@ -34,10 +34,23 @@ test("Test volumeAt", () => {
 test("Test serialization", () => {
     const muted = new ModMuted();
 
+    expect(muted.serialize().settings).toBeUndefined();
+
+    muted.muteComboCount.value = 50;
+    expect(muted.serialize().settings).toEqual({ muteComboCount: 50 });
+
+    muted.enableMetronome.value = false;
     expect(muted.serialize().settings).toEqual({
-        inverseMuting: false,
-        enableMetronome: true,
-        muteComboCount: 100,
-        affectsHitSounds: true,
+        enableMetronome: false,
+        muteComboCount: 50,
+    });
+
+    muted.inverseMuting.value = true;
+    muted.affectsHitSounds.value = false;
+    expect(muted.serialize().settings).toEqual({
+        inverseMuting: true,
+        enableMetronome: false,
+        muteComboCount: 50,
+        affectsHitSounds: false,
     });
 });

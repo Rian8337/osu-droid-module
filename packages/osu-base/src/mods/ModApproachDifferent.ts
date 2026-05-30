@@ -4,7 +4,7 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModFreezeFrame } from "./ModFreezeFrame";
 import { ModHidden } from "./ModHidden";
-import { SerializedMod } from "./SerializedMod";
+
 import { DecimalModSetting } from "./settings/DecimalModSetting";
 import { ModSetting } from "./settings/ModSetting";
 
@@ -32,6 +32,7 @@ export class ModApproachDifferent
      */
     readonly scale = new DecimalModSetting(
         "Initial size",
+        "scale",
         "The initial size of the approach circle, relative to hit circles.",
         3,
         1.5,
@@ -45,6 +46,7 @@ export class ModApproachDifferent
      */
     readonly style = new ModSetting(
         "Style",
+        "style",
         "The animation style of the approach circles.",
         AnimationStyle.gravity,
     );
@@ -90,27 +92,6 @@ export class ModApproachDifferent
         super();
 
         this.incompatibleMods.add(ModHidden).add(ModFreezeFrame);
-    }
-
-    override copySettings(mod: SerializedMod) {
-        super.copySettings(mod);
-
-        const { settings } = mod;
-
-        if (typeof settings?.scale === "number") {
-            this.scale.value = settings.scale;
-        }
-
-        if (typeof settings?.style === "number") {
-            this.style.value = settings.style;
-        }
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return {
-            scale: this.scale.value,
-            style: this.style.value,
-        };
     }
 }
 

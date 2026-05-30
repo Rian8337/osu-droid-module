@@ -3,21 +3,19 @@ import { AnimationStyle, Easing, ModApproachDifferent } from "../../src";
 test("Test serialization", () => {
     const mod = new ModApproachDifferent();
 
-    mod.scale.value = 3;
-    mod.style.value = AnimationStyle.gravity;
-
-    expect(mod.serialize().settings).toEqual({
-        scale: 3,
-        style: AnimationStyle.gravity,
-    });
+    expect(mod.serialize().settings).toBeUndefined();
 
     mod.scale.value = 5;
-    mod.style.value = AnimationStyle.accelerate1;
+    expect(mod.serialize().settings).toEqual({ scale: 5 });
 
+    mod.style.value = AnimationStyle.accelerate1;
     expect(mod.serialize().settings).toEqual({
         scale: 5,
         style: AnimationStyle.accelerate1,
     });
+
+    mod.scale.value = 3;
+    expect(mod.serialize().settings).toEqual({ style: AnimationStyle.accelerate1 });
 });
 
 test("Test animation style", () => {

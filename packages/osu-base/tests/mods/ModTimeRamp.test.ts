@@ -6,6 +6,7 @@ class DummyModTimeRamp extends ModTimeRamp {
 
     override readonly initialRate = new DecimalModSetting(
         "Initial rate",
+        "initialRate",
         "The starting speed of the track.",
         1,
         0.5,
@@ -16,6 +17,7 @@ class DummyModTimeRamp extends ModTimeRamp {
 
     override readonly finalRate = new DecimalModSetting(
         "Final rate",
+        "finalRate",
         "The final speed to ramp to.",
         1.5,
         0.51,
@@ -26,12 +28,21 @@ class DummyModTimeRamp extends ModTimeRamp {
 }
 
 test("Test serialization", () => {
-    const serialized = new DummyModTimeRamp().serialize();
+    const mod = new DummyModTimeRamp();
 
-    expect(serialized.settings).toEqual({
-        initialRate: 1,
-        finalRate: 1.5,
+    expect(mod.serialize().settings).toBeUndefined();
+
+    mod.initialRate.value = 1.5;
+    expect(mod.serialize().settings).toEqual({ initialRate: 1.5 });
+
+    mod.finalRate.value = 2;
+    expect(mod.serialize().settings).toEqual({
+        initialRate: 1.5,
+        finalRate: 2,
     });
+
+    mod.initialRate.value = 1;
+    expect(mod.serialize().settings).toEqual({ finalRate: 2 });
 });
 
 test("Test equals", () => {

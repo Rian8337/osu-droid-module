@@ -2,7 +2,7 @@ import { MathUtils } from "../math/MathUtils";
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
-import { SerializedMod } from "./SerializedMod";
+
 import { BooleanModSetting } from "./settings/BooleanModSetting";
 import { IntegerModSetting } from "./settings/IntegerModSetting";
 
@@ -30,6 +30,7 @@ export class ModMuted
      */
     readonly inverseMuting = new BooleanModSetting(
         "Start muted",
+        "inverseMuting",
         "Increase volume as combo builds.",
         false,
     );
@@ -39,6 +40,7 @@ export class ModMuted
      */
     readonly enableMetronome = new BooleanModSetting(
         "Enable metronome",
+        "enableMetronome",
         "Add a metronome beat to help you keep track of the rhythm.",
         true,
     );
@@ -48,6 +50,7 @@ export class ModMuted
      */
     readonly muteComboCount = new IntegerModSetting(
         "Final volume at combo",
+        "muteComboCount",
         "The combo count at which point the track reaches its final volume.",
         100,
         0,
@@ -59,6 +62,7 @@ export class ModMuted
      */
     readonly affectsHitSounds = new BooleanModSetting(
         "Mute hit sounds",
+        "affectsHitSounds",
         "Hit sounds are also muted alongside the track.",
         true,
     );
@@ -85,36 +89,5 @@ export class ModMuted
         );
 
         return this.inverseMuting.value ? volume : 1 - volume;
-    }
-
-    override copySettings(mod: SerializedMod): void {
-        super.copySettings(mod);
-
-        const { settings } = mod;
-
-        this.inverseMuting.value =
-            (settings?.inverseMuting as boolean | undefined) ??
-            this.inverseMuting.value;
-
-        this.enableMetronome.value =
-            (settings?.enableMetronome as boolean | undefined) ??
-            this.enableMetronome.value;
-
-        this.muteComboCount.value =
-            (settings?.muteComboCount as number | undefined) ??
-            this.muteComboCount.value;
-
-        this.affectsHitSounds.value =
-            (settings?.affectsHitSounds as boolean | undefined) ??
-            this.affectsHitSounds.value;
-    }
-
-    protected override serializeSettings(): Record<string, unknown> | null {
-        return {
-            inverseMuting: this.inverseMuting.value,
-            enableMetronome: this.enableMetronome.value,
-            muteComboCount: this.muteComboCount.value,
-            affectsHitSounds: this.affectsHitSounds.value,
-        };
     }
 }
