@@ -134,7 +134,7 @@ export class Beatmap implements IBeatmap {
             : 1;
 
         if (mods?.has(ModScoreV2)) {
-            return 1e6 * scoreMultiplier;
+            return Math.round(Math.fround(1e6 * scoreMultiplier));
         }
 
         const difficultyMultiplier =
@@ -199,7 +199,7 @@ export class Beatmap implements IBeatmap {
             ++combo;
         }
 
-        return Math.round(score * scoreMultiplier);
+        return Math.round(Math.fround(score * scoreMultiplier));
     }
 
     /**

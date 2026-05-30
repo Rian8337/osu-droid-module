@@ -202,7 +202,14 @@ export abstract class ModUtil {
                 totalRateAdjustTrackRateMultiplier *=
                     mod.trackRateMultiplier.value;
             } else {
-                scoreMultiplier *= modSelector(mod);
+                const multiplierValue = modSelector(mod);
+
+                scoreMultiplier =
+                    mode === Modes.droid
+                        ? Math.fround(
+                              scoreMultiplier * Math.fround(multiplierValue),
+                          )
+                        : scoreMultiplier * multiplierValue;
             }
         }
 
@@ -211,7 +218,10 @@ export abstract class ModUtil {
                 totalRateAdjustTrackRateMultiplier,
             );
 
-            scoreMultiplier *= rateAdjustSelector(rateAdjustHelper);
+            scoreMultiplier = Math.fround(
+                scoreMultiplier *
+                    Math.fround(rateAdjustSelector(rateAdjustHelper)),
+            );
         }
 
         return scoreMultiplier;

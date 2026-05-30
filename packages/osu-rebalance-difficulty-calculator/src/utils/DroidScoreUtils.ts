@@ -61,6 +61,6 @@ export abstract class DroidScoreUtils {
             bonus += maximumPossibleBonusSpins * 1000;
         }
 
-        return Math.floor(bonus * scoreMultiplier);
+        return Math.floor(Math.fround(bonus * scoreMultiplier));
     }
 }
