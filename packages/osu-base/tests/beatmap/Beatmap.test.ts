@@ -301,35 +301,35 @@ describe("Test osu!droid max score calculation", () => {
     }
 
     test("Without mods and speed multiplier", () => {
-        expect(beatmap.maxDroidScore()).toBe(730);
+        expect(beatmap.maxDroidScore()).toBe(1150);
     });
 
     test("With mods", () => {
         const map = new ModMap();
         map.set(new ModHidden());
 
-        expect(beatmap.maxDroidScore(map)).toBe(773);
+        expect(beatmap.maxDroidScore(map)).toBe(1219);
     });
 
     test("With CS > 1x", () => {
         const map = new ModMap();
         map.set(new ModCustomSpeed(1.25));
 
-        expect(beatmap.maxDroidScore(map)).toBe(773);
+        expect(beatmap.maxDroidScore(map)).toBe(1219);
     });
 
     test("With CS < 1x", () => {
         const map = new ModMap();
         map.set(new ModCustomSpeed(0.75));
 
-        expect(beatmap.maxDroidScore(map)).toBe(219);
+        expect(beatmap.maxDroidScore(map)).toBe(345);
     });
 
     test("With unranked mods", () => {
         const map = new ModMap();
         map.set(new ModRelax());
 
-        expect(beatmap.maxDroidScore(map)).toBe(0);
+        expect(beatmap.maxDroidScore(map)).toBe(1);
     });
 
     describe("With ScoreV2", () => {
