@@ -110,11 +110,20 @@ export class SliderCheeseChecker {
             const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.
+            if (objectData.result === HitResult.miss) {
+                continue;
+            }
+
+            let lateHitThreshold = this.hitWindow50;
+
+            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+            if (this.data.replayVersion < 8) {
+                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
+            }
+
             if (
-                objectData.result === HitResult.miss ||
-                -this.hitWindow50 > objectData.accuracy ||
-                objectData.accuracy >
-                    Math.min(this.hitWindow50, object.duration)
+                objectData.accuracy < -this.hitWindow50 ||
+                objectData.accuracy > lateHitThreshold
             ) {
                 continue;
             }
