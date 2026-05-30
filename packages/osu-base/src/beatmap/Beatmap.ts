@@ -199,7 +199,7 @@ export class Beatmap implements IBeatmap {
             ++combo;
         }
 
-        return Math.floor(score * scoreMultiplier);
+        return Math.round(score * scoreMultiplier);
     }
 
     /**
