@@ -18,6 +18,7 @@ export class ModMagnetised extends Mod implements IModApplicableToOsu {
      */
     readonly attractionStrength = new DecimalModSetting(
         "Attraction Strength",
+        "attractionStrength",
         "How strong the pull is.",
         0.5,
         0.05,

@@ -58,8 +58,8 @@ export class ModMirror
      */
     readonly flippedAxes = new AxesModSetting(
         "Flipped axes",
-        "The axes to reflect the hit objects along.",
         "flippedAxes",
+        "The axes to reflect the hit objects along.",
         Axes.x,
     );
 
