@@ -420,3 +420,54 @@ test("Test score multiplier calculation", () => {
         ModUtil.calculateScoreMultiplier(mods.values(), Modes.droid),
     ).toBeCloseTo(1.1977576, 6);
 });
+
+describe("Test droid score multiplier uses single-precision floating point", () => {
+    // The osu!droid client computes score multipliers using Java float (32-bit).
+    // JavaScript's native number type is 64-bit double precision, so we must use
+    // Math.fround at each step to match the client's results.
+
+    test("HD + DT + PR multiplier matches Java float arithmetic", () => {
+        const mods = new ModMap();
+
+        mods.set(ModHidden);
+        mods.set(ModDoubleTime);
+        mods.set(ModPrecise);
+
+        const multiplier = ModUtil.calculateScoreMultiplier(
+            mods.values(),
+            Modes.droid,
+        );
+
+        // Java: 1.06f * 1.06f * 1.12f (DT contributes 1.12 via rate-adjust formula)
+        const expected = Math.fround(
+            Math.fround(Math.fround(1.06) * Math.fround(1.06)) *
+                Math.fround(1.12),
+        );
+
+        expect(multiplier).toBe(expected);
+
+        // Verify this differs from a naive double-precision calculation.
+        expect(multiplier).not.toBe(1.06 * 1.06 * 1.12);
+    });
+
+    test("Total score with HD + DT + PR matches Java client result", () => {
+        // Real-world example: base score 23578940 with HD + DT + PR.
+        // Java: (23578940 * (1.06f * 1.06f * 1.12f)).roundToInt() = 29672490.
+        // A naive double-precision calculation yields 29672493.
+        const mods = new ModMap();
+
+        mods.set(ModHidden);
+        mods.set(ModDoubleTime);
+        mods.set(ModPrecise);
+
+        const baseScore = 23578940;
+
+        const multiplier = ModUtil.calculateScoreMultiplier(
+            mods.values(),
+            Modes.droid,
+        );
+
+        expect(Math.round(Math.fround(baseScore * multiplier))).toBe(29672490);
+        expect(Math.round(baseScore * (1.06 * 1.06 * 1.12))).not.toBe(29672490);
+    });
+});

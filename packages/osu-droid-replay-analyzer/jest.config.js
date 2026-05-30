@@ -5,6 +5,4 @@ const pack = require("./package.json");
 module.exports = {
     ...base,
     displayName: pack.name,
-    rootDir: "../..",
-    testMatch: [`<rootDir>/packages/${pack.name}/**/*.test.ts`],
 };
