@@ -87,11 +87,12 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
             return null;
         }
 
-        const processedValue = MathUtils.clamp(
-            Math.round(value / this.step!) * this.step!,
-            this.min!,
-            this.max!,
-        );
+        const stepped =
+            this.step! > 0
+                ? Math.round(value / this.step!) * this.step!
+                : value;
+
+        const processedValue = MathUtils.clamp(stepped, this.min!, this.max!);
 
         if (this.precision !== null) {
             return parseFloat(processedValue.toFixed(this.precision));

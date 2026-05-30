@@ -50,10 +50,11 @@ export class NumberModSetting extends RangeConstrainedModSetting<number> {
     }
 
     protected override processValue(value: number): number {
-        return MathUtils.clamp(
-            Math.round(value / this.step) * this.step,
-            this.min,
-            this.max,
-        );
+        const stepped =
+            this.step > 0
+                ? Math.round(value / this.step) * this.step
+                : value;
+
+        return MathUtils.clamp(stepped, this.min, this.max);
     }
 }
