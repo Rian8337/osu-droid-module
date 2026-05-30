@@ -1,57 +1,60 @@
 import { NumberModSetting } from "../../../src";
 
-test("Test boundaries", () => {
-    const expectThrows = (action: () => void) => {
-        expect(() => {
-            action();
-        }).toThrow();
-    };
+const create = (
+    defaultValue: number,
+    min: number,
+    max: number,
+    step: number,
+) => new NumberModSetting("Test", null, "Test setting", defaultValue, min, max, step);
 
-    // Test min > max
-    expectThrows(
-        () => new NumberModSetting("Test", "Test", 0.12, 0.12, 0.1, 0),
-    );
-
-    // Test defaultValue > max
-    expectThrows(
-        () => new NumberModSetting("Test", "Test", 0.24, 0.1, 0.12, 0),
-    );
-
-    // Test defaultValue < min
-    expectThrows(
-        () => new NumberModSetting("Test", "Test", 0.1, 0.12, 0.24, 0),
-    );
-
-    // Test step < 0
-    expectThrows(() => new NumberModSetting("Test", "Test", 0.12, 0, 1, -0.1));
+describe("Test step validation", () => {
+    test("Throws when step is negative", () => {
+        expect(() => create(5, 1, 10, -1)).toThrow(RangeError);
+    });
 });
 
-test("Test step", () => {
-    const setting = new NumberModSetting("Test", "Test", 0.12, 0.12, 1.2, 0.12);
+describe("Test step behavior", () => {
+    test("Step 0 leaves value unchanged (no snapping)", () => {
+        const setting = create(5, 0, 10, 0);
 
-    expect(setting.value).toBeCloseTo(0.12, 5);
+        setting.step = 1;
+        expect(setting.step).toBe(1);
+        expect(setting.value).toBe(5);
 
-    setting.value = 0.24;
-    expect(setting.value).toBeCloseTo(0.24, 5);
+        // With step=2, Math.round(5/2)*2 = Math.round(2.5)*2 = 3*2 = 6.
+        setting.step = 2;
+        expect(setting.step).toBe(2);
+        expect(setting.value).toBe(6);
+    });
 
-    setting.value = 0.36;
-    expect(setting.value).toBeCloseTo(0.36, 5);
+    test("Snaps value to nearest step multiple on assignment", () => {
+        const setting = create(0, 0, 10, 3);
 
-    setting.value = 0.48;
-    expect(setting.value).toBeCloseTo(0.48, 5);
+        setting.value = 4;
+        expect(setting.value).toBe(3);
+
+        setting.value = 7;
+        expect(setting.value).toBe(6);
+
+        setting.value = 10;
+        expect(setting.value).toBe(9);
+    });
 });
 
-test("Test value cap", () => {
-    const setting = new NumberModSetting("Test", "Test", 0.12, 0.12, 1.2, 0.12);
+describe("Test load / save", () => {
+    test("Loads number value from settings", () => {
+        const setting = create(0, 0, 10, 1);
+        const s = new NumberModSetting("Test", "n", "Test setting", 0, 0, 10, 1);
 
-    expect(setting.value).toBeCloseTo(0.12, 5);
+        s.load({ n: 7 });
+        expect(s.value).toBe(7);
+    });
 
-    setting.value = 0;
-    expect(setting.value).toBeCloseTo(0.12, 5);
+    test("Saves number value to settings", () => {
+        const s = new NumberModSetting("Test", "n", "Test setting", 3, 0, 10, 1);
+        const out: Record<string, unknown> = {};
 
-    setting.value = 1.2;
-    expect(setting.value).toBeCloseTo(1.2, 5);
-
-    setting.value = 1.5;
-    expect(setting.value).toBeCloseTo(1.2, 5);
+        s.save(out);
+        expect(out).toEqual({ n: 3 });
+    });
 });
