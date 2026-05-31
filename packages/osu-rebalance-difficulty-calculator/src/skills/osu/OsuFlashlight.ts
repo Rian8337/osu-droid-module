@@ -111,6 +111,9 @@ export class OsuFlashlight extends OsuSkill {
             difficulty *= 0.4;
         }
 
+        difficulty *=
+            0.985 + Math.pow(Math.max(0, current.overallDifficulty), 2) / 4000;
+
         return difficulty;
     }
 
