@@ -1,8 +1,12 @@
 import {
+    BeatmapDifficulty,
+    HitObject,
     Interpolation,
     MathUtils,
     ModHidden,
     ModMap,
+    ModTraceable,
+    Slider,
     Spinner,
 } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -13,6 +17,7 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
 export abstract class DroidReadingEvaluator {
     private static readonly readingWindowSize = 3000; // 3 seconds
     private static readonly hiddenMultiplier = 0.28;
+    private static readonly traceableMultiplier = 0.26;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
     private static readonly preemptBalancingFactor = 150000;
@@ -72,6 +77,16 @@ export abstract class DroidReadingEvaluator {
             constantAngleNerfFactor,
         );
 
+        const traceableDifficulty = this.calculateTraceableDifficulty(
+            current,
+            mods,
+            distanceInfluenceThreshold,
+            pastObjectDifficultyInfluence,
+            currentVisibleObjectDensity,
+            velocity,
+            constantAngleNerfFactor,
+        );
+
         const preemptDifficulty = this.calculatePreemptDifficulty(
             velocity,
             constantAngleNerfFactor,
@@ -82,6 +97,7 @@ export abstract class DroidReadingEvaluator {
             1.5,
             preemptDifficulty,
             hiddenDifficulty,
+            traceableDifficulty,
             noteDensityDifficulty,
         );
 
@@ -235,6 +251,83 @@ export abstract class DroidReadingEvaluator {
         }
 
         return hiddenDifficulty;
+    }
+
+    private static calculateTraceableDifficulty(
+        current: DroidDifficultyHitObject,
+        mods: ModMap,
+        distanceInfluenceThreshold: number,
+        pastObjectDifficultyInfluence: number,
+        currentVisibleObjectDensity: number,
+        velocity: number,
+        constantAngleNerfFactor: number,
+    ): number {
+        if (!mods.has(ModTraceable)) {
+            return 0;
+        }
+
+        const approachRate = BeatmapDifficulty.difficultyRange(
+            current.timePreempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
+
+        let lowApproachRateSliderVisibilityFactor = 1;
+        let highApproachRateSliderVisibilityFactor = 1;
+
+        if (current.object instanceof Slider) {
+            // Sliders are easier to read as the slider body remains visible.
+            // Decrease difficulty as the slider becomes longer.
+            const distanceFactor = MathUtils.smootherstep(
+                current.travelDistance,
+                distanceInfluenceThreshold,
+                15,
+            );
+
+            highApproachRateSliderVisibilityFactor = 0.5 + distanceFactor / 2;
+            lowApproachRateSliderVisibilityFactor = distanceFactor;
+        }
+
+        // Start from normal curve, rewarding lower AR up to AR7.
+        let preemptFactor =
+            0.1 +
+            0.05 *
+                (12 - Math.max(approachRate, 7)) *
+                highApproachRateSliderVisibilityFactor;
+
+        // For AR up to 0 - reduce reward for very low ARs when object is visible.
+        if (approachRate < 7) {
+            preemptFactor +=
+                0.05 *
+                (7 - Math.max(approachRate, 0)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        // Starting from AR0 - cap values so they won't grow to infinity.
+        if (approachRate < 0) {
+            preemptFactor +=
+                0.05 *
+                (1 - Math.pow(1.5, approachRate)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        // Account for both past and current densities.
+        const densityFactor = Math.pow(
+            currentVisibleObjectDensity + pastObjectDifficultyInfluence,
+            2,
+        );
+
+        let traceableDifficulty =
+            (preemptFactor + densityFactor) *
+            constantAngleNerfFactor *
+            velocity;
+
+        // Apply a soft cap to general Traceable reading to account for partial memorization.
+        traceableDifficulty =
+            Math.pow(traceableDifficulty, 0.45) * this.traceableMultiplier;
+
+        return traceableDifficulty;
     }
 
     private static getPastObjectDifficultyInfluence(
