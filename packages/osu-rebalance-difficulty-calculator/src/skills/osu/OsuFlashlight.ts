@@ -10,6 +10,7 @@ import {
     MathUtils,
     Interpolation,
     ModMap,
+    ModFlashlight,
 } from "@rian8337/osu-base";
 
 /**
@@ -49,6 +50,10 @@ export class OsuFlashlight extends OsuSkill {
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
+        if (!this.mods.has(ModFlashlight)) {
+            return 0;
+        }
+
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
             this.calculateAdjustedDifficulty(current) * this.skillMultiplier;

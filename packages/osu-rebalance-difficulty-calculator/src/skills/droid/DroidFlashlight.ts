@@ -1,4 +1,9 @@
-import { ModMap } from "@rian8337/osu-base";
+import {
+    ModAutopilot,
+    ModFlashlight,
+    ModMap,
+    ModRelax,
+} from "@rian8337/osu-base";
 import { DroidFlashlightEvaluator } from "../../evaluators/droid/DroidFlashlightEvaluator";
 import { DifficultyHitObject } from "../../preprocessing/DifficultyHitObject";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
@@ -29,10 +34,13 @@ export class DroidFlashlight extends DroidSkill {
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
+        if (!this.mods.has(ModFlashlight)) {
+            return 0;
+        }
+
         this.currentFlashlightStrain *= this.strainDecay(current.deltaTime);
         this.currentFlashlightStrain +=
-            DroidFlashlightEvaluator.evaluateDifficultyOf(current, this.mods) *
-            this.skillMultiplier;
+            this.calculateAdjustedDifficulty(current) * this.skillMultiplier;
 
         return this.currentFlashlightStrain;
     }
@@ -69,6 +77,23 @@ export class DroidFlashlight extends DroidSkill {
                 : 0);
 
         return sum;
+    }
+
+    private calculateAdjustedDifficulty(
+        current: DroidDifficultyHitObject,
+    ): number {
+        let difficulty = DroidFlashlightEvaluator.evaluateDifficultyOf(
+            current,
+            this.mods,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            difficulty *= 0.7;
+        } else if (this.mods.has(ModAutopilot)) {
+            difficulty *= 0.4;
+        }
+
+        return difficulty;
     }
 
     private strainDecay(ms: number): number {
