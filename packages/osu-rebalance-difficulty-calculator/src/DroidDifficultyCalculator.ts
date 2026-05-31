@@ -10,6 +10,7 @@ import {
     ModRelax,
     ModReplayV6,
     ModScoreV2,
+    ModTraceable,
 } from "@rian8337/osu-base";
 import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
@@ -35,7 +36,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     constructor() {
         super();
 
-        this.difficultyAdjustmentMods.push(ModPrecise, ModScoreV2, ModReplayV6);
+        this.difficultyAdjustmentMods.push(
+            ModPrecise,
+            ModScoreV2,
+            ModReplayV6,
+            ModTraceable,
+        );
     }
 
     override retainDifficultyAdjustmentMods(mods: Mod[]): Mod[] {

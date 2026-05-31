@@ -13,7 +13,6 @@ import {
     ModRateAdjust,
     ModRelax,
     ModTimeRamp,
-    ModTraceable,
     PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
@@ -45,7 +44,6 @@ export abstract class DifficultyCalculator<
         ModAutopilot,
         ModMirror,
         ModRandom,
-        ModTraceable,
     ];
 
     /**
