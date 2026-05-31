@@ -101,9 +101,9 @@ export class OsuFlashlight extends OsuSkill {
         }
 
         if (this.mods.has(ModRelax)) {
-            difficulty *= 0.4;
+            difficulty *= 0.7;
         } else if (this.mods.has(ModAutopilot)) {
-            difficulty *= 0.1;
+            difficulty *= 0.4;
         }
 
         return difficulty;
