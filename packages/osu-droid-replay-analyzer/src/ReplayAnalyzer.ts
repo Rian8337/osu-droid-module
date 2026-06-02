@@ -659,6 +659,7 @@ export class ReplayAnalyzer {
 
             case 3:
             case 7:
+            case 8:
                 bufferIndex = 7;
                 break;
 
