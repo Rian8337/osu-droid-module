@@ -158,20 +158,20 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
             noMod: {
-                aim: 1.8685609988004601,
+                aim: 1.9495368105426412,
                 tap: 1.492734818431125,
                 rhythm: 0.5910394950606784,
-                reading: 0.0801694219632239,
-                total: 3.586166585056434,
+                reading: 0.30086896958850856,
+                total: 3.694683316518896,
             },
             doubleTime: {
-                aim: 2.5070618779673466,
+                aim: 2.6482077892531763,
                 tap: 2.22637269107595,
                 rhythm: 0.7507595845390408,
-                reading: 1.1748089945535194,
-                total: 5.072525868507849,
+                reading: 1.122224654726675,
+                total: 5.230016001139322,
             },
-            flashlight: 1.5196910300136421,
+            flashlight: 2.41907109646295,
         },
     );
 });
@@ -179,20 +179,20 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 0.8722394036844026,
+            aim: 1.0079033208805372,
             tap: 0.9141193217469644,
             rhythm: 0.5124281899842913,
             reading: 0,
-            total: 1.880448068347529,
+            total: 2.0274997212807984,
         },
         doubleTime: {
-            aim: 1.158271523616525,
+            aim: 1.3642441299918897,
             tap: 1.3271871914264959,
             rhythm: 0.6936207382846453,
             reading: 0,
-            total: 2.628525201967448,
+            total: 2.832020472896966,
         },
-        flashlight: 0.39487255909059,
+        flashlight: 0.6284736526654218,
     });
 });
 
@@ -201,20 +201,20 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noMod: {
-                aim: 2.151569111823684,
+                aim: 2.3036940184497205,
                 tap: 3.0875665373113415,
                 rhythm: 0.9966311843953229,
-                reading: 0.5738700056952152,
-                total: 5.711240767805919,
+                reading: 0.7531573093789106,
+                total: 5.818013524023756,
             },
             doubleTime: {
-                aim: 2.917767207907698,
+                aim: 3.1858954535631043,
                 tap: 4.412143589015001,
                 rhythm: 1.1908604568024859,
-                reading: 1.4596168862660335,
-                total: 8.111716451961131,
+                reading: 1.4512967502914016,
+                total: 8.272047145936618,
             },
-            flashlight: 1.7933474100776712,
+            flashlight: 2.8565649361013215,
         },
     );
 });
@@ -222,20 +222,20 @@ describe("Test difficulty calculation sample beatmap 3", () => {
 describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
-            aim: 2.5332271698167044,
+            aim: 2.768743411103683,
             tap: 1.4333818091815749,
             rhythm: 0.8189354231946722,
-            reading: 0.21875988701529403,
-            total: 4.510656486050996,
+            reading: 0.4617081183718715,
+            total: 4.882289749902345,
         },
         doubleTime: {
-            aim: 3.3453830310417234,
+            aim: 3.7017809240461985,
             tap: 2.098550903093177,
             rhythm: 1.0791633372145433,
-            reading: 2.246397329905675,
-            total: 6.429249589208887,
+            reading: 2.1372876399730427,
+            total: 6.862232378845149,
         },
-        flashlight: 3.703262312423414,
+        flashlight: 4.366840122183008,
     });
 });
 
@@ -244,20 +244,20 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 12.318791462791909,
+                aim: 15.011261649935943,
                 tap: 6.068027387851987,
                 rhythm: 0.8335870060057355,
-                reading: 7.312210999910238,
-                total: 22.61617384999907,
+                reading: 5.852918621913958,
+                total: 26.314221218398735,
             },
             doubleTime: {
-                aim: 14.193717780959025,
+                aim: 17.320156128396267,
                 tap: 8.556679042177844,
                 rhythm: 0.9560640405601507,
-                reading: 12.89238230530667,
-                total: 29.479455649021777,
+                reading: 10.527301274674961,
+                total: 31.91465639798819,
             },
-            flashlight: 17.353797954462436,
+            flashlight: 27.616316030081933,
         },
     );
 });
@@ -285,19 +285,19 @@ describe("Test difficulty calculation sample beatmap 6", () => {
 describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
-            aim: 2.5179689558256535,
+            aim: 2.7274990230072644,
             tap: 2.6078659973045237,
             rhythm: 0.9938232840574492,
-            reading: 0.28253706524858635,
-            total: 5.394882915366239,
+            reading: 0.5119716217262512,
+            total: 5.619738092851651,
         },
         doubleTime: {
-            aim: 3.5392235398725327,
+            aim: 3.8755281592143938,
             tap: 3.9294747698179813,
             rhythm: 1.2120473532768323,
-            reading: 2.7582210649479144,
-            total: 8.291519445100741,
+            reading: 2.5976267563126227,
+            total: 8.522289473165252,
         },
-        flashlight: 3.1485068636562636,
+        flashlight: 4.991161535731327,
     });
 });
