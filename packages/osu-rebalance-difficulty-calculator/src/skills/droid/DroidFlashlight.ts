@@ -15,13 +15,13 @@ import { DroidSkill } from "./DroidSkill";
 export class DroidFlashlight extends DroidSkill {
     protected override readonly reducedSectionCount = 0;
     protected override readonly reducedSectionBaseline = 1;
-    protected override readonly starsPerDouble = 1.06;
+    protected override readonly starsPerDouble = 1;
 
     private readonly skillMultiplier = 0.024;
     private currentFlashlightStrain = 0;
 
     static override difficultyToPerformance(difficulty: number): number {
-        return Math.pow(difficulty, 1.6) * 25;
+        return Math.pow(difficulty, 2) * 25;
     }
 
     constructor(
@@ -82,9 +82,9 @@ export class DroidFlashlight extends DroidSkill {
     private calculateAdjustedDifficulty(
         current: DroidDifficultyHitObject,
     ): number {
-        let difficulty = DroidFlashlightEvaluator.evaluateDifficultyOf(
-            current,
-            this.mods,
+        let difficulty = Math.pow(
+            DroidFlashlightEvaluator.evaluateDifficultyOf(current, this.mods),
+            0.8,
         );
 
         if (this.mods.has(ModRelax)) {
