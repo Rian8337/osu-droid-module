@@ -94,7 +94,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this._effectiveMissCount;
     }
 
-    static readonly finalMultiplier = 1.12;
+    static readonly finalMultiplier = 1.24;
     static readonly normExponent = 1.1;
 
     private _aimSliderCheesePenalty = 1;
