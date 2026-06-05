@@ -20,7 +20,7 @@ export abstract class DroidReadingEvaluator {
     private static readonly traceableMultiplier = 0.26;
     private static readonly densityMultiplier = 2.4;
     private static readonly densityDifficultyBase = 2.5;
-    private static readonly preemptBalancingFactor = 150000;
+    private static readonly preemptBalancingFactor = 140000;
     private static readonly preemptStartingPoint = 500; // AR 9.66 in milliseconds
     private static readonly minimumAngleRelevancyTime = 2000; // 2 seconds
     private static readonly maximumAngleRelevancyTime = 200;
@@ -36,8 +36,8 @@ export abstract class DroidReadingEvaluator {
             return 0;
         }
 
-        // 1.25 circles distance between centers
-        const distanceInfluenceThreshold = current.normalizedDiameter * 1.25;
+        // 1.5 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.5;
 
         const next = current.next(0);
 
