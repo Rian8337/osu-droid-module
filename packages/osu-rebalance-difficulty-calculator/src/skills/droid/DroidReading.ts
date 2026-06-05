@@ -103,9 +103,9 @@ export class DroidReading extends HarmonicSkill {
     private calculateAdjustedDifficulty(
         current: DroidDifficultyHitObject,
     ): number {
-        let difficulty = DroidReadingEvaluator.evaluateDifficultyOf(
-            current,
-            this.mods,
+        let difficulty = Math.pow(
+            DroidReadingEvaluator.evaluateDifficultyOf(current, this.mods),
+            0.89,
         );
 
         if (this.mods.has(ModRelax)) {
