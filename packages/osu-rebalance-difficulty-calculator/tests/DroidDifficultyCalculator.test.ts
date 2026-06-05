@@ -162,16 +162,16 @@ describe("Test difficulty calculation sample beatmap 1", () => {
                 tap: 1.492734818431125,
                 rhythm: 0.5910394950606784,
                 reading: 0.30086896958850856,
-                total: 3.694683316518896,
+                total: 3.5714343007026463,
             },
             doubleTime: {
                 aim: 2.6482077892531763,
                 tap: 2.22637269107595,
                 rhythm: 0.7507595845390408,
                 reading: 1.122224654726675,
-                total: 5.230016001139322,
+                total: 5.055550622209094,
             },
-            flashlight: 2.41907109646295,
+            flashlight: 1.314674970483078,
         },
     );
 });
@@ -183,16 +183,16 @@ describe("Test difficulty calculation sample beatmap 2", () => {
             tap: 0.9141193217469644,
             rhythm: 0.5124281899842913,
             reading: 0,
-            total: 2.0274997212807984,
+            total: 1.959865414411158,
         },
         doubleTime: {
             aim: 1.3642441299918897,
             tap: 1.3271871914264959,
             rhythm: 0.6936207382846453,
             reading: 0,
-            total: 2.832020472896966,
+            total: 2.7375485774315416,
         },
-        flashlight: 0.6284736526654218,
+        flashlight: 0.3869807734127871,
     });
 });
 
@@ -205,16 +205,16 @@ describe("Test difficulty calculation sample beatmap 3", () => {
                 tap: 3.0875665373113415,
                 rhythm: 0.9966311843953229,
                 reading: 0.7531573093789106,
-                total: 5.818013524023756,
+                total: 5.623933442075847,
             },
             doubleTime: {
                 aim: 3.1858954535631043,
                 tap: 4.412143589015001,
                 rhythm: 1.1908604568024859,
                 reading: 1.4512967502914016,
-                total: 8.272047145936618,
+                total: 7.996104234953144,
             },
-            flashlight: 2.8565649361013215,
+            flashlight: 1.4418954946686053,
         },
     );
 });
@@ -226,16 +226,16 @@ describe("Test difficulty calculation sample beatmap 4", () => {
             tap: 1.4333818091815749,
             rhythm: 0.8189354231946722,
             reading: 0.4617081183718715,
-            total: 4.882289749902345,
+            total: 4.719423989820861,
         },
         doubleTime: {
             aim: 3.7017809240461985,
             tap: 2.098550903093177,
             rhythm: 1.0791633372145433,
             reading: 2.1372876399730427,
-            total: 6.862232378845149,
+            total: 6.6333187441599595,
         },
-        flashlight: 4.366840122183008,
+        flashlight: 3.0979873538165883,
     });
 });
 
@@ -248,16 +248,16 @@ describe("Test difficulty calculation sample beatmap 5", () => {
                 tap: 6.068027387851987,
                 rhythm: 0.8335870060057355,
                 reading: 5.852918621913958,
-                total: 26.314221218398735,
+                total: 25.436418822551058,
             },
             doubleTime: {
                 aim: 17.320156128396267,
                 tap: 8.556679042177844,
                 rhythm: 0.9560640405601507,
                 reading: 10.527301274674961,
-                total: 31.91465639798819,
+                total: 30.850032002825714,
             },
-            flashlight: 27.616316030081933,
+            flashlight: 9.251434097534771,
         },
     );
 });
@@ -269,14 +269,14 @@ describe("Test difficulty calculation sample beatmap 6", () => {
             tap: 0.0726997248963158,
             rhythm: 0,
             reading: 0,
-            total: 0.12398238685404692,
+            total: 0.11984652300612499,
         },
         doubleTime: {
             aim: 0,
             tap: 0.08903861521834222,
             rhythm: 0,
             reading: 0,
-            total: 0.15184679244238197,
+            total: 0.1467814144058657,
         },
         flashlight: 0,
     });
@@ -289,15 +289,15 @@ describe("Test difficulty calculation sample beatmap 7", () => {
             tap: 2.6078659973045237,
             rhythm: 0.9938232840574492,
             reading: 0.5119716217262512,
-            total: 5.619738092851651,
+            total: 5.432272177710203,
         },
         doubleTime: {
             aim: 3.8755281592143938,
             tap: 3.9294747698179813,
             rhythm: 1.2120473532768323,
             reading: 2.5976267563126227,
-            total: 8.522289473165252,
+            total: 8.237998858764652,
         },
-        flashlight: 4.991161535731327,
+        flashlight: 2.562066698453627,
     });
 });
