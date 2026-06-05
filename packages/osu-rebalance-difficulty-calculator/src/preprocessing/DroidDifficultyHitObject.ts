@@ -27,7 +27,8 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
      */
     rhythmDifficulty = 0;
 
-    override readonly normalizedRadius = 50;
+    // osu!standard's normalized radius is 50, which is CS ~0.982. This mirrors it to osu!droid.
+    override readonly normalizedRadius = 80.75;
 
     protected override readonly mode = Modes.droid;
 
