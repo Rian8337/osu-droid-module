@@ -44,7 +44,9 @@ export abstract class DroidFlashlightEvaluator {
             return 0;
         }
 
-        const scalingFactor = 52 / current.object.radius;
+        // Similar to DifficultyHitObject.normalizedRadius, osu!standard's
+        // constant is 52 and this is adjusted to fit the same CS.
+        const scalingFactor = 82.75 / current.object.radius;
         let smallDistNerf = 1;
         let cumulativeStrainTime = 0;
         let result = 0;
