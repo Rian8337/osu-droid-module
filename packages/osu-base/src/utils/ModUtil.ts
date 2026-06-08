@@ -199,8 +199,7 @@ export abstract class ModUtil {
             }
 
             if (mode === Modes.droid && mod instanceof ModRateAdjust) {
-                totalRateAdjustTrackRateMultiplier *=
-                    mod.trackRateMultiplier.value;
+                totalRateAdjustTrackRateMultiplier *= mod.rate;
             } else {
                 const multiplierValue = modSelector(mod);
 

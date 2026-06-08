@@ -1,7 +1,6 @@
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { Mod } from "./Mod";
 import { ModRateAdjustHelper } from "./ModRateAdjustHelper";
-import { DecimalModSetting } from "./settings/DecimalModSetting";
 
 /**
  * Represents a `Mod` that adjusts the playback rate of a track.
@@ -13,23 +12,13 @@ export abstract class ModRateAdjust
     /**
      * The multiplier for the track's playback rate after applying this `Mod`.
      */
-    readonly trackRateMultiplier = new DecimalModSetting(
-        "Track rate multiplier",
-        "rateMultiplier",
-        "The multiplier for the track's playback rate after applying this mod.",
-        1,
-        0.5,
-        2,
-        0.05,
-        2,
-    );
+    abstract rate: number;
 
     /**
      * The generic osu!droid score multiplier of this `Mod`.
      */
     protected get droidScoreMultiplier(): number {
-        return new ModRateAdjustHelper(this.trackRateMultiplier.value)
-            .droidScoreMultiplier;
+        return new ModRateAdjustHelper(this.rate).droidScoreMultiplier;
     }
 
     /**
@@ -43,16 +32,10 @@ export abstract class ModRateAdjust
      * Generic getter to determine if this `ModRateAdjust` is relevant.
      */
     protected get isRelevant(): boolean {
-        return this.trackRateMultiplier.value !== 1;
-    }
-
-    constructor(trackRateMultiplier = 1) {
-        super();
-
-        this.trackRateMultiplier.value = trackRateMultiplier;
+        return this.rate !== 1;
     }
 
     applyToRate(_: number, rate: number): number {
-        return rate * this.trackRateMultiplier.value;
+        return rate * this.rate;
     }
 }

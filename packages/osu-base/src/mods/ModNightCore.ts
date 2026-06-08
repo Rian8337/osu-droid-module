@@ -20,8 +20,10 @@ export class ModNightCore
     readonly osuScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
 
+    override readonly rate: number = 1.5;
+
     constructor() {
-        super(1.5);
+        super();
 
         this.incompatibleMods.add(ModDoubleTime).add(ModHalfTime);
     }
