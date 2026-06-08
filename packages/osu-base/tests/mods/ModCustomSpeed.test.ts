@@ -1,7 +1,7 @@
 import { ModCustomSpeed } from "../../src";
 
 test("Test serialization", () => {
-    const mod = new ModCustomSpeed();
+    let mod = new ModCustomSpeed();
 
     expect(mod.serialize().settings).toBeUndefined();
 
@@ -10,6 +10,9 @@ test("Test serialization", () => {
 
     mod.trackRateMultiplier.value = 1;
     expect(mod.serialize().settings).toBeUndefined();
+
+    mod = new ModCustomSpeed(1.25);
+    expect(mod.serialize().settings).toEqual({ rateMultiplier: 1.25 });
 });
 
 test("Test equals", () => {

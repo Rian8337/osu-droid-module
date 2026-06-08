@@ -13,7 +13,16 @@ export abstract class ModRateAdjust
     /**
      * The multiplier for the track's playback rate after applying this `Mod`.
      */
-    readonly trackRateMultiplier: DecimalModSetting;
+    readonly trackRateMultiplier = new DecimalModSetting(
+        "Track rate multiplier",
+        "rateMultiplier",
+        "The multiplier for the track's playback rate after applying this mod.",
+        1,
+        0.5,
+        2,
+        0.05,
+        2,
+    );
 
     /**
      * The generic osu!droid score multiplier of this `Mod`.
@@ -40,16 +49,7 @@ export abstract class ModRateAdjust
     constructor(trackRateMultiplier = 1) {
         super();
 
-        this.trackRateMultiplier = new DecimalModSetting(
-            "Track rate multiplier",
-            "rateMultiplier",
-            "The multiplier for the track's playback rate after applying this mod.",
-            trackRateMultiplier,
-            0.5,
-            2,
-            0.05,
-            2,
-        );
+        this.trackRateMultiplier.value = trackRateMultiplier;
     }
 
     applyToRate(_: number, rate: number): number {
