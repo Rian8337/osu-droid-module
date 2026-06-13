@@ -25,26 +25,30 @@ export interface IDroidDifficultyAttributes extends IDifficultyAttributes {
     tapDifficultStrainCount: number;
 
     /**
-     * The amount of strains that are considered difficult with respect to the flashlight skill.
-     */
-    flashlightDifficultStrainCount: number;
-
-    /**
      * The amount of notes that are considered difficult with respect to the reading skill.
      */
     readingDifficultNoteCount: number;
 
     /**
-     * The average delta time of speed objects.
+     * Describes how much of {@link aimDifficultStrainCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link aimDifficultStrainCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link aimDifficultStrainCount} is contributed by sliders.
      */
-    averageSpeedDeltaTime: number;
+    aimTopWeightedSliderFactor: number;
 
     /**
-     * Describes how much of tap difficulty is contributed by notes that are "vibroable".
+     * Describes how much of {@link tapDifficultStrainCount} is contributed to by circles or sliders.
      *
-     * A value closer to 1 indicates most of tap difficulty is contributed by notes that are not "vibroable".
+     * A value closer to 0 indicates most of {@link tapDifficultStrainCount} is contributed by circles.
      *
-     * A value closer to 0 indicates most of tap difficulty is contributed by notes that are "vibroable".
+     * A value closer to infinity indicates most of {@link tapDifficultStrainCount} is contributed by sliders.
      */
-    vibroFactor: number;
+    tapTopWeightedSliderFactor: number;
+
+    /**
+     * The maximum score obtainable on the beatmap.
+     */
+    maximumScore: number;
 }

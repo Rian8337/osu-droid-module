@@ -1,4 +1,4 @@
-import { Spinner, ErrorFunction } from "@rian8337/osu-base";
+import { Spinner, ErrorFunction, MathUtils } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -6,7 +6,7 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  */
 export abstract class DroidTapEvaluator {
     // ~200 1/4 BPM streams
-    private static readonly minSpeedBonus = 75;
+    private static readonly minSpeedBonus = 200;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -18,14 +18,13 @@ export abstract class DroidTapEvaluator {
      *
      * @param current The current object.
      * @param considerCheesability Whether to consider cheesability.
-     * @param strainTimeCap The strain time to cap the object's strain time to.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         considerCheesability: boolean,
-        strainTimeCap?: number,
     ): number {
         if (
+            current.index < 0 ||
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
             current.isOverlapping(false)
@@ -37,22 +36,30 @@ export abstract class DroidTapEvaluator {
             ? 1 - current.getDoubletapness(current.next(0))
             : 1;
 
-        const strainTime =
-            strainTimeCap !== undefined
-                ? // We cap the strain time to 50 here as the chance of vibro is higher in any BPM higher than 300.
-                  Math.max(50, strainTimeCap, current.strainTime)
-                : current.strainTime;
         let speedBonus = 1;
 
-        if (strainTime < this.minSpeedBonus) {
+        if (
+            MathUtils.millisecondsToBPM(current.strainTime) > this.minSpeedBonus
+        ) {
             speedBonus +=
                 0.75 *
                 Math.pow(
-                    ErrorFunction.erf((this.minSpeedBonus - strainTime) / 40),
+                    ErrorFunction.erf(
+                        (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
+                            current.strainTime) /
+                            40,
+                    ),
                     2,
                 );
         }
 
-        return (speedBonus * Math.pow(doubletapness, 1.5) * 1000) / strainTime;
+        let strain = (speedBonus * 1000) / current.strainTime;
+        strain *= this.highBpmBonus(current.strainTime);
+
+        return strain * Math.pow(doubletapness, 1.5);
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.3, ms / 1000));
     }
 }

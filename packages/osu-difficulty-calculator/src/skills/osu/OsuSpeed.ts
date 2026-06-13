@@ -9,7 +9,7 @@ import { OsuSkill } from "./OsuSkill";
  * Represents the skill required to press keys or tap with regards to keeping up with the speed at which objects need to be hit.
  */
 export class OsuSpeed extends OsuSkill {
-    protected override readonly strainDecayBase = 0.3;
+    private readonly strainDecayBase = 0.3;
     protected override readonly reducedSectionCount = 5;
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly decayWeight = 0.9;
@@ -84,8 +84,15 @@ export class OsuSpeed extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
-        current.speedStrain = this.currentSpeedStrain * this.currentRhythm;
+    protected override saveToHitObject(
+        current: OsuDifficultyHitObject,
+        difficulty: number,
+    ): void {
+        current.speedStrain = difficulty;
         current.rhythmMultiplier = this.currentRhythm;
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 }

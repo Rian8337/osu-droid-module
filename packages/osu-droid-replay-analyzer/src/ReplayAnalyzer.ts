@@ -52,7 +52,6 @@ import { RebalanceThreeFingerChecker } from "./analysis/RebalanceThreeFingerChec
 import { SliderCheeseChecker } from "./analysis/SliderCheeseChecker";
 import { ThreeFingerChecker } from "./analysis/ThreeFingerChecker";
 import { TwoHandChecker } from "./analysis/TwoHandChecker";
-import { SliderCheeseInformation } from "./analysis/structures/SliderCheeseInformation";
 import { MovementType } from "./constants/MovementType";
 import { CursorData } from "./data/CursorData";
 import { ReplayData } from "./data/ReplayData";
@@ -130,10 +129,7 @@ export class ReplayAnalyzer {
     /**
      * Penalty values used to penalize dpp for slider cheesing.
      */
-    sliderCheesePenalty: SliderCheeseInformation = {
-        aimPenalty: 1,
-        flashlightPenalty: 1,
-    };
+    sliderCheesePenalty = 1;
 
     /**
      * Whether this replay has been checked against 3 finger usage.

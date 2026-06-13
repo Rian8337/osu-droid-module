@@ -1,43 +1,36 @@
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 import { Skill } from "./Skill";
 
 /**
  * Used to processes strain values of difficulty hitobjects, keep track of strain levels caused by the processed objects
  * and to calculate a final difficulty value representing the difficulty of hitting all the processed objects.
  */
-export abstract class StrainSkill extends Skill {
-    /**
-     * Strain peaks are stored here.
-     */
-    readonly strainPeaks: number[] = [];
-
+export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
      * This is done in order to decrease their impact on the overall difficulty of the map for this skill.
      */
-    protected abstract readonly reducedSectionCount: number;
+    protected readonly reducedSectionCount: number = 10;
 
     /**
      * The baseline multiplier applied to the section with the biggest strain.
      */
-    protected abstract readonly reducedSectionBaseline: number;
-
-    /**
-     * Determines how quickly strain decays for the given skill.
-     *
-     * For example, a value of 0.15 indicates that strain decays to 15% of its original value in one second.
-     */
-    protected abstract readonly strainDecayBase: number;
+    protected readonly reducedSectionBaseline: number = 0.75;
 
     protected readonly _objectStrains: number[] = [];
-
-    protected difficulty = 0;
 
     /**
      * The strains of hitobjects.
      */
     get objectStrains(): readonly number[] {
         return this._objectStrains;
+    }
+
+    protected readonly strainPeaks: number[] = [];
+
+    get peaks(): readonly number[] {
+        return this.currentStrainPeaks;
     }
 
     private readonly sectionLength = 400;
@@ -55,7 +48,42 @@ export abstract class StrainSkill extends Skill {
         return Math.pow(5 * Math.max(1, difficulty / 0.0675) - 4, 3) / 100000;
     }
 
-    override process(current: DifficultyHitObject): void {
+    /**
+     * Obtains the live strain peaks for each {@link sectionLength} of the beatmap, including the peak of the current section.
+     */
+    get currentStrainPeaks(): number[] {
+        return this.strainPeaks.concat(this.currentSectionPeak);
+    }
+
+    /**
+     * Returns the number of strains weighed against the top strain.
+     *
+     * The result is scaled by clock rate as it affects the total number of strains.
+     *
+     * @param difficultyValue The final difficulty value.
+     */
+    countTopWeightedStrains(difficultyValue: number): number {
+        if (difficultyValue === 0) {
+            return 0;
+        }
+
+        // This is what the top strain is if all strain values were identical.
+        const consistentTopStrain = difficultyValue / 10;
+
+        if (consistentTopStrain === 0) {
+            return this._objectStrains.length;
+        }
+
+        // Use a weighted sum of all strains.
+        return this._objectStrains.reduce(
+            (total, next) =>
+                total +
+                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
+            0,
+        );
+    }
+
+    protected override processInternal(current: DifficultyHitObject): number {
         // The first object doesn't generate a strain, so we begin with an incremented section end
         if (current.index === 0) {
             this.currentSectionEnd = this.calculateCurrentSectionStart(current);
@@ -70,55 +98,14 @@ export abstract class StrainSkill extends Skill {
         // Ignore the first hitobject.
         this.currentStrain = this.strainValueAt(current);
 
-        this.saveToHitObject(current);
+        this.saveToHitObject(current, this.currentStrain);
 
         this.currentSectionPeak = Math.max(
             this.currentStrain,
             this.currentSectionPeak,
         );
 
-        if (!current.next(0)) {
-            // Don't forget to save the last strain peak, which would otherwise be ignored.
-            this.saveCurrentPeak();
-        }
-    }
-
-    /**
-     * Saves the current peak strain level to the list of strain peaks, which will be used to calculate an overall difficulty.
-     */
-    saveCurrentPeak(): void {
-        this.strainPeaks.push(this.currentSectionPeak);
-    }
-
-    /**
-     * Returns the number of strains weighed against the top strain.
-     *
-     * The result is scaled by clock rate as it affects the total number of strains.
-     */
-    countTopWeightedStrains(): number {
-        if (this.difficulty === 0) {
-            return 0;
-        }
-
-        // This is what the top strain is if all strain values were identical.
-        const consistentTopStrain = this.difficulty / 10;
-
-        // Use a weighted sum of all strains.
-        return this._objectStrains.reduce(
-            (total, next) =>
-                total +
-                1.1 / (1 + Math.exp(-10 * (next / consistentTopStrain - 0.88))),
-            0,
-        );
-    }
-
-    /**
-     * Calculates strain decay for a specified time frame.
-     *
-     * @param ms The time frame to calculate.
-     */
-    protected strainDecay(ms: number): number {
-        return Math.pow(this.strainDecayBase, ms / 1000);
+        return this.currentStrain;
     }
 
     /**
@@ -144,11 +131,6 @@ export abstract class StrainSkill extends Skill {
     protected abstract strainValueAt(current: DifficultyHitObject): number;
 
     /**
-     * Saves the current strain to a hitobject.
-     */
-    protected abstract saveToHitObject(current: DifficultyHitObject): void;
-
-    /**
      * Retrieves the peak strain at a point in time.
      *
      * @param time The time to retrieve the peak strain at.
@@ -159,6 +141,13 @@ export abstract class StrainSkill extends Skill {
         time: number,
         current: DifficultyHitObject,
     ): number;
+
+    /**
+     * Saves the current peak strain level to the list of strain peaks, which will be used to calculate an overall difficulty.
+     */
+    private saveCurrentPeak(): void {
+        this.strainPeaks.push(this.currentSectionPeak);
+    }
 
     /**
      * Sets the initial strain level for a new section.

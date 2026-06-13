@@ -182,7 +182,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
         this.combo = MathUtils.clamp(
             this.combo,
             0,
-            maxCombo - miss - this._sliderEndsDropped - this._sliderTicksMissed,
+            maxCombo - miss - this.sliderEndsDropped - this.sliderTicksMissed,
         );
     }
 

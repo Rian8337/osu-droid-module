@@ -12,6 +12,8 @@ export abstract class DroidSkill extends StrainSkill {
      */
     protected abstract readonly starsPerDouble: number;
 
+    protected difficulty = 0;
+
     override process(current: DifficultyHitObject): void {
         if (current.index < 0) {
             return;

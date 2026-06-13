@@ -1,81 +1,153 @@
 import {
+    BeatmapDifficulty,
+    HitObject,
+    Interpolation,
     MathUtils,
     ModHidden,
     ModMap,
+    ModTraceable,
     Slider,
     Spinner,
 } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
- * An evaluator for calculating osu!droid reading skill.
+ * Evaluator for reading difficulty in osu!droid.
  */
 export abstract class DroidReadingEvaluator {
-    private static readonly emptyModMap = new ModMap();
     private static readonly readingWindowSize = 3000; // 3 seconds
-    private static readonly distanceInfluenceThreshold =
-        DroidDifficultyHitObject.normalizedDiameter * 1.25; // 1.25 circles distance between centers
+    private static readonly hiddenMultiplier = 0.28;
+    private static readonly traceableMultiplier = 0.26;
+    private static readonly densityMultiplier = 2.4;
+    private static readonly densityDifficultyBase = 2.5;
+    private static readonly preemptBalancingFactor = 150000;
+    private static readonly preemptStartingPoint = 500; // AR 9.66 in milliseconds
+    private static readonly minimumAngleRelevancyTime = 2000; // 2 seconds
+    private static readonly maximumAngleRelevancyTime = 200;
 
-    private static readonly hiddenMultiplier = 0.5;
-    private static readonly densityMultiplier = 0.8;
-    private static readonly densityDifficultyBase = 1.5;
-    private static readonly preemptBalancingFactor = 220000;
-    private static readonly preemptStartingPoint = 475; // AR 9.83 in milliseconds
-
+    /**
+     * Evaluates the difficulty of reading the object.
+     */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
-        clockRate: number,
         mods: ModMap,
     ): number {
-        if (
-            current.object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(true) ||
-            current.index <= 0
-        ) {
+        if (current.object instanceof Spinner || current.index === 0) {
             return 0;
         }
+
+        // 1.25 circles distance between centers
+        const distanceInfluenceThreshold = current.normalizedDiameter * 1.25;
+
+        const next = current.next(0);
+
+        // Only allow velocity to buff
+        const velocity = Math.max(
+            1,
+            current.lazyJumpDistance / current.strainTime,
+        );
+
+        const currentVisibleObjectDensity =
+            this.retrieveCurrentVisibleObjectDensity(current);
+
+        const pastObjectDifficultyInfluence =
+            this.getPastObjectDifficultyInfluence(
+                current,
+                distanceInfluenceThreshold,
+            );
 
         const constantAngleNerfFactor =
             this.getConstantAngleNerfFactor(current);
 
-        // Only allow velocity to buff.
-        const velocityFactor = Math.max(
-            1,
-            current.minimumJumpDistance / current.strainTime,
+        const noteDensityDifficulty = this.calculateDensityDifficulty(
+            next,
+            distanceInfluenceThreshold,
+            velocity,
+            constantAngleNerfFactor,
+            pastObjectDifficultyInfluence,
+            currentVisibleObjectDensity,
         );
 
-        let pastObjectDifficultyInfluence = 0;
+        const hiddenDifficulty = this.calculateHiddenDifficulty(
+            current,
+            mods,
+            pastObjectDifficultyInfluence,
+            currentVisibleObjectDensity,
+            velocity,
+            constantAngleNerfFactor,
+        );
 
-        for (const prev of this.retrievePastVisibleObjects(current)) {
-            let prevDifficulty = current.opacityAt(
-                prev.object.startTime,
-                this.emptyModMap,
-            );
+        const traceableDifficulty = this.calculateTraceableDifficulty(
+            current,
+            mods,
+            distanceInfluenceThreshold,
+            pastObjectDifficultyInfluence,
+            currentVisibleObjectDensity,
+            velocity,
+            constantAngleNerfFactor,
+        );
 
-            // Small distances mean objects may be cheesed, so it does not matter whether they are arranged confusingly.
-            prevDifficulty *= MathUtils.smootherstep(
-                prev.lazyJumpDistance,
+        const preemptDifficulty = this.calculatePreemptDifficulty(
+            velocity,
+            constantAngleNerfFactor,
+            current.timePreempt,
+        );
+
+        let difficulty = MathUtils.norm(
+            1.5,
+            preemptDifficulty,
+            hiddenDifficulty,
+            traceableDifficulty,
+            noteDensityDifficulty,
+        );
+
+        // Having less time to process information is harder.
+        difficulty *= this.highBpmBonus(current.strainTime);
+
+        return difficulty;
+    }
+
+    /**
+     * Calculates the density difficulty of the current object and how hard it is to aim it because of it based on:
+     *
+     * - cursor velocity to the current object,
+     * - how many times the current object's angle was repeated,
+     * - density of objects visible when the current object appears, and
+     * - density of objects visible when the current object needs to be clicked.
+     */
+    private static calculateDensityDifficulty(
+        next: DroidDifficultyHitObject | null,
+        distanceInfluenceThreshold: number,
+        velocity: number,
+        constantAngleNerfFactor: number,
+        pastObjectDifficultyInfluence: number,
+        currentVisibleObjectDensity: number,
+    ): number {
+        // Consider future densities too because it can make the path the cursor takes less clear.
+        let futureObjectDifficultyInfluence = Math.sqrt(
+            currentVisibleObjectDensity,
+        );
+
+        if (next !== null) {
+            // Reduce difficulty if movement to next object is small.
+            futureObjectDifficultyInfluence *= MathUtils.smootherstep(
+                next.lazyJumpDistance,
                 15,
-                this.distanceInfluenceThreshold,
+                distanceInfluenceThreshold,
             );
-
-            // Account less for objects close to the maximum reading window.
-            prevDifficulty *= this.getTimeNerfFactor(
-                current.startTime - prev.startTime,
-            );
-
-            pastObjectDifficultyInfluence += prevDifficulty;
         }
 
         // Value higher note densities exponentially.
         let noteDensityDifficulty =
-            Math.pow(pastObjectDifficultyInfluence, 1.45) *
-            0.9 *
+            Math.pow(
+                pastObjectDifficultyInfluence + futureObjectDifficultyInfluence,
+                1.7,
+            ) *
+            0.4 *
             constantAngleNerfFactor *
-            velocityFactor;
+            velocity;
 
-        // Award only denser than average beatmaps.
+        // Award only denser than average maps.
         noteDensityDifficulty = Math.max(
             0,
             noteDensityDifficulty - this.densityDifficultyBase,
@@ -83,285 +155,397 @@ export abstract class DroidReadingEvaluator {
 
         // Apply a soft cap to general density reading to account for partial memorization.
         noteDensityDifficulty =
-            Math.pow(noteDensityDifficulty, 0.8) * this.densityMultiplier;
+            Math.pow(noteDensityDifficulty, 0.45) * this.densityMultiplier;
 
-        let hiddenDifficulty = 0;
-
-        if (mods.has(ModHidden)) {
-            const timeSpentInvisible =
-                this.getDurationSpentInvisible(current) / clockRate;
-
-            // Value time spent invisible exponentially.
-            const timeSpentInvisibleFactor =
-                Math.pow(timeSpentInvisible, 2.1) * 0.0001;
-
-            // Buff current object if upcoming objects are dense. This is on the basis that part of
-            // Hidden difficulty is the uncertainty of the current cursor position in relation to
-            // future notes.
-            const futureObjectDifficultyInfluence =
-                this.calculateCurrentVisibleObjectsDensity(current);
-
-            // Account for both past and current densities.
-            const densityFactor =
-                Math.pow(
-                    Math.max(
-                        1,
-                        futureObjectDifficultyInfluence +
-                            pastObjectDifficultyInfluence -
-                            2,
-                    ),
-                    2.3,
-                ) * 3.2;
-
-            hiddenDifficulty +=
-                (timeSpentInvisibleFactor + densityFactor) *
-                constantAngleNerfFactor *
-                velocityFactor *
-                0.007;
-
-            // Apply a soft cap to general Hidden reading to account for partial memorization.
-            hiddenDifficulty =
-                Math.pow(hiddenDifficulty, 0.85) * this.hiddenMultiplier;
-
-            const prev = current.previous(0)!;
-
-            // Buff perfect stacks only if the current object is completely invisible at the
-            // time the previous object was clicked.
-            if (
-                current.lazyJumpDistance === 0 &&
-                current.opacityAt(
-                    prev.object.startTime + prev.object.timePreempt,
-                    mods,
-                ) === 0 &&
-                prev.startTime + prev.timePreempt > current.startTime
-            ) {
-                hiddenDifficulty +=
-                    (this.hiddenMultiplier * 1303) /
-                    // Perfect stacks are harder the less time between notes.
-                    Math.pow(current.strainTime, 1.5);
-            }
-        }
-
-        // Arbitrary curve for the base value preempt difficulty should have as approach rate increases.
-        // https://www.desmos.com/calculator/9v2wrms1ie
-        const preemptDifficulty =
-            (Math.pow(
-                (this.preemptStartingPoint -
-                    current.timePreempt +
-                    Math.abs(current.timePreempt - this.preemptStartingPoint)) /
-                    2,
-                2.35,
-            ) /
-                this.preemptBalancingFactor) *
-            constantAngleNerfFactor *
-            velocityFactor;
-
-        let sliderDifficulty = 0;
-
-        if (current.object instanceof Slider) {
-            const scalingFactor = 50 / current.object.radius;
-
-            // Invert the scaling factor to determine the true travel distance independent of circle size.
-            const pixelTravelDistance =
-                current.lazyTravelDistance / scalingFactor;
-            const currentVelocity = pixelTravelDistance / current.travelTime;
-            const spanTravelDistance =
-                pixelTravelDistance / current.object.spanCount;
-
-            sliderDifficulty +=
-                // Reward sliders based on velocity, while also avoiding overbuffing extremely fast sliders.
-                Math.min(4, currentVelocity * 0.8) *
-                // Longer sliders require more reading.
-                (spanTravelDistance / 125);
-
-            let cumulativeStrainTime = 0;
-
-            // Reward for velocity changes based on last few sliders.
-            for (let i = 0; i < Math.min(current.index, 4); ++i) {
-                const last = current.previous(i)!;
-
-                cumulativeStrainTime += last.strainTime;
-
-                if (
-                    !(last.object instanceof Slider) ||
-                    // Exclude overlapping objects that can be tapped at once.
-                    last.isOverlapping(true)
-                ) {
-                    continue;
-                }
-
-                // Invert the scaling factor to determine the true travel distance independent of circle size.
-                const lastPixelTravelDistance =
-                    last.lazyTravelDistance / scalingFactor;
-                const lastVelocity = lastPixelTravelDistance / last.travelTime;
-                const lastSpanTravelDistance =
-                    lastPixelTravelDistance / last.object.spanCount;
-
-                sliderDifficulty +=
-                    // Reward past sliders based on velocity changes, while also
-                    // avoiding overbuffing extremely fast velocity changes.
-                    Math.min(
-                        4,
-                        0.8 * Math.abs(currentVelocity - lastVelocity),
-                    ) *
-                    // Longer sliders require more reading.
-                    (lastSpanTravelDistance / 150) *
-                    // Avoid overbuffing past sliders.
-                    Math.min(1, 250 / cumulativeStrainTime);
-            }
-        }
-
-        return (
-            preemptDifficulty +
-            hiddenDifficulty +
-            noteDensityDifficulty +
-            sliderDifficulty
-        );
+        return noteDensityDifficulty;
     }
 
     /**
-     * Retrieves a list of objects that are visible at the point in time the current object needs to be hit.
+     * Calculates the difficulty of aiming the current object when the approach rate is very high based on:
      *
-     * @param current The current object.
+     * - cursor velocity to the current object,
+     * - how many times the current object's angle was repeated, and
+     * - how many milliseconds elapse between the approach circle appearing and touching the inner circle.
+     */
+    private static calculatePreemptDifficulty(
+        velocity: number,
+        constantAngleNerfFactor: number,
+        preempt: number,
+    ): number {
+        // Arbitrary curve for the base value preempt difficulty should have as approach rate increases.
+        // https://www.desmos.com/calculator/c175335a71
+        let preemptDifficulty =
+            Math.pow(
+                (this.preemptStartingPoint -
+                    preempt +
+                    Math.abs(preempt - this.preemptStartingPoint)) /
+                    2,
+                2.5,
+            ) / this.preemptBalancingFactor;
+
+        preemptDifficulty *= constantAngleNerfFactor * velocity;
+
+        return preemptDifficulty;
+    }
+
+    /**
+     * Calculates the difficulty of aiming the current object when the Hidden mod is active based on:
+     *
+     * - cursor velocity to the current object,
+     * - time the current object spends invisible,
+     * - density of objects visible when the current object appears,
+     * - density of objects visible when the current object needs to be clicked,
+     * - how many times the current object's angle was repeated, and
+     * - if the current object is perfectly stacked to the previous one.
+     */
+    private static calculateHiddenDifficulty(
+        current: DroidDifficultyHitObject,
+        mods: ModMap,
+        pastObjectDifficultyInfluence: number,
+        currentVisibleObjectDensity: number,
+        velocity: number,
+        constantAngleNerfFactor: number,
+    ): number {
+        if (
+            !mods.has(ModHidden) ||
+            mods.get(ModHidden)?.onlyFadeApproachCircles.value
+        ) {
+            return 0;
+        }
+
+        // Higher preempt means that time spent invisible is higher too, we want to reward that.
+        const preemptFactor = Math.pow(current.timePreempt, 2.2) * 0.01;
+
+        // Account for both past and current densities.
+        const densityFactor =
+            Math.pow(
+                currentVisibleObjectDensity + pastObjectDifficultyInfluence,
+                3.3,
+            ) * 3;
+
+        let hiddenDifficulty =
+            (preemptFactor + densityFactor) *
+            constantAngleNerfFactor *
+            velocity *
+            0.01;
+
+        // Apply a soft cap to general Hidden reading to account for partial memorization.
+        hiddenDifficulty =
+            Math.pow(hiddenDifficulty, 0.4) * this.hiddenMultiplier;
+
+        const prev = current.previous(0)!;
+
+        // Buff perfect stacks only if current note is completely invisible at the time the
+        // previous note was clicked.
+        if (
+            current.lazyJumpDistance === 0 &&
+            current.opacityAt(prev.object.startTime, mods) === 0 &&
+            // At the same time, we only want to buff them if the current note is already
+            // animating at the time the previous note was clicked.
+            prev.startTime > current.startTime - current.timePreempt
+        ) {
+            // Perfect stacks are harder the less time between notes.
+            hiddenDifficulty +=
+                (this.hiddenMultiplier * 2500) /
+                Math.pow(current.strainTime, 1.5);
+        }
+
+        return hiddenDifficulty;
+    }
+
+    private static calculateTraceableDifficulty(
+        current: DroidDifficultyHitObject,
+        mods: ModMap,
+        distanceInfluenceThreshold: number,
+        pastObjectDifficultyInfluence: number,
+        currentVisibleObjectDensity: number,
+        velocity: number,
+        constantAngleNerfFactor: number,
+    ): number {
+        if (!mods.has(ModTraceable)) {
+            return 0;
+        }
+
+        const approachRate = BeatmapDifficulty.difficultyRange(
+            current.timePreempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
+
+        let lowApproachRateSliderVisibilityFactor = 1;
+        let highApproachRateSliderVisibilityFactor = 1;
+
+        if (current.object instanceof Slider) {
+            // Sliders are easier to read as the slider body remains visible.
+            // Decrease difficulty as the slider becomes longer.
+            const distanceFactor = MathUtils.smootherstep(
+                current.travelDistance,
+                distanceInfluenceThreshold,
+                15,
+            );
+
+            highApproachRateSliderVisibilityFactor = 0.5 + distanceFactor / 2;
+            lowApproachRateSliderVisibilityFactor = distanceFactor;
+        }
+
+        // Start from normal curve, rewarding lower AR up to AR7.
+        let preemptFactor =
+            0.1 +
+            0.05 *
+                (12 - Math.max(approachRate, 7)) *
+                highApproachRateSliderVisibilityFactor;
+
+        // For AR up to 0 - reduce reward for very low ARs when object is visible.
+        if (approachRate < 7) {
+            preemptFactor +=
+                0.05 *
+                (7 - Math.max(approachRate, 0)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        // Starting from AR0 - cap values so they won't grow to infinity.
+        if (approachRate < 0) {
+            preemptFactor +=
+                0.05 *
+                (1 - Math.pow(1.5, approachRate)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        // Account for both past and current densities.
+        const densityFactor = Math.pow(
+            currentVisibleObjectDensity + pastObjectDifficultyInfluence,
+            2,
+        );
+
+        let traceableDifficulty =
+            (preemptFactor + densityFactor) *
+            constantAngleNerfFactor *
+            velocity;
+
+        // Apply a soft cap to general Traceable reading to account for partial memorization.
+        traceableDifficulty =
+            Math.pow(traceableDifficulty, 0.45) * this.traceableMultiplier;
+
+        return traceableDifficulty;
+    }
+
+    private static getPastObjectDifficultyInfluence(
+        current: DroidDifficultyHitObject,
+        distanceInfluenceThreshold: number,
+    ): number {
+        let pastObjectDifficultyInfluence = 0;
+
+        for (const loopObj of this.retrievePastVisibleObjects(current)) {
+            let loopDifficulty = current.opacityAt(loopObj.object.startTime);
+
+            // When aiming an object small distances mean previous objects may be cheesed,
+            // so it doesn't matter whether they were arranged confusingly.
+            loopDifficulty *= MathUtils.smootherstep(
+                loopObj.lazyJumpDistance,
+                15,
+                distanceInfluenceThreshold,
+            );
+
+            // Account less for objects close to the max reading window.
+            const timeBetweenCurrAndLoopObj =
+                current.startTime - loopObj.startTime;
+            const timeNerfFactor = this.getTimeNerfFactor(
+                timeBetweenCurrAndLoopObj,
+            );
+
+            loopDifficulty *= timeNerfFactor;
+            pastObjectDifficultyInfluence += loopDifficulty;
+        }
+
+        return pastObjectDifficultyInfluence;
+    }
+
+    /**
+     * Returns a list of objects that are visible on screen at the point in time the current object becomes visible.
      */
     private static *retrievePastVisibleObjects(
         current: DroidDifficultyHitObject,
-    ): Generator<DroidDifficultyHitObject> {
+    ) {
         for (let i = 0; i < current.index; ++i) {
-            const prev = current.previous(i);
+            const hitObject = current.previous(i);
 
             if (
-                !prev ||
-                current.startTime - prev.startTime > this.readingWindowSize ||
-                // The previous object is not visible at the time the current object needs to be hit.
-                prev.startTime + prev.timePreempt < current.startTime
+                !hitObject ||
+                current.startTime - hitObject.startTime >
+                    this.readingWindowSize ||
+                // Current object not visible at the time object needs to be clicked
+                hitObject.startTime < current.startTime - current.timePreempt
             ) {
                 break;
             }
 
-            if (prev.isOverlapping(true)) {
+            if (hitObject.isOverlapping(true)) {
                 continue;
             }
 
-            yield prev;
+            yield hitObject;
         }
     }
 
     /**
-     * Calculates the density of objects visible at the point in time the current object needs to be hit.
-     *
-     * @param current The current object.
+     * Returns the density of objects visible at the point in time the current object needs to be clicked capped by the reading window.
      */
-    private static calculateCurrentVisibleObjectsDensity(
+    private static retrieveCurrentVisibleObjectDensity(
         current: DroidDifficultyHitObject,
     ): number {
         let visibleObjectCount = 0;
-        let next = current.next(0);
+        let hitObject = current.next(0);
 
-        while (next) {
+        while (hitObject !== null) {
             if (
-                next.startTime - current.startTime > this.readingWindowSize ||
-                // The next object is not visible at the time the current object needs to be hit.
-                current.startTime + current.timePreempt < next.startTime
+                hitObject.startTime - current.startTime >
+                    this.readingWindowSize ||
+                // Object not visible at the time current object needs to be clicked.
+                current.startTime + hitObject.timePreempt < hitObject.startTime
             ) {
                 break;
             }
 
-            if (next.isOverlapping(true)) {
-                next = next.next(0);
+            if (hitObject.isOverlapping(true)) {
+                hitObject = hitObject.next(0);
                 continue;
             }
 
+            const timeBetweenCurrAndLoopObj =
+                hitObject.startTime - current.startTime;
             const timeNerfFactor = this.getTimeNerfFactor(
-                next.startTime - current.startTime,
+                timeBetweenCurrAndLoopObj,
             );
 
             visibleObjectCount +=
-                next.opacityAt(current.object.startTime, this.emptyModMap) *
-                timeNerfFactor;
+                hitObject.opacityAt(current.object.startTime) * timeNerfFactor;
 
-            next = next.next(0);
+            hitObject = hitObject.next(0);
         }
 
         return visibleObjectCount;
     }
 
     /**
-     * Returns the time an object spends invisible with the Hidden mod at the current approach rate.
-     *
-     * @param current The current object.
-     */
-    private static getDurationSpentInvisible(
-        current: DroidDifficultyHitObject,
-    ): number {
-        const { object } = current;
-
-        const fadeOutStartTime =
-            object.startTime - object.timePreempt + object.timeFadeIn;
-
-        const fadeOutDuration =
-            object.timePreempt * ModHidden.fadeOutDurationMultiplier;
-
-        return (
-            fadeOutStartTime +
-            fadeOutDuration -
-            (object.startTime - object.timePreempt)
-        );
-    }
-
-    /**
-     * Calculates a factor of how often the current object's angle has been repeated in a certain time frame.
-     * It does this by checking the difference in angle between current and past objects and sums them up
-     * based on a range of similarity.
-     *
-     * @param current The current object.
+     * Returns a factor of how often the current object's angle has been repeated in a certain time frame.
+     * It does this by checking the difference in angle between current and past objects and sums them based on a range of similarity.
+     * https://www.desmos.com/calculator/eb057a4822
      */
     private static getConstantAngleNerfFactor(
         current: DroidDifficultyHitObject,
     ): number {
-        const maxTimeLimit = 2000; // 2 seconds
-        const minTimeLimit = 200;
-
         let constantAngleCount = 0;
         let index = 0;
         let currentTimeGap = 0;
 
-        while (currentTimeGap < maxTimeLimit) {
+        let loopObjPrev0 = current;
+        let loopObjPrev1: DroidDifficultyHitObject | null = null;
+        let loopObjPrev2: DroidDifficultyHitObject | null = null;
+
+        while (currentTimeGap < this.minimumAngleRelevancyTime) {
             const loopObj = current.previous(index);
 
             if (!loopObj) {
                 break;
             }
 
+            // Account less for objects that are close to the time limit.
+            const longIntervalFactor =
+                1 -
+                Interpolation.reverseLerp(
+                    loopObj.strainTime,
+                    this.maximumAngleRelevancyTime,
+                    this.minimumAngleRelevancyTime,
+                );
+
             if (loopObj.angle !== null && current.angle !== null) {
                 const angleDifference = Math.abs(current.angle - loopObj.angle);
+                let angleDifferenceAlternating = Math.PI;
 
-                // Account less for objects that are close to the time limit.
-                const longIntervalFactor = MathUtils.clamp(
-                    1 -
-                        (loopObj.strainTime - minTimeLimit) /
-                            (maxTimeLimit - minTimeLimit),
+                if (
+                    loopObjPrev0.angle !== null &&
+                    typeof loopObjPrev1?.angle === "number" &&
+                    typeof loopObjPrev2?.angle === "number"
+                ) {
+                    angleDifferenceAlternating = Math.abs(
+                        loopObjPrev1.angle - loopObj.angle,
+                    );
+
+                    angleDifferenceAlternating += Math.abs(
+                        loopObjPrev2.angle - loopObjPrev0.angle,
+                    );
+
+                    let weight = 1;
+
+                    // Be sure that one of the angles is very sharp, when other is wide.
+                    weight *= Interpolation.reverseLerp(
+                        MathUtils.radiansToDegrees(
+                            Math.min(loopObj.angle, loopObjPrev0.angle),
+                        ),
+                        20,
+                        5,
+                    );
+
+                    weight *= Interpolation.reverseLerp(
+                        MathUtils.radiansToDegrees(
+                            Math.max(loopObj.angle, loopObjPrev0.angle),
+                        ),
+                        60,
+                        120,
+                    );
+
+                    // Interpolate between max angle difference and rescaled alternating difference, with
+                    // harsher scaling compared to normal difference.
+                    angleDifferenceAlternating = Interpolation.lerp(
+                        Math.PI,
+                        0.1 * angleDifferenceAlternating,
+                        weight,
+                    );
+                }
+
+                const stackFactor = MathUtils.smootherstep(
+                    loopObj.lazyJumpDistance,
                     0,
-                    1,
+                    current.normalizedRadius,
                 );
 
                 constantAngleCount +=
-                    Math.cos(3 * Math.min(Math.PI / 6, angleDifference)) *
-                    longIntervalFactor;
+                    Math.cos(
+                        3 *
+                            Math.min(
+                                MathUtils.degreesToRadians(30),
+                                Math.min(
+                                    angleDifference,
+                                    angleDifferenceAlternating,
+                                ) * stackFactor,
+                            ),
+                    ) * longIntervalFactor;
             }
 
             currentTimeGap = current.startTime - loopObj.startTime;
             index++;
+
+            loopObjPrev2 = loopObjPrev1;
+            loopObjPrev1 = loopObjPrev0;
+            loopObjPrev0 = loopObj;
         }
 
         return MathUtils.clamp(2 / constantAngleCount, 0.2, 1);
     }
 
+    /**
+     * Returns a nerfing factor for when objects are very distant in time, affecting reading less.
+     */
     private static getTimeNerfFactor(deltaTime: number): number {
         return MathUtils.clamp(
             2 - deltaTime / (this.readingWindowSize / 2),
             0,
             1,
         );
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.8, ms / 1000));
     }
 }

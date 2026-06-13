@@ -1,6 +1,6 @@
-import { Spinner, Slider, MathUtils } from "@rian8337/osu-base";
+import { HitResult, MathUtils, Slider, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
-import { Island } from "../base/Island";
+import { OsuIsland } from "./OsuIsland";
 
 /**
  * An evaluator for calculating osu!standard Rhythm skill.
@@ -22,12 +22,13 @@ export abstract class OsuRhythmEvaluator {
             return 0;
         }
 
-        const deltaDifferenceEpsilon = current.fullGreatWindow * 0.3;
+        const deltaDifferenceEpsilon =
+            current.hitWindowFor(HitResult.great) * 0.3;
         let rhythmComplexitySum = 0;
 
-        let island = new Island(deltaDifferenceEpsilon);
-        let previousIsland = new Island(deltaDifferenceEpsilon);
-        const islandCounts = new Map<Island, number>();
+        let island = new OsuIsland(deltaDifferenceEpsilon);
+        let previousIsland = new OsuIsland(deltaDifferenceEpsilon);
+        const islandCounts = new Map<OsuIsland, number>();
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
@@ -198,7 +199,10 @@ export abstract class OsuRhythmEvaluator {
                         firstDeltaSwitch = false;
                     }
 
-                    island = new Island(currentDelta, deltaDifferenceEpsilon);
+                    island = new OsuIsland(
+                        currentDelta,
+                        deltaDifferenceEpsilon,
+                    );
                 }
             } else if (prevDelta > currentDelta + deltaDifferenceEpsilon) {
                 // We are speeding up.
@@ -219,7 +223,7 @@ export abstract class OsuRhythmEvaluator {
 
                 startRatio = effectiveRatio;
 
-                island = new Island(currentDelta, deltaDifferenceEpsilon);
+                island = new OsuIsland(currentDelta, deltaDifferenceEpsilon);
             }
 
             lastObject = prevObject;

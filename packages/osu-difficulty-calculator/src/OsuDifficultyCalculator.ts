@@ -50,32 +50,33 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createDifficultyAttributes(
-        beatmap: OsuPlayableBeatmap,
+        _beatmap: Beatmap,
+        playableBeatmap: OsuPlayableBeatmap,
         skills: Skill[],
     ): OsuDifficultyAttributes {
         const attributes = new OsuDifficultyAttributes();
 
-        if (beatmap.hitObjects.objects.length === 0) {
+        if (playableBeatmap.hitObjects.objects.length === 0) {
             return attributes;
         }
 
-        attributes.mods = beatmap.mods;
-        attributes.maxCombo = beatmap.maxCombo;
-        attributes.clockRate = beatmap.speedMultiplier;
-        attributes.hitCircleCount = beatmap.hitObjects.circles;
-        attributes.sliderCount = beatmap.hitObjects.sliders;
-        attributes.spinnerCount = beatmap.hitObjects.spinners;
-        attributes.drainRate = beatmap.difficulty.hp;
+        attributes.mods = playableBeatmap.mods;
+        attributes.maxCombo = playableBeatmap.maxCombo;
+        attributes.clockRate = playableBeatmap.speedMultiplier;
+        attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
+        attributes.sliderCount = playableBeatmap.hitObjects.sliders;
+        attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
+        attributes.drainRate = playableBeatmap.difficulty.hp;
 
         attributes.approachRate =
             OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
-                beatmap.difficulty.ar,
+                playableBeatmap.difficulty.ar,
                 attributes.clockRate,
             );
 
         attributes.overallDifficulty =
             OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
-                beatmap.difficulty.od,
+                playableBeatmap.difficulty.od,
                 attributes.clockRate,
             );
 
@@ -95,7 +96,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.aimDifficultSliderCount = aim?.countDifficultSliders() ?? 0;
         attributes.aimDifficultStrainCount =
-            aim?.countTopWeightedStrains() ?? 0;
+            aim?.countTopWeightedStrains(aimDifficultyValue) ?? 0;
 
         attributes.sliderFactor =
             aimDifficultyValue > 0
@@ -110,7 +111,9 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
         const aimNoSliderTopWeightedSliderCount =
             aimNoSlider?.countTopWeightedSliders() ?? 0;
         const aimNoSliderDifficultStrainCount =
-            aimNoSlider?.countTopWeightedStrains() ?? 0;
+            aimNoSlider?.countTopWeightedStrains(
+                aimNoSlider.difficultyValue(),
+            ) ?? 0;
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
@@ -125,7 +128,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         attributes.speedNoteCount = speed?.relevantNoteCount() ?? 0;
         attributes.speedDifficultStrainCount =
-            speed?.countTopWeightedStrains() ?? 0;
+            speed?.countTopWeightedStrains(speedDifficultyValue) ?? 0;
 
         const speedTopWeightedSliderCount =
             speed?.countTopWeightedSliders() ?? 0;
@@ -147,7 +150,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
         const ratingCalculator = new OsuRatingCalculator(
             attributes.mods,
-            beatmap.hitObjects.objects.length,
+            playableBeatmap.hitObjects.objects.length,
             attributes.approachRate,
             attributes.overallDifficulty,
             mechanicalDifficultyRating,

@@ -16,6 +16,8 @@ export interface PerformanceCalculationOptions {
 
     /**
      * The amount of misses achieved in the score.
+     *
+     * If {@link accPercent} is provided as an {@link Accuracy} object, this value will be ignored.
      */
     miss?: number;
 
@@ -40,12 +42,7 @@ export interface PerformanceCalculationOptions {
     aimSliderCheesePenalty?: number;
 
     /**
-     * The flashlight slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
+     * The total score achieved in the score.
      */
-    flashlightSliderCheesePenalty?: number;
-
-    /**
-     * The visual slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
-     */
-    visualSliderCheesePenalty?: number;
+    totalScore?: number;
 }

@@ -11,7 +11,10 @@ import {
     PreciseDroidHitWindow,
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
+import { DroidDifficultyCalculator } from "./DroidDifficultyCalculator";
 import { DroidAim } from "./skills/droid/DroidAim";
+import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
+import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
@@ -78,12 +81,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     /**
-     * The penalty used to penalize the flashlight performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
+     * The total score achieved in the score.
      */
-    get flashlightSliderCheesePenalty(): number {
-        return this._flashlightSliderCheesePenalty;
+    get totalScore(): number | null {
+        return this._totalScore;
     }
 
     /**
@@ -94,50 +95,35 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     }
 
     static readonly finalMultiplier = 1.24;
+    static readonly normExponent = 1.1;
 
     private _aimSliderCheesePenalty = 1;
-    private _flashlightSliderCheesePenalty = 1;
     private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
     private _deviation = 0;
     private _tapDeviation = 0;
+    private _totalScore: number | null = null;
 
     protected override calculateValues() {
-        const { sliderCount, maxCombo } = this.difficultyAttributes;
+        if (this.usingClassicSliderAccuracy && this.totalScore !== null) {
+            const remainingScore =
+                this.difficultyAttributes.maximumScore - this.totalScore;
 
-        if (sliderCount > 0) {
-            if (this.usingClassicSliderAccuracy) {
-                // Consider that full combo is maximum combo minus dropped slider tails since
-                // they don't contribute to combo but also don't break it.
-                // In classic scores, we can't know the amount of dropped sliders so we estimate
-                // to 10% of all sliders in the beatmap.
-                const fullComboThreshold = maxCombo - 0.1 * sliderCount;
+            // If there is less than one miss, let combo-based miss count decide whether this is full combo.
+            const scoreBasedMissCount = Math.max(
+                1,
+                (this.totalScore - remainingScore) / this.totalScore,
+            );
 
-                if (this.combo < fullComboThreshold) {
-                    this._effectiveMissCount =
-                        fullComboThreshold / Math.max(1, this.combo);
-                }
-
-                // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
-                this._effectiveMissCount = Math.min(
-                    this._effectiveMissCount,
-                    this.totalImperfectHits,
-                );
-            } else {
-                const fullComboThreshold = maxCombo - this.sliderEndsDropped;
-
-                if (this.combo < fullComboThreshold) {
-                    this._effectiveMissCount =
-                        fullComboThreshold / Math.max(1, this.combo);
-                }
-
-                // Combine regular misses with tick misses, since tick misses break combo as well.
-                this._effectiveMissCount = Math.min(
-                    this._effectiveMissCount,
-                    this.sliderTicksMissed + this.computedAccuracy.nmiss,
-                );
-            }
+            // Cap result by very harsh version of combo-based miss count.
+            this._effectiveMissCount = Math.min(
+                scoreBasedMissCount,
+                this.calculateMaximumComboBasedMissCount(),
+            );
+        } else {
+            this._effectiveMissCount =
+                this.calculateComboBasedEstimatedMissCount();
         }
 
         this._effectiveMissCount = MathUtils.clamp(
@@ -156,7 +142,12 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         if (this.mods.has(ModRelax)) {
-            const { overallDifficulty: od } = this.difficultyAttributes;
+            // Relax scaling was made for osu!standard overall difficulty, so we need to obtain it.
+            const hitWindow = this.getHitWindow();
+            const greatWindow =
+                hitWindow.greatWindow / this.difficultyAttributes.clockRate;
+
+            const od = (79.5 - greatWindow) / 6;
 
             // Graph: https://www.desmos.com/calculator/vspzsop6td
             // We use OD13.3 as maximum since it's the value at which great hit window becomes 0.
@@ -178,7 +169,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             );
         }
 
-        this._deviation = this.calculateDeviation();
+        this._deviation = this.calculateAimDeviation();
         this._tapDeviation = this.calculateTapDeviation();
 
         this.aim = this.calculateAimValue();
@@ -187,24 +178,40 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this.flashlight = this.calculateFlashlightValue();
         this.reading = this.calculateReadingValue();
 
+        const cognitionValue = DroidDifficultyCalculator.sumCognitionDifficulty(
+            this.reading,
+            this.flashlight,
+        );
+
         this.total =
-            Math.pow(
-                Math.pow(this.aim, 1.1) +
-                    Math.pow(this.tap, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1) +
-                    Math.pow(this.reading, 1.1),
-                1 / 1.1,
+            MathUtils.norm(
+                DroidPerformanceCalculator.normExponent,
+                this.aim,
+                this.tap,
+                this.accuracy,
+                cognitionValue,
             ) * finalMultiplier;
     }
 
     protected override handleOptions(
         options?: PerformanceCalculationOptions,
     ): void {
-        this._tapPenalty = options?.tapPenalty ?? 1;
-        this._aimSliderCheesePenalty = options?.aimSliderCheesePenalty ?? 1;
-        this._flashlightSliderCheesePenalty =
-            options?.flashlightSliderCheesePenalty ?? 1;
+        this._tapPenalty = MathUtils.clamp(options?.tapPenalty ?? 1, 0, 1);
+
+        this._aimSliderCheesePenalty = MathUtils.clamp(
+            options?.aimSliderCheesePenalty ?? 1,
+            0,
+            1,
+        );
+
+        this._totalScore =
+            options?.totalScore !== undefined
+                ? MathUtils.clamp(
+                      options.totalScore,
+                      0,
+                      this.difficultyAttributes.maximumScore,
+                  )
+                : null;
 
         super.handleOptions(options);
     }
@@ -213,21 +220,9 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the aim performance value of the beatmap.
      */
     private calculateAimValue(): number {
-        let aimValue = DroidAim.difficultyToPerformance(
-            this.difficultyAttributes.aimDifficulty,
-        );
+        let { aimDifficulty } = this.difficultyAttributes;
 
-        aimValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.aimDifficultStrainCount,
-            ),
-            this.proportionalMissPenalty,
-        );
-
-        // Scale the aim value with estimated full combo deviation.
-        aimValue *= this.calculateDeviationBasedLengthScaling();
-
-        const { aimDifficultSliderCount, sliderFactor, maxCombo } =
+        const { aimDifficultSliderCount, sliderFactor } =
             this.difficultyAttributes;
 
         if (aimDifficultSliderCount > 0) {
@@ -237,7 +232,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 // When the score is considered classic (regardless if it was made on old client or not),
                 // we consider all missing combo to be dropped difficult sliders.
                 estimateImproperlyFollowedDifficultSliders = MathUtils.clamp(
-                    Math.min(this.totalImperfectHits, maxCombo - this.combo),
+                    Math.min(
+                        this.totalImperfectHits,
+                        this.difficultyAttributes.maxCombo - this.combo,
+                    ),
                     0,
                     aimDifficultSliderCount,
                 );
@@ -252,7 +250,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 );
             }
 
-            aimValue *=
+            aimDifficulty *=
                 (1 - sliderFactor) *
                     Math.pow(
                         1 -
@@ -262,6 +260,31 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                     ) +
                 sliderFactor;
         }
+
+        let aimValue = DroidAim.difficultyToPerformance(aimDifficulty);
+
+        if (this._effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this._effectiveMissCount + aimEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            aimValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    relevantMissCount,
+                    this.difficultyAttributes.aimDifficultStrainCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
+
+        // Scale the aim value with estimated full combo deviation.
+        aimValue *= this.calculateDeviationBasedLengthScaling();
 
         // Scale the aim value with slider cheese penalty.
         aimValue *= this._aimSliderCheesePenalty;
@@ -274,9 +297,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 0.475,
             );
 
-        // OD 7 SS stays the same.
-        aimValue *= 0.98 + Math.pow(7, 2) / 2500;
-
         return aimValue;
     }
 
@@ -288,66 +308,53 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             this.difficultyAttributes.tapDifficulty,
         );
 
-        tapValue *= this.calculateStrainBasedMissPenalty(
-            this.difficultyAttributes.tapDifficultStrainCount,
-        );
+        if (this._effectiveMissCount > 0) {
+            const tapEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.tapTopWeightedSliderFactor,
+                );
+
+            const relevantMissCount = Math.min(
+                this._effectiveMissCount + tapEstimatedSliderBreaks,
+                this.totalImperfectHits + this.sliderTicksMissed,
+            );
+
+            tapValue *= this.calculateStrainBasedMissPenalty(
+                relevantMissCount,
+                this.difficultyAttributes.tapDifficultStrainCount,
+            );
+        }
 
         // Scale the tap value with estimated full combo deviation.
         // Consider notes that are difficult to tap with respect to other notes, but
         // also cap the note count to prevent buffing filler patterns.
-        tapValue *= this.calculateDeviationBasedLengthScaling(
-            Math.min(
-                this.difficultyAttributes.speedNoteCount,
-                this.totalHits / 1.45,
+        tapValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(
+                Math.min(
+                    this.difficultyAttributes.speedNoteCount,
+                    this.totalHits / 1.45,
+                ),
             ),
         );
 
-        // Normalize the deviation to 300 BPM.
-        const normalizedDeviation =
-            this.tapDeviation *
-            Math.max(1, 50 / this.difficultyAttributes.averageSpeedDeltaTime);
-        // We expect the player to get 7500/x deviation when doubletapping x BPM.
-        // Using this expectation, we penalize scores with deviation above 25.
-        const averageBPM =
-            60000 / 4 / this.difficultyAttributes.averageSpeedDeltaTime;
-        const adjustedDeviation =
-            normalizedDeviation *
-            (1 +
-                1 /
-                    (1 +
-                        Math.exp(
-                            -(normalizedDeviation - 7500 / averageBPM) /
-                                ((2 * 300) / averageBPM),
-                        )));
+        // An effective hit window is created based on the tap SR. The higher the tap difficulty, the shorter the hit window.
+        // For example, a tap SR of 4 leads to an effective hit window of 35ms.
+        const effectiveHitWindow =
+            35 * Math.pow(4 / this.difficultyAttributes.tapDifficulty, 1.8);
 
-        // Scale the tap value with tap deviation.
-        tapValue *=
-            1.05 *
-            Math.pow(
-                ErrorFunction.erf(20 / (Math.SQRT2 * adjustedDeviation)),
-                0.6,
-            );
+        // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
+        const effectiveAccuracy = ErrorFunction.erf(
+            effectiveHitWindow / this._tapDeviation,
+        );
 
-        // Additional scaling for tap value based on average BPM and how "vibroable" the beatmap is.
-        // Higher BPMs require more precise tapping. When the deviation is too high,
-        // it can be assumed that the player taps invariant to rhythm.
-        // We harshen the punishment for such scenario.
-        tapValue *=
-            (1 - Math.pow(this.difficultyAttributes.vibroFactor, 6)) /
-                (1 +
-                    Math.exp(
-                        (this._tapDeviation - 7500 / averageBPM) /
-                            ((2 * 300) / averageBPM),
-                    )) +
-            Math.pow(this.difficultyAttributes.vibroFactor, 6);
+        // Scale the tap value with normalized accuracy.
+        tapValue *= Math.pow(effectiveAccuracy, 2);
 
         tapValue *= this.calculateTapHighDeviationNerf();
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
-
-        // OD 8 SS stays the same.
-        tapValue *= 0.95 + Math.pow(8, 2) / 750;
 
         return tapValue;
     }
@@ -367,28 +374,24 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             : this.difficultyAttributes.hitCircleCount;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
-        accuracyValue *= Math.min(
-            1.15,
-            Math.sqrt(Math.log(1 + ((Math.E - 1) * ncircles) / 1000)),
+        accuracyValue *= Math.pow(
+            Math.log(1 + ((Math.E - 1) * ncircles) / 1000),
+            ncircles < 1000 ? 0.5 : 0.25,
         );
 
         // Scale the accuracy value with rhythm complexity.
-        accuracyValue *=
-            1.5 /
-            (1 +
-                Math.exp(
-                    -(this.difficultyAttributes.rhythmDifficulty - 1) / 2,
-                ));
+        accuracyValue *= MathUtils.offsetLogistic(
+            this.difficultyAttributes.rhythmDifficulty,
+            1,
+            0.5,
+            1.8,
+        );
 
         // Penalize accuracy pp after the first miss.
         accuracyValue *= Math.pow(
             0.97,
             Math.max(0, this._effectiveMissCount - 1),
         );
-
-        if (this.mods.has(ModFlashlight)) {
-            accuracyValue *= 1.02;
-        }
 
         return accuracyValue;
     }
@@ -401,26 +404,23 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        let flashlightValue =
-            Math.pow(this.difficultyAttributes.flashlightDifficulty, 1.6) * 25;
-
-        flashlightValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.flashlightDifficultStrainCount,
-            ),
-            this.proportionalMissPenalty,
+        let flashlightValue = DroidFlashlight.difficultyToPerformance(
+            this.difficultyAttributes.flashlightDifficulty,
         );
 
-        // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
-        flashlightValue *=
-            0.7 +
-            0.1 * Math.min(1, this.totalHits / 200) +
-            (this.totalHits > 200
-                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
-                : 0);
-
-        // Scale the flashlight value with slider cheese penalty.
-        flashlightValue *= this._flashlightSliderCheesePenalty;
+        if (this.effectiveMissCount > 0) {
+            // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
+            flashlightValue *=
+                0.97 *
+                Math.pow(
+                    1 -
+                        Math.pow(
+                            this.effectiveMissCount / this.totalHits,
+                            0.775,
+                        ),
+                    Math.pow(this.effectiveMissCount, 0.875),
+                );
+        }
 
         // Scale the flashlight value with deviation.
         flashlightValue *= ErrorFunction.erf(
@@ -434,31 +434,39 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the reading performance value of the beatmap.
      */
     private calculateReadingValue(): number {
-        let readingValue = Math.pow(
-            Math.pow(this.difficultyAttributes.readingDifficulty, 2) * 25,
-            0.8,
+        let readingValue = DroidReading.difficultyToPerformance(
+            this.difficultyAttributes.readingDifficulty,
         );
 
-        readingValue *= Math.min(
-            this.calculateStrainBasedMissPenalty(
-                this.difficultyAttributes.readingDifficultNoteCount,
-            ),
-            this.proportionalMissPenalty,
-        );
+        if (this._effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            readingValue *= Math.min(
+                this.calculateStrainBasedMissPenalty(
+                    this._effectiveMissCount + aimEstimatedSliderBreaks,
+                    this.difficultyAttributes.readingDifficultNoteCount,
+                ),
+                this.proportionalMissPenalty,
+            );
+        }
 
         // Scale the reading value with estimated full combo deviation.
         // As reading is easily "bypassable" with memorization, punish for memorization.
-        readingValue *= this.calculateDeviationBasedLengthScaling(
-            undefined,
-            true,
+        readingValue *= Math.min(
+            1,
+            this.calculateDeviationBasedLengthScaling(undefined, true),
         );
 
         // Scale the reading value with deviation.
         readingValue *=
-            1.05 * ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation));
-
-        // OD 5 SS stays the same.
-        readingValue *= 0.98 + Math.pow(5, 2) / 2500;
+            1.025 *
+            Math.pow(
+                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
+                1.25,
+            );
 
         return readingValue;
     }
@@ -471,18 +479,15 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * to make it more punishing on maps with lower amount of hard sections.
      */
     private calculateStrainBasedMissPenalty(
+        missCount: number,
         difficultStrainCount: number,
     ): number {
-        if (this.effectiveMissCount === 0) {
+        if (missCount === 0) {
             return 1;
         }
 
-        return (
-            0.96 /
-            (this.effectiveMissCount /
-                (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
-                1)
-        );
+        // https://www.desmos.com/calculator/naggvbcz0a
+        return 0.93 / (missCount / (4 * Math.log(difficultStrainCount)) + 1);
     }
 
     /**
@@ -493,8 +498,21 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 1;
         }
 
+        const aimEstimatedSliderBreaks = this.calculateEstimatedSliderBreaks(
+            this.difficultyAttributes.aimTopWeightedSliderFactor,
+        );
+
+        const relevantMissCount = Math.min(
+            this._effectiveMissCount + aimEstimatedSliderBreaks,
+            this.totalImperfectHits + this.sliderTicksMissed,
+        );
+
+        if (relevantMissCount === 0) {
+            return 1;
+        }
+
         const missProportion =
-            (this.totalHits - this._effectiveMissCount) / (this.totalHits + 1);
+            (this.totalHits - relevantMissCount) / (this.totalHits + 1);
         const noMissProportion = this.totalHits / (this.totalHits + 1);
 
         return (
@@ -574,106 +592,18 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      *
      * Inaccuracies are capped to the number of circles in the map.
      */
-    private calculateDeviation(): number {
-        if (this.totalSuccessfulHits === 0) {
-            return Number.POSITIVE_INFINITY;
-        }
-
-        const { clockRate } = this.difficultyAttributes;
-        const hitWindow = this.getHitWindow();
-
-        const hitWindow300 = hitWindow.greatWindow / clockRate;
-        const hitWindow100 = hitWindow.okWindow / clockRate;
-        const hitWindow50 = hitWindow.mehWindow / clockRate;
-
-        const { n100, n50, nmiss } = this.computedAccuracy;
-
-        let objectCount = this.difficultyAttributes.hitCircleCount;
-
-        if (this.mods.has(ModScoreV2)) {
-            objectCount += this.difficultyAttributes.sliderCount;
-        }
-
-        const missCount = Math.min(nmiss, objectCount);
-        const mehCount = Math.min(n50, objectCount - missCount);
-        const okCount = Math.min(n100, objectCount - missCount - mehCount);
-        const greatCount = Math.max(
-            0,
-            objectCount - missCount - mehCount - okCount,
-        );
-
-        // Assume 100s, 50s, and misses happen on circles. If there are less non-300s on circles than 300s,
-        // compute the deviation on circles.
-        if (greatCount > 0) {
-            // The probability that a player hits a circle is unknown, but we can estimate it to be
-            // the number of greats on circles divided by the number of circles, and then add one
-            // to the number of circles as a bias correction.
-            const greatProbabilityCircle =
-                greatCount / (objectCount - missCount - mehCount + 1);
-
-            // Compute the deviation assuming 300s and 100s are normally distributed, and 50s are uniformly distributed.
-            // Begin with the normal distribution first.
-            let deviationOnCircles =
-                hitWindow300 /
-                (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilityCircle));
-
-            deviationOnCircles *= Math.sqrt(
-                1 -
-                    (Math.sqrt(2 / Math.PI) *
-                        hitWindow100 *
-                        Math.exp(
-                            -0.5 *
-                                Math.pow(hitWindow100 / deviationOnCircles, 2),
-                        )) /
-                        (deviationOnCircles *
-                            ErrorFunction.erf(
-                                hitWindow100 /
-                                    (Math.SQRT2 * deviationOnCircles),
-                            )),
-            );
-
-            // Then compute the variance for 50s.
-            const mehVariance =
-                (hitWindow50 * hitWindow50 +
-                    hitWindow100 * hitWindow50 +
-                    hitWindow100 * hitWindow100) /
-                3;
-
-            // Find the total deviation.
-            deviationOnCircles = Math.sqrt(
-                ((greatCount + okCount) * Math.pow(deviationOnCircles, 2) +
-                    mehCount * mehVariance) /
-                    (greatCount + okCount + mehCount),
-            );
-
-            return deviationOnCircles;
-        }
-
-        // If there are more non-300s than there are circles, compute the deviation on sliders instead.
-        // Here, all that matters is whether or not the slider was missed, since it is impossible
-        // to get a 100 or 50 on a slider by mis-tapping it.
-        const sliderCount = this.difficultyAttributes.sliderCount;
-        const missCountSliders = Math.min(sliderCount, nmiss - missCount);
-        const greatCountSliders = sliderCount - missCountSliders;
-
-        // We only get here if nothing was hit. In this case, there is no estimate for deviation.
-        // Note that this is never negative, so checking if this is only equal to 0 makes sense.
-        if (greatCountSliders === 0) {
-            return Number.POSITIVE_INFINITY;
-        }
-
-        const greatProbabilitySlider = greatCountSliders / (sliderCount + 1);
-
-        return (
-            hitWindow50 /
-            (Math.SQRT2 * ErrorFunction.erfInv(greatProbabilitySlider))
+    private calculateAimDeviation(): number {
+        return this.calculateDeviation(
+            this.computedAccuracy.n300,
+            this.computedAccuracy.n100,
+            this.computedAccuracy.n50,
         );
     }
 
     /**
-     * Does the same as {@link calculateDeviation}, but only for notes and inaccuracies that are relevant to tap difficulty.
+     * Does the same as {@link calculateAimDeviation}, but only for notes and inaccuracies that are relevant to tap difficulty.
      *
-     * Treats all difficult speed notes as circles, so this method can sometimes return a lower deviation than {@link calculateDeviation}.
+     * Treats all difficult speed notes as circles, so this method can sometimes return a lower deviation than {@link calculateAimDeviation}.
      * This is fine though, since this method is only used to scale tap pp.
      */
     private calculateTapDeviation(): number {
@@ -681,39 +611,24 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return Number.POSITIVE_INFINITY;
         }
 
-        const { clockRate, speedNoteCount } = this.difficultyAttributes;
-        const hitWindow = this.getHitWindow();
-
-        const hitWindow300 = hitWindow.greatWindow / clockRate;
-        const hitWindow100 = hitWindow.okWindow / clockRate;
-        const hitWindow50 = hitWindow.mehWindow / clockRate;
-        const { n100, n50, nmiss } = this.computedAccuracy;
-
-        // Assume a fixed ratio of non-300s hit in speed notes based on speed note count ratio and OD.
-        // Graph: https://www.desmos.com/calculator/iskvgjkxr4
-        const speedNoteRatio = speedNoteCount / this.totalHits;
-        const nonGreatRatio =
-            1 -
-            (Math.pow(
-                Math.exp(Math.sqrt(hitWindow300)) + 1,
-                1 - speedNoteRatio,
-            ) -
-                1) /
-                Math.exp(Math.sqrt(hitWindow300));
+        // Calculate accuracy assuming the worst case scenario.
+        const speedNoteCount =
+            this.difficultyAttributes.speedNoteCount +
+            (this.totalHits - this.difficultyAttributes.speedNoteCount) * 0.1;
 
         // Assume worst case - all non-300s happened in speed notes.
         const relevantCountMiss = Math.min(
-            nmiss * nonGreatRatio,
+            this.computedAccuracy.nmiss,
             speedNoteCount,
         );
 
         const relevantCountMeh = Math.min(
-            n50 * nonGreatRatio,
+            this.computedAccuracy.n50,
             speedNoteCount - relevantCountMiss,
         );
 
         const relevantCountOk = Math.min(
-            n100 * nonGreatRatio,
+            this.computedAccuracy.n100,
             speedNoteCount - relevantCountMiss - relevantCountMeh,
         );
 
@@ -725,9 +640,37 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 relevantCountOk,
         );
 
+        return this.calculateDeviation(
+            relevantCountGreat,
+            relevantCountOk,
+            relevantCountMeh,
+        );
+    }
+
+    /**
+     * Estimates the player's tap deviation based on the OD, given number of greats, oks, mehs and misses,
+     * assuming the player's mean hit error is 0. The estimation is consistent in that two SS scores on the
+     * same map with the same settings will always return the same deviation.
+     *
+     * Misses are ignored because they are usually due to misaiming.
+     *
+     * Greats and oks are assumed to follow a normal distribution, whereas mehs are assumed to follow a uniform distribution.
+     */
+    private calculateDeviation(
+        relevantCountGreat: number,
+        relevantCountOk: number,
+        relevantCountMeh: number,
+    ): number {
         if (relevantCountGreat + relevantCountOk + relevantCountMeh <= 0) {
             return Number.POSITIVE_INFINITY;
         }
+
+        const { clockRate } = this.difficultyAttributes;
+        const hitWindow = this.getHitWindow();
+
+        const greatWindow = hitWindow.greatWindow / clockRate;
+        const okWindow = hitWindow.okWindow / clockRate;
+        const mehWindow = hitWindow.mehWindow / clockRate;
 
         // The sample proportion of successful hits.
         const n = Math.max(1, relevantCountGreat + relevantCountOk);
@@ -750,28 +693,28 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         if (pLowerBound > 0.01) {
             // Compute deviation assuming 300s and 109s are normally distributed.
             deviation =
-                hitWindow300 / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
+                greatWindow / (Math.SQRT2 * ErrorFunction.erfInv(pLowerBound));
 
             // Subtract the deviation provided by tails that land outside the 100 hit window from the deviation computed above.
             // This is equivalent to calculating the deviation of a normal distribution truncated at +-okHitWindow.
-            const hitWindow100TailAmount =
+            const okWindowTailAmount =
                 (Math.sqrt(2 / Math.PI) *
-                    hitWindow100 *
-                    Math.exp(-0.5 * Math.pow(hitWindow100 / deviation, 2))) /
+                    okWindow *
+                    Math.exp(-0.5 * Math.pow(okWindow / deviation, 2))) /
                 (deviation *
-                    ErrorFunction.erf(hitWindow100 / (Math.SQRT2 * deviation)));
+                    ErrorFunction.erf(okWindow / (Math.SQRT2 * deviation)));
 
-            deviation *= Math.sqrt(1 - hitWindow100TailAmount);
+            deviation *= Math.sqrt(1 - okWindowTailAmount);
         } else {
             // A tested limit value for the case of a score only containing 100s.
-            deviation = hitWindow100 / Math.sqrt(3);
+            deviation = okWindow / Math.sqrt(3);
         }
 
         // Compute and add the variance for 50s, assuming that they are uniformly distriubted.
         const mehVariance =
-            (hitWindow50 * hitWindow50 +
-                hitWindow100 * hitWindow50 +
-                hitWindow100 * hitWindow100) /
+            (mehWindow * mehWindow +
+                okWindow * mehWindow +
+                okWindow * okWindow) /
             3;
 
         deviation = Math.sqrt(
@@ -825,6 +768,175 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         return this.mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(overallDifficulty)
             : new DroidHitWindow(overallDifficulty);
+    }
+
+    private calculateEstimatedSliderBreaks(
+        topWeightedSliderFactor: number,
+    ): number {
+        const nonMissMistakes =
+            this.computedAccuracy.n100 + this.computedAccuracy.n50;
+
+        if (!this.usingClassicSliderAccuracy || nonMissMistakes === 0) {
+            return 0;
+        }
+
+        const missedComboPercent =
+            1 - this.combo / this.difficultyAttributes.maxCombo;
+        let estimatedSliderBreaks = Math.min(
+            nonMissMistakes,
+            this._effectiveMissCount * topWeightedSliderFactor,
+        );
+
+        // Scores with more Oks and Mehs are more likely to have slider breaks.
+        // We add an arbitrary value to both sides of the division to make it more stable on extreme ends.
+        const nonMissMistakeAdjustment =
+            (nonMissMistakes - estimatedSliderBreaks + 4.5) /
+            (nonMissMistakes + 4);
+
+        // There is a low probability of extra slider breaks on effective miss counts close to 1, as
+        // score based calculations are good at indicating if only a single break occurred.
+        estimatedSliderBreaks *= MathUtils.smoothstep(
+            this._effectiveMissCount,
+            1,
+            2,
+        );
+
+        return (
+            estimatedSliderBreaks *
+            nonMissMistakeAdjustment *
+            MathUtils.offsetLogistic(missedComboPercent, 0.33, 15)
+        );
+    }
+
+    private calculateMaximumComboBasedMissCount(): number {
+        let missCount = this.computedAccuracy.nmiss;
+        const { combo } = this;
+        const { aimTopWeightedSliderFactor, sliderCount, maxCombo } =
+            this.difficultyAttributes;
+
+        if (sliderCount <= 0) {
+            return missCount;
+        }
+
+        // If sliders in the beatmap are hard, it's likely for player to drop sliderends.
+        // However, if the beatmap has easy sliders, it's more likely for player to sliderbreak.
+        const likelyMissedSliderendPortion =
+            0.04 + 0.06 * Math.pow(Math.min(aimTopWeightedSliderFactor, 1), 2);
+
+        // Consider that full combo is maximum combo minus dropped slider tails since
+        // they don't contribute to combo but also don't break it.
+        // In classic scores, we can't know the amount of dropped sliders so we estimate
+        // to 10% of all sliders in the beatmap.
+        const fullComboThreshold =
+            maxCombo -
+            Math.min(
+                // 4 is the minimum leniency baseline to ensure that dropping one (for few) sliderends will
+                // not instantly be treated as a sliderbreak even in cases where the slider count is low.
+                // 4 was picked because in a lot of short stream beatmaps with small amount of sliders, there
+                // are 2-3 sliders on which sliderends are often dropped. This is a kind of optimization to
+                // achieve the most accurate result on average.
+                4 + likelyMissedSliderendPortion * sliderCount,
+                sliderCount,
+            );
+
+        if (combo < fullComboThreshold) {
+            missCount = Math.pow(fullComboThreshold / Math.max(1, combo), 2.5);
+        }
+
+        // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
+        missCount = Math.min(missCount, this.totalImperfectHits);
+
+        // Every slider has *at least* 2 combo attributed in classic mechanics.
+        // If they broke on a slider with a tick, then this still works since they would have lost at least 2 combo (the tick and the end).
+        // Using this as a max means a score that loses 1 combo on a map can't possibly have been a slider break.
+        // It must have been a slider end.
+        const maxPossibleSliderBreaks = Math.min(
+            sliderCount,
+            Math.trunc((maxCombo - combo) / 2),
+        );
+
+        const sliderBreaks = missCount - this.computedAccuracy.nmiss;
+
+        if (sliderBreaks > maxPossibleSliderBreaks) {
+            missCount = this.computedAccuracy.nmiss + maxPossibleSliderBreaks;
+        }
+
+        return missCount;
+    }
+
+    /**
+     * Calculates the amount of misses + sliderbreaks from combo.
+     */
+    private calculateComboBasedEstimatedMissCount(): number {
+        let missCount = this.computedAccuracy.nmiss;
+        const { combo } = this;
+        const { aimTopWeightedSliderFactor, sliderCount, maxCombo } =
+            this.difficultyAttributes;
+
+        if (sliderCount <= 0) {
+            return missCount;
+        }
+
+        if (this.usingClassicSliderAccuracy) {
+            // If sliders in the beatmap are hard, it's likely for player to drop sliderends.
+            // However, if the beatmap has easy sliders, it's more likely for player to sliderbreak.
+            const likelyMissedSliderendPortion =
+                0.04 +
+                0.06 * Math.pow(Math.min(aimTopWeightedSliderFactor, 1), 2);
+
+            // Consider that full combo is maximum combo minus dropped slider tails since
+            // they don't contribute to combo but also don't break it.
+            // In classic scores, we can't know the amount of dropped sliders so we estimate
+            // to 10% of all sliders in the beatmap.
+            const fullComboThreshold =
+                maxCombo -
+                Math.min(
+                    // 4 is the minimum leniency baseline to ensure that dropping one (for few) sliderends will
+                    // not instantly be treated as a sliderbreak even in cases where the slider count is low.
+                    // 4 was picked because in a lot of short stream beatmaps with small amount of sliders, there
+                    // are 2-3 sliders on which sliderends are often dropped. This is a kind of optimization to
+                    // achieve the most accurate result on average.
+                    4 + likelyMissedSliderendPortion * sliderCount,
+                    sliderCount,
+                );
+
+            if (combo < fullComboThreshold) {
+                missCount = fullComboThreshold / Math.max(1, combo);
+            }
+
+            // In classic scores, there can't be more misses than a sum of all non-perfect judgements.
+            missCount = Math.min(missCount, this.totalImperfectHits);
+
+            // Every slider has *at least* 2 combo attributed in classic mechanics.
+            // If they broke on a slider with a tick, then this still works since they would have lost at least 2 combo (the tick and the end).
+            // Using this as a max means a score that loses 1 combo on a map can't possibly have been a slider break.
+            // It must have been a slider end.
+            const maxPossibleSliderBreaks = Math.min(
+                sliderCount,
+                Math.trunc((maxCombo - combo) / 2),
+            );
+
+            const sliderBreaks = missCount - this.computedAccuracy.nmiss;
+
+            if (sliderBreaks > maxPossibleSliderBreaks) {
+                missCount =
+                    this.computedAccuracy.nmiss + maxPossibleSliderBreaks;
+            }
+        } else {
+            const fullComboThreshold = maxCombo - this.sliderEndsDropped;
+
+            if (combo < fullComboThreshold) {
+                missCount = fullComboThreshold / Math.max(1, combo);
+            }
+
+            // Combine regular misses with tick misses, since tick misses break combo as well.
+            missCount = Math.min(
+                missCount,
+                this.sliderTicksMissed + this.computedAccuracy.nmiss,
+            );
+        }
+
+        return missCount;
     }
 
     override toString(): string {

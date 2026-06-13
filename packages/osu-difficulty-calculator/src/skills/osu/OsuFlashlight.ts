@@ -6,7 +6,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  * Represents the skill required to memorize and hit every object in a beatmap with the Flashlight mod enabled.
  */
 export class OsuFlashlight extends OsuSkill {
-    protected override readonly strainDecayBase = 0.15;
+    private readonly strainDecayBase = 0.15;
     protected override readonly reducedSectionCount = 0;
     protected override readonly reducedSectionBaseline = 1;
     protected override readonly decayWeight = 1;
@@ -19,7 +19,7 @@ export class OsuFlashlight extends OsuSkill {
     }
 
     override difficultyValue(): number {
-        return this.strainPeaks.reduce((a, b) => a + b, 0);
+        return this.currentStrainPeaks.reduce((a, b) => a + b, 0);
     }
 
     protected override strainValueAt(current: OsuDifficultyHitObject): number {
@@ -41,7 +41,14 @@ export class OsuFlashlight extends OsuSkill {
         );
     }
 
-    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
-        current.flashlightStrain = this.currentFlashlightStrain;
+    protected override saveToHitObject(
+        current: OsuDifficultyHitObject,
+        difficulty: number,
+    ): void {
+        current.flashlightStrain = difficulty;
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 }

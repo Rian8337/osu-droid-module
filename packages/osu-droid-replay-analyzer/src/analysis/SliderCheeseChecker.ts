@@ -15,7 +15,6 @@ import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-cal
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
-import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
 
 /**
  * Utility to check whether relevant sliders in a beatmap are cheesed for live scores.
@@ -67,16 +66,12 @@ export class SliderCheeseChecker {
     /**
      * Checks if relevant sliders in the given beatmap was cheesed.
      */
-    check(): SliderCheeseInformation {
+    check(): number {
         if (
             this.difficultyAttributes.difficultSliders.length === 0 ||
-            (this.difficultyAttributes.sliderFactor === 1 &&
-                this.difficultyAttributes.flashlightSliderFactor === 1)
+            this.difficultyAttributes.sliderFactor === 1
         ) {
-            return {
-                aimPenalty: 1,
-                flashlightPenalty: 1,
-            };
+            return 1;
         }
 
         const cheesedDifficultyRatings = this.checkSliderCheesing();
@@ -96,6 +91,7 @@ export class SliderCheeseChecker {
             this.data.cursorMovement.length,
             0,
         );
+
         const acceptableRadius = objects[0].radius * 2;
 
         // Sort difficult sliders by index so that cursor loop indices work properly.
@@ -347,32 +343,21 @@ export class SliderCheeseChecker {
      */
     private calculateSliderCheesePenalty(
         cheesedDifficultyRatings: number[],
-    ): SliderCheeseInformation {
+    ): number {
         const summedDifficultyRating = Math.min(
             1,
             cheesedDifficultyRatings.reduce((a, v) => a + v, 0),
         );
 
-        return {
-            aimPenalty: Math.max(
-                this.difficultyAttributes.sliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.sliderFactor,
-                    2,
-                ),
+        return Math.max(
+            this.difficultyAttributes.sliderFactor,
+            Math.pow(
+                1 -
+                    summedDifficultyRating *
+                        this.difficultyAttributes.sliderFactor,
+                2,
             ),
-            flashlightPenalty: Math.max(
-                this.difficultyAttributes.flashlightSliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.flashlightSliderFactor,
-                    2,
-                ),
-            ),
-        };
+        );
     }
 
     private getCursorPosition(cursor: CursorOccurrence) {

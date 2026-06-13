@@ -15,10 +15,9 @@ import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficulty
 import { MovementType } from "../constants/MovementType";
 import { CursorOccurrence } from "../data/CursorOccurrence";
 import { ReplayData } from "../data/ReplayData";
-import { SliderCheeseInformation } from "./structures/SliderCheeseInformation";
 
 /**
- * Utility to check whether relevant sliders in a beatmap are cheesed for rebalance scores..
+ * Utility to check whether relevant sliders in a beatmap are cheesed for rebalance scores.
  */
 export class RebalanceSliderCheeseChecker {
     /**
@@ -67,15 +66,12 @@ export class RebalanceSliderCheeseChecker {
     /**
      * Checks if relevant sliders in the given beatmap was cheesed.
      */
-    check(): SliderCheeseInformation {
+    check(): number {
         if (
             this.difficultyAttributes.difficultSliders.length === 0 ||
             this.difficultyAttributes.sliderFactor === 1
         ) {
-            return {
-                aimPenalty: 1,
-                flashlightPenalty: 1,
-            };
+            return 1;
         }
 
         const cheesedDifficultyRatings = this.checkSliderCheesing();
@@ -109,11 +105,20 @@ export class RebalanceSliderCheeseChecker {
             const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.
+            if (objectData.result === HitResult.miss) {
+                continue;
+            }
+
+            let lateHitThreshold = this.hitWindow50;
+
+            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+            if (this.data.replayVersion < 8) {
+                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
+            }
+
             if (
-                objectData.result === HitResult.miss ||
-                -this.hitWindow50 > objectData.accuracy ||
-                objectData.accuracy >
-                    Math.min(this.hitWindow50, object.duration)
+                objectData.accuracy < -this.hitWindow50 ||
+                objectData.accuracy > lateHitThreshold
             ) {
                 continue;
             }
@@ -337,24 +342,21 @@ export class RebalanceSliderCheeseChecker {
      */
     private calculateSliderCheesePenalty(
         cheesedDifficultyRatings: number[],
-    ): SliderCheeseInformation {
+    ): number {
         const summedDifficultyRating = Math.min(
             1,
             cheesedDifficultyRatings.reduce((a, v) => a + v, 0),
         );
 
-        return {
-            aimPenalty: Math.max(
-                this.difficultyAttributes.sliderFactor,
-                Math.pow(
-                    1 -
-                        summedDifficultyRating *
-                            this.difficultyAttributes.sliderFactor,
-                    2,
-                ),
+        return Math.max(
+            this.difficultyAttributes.sliderFactor,
+            Math.pow(
+                1 -
+                    summedDifficultyRating *
+                        this.difficultyAttributes.sliderFactor,
+                2,
             ),
-            flashlightPenalty: 1,
-        };
+        );
     }
 
     private getCursorPosition(cursor: CursorOccurrence) {

@@ -8,7 +8,7 @@ import { StrainUtils } from "../../utils/StrainUtils";
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
  */
 export class OsuAim extends OsuSkill {
-    protected override readonly strainDecayBase = 0.15;
+    private readonly strainDecayBase = 0.15;
     protected override readonly reducedSectionCount = 10;
     protected override readonly reducedSectionBaseline = 0.75;
     protected override readonly decayWeight = 0.9;
@@ -86,11 +86,18 @@ export class OsuAim extends OsuSkill {
     /**
      * @param current The hitobject to save to.
      */
-    protected override saveToHitObject(current: OsuDifficultyHitObject): void {
+    protected override saveToHitObject(
+        current: OsuDifficultyHitObject,
+        difficulty: number,
+    ): void {
         if (this.withSliders) {
-            current.aimStrainWithSliders = this.currentAimStrain;
+            current.aimStrainWithSliders = difficulty;
         } else {
-            current.aimStrainWithoutSliders = this.currentAimStrain;
+            current.aimStrainWithoutSliders = difficulty;
         }
+    }
+
+    private strainDecay(ms: number): number {
+        return Math.pow(this.strainDecayBase, ms / 1000);
     }
 }

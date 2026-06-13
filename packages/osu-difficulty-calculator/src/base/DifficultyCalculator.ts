@@ -13,14 +13,13 @@ import {
     ModRateAdjust,
     ModRelax,
     ModTimeRamp,
-    ModTraceable,
     PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
-import { Skill } from "./Skill";
 import { StrainPeaks } from "../structures/StrainPeaks";
-import { StrainSkill } from "./StrainSkill";
+import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
+import { Skill } from "./Skill";
 
 /**
  * The base of a difficulty calculator.
@@ -40,7 +39,6 @@ export abstract class DifficultyCalculator<
         ModEasy,
         ModHardRock,
         ModFlashlight,
-        ModTraceable,
         ModHidden,
         ModRelax,
         ModAutopilot,
@@ -65,7 +63,6 @@ export abstract class DifficultyCalculator<
      */
     calculate(beatmap: Beatmap, mods?: ModMap): TAttributes {
         const playableBeatmap = this.createPlayableBeatmap(beatmap, mods);
-
         const skills = this.createSkills(playableBeatmap);
         const objects = this.createDifficultyHitObjects(playableBeatmap);
 
@@ -76,6 +73,7 @@ export abstract class DifficultyCalculator<
         }
 
         return this.createDifficultyAttributes(
+            beatmap,
             playableBeatmap,
             skills,
             objects,
@@ -118,10 +116,10 @@ export abstract class DifficultyCalculator<
         }
 
         return {
-            aimWithSliders: skills[0].strainPeaks,
-            aimWithoutSliders: skills[1].strainPeaks,
-            speed: skills[2].strainPeaks,
-            flashlight: skills[3].strainPeaks,
+            aimWithSliders: skills[0].peaks,
+            aimWithoutSliders: skills[1].peaks,
+            speed: skills[2].peaks,
+            flashlight: skills[3].peaks,
         };
     }
 
@@ -129,16 +127,19 @@ export abstract class DifficultyCalculator<
      * Creates the `Skill`s to calculate the difficulty of a `PlayableBeatmap`.
      *
      * @param beatmap The `PlayableBeatmap` whose difficulty will be calculated.
-     * @return The `Skill`s.
+     * @returns The `Skill`s.
      */
     protected abstract createSkills(beatmap: TBeatmap): Skill[];
 
     /**
      * Creates the `Skill`s to obtain the strain peaks of a `PlayableBeatmap`.
      *
-     * @param beatmap
+     * @param beatmap The `PlayableBeatmap` whose strain peaks will be calculated.
+     * @returns The `Skill`s.
      */
-    protected abstract createStrainPeakSkills(beatmap: TBeatmap): StrainSkill[];
+    protected abstract createStrainPeakSkills(
+        beatmap: TBeatmap,
+    ): (Skill & IHasPeakDifficulty)[];
 
     /**
      * Creates difficulty hitobjects for this calculator.
@@ -153,13 +154,15 @@ export abstract class DifficultyCalculator<
     /**
      * Creates a `DifficultyAttributes` object to describe a `PlayableBeatmap`'s difficulty.
      *
-     * @param beatmap The `PlayableBeatmap` whose difficulty was calculated.
+     * @param beatmap The `Beatmap` whose difficulty was calculated.
+     * @param playableBeatmap The `PlayableBeatmap` whose difficulty was calculated.
      * @param skills The `Skill`s which processed the `PlayableBeatmap`.
      * @param objects The `DifficultyHitObject`s which were processed.
      * @returns The `DifficultyAttributes` object.
      */
     protected abstract createDifficultyAttributes(
-        beatmap: TBeatmap,
+        beatmap: Beatmap,
+        playableBeatmap: TBeatmap,
         skills: Skill[],
         objects: THitObject[],
     ): TAttributes;

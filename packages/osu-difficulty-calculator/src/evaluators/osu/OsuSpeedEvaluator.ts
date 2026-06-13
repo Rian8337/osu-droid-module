@@ -1,18 +1,16 @@
-import { MathUtils, ModAutopilot, ModMap, Spinner } from "@rian8337/osu-base";
+import {
+    HitResult,
+    MathUtils,
+    ModAutopilot,
+    ModMap,
+    Spinner,
+} from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!standard speed skill.
  */
 export abstract class OsuSpeedEvaluator {
-    /**
-     * Spacing threshold for a single hitobject spacing.
-     *
-     * About 1.25 circles distance between hitobject centers.
-     */
-    private static readonly SINGLE_SPACING_THRESHOLD =
-        OsuDifficultyHitObject.normalizedDiameter * 1.25;
-
     // ~200 1/4 BPM streams
     private static readonly minSpeedBonus = 75;
 
@@ -45,7 +43,7 @@ export abstract class OsuSpeedEvaluator {
         // Cap deltatime to the OD 300 hitwindow.
         // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
         strainTime /= MathUtils.clamp(
-            strainTime / current.fullGreatWindow / 0.93,
+            strainTime / current.hitWindowFor(HitResult.great) / 0.93,
             0.92,
             1,
         );
@@ -61,15 +59,17 @@ export abstract class OsuSpeedEvaluator {
 
         const travelDistance = prev?.travelDistance ?? 0;
 
+        const singleSpacingThreshold = current.normalizedDiameter * 1.25;
+
         // Cap distance at spacing threshold
         const distance = Math.min(
-            this.SINGLE_SPACING_THRESHOLD,
+            singleSpacingThreshold,
             travelDistance + current.minimumJumpDistance,
         );
 
         // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
         let distanceBonus =
-            Math.pow(distance / this.SINGLE_SPACING_THRESHOLD, 3.95) *
+            Math.pow(distance / singleSpacingThreshold, 3.95) *
             this.DISTANCE_MULTIPLIER;
 
         // Apply reduced small circle bonus because flow aim difficulty on small circles does not scale as hard as jumps.

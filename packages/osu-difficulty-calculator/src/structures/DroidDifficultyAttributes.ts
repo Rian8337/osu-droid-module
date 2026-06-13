@@ -10,13 +10,13 @@ export class DroidDifficultyAttributes
     implements IDroidDifficultyAttributes
 {
     tapDifficulty = 0;
-    rhythmDifficulty = 0;
     readingDifficulty = 0;
-    tapDifficultStrainCount = 0;
-    flashlightDifficultStrainCount = 0;
+    aimTopWeightedSliderFactor = 0;
+    tapTopWeightedSliderFactor = 0;
     readingDifficultNoteCount = 0;
-    averageSpeedDeltaTime = 0;
-    vibroFactor = 1;
+    rhythmDifficulty = 0;
+    tapDifficultStrainCount = 0;
+    maximumScore = 0;
 
     constructor(
         cacheableAttributes?: CacheableDifficultyAttributes<IDroidDifficultyAttributes>,
@@ -32,12 +32,13 @@ export class DroidDifficultyAttributes
         this.readingDifficulty = cacheableAttributes.readingDifficulty;
         this.tapDifficultStrainCount =
             cacheableAttributes.tapDifficultStrainCount;
-        this.flashlightDifficultStrainCount =
-            cacheableAttributes.flashlightDifficultStrainCount;
         this.readingDifficultNoteCount =
             cacheableAttributes.readingDifficultNoteCount;
-        this.averageSpeedDeltaTime = cacheableAttributes.averageSpeedDeltaTime;
-        this.vibroFactor = cacheableAttributes.vibroFactor;
+        this.aimTopWeightedSliderFactor =
+            cacheableAttributes.aimTopWeightedSliderFactor;
+        this.tapTopWeightedSliderFactor =
+            cacheableAttributes.tapTopWeightedSliderFactor;
+        this.maximumScore = cacheableAttributes.maximumScore;
     }
 
     override toString(): string {

@@ -356,13 +356,20 @@ export class RebalanceThreeFingerChecker {
         }
 
         // Check for sliderbreaks and treat them as misses.
-        if (
-            object instanceof Slider &&
-            (-this.hitWindow.mehWindow > objectData.accuracy ||
-                objectData.accuracy >
-                    Math.min(this.hitWindow.mehWindow, object.duration))
-        ) {
-            return -1;
+        if (object instanceof Slider) {
+            let lateHitThreshold = this.hitWindow.mehWindow;
+
+            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+            if (this.data.replayVersion < 8) {
+                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
+            }
+
+            if (
+                objectData.accuracy < -this.hitWindow.mehWindow ||
+                objectData.accuracy > lateHitThreshold
+            ) {
+                return -1;
+            }
         }
 
         const hitTime = object.startTime + objectData.accuracy;
@@ -485,13 +492,20 @@ export class RebalanceThreeFingerChecker {
         }
 
         // Check for sliderbreaks and treat them as misses.
-        if (
-            object instanceof Slider &&
-            (-this.hitWindow.mehWindow > objectData.accuracy ||
-                objectData.accuracy >
-                    Math.min(this.hitWindow.mehWindow, object.duration))
-        ) {
-            return -1;
+        if (object instanceof Slider) {
+            let lateHitThreshold = this.hitWindow.mehWindow;
+
+            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+            if (this.data.replayVersion < 8) {
+                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
+            }
+
+            if (
+                objectData.accuracy < -this.hitWindow.mehWindow ||
+                objectData.accuracy > lateHitThreshold
+            ) {
+                return -1;
+            }
         }
 
         const hitTime = object.startTime + objectData.accuracy;

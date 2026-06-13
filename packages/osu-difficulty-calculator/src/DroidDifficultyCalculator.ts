@@ -1,7 +1,7 @@
 import {
     Beatmap,
-    DroidHitWindow,
     DroidPlayableBeatmap,
+    MathUtils,
     Mod,
     ModAutopilot,
     ModFlashlight,
@@ -11,12 +11,11 @@ import {
     ModReplayV6,
     ModScoreV2,
     ModTraceable,
-    PreciseDroidHitWindow,
-    UnadjustedOsuHitWindow,
 } from "@rian8337/osu-base";
+import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
+import { IHasPeakDifficulty } from "./base/IHasPeakDifficulty";
 import { Skill } from "./base/Skill";
-import { StrainSkill } from "./base/StrainSkill";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
@@ -24,6 +23,7 @@ import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidRhythm } from "./skills/droid/DroidRhythm";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { ExtendedDroidDifficultyAttributes } from "./structures/ExtendedDroidDifficultyAttributes";
+import { DroidScoreUtils } from "./utils/DroidScoreUtils";
 
 /**
  * A difficulty calculator for osu!droid gamemode.
@@ -33,23 +33,14 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     DroidDifficultyHitObject,
     ExtendedDroidDifficultyAttributes
 > {
-    /**
-     * The strain threshold to start detecting for possible three-fingered section.
-     *
-     * Increasing this number will result in less sections being flagged.
-     */
-    static readonly threeFingerStrainThreshold = 175;
-
-    private readonly difficultyMultiplier = 0.18;
-
     constructor() {
         super();
 
         this.difficultyAdjustmentMods.push(
             ModPrecise,
             ModScoreV2,
-            ModTraceable,
             ModReplayV6,
+            ModTraceable,
         );
     }
 
@@ -63,19 +54,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createDifficultyAttributes(
-        beatmap: DroidPlayableBeatmap,
+        beatmap: Beatmap,
+        playableBeatmap: DroidPlayableBeatmap,
         skills: Skill[],
         objects: DroidDifficultyHitObject[],
     ): ExtendedDroidDifficultyAttributes {
         const attributes = new ExtendedDroidDifficultyAttributes();
 
-        attributes.mods = beatmap.mods;
-        attributes.maxCombo = beatmap.maxCombo;
-        attributes.clockRate = beatmap.speedMultiplier;
-        attributes.hitCircleCount = beatmap.hitObjects.circles;
-        attributes.sliderCount = beatmap.hitObjects.sliders;
-        attributes.spinnerCount = beatmap.hitObjects.spinners;
-        attributes.overallDifficulty = beatmap.difficulty.od;
+        attributes.mods = playableBeatmap.mods;
+        attributes.maxCombo = playableBeatmap.maxCombo;
+        attributes.clockRate = playableBeatmap.speedMultiplier;
+        attributes.hitCircleCount = playableBeatmap.hitObjects.circles;
+        attributes.sliderCount = playableBeatmap.hitObjects.sliders;
+        attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
+        attributes.overallDifficulty = playableBeatmap.difficulty.od;
+
+        attributes.maximumScore =
+            beatmap.maxDroidScore(playableBeatmap.mods) +
+            DroidScoreUtils.calculateMaximumSpinnerBonus(playableBeatmap);
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
@@ -83,43 +79,39 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         this.populateFlashlightAttributes(attributes, skills);
         this.populateReadingAttributes(attributes, skills);
 
-        const aimPerformanceValue = DroidAim.difficultyToPerformance(
+        const baseAimPerformance = DroidAim.difficultyToPerformance(
             attributes.aimDifficulty,
         );
 
-        const tapPerformanceValue = DroidTap.difficultyToPerformance(
+        const baseTapPerformance = DroidTap.difficultyToPerformance(
             attributes.tapDifficulty,
         );
 
-        const flashlightPerformanceValue =
+        const baseFlashlightPerformance =
             DroidFlashlight.difficultyToPerformance(
                 attributes.flashlightDifficulty,
             );
 
-        const readingPerformanceValue = DroidReading.difficultyToPerformance(
+        const baseReadingPerformance = DroidReading.difficultyToPerformance(
             attributes.readingDifficulty,
         );
 
-        const basePerformanceValue = Math.pow(
-            Math.pow(aimPerformanceValue, 1.1) +
-                Math.pow(tapPerformanceValue, 1.1) +
-                Math.pow(flashlightPerformanceValue, 1.1) +
-                Math.pow(readingPerformanceValue, 1.1),
-            1 / 1.1,
+        const baseCognitionPerformance =
+            DroidDifficultyCalculator.sumCognitionDifficulty(
+                baseReadingPerformance,
+                baseFlashlightPerformance,
+            );
+
+        const basePerformance = MathUtils.norm(
+            DroidPerformanceCalculator.normExponent,
+            baseAimPerformance,
+            baseTapPerformance,
+            baseCognitionPerformance,
         );
 
-        if (basePerformanceValue > 1e-5) {
-            // Document for formula derivation:
-            // https://docs.google.com/document/d/10DZGYYSsT_yjz2Mtp6yIJld0Rqx4E-vVHupCqiM4TNI/edit
-            attributes.starRating =
-                0.027 *
-                (Math.cbrt(
-                    (100000 / Math.pow(2, 1 / 1.1)) * basePerformanceValue,
-                ) +
-                    4);
-        } else {
-            attributes.starRating = 0;
-        }
+        attributes.starRating = Math.cbrt(
+            basePerformance * DroidPerformanceCalculator.finalMultiplier,
+        );
 
         return attributes;
     }
@@ -168,7 +160,6 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             skills.push(new DroidRhythm(mods));
             skills.push(new DroidTap(mods, true));
             skills.push(new DroidTap(mods, false));
-            skills.push(new DroidTap(mods, true, 50));
         }
 
         skills.push(
@@ -180,8 +171,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         );
 
         if (mods.has(ModFlashlight)) {
-            skills.push(new DroidFlashlight(mods, true));
-            skills.push(new DroidFlashlight(mods, false));
+            skills.push(
+                new DroidFlashlight(mods, beatmap.hitObjects.objects.length),
+            );
         }
 
         return skills;
@@ -189,14 +181,14 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     protected override createStrainPeakSkills(
         beatmap: DroidPlayableBeatmap,
-    ): StrainSkill[] {
+    ): (Skill & IHasPeakDifficulty)[] {
         const { mods } = beatmap;
 
         return [
             new DroidAim(mods, true),
             new DroidAim(mods, false),
             new DroidTap(mods, true),
-            new DroidFlashlight(mods, true),
+            new DroidFlashlight(mods, beatmap.hitObjects.objects.length),
         ];
     }
 
@@ -220,13 +212,27 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
-        attributes.aimDifficulty = this.calculateRating(aim);
-        attributes.aimDifficultSliderCount = aim.countDifficultSliders();
-        attributes.aimDifficultStrainCount = aim.countTopWeightedStrains();
+        const aimDifficultyValue = aim.difficultyValue();
 
-        if (attributes.mods.has(ModRelax)) {
-            attributes.aimDifficulty *= 0.9;
-        }
+        attributes.aimDifficulty =
+            this.calculateAimDifficultyRating(aimDifficultyValue);
+
+        attributes.aimDifficultSliderCount = aim.countDifficultSliders();
+        attributes.aimDifficultStrainCount =
+            aim.countTopWeightedStrains(aimDifficultyValue);
+
+        const aimNoSliderTopWeightedSliderCount =
+            aimNoSlider.countTopWeightedSliders(aimDifficultyValue);
+        const aimNoSliderDifficultStrainCount =
+            aimNoSlider.countTopWeightedStrains(aimDifficultyValue);
+
+        attributes.aimTopWeightedSliderFactor =
+            aimNoSliderTopWeightedSliderCount /
+            Math.max(
+                1,
+                aimNoSliderDifficultStrainCount -
+                    aimNoSliderTopWeightedSliderCount,
+            );
 
         const topDifficultSliders: { index: number; velocity: number }[] = [];
 
@@ -273,7 +279,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
-                this.calculateRating(aimNoSlider) / attributes.aimDifficulty;
+                this.calculateAimDifficultyRating(
+                    aimNoSlider.difficultyValue(),
+                ) / this.calculateAimDifficultyRating(aimDifficultyValue);
         } else {
             attributes.sliderFactor = 1;
         }
@@ -288,35 +296,34 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             (s) => s instanceof DroidTap && s.considerCheesability,
         ) as DroidTap | undefined;
 
-        const tapVibro = skills.find(
-            (s) =>
-                s instanceof DroidTap &&
-                s.considerCheesability &&
-                s.strainTimeCap !== undefined,
-        ) as DroidTap | undefined;
-
-        if (!tap || !tapVibro || attributes.mods.has(ModRelax)) {
+        if (!tap || attributes.mods.has(ModRelax)) {
             attributes.tapDifficulty = 0;
             attributes.tapDifficultStrainCount = 0;
             attributes.speedNoteCount = 0;
-            attributes.averageSpeedDeltaTime = 0;
-            attributes.vibroFactor = 1;
 
             return;
         }
 
-        attributes.tapDifficulty = this.calculateRating(tap);
-        attributes.tapDifficultStrainCount = tap.countTopWeightedStrains();
+        const tapDifficultyValue = tap.difficultyValue();
+
+        attributes.tapDifficulty =
+            this.calculateDifficultyRating(tapDifficultyValue);
+        attributes.tapDifficultStrainCount =
+            tap.countTopWeightedObjectDifficulties(tapDifficultyValue);
 
         attributes.speedNoteCount = tap.relevantNoteCount();
-        attributes.averageSpeedDeltaTime = tap.relevantDeltaTime();
 
-        if (attributes.tapDifficulty > 0) {
-            attributes.vibroFactor =
-                this.calculateRating(tapVibro) / attributes.tapDifficulty;
-        }
+        const tapTopWeightedSliderCount =
+            tap.countTopWeightedSliders(tapDifficultyValue);
 
-        const { threeFingerStrainThreshold } = DroidDifficultyCalculator;
+        attributes.tapTopWeightedSliderFactor =
+            tapTopWeightedSliderCount /
+            Math.max(
+                1,
+                attributes.tapDifficultStrainCount - tapTopWeightedSliderCount,
+            );
+
+        const threeFingerStrainThreshold = 175;
         const minSectionObjectCount = 5;
 
         let inSpeedSection = false;
@@ -328,7 +335,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             if (
                 !inSpeedSection &&
-                current.originalTapStrain >= threeFingerStrainThreshold
+                current.originalTapDifficulty >= threeFingerStrainThreshold
             ) {
                 inSpeedSection = true;
                 firstSpeedObjectIndex = i;
@@ -344,7 +351,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             if (
                 inSpeedSection &&
-                (current.originalTapStrain < threeFingerStrainThreshold ||
+                (current.originalTapDifficulty < threeFingerStrainThreshold ||
                     // Stop speed section on slowing down 1/2 rhythm change or anything slower.
                     (prevDelta < currentDelta && deltaRatio <= 0.5) ||
                     // Don't forget to manually add the last section, which would otherwise be ignored.
@@ -371,7 +378,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                             .reduce(
                                 (a, v) =>
                                     a +
-                                    v.originalTapStrain /
+                                    v.originalTapDifficulty /
                                         threeFingerStrainThreshold,
                                 0,
                             ),
@@ -388,48 +395,24 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ) {
         const rhythm = skills.find((s) => s instanceof DroidRhythm);
 
-        attributes.rhythmDifficulty =
-            rhythm && !attributes.mods.has(ModRelax)
-                ? this.calculateRating(rhythm)
-                : 0;
+        attributes.rhythmDifficulty = this.calculateDifficultyRating(
+            rhythm?.difficultyValue() ?? 0,
+        );
     }
 
     private populateFlashlightAttributes(
         attributes: ExtendedDroidDifficultyAttributes,
         skills: Skill[],
     ) {
-        const flashlight = skills.find(
-            (s) => s instanceof DroidFlashlight && s.withSliders,
-        ) as DroidFlashlight | undefined;
+        const flashlight = skills.find((s) => s instanceof DroidFlashlight);
 
-        const flashlightNoSliders = skills.find(
-            (s) => s instanceof DroidFlashlight && !s.withSliders,
-        ) as DroidFlashlight | undefined;
-
-        if (!flashlight || !flashlightNoSliders) {
+        if (!flashlight) {
             attributes.flashlightDifficulty = 0;
-            attributes.flashlightDifficultStrainCount = 0;
-            attributes.flashlightSliderFactor = 1;
             return;
         }
 
-        attributes.flashlightDifficulty = this.calculateRating(flashlight);
-        attributes.flashlightDifficultStrainCount =
-            flashlight.countTopWeightedStrains();
-
-        if (attributes.mods.has(ModRelax)) {
-            attributes.flashlightDifficulty *= 0.7;
-        } else if (attributes.mods.has(ModAutopilot)) {
-            attributes.flashlightDifficulty *= 0.4;
-        }
-
-        if (attributes.flashlightDifficulty > 0) {
-            attributes.flashlightSliderFactor =
-                this.calculateRating(flashlightNoSliders) /
-                attributes.flashlightDifficulty;
-        } else {
-            attributes.flashlightSliderFactor = 1;
-        }
+        attributes.flashlightDifficulty =
+            Math.sqrt(flashlight.difficultyValue()) * 0.18;
     }
 
     private populateReadingAttributes(
@@ -444,44 +427,37 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             return;
         }
 
-        attributes.readingDifficulty = this.calculateRating(reading);
-        attributes.readingDifficultNoteCount = reading.countTopWeightedNotes();
+        const readingDifficultyValue = reading.difficultyValue();
 
-        if (attributes.mods.has(ModRelax)) {
-            attributes.readingDifficulty *= 0.7;
-        } else if (attributes.mods.has(ModAutopilot)) {
-            attributes.readingDifficulty *= 0.4;
-        }
-
-        // Consider accuracy difficulty.
-        let greatWindow: number;
-
-        if (attributes.mods.has(ModPrecise)) {
-            greatWindow = new PreciseDroidHitWindow(
-                attributes.overallDifficulty,
-            ).greatWindow;
-        } else {
-            greatWindow = new DroidHitWindow(attributes.overallDifficulty)
-                .greatWindow;
-        }
-
-        const overallDifficulty = UnadjustedOsuHitWindow.greatWindowToOD(
-            greatWindow / attributes.clockRate,
+        attributes.readingDifficulty = this.calculateDifficultyRating(
+            readingDifficultyValue,
         );
 
-        const ratingMultiplier =
-            0.75 + Math.pow(Math.max(0, overallDifficulty), 2.2) / 800;
-
-        attributes.readingDifficulty *= Math.sqrt(ratingMultiplier);
+        attributes.readingDifficultNoteCount =
+            reading.countTopWeightedObjectDifficulties(readingDifficultyValue);
     }
 
-    /**
-     * Calculates the base rating of a `Skill`.
-     *
-     * @param skill The `Skill` to calculate the rating of.
-     * @returns The rating of the `Skill`.
-     */
-    private calculateRating(skill: Skill): number {
-        return Math.sqrt(skill.difficultyValue()) * this.difficultyMultiplier;
+    private calculateAimDifficultyRating(difficultyValue: number): number {
+        return Math.pow(difficultyValue, 0.63) * 0.02275;
+    }
+
+    private calculateDifficultyRating(difficultyValue: number): number {
+        return Math.sqrt(difficultyValue) * 0.0675;
+    }
+
+    static sumCognitionDifficulty(reading: number, flashlight: number): number {
+        if (reading <= 0) {
+            return flashlight;
+        }
+
+        if (flashlight <= 0) {
+            return reading;
+        }
+
+        return MathUtils.norm(
+            DroidPerformanceCalculator.normExponent,
+            reading,
+            flashlight * MathUtils.clamp(flashlight / reading, 0.25, 1),
+        );
     }
 }

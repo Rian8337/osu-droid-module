@@ -39,8 +39,8 @@ export abstract class OsuAimEvaluator {
         const lastLast = current.previous(1)!;
         const last2 = current.previous(2);
 
-        const radius = OsuDifficultyHitObject.normalizedRadius;
-        const diameter = OsuDifficultyHitObject.normalizedDiameter;
+        const radius = current.normalizedRadius;
+        const diameter = current.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         let currentVelocity = current.lazyJumpDistance / current.strainTime;

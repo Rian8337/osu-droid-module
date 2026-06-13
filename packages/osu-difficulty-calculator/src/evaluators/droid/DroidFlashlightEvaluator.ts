@@ -31,12 +31,10 @@ export abstract class DroidFlashlightEvaluator {
      *
      * @param current The current object.
      * @param mods The mods used.
-     * @param withSliders Whether to take slider difficulty into account.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         mods: ModMap,
-        withSliders: boolean,
     ): number {
         if (
             current.object instanceof Spinner ||
@@ -126,7 +124,7 @@ export abstract class DroidFlashlightEvaluator {
 
         let sliderBonus = 0;
 
-        if (current.object instanceof Slider && withSliders) {
+        if (current.object instanceof Slider) {
             // Invert the scaling factor to determine the true travel distance independent of circle size.
             const pixelTravelDistance =
                 current.lazyTravelDistance / scalingFactor;

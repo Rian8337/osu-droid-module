@@ -1,26 +1,23 @@
 import {
     Interpolation,
     MathUtils,
+    ModAutopilot,
     ModMap,
+    ModRelax,
     PlaceableHitObject,
 } from "@rian8337/osu-base";
+import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { DroidReadingEvaluator } from "../../evaluators/droid/DroidReadingEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { Skill } from "../../base/Skill";
 
 /**
- * Represents the skill required to read every object in the map.
+ * Represents the skill required to read every object in the beatmap.
  */
-export class DroidReading extends Skill {
-    private readonly noteDifficulties: number[] = [];
+export class DroidReading extends HarmonicSkill {
+    private currentDifficulty = 0;
 
-    private readonly strainDecayBase = 0.8;
-    private readonly skillMultiplier = 2;
-
-    private currentNoteDifficulty = 0;
-
-    private difficulty = 0;
-    private noteWeightSum = 0;
+    private readonly skillMultiplier = 2.5;
+    private readonly difficultyDecayBase = 0.8;
 
     constructor(
         mods: ModMap,
@@ -30,123 +27,125 @@ export class DroidReading extends Skill {
         super(mods);
     }
 
-    /**
-     * Converts a difficulty value to a performance value.
-     *
-     * @param difficulty The difficulty value to convert.
-     * @returns The performance value.
-     */
-    static difficultyToPerformance(difficulty: number): number {
-        return Math.pow(Math.pow(difficulty, 2) * 25, 0.8);
-    }
-
-    override process(current: DroidDifficultyHitObject) {
-        this.currentNoteDifficulty *= this.strainDecay(current.deltaTime);
-
-        this.currentNoteDifficulty +=
-            DroidReadingEvaluator.evaluateDifficultyOf(
-                current,
-                this.clockRate,
-                this.mods,
-            ) * this.skillMultiplier;
-
-        const difficulty =
-            this.currentNoteDifficulty * current.rhythmMultiplier;
-
-        this.noteDifficulties.push(difficulty);
-
-        current.readingDifficulty = difficulty;
-    }
-
-    override difficultyValue(): number {
-        if (this.hitObjects.length === 0) {
+    override countTopWeightedObjectDifficulties(
+        difficultyValue: number,
+    ): number {
+        if (difficultyValue === 0) {
             return 0;
         }
 
-        // Notes with 0 difficulty are excluded to avoid worst-case time complexity of the following sort (e.g. /b/2351871).
-        // These notes will not contribute to the difficulty.
-        const peaks = this.noteDifficulties.filter((d) => d > 0);
-
-        // Start time at first object.
-        const reducedDuration =
-            this.hitObjects[0].startTime / this.clockRate + 60 * 1000;
-
-        // Assume the first few seconds are completely memorized.
-        let reducedCount = 0;
-
-        for (const object of this.hitObjects) {
-            if (object.startTime / this.clockRate > reducedDuration) {
-                break;
-            }
-
-            ++reducedCount;
-        }
-
-        for (let i = 0; i < Math.min(peaks.length, reducedCount); ++i) {
-            peaks[i] *= Math.log10(
-                Interpolation.lerp(
-                    1,
-                    10,
-                    MathUtils.clamp(i / reducedCount, 0, 1),
-                ),
-            );
-        }
-
-        peaks.sort((a, b) => b - a);
-
-        // Difficulty is the weighted sum of the highest notes.
-        // We're sorting from highest to lowest note.
-        this.difficulty = 0;
-        this.noteWeightSum = 0;
-
-        for (let i = 0; i < peaks.length; ++i) {
-            // Use a harmonic sum for note which effectively buffs maps with more notes, especially if
-            // note difficulties are consistent. Constants are arbitrary and give good values.
-            // https://www.desmos.com/calculator/5eb60faf4c
-            const weight =
-                (1 + 1 / (1 + i)) / (Math.pow(i, 0.8) + 1 + 1 / (1 + i));
-
-            if (weight === 0) {
-                // Shortcut to avoid unnecessary iterations.
-                break;
-            }
-
-            this.noteWeightSum += weight;
-            this.difficulty += peaks[i] * weight;
-        }
-
-        return this.difficulty;
-    }
-
-    /**
-     * Returns the number of relevant objects weighted against the top note.
-     */
-    countTopWeightedNotes(): number {
-        if (
-            this.noteDifficulties.length === 0 ||
-            this.difficulty === 0 ||
-            this.noteWeightSum === 0
-        ) {
+        if (this.noteWeightSum === 0) {
             return 0;
         }
 
-        // What would the top note be if all note values were identical
-        const consistentTopNote = this.difficulty / this.noteWeightSum;
+        // This is what the top object difficulty is if all object difficulties were identical.
+        const consistentTopNote = difficultyValue / this.noteWeightSum;
 
         if (consistentTopNote === 0) {
             return 0;
         }
 
-        // Use a weighted sum of all notes. Constants are arbitrary and give nice values
-        return this.noteDifficulties.reduce(
+        return this.objectDifficulties.reduce(
             (total, next) =>
                 total +
-                1.1 / (1 + Math.exp(-5 * (next / consistentTopNote - 1.15))),
+                MathUtils.offsetLogistic(
+                    next / consistentTopNote,
+                    1.15,
+                    5,
+                    1.1,
+                ),
             0,
         );
     }
 
-    private strainDecay(ms: number): number {
-        return Math.pow(this.strainDecayBase, ms / 1000);
+    protected override objectDifficultyOf(
+        current: DroidDifficultyHitObject,
+    ): number {
+        const decay = this.difficultyDecay(current.deltaTime);
+
+        this.currentDifficulty *= decay;
+
+        this.currentDifficulty +=
+            this.calculateAdjustedDifficulty(current) *
+            (1 - decay) *
+            this.skillMultiplier;
+
+        return this.currentDifficulty;
+    }
+
+    protected override applyDifficultyTransformation(difficulties: number[]) {
+        // Assume the first few seconds are completely memorized.
+        const reducedNoteCount = this.calculateReducedNoteCount();
+
+        for (
+            let i = 0;
+            i < Math.min(difficulties.length, reducedNoteCount);
+            ++i
+        ) {
+            difficulties[i] *= Math.log10(
+                Interpolation.lerp(
+                    1,
+                    10,
+                    MathUtils.clamp(i / reducedNoteCount, 0, 1),
+                ),
+            );
+        }
+    }
+
+    protected override saveToHitObject(
+        current: DroidDifficultyHitObject,
+        difficulty: number,
+    ) {
+        current.readingDifficulty = difficulty;
+    }
+
+    private calculateAdjustedDifficulty(
+        current: DroidDifficultyHitObject,
+    ): number {
+        let difficulty = DroidReadingEvaluator.evaluateDifficultyOf(
+            current,
+            this.mods,
+        );
+
+        if (this.mods.has(ModRelax)) {
+            difficulty *= 0.4;
+        } else if (this.mods.has(ModAutopilot)) {
+            difficulty *= 0.1;
+        }
+
+        return difficulty;
+    }
+
+    private calculateReducedNoteCount(): number {
+        if (this.hitObjects.length < 2) {
+            return 0;
+        }
+
+        const reducedDifficultyDuration = 60 * 1000;
+
+        // We take the 2nd note to match `createDifficultyHitObjects`
+        const firstDifficultyObject = this.hitObjects[1];
+
+        const reducedDuration =
+            firstDifficultyObject.startTime / this.clockRate +
+            reducedDifficultyDuration;
+
+        let reducedNoteCount = 0;
+
+        for (let i = 1; i < this.hitObjects.length; ++i) {
+            const object = this.hitObjects[i];
+
+            if (object.startTime / this.clockRate > reducedDuration) {
+                break;
+            }
+
+            ++reducedNoteCount;
+        }
+
+        return reducedNoteCount;
+    }
+
+    private difficultyDecay(ms: number): number {
+        return Math.pow(this.difficultyDecayBase, ms / 1000);
     }
 }

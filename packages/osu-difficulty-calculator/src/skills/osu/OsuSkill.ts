@@ -11,8 +11,10 @@ export abstract class OsuSkill extends StrainSkill {
      */
     protected abstract readonly decayWeight: number;
 
+    protected difficulty = 0;
+
     override difficultyValue(): number {
-        const strains = this.strainPeaks.slice().sort((a, b) => b - a);
+        const strains = this.currentStrainPeaks.slice().sort((a, b) => b - a);
 
         if (this.reducedSectionCount > 0) {
             // We are reducing the highest strains first to account for extreme difficulty spikes.
