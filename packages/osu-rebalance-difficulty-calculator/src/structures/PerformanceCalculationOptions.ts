@@ -39,7 +39,7 @@ export interface PerformanceCalculationOptions {
     /**
      * The aim slider cheese penalty to apply for penalized scores. Only used when using `DroidPerformanceCalculator`.
      */
-    aimSliderCheesePenalty?: number;
+    sliderCheesePenalty?: number;
 
     /**
      * The total score achieved in the score.

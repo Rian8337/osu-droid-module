@@ -76,8 +76,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      *
      * Can be properly obtained by analyzing the replay associated with the score.
      */
-    get aimSliderCheesePenalty(): number {
-        return this._aimSliderCheesePenalty;
+    get sliderCheesePenalty(): number {
+        return this._sliderCheesePenalty;
     }
 
     /**
@@ -97,7 +97,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     static readonly finalMultiplier = 1.24;
     static readonly normExponent = 1.1;
 
-    private _aimSliderCheesePenalty = 1;
+    private _sliderCheesePenalty = 1;
     private _tapPenalty = 1;
 
     private _effectiveMissCount = 0;
@@ -198,8 +198,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     ): void {
         this._tapPenalty = MathUtils.clamp(options?.tapPenalty ?? 1, 0, 1);
 
-        this._aimSliderCheesePenalty = MathUtils.clamp(
-            options?.aimSliderCheesePenalty ?? 1,
+        this._sliderCheesePenalty = MathUtils.clamp(
+            options?.sliderCheesePenalty ?? 1,
             0,
             1,
         );
@@ -287,7 +287,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         aimValue *= this.calculateDeviationBasedLengthScaling();
 
         // Scale the aim value with slider cheese penalty.
-        aimValue *= this._aimSliderCheesePenalty;
+        aimValue *= this._sliderCheesePenalty;
 
         // Scale the aim value with deviation.
         aimValue *=
