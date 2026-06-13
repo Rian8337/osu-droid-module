@@ -123,12 +123,12 @@ export class BeatmapControlPointsEncoder extends BeatmapBaseEncoder {
             this.map.controlPoints.effect.controlPointAt(group.time);
 
         // Convert effect flags.
-        let effectFlags: EffectFlags = EffectFlags.none;
+        let effectFlags: EffectFlags = EffectFlags.None;
         if (effectPoint.isKiai) {
-            effectFlags |= EffectFlags.kiai;
+            effectFlags |= EffectFlags.Kiai;
         }
         if (effectPoint.omitFirstBarLine) {
-            effectFlags |= EffectFlags.omitFirstBarLine;
+            effectFlags |= EffectFlags.OmitFirstBarLine;
         }
 
         this.write(

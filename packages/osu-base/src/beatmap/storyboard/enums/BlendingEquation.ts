@@ -5,30 +5,30 @@ export enum BlendingEquation {
     /**
      * Inherits from parent.
      */
-    inherit,
+    Inherit,
 
     /**
      * Adds the source and destination colours.
      */
-    add,
+    Add,
 
     /**
      * Chooses the minimum of each component of the source and destination colours.
      */
-    min,
+    Min,
 
     /**
      * Chooses the maximum of each component of the source and destination colours.
      */
-    max,
+    Max,
 
     /**
      * Subtracts the destination colour from the source colour.
      */
-    subtract,
+    Subtract,
 
     /**
      * Subtracts the source colour from the destination colour.
      */
-    reverseSubtract,
+    ReverseSubtract,
 }

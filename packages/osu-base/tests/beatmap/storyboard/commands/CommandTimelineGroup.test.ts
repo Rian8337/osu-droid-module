@@ -3,11 +3,11 @@ import { CommandTimelineGroup, Easing } from "../../../../src";
 test("Test duration", () => {
     const group = new CommandTimelineGroup();
 
-    group.x.add(Easing.in, 0, 1000, 0, 1);
+    group.x.add(Easing.In, 0, 1000, 0, 1);
 
     expect(group.duration).toBe(1000);
 
-    group.x.add(Easing.in, 1500, 2000, 1, 0);
+    group.x.add(Easing.In, 1500, 2000, 1, 0);
 
     expect(group.duration).toBe(2000);
 });
@@ -15,7 +15,7 @@ test("Test duration", () => {
 describe("Test getting commands", () => {
     const group = new CommandTimelineGroup();
 
-    group.x.add(Easing.in, 500, 1000, 0, 1);
+    group.x.add(Easing.In, 500, 1000, 0, 1);
 
     test("With offset", () => {
         const commands = group.getCommands((c) => c.x, 1000);

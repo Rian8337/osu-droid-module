@@ -19,7 +19,7 @@ const createGlobalSliderValues = (newCombo?: boolean) => {
 
     return {
         startTime: 1000,
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         position: new Vector2(100, 192),
         repeatCount: 0,
         nodeSamples: [],
@@ -60,7 +60,7 @@ describe("Test slider position", () => {
                 const slider = new Slider(createGlobalSliderValues());
                 const { scale } = slider;
 
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.Droid ? -4 : -6.4;
 
                 slider.stackOffsetMultiplier = stackMultiplier;
                 slider.stackHeight = 1;
@@ -104,11 +104,11 @@ describe("Test slider position", () => {
             };
 
             test("osu!droid gamemode", () => {
-                executeTest(Modes.droid);
+                executeTest(Modes.Droid);
             });
 
             test("osu!standard gamemode", () => {
-                executeTest(Modes.osu);
+                executeTest(Modes.Osu);
             });
         });
     });
@@ -125,7 +125,7 @@ describe("Test slider position", () => {
                 const slider = new Slider(createGlobalSliderValues());
                 const { scale } = slider;
 
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.Droid ? -4 : -6.4;
 
                 slider.stackOffsetMultiplier = stackMultiplier;
                 slider.stackHeight = 1;
@@ -169,11 +169,11 @@ describe("Test slider position", () => {
             };
 
             test("osu!droid gamemode", () => {
-                executeTest(Modes.droid);
+                executeTest(Modes.Droid);
             });
 
             test("osu!standard gamemode", () => {
-                executeTest(Modes.osu);
+                executeTest(Modes.Osu);
             });
         });
     });
@@ -187,7 +187,7 @@ describe("Test slider without slider ticks", () => {
     const difficulty = new BeatmapDifficulty();
     difficulty.sliderMultiplier = 2;
 
-    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.osu);
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Osu);
 
     test("Slider nested hit objects count", () => {
         expect(slider.nestedHitObjects.length).toBe(2);
@@ -225,7 +225,7 @@ describe("Test slider with 1 slider tick", () => {
     slider.applyDefaults(
         new BeatmapControlPoints(),
         new BeatmapDifficulty(),
-        Modes.osu,
+        Modes.Osu,
     );
 
     test("Slider nested hit objects count", () => {
@@ -276,7 +276,7 @@ describe("Test slider with 3 slider ticks", () => {
     const difficulty = new BeatmapDifficulty();
     difficulty.sliderTickRate = 2;
 
-    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.osu);
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Osu);
 
     test("Slider nested hit objects count", () => {
         expect(slider.nestedHitObjects.length).toBe(5);
@@ -331,7 +331,7 @@ describe("Test slider repeat points", () => {
         slider.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.osu,
+            Modes.Osu,
         );
 
         expect(slider.repeatCount).toBe(0);
@@ -347,7 +347,7 @@ describe("Test slider repeat points", () => {
         slider.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.osu,
+            Modes.Osu,
         );
 
         expect(slider.repeatCount).toBe(1);
@@ -379,7 +379,7 @@ describe("Test slider repeat points", () => {
         slider.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.osu,
+            Modes.Osu,
         );
 
         const repeatPoints = slider.nestedHitObjects.filter(
@@ -415,7 +415,7 @@ test("Test slider velocity", () => {
     const controlPoints = new BeatmapControlPoints();
     const difficulty = new BeatmapDifficulty();
 
-    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(controlPoints, difficulty, Modes.Osu);
 
     const scoringDistance =
         100 *
@@ -443,7 +443,7 @@ test("Test slider tick distance", () => {
 
     const difficulty = new BeatmapDifficulty();
 
-    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(controlPoints, difficulty, Modes.Osu);
 
     const scoringDistance =
         100 * difficulty.sliderMultiplier * difficultyPoint.speedMultiplier;
@@ -460,7 +460,7 @@ test("Test slider span duration", () => {
     slider.applyDefaults(
         new BeatmapControlPoints(),
         new BeatmapDifficulty(),
-        Modes.osu,
+        Modes.Osu,
     );
 
     expect(slider.spanDuration).toBeCloseTo(2000);
@@ -475,7 +475,7 @@ test("Test slider duration", () => {
 
     let slider = new Slider(sliderValues);
 
-    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(controlPoints, difficulty, Modes.Osu);
 
     expect(slider.duration).toBeCloseTo(4000);
 
@@ -483,7 +483,7 @@ test("Test slider duration", () => {
 
     slider = new Slider(sliderValues);
 
-    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(controlPoints, difficulty, Modes.Osu);
 
     expect(slider.duration).toBeCloseTo(10000);
 });
@@ -518,7 +518,7 @@ test("Test string concatenation", () => {
 
     const difficulty = new BeatmapDifficulty();
 
-    slider.applyDefaults(controlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(controlPoints, difficulty, Modes.Osu);
 
     expect(slider.toString()).toBe(
         "Position: [100, 192], distance: 200, repeat count: 0, slider ticks: 1",

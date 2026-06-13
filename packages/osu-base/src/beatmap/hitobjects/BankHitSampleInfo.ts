@@ -41,19 +41,19 @@ export class BankHitSampleInfo extends HitSampleInfo {
         let prefix: string;
 
         switch (this.bank) {
-            case SampleBank.none:
+            case SampleBank.None:
                 prefix = "";
                 break;
 
-            case SampleBank.normal:
+            case SampleBank.Normal:
                 prefix = "normal";
                 break;
 
-            case SampleBank.soft:
+            case SampleBank.Soft:
                 prefix = "soft";
                 break;
 
-            case SampleBank.drum:
+            case SampleBank.Drum:
                 prefix = "drum";
                 break;
         }
@@ -71,7 +71,7 @@ export class BankHitSampleInfo extends HitSampleInfo {
 
     constructor(
         name: string,
-        bank: SampleBank = SampleBank.none,
+        bank: SampleBank = SampleBank.None,
         customSampleBank = 0,
         volume = 0,
         isLayered = false,

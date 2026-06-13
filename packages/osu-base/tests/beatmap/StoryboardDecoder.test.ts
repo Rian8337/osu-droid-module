@@ -28,7 +28,7 @@ describe("Test decode storyboard events", () => {
         ),
     );
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
 
     test("Test storyboard use skin sprites", () => {
         expect(storyboard.useSkinSprites).toBe(false);
@@ -47,7 +47,7 @@ describe("Test decode storyboard events", () => {
     });
 
     test("Test fail layer", () => {
-        const fail = storyboard.getLayer(StoryboardLayerType.fail);
+        const fail = storyboard.getLayer(StoryboardLayerType.Fail);
 
         expect(fail.depth).toBe(2);
         expect(fail.elements.length).toBe(0);
@@ -57,7 +57,7 @@ describe("Test decode storyboard events", () => {
     });
 
     test("Test pass layer", () => {
-        const pass = storyboard.getLayer(StoryboardLayerType.pass);
+        const pass = storyboard.getLayer(StoryboardLayerType.Pass);
 
         expect(pass.depth).toBe(1);
         expect(pass.elements.length).toBe(0);
@@ -67,7 +67,7 @@ describe("Test decode storyboard events", () => {
     });
 
     test("Test foreground layer", () => {
-        const foreground = storyboard.getLayer(StoryboardLayerType.foreground);
+        const foreground = storyboard.getLayer(StoryboardLayerType.Foreground);
 
         expect(foreground.depth).toBe(0);
         expect(foreground.elements.length).toBe(151);
@@ -77,7 +77,7 @@ describe("Test decode storyboard events", () => {
     });
 
     test("Test overlay layer", () => {
-        const overlay = storyboard.getLayer(StoryboardLayerType.overlay);
+        const overlay = storyboard.getLayer(StoryboardLayerType.Overlay);
 
         expect(overlay.depth).toBe(Number.MIN_SAFE_INTEGER);
         expect(overlay.elements.length).toBe(0);
@@ -113,7 +113,7 @@ describe("Test decode storyboard events", () => {
         expect(sprite).toBeDefined();
         expect(sprite.hasCommands).toBe(true);
         expect(sprite.initialPosition).toEqual(new Vector2(320, 240));
-        expect(sprite.origin).toBe(Anchor.center);
+        expect(sprite.origin).toBe(Anchor.Center);
         expect(sprite.path).toBe("SB\\lyric\\ja-21.png");
     });
 
@@ -128,8 +128,8 @@ describe("Test decode storyboard events", () => {
         expect(animation.frameDelay).toBe(30);
         expect(animation.hasCommands).toBe(true);
         expect(animation.initialPosition).toEqual(new Vector2(320, 240));
-        expect(animation.loopType).toBe(AnimationLoopType.loopForever);
-        expect(animation.origin).toBe(Anchor.center);
+        expect(animation.loopType).toBe(AnimationLoopType.LoopForever);
+        expect(animation.origin).toBe(Anchor.Center);
         expect(animation.path).toBe("SB\\red jitter\\red_0000.jpg");
         expect(animation.startTime).toBe(78993);
     });
@@ -140,7 +140,7 @@ test("Test out of order start times", () => {
         join("storyboards", "out-of-order-starttimes.osb"),
     );
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
 
     expect(background.elements.length).toBe(2);
 
@@ -155,7 +155,7 @@ test("Test decode variable with suffix", () => {
         join("storyboards", "variable-with-suffix.osb"),
     );
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
 
     expect((background.elements[0] as StoryboardSprite).initialPosition.x).toBe(
         3456,
@@ -167,25 +167,25 @@ test("Test decode out of range loop animation type", () => {
         join("storyboards", "animation-types.osb"),
     );
 
-    const foreground = storyboard.getLayer(StoryboardLayerType.foreground);
+    const foreground = storyboard.getLayer(StoryboardLayerType.Foreground);
 
     expect((foreground.elements[0] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopForever,
+        AnimationLoopType.LoopForever,
     );
     expect((foreground.elements[1] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopOnce,
+        AnimationLoopType.LoopOnce,
     );
     expect((foreground.elements[2] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopForever,
+        AnimationLoopType.LoopForever,
     );
     expect((foreground.elements[3] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopOnce,
+        AnimationLoopType.LoopOnce,
     );
     expect((foreground.elements[4] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopForever,
+        AnimationLoopType.LoopForever,
     );
     expect((foreground.elements[5] as StoryboardAnimation).loopType).toBe(
-        AnimationLoopType.loopForever,
+        AnimationLoopType.LoopForever,
     );
 });
 
@@ -195,7 +195,7 @@ test("Test decode loop count", () => {
     // All loop sequences in loop-count.osb have a total duration of 2000ms (fade in 0->1000ms, fade out 1000->2000ms).
     const loopDuration = 2000;
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
 
     // Stable ensures that any loop command executes at least once, even if the loop count specified in the .osb is zero or negative.
     const zeroTimes = background.elements.find(
@@ -219,7 +219,7 @@ test("Test earliest start time with loop alphas", () => {
         join("storyboards", "loop-containing-earlier-non-zero-fade.osb"),
     );
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
     expect(background.elements.length).toBe(2);
 
     expect(background.elements[0].startTime).toBe(1000);
@@ -233,7 +233,7 @@ test("Test correct animation start time", () => {
         join("storyboards", "animation-starts-before-alpha.osb"),
     );
 
-    const background = storyboard.getLayer(StoryboardLayerType.background);
+    const background = storyboard.getLayer(StoryboardLayerType.Background);
     expect(background.elements.length).toBe(1);
 
     expect(background.elements[0].startTime).toBe(2000);

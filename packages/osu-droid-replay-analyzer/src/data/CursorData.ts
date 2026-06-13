@@ -105,13 +105,13 @@ export class CursorData {
             );
 
             switch (occurrence.id) {
-                case MovementType.down:
+                case MovementType.Down:
                     downOccurrence = occurrence;
                     break;
-                case MovementType.move:
+                case MovementType.Move:
                     moveOccurrences.push(occurrence);
                     break;
-                case MovementType.up:
+                case MovementType.Up:
                     if (downOccurrence) {
                         this.occurrenceGroups.push(
                             new CursorOccurrenceGroup(

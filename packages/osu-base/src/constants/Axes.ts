@@ -5,20 +5,20 @@ export enum Axes {
     /**
      * No axis.
      */
-    none,
+    None,
 
     /**
      * The X axis.
      */
-    x,
+    X,
 
     /**
      * The Y axis.
      */
-    y,
+    Y,
 
     /**
      * The X and Y axes.
      */
-    both,
+    Both,
 }

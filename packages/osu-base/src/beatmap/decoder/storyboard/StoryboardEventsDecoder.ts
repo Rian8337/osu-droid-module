@@ -66,7 +66,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
             this.storyboardSprite = null;
 
             switch (this.setPosition(s[0]) as StoryboardEventType) {
-                case StoryboardEventType.sprite: {
+                case StoryboardEventType.Sprite: {
                     this.storyboardSprite = new StoryboardSprite(
                         this.cleanFilename(this.setPosition(s[3])),
                         this.setPosition(s[2]) as Anchor,
@@ -90,12 +90,12 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     break;
                 }
 
-                case StoryboardEventType.animation: {
+                case StoryboardEventType.Animation: {
                     let frameDelay = this.tryParseInt(this.setPosition(s[7]));
                     const loopType =
                         s[8] === "1" || s[8] === "LoopOnce"
-                            ? AnimationLoopType.loopOnce
-                            : AnimationLoopType.loopForever;
+                            ? AnimationLoopType.LoopOnce
+                            : AnimationLoopType.LoopForever;
 
                     if (this.formatVersion < 6) {
                         // This is random as hell but taken straight from osu-stable.
@@ -131,7 +131,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     break;
                 }
 
-                case StoryboardEventType.sample:
+                case StoryboardEventType.Sample:
                     this.target
                         .getLayer(this.setPosition(s[2]) as StoryboardLayerType)
                         .elements.push(
@@ -156,7 +156,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
             }
 
             switch (this.setPosition(s[0]) as StoryboardCommandType) {
-                case StoryboardCommandType.trigger:
+                case StoryboardCommandType.Trigger:
                     this.timelineGroup = this.storyboardSprite?.addTrigger(
                         this.setPosition(s[1]),
                         s.length > 2
@@ -171,7 +171,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     );
                     break;
 
-                case StoryboardCommandType.loop:
+                case StoryboardCommandType.Loop:
                     this.timelineGroup = this.storyboardSprite?.addLoop(
                         this.tryParseInt(this.setPosition(s[1])),
                         Math.max(
@@ -194,7 +194,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                     const endTime = this.tryParseInt(this.setPosition(s[3]));
 
                     switch (s[0] as StoryboardCommandType) {
-                        case StoryboardCommandType.fade: {
+                        case StoryboardCommandType.Fade: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -214,7 +214,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.scale: {
+                        case StoryboardCommandType.Scale: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -234,7 +234,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.vectorScale: {
+                        case StoryboardCommandType.VectorScale: {
                             const startX = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -261,7 +261,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.rotation: {
+                        case StoryboardCommandType.Rotation: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -281,7 +281,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.movement: {
+                        case StoryboardCommandType.Movement: {
                             const startX = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -308,7 +308,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.movementX: {
+                        case StoryboardCommandType.MovementX: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -328,7 +328,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.movementY: {
+                        case StoryboardCommandType.MovementY: {
                             const startValue = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -348,7 +348,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.color: {
+                        case StoryboardCommandType.Color: {
                             const startRed = this.tryParseFloat(
                                 this.setPosition(s[4]),
                             );
@@ -385,13 +385,13 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                             break;
                         }
 
-                        case StoryboardCommandType.parameter:
+                        case StoryboardCommandType.Parameter:
                             switch (
                                 this.setPosition(
                                     s[4],
                                 ) as StoryboardParameterCommandType
                             ) {
-                                case StoryboardParameterCommandType.blendingMode:
+                                case StoryboardParameterCommandType.BlendingMode:
                                     this.timelineGroup?.blendingParameters.add(
                                         easing,
                                         startTime,
@@ -403,7 +403,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                                     );
                                     break;
 
-                                case StoryboardParameterCommandType.horizontalFlip:
+                                case StoryboardParameterCommandType.HorizontalFlip:
                                     this.timelineGroup?.flipHorizontal.add(
                                         easing,
                                         startTime,
@@ -413,7 +413,7 @@ export class StoryboardEventsDecoder extends SectionDecoder<Storyboard> {
                                     );
                                     break;
 
-                                case StoryboardParameterCommandType.verticalFlip:
+                                case StoryboardParameterCommandType.VerticalFlip:
                                     this.timelineGroup?.flipVertical.add(
                                         easing,
                                         startTime,

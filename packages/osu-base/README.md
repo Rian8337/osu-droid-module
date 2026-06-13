@@ -6,25 +6,25 @@ The base module required for all my osu! modules.
 
 This module serves as the foundation of all my osu! modules. It provides multiple features such as:
 
--   Accuracy calculator and estimator
-    -   Calculate an accuracy value from hit values or estimate hit values from an accuracy value.
--   API request builders
-    -   Supports osu!droid API and osu! API v1.
--   Beatmap decoder
-    -   Fully decodes an `.osu` file into a `Beatmap` object that is easier to work with.
--   Beatmap encoder
-    -   Will encode a beatmap into an `.osu` file with format version 14.
--   Hit window converters
-    -   Convert an OD value to its hit window values and vice versa.
--   Map statistics calculator
-    -   Calculate a given map statistics (CS, AR, OD, and HP) with modifications applied (mods, custom speed multiplier, etc).
--   Mod conversion utilities
-    -   Convert a mod combination string in osu!droid (i.e. `hr`) and osu!standard (i.e. `HDHR`) into an array of mods.
-    -   Available mods can be looked at the documentation.
--   Storyboard decoder
-    -   Supports `.osb` and `.osu` files.
--   Storyboard encoder
-    -   Storyboard will be encoded into a format that is supported by `.osu` files (that is, all variable instances will be replaced).
+- Accuracy calculator and estimator
+    - Calculate an accuracy value from hit values or estimate hit values from an accuracy value.
+- API request builders
+    - Supports osu!droid API and osu! API v1.
+- Beatmap decoder
+    - Fully decodes an `.osu` file into a `Beatmap` object that is easier to work with.
+- Beatmap encoder
+    - Will encode a beatmap into an `.osu` file with format version 14.
+- Hit window converters
+    - Convert an OD value to its hit window values and vice versa.
+- Map statistics calculator
+    - Calculate a given map statistics (CS, AR, OD, and HP) with modifications applied (mods, custom speed multiplier, etc).
+- Mod conversion utilities
+    - Convert a mod combination string in osu!droid (i.e. `hr`) and osu!standard (i.e. `HDHR`) into an array of mods.
+    - Available mods can be looked at the documentation.
+- Storyboard decoder
+    - Supports `.osb` and `.osu` files.
+- Storyboard encoder
+    - Storyboard will be encoded into a format that is supported by `.osu` files (that is, all variable instances will be replaced).
 
 # Specific Requirements
 
@@ -245,10 +245,10 @@ Every value is optional.
 
 You can specify more options to alter the final result of the calculation:
 
--   Mods
--   Custom speed multiplier
--   Force AR (whether to keep the AR at its original value)
--   Game mode (switch between osu!droid and osu!standard, defaults to osu!standard)
+- Mods
+- Custom speed multiplier
+- Force AR (whether to keep the AR at its original value)
+- Game mode (switch between osu!droid and osu!standard, defaults to osu!standard)
 
 ```js
 import { MapStats, ModUtil, modes } from "@rian8337/osu-base";
@@ -261,7 +261,7 @@ const stats = new MapStats({
     mods: ModUtil.pcStringToMods("HDHR"),
     speedMultiplier: 1.25,
     isForceAR: true,
-}).calculate({ mode: modes.osu });
+}).calculate({ mode: Modes.Osu });
 
 console.log(stats);
 ```

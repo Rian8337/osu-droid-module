@@ -40,11 +40,11 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         let tempType = type;
 
-        let comboOffset = (tempType & ObjectTypes.comboOffset) >> 4;
-        tempType &= ~ObjectTypes.comboOffset;
+        let comboOffset = (tempType & ObjectTypes.ComboOffset) >> 4;
+        tempType &= ~ObjectTypes.ComboOffset;
 
-        let newCombo = !!(type & ObjectTypes.newCombo);
-        tempType &= ~ObjectTypes.newCombo;
+        let newCombo = !!(type & ObjectTypes.NewCombo);
+        tempType &= ~ObjectTypes.NewCombo;
 
         const position = new Vector2(
             this.tryParseFloat(
@@ -64,7 +64,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
 
         let object: PlaceableHitObject | null = null;
 
-        if (type & ObjectTypes.circle) {
+        if (type & ObjectTypes.Circle) {
             newCombo ||= this.forceNewCombo;
             comboOffset += this.extraComboOffset;
 
@@ -82,7 +82,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             if (s.length > 5) {
                 this.readCustomSampleBanks(bankInfo, s[5]);
             }
-        } else if (type & ObjectTypes.slider) {
+        } else if (type & ObjectTypes.Slider) {
             if (s.length < 8) {
                 throw new Error("Ignoring malformed slider");
             }
@@ -251,7 +251,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                 path: path,
                 tickDistanceMultiplier: tickDistanceMultiplier,
             });
-        } else if (type & ObjectTypes.spinner) {
+        } else if (type & ObjectTypes.Spinner) {
             // Spinners don't create the new combo themselves, but force the next non-spinner hitobject to create a new combo.
             // Their combo offset is still added to that next hitobject's combo index.
             this.forceNewCombo ||= this.target.formatVersion <= 8 || newCombo;
@@ -306,7 +306,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
                     bankInfo.volume,
                     // If the sound type doesn't have the Normal flag set, attach it anyway as a layered sample.
                     // None also counts as a normal non-layered sample: https://osu.ppy.sh/help/wiki/osu!_File_Formats/Osu_(file_format)#hitsounds
-                    type !== HitSoundType.none && !(type & HitSoundType.normal),
+                    type !== HitSoundType.None && !(type & HitSoundType.Normal),
                 ),
             );
         }
@@ -322,15 +322,15 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
             );
         };
 
-        if (type & HitSoundType.finish) {
+        if (type & HitSoundType.Finish) {
             addBankSample(BankHitSampleInfo.HIT_FINISH);
         }
 
-        if (type & HitSoundType.whistle) {
+        if (type & HitSoundType.Whistle) {
             addBankSample(BankHitSampleInfo.HIT_WHISTLE);
         }
 
-        if (type & HitSoundType.clap) {
+        if (type & HitSoundType.Clap) {
             addBankSample(BankHitSampleInfo.HIT_CLAP);
         }
 
@@ -353,7 +353,7 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
         bankInfo.normal = parseInt(s[0]) as SampleBank;
 
         const addBank = parseInt(s[1]) as SampleBank;
-        bankInfo.add = addBank === SampleBank.none ? bankInfo.normal : addBank;
+        bankInfo.add = addBank === SampleBank.None ? bankInfo.normal : addBank;
 
         if (s.length > 2) {
             bankInfo.customSampleBank = parseInt(s[2]);

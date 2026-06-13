@@ -33,20 +33,20 @@ export class CursorOccurrence {
         let str = `${this.time.toString()}ms `;
 
         switch (this.id) {
-            case MovementType.down:
+            case MovementType.Down:
                 str += "Down";
                 break;
 
-            case MovementType.up:
+            case MovementType.Up:
                 str += "Up";
                 break;
 
-            case MovementType.move:
+            case MovementType.Move:
                 str += "Move";
                 break;
         }
 
-        if (this.id !== MovementType.up) {
+        if (this.id !== MovementType.Up) {
             str += ` (${this.position.x.toFixed(2)}, ${this.position.y.toFixed(2)})`;
         }
 

@@ -9,7 +9,7 @@ test("Test object fade in adjustment", () => {
         position: new Vector2(0),
     });
 
-    circle.applyDefaults(beatmap.controlPoints, beatmap.difficulty, Modes.osu);
+    circle.applyDefaults(beatmap.controlPoints, beatmap.difficulty, Modes.Osu);
     beatmap.hitObjects.add(circle);
 
     new ModHidden().applyToBeatmap(beatmap);

@@ -381,7 +381,7 @@ export abstract class DifficultyHitObject {
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
 
         const windowRatio = Math.pow(
-            Math.min(1, currentDeltaTime / this.hitWindowFor(HitResult.great)),
+            Math.min(1, currentDeltaTime / this.hitWindowFor(HitResult.Great)),
             5,
         );
 
@@ -591,7 +591,7 @@ export abstract class DifficultyHitObject {
         let trackingEndTime = this.object.endTime;
         let { nestedHitObjects: nestedObjects } = this.object;
 
-        if (this.mode === Modes.osu) {
+        if (this.mode === Modes.Osu) {
             trackingEndTime = Math.max(
                 this.object.endTime - Slider.legacyLastTickOffset,
                 this.object.startTime + this.object.duration / 2,

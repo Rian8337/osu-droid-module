@@ -45,16 +45,16 @@ export abstract class HitWindow {
      */
     hitWindowFor(result: HitResult): number {
         switch (result) {
-            case HitResult.great:
+            case HitResult.Great:
                 return this.greatWindow;
 
-            case HitResult.good:
+            case HitResult.Good:
                 return this.okWindow;
 
-            case HitResult.meh:
+            case HitResult.Meh:
                 return this.mehWindow;
 
-            case HitResult.miss:
+            case HitResult.Miss:
                 return HitWindow.missWindow;
         }
     }

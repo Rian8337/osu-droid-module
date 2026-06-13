@@ -2,13 +2,13 @@
  * Sections that exist in `.osu` and `.osb` files.
  */
 export enum BeatmapSection {
-    general = "General",
-    editor = "Editor",
-    metadata = "Metadata",
-    difficulty = "Difficulty",
-    events = "Events",
-    variables = "Variables",
-    timingPoints = "TimingPoints",
-    colors = "Colours",
-    hitObjects = "HitObjects",
+    General = "General",
+    Editor = "Editor",
+    Metadata = "Metadata",
+    Difficulty = "Difficulty",
+    Events = "Events",
+    Variables = "Variables",
+    TimingPoints = "TimingPoints",
+    Colors = "Colours",
+    HitObjects = "HitObjects",
 }

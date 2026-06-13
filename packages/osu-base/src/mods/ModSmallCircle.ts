@@ -39,7 +39,7 @@ export class ModSmallCircle
         difficulty: BeatmapDifficulty,
         adjustmentMods: ModMap,
     ) {
-        if (mode === Modes.osu || !adjustmentMods.has(ModDifficultyAdjust)) {
+        if (mode === Modes.Osu || !adjustmentMods.has(ModDifficultyAdjust)) {
             difficulty.cs += 4;
         } else {
             const scale = CircleSizeCalculator.droidCSToOldDroidScale(

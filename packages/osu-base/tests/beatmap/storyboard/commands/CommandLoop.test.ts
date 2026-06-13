@@ -8,7 +8,7 @@ test("Test constructor throwing for repeat count less than zero", () => {
 describe("Test getting commands", () => {
     const group = new CommandLoop(500, 0);
 
-    group.x.add(Easing.in, 500, 1000, 0, 1);
+    group.x.add(Easing.In, 500, 1000, 0, 1);
 
     test("With offset", () => {
         const commands = group.getCommands((c) => c.x, 1000);

@@ -30,7 +30,7 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
      */
     override decode(
         str: string,
-        mode = Modes.osu,
+        mode = Modes.Osu,
         parseStoryboard = true,
     ): this {
         super.decode(str);
@@ -39,7 +39,7 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
 
         if (parseStoryboard) {
             const eventsDecoder = this.decoders[
-                BeatmapSection.events
+                BeatmapSection.Events
             ] as BeatmapEventsDecoder;
 
             if (eventsDecoder.storyboardLines.length > 0) {

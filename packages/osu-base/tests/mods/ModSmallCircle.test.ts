@@ -25,7 +25,7 @@ describe("Test beatmap setting adjustment", () => {
         difficulty.cs = 3;
 
         new ModSmallCircle().applyToDifficulty(
-            Modes.droid,
+            Modes.Droid,
             difficulty,
             new ModMap(),
         );
@@ -40,7 +40,7 @@ describe("Test beatmap setting adjustment", () => {
         const map = new ModMap();
         map.set(new ModReplayV6());
 
-        new ModSmallCircle().applyToDifficulty(Modes.droid, difficulty, map);
+        new ModSmallCircle().applyToDifficulty(Modes.Droid, difficulty, map);
 
         expect(difficulty.cs).toBeCloseTo(7);
     });
@@ -50,7 +50,7 @@ describe("Test beatmap setting adjustment", () => {
         difficulty.cs = 3;
 
         new ModSmallCircle().applyToDifficulty(
-            Modes.osu,
+            Modes.Osu,
             difficulty,
             new ModMap(),
         );

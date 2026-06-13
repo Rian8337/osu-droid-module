@@ -11,7 +11,7 @@ import { ModSetting } from "./settings/ModSetting";
 
 // Serializes Axes as a 0-indexed ordinal to match the Kotlin EnumModSetting format:
 // Axes.x (1) -> 0, Axes.y (2) -> 1, Axes.both (3) -> 2.
-class AxesModSetting extends ModSetting<Exclude<Axes, Axes.none>> {
+class AxesModSetting extends ModSetting<Exclude<Axes, Axes.None>> {
     override load(settings: Record<string, unknown>): void {
         if (this.key === null) {
             return;
@@ -20,7 +20,7 @@ class AxesModSetting extends ModSetting<Exclude<Axes, Axes.none>> {
         const stored = settings[this.key];
 
         if (typeof stored === "number") {
-            this.value = (stored + 1) as Exclude<Axes, Axes.none>;
+            this.value = (stored + 1) as Exclude<Axes, Axes.None>;
         }
     }
 
@@ -60,7 +60,7 @@ export class ModMirror
         "Flipped axes",
         "flippedAxes",
         "The axes to reflect the hit objects along.",
-        Axes.x,
+        Axes.X,
     );
 
     constructor() {
@@ -71,19 +71,19 @@ export class ModMirror
 
     applyToHitObject(_: Modes, hitObject: HitObject): void {
         switch (this.flippedAxes.value) {
-            case Axes.x:
+            case Axes.X:
                 HitObjectGenerationUtils.reflectHorizontallyAlongPlayfield(
                     hitObject,
                 );
                 break;
 
-            case Axes.y:
+            case Axes.Y:
                 HitObjectGenerationUtils.reflectVerticallyAlongPlayfield(
                     hitObject,
                 );
                 break;
 
-            case Axes.both:
+            case Axes.Both:
                 HitObjectGenerationUtils.reflectHorizontallyAlongPlayfield(
                     hitObject,
                 );
@@ -98,15 +98,15 @@ export class ModMirror
         const settings: string[] = [];
 
         if (
-            this.flippedAxes.value === Axes.x ||
-            this.flippedAxes.value === Axes.both
+            this.flippedAxes.value === Axes.X ||
+            this.flippedAxes.value === Axes.Both
         ) {
             settings.push("↔");
         }
 
         if (
-            this.flippedAxes.value === Axes.y ||
-            this.flippedAxes.value === Axes.both
+            this.flippedAxes.value === Axes.Y ||
+            this.flippedAxes.value === Axes.Both
         ) {
             settings.push("↕");
         }

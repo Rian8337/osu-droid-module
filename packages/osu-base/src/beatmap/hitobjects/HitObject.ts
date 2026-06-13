@@ -241,15 +241,15 @@ export abstract class HitObject {
     get typeStr(): string {
         let res = "";
 
-        if (this.type & ObjectTypes.circle) {
+        if (this.type & ObjectTypes.Circle) {
             res += "circle | ";
         }
 
-        if (this.type & ObjectTypes.slider) {
+        if (this.type & ObjectTypes.Slider) {
             res += "slider | ";
         }
 
-        if (this.type & ObjectTypes.spinner) {
+        if (this.type & ObjectTypes.Spinner) {
             res += "spinner | ";
         }
 
@@ -272,7 +272,7 @@ export abstract class HitObject {
         endPosition?: Vector2;
     }) {
         this.startTime = values.startTime;
-        this.type = values.type ?? ObjectTypes.circle;
+        this.type = values.type ?? ObjectTypes.Circle;
         this._position = values.position;
         this.isNewCombo = values.newCombo ?? false;
         this.comboOffset = values.comboOffset ?? 0;
@@ -315,14 +315,14 @@ export abstract class HitObject {
             400 * Math.min(1, this.timePreempt / HitObject.preemptMin);
 
         switch (mode) {
-            case Modes.droid:
+            case Modes.Droid:
                 this.scale = CircleSizeCalculator.droidCSToDroidScale(
                     difficulty.cs,
                 );
                 this.stackOffsetMultiplier = -4;
                 break;
 
-            case Modes.osu:
+            case Modes.Osu:
                 this.scale = CircleSizeCalculator.standardCSToStandardScale(
                     difficulty.cs,
                     true,
@@ -355,11 +355,11 @@ export abstract class HitObject {
         this._comboIndexWithOffsets = prev?.comboIndexWithOffsets ?? 0;
         this._indexInCurrentCombo = prev ? prev.indexInCurrentCombo + 1 : 0;
 
-        if (this.isNewCombo || !prev || prev.type & ObjectTypes.spinner) {
+        if (this.isNewCombo || !prev || prev.type & ObjectTypes.Spinner) {
             this._indexInCurrentCombo = 0;
             ++this._comboIndex;
 
-            if (!(this.type & ObjectTypes.spinner)) {
+            if (!(this.type & ObjectTypes.Spinner)) {
                 // Spinners do not affect combo color offsets.
                 this._comboIndexWithOffsets += this.comboOffset + 1;
             }
@@ -395,7 +395,7 @@ export abstract class HitObject {
             );
         }
 
-        return new BankHitSampleInfo(sampleName, SampleBank.none);
+        return new BankHitSampleInfo(sampleName, SampleBank.None);
     }
 
     /**
@@ -410,10 +410,10 @@ export abstract class HitObject {
      */
     protected createHitWindow(mode: Modes): HitWindow | null {
         switch (mode) {
-            case Modes.droid:
+            case Modes.Droid:
                 return new DroidHitWindow();
 
-            case Modes.osu:
+            case Modes.Osu:
                 return new OsuHitWindow();
         }
     }
@@ -430,7 +430,7 @@ export abstract class HitObject {
      * @returns The stacked position.
      */
     private evaluateStackedPosition(position: Vector2): Vector2 {
-        if ((this.type & ObjectTypes.spinner) > 0 || this.stackHeight === 0) {
+        if ((this.type & ObjectTypes.Spinner) > 0 || this.stackHeight === 0) {
             return position;
         }
 

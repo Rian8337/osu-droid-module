@@ -26,10 +26,10 @@ describe("Test hit window application", () => {
         circle.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.droid,
+            Modes.Droid,
         );
 
-        mod.applyToHitObject(Modes.droid, circle);
+        mod.applyToHitObject(Modes.Droid, circle);
 
         expect(circle.hitWindow).toBeInstanceOf(PreciseDroidHitWindow);
         expect(circle.hitWindow?.overallDifficulty).toBe(5);
@@ -45,7 +45,7 @@ describe("Test hit window application", () => {
                 controlPoints: [new Vector2(0), new Vector2(100, 0)],
                 expectedDistance: 100,
             }),
-            type: ObjectTypes.slider,
+            type: ObjectTypes.Slider,
             tickDistanceMultiplier: 1,
             nodeSamples: [],
         });
@@ -53,10 +53,10 @@ describe("Test hit window application", () => {
         slider.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.droid,
+            Modes.Droid,
         );
 
-        mod.applyToHitObject(Modes.droid, slider);
+        mod.applyToHitObject(Modes.Droid, slider);
 
         // Ensure that the hit window is not applied to the slider itself.
         expect(slider.hitWindow).toBeInstanceOf(EmptyHitWindow);
@@ -68,16 +68,16 @@ describe("Test hit window application", () => {
         const spinner = new Spinner({
             startTime: 0,
             endTime: 1000,
-            type: ObjectTypes.spinner,
+            type: ObjectTypes.Spinner,
         });
 
         spinner.applyDefaults(
             new BeatmapControlPoints(),
             new BeatmapDifficulty(),
-            Modes.droid,
+            Modes.Droid,
         );
 
-        mod.applyToHitObject(Modes.droid, spinner);
+        mod.applyToHitObject(Modes.Droid, spinner);
 
         expect(spinner.hitWindow).toBeInstanceOf(EmptyHitWindow);
     });

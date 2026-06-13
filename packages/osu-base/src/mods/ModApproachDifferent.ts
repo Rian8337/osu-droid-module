@@ -48,7 +48,7 @@ export class ModApproachDifferent
         "Style",
         "style",
         "The animation style of the approach circles.",
-        AnimationStyle.gravity,
+        AnimationStyle.Gravity,
     );
 
     /**
@@ -56,35 +56,35 @@ export class ModApproachDifferent
      */
     get easing(): Easing {
         switch (this.style.value) {
-            case AnimationStyle.linear:
-                return Easing.none;
+            case AnimationStyle.Linear:
+                return Easing.None;
 
-            case AnimationStyle.gravity:
-                return Easing.inBack;
+            case AnimationStyle.Gravity:
+                return Easing.InBack;
 
-            case AnimationStyle.inOut1:
-                return Easing.inOutCubic;
+            case AnimationStyle.InOut1:
+                return Easing.InOutCubic;
 
-            case AnimationStyle.inOut2:
-                return Easing.inOutQuint;
+            case AnimationStyle.InOut2:
+                return Easing.InOutQuint;
 
-            case AnimationStyle.accelerate1:
-                return Easing.in;
+            case AnimationStyle.Accelerate1:
+                return Easing.In;
 
-            case AnimationStyle.accelerate2:
-                return Easing.inCubic;
+            case AnimationStyle.Accelerate2:
+                return Easing.InCubic;
 
-            case AnimationStyle.accelerate3:
-                return Easing.inQuint;
+            case AnimationStyle.Accelerate3:
+                return Easing.InQuint;
 
-            case AnimationStyle.decelerate1:
-                return Easing.out;
+            case AnimationStyle.Decelerate1:
+                return Easing.Out;
 
-            case AnimationStyle.decelerate2:
-                return Easing.outCubic;
+            case AnimationStyle.Decelerate2:
+                return Easing.OutCubic;
 
-            case AnimationStyle.decelerate3:
-                return Easing.outQuint;
+            case AnimationStyle.Decelerate3:
+                return Easing.OutQuint;
         }
     }
 
@@ -96,14 +96,14 @@ export class ModApproachDifferent
 }
 
 export enum AnimationStyle {
-    linear,
-    gravity,
-    inOut1,
-    inOut2,
-    accelerate1,
-    accelerate2,
-    accelerate3,
-    decelerate1,
-    decelerate2,
-    decelerate3,
+    Linear,
+    Gravity,
+    InOut1,
+    InOut2,
+    Accelerate1,
+    Accelerate2,
+    Accelerate3,
+    Decelerate1,
+    Decelerate2,
+    Decelerate3,
 }

@@ -34,9 +34,9 @@ export class BeatmapEvents {
     get storyboardReplacesBackground(): boolean {
         return (
             this.storyboard
-                ?.getLayer(StoryboardLayerType.background)
+                ?.getLayer(StoryboardLayerType.Background)
                 .elements.some(
-                    (e) => e.path.toLowerCase() === this.background?.filename
+                    (e) => e.path.toLowerCase() === this.background?.filename,
                 ) ?? false
         );
     }

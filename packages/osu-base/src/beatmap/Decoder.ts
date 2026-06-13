@@ -42,7 +42,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
     /**
      * The currently processed section.
      */
-    protected section = BeatmapSection.general;
+    protected section = BeatmapSection.General;
 
     /**
      * Performs the decoding process.
@@ -62,7 +62,7 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
                 continue;
             }
 
-            if (this.section !== BeatmapSection.metadata) {
+            if (this.section !== BeatmapSection.Metadata) {
                 // Comments should not be stripped from metadata lines, as the song metadata may contain "//" as valid data.
                 const index = line.indexOf("//");
                 if (index > 0) {
@@ -141,6 +141,6 @@ export abstract class Decoder<R, D extends SectionDecoder<R>> {
     protected reset(): void {
         this.line = 0;
         this.currentLine = "";
-        this.section = BeatmapSection.general;
+        this.section = BeatmapSection.General;
     }
 }

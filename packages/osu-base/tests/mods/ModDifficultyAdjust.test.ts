@@ -52,7 +52,7 @@ test("Test beatmap setting override without additional mods", () => {
         ar: 8,
         od: 7,
         hp: 6,
-    }).applyToDifficultyWithMods(Modes.droid, difficulty, new ModMap());
+    }).applyToDifficultyWithMods(Modes.Droid, difficulty, new ModMap());
 
     expect(difficulty.cs).toBe(4);
     expect(difficulty.ar).toBe(8);
@@ -72,7 +72,7 @@ test("Test beatmap setting override with additional mods", () => {
         ar: 6,
         od: 6,
         hp: 6,
-    }).applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
+    }).applyToDifficultyWithMods(Modes.Droid, difficulty, modMap);
 
     expect(difficulty.cs).toBe(6);
     expect(difficulty.ar).toBe(6);
@@ -87,7 +87,7 @@ test("Test AR override with non-1x speed multiplier", () => {
     modMap.set(ModDoubleTime);
 
     new ModDifficultyAdjust({ ar: 9 }).applyToDifficultyWithMods(
-        Modes.droid,
+        Modes.Droid,
         difficulty,
         modMap,
     );
@@ -103,7 +103,7 @@ test("Test AR override with non-1x speed multiplier with old scaling", () => {
     modMap.set(ModReplayV6);
 
     new ModDifficultyAdjust({ ar: 9 }).applyToDifficultyWithMods(
-        Modes.droid,
+        Modes.Droid,
         difficulty,
         modMap,
     );
@@ -118,7 +118,7 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override",
     const difficulty = new BeatmapDifficulty();
     const difficultyAdjust = new ModDifficultyAdjust({ ar: 9 });
 
-    difficultyAdjust.applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
+    difficultyAdjust.applyToDifficultyWithMods(Modes.Droid, difficulty, modMap);
 
     const slider = new Slider({
         startTime: 0,
@@ -129,13 +129,13 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override",
             controlPoints: [new Vector2(0), new Vector2(256, 0)],
             expectedDistance: 256,
         }),
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         tickDistanceMultiplier: 1,
         nodeSamples: [],
     });
 
-    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.droid);
-    difficultyAdjust.applyToHitObjectWithMods(Modes.droid, slider, modMap);
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Droid);
+    difficultyAdjust.applyToHitObjectWithMods(Modes.Droid, slider, modMap);
 
     expect(slider.timePreempt).toBeCloseTo(600);
     expect(slider.timeFadeIn).toBeCloseTo(400);
@@ -158,7 +158,7 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override w
     const difficulty = new BeatmapDifficulty();
     const difficultyAdjust = new ModDifficultyAdjust({ ar: 9 });
 
-    difficultyAdjust.applyToDifficultyWithMods(Modes.droid, difficulty, modMap);
+    difficultyAdjust.applyToDifficultyWithMods(Modes.Droid, difficulty, modMap);
 
     const slider = new Slider({
         startTime: 0,
@@ -169,13 +169,13 @@ test("Test object fade in adjustments with non-1x speed multiplier AR override w
             controlPoints: [new Vector2(0), new Vector2(256, 0)],
             expectedDistance: 256,
         }),
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         tickDistanceMultiplier: 1,
         nodeSamples: [],
     });
 
-    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.droid);
-    difficultyAdjust.applyToHitObjectWithMods(Modes.droid, slider, modMap);
+    slider.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Droid);
+    difficultyAdjust.applyToHitObjectWithMods(Modes.Droid, slider, modMap);
 
     expect(slider.timePreempt).toBeCloseTo(900);
     expect(slider.timeFadeIn).toBeCloseTo(600);
@@ -243,11 +243,17 @@ test("Test serialization embeds original value", () => {
 
     const settings = mod.serialize().settings!;
 
-    const csSetting = settings.cs as { adjusted: number; original: number | null };
+    const csSetting = settings.cs as {
+        adjusted: number;
+        original: number | null;
+    };
     expect(csSetting.adjusted).toBe(7);
     expect(csSetting.original).toBe(4);
 
-    const odSetting = settings.od as { adjusted: number; original: number | null };
+    const odSetting = settings.od as {
+        adjusted: number;
+        original: number | null;
+    };
     expect(odSetting.adjusted).toBe(9);
     expect(odSetting.original).toBe(8);
 });
@@ -258,7 +264,10 @@ test("Test serialization writes null original when beatmap is unknown", () => {
 
     const settings = mod.serialize().settings!;
 
-    const csSetting = settings.cs as { adjusted: number; original: number | null };
+    const csSetting = settings.cs as {
+        adjusted: number;
+        original: number | null;
+    };
     expect(csSetting.adjusted).toBe(7);
     expect(csSetting.original).toBeNull();
 });
@@ -279,7 +288,8 @@ test("Test deserialization of new format", () => {
 
 test("Test deserialization of old scalar format", () => {
     const json = `[{"acronym":"DA","settings":{"cs":7.0,"od":9.0}}]`;
-    const deserialized = ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
+    const deserialized =
+        ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
 
     expect(deserialized.cs.value).toBe(7);
     expect(deserialized.cs.originalValue).toBeNull();
@@ -289,7 +299,8 @@ test("Test deserialization of old scalar format", () => {
 
 test("Test deserialization of new format with null original", () => {
     const json = `[{"acronym":"DA","settings":{"cs":{"adjusted":7.0,"original":null}}}]`;
-    const deserialized = ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
+    const deserialized =
+        ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
 
     expect(deserialized.cs.value).toBe(7);
     expect(deserialized.cs.originalValue).toBeNull();

@@ -375,11 +375,11 @@ export abstract class DifficultyHitObject {
         const speedRatio =
             currentDeltaTime / Math.max(currentDeltaTime, deltaDifference);
 
-        if (this.mode === Modes.droid) {
+        if (this.mode === Modes.Droid) {
             const windowRatio = Math.pow(
                 Math.min(
                     1,
-                    currentDeltaTime / this.hitWindowFor(HitResult.great),
+                    currentDeltaTime / this.hitWindowFor(HitResult.Great),
                 ),
                 5,
             );
@@ -399,7 +399,7 @@ export abstract class DifficultyHitObject {
             const windowRatio = Math.pow(
                 Math.min(
                     1,
-                    currentDeltaTime / this.hitWindowFor(HitResult.great),
+                    currentDeltaTime / this.hitWindowFor(HitResult.Great),
                 ),
                 2,
             );
@@ -429,7 +429,7 @@ export abstract class DifficultyHitObject {
     private setDistances(clockRate: number) {
         if (this.object instanceof Slider) {
             // Bonus for repeat sliders until a better per nested object strain system can be achieved.
-            if (this.mode === Modes.droid) {
+            if (this.mode === Modes.Droid) {
                 this.travelDistance =
                     this.lazyTravelDistance *
                     Math.max(1, Math.pow(this.object.repeatCount, 0.3));
@@ -532,7 +532,7 @@ export abstract class DifficultyHitObject {
                 this.lastLastDifficultyObject,
             );
 
-            if (this.mode === Modes.droid) {
+            if (this.mode === Modes.Droid) {
                 if (
                     this.lastDifficultyObject?.object instanceof Slider &&
                     this.lastDifficultyObject.travelDistance > 0
@@ -627,7 +627,7 @@ export abstract class DifficultyHitObject {
         let trackingEndTime = this.object.endTime;
         let { nestedHitObjects: nestedObjects } = this.object;
 
-        if (this.mode === Modes.osu) {
+        if (this.mode === Modes.Osu) {
             trackingEndTime = Math.max(
                 this.object.endTime - Slider.legacyLastTickOffset,
                 this.object.startTime + this.object.duration / 2,

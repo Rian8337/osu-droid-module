@@ -30,7 +30,7 @@ export class ModReallyEasy
         difficulty: BeatmapDifficulty,
         mods: ModMap,
     ): void {
-        if (mode !== Modes.droid) {
+        if (mode !== Modes.Droid) {
             return;
         }
 

@@ -21,7 +21,7 @@ const createCircle = (startTime = 1000) => {
         position: new Vector2(0, 0),
     });
 
-    circle.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+    circle.applyDefaults(beatmapControlPoints, difficulty, Modes.Osu);
 
     return circle;
 };
@@ -32,7 +32,7 @@ const createSlider = (startTime = 1000) => {
     // Will generate 1 slider tick and repetitions by default
     const slider = new Slider({
         startTime: startTime,
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         position: new Vector2(100, 192),
         repeatCount: 1,
         nodeSamples: [],
@@ -46,7 +46,7 @@ const createSlider = (startTime = 1000) => {
         tickDistanceMultiplier: 1,
     });
 
-    slider.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+    slider.applyDefaults(beatmapControlPoints, difficulty, Modes.Osu);
 
     return slider;
 };
@@ -54,11 +54,11 @@ const createSlider = (startTime = 1000) => {
 const createSpinner = (startTime = 1000) => {
     const spinner = new Spinner({
         startTime: startTime,
-        type: ObjectTypes.spinner,
+        type: ObjectTypes.Spinner,
         endTime: startTime + 100,
     });
 
-    spinner.applyDefaults(beatmapControlPoints, difficulty, Modes.osu);
+    spinner.applyDefaults(beatmapControlPoints, difficulty, Modes.Osu);
 
     return spinner;
 };

@@ -63,9 +63,9 @@ export class BeatmapControlPointsDecoder extends SectionDecoder<Beatmap> {
         if (s.length >= 8) {
             const effectBitFlags = this.tryParseInt(this.setPosition(s[7]));
 
-            kiaiMode = !!(effectBitFlags & EffectFlags.kiai);
+            kiaiMode = !!(effectBitFlags & EffectFlags.Kiai);
             omitFirstBarSignature = !!(
-                effectBitFlags & EffectFlags.omitFirstBarLine
+                effectBitFlags & EffectFlags.OmitFirstBarLine
             );
         }
 

@@ -26,7 +26,7 @@ export class Beatmap implements IBeatmap {
     /**
      * The game mode this `Beatmap` was parsed as.
      */
-    mode: Modes = Modes.osu;
+    mode: Modes = Modes.Osu;
 
     formatVersion: number;
     readonly general: BeatmapGeneral;
@@ -128,7 +128,7 @@ export class Beatmap implements IBeatmap {
         const scoreMultiplier = mods
             ? ModUtil.calculateScoreMultiplier(
                   mods.values(),
-                  Modes.droid,
+                  Modes.Droid,
                   this.difficulty,
               )
             : 1;
@@ -154,7 +154,7 @@ export class Beatmap implements IBeatmap {
         if (mods) {
             ModUtil.applyModsToBeatmapDifficulty(
                 nonRateAdjustedDifficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
             );
         }
@@ -216,7 +216,7 @@ export class Beatmap implements IBeatmap {
         const scoreMultiplier = mods
             ? ModUtil.calculateScoreMultiplier(
                   mods.values(),
-                  Modes.osu,
+                  Modes.Osu,
                   this.difficulty,
               )
             : 1;
@@ -254,7 +254,7 @@ export class Beatmap implements IBeatmap {
         if (mods) {
             ModUtil.applyModsToBeatmapDifficulty(
                 nonRateAdjustedDifficulty,
-                Modes.osu,
+                Modes.Osu,
                 mods,
             );
         }
@@ -318,7 +318,7 @@ export class Beatmap implements IBeatmap {
         mods: ModMap = new ModMap(),
     ): DroidPlayableBeatmap {
         return new DroidPlayableBeatmap(
-            this.createPlayableBeatmap(mods, Modes.droid),
+            this.createPlayableBeatmap(mods, Modes.Droid),
             mods,
         );
     }
@@ -334,7 +334,7 @@ export class Beatmap implements IBeatmap {
      */
     createOsuPlayableBeatmap(mods: ModMap = new ModMap()): OsuPlayableBeatmap {
         return new OsuPlayableBeatmap(
-            this.createPlayableBeatmap(mods, Modes.osu),
+            this.createPlayableBeatmap(mods, Modes.Osu),
             mods,
         );
     }

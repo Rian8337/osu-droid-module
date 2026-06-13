@@ -18,7 +18,7 @@ test("Test post-beatmap processing", () => {
         object.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
     }
 

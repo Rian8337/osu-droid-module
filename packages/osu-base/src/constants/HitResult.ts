@@ -7,20 +7,20 @@ export enum HitResult {
     /**
      * Miss (0).
      */
-    miss = 1,
+    Miss = 1,
 
     /**
      * Meh (50).
      */
-    meh,
+    Meh,
 
     /**
      * Good (100).
      */
-    good,
+    Good,
 
     /**
      * Great (300).
      */
-    great,
+    Great,
 }

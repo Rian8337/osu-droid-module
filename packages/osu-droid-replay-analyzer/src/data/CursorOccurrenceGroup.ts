@@ -17,7 +17,7 @@ export class CursorOccurrenceGroup {
      * The cursor occurrence of movement type `movementType.DOWN`.
      */
     set down(value: CursorOccurrence) {
-        if (value.id !== MovementType.down) {
+        if (value.id !== MovementType.Down) {
             throw new TypeError(
                 "Attempting to set the down cursor occurrence to one with different movement type.",
             );
@@ -48,7 +48,7 @@ export class CursorOccurrenceGroup {
      * May not exist, such as when the player holds their cursor until the end of a beatmap.
      */
     set up(value: CursorOccurrence | undefined) {
-        if (value && value.id !== MovementType.up) {
+        if (value && value.id !== MovementType.Up) {
             throw new TypeError(
                 "Attempting to set the up cursor occurrence to one with different movement type.",
             );

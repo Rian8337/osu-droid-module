@@ -52,7 +52,7 @@ export class SampleControlPoint extends ControlPoint {
         if (hitSampleInfo instanceof BankHitSampleInfo) {
             return new BankHitSampleInfo(
                 hitSampleInfo.name,
-                hitSampleInfo.bank !== SampleBank.none
+                hitSampleInfo.bank !== SampleBank.None
                     ? hitSampleInfo.bank
                     : this.sampleBank,
                 hitSampleInfo.customSampleBank > 0

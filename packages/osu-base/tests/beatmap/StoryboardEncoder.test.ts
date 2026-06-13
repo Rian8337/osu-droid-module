@@ -35,8 +35,8 @@ writeFileSync(
 const original = decoder.result;
 const encoded = new StoryboardDecoder().decode(encoder.result).result;
 
-const originalBackground = original.getLayer(StoryboardLayerType.background);
-const encodedBackground = encoded.getLayer(StoryboardLayerType.background);
+const originalBackground = original.getLayer(StoryboardLayerType.Background);
+const encodedBackground = encoded.getLayer(StoryboardLayerType.Background);
 
 test("Test layer count", () => {
     expect(Object.keys(encoded.layers).length).toBe(
@@ -59,8 +59,8 @@ test("Test background layer equality", () => {
 });
 
 test("Test fail layer equality", () => {
-    const originalFail = original.getLayer(StoryboardLayerType.fail);
-    const encodedFail = encoded.getLayer(StoryboardLayerType.fail);
+    const originalFail = original.getLayer(StoryboardLayerType.Fail);
+    const encodedFail = encoded.getLayer(StoryboardLayerType.Fail);
 
     expect(encodedFail.depth).toBe(originalFail.depth);
     expect(encodedFail.elements.length).toBe(originalFail.elements.length);
@@ -74,8 +74,8 @@ test("Test fail layer equality", () => {
 });
 
 test("Test pass layer equality", () => {
-    const originalPass = original.getLayer(StoryboardLayerType.pass);
-    const encodedPass = encoded.getLayer(StoryboardLayerType.pass);
+    const originalPass = original.getLayer(StoryboardLayerType.Pass);
+    const encodedPass = encoded.getLayer(StoryboardLayerType.Pass);
 
     expect(encodedPass.depth).toBe(originalPass.depth);
     expect(encodedPass.elements.length).toBe(originalPass.elements.length);
@@ -90,9 +90,9 @@ test("Test pass layer equality", () => {
 
 test("Test foreground layer equality", () => {
     const originalForeground = original.getLayer(
-        StoryboardLayerType.foreground,
+        StoryboardLayerType.Foreground,
     );
-    const encodedForeground = encoded.getLayer(StoryboardLayerType.foreground);
+    const encodedForeground = encoded.getLayer(StoryboardLayerType.Foreground);
 
     expect(encodedForeground.depth).toBe(originalForeground.depth);
     expect(encodedForeground.elements.length).toBe(
@@ -108,8 +108,8 @@ test("Test foreground layer equality", () => {
 });
 
 test("Test overlay equality", () => {
-    const originalOverlay = original.getLayer(StoryboardLayerType.overlay);
-    const encodedOverlay = encoded.getLayer(StoryboardLayerType.overlay);
+    const originalOverlay = original.getLayer(StoryboardLayerType.Overlay);
+    const encodedOverlay = encoded.getLayer(StoryboardLayerType.Overlay);
     expect(encodedOverlay.depth).toBe(originalOverlay.depth);
     expect(encodedOverlay.elements.length).toBe(
         originalOverlay.elements.length,

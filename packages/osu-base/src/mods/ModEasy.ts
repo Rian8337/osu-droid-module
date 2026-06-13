@@ -44,7 +44,7 @@ export class ModEasy
         difficulty: BeatmapDifficulty,
         adjustmentMods: ModMap,
     ) {
-        if (mode === Modes.osu || !adjustmentMods.has(ModReplayV6)) {
+        if (mode === Modes.Osu || !adjustmentMods.has(ModReplayV6)) {
             difficulty.cs /= 2;
         } else {
             const scale = CircleSizeCalculator.droidCSToOldDroidScale(

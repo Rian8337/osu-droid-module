@@ -313,7 +313,7 @@ export class TwoHandChecker {
 
         if (
             prevObject instanceof Spinner ||
-            prevObjectData.result === HitResult.miss
+            prevObjectData.result === HitResult.Miss
         ) {
             return new IndexedHitObject(object, -1, -1, -1, null, false);
         }
@@ -421,7 +421,7 @@ export class TwoHandChecker {
                 continue;
             }
 
-            if (cursor.id === MovementType.up) {
+            if (cursor.id === MovementType.Up) {
                 break;
             }
 
@@ -539,10 +539,10 @@ export class TwoHandChecker {
         // For sliders, set the hit window to as lenient as possible.
         if (object instanceof Circle) {
             switch (data.result) {
-                case HitResult.great:
+                case HitResult.Great:
                     hitWindow = this.hitWindow.greatWindow;
                     break;
-                case HitResult.good:
+                case HitResult.Good:
                     hitWindow = this.hitWindow.okWindow;
                     break;
             }
@@ -629,7 +629,7 @@ export class TwoHandChecker {
                     }
 
                     let cursorPosition: Vector2;
-                    if (cursor.id === MovementType.up) {
+                    if (cursor.id === MovementType.Up) {
                         cursorPosition = this.getCursorPosition(prevCursor);
 
                         const distance =
@@ -790,15 +790,15 @@ export class TwoHandChecker {
 
                     let cursorPosition: Vector2;
                     switch (cursor.id) {
-                        case MovementType.down:
+                        case MovementType.Down:
                             cursorPosition = this.getCursorPosition(cursor);
                             break;
-                        case MovementType.up: {
+                        case MovementType.Up: {
                             const prevCursor = cursors[k - 1];
                             cursorPosition = this.getCursorPosition(prevCursor);
                             break;
                         }
-                        case MovementType.move: {
+                        case MovementType.Move: {
                             const prevCursor = cursors[k - 1];
                             const t = MathUtils.clamp(
                                 (object.endTime - prevCursor.time) /
@@ -826,15 +826,15 @@ export class TwoHandChecker {
                         nearestGroupIndex = j;
 
                         switch (cursor.id) {
-                            case MovementType.down:
+                            case MovementType.Down:
                                 nearestCursorGroupIndex = k;
                                 nearestCursorTime = cursor.time;
                                 break;
-                            case MovementType.up:
+                            case MovementType.Up:
                                 nearestCursorGroupIndex = k - 1;
                                 nearestCursorTime = cursors[k - 1].time;
                                 break;
-                            case MovementType.move:
+                            case MovementType.Move:
                                 nearestCursorGroupIndex = k;
                                 nearestCursorTime = object.endTime;
                                 break;
@@ -881,7 +881,7 @@ export class TwoHandChecker {
     ): boolean {
         if (
             !(indexedHitObject.object instanceof Slider) ||
-            hitData.result === HitResult.miss ||
+            hitData.result === HitResult.Miss ||
             indexedHitObject.cursorIndex === -1
         ) {
             return false;

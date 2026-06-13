@@ -50,7 +50,7 @@ export class ModHardRock
         difficulty: BeatmapDifficulty,
         adjustmentMods: ModMap,
     ) {
-        if (mode === Modes.osu || !adjustmentMods.has(ModReplayV6)) {
+        if (mode === Modes.Osu || !adjustmentMods.has(ModReplayV6)) {
             difficulty.cs = this.applySetting(difficulty.cs, 1.3);
         } else {
             const scale = CircleSizeCalculator.droidCSToOldDroidScale(

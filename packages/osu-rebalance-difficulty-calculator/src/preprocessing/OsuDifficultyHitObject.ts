@@ -16,5 +16,5 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
     override readonly normalizedRadius = 50;
 
-    protected override readonly mode = Modes.osu;
+    protected override readonly mode = Modes.Osu;
 }

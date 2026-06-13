@@ -1,7 +1,6 @@
 export * from "./analysis/RebalanceSliderCheeseChecker";
 export * from "./analysis/RebalanceThreeFingerChecker";
 export * from "./analysis/SliderCheeseChecker";
-export * from "./analysis/structures/SliderCheeseInformation";
 export * from "./analysis/structures/ThreeFingerInformation";
 export * from "./analysis/ThreeFingerChecker";
 export * from "./analysis/TwoHandChecker";

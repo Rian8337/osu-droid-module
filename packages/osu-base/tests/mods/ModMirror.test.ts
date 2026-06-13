@@ -5,13 +5,13 @@ test("Test serialization", () => {
 
     expect(mod.serialize().settings).toBeUndefined();
 
-    mod.flippedAxes.value = Axes.y;
+    mod.flippedAxes.value = Axes.Y;
     expect(mod.serialize().settings).toEqual({ flippedAxes: 1 });
 
-    mod.flippedAxes.value = Axes.both;
+    mod.flippedAxes.value = Axes.Both;
     expect(mod.serialize().settings).toEqual({ flippedAxes: 2 });
 
-    mod.flippedAxes.value = Axes.x;
+    mod.flippedAxes.value = Axes.X;
     expect(mod.serialize().settings).toBeUndefined();
 });
 
@@ -21,10 +21,10 @@ test("Test equals", () => {
     const mod3 = new ModMirror();
     const mod4 = new ModMirror();
 
-    mod1.flippedAxes.value = Axes.x;
-    mod2.flippedAxes.value = Axes.x;
-    mod3.flippedAxes.value = Axes.y;
-    mod4.flippedAxes.value = Axes.both;
+    mod1.flippedAxes.value = Axes.X;
+    mod2.flippedAxes.value = Axes.X;
+    mod3.flippedAxes.value = Axes.Y;
+    mod4.flippedAxes.value = Axes.Both;
 
     expect(mod1.equals(mod2)).toBe(true);
     expect(mod1.equals(mod3)).toBe(false);
@@ -35,12 +35,12 @@ test("Test equals", () => {
 test("Test toString", () => {
     const mod = new ModMirror();
 
-    mod.flippedAxes.value = Axes.x;
+    mod.flippedAxes.value = Axes.X;
     expect(mod.toString()).toBe("MR (↔)");
 
-    mod.flippedAxes.value = Axes.y;
+    mod.flippedAxes.value = Axes.Y;
     expect(mod.toString()).toBe("MR (↕)");
 
-    mod.flippedAxes.value = Axes.both;
+    mod.flippedAxes.value = Axes.Both;
     expect(mod.toString()).toBe("MR (↔, ↕)");
 });

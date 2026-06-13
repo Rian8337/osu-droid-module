@@ -2,8 +2,8 @@
  * Represents available sample banks.
  */
 export enum SampleBank {
-    none,
-    normal,
-    soft,
-    drum,
+    None,
+    Normal,
+    Soft,
+    Drum,
 }

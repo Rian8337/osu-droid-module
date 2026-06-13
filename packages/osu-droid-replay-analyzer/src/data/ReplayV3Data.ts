@@ -55,7 +55,7 @@ export class ReplayV3Data extends ReplayData {
 
         this.scoreMultiplier ??= ModUtil.calculateScoreMultiplier(
             this.convertedMods.values(),
-            Modes.droid,
+            Modes.Droid,
         );
 
         return Math.round(Math.fround(this.score * this.scoreMultiplier));

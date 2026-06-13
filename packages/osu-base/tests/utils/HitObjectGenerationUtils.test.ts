@@ -20,7 +20,7 @@ const createSlider = () => {
             controlPoints: [new Vector2(0), new Vector2(200, 0)],
             expectedDistance: 200,
         }),
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         tickDistanceMultiplier: 1,
         nodeSamples: [],
     });
@@ -28,7 +28,7 @@ const createSlider = () => {
     slider.applyDefaults(
         new BeatmapControlPoints(),
         new BeatmapDifficulty(),
-        Modes.droid,
+        Modes.Droid,
     );
 
     return slider;

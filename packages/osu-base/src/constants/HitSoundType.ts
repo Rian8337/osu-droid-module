@@ -4,9 +4,9 @@
  * Represents available hitsound types.
  */
 export enum HitSoundType {
-    none = 0,
-    normal = 1 << 0,
-    whistle = 1 << 1,
-    finish = 1 << 2,
-    clap = 1 << 3,
+    None = 0,
+    Normal = 1 << 0,
+    Whistle = 1 << 1,
+    Finish = 1 << 2,
+    Clap = 1 << 3,
 }

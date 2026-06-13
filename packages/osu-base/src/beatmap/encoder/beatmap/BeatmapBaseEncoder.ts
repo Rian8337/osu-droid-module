@@ -24,13 +24,13 @@ export abstract class BeatmapBaseEncoder extends BaseEncoder {
      */
     protected sampleBankToString(sampleBank: SampleBank): string {
         switch (sampleBank) {
-            case SampleBank.normal:
+            case SampleBank.Normal:
                 return "Normal";
 
-            case SampleBank.soft:
+            case SampleBank.Soft:
                 return "Soft";
 
-            case SampleBank.drum:
+            case SampleBank.Drum:
                 return "Drum";
 
             default:

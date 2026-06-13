@@ -106,7 +106,7 @@ export class SliderCheeseChecker {
             const objectData = this.data.hitObjectData[difficultSlider.index];
 
             // If a miss or slider break occurs, we disregard the check for that slider.
-            if (objectData.result === HitResult.miss) {
+            if (objectData.result === HitResult.Miss) {
                 continue;
             }
 
@@ -188,13 +188,13 @@ export class SliderCheeseChecker {
                         const prevPosition = this.getCursorPosition(prevCursor);
 
                         switch (cursor.id) {
-                            case MovementType.up:
+                            case MovementType.Up:
                                 distance =
                                     prevPosition.getDistance(
                                         objectStartPosition,
                                     );
                                 break;
-                            case MovementType.move:
+                            case MovementType.Move:
                                 for (
                                     let mSecPassed = Math.max(
                                         prevCursor.time,
@@ -305,7 +305,7 @@ export class SliderCheeseChecker {
                 const prevPosition = this.getCursorPosition(prevCursor);
 
                 switch (cursor.id) {
-                    case MovementType.move: {
+                    case MovementType.Move: {
                         // Interpolate cursor position during nested object time.
                         const t =
                             (nestedObject.startTime - prevCursor.time) /
@@ -323,7 +323,7 @@ export class SliderCheeseChecker {
                         isCheesed = distance > acceptableRadius;
                         break;
                     }
-                    case MovementType.up:
+                    case MovementType.Up:
                         isCheesed =
                             prevPosition.getDistance(nestedPosition) >
                             acceptableRadius;

@@ -35,8 +35,8 @@ export class SampleBankInfo {
 
     constructor(bankInfo?: SampleBankInfo) {
         this.filename = bankInfo?.filename ?? "";
-        this.normal = bankInfo?.normal ?? SampleBank.none;
-        this.add = bankInfo?.add ?? SampleBank.none;
+        this.normal = bankInfo?.normal ?? SampleBank.None;
+        this.add = bankInfo?.add ?? SampleBank.None;
         this.volume = bankInfo?.volume ?? 0;
         this.customSampleBank = bankInfo?.customSampleBank ?? 0;
     }

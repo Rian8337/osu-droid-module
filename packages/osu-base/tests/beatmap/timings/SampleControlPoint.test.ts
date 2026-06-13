@@ -3,14 +3,14 @@ import { SampleBank, SampleControlPoint } from "../../../src";
 test("Test timing point redundancy", () => {
     const timingPoint = new SampleControlPoint({
         time: 1000,
-        sampleBank: SampleBank.normal,
+        sampleBank: SampleBank.Normal,
         sampleVolume: 0,
         customSampleBank: 0,
     });
 
     let otherTimingPoint = new SampleControlPoint({
         time: 1500,
-        sampleBank: SampleBank.normal,
+        sampleBank: SampleBank.Normal,
         sampleVolume: 0,
         customSampleBank: 0,
     });
@@ -19,7 +19,7 @@ test("Test timing point redundancy", () => {
 
     otherTimingPoint = new SampleControlPoint({
         time: 1500,
-        sampleBank: SampleBank.drum,
+        sampleBank: SampleBank.Drum,
         sampleVolume: 0,
         customSampleBank: 0,
     });
@@ -30,12 +30,12 @@ test("Test timing point redundancy", () => {
 test("Test string concatenation", () => {
     const timingPoint = new SampleControlPoint({
         time: 1000,
-        sampleBank: SampleBank.normal,
+        sampleBank: SampleBank.Normal,
         sampleVolume: 0,
         customSampleBank: 0,
     });
 
     expect(timingPoint.toString()).toBe(
-        "{ time: 1000, sample bank: 1, sample volume: 0 }"
+        "{ time: 1000, sample bank: 1, sample volume: 0 }",
     );
 });

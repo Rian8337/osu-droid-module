@@ -8,14 +8,16 @@ test("Test serialization", () => {
     mod.scale.value = 5;
     expect(mod.serialize().settings).toEqual({ scale: 5 });
 
-    mod.style.value = AnimationStyle.accelerate1;
+    mod.style.value = AnimationStyle.Accelerate1;
     expect(mod.serialize().settings).toEqual({
         scale: 5,
-        style: AnimationStyle.accelerate1,
+        style: AnimationStyle.Accelerate1,
     });
 
     mod.scale.value = 3;
-    expect(mod.serialize().settings).toEqual({ style: AnimationStyle.accelerate1 });
+    expect(mod.serialize().settings).toEqual({
+        style: AnimationStyle.Accelerate1,
+    });
 });
 
 test("Test animation style", () => {
@@ -26,14 +28,14 @@ test("Test animation style", () => {
         expect(mod.easing).toBe(easing);
     };
 
-    expectEasing(AnimationStyle.linear, Easing.none);
-    expectEasing(AnimationStyle.gravity, Easing.inBack);
-    expectEasing(AnimationStyle.inOut1, Easing.inOutCubic);
-    expectEasing(AnimationStyle.inOut2, Easing.inOutQuint);
-    expectEasing(AnimationStyle.accelerate1, Easing.in);
-    expectEasing(AnimationStyle.accelerate2, Easing.inCubic);
-    expectEasing(AnimationStyle.accelerate3, Easing.inQuint);
-    expectEasing(AnimationStyle.decelerate1, Easing.out);
-    expectEasing(AnimationStyle.decelerate2, Easing.outCubic);
-    expectEasing(AnimationStyle.decelerate3, Easing.outQuint);
+    expectEasing(AnimationStyle.Linear, Easing.None);
+    expectEasing(AnimationStyle.Gravity, Easing.InBack);
+    expectEasing(AnimationStyle.InOut1, Easing.InOutCubic);
+    expectEasing(AnimationStyle.InOut2, Easing.InOutQuint);
+    expectEasing(AnimationStyle.Accelerate1, Easing.In);
+    expectEasing(AnimationStyle.Accelerate2, Easing.InCubic);
+    expectEasing(AnimationStyle.Accelerate3, Easing.InQuint);
+    expectEasing(AnimationStyle.Decelerate1, Easing.Out);
+    expectEasing(AnimationStyle.Decelerate2, Easing.OutCubic);
+    expectEasing(AnimationStyle.Decelerate3, Easing.OutQuint);
 });

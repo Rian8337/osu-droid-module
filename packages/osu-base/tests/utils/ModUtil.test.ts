@@ -157,7 +157,7 @@ describe("Test apply mods to beatmap difficulty", () => {
         test("No Mod", () => {
             const difficulty = new BeatmapDifficulty();
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Droid);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -170,7 +170,7 @@ describe("Test apply mods to beatmap difficulty", () => {
             const mods = new ModMap();
             mods.set(new ModHardRock());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Droid, mods);
 
             expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBe(7);
@@ -185,7 +185,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
                 true,
             );
@@ -203,7 +203,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
                 true,
             );
@@ -221,7 +221,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
                 true,
             );
@@ -241,7 +241,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
                 true,
             );
@@ -257,7 +257,7 @@ describe("Test apply mods to beatmap difficulty", () => {
             const mods = new ModMap();
             mods.set(new ModPrecise());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.droid, mods);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Droid, mods);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -273,7 +273,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.droid,
+                Modes.Droid,
                 mods,
                 true,
             );
@@ -289,7 +289,7 @@ describe("Test apply mods to beatmap difficulty", () => {
         test("No Mod", () => {
             const difficulty = new BeatmapDifficulty();
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Osu);
 
             expect(difficulty.cs).toBe(5);
             expect(difficulty.ar).toBe(5);
@@ -302,7 +302,7 @@ describe("Test apply mods to beatmap difficulty", () => {
             const mods = new ModMap();
             mods.set(new ModHardRock());
 
-            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.osu, mods);
+            ModUtil.applyModsToBeatmapDifficulty(difficulty, Modes.Osu, mods);
 
             expect(difficulty.cs).toBeCloseTo(6.5);
             expect(difficulty.ar).toBe(7);
@@ -317,7 +317,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.osu,
+                Modes.Osu,
                 mods,
                 true,
             );
@@ -335,7 +335,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.osu,
+                Modes.Osu,
                 mods,
                 true,
             );
@@ -353,7 +353,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.osu,
+                Modes.Osu,
                 mods,
                 true,
             );
@@ -373,7 +373,7 @@ describe("Test apply mods to beatmap difficulty", () => {
 
             ModUtil.applyModsToBeatmapDifficulty(
                 difficulty,
-                Modes.osu,
+                Modes.Osu,
                 mods,
                 true,
             );
@@ -417,7 +417,7 @@ test("Test score multiplier calculation", () => {
     mods.set(ModPrecise);
 
     expect(
-        ModUtil.calculateScoreMultiplier(mods.values(), Modes.droid),
+        ModUtil.calculateScoreMultiplier(mods.values(), Modes.Droid),
     ).toBeCloseTo(1.1977576, 6);
 });
 
@@ -435,7 +435,7 @@ describe("Test droid score multiplier uses single-precision floating point", () 
 
         const multiplier = ModUtil.calculateScoreMultiplier(
             mods.values(),
-            Modes.droid,
+            Modes.Droid,
         );
 
         // Java: 1.06f * 1.06f * 1.12f (DT contributes 1.12 via rate-adjust formula)
@@ -464,7 +464,7 @@ describe("Test droid score multiplier uses single-precision floating point", () 
 
         const multiplier = ModUtil.calculateScoreMultiplier(
             mods.values(),
-            Modes.droid,
+            Modes.Droid,
         );
 
         expect(Math.round(Math.fround(baseScore * multiplier))).toBe(29672490);

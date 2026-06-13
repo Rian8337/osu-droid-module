@@ -93,7 +93,7 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     /**
      * The ranking status of the beatmap.
      */
-    approved = RankedStatus.pending;
+    approved = RankedStatus.Pending;
 
     /**
      * The ID of the beatmap.
@@ -153,12 +153,12 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
     /**
      * The genre of this beatmap.
      */
-    genre = BeatmapGenre.any;
+    genre = BeatmapGenre.Any;
 
     /**
      * The language of this beatmap.
      */
-    language = BeatmapLanguage.any;
+    language = BeatmapLanguage.Any;
 
     /**
      * The BPM of the beatmap.

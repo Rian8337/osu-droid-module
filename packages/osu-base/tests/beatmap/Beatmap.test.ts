@@ -26,7 +26,7 @@ const createGlobalSliderValues = () => {
 
     return {
         startTime: 1000,
-        type: ObjectTypes.slider,
+        type: ObjectTypes.Slider,
         position: new Vector2(100, 192),
         repeatCount: 0,
         nodeSamples: [],
@@ -146,7 +146,7 @@ test("Test slider ticks getter", () => {
         slider.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
 
         beatmap.hitObjects.add(slider);
@@ -208,7 +208,7 @@ test("Test slider repeat points getter", () => {
         slider.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
 
         beatmap.hitObjects.add(slider);
@@ -249,7 +249,7 @@ test("Test max combo getter", () => {
         object.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
 
         beatmap.hitObjects.add(object);
@@ -271,7 +271,7 @@ test("Test max combo getter", () => {
     addObject(
         new Spinner({
             startTime: 1000,
-            type: ObjectTypes.spinner,
+            type: ObjectTypes.Spinner,
             endTime: 1100,
         }),
     );
@@ -296,7 +296,7 @@ describe("Test osu!droid max score calculation", () => {
         object.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.droid,
+            Modes.Droid,
         );
     }
 
@@ -361,7 +361,7 @@ describe("Test osu!standard max score calculation", () => {
         circle.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
 
         beatmap.hitObjects.add(circle);
@@ -502,7 +502,7 @@ describe("Test playable beatmap creation", () => {
         object.applyDefaults(
             beatmap.controlPoints,
             beatmap.difficulty,
-            Modes.osu,
+            Modes.Osu,
         );
         object.applySamples(beatmap.controlPoints);
     }

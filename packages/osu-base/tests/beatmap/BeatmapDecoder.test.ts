@@ -147,7 +147,7 @@ describe("Test editor section", () => {
         expect(editor.beatDivisor).toBe(4);
         expect(editor.bookmarks.length).toBe(0);
         expect(editor.distanceSnap).toBe(1);
-        expect(editor.gridSize).toBe(EditorGridSize.small);
+        expect(editor.gridSize).toBe(EditorGridSize.Small);
         expect(editor.timelineZoom).toBe(1);
     });
 
@@ -157,7 +157,7 @@ describe("Test editor section", () => {
         expect(editor.beatDivisor).toBe(4);
         expect(editor.bookmarks.length).toBe(0);
         expect(editor.distanceSnap).toBe(0.2);
-        expect(editor.gridSize).toBe(EditorGridSize.small);
+        expect(editor.gridSize).toBe(EditorGridSize.Small);
         expect(editor.timelineZoom).toBeCloseTo(3);
     });
 });
@@ -201,14 +201,14 @@ describe("Test general section", () => {
 
         expect(general.audioFilename).toBe("20.mp3");
         expect(general.audioLeadIn).toBe(0);
-        expect(general.countdown).toBe(BeatmapCountdown.normal);
+        expect(general.countdown).toBe(BeatmapCountdown.Normal);
         expect(general.countdownOffset).toBe(0);
         expect(general.epilepsyWarning).toBe(false);
         expect(general.letterBoxInBreaks).toBe(false);
-        expect(general.mode).toBe(GameMode.osu);
-        expect(general.overlayPosition).toBe(BeatmapOverlayPosition.noChange);
+        expect(general.mode).toBe(GameMode.Osu);
+        expect(general.overlayPosition).toBe(BeatmapOverlayPosition.NoChange);
         expect(general.previewTime).toBe(-1);
-        expect(general.sampleBank).toBe(SampleBank.normal);
+        expect(general.sampleBank).toBe(SampleBank.Normal);
         expect(general.sampleVolume).toBe(100);
         expect(general.samplesMatchPlaybackRate).toBe(true);
         expect(general.skinPreference).toBe("");
@@ -222,14 +222,14 @@ describe("Test general section", () => {
 
         expect(general.audioFilename).toBe("audio.mp3");
         expect(general.audioLeadIn).toBe(0);
-        expect(general.countdown).toBe(BeatmapCountdown.noCountDown);
+        expect(general.countdown).toBe(BeatmapCountdown.NoCountdown);
         expect(general.countdownOffset).toBe(0);
         expect(general.epilepsyWarning).toBe(false);
         expect(general.letterBoxInBreaks).toBe(false);
-        expect(general.mode).toBe(GameMode.osu);
-        expect(general.overlayPosition).toBe(BeatmapOverlayPosition.noChange);
+        expect(general.mode).toBe(GameMode.Osu);
+        expect(general.overlayPosition).toBe(BeatmapOverlayPosition.NoChange);
         expect(general.previewTime).toBe(49037);
-        expect(general.sampleBank).toBe(SampleBank.soft);
+        expect(general.sampleBank).toBe(SampleBank.Soft);
         expect(general.sampleVolume).toBe(100);
         expect(general.samplesMatchPlaybackRate).toBe(true);
         expect(general.skinPreference).toBe("");
@@ -271,12 +271,12 @@ describe("Test hit object samples", () => {
 
         expect(circle.samples.length).toBe(2);
         expect(firstSample.name).toBe("hitnormal");
-        expect(firstSample.bank).toBe(SampleBank.normal);
+        expect(firstSample.bank).toBe(SampleBank.Normal);
         expect(firstSample.customSampleBank).toBe(0);
         expect(firstSample.volume).toBe(100);
         expect(firstSample.isLayered).toBe(true);
         expect(lastSample.name).toBe("hitfinish");
-        expect(lastSample.bank).toBe(SampleBank.normal);
+        expect(lastSample.bank).toBe(SampleBank.Normal);
         expect(lastSample.customSampleBank).toBe(0);
         expect(lastSample.volume).toBe(100);
         expect(lastSample.isLayered).toBe(false);
@@ -289,12 +289,12 @@ describe("Test hit object samples", () => {
 
         expect(slider.samples.length).toBe(2);
         expect(firstSample.name).toBe("hitnormal");
-        expect(firstSample.bank).toBe(SampleBank.soft);
+        expect(firstSample.bank).toBe(SampleBank.Soft);
         expect(firstSample.customSampleBank).toBe(1);
         expect(firstSample.volume).toBe(40);
         expect(firstSample.isLayered).toBe(true);
         expect(lastSample.name).toBe("hitclap");
-        expect(lastSample.bank).toBe(SampleBank.drum);
+        expect(lastSample.bank).toBe(SampleBank.Drum);
         expect(lastSample.customSampleBank).toBe(1);
         expect(lastSample.volume).toBe(40);
         expect(lastSample.isLayered).toBe(false);
@@ -309,7 +309,7 @@ describe("Test hit object per-node samples", () => {
             const [firstSample] = nodeSample as BankHitSampleInfo[];
 
             expect(firstSample.name).toBe("hitnormal");
-            expect(firstSample.bank).toBe(SampleBank.normal);
+            expect(firstSample.bank).toBe(SampleBank.Normal);
             expect(firstSample.customSampleBank).toBe(0);
             expect(firstSample.volume).toBe(100);
             expect(firstSample.isLayered).toBe(false);
@@ -323,13 +323,13 @@ describe("Test hit object per-node samples", () => {
             const [firstSample, lastSample] = nodeSample as BankHitSampleInfo[];
 
             expect(firstSample.name).toBe("hitnormal");
-            expect(firstSample.bank).toBe(SampleBank.soft);
+            expect(firstSample.bank).toBe(SampleBank.Soft);
             expect(firstSample.customSampleBank).toBe(1);
             expect(firstSample.volume).toBe(40);
             expect(firstSample.isLayered).toBe(true);
 
             expect(lastSample.name).toBe("hitclap");
-            expect(lastSample.bank).toBe(SampleBank.drum);
+            expect(lastSample.bank).toBe(SampleBank.Drum);
             expect(lastSample.customSampleBank).toBe(1);
             expect(lastSample.volume).toBe(40);
             expect(lastSample.isLayered).toBe(false);
@@ -399,11 +399,11 @@ test("Test storyboard decoding", () => {
 
     // Add an arbitrary background for testing.
     beatmapWithStoryboard.events
-        .storyboard!.getLayer(StoryboardLayerType.background)
+        .storyboard!.getLayer(StoryboardLayerType.Background)
         .elements.push(
             new StoryboardSprite(
                 beatmapWithStoryboard.events.background!.filename,
-                Anchor.bottomCenter,
+                Anchor.BottomCenter,
                 new Vector2(0, 0),
             ),
         );

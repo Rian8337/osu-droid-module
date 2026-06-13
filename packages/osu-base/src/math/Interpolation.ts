@@ -66,65 +66,65 @@ export abstract class Interpolation {
      */
     static easing(easing: Easing, t: number): number {
         switch (easing) {
-            case Easing.none:
+            case Easing.None:
                 return t;
 
-            case Easing.out:
-            case Easing.outQuad:
+            case Easing.Out:
+            case Easing.OutQuad:
                 return t * (2 - t);
 
-            case Easing.in:
-            case Easing.inQuad:
+            case Easing.In:
+            case Easing.InQuad:
                 return t * t;
 
-            case Easing.inOutQuad:
+            case Easing.InOutQuad:
                 return t < 0.5 ? t * t * 2 : --t * t * -2 + 1;
 
-            case Easing.inCubic:
+            case Easing.InCubic:
                 return t * t * t;
 
-            case Easing.outCubic:
+            case Easing.OutCubic:
                 return --t * t * t + 1;
 
-            case Easing.inOutCubic:
+            case Easing.InOutCubic:
                 return t < 0.5 ? t * t * t * 4 : --t * t * t * 4 + 1;
 
-            case Easing.inQuart:
+            case Easing.InQuart:
                 return t * t * t * t;
 
-            case Easing.outQuart:
+            case Easing.OutQuart:
                 return 1 - --t * t * t * t;
 
-            case Easing.inOutQuart:
+            case Easing.InOutQuart:
                 return t < 0.5 ? t * t * t * t * 8 : --t * t * t * t * -8 + 1;
 
-            case Easing.inQuint:
+            case Easing.InQuint:
                 return t * t * t * t * t;
 
-            case Easing.outQuint:
+            case Easing.OutQuint:
                 return --t * t * t * t * t + 1;
 
-            case Easing.inOutQuint:
+            case Easing.InOutQuint:
                 return t < 0.5
                     ? t * t * t * t * t * 16
                     : --t * t * t * t * t * 16 + 1;
 
-            case Easing.inSine:
+            case Easing.InSine:
                 return 1 - Math.cos((t * Math.PI) / 2);
 
-            case Easing.outSine:
+            case Easing.OutSine:
                 return Math.sin((t * Math.PI) / 2);
 
-            case Easing.inOutSine:
+            case Easing.InOutSine:
                 return 0.5 - 0.5 * Math.cos(Math.PI * t);
 
-            case Easing.inExpo:
+            case Easing.InExpo:
                 return t === 0 ? 0 : Math.pow(2, 10 * t - 10);
 
-            case Easing.outExpo:
+            case Easing.OutExpo:
                 return t === 1 ? 1 : 1 - Math.pow(2, -10 * t);
 
-            case Easing.inOutExpo:
+            case Easing.InOutExpo:
                 if (t === 0) {
                     return 0;
                 }
@@ -139,45 +139,45 @@ export abstract class Interpolation {
 
                 return 0.5 * (2 - Math.pow(2, -10 * --t));
 
-            case Easing.inCirc:
+            case Easing.InCirc:
                 return 1 - Math.sqrt(1 - t * t);
 
-            case Easing.outCirc:
+            case Easing.OutCirc:
                 return Math.sqrt(1 - --t * t);
 
-            case Easing.inOutCirc:
+            case Easing.InOutCirc:
                 return (t *= 2) < 1
                     ? 0.5 - 0.5 * Math.sqrt(1 - t * t)
                     : 0.5 * Math.sqrt(1 - (t -= 2) * t) + 0.5;
 
-            case Easing.inElastic:
+            case Easing.InElastic:
                 return (
                     -Math.pow(2, -10 + 10 * t) *
                     Math.sin((1 - 0.3 / 4 - t) * ((2 * Math.PI) / 0.3))
                 );
 
-            case Easing.outElastic:
+            case Easing.OutElastic:
                 return (
                     Math.pow(2, -10 * t) *
                         Math.sin((t - 0.3 / 4) * ((2 * Math.PI) / 0.3)) +
                     1
                 );
 
-            case Easing.outElasticHalf:
+            case Easing.OutElasticHalf:
                 return (
                     Math.pow(2, -10 * t) *
                         Math.sin((0.5 * t - 0.3 / 4) * ((2 * Math.PI) / 0.3)) +
                     1
                 );
 
-            case Easing.outElasticQuarter:
+            case Easing.OutElasticQuarter:
                 return (
                     Math.pow(2, -10 * t) *
                         Math.sin((0.25 * t - 0.3 / 4) * ((2 * Math.PI) / 0.3)) +
                     1
                 );
 
-            case Easing.inOutElastic:
+            case Easing.InOutElastic:
                 if (t === 0) {
                     return 0;
                 }
@@ -208,13 +208,13 @@ export abstract class Interpolation {
                     1
                 );
 
-            case Easing.inBack:
+            case Easing.InBack:
                 return t * t * ((1.70158 + 1) * t - 1.70158);
 
-            case Easing.outBack:
+            case Easing.OutBack:
                 return --t * t * ((1.70158 + 1) * t + 1.70158) + 1;
 
-            case Easing.inOutBack:
+            case Easing.InOutBack:
                 return (t *= 2) < 1
                     ? 0.5 *
                           t *
@@ -226,7 +226,7 @@ export abstract class Interpolation {
                               ((1.70158 * 1.525 + 1) * t + 1.70158 * 1.525) +
                               2);
 
-            case Easing.inBounce:
+            case Easing.InBounce:
                 t = 1 - t;
 
                 if (t < 1 / 2.75) {
@@ -243,7 +243,7 @@ export abstract class Interpolation {
 
                 return 1 - (7.5625 * (t -= 2.625 / 2.75) * t + 0.984375);
 
-            case Easing.outBounce:
+            case Easing.OutBounce:
                 if (t < 1 / 2.75) {
                     return 7.5625 * t * t;
                 }
@@ -258,12 +258,12 @@ export abstract class Interpolation {
 
                 return 7.5625 * (t -= 2.625 / 2.75) * t + 0.984375;
 
-            case Easing.inOutBounce:
+            case Easing.InOutBounce:
                 return t < 0.5
-                    ? 0.5 - 0.5 * this.easing(Easing.outBounce, 1 - t * 2)
-                    : 0.5 * this.easing(Easing.outBounce, (t - 0.5) * 2) + 0.5;
+                    ? 0.5 - 0.5 * this.easing(Easing.OutBounce, 1 - t * 2)
+                    : 0.5 * this.easing(Easing.OutBounce, (t - 0.5) * 2) + 0.5;
 
-            case Easing.outPow10:
+            case Easing.OutPow10:
                 return --t * Math.pow(t, 10) + 1;
         }
     }

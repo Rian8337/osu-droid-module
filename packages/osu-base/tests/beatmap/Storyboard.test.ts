@@ -20,22 +20,22 @@ describe("Test event time getters", () => {
 
         const sprite1 = new StoryboardSprite(
             "test.png",
-            Anchor.bottomCenter,
-            new Vector2(0, 0)
+            Anchor.BottomCenter,
+            new Vector2(0, 0),
         );
 
-        sprite1.timelineGroup.x.add(Easing.in, 1000, 2000, 0, 1);
+        sprite1.timelineGroup.x.add(Easing.In, 1000, 2000, 0, 1);
 
         const sprite2 = new StoryboardSprite(
             "test.png",
-            Anchor.bottomCenter,
-            new Vector2(0, 0)
+            Anchor.BottomCenter,
+            new Vector2(0, 0),
         );
 
-        sprite1.timelineGroup.x.add(Easing.in, 1500, 2500, 0, 1);
+        sprite1.timelineGroup.x.add(Easing.In, 1500, 2500, 0, 1);
 
         storyboard
-            .getLayer(StoryboardLayerType.background)
+            .getLayer(StoryboardLayerType.Background)
             .elements.push(sprite1, sprite2);
 
         expect(storyboard.earliestEventTime).toBe(1000);
@@ -50,7 +50,7 @@ describe("Test layer retrieval", () => {
         delete storyboard.layers.Background;
 
         expect(
-            storyboard.getLayer(StoryboardLayerType.background, false)
+            storyboard.getLayer(StoryboardLayerType.Background, false),
         ).toBeNull();
     });
 
@@ -60,7 +60,7 @@ describe("Test layer retrieval", () => {
         delete storyboard.layers.Background;
 
         expect(
-            storyboard.getLayer(StoryboardLayerType.background)
+            storyboard.getLayer(StoryboardLayerType.Background),
         ).not.toBeNull();
     });
 });

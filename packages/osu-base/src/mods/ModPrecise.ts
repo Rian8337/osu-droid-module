@@ -23,7 +23,7 @@ export class ModPrecise
     readonly migrationDroidScoreMultiplier = 1.06;
 
     applyToHitObject(mode: Modes, hitObject: HitObject): void {
-        if (mode !== Modes.droid || hitObject instanceof Spinner) {
+        if (mode !== Modes.Droid || hitObject instanceof Spinner) {
             return;
         }
 

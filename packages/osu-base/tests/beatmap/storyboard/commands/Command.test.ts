@@ -7,39 +7,39 @@ import {
 
 test("Test string concatenation", () => {
     const command = new Command(
-        Easing.in,
+        Easing.In,
         0,
         1000,
         0,
         1,
-        StoryboardCommandType.movementX,
+        StoryboardCommandType.MovementX,
     );
 
     expect(command.toString()).toBe(
-        `0 -> 1000, 0 -> 1 ${Easing.in.toString()}`,
+        `0 -> 1000, 0 -> 1 ${Easing.In.toString()}`,
     );
 });
 
 test("Test isParameter typeguard", () => {
     let command = new Command(
-        Easing.in,
+        Easing.In,
         0,
         1000,
         0,
         1,
-        StoryboardCommandType.movementX,
+        StoryboardCommandType.MovementX,
     );
 
     expect(command.isParameter()).toBe(false);
 
     command = new Command(
-        Easing.in,
+        Easing.In,
         0,
         1000,
         0,
         1,
-        StoryboardCommandType.movementX,
-        StoryboardParameterCommandType.blendingMode,
+        StoryboardCommandType.MovementX,
+        StoryboardParameterCommandType.BlendingMode,
     );
 
     expect(command.isParameter()).toBe(true);

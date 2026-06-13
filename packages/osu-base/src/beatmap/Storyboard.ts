@@ -9,12 +9,12 @@ export class Storyboard {
      * The layers in the storyboard.
      */
     readonly layers: Partial<Record<StoryboardLayerType, StoryboardLayer>> = {
-        Background: new StoryboardLayer(StoryboardLayerType.background, 3),
-        Fail: new StoryboardLayer(StoryboardLayerType.fail, 2, false),
-        Pass: new StoryboardLayer(StoryboardLayerType.pass, 1, true, false),
-        Foreground: new StoryboardLayer(StoryboardLayerType.foreground, 0),
+        Background: new StoryboardLayer(StoryboardLayerType.Background, 3),
+        Fail: new StoryboardLayer(StoryboardLayerType.Fail, 2, false),
+        Pass: new StoryboardLayer(StoryboardLayerType.Pass, 1, true, false),
+        Foreground: new StoryboardLayer(StoryboardLayerType.Foreground, 0),
         Overlay: new StoryboardLayer(
-            StoryboardLayerType.overlay,
+            StoryboardLayerType.Overlay,
             Number.MIN_SAFE_INTEGER,
         ),
     };

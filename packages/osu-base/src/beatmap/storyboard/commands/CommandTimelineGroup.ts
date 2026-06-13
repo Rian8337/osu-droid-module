@@ -13,22 +13,22 @@ export class CommandTimelineGroup {
     /**
      * The command timeline that changes an animation or sprite's X and Y coordinates.
      */
-    move = new CommandTimeline<Vector2>(StoryboardCommandType.movement);
+    move = new CommandTimeline<Vector2>(StoryboardCommandType.Movement);
 
     /**
      * The command timeline that changes an animation or sprite's X-coordinate.
      */
-    x = new CommandTimeline<number>(StoryboardCommandType.movementX);
+    x = new CommandTimeline<number>(StoryboardCommandType.MovementX);
 
     /**
      * The command timeline that changes an animation or sprite's Y-coordinate.
      */
-    y = new CommandTimeline<number>(StoryboardCommandType.movementY);
+    y = new CommandTimeline<number>(StoryboardCommandType.MovementY);
 
     /**
      * The command timeline that scales an animation or sprite with a number.
      */
-    scale = new CommandTimeline<number>(StoryboardCommandType.scale);
+    scale = new CommandTimeline<number>(StoryboardCommandType.Scale);
 
     /**
      * The command timeline that scales an animation or sprite with a vector.
@@ -36,48 +36,48 @@ export class CommandTimelineGroup {
      * This allows scaling the width and height of an animation or sprite individually at the same time.
      */
     vectorScale = new CommandTimeline<Vector2>(
-        StoryboardCommandType.vectorScale,
+        StoryboardCommandType.VectorScale,
     );
 
     /**
      * The command timeline that rotates an animation or sprite, in radians, clockwise.
      */
-    rotation = new CommandTimeline<number>(StoryboardCommandType.rotation);
+    rotation = new CommandTimeline<number>(StoryboardCommandType.Rotation);
 
     /**
      * The command timeline that changes an animation or sprite's virtual light source color.
      *
      * The colors of the pixels on the animation or sprite are determined subtractively.
      */
-    color = new CommandTimeline<RGBColor>(StoryboardCommandType.color);
+    color = new CommandTimeline<RGBColor>(StoryboardCommandType.Color);
 
     /**
      * The command timeline that changes the opacity of an animation or sprite.
      */
-    alpha = new CommandTimeline<number>(StoryboardCommandType.fade);
+    alpha = new CommandTimeline<number>(StoryboardCommandType.Fade);
 
     /**
      * The command timeline that determines the blending behavior of an animation or sprite.
      */
     blendingParameters = new CommandTimeline<BlendingParameters>(
-        StoryboardCommandType.parameter,
-        StoryboardParameterCommandType.blendingMode,
+        StoryboardCommandType.Parameter,
+        StoryboardParameterCommandType.BlendingMode,
     );
 
     /**
      * The command timeline that determines whether the animation or sprite should be flipped horizontally.
      */
     flipHorizontal = new CommandTimeline<boolean>(
-        StoryboardCommandType.parameter,
-        StoryboardParameterCommandType.horizontalFlip,
+        StoryboardCommandType.Parameter,
+        StoryboardParameterCommandType.HorizontalFlip,
     );
 
     /**
      * The command timeline that determines whether the animation or sprite should be flipped vertically.
      */
     flipVertical = new CommandTimeline<boolean>(
-        StoryboardCommandType.parameter,
-        StoryboardParameterCommandType.verticalFlip,
+        StoryboardCommandType.Parameter,
+        StoryboardParameterCommandType.VerticalFlip,
     );
 
     private readonly timelines = [

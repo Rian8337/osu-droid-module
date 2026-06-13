@@ -34,7 +34,7 @@ export abstract class DroidRhythmEvaluator {
         }
 
         const deltaDifferenceEpsilon =
-            current.hitWindowFor(HitResult.great) * 0.3;
+            current.hitWindowFor(HitResult.Great) * 0.3;
         let rhythmComplexitySum = 0;
 
         let island = new Island(deltaDifferenceEpsilon);

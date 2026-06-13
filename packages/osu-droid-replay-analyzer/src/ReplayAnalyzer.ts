@@ -232,7 +232,7 @@ export class ReplayAnalyzer {
 
         ModUtil.applyModsToBeatmapDifficulty(
             adjustedDifficulty,
-            Modes.droid,
+            Modes.Droid,
             mods,
         );
 
@@ -246,7 +246,7 @@ export class ReplayAnalyzer {
             const v = hitObjectData[i];
             const o = objects[i];
 
-            if (o instanceof Spinner || v.result === HitResult.miss) {
+            if (o instanceof Spinner || v.result === HitResult.Miss) {
                 continue;
             }
 
@@ -308,7 +308,7 @@ export class ReplayAnalyzer {
             const objectData = data.hitObjectData[i];
 
             if (
-                objectData.result === HitResult.miss ||
+                objectData.result === HitResult.Miss ||
                 !(object instanceof Slider)
             ) {
                 continue;
@@ -361,13 +361,13 @@ export class ReplayAnalyzer {
 
             if (object instanceof Circle) {
                 if (hitAccuracy <= hitWindow.greatWindow) {
-                    result = HitResult.great;
+                    result = HitResult.Great;
                 } else if (hitAccuracy <= hitWindow.okWindow) {
-                    result = HitResult.good;
+                    result = HitResult.Good;
                 } else if (hitAccuracy <= hitWindow.mehWindow) {
-                    result = HitResult.meh;
+                    result = HitResult.Meh;
                 } else {
-                    result = HitResult.miss;
+                    result = HitResult.Miss;
                 }
             } else if (object instanceof Slider) {
                 if (
@@ -383,36 +383,36 @@ export class ReplayAnalyzer {
                     }
 
                     if (ticksObtained === object.nestedHitObjects.length) {
-                        result = HitResult.great;
+                        result = HitResult.Great;
                     } else if (
                         ticksObtained >=
                         Math.trunc(object.nestedHitObjects.length / 2)
                     ) {
-                        result = HitResult.good;
+                        result = HitResult.Good;
                     } else if (ticksObtained > 0) {
-                        result = HitResult.meh;
+                        result = HitResult.Meh;
                     } else {
-                        result = HitResult.miss;
+                        result = HitResult.Miss;
                     }
                 } else {
-                    result = HitResult.miss;
+                    result = HitResult.Miss;
                 }
             }
 
             switch (result) {
-                case HitResult.miss:
+                case HitResult.Miss:
                     ++accuracy.nmiss;
                     break;
 
-                case HitResult.meh:
+                case HitResult.Meh:
                     ++accuracy.n50;
                     break;
 
-                case HitResult.good:
+                case HitResult.Good:
                     ++accuracy.n100;
                     break;
 
-                case HitResult.great:
+                case HitResult.Great:
                     ++accuracy.n300;
                     break;
             }
@@ -770,7 +770,7 @@ export class ReplayAnalyzer {
                 id[j] = time[j] & 3;
                 time[j] >>= 2;
 
-                if (id[j] !== MovementType.up) {
+                if (id[j] !== MovementType.Up) {
                     if (resultObject.replayVersion >= 5) {
                         x[j] = this.readFloat(replayDataBuffer);
                         y[j] = this.readFloat(replayDataBuffer);
@@ -809,7 +809,7 @@ export class ReplayAnalyzer {
             const replayObjectData: ReplayObjectData = {
                 accuracy: 0,
                 tickset: [],
-                result: HitResult.miss,
+                result: HitResult.Miss,
             };
 
             replayObjectData.accuracy = this.readShort(replayDataBuffer);
@@ -862,21 +862,21 @@ export class ReplayAnalyzer {
                 : false;
 
             switch (hitObjectData.result) {
-                case HitResult.miss:
+                case HitResult.Miss:
                     ++resultObject.accuracy.nmiss;
                     grantsGekiOrKatu = false;
                     break;
-                case HitResult.meh:
+                case HitResult.Meh:
                     ++resultObject.accuracy.n50;
                     grantsGekiOrKatu = false;
                     break;
-                case HitResult.good:
+                case HitResult.Good:
                     ++resultObject.accuracy.n100;
                     if (grantsGekiOrKatu && isNextNewCombo) {
                         ++resultObject.hit100k;
                     }
                     break;
-                case HitResult.great:
+                case HitResult.Great:
                     ++resultObject.accuracy.n300;
                     if (grantsGekiOrKatu && isNextNewCombo) {
                         ++resultObject.hit300k;

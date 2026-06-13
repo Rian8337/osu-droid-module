@@ -25,10 +25,10 @@ export interface ReplayObjectData {
      * const rotations = Math.floor(data.accuracy / 4);
      * ```
      * The remainder of the division denotes the hit result of the spinner:
-     * - `HitResult.great`: 3
-     * - `HitResult.good`: 2
-     * - `HitResult.meh`: 1
-     * - `HitResult.miss`: 0
+     * - `HitResult.Great`: 3
+     * - `HitResult.Good`: 2
+     * - `HitResult.Meh`: 1
+     * - `HitResult.Miss`: 0
      */
     accuracy: number;
 

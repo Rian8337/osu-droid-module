@@ -22,7 +22,7 @@ export class BeatmapEditor {
     /**
      * The grid size setting in the editor.
      */
-    gridSize = EditorGridSize.small;
+    gridSize = EditorGridSize.Small;
 
     /**
      * The scale factor for the {@link https://osu.ppy.sh/wiki/en/Client/Beatmap_editor/Compose#top-left-(hit-objects-timeline) object timeline}.

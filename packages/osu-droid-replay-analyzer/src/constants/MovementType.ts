@@ -7,15 +7,15 @@ export enum MovementType {
     /**
      * The player places their finger on the screen.
      */
-    down,
+    Down,
 
     /**
      * The player drags their finger on the screen.
      */
-    move,
+    Move,
 
     /**
      * The player releases their finger from the screen.
      */
-    up,
+    Up,
 }

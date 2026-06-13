@@ -144,12 +144,12 @@ export abstract class ModUtil {
             mode,
             (mod) => {
                 switch (mode) {
-                    case Modes.droid:
+                    case Modes.Droid:
                         return mod.isApplicableToDroid()
                             ? mod.droidScoreMultiplier
                             : 1;
 
-                    case Modes.osu:
+                    case Modes.Osu:
                         return mod.isApplicableToOsuStable()
                             ? mod.osuScoreMultiplier
                             : 1;
@@ -173,7 +173,7 @@ export abstract class ModUtil {
     static calculateMigrationScoreMultiplier(mods: Iterable<Mod>): number {
         return this.calculateScoreMultiplierInternal(
             mods,
-            Modes.droid,
+            Modes.Droid,
             (mod) =>
                 mod.isApplicableToDroid()
                     ? mod.migrationDroidScoreMultiplier
@@ -198,13 +198,13 @@ export abstract class ModUtil {
                 mod.applyFromBeatmapDifficulty(difficulty);
             }
 
-            if (mode === Modes.droid && mod instanceof ModRateAdjust) {
+            if (mode === Modes.Droid && mod instanceof ModRateAdjust) {
                 totalRateAdjustTrackRateMultiplier *= mod.rate;
             } else {
                 const multiplierValue = modSelector(mod);
 
                 scoreMultiplier =
-                    mode === Modes.droid
+                    mode === Modes.Droid
                         ? Math.fround(
                               scoreMultiplier * Math.fround(multiplierValue),
                           )
@@ -212,7 +212,7 @@ export abstract class ModUtil {
             }
         }
 
-        if (mode === Modes.droid) {
+        if (mode === Modes.Droid) {
             const rateAdjustHelper = new ModRateAdjustHelper(
                 totalRateAdjustTrackRateMultiplier,
             );
@@ -435,7 +435,7 @@ export abstract class ModUtil {
         );
 
         switch (mode) {
-            case Modes.droid:
+            case Modes.Droid:
                 if (mods?.has(ModPrecise)) {
                     const hitWindow = new PreciseDroidHitWindow(difficulty.od);
 
@@ -452,7 +452,7 @@ export abstract class ModUtil {
 
                 break;
 
-            case Modes.osu: {
+            case Modes.Osu: {
                 const greatWindow =
                     new OsuHitWindow(difficulty.od).greatWindow / rate;
 

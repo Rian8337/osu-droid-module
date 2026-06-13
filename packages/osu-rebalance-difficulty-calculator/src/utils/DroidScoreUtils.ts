@@ -21,7 +21,7 @@ export abstract class DroidScoreUtils {
 
         const scoreMultiplier = ModUtil.calculateScoreMultiplier(
             beatmap.mods.values(),
-            Modes.droid,
+            Modes.Droid,
         );
 
         let bonus = 0;

@@ -44,19 +44,19 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
     }
 
     private samplesToHitSoundType(samples: HitSampleInfo[]): HitSoundType {
-        let type = HitSoundType.none;
+        let type = HitSoundType.None;
 
         for (const sample of samples) {
             if (sample instanceof BankHitSampleInfo) {
                 switch (sample.name) {
                     case BankHitSampleInfo.HIT_WHISTLE:
-                        type |= HitSoundType.whistle;
+                        type |= HitSoundType.Whistle;
                         break;
                     case BankHitSampleInfo.HIT_FINISH:
-                        type |= HitSoundType.finish;
+                        type |= HitSoundType.Finish;
                         break;
                     case BankHitSampleInfo.HIT_CLAP:
-                        type |= HitSoundType.clap;
+                        type |= HitSoundType.Clap;
                         break;
                 }
             }
@@ -110,7 +110,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
                         s instanceof BankHitSampleInfo &&
                         s.name === BankHitSampleInfo.HIT_NORMAL,
                 ) as BankHitSampleInfo | undefined
-            )?.bank ?? SampleBank.none;
+            )?.bank ?? SampleBank.None;
 
         const addBank =
             (
@@ -120,7 +120,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
                         s.name &&
                         s.name !== BankHitSampleInfo.HIT_NORMAL,
                 ) as BankHitSampleInfo | undefined
-            )?.bank ?? SampleBank.none;
+            )?.bank ?? SampleBank.None;
 
         let sampleBankString = `${normalBank.toString()}:${addBank.toString()}`;
 
@@ -137,7 +137,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
 
             if (firstSample instanceof FileHitSampleInfo) {
                 sampleBankString += `${this.sampleBankToString(
-                    SampleBank.none,
+                    SampleBank.None,
                 )}-${firstSample.filename}`;
             }
         }
@@ -147,7 +147,7 @@ export class BeatmapHitObjectsEncoder extends BeatmapBaseEncoder {
 
     protected override sampleBankToString(sampleBank: SampleBank): string {
         switch (sampleBank) {
-            case SampleBank.none:
+            case SampleBank.None:
                 return "";
 
             default:

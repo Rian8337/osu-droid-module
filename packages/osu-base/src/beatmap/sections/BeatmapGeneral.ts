@@ -27,12 +27,12 @@ export class BeatmapGeneral {
     /**
      * The speed of the countdown before the first hit object.
      */
-    countdown = BeatmapCountdown.normal;
+    countdown = BeatmapCountdown.Normal;
 
     /**
      * The sample bank that will be used if timing points do not override it.
      */
-    sampleBank = SampleBank.normal;
+    sampleBank = SampleBank.Normal;
 
     /**
      * The sample volume that will be used if timing points do not override it.
@@ -48,7 +48,7 @@ export class BeatmapGeneral {
     /**
      * The game mode of the beatmap.
      */
-    mode = GameMode.osu;
+    mode = GameMode.Osu;
 
     /**
      * Whether or not breaks have a letterboxing effect.
@@ -63,7 +63,7 @@ export class BeatmapGeneral {
     /**
      * The draw order of hit circle overlays compared to hit numbers.
      */
-    overlayPosition = BeatmapOverlayPosition.noChange;
+    overlayPosition = BeatmapOverlayPosition.NoChange;
 
     /**
      * The preffered skin to use during gameplay.

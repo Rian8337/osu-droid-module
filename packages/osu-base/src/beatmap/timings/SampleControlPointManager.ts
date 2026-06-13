@@ -8,7 +8,7 @@ import { SampleControlPoint } from "./SampleControlPoint";
 export class SampleControlPointManager extends ControlPointManager<SampleControlPoint> {
     override readonly defaultControlPoint = new SampleControlPoint({
         time: 0,
-        sampleBank: SampleBank.normal,
+        sampleBank: SampleBank.Normal,
         sampleVolume: 100,
         customSampleBank: 0,
     });

@@ -12,7 +12,7 @@ describe("Test beatmap setting adjustment", () => {
         difficulty.od = 7;
         difficulty.hp = 6;
 
-        mod.applyToDifficulty(Modes.droid, difficulty, new ModMap());
+        mod.applyToDifficulty(Modes.Droid, difficulty, new ModMap());
 
         expect(difficulty.cs).toBeCloseTo(5.2);
         expect(difficulty.ar).toBeCloseTo(10);
@@ -31,7 +31,7 @@ describe("Test beatmap setting adjustment", () => {
         const map = new ModMap();
         map.set(new ModReplayV6());
 
-        mod.applyToDifficulty(Modes.droid, difficulty, map);
+        mod.applyToDifficulty(Modes.Droid, difficulty, map);
 
         expect(difficulty.cs).toBeCloseTo(4.887156469449936, 5);
         expect(difficulty.ar).toBeCloseTo(10);
@@ -47,7 +47,7 @@ describe("Test beatmap setting adjustment", () => {
         difficulty.od = 7;
         difficulty.hp = 6;
 
-        mod.applyToDifficulty(Modes.osu, difficulty, new ModMap());
+        mod.applyToDifficulty(Modes.Osu, difficulty, new ModMap());
 
         expect(difficulty.cs).toBeCloseTo(5.2);
         expect(difficulty.ar).toBeCloseTo(10);

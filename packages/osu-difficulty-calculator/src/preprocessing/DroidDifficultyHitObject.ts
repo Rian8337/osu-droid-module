@@ -34,7 +34,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
 
     override readonly normalizedRadius = 50;
 
-    protected override readonly mode = Modes.droid;
+    protected override readonly mode = Modes.Droid;
 
     protected override get maximumSliderRadius(): number {
         return this.normalizedRadius * 2;

@@ -163,7 +163,7 @@ export class ThreeFingerChecker {
             let timeBefore = objectBefore.endTime;
 
             if (objectBefore instanceof Circle) {
-                if (objectBeforeData.result !== HitResult.miss) {
+                if (objectBeforeData.result !== HitResult.Miss) {
                     timeBefore += objectBeforeData.accuracy;
                 } else {
                     timeBefore += this.hitWindow.mehWindow;
@@ -177,7 +177,7 @@ export class ThreeFingerChecker {
 
             if (
                 objectAfter instanceof Circle &&
-                objectAfterData.result !== HitResult.miss
+                objectAfterData.result !== HitResult.Miss
             ) {
                 timeAfter += objectAfterData.accuracy;
             }
@@ -208,10 +208,10 @@ export class ThreeFingerChecker {
 
         if (firstObject instanceof Circle) {
             switch (firstObjectResult) {
-                case HitResult.great:
+                case HitResult.Great:
                     firstObjectHitWindow = this.hitWindow.greatWindow;
                     break;
-                case HitResult.good:
+                case HitResult.Good:
                     firstObjectHitWindow = this.hitWindow.okWindow;
                     break;
                 default:
@@ -224,10 +224,10 @@ export class ThreeFingerChecker {
 
         if (lastObject instanceof Circle) {
             switch (lastObjectResult) {
-                case HitResult.great:
+                case HitResult.Great:
                     lastObjectHitWindow = this.hitWindow.greatWindow;
                     break;
-                case HitResult.good:
+                case HitResult.Good:
                     lastObjectHitWindow = this.hitWindow.okWindow;
                     break;
                 default:
@@ -349,7 +349,7 @@ export class ThreeFingerChecker {
         cursorGroupIndices: number[],
         cursorIndices: number[],
     ): number {
-        if (objectData.result === HitResult.miss || object instanceof Spinner) {
+        if (objectData.result === HitResult.Miss || object instanceof Spinner) {
             return -1;
         }
 
@@ -427,10 +427,10 @@ export class ThreeFingerChecker {
                     const prevPosition = this.getCursorPosition(prevCursor);
 
                     switch (cursor.id) {
-                        case MovementType.up:
+                        case MovementType.Up:
                             distance = prevPosition.getDistance(objectPosition);
                             break;
-                        case MovementType.move: {
+                        case MovementType.Move: {
                             // Interpolate movement.
                             const t =
                                 (hitTime - prevCursor.time) /
@@ -445,7 +445,7 @@ export class ThreeFingerChecker {
                                 objectPosition.getDistance(cursorPosition);
                             break;
                         }
-                        case MovementType.down:
+                        case MovementType.Down:
                             continue;
                     }
 
@@ -485,7 +485,7 @@ export class ThreeFingerChecker {
         objectData: ReplayObjectData,
         cursorLookupIndices: number[],
     ): number {
-        if (objectData.result === HitResult.miss || object instanceof Spinner) {
+        if (objectData.result === HitResult.Miss || object instanceof Spinner) {
             return -1;
         }
 

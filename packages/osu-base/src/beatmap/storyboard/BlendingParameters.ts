@@ -36,39 +36,39 @@ export class BlendingParameters {
     alphaEquation: BlendingEquation;
 
     static readonly none = new BlendingParameters(
-        BlendingType.one,
-        BlendingType.zero,
-        BlendingType.one,
-        BlendingType.zero,
-        BlendingEquation.add,
-        BlendingEquation.add,
+        BlendingType.One,
+        BlendingType.Zero,
+        BlendingType.One,
+        BlendingType.Zero,
+        BlendingEquation.Add,
+        BlendingEquation.Add,
     );
 
     static readonly inherit = new BlendingParameters(
-        BlendingType.inherit,
-        BlendingType.inherit,
-        BlendingType.inherit,
-        BlendingType.inherit,
-        BlendingEquation.inherit,
-        BlendingEquation.inherit,
+        BlendingType.Inherit,
+        BlendingType.Inherit,
+        BlendingType.Inherit,
+        BlendingType.Inherit,
+        BlendingEquation.Inherit,
+        BlendingEquation.Inherit,
     );
 
     static readonly mixture = new BlendingParameters(
-        BlendingType.srcAlpha,
-        BlendingType.oneMinusSrcAlpha,
-        BlendingType.one,
-        BlendingType.one,
-        BlendingEquation.add,
-        BlendingEquation.add,
+        BlendingType.SrcAlpha,
+        BlendingType.OneMinusSrcAlpha,
+        BlendingType.One,
+        BlendingType.One,
+        BlendingEquation.Add,
+        BlendingEquation.Add,
     );
 
     static readonly additive = new BlendingParameters(
-        BlendingType.srcAlpha,
-        BlendingType.one,
-        BlendingType.one,
-        BlendingType.one,
-        BlendingEquation.add,
-        BlendingEquation.add,
+        BlendingType.SrcAlpha,
+        BlendingType.One,
+        BlendingType.One,
+        BlendingType.One,
+        BlendingEquation.Add,
+        BlendingEquation.Add,
     );
 
     constructor(

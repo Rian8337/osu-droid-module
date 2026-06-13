@@ -44,7 +44,7 @@ const createDifficultyHitObjects = () => {
     difficulty.ar = 9;
 
     for (const object of objects) {
-        object.applyDefaults(controlPoints, difficulty, Modes.osu);
+        object.applyDefaults(controlPoints, difficulty, Modes.Osu);
     }
 
     const difficultyObjects: DroidDifficultyHitObject[] = [];

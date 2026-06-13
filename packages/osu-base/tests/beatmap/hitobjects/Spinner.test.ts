@@ -3,7 +3,7 @@ import { ObjectTypes, Spinner, Vector2 } from "../../../src";
 const createSpinner = (duration = 100) => {
     return new Spinner({
         startTime: 1000,
-        type: ObjectTypes.spinner,
+        type: ObjectTypes.Spinner,
         endTime: 1000 + duration,
     });
 };

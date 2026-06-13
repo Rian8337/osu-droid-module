@@ -24,22 +24,22 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         }
 
         this.writeLine("//Storyboard Layer 0 (Background)");
-        this.encodeLayer(StoryboardLayerType.background);
+        this.encodeLayer(StoryboardLayerType.Background);
 
         this.writeLine("//Storyboard Layer 1 (Fail)");
-        this.encodeLayer(StoryboardLayerType.fail);
+        this.encodeLayer(StoryboardLayerType.Fail);
 
         this.writeLine("//Storyboard Layer 2 (Pass)");
-        this.encodeLayer(StoryboardLayerType.pass);
+        this.encodeLayer(StoryboardLayerType.Pass);
 
         this.writeLine("//Storyboard Layer 3 (Foreground)");
-        this.encodeLayer(StoryboardLayerType.foreground);
+        this.encodeLayer(StoryboardLayerType.Foreground);
 
         this.writeLine("//Storyboard Layer 4 (Overlay)");
-        this.encodeLayer(StoryboardLayerType.overlay);
+        this.encodeLayer(StoryboardLayerType.Overlay);
 
         this.writeLine("//Storyboard Sound Samples");
-        this.encodeLayer(StoryboardLayerType.sample);
+        this.encodeLayer(StoryboardLayerType.Sample);
     }
 
     protected override write(line: string): void {
@@ -67,7 +67,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
         for (const element of layer?.elements ?? []) {
             // Checking for StoryboardAnimation first is mandatory as it extends StoryboardSprite.
             if (element instanceof StoryboardAnimation) {
-                this.write(`${StoryboardEventType.animation},`);
+                this.write(`${StoryboardEventType.Animation},`);
                 this.write(`${layerType},`);
                 this.write(`${element.origin},`);
                 this.write(`"${element.path}",`);
@@ -77,14 +77,14 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
                 this.writeLine(element.loopType.toString());
                 this.encodeElement(element);
             } else if (element instanceof StoryboardSprite) {
-                this.write(`${StoryboardEventType.sprite},`);
+                this.write(`${StoryboardEventType.Sprite},`);
                 this.write(`${layerType},`);
                 this.write(`${element.origin},`);
                 this.write(`"${element.path}",`);
                 this.writeLine(element.initialPosition.toString());
                 this.encodeElement(element);
             } else if (element instanceof StoryboardSample) {
-                this.write(`${StoryboardEventType.sample},`);
+                this.write(`${StoryboardEventType.Sample},`);
                 this.write(`${element.startTime.toString()},`);
                 this.write(`${layerType},`);
                 this.write(`"${element.path}",`);
@@ -108,12 +108,12 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
     private encodeTimelineGroup(group: CommandTimelineGroup): void {
         if (group instanceof CommandLoop) {
             this.write(" ");
-            this.write(`${StoryboardCommandType.loop},`);
+            this.write(`${StoryboardCommandType.Loop},`);
             this.write(`${group.startTime.toString()},`);
             this.write(group.totalIterations.toString());
         } else if (group instanceof CommandTrigger) {
             this.write(" ");
-            this.write(`${StoryboardCommandType.trigger},`);
+            this.write(`${StoryboardCommandType.Trigger},`);
             this.write(group.triggerName);
 
             if (group.triggerEndTime !== Number.MAX_SAFE_INTEGER) {
@@ -187,7 +187,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
             typeof command.endValue === "number"
         ) {
             // Move X, move Y, scale, fade, and rotation commands
-            if (command.type === StoryboardCommandType.rotation) {
+            if (command.type === StoryboardCommandType.Rotation) {
                 this.write(
                     MathUtils.degreesToRadians(command.startValue).toString(),
                 );
@@ -198,7 +198,7 @@ export class StoryboardEventsEncoder extends StoryboardBaseEncoder {
             if (command.startValue !== command.endValue) {
                 this.write(",");
 
-                if (command.type === StoryboardCommandType.rotation) {
+                if (command.type === StoryboardCommandType.Rotation) {
                     this.write(
                         MathUtils.degreesToRadians(command.endValue).toString(),
                     );

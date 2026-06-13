@@ -34,15 +34,15 @@ export class BeatmapGeneralDecoder extends SectionDecoder<Beatmap> {
             case "SampleSet":
                 switch (p[1]) {
                     case "Normal":
-                        this.target.general.sampleBank = SampleBank.normal;
+                        this.target.general.sampleBank = SampleBank.Normal;
                         break;
 
                     case "Soft":
-                        this.target.general.sampleBank = SampleBank.soft;
+                        this.target.general.sampleBank = SampleBank.Soft;
                         break;
 
                     case "Drum":
-                        this.target.general.sampleBank = SampleBank.drum;
+                        this.target.general.sampleBank = SampleBank.Drum;
                         break;
                 }
                 break;

@@ -4,7 +4,7 @@ const createCircle = (newCombo?: boolean) => {
     return new Circle({
         startTime: 1000,
         position: new Vector2(256, 192),
-        type: ObjectTypes.circle,
+        type: ObjectTypes.Circle,
         newCombo: newCombo,
     });
 };
@@ -28,7 +28,7 @@ describe("Test circle position", () => {
                 const circle = createCircle();
                 const { scale } = circle;
 
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.Droid ? -4 : -6.4;
 
                 circle.stackOffsetMultiplier = stackMultiplier;
                 circle.stackHeight = 1;
@@ -72,11 +72,11 @@ describe("Test circle position", () => {
             };
 
             test("osu!droid gamemode", () => {
-                executeTest(Modes.droid);
+                executeTest(Modes.Droid);
             });
 
             test("osu!standard gamemode", () => {
-                executeTest(Modes.osu);
+                executeTest(Modes.Osu);
             });
         });
     });
@@ -95,7 +95,7 @@ describe("Test circle position", () => {
                 circle.stackHeight = 1;
 
                 const { scale } = circle;
-                const stackMultiplier = mode === Modes.droid ? -4 : -6.4;
+                const stackMultiplier = mode === Modes.Droid ? -4 : -6.4;
 
                 circle.stackOffsetMultiplier = stackMultiplier;
 
@@ -138,11 +138,11 @@ describe("Test circle position", () => {
             };
 
             test("osu!droid gamemode", () => {
-                executeTest(Modes.droid);
+                executeTest(Modes.Droid);
             });
 
             test("osu!standard gamemode", () => {
-                executeTest(Modes.osu);
+                executeTest(Modes.Osu);
             });
         });
     });
