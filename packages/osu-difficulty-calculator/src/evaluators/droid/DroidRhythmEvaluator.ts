@@ -226,9 +226,14 @@ export abstract class DroidRhythmEvaluator {
                     effectiveRatio *=
                         1 - prevObject.getDoubletapness(currentObject) * 0.75;
 
-                    rhythmComplexitySum +=
-                        Math.sqrt(effectiveRatio * startRatio) *
-                        currentHistoricalDecay;
+                    if (island.deltaCount > 1) {
+                        rhythmComplexitySum +=
+                            Math.sqrt(effectiveRatio * startRatio) *
+                            currentHistoricalDecay;
+                    } else {
+                        // Constant difficulty for single-note islands.
+                        rhythmComplexitySum += 0.7 * currentHistoricalDecay;
+                    }
 
                     startRatio = effectiveRatio;
                     previousIsland = island;
