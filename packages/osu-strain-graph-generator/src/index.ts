@@ -5,6 +5,14 @@ import { loadImage } from "canvas";
 import { Chart } from "./Chart";
 
 /**
+ * A single strain peak at a specific point in time.
+ */
+interface Peak {
+    readonly time: number;
+    readonly value: number;
+}
+
+/**
  * Options for initializing the canvas.
  */
 export interface CanvasOptions {
@@ -45,6 +53,30 @@ export interface CanvasOptions {
 }
 
 /**
+ * Creates a sampler function that retrieves the value of the most recent peak at or before a given time.
+ *
+ * Peaks of different skills can represent sections of different (and possibly variable) lengths, or even
+ * one peak per hitobject, so they cannot be assumed to share a common, fixed-width time grid. This walks
+ * a single chronologically sorted `peaks` array forward as `time` increases, treating each peak as holding
+ * its value until the next peak takes over.
+ *
+ * @param peaks The peaks to sample from, in chronological order.
+ */
+function createSampler(peaks: readonly Peak[]): (time: number) => number {
+    let index = -1;
+    let value = 0;
+
+    return (time: number) => {
+        while (index + 1 < peaks.length && peaks[index + 1].time <= time) {
+            ++index;
+            value = peaks[index].value;
+        }
+
+        return value;
+    };
+}
+
+/**
  * Generates the strain chart of a beatmap and returns the chart as a buffer.
  *
  * @param beatmap The beatmap to generate the strain graph for.
@@ -59,45 +91,65 @@ export default async function (
     options?: CanvasOptions,
 ): Promise<Buffer> {
     const sectionLength = 400;
-    const currentSectionEnd =
-        Math.ceil(beatmap.hitObjects.objects[0].startTime / sectionLength) *
-        sectionLength;
+    const hasFlashlight = strainPeaks.flashlight.length > 0;
+
+    // Each skill's peaks may be sectioned differently (fixed-width sections, variable-length sections,
+    // or one peak per hitobject), so they are merged onto the union of their own timestamps rather than
+    // a shared, assumed-uniform grid.
+    const timestamps = new Set<number>();
+
+    for (const peak of strainPeaks.aimWithSliders) {
+        timestamps.add(peak.time);
+    }
+
+    for (const peak of strainPeaks.speed) {
+        timestamps.add(peak.time);
+    }
+
+    for (const peak of strainPeaks.flashlight) {
+        timestamps.add(peak.time);
+    }
+
+    const sortedTimestamps = [...timestamps].sort((a, b) => a - b);
+
+    const firstObjectStartTime =
+        beatmap.hitObjects.objects[0].startTime / clockRate;
+
+    const sampleAim = createSampler(strainPeaks.aimWithSliders);
+    const sampleSpeed = createSampler(strainPeaks.speed);
+    const sampleFlashlight = createSampler(strainPeaks.flashlight);
 
     const strainInformations = new Array<{
         readonly time: number;
         readonly strain: number;
-    }>(
-        Math.max(
-            strainPeaks.aimWithSliders.length,
-            strainPeaks.speed.length,
-            strainPeaks.flashlight.length,
-        ) + 1,
-    );
+    }>(sortedTimestamps.length + 1);
 
     // Intentionally insert a 0 strain at 400ms less than the beginning
     // of the first object to smoothen the end curve.
     strainInformations[0] = {
         strain: 0,
-        time: (currentSectionEnd - sectionLength) / 1000,
+        time: (firstObjectStartTime - sectionLength) / 1000,
     };
 
-    for (let i = 1; i < strainInformations.length; ++i) {
-        const aimStrain = strainPeaks.aimWithSliders[i] ?? 0;
-        const speedStrain = strainPeaks.speed[i] ?? 0;
-        const flashlightStrain = strainPeaks.flashlight[i] ?? 0;
+    for (let i = 0; i < sortedTimestamps.length; ++i) {
+        const time = sortedTimestamps[i];
 
-        strainInformations[i] = {
-            time: (currentSectionEnd + sectionLength * (i - 1)) / 1000,
-            strain:
-                strainPeaks.flashlight.length > 0
-                    ? (aimStrain + speedStrain + flashlightStrain) / 3
-                    : (aimStrain + speedStrain) / 2,
+        const aimStrain = sampleAim(time);
+        const speedStrain = sampleSpeed(time);
+        const flashlightStrain = sampleFlashlight(time);
+
+        strainInformations[i + 1] = {
+            time: time / 1000,
+            strain: hasFlashlight
+                ? (aimStrain + speedStrain + flashlightStrain) / 3
+                : (aimStrain + speedStrain) / 2,
         };
     }
 
     const maxTime =
         strainInformations.at(-1)?.time ??
         beatmap.hitObjects.objects.at(-1)!.endTime / 1000 / clockRate;
+
     const maxStrain = Math.max(
         MathUtils.max(strainInformations.map((v) => v.strain)),
         1,
