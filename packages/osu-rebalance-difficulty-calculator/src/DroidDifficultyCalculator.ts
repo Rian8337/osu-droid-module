@@ -69,9 +69,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.spinnerCount = playableBeatmap.hitObjects.spinners;
         attributes.overallDifficulty = playableBeatmap.difficulty.od;
 
-        attributes.maximumScore =
+        // Cap at 32-bit signed integer since that's the maximum score that can be submitted
+        // to the game's leaderboards.
+        attributes.maximumScore = Math.min(
             beatmap.maxDroidScore(playableBeatmap.mods) +
-            DroidScoreUtils.calculateMaximumSpinnerBonus(playableBeatmap);
+                DroidScoreUtils.calculateMaximumSpinnerBonus(playableBeatmap),
+            2147483647,
+        );
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
@@ -225,9 +229,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         const aimNoSliderTopWeightedSliderCount =
             aimNoSlider.countTopWeightedSliders(aimNoSliderDifficultyValue);
-        const aimNoSliderDifficultStrainCount = aimNoSlider.countTopWeightedStrains(
-            aimNoSliderDifficultyValue,
-        );
+        const aimNoSliderDifficultStrainCount =
+            aimNoSlider.countTopWeightedStrains(aimNoSliderDifficultyValue);
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
