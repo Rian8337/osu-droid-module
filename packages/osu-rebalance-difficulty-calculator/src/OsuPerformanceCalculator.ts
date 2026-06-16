@@ -319,9 +319,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 0;
         }
 
-        const ncircles = this.mods.has(ModScoreV2)
-            ? this.totalHits - this.difficultyAttributes.spinnerCount
-            : this.difficultyAttributes.hitCircleCount;
+        const ncircles =
+            !this.usingClassicSliderAccuracy || this.mods.has(ModScoreV2)
+                ? this.totalHits - this.difficultyAttributes.spinnerCount
+                : this.difficultyAttributes.hitCircleCount;
 
         if (ncircles === 0) {
             return 0;
