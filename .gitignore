@@ -4,3 +4,5 @@ coverage
 typings
 .env
 /testing.js
+.claude/**
+CLAUDE.local.md
