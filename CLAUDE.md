@@ -8,14 +8,14 @@ This is a pnpm/lerna monorepo of TypeScript modules for working with osu! beatma
 
 ## Packages
 
-| Package | Purpose |
-| --- | --- |
-| `osu-base` | Core module: beatmap decoding/encoding, hit objects, mods, math, storyboard. All other packages depend on this. |
-| `osu-difficulty-calculator` | Difficulty/performance calculator using the **current (stable)** osu! algorithm. |
+| Package                               | Purpose                                                                                                                                                                                            |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `osu-base`                            | Core module: beatmap decoding/encoding, hit objects, mods, math, storyboard. All other packages depend on this.                                                                                    |
+| `osu-difficulty-calculator`           | Difficulty/performance calculator using the **current (stable)** osu! algorithm.                                                                                                                   |
 | `osu-rebalance-difficulty-calculator` | Difficulty/performance calculator using the **latest osu!lazer (rebalance)** algorithm. Mirrors the structure of `osu-difficulty-calculator` but with evolving/experimental skills and evaluators. |
-| `osu-strain-graph-generator` | Generates strain graphs from beatmaps, depends on both difficulty calculators. |
-| `osu-droid-utilities` | osu!droid API utilities (`Player`, `Score`, `APIPlayer`, `APIScore`). |
-| `osu-droid-replay-analyzer` | Parses/analyzes osu!droid replay files (cheese/three-finger/two-hand detection), depends on both difficulty calculators. |
+| `osu-strain-graph-generator`          | Generates strain graphs from beatmaps, depends on both difficulty calculators.                                                                                                                     |
+| `osu-droid-utilities`                 | osu!droid API utilities (`Player`, `Score`, `APIPlayer`, `APIScore`).                                                                                                                              |
+| `osu-droid-replay-analyzer`           | Parses/analyzes osu!droid replay files (cheese/three-finger/two-hand detection), depends on both difficulty calculators.                                                                           |
 
 Dependency direction is strictly one-way: `osu-base` → difficulty calculators → `osu-droid-replay-analyzer` / `osu-strain-graph-generator`. Cross-package imports use the published package name (`@rian8337/osu-base`, etc.), resolved via pnpm workspace links (`workspace:*`), not relative paths.
 
@@ -74,3 +74,7 @@ When changing difficulty math, check whether the change belongs in the evaluator
 - `tsconfig.json`: `strict: true`, `noImplicitOverride: true`, target ES6/ES2022 lib, CommonJS-interop friendly (`esModuleInterop`).
 - Prettier formats all of `packages/**` (`prettier.config.mjs`).
 - Each package builds to CommonJS (`dist/index.js`) plus a bundled `.d.ts` (`typings/index.d.ts`) via the shared root `rollup.config.mjs`; only those built files (not `src/`) are published (see each package's `files` field).
+
+## Testing difficulty calculation results
+
+If difficulty calculation tests failed, let the user update the values by themselves.
