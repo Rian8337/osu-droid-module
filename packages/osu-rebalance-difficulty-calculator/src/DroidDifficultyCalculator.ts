@@ -221,10 +221,13 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         attributes.aimDifficultStrainCount =
             aim.countTopWeightedStrains(aimDifficultyValue);
 
+        const aimNoSliderDifficultyValue = aimNoSlider.difficultyValue();
+
         const aimNoSliderTopWeightedSliderCount =
-            aimNoSlider.countTopWeightedSliders(aimDifficultyValue);
-        const aimNoSliderDifficultStrainCount =
-            aimNoSlider.countTopWeightedStrains(aimDifficultyValue);
+            aimNoSlider.countTopWeightedSliders(aimNoSliderDifficultyValue);
+        const aimNoSliderDifficultStrainCount = aimNoSlider.countTopWeightedStrains(
+            aimNoSliderDifficultyValue,
+        );
 
         attributes.aimTopWeightedSliderFactor =
             aimNoSliderTopWeightedSliderCount /
@@ -279,9 +282,8 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         if (attributes.aimDifficulty > 0) {
             attributes.sliderFactor =
-                this.calculateAimDifficultyRating(
-                    aimNoSlider.difficultyValue(),
-                ) / this.calculateAimDifficultyRating(aimDifficultyValue);
+                this.calculateAimDifficultyRating(aimNoSliderDifficultyValue) /
+                this.calculateAimDifficultyRating(aimDifficultyValue);
         } else {
             attributes.sliderFactor = 1;
         }
