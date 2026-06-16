@@ -89,6 +89,8 @@ export class OsuSpeed extends HarmonicSkill {
 
         const difficulty = this.currentDifficulty * this.currentRhythm;
 
+        this.maxDifficulty = Math.max(this.maxDifficulty, difficulty);
+
         if (current.object instanceof Slider) {
             this.sliderDifficulties.push(difficulty);
         }
