@@ -180,11 +180,10 @@ export abstract class DifficultyHitObject {
     abstract get smallCircleBonus(): number;
 
     /**
-     * This {@link DifficultyHitObject}'s immediate overall difficulty value calculated from the raw hitwindow.
+     * This {@link DifficultyHitObject}'s immediate clock-rate adjusted overall difficulty
+     * value.
      */
-    get overallDifficulty(): number {
-        return this.rawHitWindow.overallDifficulty;
-    }
+    abstract get overallDifficulty(): number;
 
     /**
      * Other hitobjects in the beatmap, including this hitobject.

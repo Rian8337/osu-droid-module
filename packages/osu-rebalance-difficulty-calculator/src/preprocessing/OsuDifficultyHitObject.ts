@@ -1,4 +1,4 @@
-import { Modes } from "@rian8337/osu-base";
+import { HitResult, Modes } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "./DifficultyHitObject";
 
 /**
@@ -12,6 +12,12 @@ export class OsuDifficultyHitObject extends DifficultyHitObject {
 
     override get smallCircleBonus(): number {
         return Math.max(1, 1 + (30 - this.object.radius) / 70);
+    }
+
+    override get overallDifficulty(): number {
+        const hitWindowGreat = this.hitWindowFor(HitResult.Great) / 2;
+
+        return (79.5 - hitWindowGreat) / 6;
     }
 
     override readonly normalizedRadius = 50;
