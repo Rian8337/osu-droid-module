@@ -159,19 +159,19 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         {
             noMod: {
                 aim: 1.8685609988004601,
-                tap: 1.492734818431125,
-                rhythm: 0.5910394950606784,
+                tap: 1.5232876547341971,
+                rhythm: 0.7649500351332285,
                 reading: 0.0801694219632239,
-                total: 3.586166585056434,
+                total: 3.6102343288059378,
             },
             doubleTime: {
                 aim: 2.5070618779673466,
-                tap: 2.22637269107595,
-                rhythm: 0.7507595845390408,
+                tap: 2.286769940790146,
+                rhythm: 1.0186746358956213,
                 reading: 1.1748089945535194,
-                total: 5.072525868507849,
+                total: 5.126439978050095,
             },
-            flashlight: 1.3405684191196228,
+            flashlight: 1.4259124337360651,
         },
     );
 });
@@ -180,19 +180,19 @@ describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
             aim: 0.8722394036844026,
-            tap: 0.9141193217469644,
-            rhythm: 0.5124281899842913,
+            tap: 0.9143348593854751,
+            rhythm: 0.51446861377641,
             reading: 0,
-            total: 1.880448068347529,
+            total: 1.8806869115246998,
         },
         doubleTime: {
             aim: 1.158271523616525,
-            tap: 1.3271871914264959,
-            rhythm: 0.6936207382846453,
+            tap: 1.3287590185169131,
+            rhythm: 0.7033778674402899,
             reading: 0,
-            total: 2.628525201967448,
+            total: 2.6304265904444586,
         },
-        flashlight: 0.3960399811681605,
+        flashlight: 0.39487009913052634,
     });
 });
 
@@ -202,19 +202,19 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         {
             noMod: {
                 aim: 2.151569111823684,
-                tap: 3.0875665373113415,
-                rhythm: 0.9966311843953229,
+                tap: 3.125664733339821,
+                rhythm: 1.0547413688823237,
                 reading: 0.5738700056952152,
-                total: 5.711240767805919,
+                total: 5.76531634352784,
             },
             doubleTime: {
                 aim: 2.917767207907698,
-                tap: 4.412143589015001,
-                rhythm: 1.1908604568024859,
+                tap: 4.465437761644034,
+                rhythm: 1.2735971353260924,
                 reading: 1.4596168862660335,
-                total: 8.111716451961131,
+                total: 8.188408642171163,
             },
-            flashlight: 1.4449233097206449,
+            flashlight: 1.606967629777067,
         },
     );
 });
@@ -223,19 +223,19 @@ describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
             aim: 2.5332271698167044,
-            tap: 1.4333818091815749,
-            rhythm: 0.8189354231946722,
+            tap: 1.3566565580542487,
+            rhythm: 0.6351225782838762,
             reading: 0.21875988701529403,
-            total: 4.510656486050996,
+            total: 4.480368417207592,
         },
         doubleTime: {
             aim: 3.3453830310417234,
-            tap: 2.098550903093177,
-            rhythm: 1.0791633372145433,
+            tap: 1.9704473192266934,
+            rhythm: 0.8534578186453801,
             reading: 2.246397329905675,
-            total: 6.429249589208887,
+            total: 6.3758370447619255,
         },
-        flashlight: 2.3948232926381627,
+        flashlight: 2.960676380986576,
     });
 });
 
@@ -245,19 +245,19 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         {
             noMod: {
                 aim: 12.318791462791909,
-                tap: 6.068027387851987,
-                rhythm: 0.8335870060057355,
+                tap: 6.815477850075668,
+                rhythm: 1.970157660146092,
                 reading: 7.312210999910238,
-                total: 22.61617384999907,
+                total: 22.855836738575732,
             },
             doubleTime: {
                 aim: 14.193717780959025,
-                tap: 8.556679042177844,
-                rhythm: 0.9560640405601507,
+                tap: 9.590277444447102,
+                rhythm: 2.1655754384925676,
                 reading: 12.89238230530667,
-                total: 29.479455649021777,
+                total: 29.87426914776131,
             },
-            flashlight: 9.517604951008906,
+            flashlight: 12.827269607202767,
         },
     );
 });
@@ -286,18 +286,18 @@ describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
             aim: 2.5179689558256535,
-            tap: 2.6078659973045237,
-            rhythm: 0.9938232840574492,
+            tap: 2.630992305728742,
+            rhythm: 1.1463009156166077,
             reading: 0.2825371457099409,
-            total: 5.394882915366239,
+            total: 5.420298826841208,
         },
         doubleTime: {
             aim: 3.5392235398725327,
-            tap: 3.9294747698179813,
-            rhythm: 1.2120473532768323,
+            tap: 3.9608724164165032,
+            rhythm: 1.4445218506740933,
             reading: 2.7582210649479144,
-            total: 8.291519445100741,
+            total: 8.324483413756909,
         },
-        flashlight: 2.4764103784393647,
+        flashlight: 2.786933932583678,
     });
 });
