@@ -25,7 +25,7 @@ const createDifficultyHitObjects = () => {
             position: new Vector2(150, 100),
             nodeSamples: [],
             tickDistanceMultiplier: 1,
-            type: ObjectTypes.slider,
+            type: ObjectTypes.Slider,
             repeatCount: 0,
             path: new SliderPath({
                 pathType: PathType.Linear,
