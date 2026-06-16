@@ -1,4 +1,5 @@
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { TimedStrainPeak } from "../structures/TimedStrainPeak";
 import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 import { Skill } from "./Skill";
 
@@ -28,9 +29,12 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
     }
 
     protected readonly strainPeaks: number[] = [];
+    private readonly strainPeakTimes: number[] = [];
 
-    get peaks(): readonly number[] {
-        return this.currentStrainPeaks;
+    get peaks(): readonly TimedStrainPeak[] {
+        return this.strainPeaks
+            .map((value, i) => ({ time: this.strainPeakTimes[i], value }))
+            .concat({ time: this.currentSectionEnd, value: this.currentSectionPeak });
     }
 
     private readonly sectionLength = 400;
@@ -147,6 +151,7 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
      */
     private saveCurrentPeak(): void {
         this.strainPeaks.push(this.currentSectionPeak);
+        this.strainPeakTimes.push(this.currentSectionEnd);
     }
 
     /**

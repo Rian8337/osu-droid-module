@@ -1,6 +1,7 @@
 import { MathUtils } from "@rian8337/osu-base";
 import { Skill } from "./Skill";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
+import { TimedStrainPeak } from "../structures/TimedStrainPeak";
 import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 
 /**
@@ -36,8 +37,11 @@ export abstract class HarmonicSkill
      */
     protected readonly decayExponent: number = 0.9;
 
-    get peaks(): readonly number[] {
-        return this.objectDifficulties;
+    get peaks(): readonly TimedStrainPeak[] {
+        return this.objectDifficulties.map((value, i) => ({
+            time: this.objectTimes[i],
+            value,
+        }));
     }
 
     static difficultyToPerformance(difficulty: number): number {

@@ -1,6 +1,7 @@
 import { Utils } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { StrainPeak } from "../structures/StrainPeak";
+import { TimedStrainPeak } from "../structures/TimedStrainPeak";
 import { Skill } from "./Skill";
 import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 
@@ -41,8 +42,18 @@ export abstract class VariableLengthStrainSkill
 
     private readonly strainPeaks: StrainPeak[] = [];
 
-    get peaks(): readonly number[] {
-        return this.currentStrainPeaks.map((s) => s.value);
+    /**
+     * The peaks of this skill in chronological order, used for graphing purposes.
+     *
+     * Unlike {@link strainPeaks}, this is never trimmed, as it does not contribute to {@link difficultyValue}.
+     */
+    private readonly chronologicalPeaks: TimedStrainPeak[] = [];
+
+    get peaks(): readonly TimedStrainPeak[] {
+        return this.chronologicalPeaks.concat({
+            time: this.currentSectionEnd,
+            value: this.currentSectionPeak,
+        });
     }
 
     /**
@@ -261,6 +272,11 @@ export abstract class VariableLengthStrainSkill
         this.addStrainPeakInPlace(
             new StrainPeak(this.currentSectionPeak, sectionLength),
         );
+
+        this.chronologicalPeaks.push({
+            time: this.currentSectionBegin + sectionLength,
+            value: this.currentSectionPeak,
+        });
 
         this.totalLength += sectionLength;
 

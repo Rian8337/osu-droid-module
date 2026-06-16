@@ -11,12 +11,22 @@ export abstract class Skill {
     protected readonly mods: ModMap;
 
     private _objectDifficulties: number[] = [];
+    private _objectTimes: number[] = [];
 
     /**
      * The difficulties of {@link DifficultyHitObject}s, populated by {@link Skill.process}.
      */
     protected get objectDifficulties(): readonly number[] {
         return this._objectDifficulties;
+    }
+
+    /**
+     * The start times of {@link DifficultyHitObject}s, populated by {@link Skill.process}.
+     *
+     * Indices correspond to {@link objectDifficulties}.
+     */
+    protected get objectTimes(): readonly number[] {
+        return this._objectTimes;
     }
 
     constructor(mods: ModMap) {
@@ -37,7 +47,9 @@ export abstract class Skill {
         const difficultyValue = this.processInternal(current);
 
         this.saveToHitObject(current, difficultyValue);
+
         this._objectDifficulties.push(difficultyValue);
+        this._objectTimes.push(current.startTime);
     }
 
     /**
