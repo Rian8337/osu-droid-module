@@ -84,7 +84,7 @@ export class OsuFlashlight extends OsuSkill {
         );
 
         if (this.mods.has(ModTouchDevice)) {
-            difficulty = Math.pow(difficulty, 0.8);
+            difficulty = Math.pow(difficulty, 0.9);
         }
 
         if (this.mods.has(ModMagnetised)) {
