@@ -84,7 +84,7 @@ export class DroidFlashlight extends DroidSkill {
     ): number {
         let difficulty = Math.pow(
             DroidFlashlightEvaluator.evaluateDifficultyOf(current, this.mods),
-            0.8,
+            0.9,
         );
 
         if (this.mods.has(ModRelax)) {
