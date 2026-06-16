@@ -288,13 +288,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             );
         }
 
-        // Traceable bonuses are excluded when Blinds is present, as the increased visual difficulty is
-        // redundant when notes cannot be seen.
         if (this.mods.has(ModBlinds)) {
             // Increasing the speed value by object count for Blinds is not ideal, so the minimum buff is given.
             speedValue *= 1.12;
-        } else if (this.mods.has(ModTraceable)) {
-            speedValue *= 1 + this.calculateTraceableBonus();
         }
 
         speedValue *= this.calculateSpeedHighDeviationNerf();
