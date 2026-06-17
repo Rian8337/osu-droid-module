@@ -5,11 +5,17 @@ import {
     PlaceableHitObject,
     Vector2,
 } from "@rian8337/osu-base";
+import { DroidAgilityEvaluator } from "../evaluators/droid/DroidAgilityEvaluator";
+import { DroidFlowAimEvaluator } from "../evaluators/droid/DroidFlowAimEvaluator";
 import { DroidRhythmEvaluator } from "../evaluators/droid/DroidRhythmEvaluator";
+import { DroidSnapAimEvaluator } from "../evaluators/droid/DroidSnapAimEvaluator";
 import { DroidAim } from "../skills/droid/DroidAim";
 import { DroidTap } from "../skills/droid/DroidTap";
 import { DroidDifficultyHitObject } from "./DroidDifficultyHitObject";
-import { DroidDifficultyHitObjectTouchData } from "./DroidDifficultyHitObjectTouchData";
+import {
+    CachedRawAimValues,
+    DroidDifficultyHitObjectTouchData,
+} from "./DroidDifficultyHitObjectTouchData";
 import { DroidHandAction, DroidTouchAction } from "./DroidTouchAction";
 import { DroidTouchHand } from "./DroidTouchHand";
 
@@ -63,16 +69,7 @@ export abstract class DroidTouchActionSequenceOptimizer {
             );
 
             for (const candidate of currentCandidates) {
-                for (const action of this.actions) {
-                    nextCandidates.push(
-                        candidate.withNextObjectHit(
-                            current,
-                            action,
-                            mods,
-                            rhythm,
-                        ),
-                    );
-                }
+                candidate.branchIntoActions(current, this.actions, mods, rhythm, nextCandidates);
             }
 
             nextCandidates.sort(
@@ -178,9 +175,65 @@ class DroidTouchSequenceCandidate {
         );
     }
 
-    withNextObjectHit(
+    /**
+     * Branches this candidate into one new candidate per action, pushing them into `out`.
+     * Both per-hand objects and their raw aim evaluator values are pre-computed once and
+     * shared across the three action branches, avoiding redundant work for the Drag branch
+     * which always reuses the same per-hand object as the previous aiming hand.
+     */
+    branchIntoActions(
+        current: DroidDifficultyHitObject,
+        actions: readonly DroidTouchAction[],
+        mods: ModMap,
+        rhythm: number,
+        out: DroidTouchSequenceCandidate[],
+    ): void {
+        const leftPerHandObject = this.buildPerHandObject(current, this.leftHistory);
+        const rightPerHandObject = this.buildPerHandObject(current, this.rightHistory);
+
+        const leftRawAim: CachedRawAimValues | undefined = leftPerHandObject
+            ? {
+                  snapNoSliders: DroidSnapAimEvaluator.evaluateDifficultyOf(leftPerHandObject, false),
+                  snapWithSliders: DroidSnapAimEvaluator.evaluateDifficultyOf(leftPerHandObject, true),
+                  flowNoSliders: DroidFlowAimEvaluator.evaluateDifficultyOf(leftPerHandObject, false),
+                  flowWithSliders: DroidFlowAimEvaluator.evaluateDifficultyOf(leftPerHandObject, true),
+                  agility: DroidAgilityEvaluator.evaluateDifficultyOf(leftPerHandObject),
+              }
+            : undefined;
+
+        const rightRawAim: CachedRawAimValues | undefined = rightPerHandObject
+            ? {
+                  snapNoSliders: DroidSnapAimEvaluator.evaluateDifficultyOf(rightPerHandObject, false),
+                  snapWithSliders: DroidSnapAimEvaluator.evaluateDifficultyOf(rightPerHandObject, true),
+                  flowNoSliders: DroidFlowAimEvaluator.evaluateDifficultyOf(rightPerHandObject, false),
+                  flowWithSliders: DroidFlowAimEvaluator.evaluateDifficultyOf(rightPerHandObject, true),
+                  agility: DroidAgilityEvaluator.evaluateDifficultyOf(rightPerHandObject),
+              }
+            : undefined;
+
+        for (const action of actions) {
+            out.push(
+                this.withNextObjectHit(
+                    current,
+                    action,
+                    leftPerHandObject,
+                    rightPerHandObject,
+                    leftRawAim,
+                    rightRawAim,
+                    mods,
+                    rhythm,
+                ),
+            );
+        }
+    }
+
+    private withNextObjectHit(
         current: DroidDifficultyHitObject,
         action: DroidTouchAction,
+        leftPerHandObject: DroidDifficultyHitObject | null,
+        rightPerHandObject: DroidDifficultyHitObject | null,
+        leftRawAim: CachedRawAimValues | undefined,
+        rightRawAim: CachedRawAimValues | undefined,
         mods: ModMap,
         rhythm: number,
     ): DroidTouchSequenceCandidate {
@@ -189,16 +242,8 @@ class DroidTouchSequenceCandidate {
             ? this.lastAimingHand
             : (action as DroidHandAction).hand;
 
-        // Create a synthetic difficulty hit object with only hit objects that were hit by the aiming hand.
-        const aimingHandHistory =
-            aimingHand === DroidTouchHand.Left
-                ? this.leftHistory
-                : this.rightHistory;
-
-        const currentPerHandObject = this.buildPerHandObject(
-            current,
-            aimingHandHistory,
-        );
+        const isLeft = aimingHand === DroidTouchHand.Left;
+        const currentPerHandObject = isLeft ? leftPerHandObject : rightPerHandObject;
 
         // Update histories to reflect that the current difficulty hit object was hit with the aiming hand.
         const newHistory: HandHistory = {
@@ -253,6 +298,7 @@ class DroidTouchSequenceCandidate {
             prevAimingHand: this.lastAimingHand,
             perHandObject: currentPerHandObject,
             obstructionFactor: obstruction,
+            cachedRawAim: isLeft ? leftRawAim : rightRawAim,
         };
 
         // Temporarily set touchData so evaluators can read it during strain advance.

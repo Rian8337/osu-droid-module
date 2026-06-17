@@ -43,6 +43,7 @@ export abstract class DroidTouchFlowAimEvaluator {
             touchData.obstructionFactor * this.flowObstructionMaxBonus;
 
         const flowDifficultyNoSliders =
+            touchData.cachedRawAim?.flowNoSliders ??
             DroidFlowAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 false,
@@ -53,6 +54,7 @@ export abstract class DroidTouchFlowAimEvaluator {
         }
 
         const flowDifficultyWithSliders =
+            touchData.cachedRawAim?.flowWithSliders ??
             DroidFlowAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 true,

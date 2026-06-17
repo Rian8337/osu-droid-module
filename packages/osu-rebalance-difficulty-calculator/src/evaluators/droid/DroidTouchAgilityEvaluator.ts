@@ -38,10 +38,10 @@ export abstract class DroidTouchAgilityEvaluator {
         agilityMultiplier +=
             touchData.obstructionFactor * this.agilityObstructionMaxBonus;
 
-        return (
-            DroidAgilityEvaluator.evaluateDifficultyOf(
-                touchData.perHandObject,
-            ) * agilityMultiplier
-        );
+        const agility =
+            touchData.cachedRawAim?.agility ??
+            DroidAgilityEvaluator.evaluateDifficultyOf(touchData.perHandObject);
+
+        return agility * agilityMultiplier;
     }
 }

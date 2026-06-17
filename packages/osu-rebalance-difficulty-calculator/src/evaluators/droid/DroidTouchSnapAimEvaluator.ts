@@ -43,6 +43,7 @@ export abstract class DroidTouchSnapAimEvaluator {
             touchData.obstructionFactor * this.snapObstructionMaxBonus;
 
         const snapDifficultyNoSliders =
+            touchData.cachedRawAim?.snapNoSliders ??
             DroidSnapAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 false,
@@ -53,6 +54,7 @@ export abstract class DroidTouchSnapAimEvaluator {
         }
 
         const snapDifficultyWithSliders =
+            touchData.cachedRawAim?.snapWithSliders ??
             DroidSnapAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 true,
