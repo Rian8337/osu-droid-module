@@ -171,7 +171,7 @@ describe("Test difficulty calculation sample beatmap 1", () => {
                 reading: 1.1748089945535194,
                 total: 5.126439978050095,
             },
-            flashlight: 1.4259124337360651,
+            flashlight: 0.8073829372170443,
         },
     );
 });
@@ -192,7 +192,7 @@ describe("Test difficulty calculation sample beatmap 2", () => {
             reading: 0,
             total: 2.6304265904444586,
         },
-        flashlight: 0.39487009913052634,
+        flashlight: 0.22358412263778715,
     });
 });
 
@@ -214,7 +214,7 @@ describe("Test difficulty calculation sample beatmap 3", () => {
                 reading: 1.4596168862660335,
                 total: 8.188408642171163,
             },
-            flashlight: 1.606967629777067,
+            flashlight: 0.9099003657206869,
         },
     );
 });
@@ -235,7 +235,7 @@ describe("Test difficulty calculation sample beatmap 4", () => {
             reading: 2.246397329905675,
             total: 6.3758370447619255,
         },
-        flashlight: 2.960676380986576,
+        flashlight: 1.6763999920857215,
     });
 });
 
@@ -257,7 +257,7 @@ describe("Test difficulty calculation sample beatmap 5", () => {
                 reading: 12.89238230530667,
                 total: 29.87426914776131,
             },
-            flashlight: 12.827269607202767,
+            flashlight: 7.263081776209047,
         },
     );
 });
@@ -298,6 +298,6 @@ describe("Test difficulty calculation sample beatmap 7", () => {
             reading: 2.7582210649479144,
             total: 8.324483413756909,
         },
-        flashlight: 2.786933932583678,
+        flashlight: 1.5780232019042453,
     });
 });
