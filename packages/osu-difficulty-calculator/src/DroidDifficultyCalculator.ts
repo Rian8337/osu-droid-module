@@ -411,13 +411,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     ) {
         const flashlight = skills.find((s) => s instanceof DroidFlashlight);
 
-        if (!flashlight) {
-            attributes.flashlightDifficulty = 0;
-            return;
-        }
-
-        attributes.flashlightDifficulty =
-            Math.sqrt(flashlight.difficultyValue()) * 0.18;
+        attributes.flashlightDifficulty = this.calculateDifficultyRating(
+            flashlight?.difficultyValue() ?? 0,
+        );
     }
 
     private populateReadingAttributes(

@@ -15,9 +15,9 @@ import { DroidSkill } from "./DroidSkill";
 export class DroidFlashlight extends DroidSkill {
     protected override readonly reducedSectionCount = 0;
     protected override readonly reducedSectionBaseline = 1;
-    protected override readonly starsPerDouble = 1.06;
+    protected override readonly starsPerDouble = 1;
 
-    private readonly skillMultiplier = 0.024;
+    private readonly skillMultiplier = 0.058;
     private currentFlashlightStrain = 0;
 
     static override difficultyToPerformance(difficulty: number): number {
