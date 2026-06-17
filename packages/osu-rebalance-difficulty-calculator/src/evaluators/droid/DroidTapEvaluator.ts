@@ -18,10 +18,12 @@ export abstract class DroidTapEvaluator {
      *
      * @param current The current object.
      * @param considerCheesability Whether to consider cheesability.
+     * @param strainTimeMultiplier Optional multiplier applied to the strain time before all calculations. Used by touch device evaluator to halve the doubled per-hand strain time.
      */
     static evaluateDifficultyOf(
         current: DroidDifficultyHitObject,
         considerCheesability: boolean,
+        strainTimeMultiplier = 1,
     ): number {
         if (
             current.index < 0 ||
@@ -36,25 +38,25 @@ export abstract class DroidTapEvaluator {
             ? 1 - current.getDoubletapness(current.next(0))
             : 1;
 
+        const strainTime = current.strainTime * strainTimeMultiplier;
+
         let speedBonus = 1;
 
-        if (
-            MathUtils.millisecondsToBPM(current.strainTime) > this.minSpeedBonus
-        ) {
+        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
             speedBonus +=
                 0.75 *
                 Math.pow(
                     ErrorFunction.erf(
                         (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
-                            current.strainTime) /
+                            strainTime) /
                             40,
                     ),
                     2,
                 );
         }
 
-        let strain = (speedBonus * 1000) / current.strainTime;
-        strain *= this.highBpmBonus(current.strainTime);
+        let strain = (speedBonus * 1000) / strainTime;
+        strain *= this.highBpmBonus(strainTime);
 
         return strain * Math.pow(doubletapness, 1.5);
     }

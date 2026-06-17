@@ -1,6 +1,6 @@
 import { MathUtils, ModMap, ModRelax, Slider } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
-import { DroidTapEvaluator } from "../../evaluators/droid/DroidTapEvaluator";
+import { DroidTouchTapEvaluator } from "../../evaluators/droid/DroidTouchTapEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -9,8 +9,8 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
 export class DroidTap extends HarmonicSkill {
     protected override readonly harmonicScale = 20;
 
-    private readonly skillMultiplier = 1.16;
-    private readonly strainDecayBase = 0.3;
+    private static readonly skillMultiplier = 1.16;
+    private static readonly strainDecayBase = 0.3;
 
     private currentTapDifficulty = 0;
     private currentRhythmMultiplier = 0;
@@ -78,6 +78,30 @@ export class DroidTap extends HarmonicSkill {
         );
     }
 
+    /**
+     * Advances the tap strain state by one object.
+     *
+     * Used by the beam-search optimizer to evaluate strain without a live skill instance.
+     */
+    static advanceStrainState(
+        currentStrain: number,
+        mods: ModMap,
+        current: DroidDifficultyHitObject,
+        considerCheesability: boolean,
+    ): number {
+        const decay = DroidTap.strainDecay(current.strainTime);
+
+        const tapDifficulty = DroidTouchTapEvaluator.evaluateDifficultyOf(
+            current,
+            considerCheesability,
+        );
+
+        return (
+            currentStrain * decay +
+            tapDifficulty * (1 - decay) * DroidTap.skillMultiplier
+        );
+    }
+
     protected override objectDifficultyOf(
         current: DroidDifficultyHitObject,
     ): number {
@@ -85,16 +109,12 @@ export class DroidTap extends HarmonicSkill {
             return 0;
         }
 
-        const decay = this.strainDecay(current.strainTime);
-
-        this.currentTapDifficulty *= decay;
-        this.currentTapDifficulty +=
-            DroidTapEvaluator.evaluateDifficultyOf(
-                current,
-                this.considerCheesability,
-            ) *
-            (1 - decay) *
-            this.skillMultiplier;
+        this.currentTapDifficulty = DroidTap.advanceStrainState(
+            this.currentTapDifficulty,
+            this.mods,
+            current,
+            this.considerCheesability,
+        );
 
         this.currentRhythmMultiplier = current.rhythmMultiplier;
 
@@ -121,7 +141,7 @@ export class DroidTap extends HarmonicSkill {
         }
     }
 
-    private strainDecay(ms: number): number {
-        return Math.pow(this.strainDecayBase, ms / 1000);
+    private static strainDecay(ms: number): number {
+        return Math.pow(DroidTap.strainDecayBase, ms / 1000);
     }
 }

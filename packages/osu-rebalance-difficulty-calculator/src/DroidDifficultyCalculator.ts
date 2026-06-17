@@ -17,6 +17,7 @@ import { DifficultyCalculator } from "./base/DifficultyCalculator";
 import { IHasPeakDifficulty } from "./base/IHasPeakDifficulty";
 import { Skill } from "./base/Skill";
 import { DroidDifficultyHitObject } from "./preprocessing/DroidDifficultyHitObject";
+import { DroidTouchActionSequenceOptimizer } from "./preprocessing/DroidTouchActionSequenceOptimizer";
 import { DroidAim } from "./skills/droid/DroidAim";
 import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import { DroidReading } from "./skills/droid/DroidReading";
@@ -134,10 +135,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         const difficultyObjects: DroidDifficultyHitObject[] = [];
         const { objects } = beatmap.hitObjects;
 
-        for (let i = 0; i < objects.length; ++i) {
+        for (let i = 1; i < objects.length; ++i) {
             const difficultyObject = new DroidDifficultyHitObject(
                 objects[i],
-                objects[i - 1] ?? null,
+                objects[i - 1],
                 difficultyObjects,
                 clockRate,
                 i - 1,
@@ -145,6 +146,16 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             difficultyObject.computeProperties(clockRate);
             difficultyObjects.push(difficultyObject);
+        }
+
+        const touchDataList =
+            DroidTouchActionSequenceOptimizer.findTouchDataOfOptimalSequence(
+                difficultyObjects,
+                beatmap.mods,
+            );
+
+        for (let i = 0; i < difficultyObjects.length; ++i) {
+            difficultyObjects[i].touchData = touchDataList[i];
         }
 
         return difficultyObjects;
@@ -248,7 +259,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
             if (velocity > 0) {
                 topDifficultSliders.push({
-                    index: i,
+                    // Because the first object in the beatmap is excluded, we need to add
+                    // 1 to the index to get the correct object index in the beatmap.
+                    index: i + 1,
                     velocity: velocity,
                 });
             }
@@ -334,7 +347,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         let inSpeedSection = false;
         let firstSpeedObjectIndex = 0;
 
-        for (let i = 2; i < objects.length; ++i) {
+        for (let i = 1; i < objects.length; ++i) {
             const current = objects[i];
             const prev = objects[i - 1];
 
@@ -372,8 +385,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                 }
 
                 attributes.possibleThreeFingeredSections.push({
-                    firstObjectIndex: firstSpeedObjectIndex,
-                    lastObjectIndex: lastSpeedObjectIndex,
+                    // Because the first object in the beatmap is excluded, we need to add
+                    // 1 to the indices to get the correct object indices in the beatmap.
+                    firstObjectIndex: firstSpeedObjectIndex + 1,
+                    lastObjectIndex: lastSpeedObjectIndex + 1,
                     sumStrain: Math.pow(
                         objects
                             .slice(

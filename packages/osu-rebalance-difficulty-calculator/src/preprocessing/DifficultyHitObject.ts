@@ -217,7 +217,7 @@ export abstract class DifficultyHitObject {
      */
     static readonly minDeltaTime = 25;
 
-    private readonly lastObject: PlaceableHitObject | null;
+    private readonly lastObject: PlaceableHitObject;
 
     private readonly lastDifficultyObject: this | null;
     private readonly lastLastDifficultyObject: this | null;
@@ -234,7 +234,7 @@ export abstract class DifficultyHitObject {
      */
     constructor(
         object: PlaceableHitObject,
-        lastObject: PlaceableHitObject | null,
+        lastObject: PlaceableHitObject,
         difficultyHitObjects: readonly DifficultyHitObject[],
         clockRate: number,
         index: number,
@@ -249,24 +249,18 @@ export abstract class DifficultyHitObject {
         this.endTime = object.endTime / clockRate;
         this.timePreempt = object.timePreempt / clockRate;
 
-        if (lastObject) {
-            this.deltaTime = this.startTime - lastObject.startTime / clockRate;
+        this.deltaTime = this.startTime - lastObject.startTime / clockRate;
 
-            // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
-            this.strainTime = Math.max(
-                this.deltaTime,
-                DifficultyHitObject.minDeltaTime,
-            );
+        // Capped to 25ms to prevent difficulty calculation breaking from simultaneous objects.
+        this.strainTime = Math.max(
+            this.deltaTime,
+            DifficultyHitObject.minDeltaTime,
+        );
 
-            this.lastObjectEndDeltaTime = Math.max(
-                this.startTime - lastObject.endTime / clockRate,
-                DifficultyHitObject.minDeltaTime,
-            );
-        } else {
-            this.deltaTime = 0;
-            this.strainTime = 0;
-            this.lastObjectEndDeltaTime = 0;
-        }
+        this.lastObjectEndDeltaTime = Math.max(
+            this.startTime - lastObject.endTime / clockRate,
+            DifficultyHitObject.minDeltaTime,
+        );
 
         this.lastDifficultyObject = this.previous(0);
         this.lastLastDifficultyObject = this.previous(1);
@@ -431,7 +425,7 @@ export abstract class DifficultyHitObject {
 
         // We don't need to calculate either angle or distance when one of the last->curr objects is a spinner.
         if (
-            !this.lastObject ||
+            !this.lastDifficultyObject ||
             this.object instanceof Spinner ||
             this.lastObject instanceof Spinner
         ) {
@@ -441,10 +435,9 @@ export abstract class DifficultyHitObject {
         // We will scale distances by this factor, so we can assume a uniform circle size among beatmaps.
         const scalingFactor = this.normalizedRadius / this.object.radius;
 
-        let lastCursorPosition =
-            this.lastDifficultyObject !== null
-                ? this.getEndCursorPosition(this.lastDifficultyObject)
-                : this.lastObject.stackedPosition;
+        let lastCursorPosition = this.getEndCursorPosition(
+            this.lastDifficultyObject,
+        );
 
         this.jumpDistance =
             this.lastObject.stackedPosition.getDistance(
@@ -457,10 +450,7 @@ export abstract class DifficultyHitObject {
 
         this.minimumJumpDistance = this.lazyJumpDistance;
 
-        if (
-            this.lastObject instanceof Slider &&
-            this.lastDifficultyObject !== null
-        ) {
+        if (this.lastObject instanceof Slider) {
             const lastTravelTime = Math.max(
                 this.lastDifficultyObject.lazyTravelTime / clockRate,
                 DifficultyHitObject.minDeltaTime,
@@ -510,7 +500,7 @@ export abstract class DifficultyHitObject {
             !(this.lastLastDifficultyObject.object instanceof Spinner)
         ) {
             if (
-                this.lastDifficultyObject?.object instanceof Slider &&
+                this.lastDifficultyObject.object instanceof Slider &&
                 this.lastDifficultyObject.travelDistance > 0
             ) {
                 lastCursorPosition =
@@ -528,7 +518,7 @@ export abstract class DifficultyHitObject {
             );
 
             const sliderAngle = this.calculateSliderAngle(
-                this.lastDifficultyObject!,
+                this.lastDifficultyObject,
                 lastLastCursorPosition,
             );
 

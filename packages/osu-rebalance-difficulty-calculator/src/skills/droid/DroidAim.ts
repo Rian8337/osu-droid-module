@@ -7,9 +7,9 @@ import {
     Slider,
 } from "@rian8337/osu-base";
 import { VariableLengthStrainSkill } from "../../base/VariableLengthStrainSkill";
-import { DroidAgilityEvaluator } from "../../evaluators/droid/DroidAgilityEvaluator";
-import { DroidFlowAimEvaluator } from "../../evaluators/droid/DroidFlowAimEvaluator";
-import { DroidSnapAimEvaluator } from "../../evaluators/droid/DroidSnapAimEvaluator";
+import { DroidTouchAgilityEvaluator } from "../../evaluators/droid/DroidTouchAgilityEvaluator";
+import { DroidTouchFlowAimEvaluator } from "../../evaluators/droid/DroidTouchFlowAimEvaluator";
+import { DroidTouchSnapAimEvaluator } from "../../evaluators/droid/DroidTouchSnapAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { StrainPeak } from "../../structures/StrainPeak";
 
@@ -19,11 +19,11 @@ import { StrainPeak } from "../../structures/StrainPeak";
 export class DroidAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
-    private readonly skillMultiplierSnap = 70.9;
-    private readonly skillMultiplierAgility = 2.35;
-    private readonly skillMultiplierFlow = 242;
-    private readonly skillMultiplierTotal = 1.12;
-    private readonly combinedSnapNormExponent = 1.2;
+    private static readonly skillMultiplierSnap = 70.9;
+    private static readonly skillMultiplierAgility = 2.35;
+    private static readonly skillMultiplierFlow = 242;
+    private static readonly skillMultiplierTotal = 1.12;
+    private static readonly combinedSnapNormExponent = 1.2;
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
@@ -93,6 +93,45 @@ export class DroidAim extends VariableLengthStrainSkill {
         );
     }
 
+    /**
+     * Advances the aim strain state by one object.
+     *
+     * Used by the beam-search optimizer to evaluate strain without a live skill instance.
+     */
+    static advanceStrainState(
+        currentStrain: number,
+        mods: ModMap,
+        current: DroidDifficultyHitObject,
+        includeSliders: boolean,
+    ): number {
+        const decay = DroidAim.strainDecay(current.strainTime);
+
+        const snapDifficulty =
+            DroidTouchSnapAimEvaluator.evaluateDifficultyOf(
+                current,
+                includeSliders,
+            ) * DroidAim.skillMultiplierSnap;
+
+        const agilityDifficulty =
+            DroidTouchAgilityEvaluator.evaluateDifficultyOf(current) *
+            DroidAim.skillMultiplierAgility;
+
+        const flowDifficulty =
+            DroidTouchFlowAimEvaluator.evaluateDifficultyOf(
+                current,
+                includeSliders,
+            ) * DroidAim.skillMultiplierFlow;
+
+        const totalDifficulty = DroidAim.calculateTotalValue(
+            snapDifficulty,
+            agilityDifficulty,
+            flowDifficulty,
+            mods,
+        );
+
+        return currentStrain * decay + totalDifficulty * (1 - decay);
+    }
+
     protected override strainValueAt(
         current: DroidDifficultyHitObject,
     ): number {
@@ -100,11 +139,12 @@ export class DroidAim extends VariableLengthStrainSkill {
             return 0;
         }
 
-        const decay = this.strainDecay(current.strainTime);
-
-        this.currentStrain *= decay;
-        this.currentStrain +=
-            this.calculateAdjustedDifficulty(current) * (1 - decay);
+        this.currentStrain = DroidAim.advanceStrainState(
+            this.currentStrain,
+            this.mods,
+            current,
+            this.withSliders,
+        );
 
         if (current.object instanceof Slider) {
             this.sliderStrains.push(this.currentStrain);
@@ -124,7 +164,7 @@ export class DroidAim extends VariableLengthStrainSkill {
     ): number {
         return (
             this.currentStrain *
-            this.strainDecay(time - (current.previous(0)?.startTime ?? 0))
+            DroidAim.strainDecay(time - (current.previous(0)?.startTime ?? 0))
         );
     }
 
@@ -139,36 +179,11 @@ export class DroidAim extends VariableLengthStrainSkill {
         }
     }
 
-    private calculateAdjustedDifficulty(
-        current: DroidDifficultyHitObject,
-    ): number {
-        const snapDifficulty =
-            DroidSnapAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierSnap;
-
-        const agilityDifficulty =
-            DroidAgilityEvaluator.evaluateDifficultyOf(current) *
-            this.skillMultiplierAgility;
-
-        const flowDifficulty =
-            DroidFlowAimEvaluator.evaluateDifficultyOf(
-                current,
-                this.withSliders,
-            ) * this.skillMultiplierFlow;
-
-        return this.calculateTotalValue(
-            snapDifficulty,
-            agilityDifficulty,
-            flowDifficulty,
-        );
-    }
-
-    private calculateTotalValue(
+    private static calculateTotalValue(
         snapDifficulty: number,
         agilityDifficulty: number,
         flowDifficulty: number,
+        mods: ModMap,
     ): number {
         // We compare flow to combined snap and agility because snap by itself does not have enough difficulty
         // to be above flow on streams. Agility, on the other hand, is supposed to measure the rate of cursor
@@ -176,29 +191,18 @@ export class DroidAim extends VariableLengthStrainSkill {
         // amount of agility at which point it is easier to flow.
 
         let combinedSnapDifficulty = MathUtils.norm(
-            this.combinedSnapNormExponent,
+            DroidAim.combinedSnapNormExponent,
             snapDifficulty,
             agilityDifficulty,
         );
 
-        const pSnap = this.calculateSnapFlowProbability(
+        const pSnap = DroidAim.calculateSnapFlowProbability(
             flowDifficulty / combinedSnapDifficulty,
         );
 
         const pFlow = 1 - pSnap;
 
-        // Invert rating summation to obtain a more accurate TD adjustment.
-        snapDifficulty =
-            Math.pow(0.02275 * Math.pow(10, 0.63), (0.8 - 1) / 0.63) *
-            Math.pow(snapDifficulty, 0.8);
-
-        combinedSnapDifficulty = MathUtils.norm(
-            this.combinedSnapNormExponent,
-            snapDifficulty,
-            agilityDifficulty,
-        );
-
-        if (this.mods.has(ModRelax)) {
+        if (mods.has(ModRelax)) {
             combinedSnapDifficulty *= 0.75;
             flowDifficulty *= 0.6;
         }
@@ -206,7 +210,7 @@ export class DroidAim extends VariableLengthStrainSkill {
         const totalDifficulty =
             combinedSnapDifficulty * pSnap + flowDifficulty * pFlow;
 
-        return totalDifficulty * this.skillMultiplierTotal;
+        return totalDifficulty * DroidAim.skillMultiplierTotal;
     }
 
     /**
@@ -224,7 +228,7 @@ export class DroidAim extends VariableLengthStrainSkill {
      * @param ratio The ratio.
      * @returns The probability.
      */
-    private calculateSnapFlowProbability(ratio: number): number {
+    private static calculateSnapFlowProbability(ratio: number): number {
         if (ratio === 0) {
             return 0;
         }
@@ -333,7 +337,7 @@ export class DroidAim extends VariableLengthStrainSkill {
         return strains.sort((a, b) => b.value - a.value);
     }
 
-    private strainDecay(ms: number): number {
+    private static strainDecay(ms: number): number {
         return Math.pow(0.2, ms / 1000);
     }
 }
