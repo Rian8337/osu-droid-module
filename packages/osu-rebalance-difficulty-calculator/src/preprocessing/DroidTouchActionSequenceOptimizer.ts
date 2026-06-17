@@ -477,6 +477,14 @@ class DroidTouchSequenceCandidate {
             previousObjects.length,
         );
 
+        // calculateSliderCursorPosition iterates every nested slider tick/repeat and is
+        // O(nestedObjects). Its result depends only on the slider path, not on lastObject,
+        // so it is identical across all 60 per-hand objects built from the same current
+        // object. Pre-seeding these fields causes it to short-circuit immediately.
+        perHandObj.lazyEndPosition = current.lazyEndPosition;
+        perHandObj.lazyTravelDistance = current.lazyTravelDistance;
+        perHandObj.lazyTravelTime = current.lazyTravelTime;
+
         perHandObj.computeProperties(current.clockRate);
 
         return perHandObj;
