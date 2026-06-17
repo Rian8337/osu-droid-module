@@ -42,24 +42,25 @@ export abstract class DroidTouchFlowAimEvaluator {
         flowMultiplier +=
             touchData.obstructionFactor * this.flowObstructionMaxBonus;
 
-        const flowDifficultyWithSliders =
-            DroidFlowAimEvaluator.evaluateDifficultyOf(
-                touchData.perHandObject,
-                true,
-            );
         const flowDifficultyNoSliders =
             DroidFlowAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 false,
             );
 
-        if (includeSliders) {
-            return (
-                flowDifficultyNoSliders * flowMultiplier +
-                (flowDifficultyWithSliders - flowDifficultyNoSliders)
-            );
+        if (!includeSliders) {
+            return flowDifficultyNoSliders * flowMultiplier;
         }
 
-        return flowDifficultyNoSliders * flowMultiplier;
+        const flowDifficultyWithSliders =
+            DroidFlowAimEvaluator.evaluateDifficultyOf(
+                touchData.perHandObject,
+                true,
+            );
+
+        return (
+            flowDifficultyNoSliders * flowMultiplier +
+            (flowDifficultyWithSliders - flowDifficultyNoSliders)
+        );
     }
 }

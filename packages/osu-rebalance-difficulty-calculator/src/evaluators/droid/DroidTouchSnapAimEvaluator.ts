@@ -42,24 +42,25 @@ export abstract class DroidTouchSnapAimEvaluator {
         snapMultiplier +=
             touchData.obstructionFactor * this.snapObstructionMaxBonus;
 
-        const snapDifficultyWithSliders =
-            DroidSnapAimEvaluator.evaluateDifficultyOf(
-                touchData.perHandObject,
-                true,
-            );
         const snapDifficultyNoSliders =
             DroidSnapAimEvaluator.evaluateDifficultyOf(
                 touchData.perHandObject,
                 false,
             );
 
-        if (includeSliders) {
-            return (
-                snapDifficultyNoSliders * snapMultiplier +
-                (snapDifficultyWithSliders - snapDifficultyNoSliders)
-            );
+        if (!includeSliders) {
+            return snapDifficultyNoSliders * snapMultiplier;
         }
 
-        return snapDifficultyNoSliders * snapMultiplier;
+        const snapDifficultyWithSliders =
+            DroidSnapAimEvaluator.evaluateDifficultyOf(
+                touchData.perHandObject,
+                true,
+            );
+
+        return (
+            snapDifficultyNoSliders * snapMultiplier +
+            (snapDifficultyWithSliders - snapDifficultyNoSliders)
+        );
     }
 }
