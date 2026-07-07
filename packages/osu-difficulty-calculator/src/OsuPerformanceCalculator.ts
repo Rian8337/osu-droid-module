@@ -1,12 +1,13 @@
 import {
     Accuracy,
+    BeatmapDifficulty,
     ErrorFunction,
+    HitObject,
     Interpolation,
     MathUtils,
     ModAutopilot,
     ModBlinds,
     ModFlashlight,
-    ModHidden,
     ModNoFail,
     ModRelax,
     ModScoreV2,
@@ -16,8 +17,8 @@ import {
 } from "@rian8337/osu-base";
 import { PerformanceCalculator } from "./base/PerformanceCalculator";
 import { OsuDifficultyCalculator } from "./OsuDifficultyCalculator";
-import { OsuRatingCalculator } from "./OsuRatingCalculator";
 import { OsuAim } from "./skills/osu/OsuAim";
+import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
 
@@ -46,13 +47,19 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     flashlight = 0;
 
     /**
+     * The reading performance value.
+     */
+    reading = 0;
+
+    /**
      * The amount of misses, including slider breaks.
      */
     get effectiveMissCount(): number {
         return this._effectiveMissCount;
     }
 
-    static readonly finalMultiplier = 1.14;
+    static readonly finalMultiplier = 1.12;
+    static readonly normExponent = 1.1;
 
     private greatWindow = 0;
     private okWindow = 0;
@@ -119,17 +126,12 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.okWindow = hitWindow.okWindow / clockRate;
         this.mehWindow = hitWindow.mehWindow / clockRate;
 
-        this.approachRate =
-            OsuDifficultyCalculator.calculateRateAdjustedApproachRate(
-                ar,
-                clockRate,
-            );
+        this.approachRate = this.calculateRateAdjustedApproachRate(
+            ar,
+            clockRate,
+        );
 
-        this.overallDifficulty =
-            OsuDifficultyCalculator.calculateRateAdjustedOverallDifficulty(
-                od,
-                clockRate,
-            );
+        this.overallDifficulty = (79.5 - this.greatWindow) / 6;
 
         this.speedDeviation = this.calculateSpeedDeviation();
 
@@ -137,14 +139,20 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         this.speed = this.calculateSpeedValue();
         this.accuracy = this.calculateAccuracyValue();
         this.flashlight = this.calculateFlashlightValue();
+        this.reading = this.calculateReadingValue();
+
+        const cognitionValue = OsuDifficultyCalculator.sumCognitionDifficulty(
+            this.reading,
+            this.flashlight,
+        );
 
         this.total =
-            Math.pow(
-                Math.pow(this.aim, 1.1) +
-                    Math.pow(this.speed, 1.1) +
-                    Math.pow(this.accuracy, 1.1) +
-                    Math.pow(this.flashlight, 1.1),
-                1 / 1.1,
+            MathUtils.norm(
+                OsuPerformanceCalculator.normExponent,
+                this.aim,
+                this.speed,
+                this.accuracy,
+                cognitionValue,
             ) * finalMultiplier;
     }
 
@@ -199,7 +207,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         let aimValue = OsuAim.difficultyToPerformance(aimDifficulty);
 
         // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
+        let lengthBonus = 0.95 + 0.35 * Math.min(1, this.totalHits / 2000);
         if (this.totalHits > 2000) {
             lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
         }
@@ -237,10 +245,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         } else if (this.mods.has(ModTraceable)) {
             aimValue *=
                 1 +
-                OsuRatingCalculator.calculateVisibilityBonus(
-                    this.mods,
-                    this.approachRate,
-                    undefined,
+                this.calculateTraceableBonus(
                     this.difficultyAttributes.sliderFactor,
                 );
         }
@@ -266,14 +271,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             this.difficultyAttributes.speedDifficulty,
         );
 
-        // Longer maps are worth more
-        let lengthBonus = 0.95 + 0.4 * Math.min(1, this.totalHits / 2000);
-        if (this.totalHits > 2000) {
-            lengthBonus += Math.log10(this.totalHits / 2000) * 0.5;
-        }
-
-        speedValue *= lengthBonus;
-
         if (this._effectiveMissCount > 0) {
             const speedEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
@@ -291,58 +288,25 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             );
         }
 
-        // Traceable bonuses are excluded when Blinds is present, as the increased visual difficulty is
-        // redundant when notes cannot be seen.
         if (this.mods.has(ModBlinds)) {
             // Increasing the speed value by object count for Blinds is not ideal, so the minimum buff is given.
             speedValue *= 1.12;
-        } else if (this.mods.has(ModTraceable)) {
-            speedValue *=
-                1 +
-                OsuRatingCalculator.calculateVisibilityBonus(
-                    this.mods,
-                    this.approachRate,
-                    undefined,
-                    this.difficultyAttributes.sliderFactor,
-                );
         }
-
-        // Calculate accuracy assuming the worst case scenario.
-        const countGreat = this.computedAccuracy.n300;
-        const countOk = this.computedAccuracy.n100;
-        const countMeh = this.computedAccuracy.n50;
-
-        const relevantTotalDiff =
-            this.totalHits - this.difficultyAttributes.speedNoteCount;
-
-        const relevantAccuracy = new Accuracy(
-            this.difficultyAttributes.speedNoteCount > 0
-                ? {
-                      n300: Math.max(0, countGreat - relevantTotalDiff),
-                      n100: Math.max(
-                          0,
-                          countOk - Math.max(0, relevantTotalDiff - countGreat),
-                      ),
-                      n50: Math.max(
-                          0,
-                          countMeh -
-                              Math.max(
-                                  0,
-                                  relevantTotalDiff - countGreat - countOk,
-                              ),
-                      ),
-                  }
-                : // Set accuracy to 0.
-                  { n300: 0, nobjects: 1 },
-        );
 
         speedValue *= this.calculateSpeedHighDeviationNerf();
 
-        // Scale the speed value with accuracy and OD.
-        speedValue *= Math.pow(
-            (this.computedAccuracy.value() + relevantAccuracy.value()) / 2,
-            (14.5 - this.overallDifficulty) / 2,
+        // An effective hit window is created based on the speed SR. The higher the speed difficulty, the shorter the hit window.
+        // For example, a speed SR of 4 leads to an effective hit window of 20ms, which is OD 10.
+        const effectiveHitWindow =
+            20 * Math.pow(4 / this.difficultyAttributes.speedDifficulty, 0.35);
+
+        // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
+        const effectiveAccuracy = ErrorFunction.erf(
+            effectiveHitWindow / this.speedDeviation,
         );
+
+        // Scale speed value by normalized accuracy.
+        speedValue *= Math.pow(effectiveAccuracy, 2);
 
         return speedValue;
     }
@@ -355,9 +319,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 0;
         }
 
-        const ncircles = this.mods.has(ModScoreV2)
-            ? this.totalHits - this.difficultyAttributes.spinnerCount
-            : this.difficultyAttributes.hitCircleCount;
+        const ncircles =
+            !this.usingClassicSliderAccuracy || this.mods.has(ModScoreV2)
+                ? this.totalHits - this.difficultyAttributes.spinnerCount
+                : this.difficultyAttributes.hitCircleCount;
 
         if (ncircles === 0) {
             return 0;
@@ -377,21 +342,17 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
             2.83;
 
-        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer
-        accuracyValue *= Math.min(1.15, Math.pow(ncircles / 1000, 0.3));
+        // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
+        accuracyValue *= Math.pow(ncircles / 1000, ncircles < 1000 ? 0.3 : 0.1);
 
         // Increasing the accuracy value by object count for Blinds isn't ideal, so the minimum buff is given.
         if (this.mods.has(ModBlinds)) {
             accuracyValue *= 1.14;
-        } else if (this.mods.has(ModHidden) || this.mods.has(ModTraceable)) {
+        } else if (this.mods.has(ModTraceable)) {
             // Decrease bonus for AR > 10.
             accuracyValue *=
                 1 +
                 0.08 * Interpolation.reverseLerp(this.approachRate, 11.5, 10);
-        }
-
-        if (this.mods.has(ModFlashlight)) {
-            accuracyValue *= 1.02;
         }
 
         return accuracyValue;
@@ -428,18 +389,36 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 );
         }
 
-        // Account for shorter maps having a higher ratio of 0 combo/100 combo flashlight radius.
-        flashlightValue *=
-            0.7 +
-            0.1 * Math.min(1, this.totalHits / 200) +
-            (this.totalHits > 200
-                ? 0.2 * Math.min(1, (this.totalHits - 200) / 200)
-                : 0);
-
         // Scale the flashlight value with accuracy slightly.
         flashlightValue *= 0.5 + this.computedAccuracy.value() / 2;
 
         return flashlightValue;
+    }
+
+    /**
+     * Calculates the reading performance value of the beatmap.
+     */
+    private calculateReadingValue(): number {
+        let readingValue = OsuReading.difficultyToPerformance(
+            this.difficultyAttributes.readingDifficulty,
+        );
+
+        if (this.effectiveMissCount > 0) {
+            const aimEstimatedSliderBreaks =
+                this.calculateEstimatedSliderBreaks(
+                    this.difficultyAttributes.aimTopWeightedSliderFactor,
+                );
+
+            readingValue *= this.calculateMissPenalty(
+                this.effectiveMissCount + aimEstimatedSliderBreaks,
+                this.difficultyAttributes.readingDifficultNoteCount,
+            );
+        }
+
+        // Scale the reading value with accuracy _harshly_.
+        readingValue *= Math.pow(this.computedAccuracy.value(), 3);
+
+        return readingValue;
     }
 
     /**
@@ -457,11 +436,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 1;
         }
 
-        return (
-            0.96 /
-            (missCount / (4 * Math.pow(Math.log(difficultStrainCount), 0.94)) +
-                1)
-        );
+        // https://www.desmos.com/calculator/naggvbcz0a
+        return 0.93 / (missCount / (4 * Math.log(difficultStrainCount)) + 1);
     }
 
     /**
@@ -625,21 +601,26 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     private calculateEstimatedSliderBreaks(
         topWeightedSliderFactor: number,
     ): number {
-        const { n100 } = this.computedAccuracy;
+        const nonMissMistakes =
+            this.computedAccuracy.n100 + this.computedAccuracy.n50;
 
-        if (!this.usingClassicSliderAccuracy || n100 === 0) {
+        if (!this.usingClassicSliderAccuracy || nonMissMistakes === 0) {
             return 0;
         }
 
         const missedComboPercent =
             1 - this.combo / this.difficultyAttributes.maxCombo;
+
         let estimatedSliderBreaks = Math.min(
-            n100,
+            nonMissMistakes,
             this._effectiveMissCount * topWeightedSliderFactor,
         );
 
-        // Scores with more Oks are more likely to have slider breaks.
-        const okAdjustment = (n100 - estimatedSliderBreaks + 0.5) / n100;
+        // Scores with more Oks and Mehs are more likely to have slider breaks.
+        // We add an arbitrary value to both sides of the division to make it more stable on extreme ends.
+        const nonMissMistakeAdjustment =
+            (nonMissMistakes - estimatedSliderBreaks + 4.5) /
+            (nonMissMistakes + 4);
 
         // There is a low probability of extra slider breaks on effective miss counts close to 1, as
         // score based calculations are good at indicating if only a single break occurred.
@@ -651,7 +632,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         return (
             estimatedSliderBreaks *
-            okAdjustment *
+            nonMissMistakeAdjustment *
             MathUtils.offsetLogistic(missedComboPercent, 0.33, 15)
         );
     }
@@ -662,18 +643,36 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     private calculateComboBasedEstimatedMissCount(): number {
         let missCount = this.computedAccuracy.nmiss;
         const { combo } = this;
-        const { sliderCount, maxCombo } = this.difficultyAttributes;
+
+        const { aimTopWeightedSliderFactor, sliderCount, maxCombo } =
+            this.difficultyAttributes;
 
         if (sliderCount <= 0) {
             return missCount;
         }
 
         if (this.usingClassicSliderAccuracy) {
+            // If sliders in the beatmap are hard, it's likely for player to drop sliderends.
+            // However, if the beatmap has easy sliders, it's more likely for player to sliderbreak.
+            const likelyMissedSliderendPortion =
+                0.04 +
+                0.06 * Math.pow(Math.min(aimTopWeightedSliderFactor, 1), 2);
+
             // Consider that full combo is maximum combo minus dropped slider tails since
             // they don't contribute to combo but also don't break it.
             // In classic scores, we can't know the amount of dropped sliders so we estimate
             // to 10% of all sliders in the beatmap.
-            const fullComboThreshold = maxCombo - 0.1 * sliderCount;
+            const fullComboThreshold =
+                maxCombo -
+                Math.min(
+                    // 4 is the minimum leniency baseline to ensure that dropping one (for few) sliderends will
+                    // not instantly be treated as a sliderbreak even in cases where the slider count is low.
+                    // 4 was picked because in a lot of short stream beatmaps with small amount of sliders, there
+                    // are 2-3 sliders on which sliderends are often dropped. This is a kind of optimization to
+                    // achieve the most accurate result on average.
+                    4 + likelyMissedSliderendPortion * sliderCount,
+                    sliderCount,
+                );
 
             if (combo < fullComboThreshold) {
                 missCount = fullComboThreshold / Math.max(1, combo);
@@ -714,6 +713,60 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         return missCount;
     }
 
+    private calculateTraceableBonus(sliderFactor = 1): number {
+        // We want to reward slider aim less, more so at lower AR.
+        const highApproachRateSliderVisibilityFactor =
+            0.5 + Math.pow(sliderFactor, 6) / 2;
+
+        const lowApproachRateSliderVisibilityFactor = Math.pow(sliderFactor, 6);
+
+        let traceableBonus = 0.0275;
+
+        // Start from normal curve, rewarding lower AR up to AR7.
+        traceableBonus +=
+            0.025 *
+            (12.0 - Math.max(this.approachRate, 7)) *
+            highApproachRateSliderVisibilityFactor;
+
+        // For AR up to 0 - reduce reward for very low ARs when object is visible.
+        if (this.approachRate < 7) {
+            traceableBonus +=
+                0.025 *
+                (7 - Math.max(this.approachRate, 0)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        // Starting from AR0 - cap values so they won't grow to infinity.
+        if (this.approachRate < 0) {
+            traceableBonus +=
+                0.025 *
+                (1 - Math.pow(1.5, this.approachRate)) *
+                lowApproachRateSliderVisibilityFactor;
+        }
+
+        return traceableBonus;
+    }
+
+    private calculateRateAdjustedApproachRate(
+        approachRate: number,
+        clockRate: number,
+    ): number {
+        const preempt =
+            BeatmapDifficulty.difficultyRange(
+                approachRate,
+                HitObject.preemptMax,
+                HitObject.preemptMid,
+                HitObject.preemptMin,
+            ) / clockRate;
+
+        return BeatmapDifficulty.inverseDifficultyRange(
+            preempt,
+            HitObject.preemptMax,
+            HitObject.preemptMid,
+            HitObject.preemptMin,
+        );
+    }
+
     override toString(): string {
         return (
             this.total.toFixed(2) +
@@ -725,7 +778,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             this.accuracy.toFixed(2) +
             " accuracy, " +
             this.flashlight.toFixed(2) +
-            " flashlight)"
+            " flashlight, " +
+            this.reading.toFixed(2) +
+            " reading)"
         );
     }
 }

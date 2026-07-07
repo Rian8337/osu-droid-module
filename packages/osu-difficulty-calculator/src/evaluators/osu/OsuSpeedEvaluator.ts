@@ -1,10 +1,4 @@
-import {
-    HitResult,
-    MathUtils,
-    ModAutopilot,
-    ModMap,
-    Spinner,
-} from "@rian8337/osu-base";
+import { HitResult, MathUtils, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -12,29 +6,21 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuSpeedEvaluator {
     // ~200 1/4 BPM streams
-    private static readonly minSpeedBonus = 75;
-
-    private static readonly DISTANCE_MULTIPLIER = 0.8;
+    private static readonly minSpeedBonus = 200;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
      *
      * - time between pressing the previous and current object,
-     * - distance between those objects,
      * - and how easily they can be cheesed.
      *
      * @param current The current object.
-     * @param mods The mods applied.
      */
-    static evaluateDifficultyOf(
-        current: OsuDifficultyHitObject,
-        mods: ModMap,
-    ): number {
+    static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
         if (current.object instanceof Spinner) {
             return 0;
         }
 
-        const prev = current.previous(0);
         let strainTime = current.strainTime;
 
         // Nerf doubletappable doubles.
@@ -52,38 +38,27 @@ export abstract class OsuSpeedEvaluator {
         let speedBonus = 0;
 
         // Add additional scaling bonus for streams/bursts higher than 200bpm
-        if (strainTime < this.minSpeedBonus) {
+        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
             speedBonus =
-                0.75 * Math.pow((this.minSpeedBonus - strainTime) / 40, 2);
-        }
-
-        const travelDistance = prev?.travelDistance ?? 0;
-
-        const singleSpacingThreshold = current.normalizedDiameter * 1.25;
-
-        // Cap distance at spacing threshold
-        const distance = Math.min(
-            singleSpacingThreshold,
-            travelDistance + current.minimumJumpDistance,
-        );
-
-        // Max distance bonus is 1 * `distance_multiplier` at single_spacing_threshold
-        let distanceBonus =
-            Math.pow(distance / singleSpacingThreshold, 3.95) *
-            this.DISTANCE_MULTIPLIER;
-
-        // Apply reduced small circle bonus because flow aim difficulty on small circles does not scale as hard as jumps.
-        distanceBonus *= Math.sqrt(current.smallCircleBonus);
-
-        if (mods.has(ModAutopilot)) {
-            distanceBonus = 0;
+                0.75 *
+                Math.pow(
+                    (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
+                        strainTime) /
+                        40,
+                    2,
+                );
         }
 
         // Base difficulty with all bonuses
-        const difficulty =
-            ((1 + speedBonus + distanceBonus) * 1000) / strainTime;
+        let difficulty = ((1 + speedBonus) * 1000) / strainTime;
+
+        difficulty *= this.highBpmBonus(current.strainTime);
 
         // Apply penalty if there's doubletappable doubles
         return difficulty * doubletapness;
+    }
+
+    private static highBpmBonus(ms: number): number {
+        return 1 / (1 - Math.pow(0.3, ms / 1000));
     }
 }

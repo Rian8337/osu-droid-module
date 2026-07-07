@@ -47,6 +47,7 @@ export abstract class Skill {
         const difficultyValue = this.processInternal(current);
 
         this.saveToHitObject(current, difficultyValue);
+
         this._objectDifficulties.push(difficultyValue);
         this._objectTimes.push(current.startTime);
     }

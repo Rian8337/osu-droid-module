@@ -51,6 +51,11 @@ export abstract class DroidFlashlightEvaluator {
         let last = current;
         let angleRepeatCount = 0;
 
+        // Hidden's fade-out only affects opacity when the "only fade approach circles" setting is off.
+        const opacityMods = mods.get(ModHidden)?.onlyFadeApproachCircles.value
+            ? undefined
+            : mods;
+
         for (let i = 0; i < Math.min(current.index, 10); ++i) {
             const currentObject = current.previous(i)!;
 
@@ -83,7 +88,7 @@ export abstract class DroidFlashlightEvaluator {
                         (1 -
                             current.opacityAt(
                                 currentObject.object.startTime,
-                                mods,
+                                opacityMods,
                             ));
 
                 result +=

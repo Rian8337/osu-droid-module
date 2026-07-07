@@ -30,6 +30,11 @@ export interface IDifficultyAttributes {
     flashlightDifficulty: number;
 
     /**
+     * The difficulty corresponding to the reading skill.
+     */
+    readingDifficulty: number;
+
+    /**
      * The number of clickable objects weighted by difficulty.
      *
      * Related to speed/tap difficulty.
@@ -81,4 +86,18 @@ export interface IDifficultyAttributes {
      * The amount of strains that are considered difficult with respect to the aim skill.
      */
     aimDifficultStrainCount: number;
+
+    /**
+     * Describes how much of {@link aimDifficultStrainCount} is contributed to by circles or sliders.
+     *
+     * A value closer to 0 indicates most of {@link aimDifficultStrainCount} is contributed by circles.
+     *
+     * A value closer to infinity indicates most of {@link aimDifficultStrainCount} is contributed by sliders.
+     */
+    aimTopWeightedSliderFactor: number;
+
+    /**
+     * The amount of notes that are considered difficult with respect to the reading skill.
+     */
+    readingDifficultNoteCount: number;
 }

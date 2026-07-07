@@ -1,13 +1,12 @@
 import {
-    Spinner,
-    Slider,
-    MathUtils,
-    Interpolation,
     HitResult,
+    Interpolation,
+    MathUtils,
+    Slider,
+    Spinner,
 } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
-import { DroidIsland } from "./DroidIsland";
-import { DroidIslandCounter } from "./DroidIslandCounter";
+import { Island } from "../base/Island";
 
 /**
  * An evaluator for calculating osu!droid Rhythm skill.
@@ -35,11 +34,12 @@ export abstract class DroidRhythmEvaluator {
 
         const deltaDifferenceEpsilon =
             current.hitWindowFor(HitResult.Great) * 0.3;
+
         let rhythmComplexitySum = 0;
 
-        let island = new DroidIsland(deltaDifferenceEpsilon);
-        let previousIsland = new DroidIsland(deltaDifferenceEpsilon);
-        const islandCounts: DroidIslandCounter[] = [];
+        let island = new Island(Number.MAX_SAFE_INTEGER);
+        let previousIsland = new Island(Number.MAX_SAFE_INTEGER);
+        const islands: Island[] = [];
 
         // Store the ratio of the current start of an island to buff for tighter rhythms.
         let startRatio = 0;
@@ -89,6 +89,7 @@ export abstract class DroidRhythmEvaluator {
                 (this.historyTimeMax -
                     (current.startTime - currentObject.startTime)) /
                 this.historyTimeMax;
+
             const noteDecay = (validPrevious.length - i) / validPrevious.length;
 
             // Either we're limited by time or limited by object count.
@@ -100,7 +101,7 @@ export abstract class DroidRhythmEvaluator {
             const lastDelta = Math.max(lastObject.deltaTime, 1e-7);
 
             if (island.delta == Number.MAX_SAFE_INTEGER) {
-                island = new DroidIsland(currentDelta, deltaDifferenceEpsilon);
+                island = new Island(currentDelta);
             }
 
             // Calculate how much current delta difference deserves a rhythm bonus.
@@ -171,7 +172,12 @@ export abstract class DroidRhythmEvaluator {
                     }
 
                     // Repeated island polarity (2 -> 4, 3 -> 5).
-                    if (island.isSimilarPolarity(previousIsland)) {
+                    if (
+                        island.isSimilarPolarity(
+                            previousIsland,
+                            deltaDifferenceEpsilon,
+                        )
+                    ) {
                         effectiveRatio /= 2;
                     }
 
@@ -194,32 +200,48 @@ export abstract class DroidRhythmEvaluator {
                         effectiveRatio *= 0.65;
                     }
 
-                    const islandCount = islandCounts.find((x) =>
-                        x.island.equals(island),
-                    );
+                    let found = false;
 
-                    if (islandCount) {
-                        // Only add island to island counts if they're going one after another.
-                        if (previousIsland.equals(island)) {
-                            ++islandCount.count;
+                    for (const existingIsland of islands) {
+                        if (
+                            !existingIsland.almostEquals(
+                                island,
+                                deltaDifferenceEpsilon,
+                            )
+                        ) {
+                            continue;
                         }
+
+                        // Only add island to island counts if they're going one after another.
+                        if (
+                            previousIsland.almostEquals(
+                                island,
+                                deltaDifferenceEpsilon,
+                            )
+                        ) {
+                            ++existingIsland.occurrences;
+                        }
+
+                        const power = MathUtils.offsetLogistic(
+                            island.delta,
+                            58.33,
+                            0.24,
+                            2.75,
+                        );
 
                         // Repeated island (ex: triplet -> triplet).
                         // Graph: https://www.desmos.com/calculator/pj7an56zwf
                         effectiveRatio *= Math.min(
-                            3 / islandCount.count,
-                            Math.pow(
-                                1 / islandCount.count,
-                                MathUtils.offsetLogistic(
-                                    island.delta,
-                                    58.33,
-                                    0.24,
-                                    2.75,
-                                ),
-                            ),
+                            3 / existingIsland.occurrences,
+                            Math.pow(1 / existingIsland.occurrences, power),
                         );
-                    } else if (island.deltaCount > 0) {
-                        islandCounts.push(new DroidIslandCounter(island, 1));
+
+                        found = true;
+                        break;
+                    }
+
+                    if (!found && island.deltaCount > 0) {
+                        islands.push(island);
                     }
 
                     // Scale down the difficulty if the object is doubletappable.
@@ -244,10 +266,7 @@ export abstract class DroidRhythmEvaluator {
                         firstDeltaSwitch = false;
                     }
 
-                    island = new DroidIsland(
-                        currentDelta,
-                        deltaDifferenceEpsilon,
-                    );
+                    island = new Island(currentDelta);
                 }
             } else if (prevDelta > currentDelta + deltaDifferenceEpsilon) {
                 // We are speeding up.
@@ -268,7 +287,7 @@ export abstract class DroidRhythmEvaluator {
 
                 startRatio = effectiveRatio;
 
-                island = new DroidIsland(currentDelta, deltaDifferenceEpsilon);
+                island = new Island(currentDelta);
             }
 
             lastObject = prevObject;

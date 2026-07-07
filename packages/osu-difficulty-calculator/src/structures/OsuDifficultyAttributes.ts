@@ -13,7 +13,6 @@ export class OsuDifficultyAttributes
     drainRate = 0;
     speedDifficulty = 0;
     speedDifficultStrainCount = 0;
-    aimTopWeightedSliderFactor = 0;
     speedTopWeightedSliderFactor = 0;
 
     constructor(
@@ -30,8 +29,6 @@ export class OsuDifficultyAttributes
         this.speedDifficulty = cacheableAttributes.speedDifficulty;
         this.speedDifficultStrainCount =
             cacheableAttributes.speedDifficultStrainCount;
-        this.aimTopWeightedSliderFactor =
-            cacheableAttributes.aimTopWeightedSliderFactor;
         this.speedTopWeightedSliderFactor =
             cacheableAttributes.speedTopWeightedSliderFactor;
     }
@@ -41,7 +38,8 @@ export class OsuDifficultyAttributes
             super.toString() +
             ` (${this.aimDifficulty.toFixed(2)} aim, ` +
             `${this.speedDifficulty.toFixed(2)} speed, ` +
-            `${this.flashlightDifficulty.toFixed(2)} flashlight)`
+            `${this.flashlightDifficulty.toFixed(2)} flashlight, ` +
+            `${this.readingDifficulty.toFixed(2)} reading)`
         );
     }
 }
