@@ -12,6 +12,7 @@ export abstract class HarmonicSkill
     implements IHasPeakDifficulty
 {
     private _noteWeightSum = 0;
+    private _objectTimes: number[] = [];
 
     /**
      * The sum of note weights, calculated during summation.
@@ -20,6 +21,15 @@ export abstract class HarmonicSkill
      */
     protected get noteWeightSum(): number {
         return this._noteWeightSum;
+    }
+
+    /**
+     * The start times of {@link DifficultyHitObject}s, populated by {@link HarmonicSkill.process}.
+     *
+     * Indices correspond to {@link objectDifficulties}.
+     */
+    protected get objectTimes(): readonly number[] {
+        return this._objectTimes;
     }
 
     /**
@@ -127,6 +137,16 @@ export abstract class HarmonicSkill
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     protected applyDifficultyTransformation(difficulties: number[]) {
         // Do nothing by default.
+    }
+
+    override process(current: DifficultyHitObject): void {
+        const previousLength = this.objectDifficulties.length;
+
+        super.process(current);
+
+        if (this.objectDifficulties.length > previousLength) {
+            this._objectTimes.push(current.startTime);
+        }
     }
 
     protected override processInternal(current: DifficultyHitObject): number {
