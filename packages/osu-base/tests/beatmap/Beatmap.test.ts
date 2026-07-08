@@ -9,6 +9,7 @@ import {
     ModMap,
     ModReallyEasy,
     ModRelax,
+    ModReplayV6,
     ModScoreV2,
     Modes,
     ObjectTypes,
@@ -504,6 +505,7 @@ describe("Test playable beatmap creation", () => {
             beatmap.difficulty,
             Modes.Osu,
         );
+
         object.applySamples(beatmap.controlPoints);
     }
 
@@ -526,6 +528,19 @@ describe("Test playable beatmap creation", () => {
     });
 
     describe("Test playable beatmap creation with options", () => {
+        test("Gamemode-dependent mods are applied correctly", () => {
+            const mods = new ModMap();
+
+            mods.set(ModReplayV6);
+            mods.set(ModHardRock);
+
+            const playableBeatmap = beatmap.createOsuPlayableBeatmap(mods);
+            const [firstObject] = playableBeatmap.hitObjects.objects;
+
+            expect(playableBeatmap.difficulty.cs).toBeCloseTo(6.5);
+            expect(firstObject.scale).toBeCloseTo(0.39516195000000004);
+        });
+
         describe("osu!droid game mode", () => {
             const getConvertedFirstObject = (...mods: Mod[]) => {
                 const modMap = new ModMap();
