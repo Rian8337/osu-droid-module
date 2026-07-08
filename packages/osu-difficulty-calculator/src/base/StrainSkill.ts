@@ -34,7 +34,10 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
     get peaks(): readonly TimedStrainPeak[] {
         return this.strainPeaks
             .map((value, i) => ({ time: this.strainPeakTimes[i], value }))
-            .concat({ time: this.currentSectionEnd, value: this.currentSectionPeak });
+            .concat({
+                time: this.currentSectionEnd,
+                value: this.currentSectionPeak,
+            });
     }
 
     private readonly sectionLength = 400;
@@ -99,10 +102,7 @@ export abstract class StrainSkill extends Skill implements IHasPeakDifficulty {
             this.currentSectionEnd += this.sectionLength;
         }
 
-        // Ignore the first hitobject.
         this.currentStrain = this.strainValueAt(current);
-
-        this.saveToHitObject(current, this.currentStrain);
 
         this.currentSectionPeak = Math.max(
             this.currentStrain,
