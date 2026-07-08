@@ -349,15 +349,30 @@ export class Beatmap implements IBeatmap {
         const converted = new BeatmapConverter(this).convert();
 
         const adjustmentMods = new ModMap();
+        const applicableMods = new ModMap();
 
         for (const mod of mods.values()) {
+            switch (mode) {
+                case Modes.Droid:
+                    if (mod.isApplicableToDroid()) {
+                        applicableMods.set(mod);
+                    }
+                    break;
+
+                case Modes.Osu:
+                    if (mod.isApplicableToOsu()) {
+                        applicableMods.set(mod);
+                    }
+                    break;
+            }
+
             if (mod.facilitatesAdjustment()) {
                 adjustmentMods.set(mod);
             }
         }
 
         // Apply difficulty mods
-        mods.forEach((mod) => {
+        applicableMods.forEach((mod) => {
             if (mod.isApplicableToDifficulty()) {
                 mod.applyToDifficulty(
                     mode,
@@ -367,9 +382,13 @@ export class Beatmap implements IBeatmap {
             }
         });
 
-        mods.forEach((mod) => {
+        applicableMods.forEach((mod) => {
             if (mod.isApplicableToDifficultyWithMods()) {
-                mod.applyToDifficultyWithMods(mode, converted.difficulty, mods);
+                mod.applyToDifficultyWithMods(
+                    mode,
+                    converted.difficulty,
+                    applicableMods,
+                );
             }
         });
 
@@ -386,7 +405,7 @@ export class Beatmap implements IBeatmap {
             );
         });
 
-        mods.forEach((mod) => {
+        applicableMods.forEach((mod) => {
             if (mod.isApplicableToHitObject()) {
                 for (const hitObject of converted.hitObjects.objects) {
                     mod.applyToHitObject(mode, hitObject, adjustmentMods);
@@ -394,17 +413,21 @@ export class Beatmap implements IBeatmap {
             }
         });
 
-        mods.forEach((mod) => {
+        applicableMods.forEach((mod) => {
             if (mod.isApplicableToHitObjectWithMods()) {
                 for (const hitObject of converted.hitObjects.objects) {
-                    mod.applyToHitObjectWithMods(mode, hitObject, mods);
+                    mod.applyToHitObjectWithMods(
+                        mode,
+                        hitObject,
+                        applicableMods,
+                    );
                 }
             }
         });
 
         processor.postProcess();
 
-        mods.forEach((mod) => {
+        applicableMods.forEach((mod) => {
             if (mod.isApplicableToBeatmap()) {
                 mod.applyToBeatmap(converted);
             }
