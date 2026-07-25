@@ -50,14 +50,15 @@ export abstract class DroidSnapAimEvaluator {
         const diameter = current.normalizedDiameter;
 
         // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
-        const currentDistance = withSliders
-            ? current.lazyJumpDistance
-            : current.jumpDistance;
+        const currentDistance =
+            withSliders && !current.is2BSlider
+                ? current.lazyJumpDistance
+                : current.jumpDistance;
 
         let currentVelocity = currentDistance / current.strainTime;
 
         // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
-        if (last.object instanceof Slider && withSliders) {
+        if (last.object instanceof Slider && !last.is2BSlider && withSliders) {
             const sliderDistance =
                 last.lazyTravelDistance + current.lazyJumpDistance;
 
@@ -67,9 +68,10 @@ export abstract class DroidSnapAimEvaluator {
             );
         }
 
-        const prevDistance = withSliders
-            ? last.lazyJumpDistance
-            : last.jumpDistance;
+        const prevDistance =
+            withSliders && !last.is2BSlider
+                ? last.lazyJumpDistance
+                : last.jumpDistance;
 
         const prevVelocity = prevDistance / last.strainTime;
 

@@ -23,17 +23,19 @@ export abstract class DroidFlowAimEvaluator {
         const last = current.previous(0)!;
         const lastLast = current.previous(1)!;
 
-        const currentDistance = withSliders
-            ? current.lazyJumpDistance
-            : current.jumpDistance;
+        const currentDistance =
+            withSliders && !current.is2BSlider
+                ? current.lazyJumpDistance
+                : current.jumpDistance;
 
-        const prevDistance = withSliders
-            ? last.lazyJumpDistance
-            : last.jumpDistance;
+        const prevDistance =
+            withSliders && !last.is2BSlider
+                ? last.lazyJumpDistance
+                : last.jumpDistance;
 
         let currentVelocity = currentDistance / current.strainTime;
 
-        if (last.object instanceof Slider && withSliders) {
+        if (last.object instanceof Slider && !last.is2BSlider && withSliders) {
             // If the last object is a slider, then we extend the travel velocity through the slider into the current object.
             const sliderDistance =
                 last.lazyTravelDistance + current.lazyJumpDistance;

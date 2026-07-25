@@ -175,6 +175,23 @@ export abstract class DifficultyHitObject {
     readonly clockRate: number;
 
     /**
+     * Whether this hitobject is a 2B slider.
+     */
+    get is2BSlider(): boolean {
+        if (!(this.object instanceof Slider)) {
+            return false;
+        }
+
+        const next = this.next(0);
+
+        if (!next) {
+            return false;
+        }
+
+        return this.endTime - this.startTime > next.strainTime;
+    }
+
+    /**
      * Selective bonus for beatmaps with higher circle size.
      */
     abstract get smallCircleBonus(): number;
