@@ -49,7 +49,7 @@ export class DroidDifficultyHitObject extends DifficultyHitObject {
     }
 
     override get smallCircleBonus(): number {
-        return 1 + Math.pow(Math.max(0, 65 - this.object.radius) / 40, 2);
+        return 1 + Math.pow(Math.max(0, 70 - this.object.radius) / 20, 2);
     }
 
     override opacityAt(time: number, mods?: ModMap): number {
