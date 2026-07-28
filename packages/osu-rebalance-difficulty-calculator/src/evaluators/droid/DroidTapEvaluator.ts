@@ -1,4 +1,9 @@
-import { Spinner, ErrorFunction, MathUtils } from "@rian8337/osu-base";
+import {
+    Spinner,
+    ErrorFunction,
+    MathUtils,
+    HitResult,
+} from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -32,31 +37,45 @@ export abstract class DroidTapEvaluator {
             return 0;
         }
 
+        let { strainTime } = current;
+
+        // Nerf doubletappable doubles.
         const doubletapness = considerCheesability
             ? 1 - current.getDoubletapness(current.next(0))
             : 1;
 
-        let speedBonus = 1;
+        // Cap deltatime to the OD 300 hitwindow.
+        // 0.63 is derived from making sure 200 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
+        strainTime /= MathUtils.clamp(
+            strainTime / current.hitWindowFor(HitResult.Great) / 0.63,
+            0.92,
+            1,
+        );
 
-        if (
-            MathUtils.millisecondsToBPM(current.strainTime) > this.minSpeedBonus
-        ) {
-            speedBonus +=
+        // speedBonus will be 0 for BPM < 200
+        let speedBonus = 0;
+
+        // Add additional scaling bonus for streams/bursts higher than 200bpm
+        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
+            speedBonus =
                 0.75 *
                 Math.pow(
                     ErrorFunction.erf(
                         (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
-                            current.strainTime) /
+                            strainTime) /
                             40,
                     ),
                     2,
                 );
         }
 
-        let strain = (speedBonus * 1000) / current.strainTime;
-        strain *= this.highBpmBonus(current.strainTime);
+        // Base difficulty with all bonuses
+        let difficulty = ((1 + speedBonus) * 1000) / strainTime;
 
-        return strain * Math.pow(doubletapness, 1.5);
+        difficulty *= this.highBpmBonus(current.strainTime);
+
+        // Apply penalty if there's doubletappable doubles
+        return difficulty * doubletapness;
     }
 
     private static highBpmBonus(ms: number): number {
