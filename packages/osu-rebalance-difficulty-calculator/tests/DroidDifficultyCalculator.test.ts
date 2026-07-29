@@ -244,18 +244,18 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 18.92316582997985,
+                aim: 12.318783750259566,
                 tap: 6.514003422727966,
                 rhythm: 1.970157660146092,
                 reading: 7.312210999910238,
-                total: 32.96809434723191,
+                total: 22.752152710340614,
             },
             doubleTime: {
-                aim: 21.93866310003829,
+                aim: 14.193705208404236,
                 tap: 9.25345877550144,
                 rhythm: 2.1655754384925676,
                 reading: 12.89238230530667,
-                total: 39.845753240575824,
+                total: 29.735533192257293,
             },
             flashlight: 7.263081776209047,
         },
