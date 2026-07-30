@@ -14,7 +14,9 @@ export interface APIScore {
     readonly good: number;
     readonly bad: number;
     readonly miss: number;
+    readonly sliderHeadHit: number | null;
     readonly sliderTickHit: number | null;
+    readonly sliderRepeatHit: number | null;
     readonly sliderEndHit: number | null;
     readonly date: number;
     readonly hash: string;

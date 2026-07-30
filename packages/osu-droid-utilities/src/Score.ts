@@ -95,9 +95,19 @@ export class Score {
     hash: string;
 
     /**
+     * The amount of slider heads hit in the play.
+     */
+    sliderHeadHits: number | null;
+
+    /**
      * The amount of slider ticks hit in the play.
      */
     sliderTickHits: number | null;
+
+    /**
+     * The amount of slider repeats hit in the play.
+     */
+    sliderRepeatHits: number | null;
 
     /**
      * The amount of slider ends hit in the play.
@@ -147,7 +157,9 @@ export class Score {
             nmiss: apiScore.miss,
         });
 
+        this.sliderHeadHits = apiScore.sliderHeadHit;
         this.sliderTickHits = apiScore.sliderTickHit;
+        this.sliderRepeatHits = apiScore.sliderRepeatHit;
         this.sliderEndHits = apiScore.sliderEndHit;
         this.hash = apiScore.hash;
         this.pp = apiScore.pp;
