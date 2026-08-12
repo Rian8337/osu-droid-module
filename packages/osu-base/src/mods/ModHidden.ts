@@ -16,10 +16,9 @@ import { BooleanModSetting } from "./settings/BooleanModSetting";
 export class ModHidden
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsuStable,
-        IModApplicableToBeatmap
-{
+    IModApplicableToDroid,
+    IModApplicableToOsuStable,
+    IModApplicableToBeatmap {
     static readonly fadeInDurationMultiplier = 0.4;
     static readonly fadeOutDurationMultiplier = 0.3;
 
@@ -74,8 +73,11 @@ export class ModHidden
 
     applyToBeatmap(beatmap: IBeatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {
-            hitObject.timeFadeIn =
-                hitObject.timePreempt * ModHidden.fadeInDurationMultiplier;
+            // Sliders keep their default fade-in time to match osu!stable.
+            if (!(hitObject instanceof Slider)) {
+                hitObject.timeFadeIn =
+                    hitObject.timePreempt * ModHidden.fadeInDurationMultiplier;
+            }
 
             if (hitObject instanceof Slider) {
                 hitObject.nestedHitObjects.forEach(applyFadeInAdjustment);
