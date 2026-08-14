@@ -113,11 +113,17 @@ export class ModDifficultyAdjust
         return this.isRelevant;
     }
 
+    /**
+     * Sets this `ModDifficultyAdjust`'s default difficulty values. This does not change the current values of the
+     * settings, but rather the default values that are used when the settings are reset.
+     *
+     * @param difficulty The `BeatmapDifficulty` to use as the default values.
+     */
     applyFromBeatmapDifficulty(difficulty: BeatmapDifficulty) {
-        this.cs.originalValue = difficulty.cs;
-        this.ar.originalValue = difficulty.ar;
-        this.od.originalValue = difficulty.od;
-        this.hp.originalValue = difficulty.hp;
+        this.cs.defaultValue = difficulty.cs;
+        this.ar.defaultValue = difficulty.ar;
+        this.od.defaultValue = difficulty.od;
+        this.hp.defaultValue = difficulty.hp;
     }
 
     applyToDifficultyWithMods(

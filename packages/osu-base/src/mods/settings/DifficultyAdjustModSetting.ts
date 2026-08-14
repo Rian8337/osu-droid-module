@@ -1,24 +1,15 @@
 import { NullableDecimalModSetting } from "./NullableDecimalModSetting";
 
 /**
- * A `NullableDecimalModSetting` variant for `ModDifficultyAdjust` that embeds the beatmap's original
- * difficulty value alongside the user's adjusted value in the serialized format:
+ * A `NullableDecimalModSetting` variant for `ModDifficultyAdjust`.
  *
- * `{ "adjusted": 7.0, "original": 4.0 }`
+ * The serialized format is a plain scalar (e.g. `"cs": 7.0`), matching the game client.
  *
- * When `originalValue` is non-null, the score multiplier can be computed from the serialized format
- * alone, without a beatmap lookup. When `null`, `applyFromBeatmapDifficulty` must be called first.
- *
- * Legacy scalar values (e.g. `"cs": 7.0`) are accepted in `load` for backward compatibility.
+ * The legacy `{ "adjusted": 7.0, "original": 4.0 }` object format is still accepted in `load` for
+ * backward compatibility with old saved data. When present, `original` is used to set `defaultValue`
+ * directly rather than being tracked separately.
  */
 export class DifficultyAdjustModSetting extends NullableDecimalModSetting {
-    /**
-     * The beatmap's original value for this setting, populated by `applyFromBeatmapDifficulty`.
-     *
-     * Non-null means the score multiplier is self-contained; `null` means a beatmap lookup is needed.
-     */
-    originalValue: number | null = null;
-
     constructor(
         name: string,
         key: string,
@@ -31,6 +22,14 @@ export class DifficultyAdjustModSetting extends NullableDecimalModSetting {
         super(name, key, description, null, min, max, step, precision);
     }
 
+    /**
+     * "Default" means no override is active (`value` is `null`), regardless of what `defaultValue`
+     * currently holds (which may be set to the beatmap's difficulty for UI hint display).
+     */
+    override get isDefault(): boolean {
+        return this.value === null;
+    }
+
     override load(settings: Record<string, unknown>): void {
         if (this.key === null) {
             return;
@@ -39,21 +38,17 @@ export class DifficultyAdjustModSetting extends NullableDecimalModSetting {
         const data = settings[this.key];
 
         if (typeof data === "object" && data !== null) {
+            // Legacy format. Kept for backward compatibility with old saved data.
             const { adjusted, original } = data as Record<string, unknown>;
 
             this.value = typeof adjusted === "number" ? adjusted : null;
 
-            const originalNum = typeof original === "number" ? original : null;
-
-            this.originalValue = originalNum;
-
-            if (originalNum !== null) {
-                this.defaultValue = originalNum;
+            if (typeof original === "number") {
+                this.defaultValue = original;
             }
-        } else if (typeof data === "number") {
-            // Legacy scalar format.
-            this.value = data;
-            this.originalValue = null;
+        } else {
+            // New format: a plain scalar value (or null).
+            super.load(settings);
         }
     }
 
@@ -62,9 +57,6 @@ export class DifficultyAdjustModSetting extends NullableDecimalModSetting {
             return;
         }
 
-        settings[this.key] = {
-            adjusted: this.value,
-            original: this.originalValue,
-        };
+        settings[this.key] = this.value;
     }
 }

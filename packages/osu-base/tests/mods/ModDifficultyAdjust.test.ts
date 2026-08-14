@@ -16,32 +16,22 @@ import {
     Vector2,
 } from "../../src";
 
-function setOriginals(
+function setDefaults(
     mod: ModDifficultyAdjust,
     options: { cs?: number; ar?: number; od?: number; hp?: number },
 ) {
     if (options.cs !== undefined) {
         mod.cs.defaultValue = options.cs;
-        mod.cs.originalValue = options.cs;
     }
     if (options.ar !== undefined) {
         mod.ar.defaultValue = options.ar;
-        mod.ar.originalValue = options.ar;
     }
     if (options.od !== undefined) {
         mod.od.defaultValue = options.od;
-        mod.od.originalValue = options.od;
     }
     if (options.hp !== undefined) {
         mod.hp.defaultValue = options.hp;
-        mod.hp.originalValue = options.hp;
     }
-}
-
-function roundTrip(mod: ModDifficultyAdjust): ModDifficultyAdjust {
-    return ModUtil.deserializeMods(ModUtil.serializeMods([mod])).get(
-        ModDifficultyAdjust,
-    )!;
 }
 
 test("Test beatmap setting override without additional mods", () => {
@@ -235,88 +225,72 @@ test("Test toString", () => {
     expect(mod.toString()).toBe("DA (CS4.0, AR9.0, OD8.0, HP6.0)");
 });
 
-test("Test serialization embeds original value", () => {
+test("Test serialization writes a plain scalar", () => {
     const mod = new ModDifficultyAdjust();
     mod.cs.value = 7;
     mod.od.value = 9;
-    setOriginals(mod, { cs: 4, od: 8 });
+    setDefaults(mod, { cs: 4, od: 8 });
 
     const settings = mod.serialize().settings!;
 
-    const csSetting = settings.cs as {
-        adjusted: number;
-        original: number | null;
-    };
-    expect(csSetting.adjusted).toBe(7);
-    expect(csSetting.original).toBe(4);
-
-    const odSetting = settings.od as {
-        adjusted: number;
-        original: number | null;
-    };
-    expect(odSetting.adjusted).toBe(9);
-    expect(odSetting.original).toBe(8);
+    expect(settings.cs).toBe(7);
+    expect(settings.od).toBe(9);
 });
 
-test("Test serialization writes null original when beatmap is unknown", () => {
+test("Test isDefault is unaffected by defaultValue", () => {
     const mod = new ModDifficultyAdjust();
-    mod.cs.value = 7;
+    setDefaults(mod, { cs: 4 });
 
-    const settings = mod.serialize().settings!;
+    // `value` is still null (no override active), regardless of `defaultValue`.
+    expect(mod.cs.isDefault).toBe(true);
 
-    const csSetting = settings.cs as {
-        adjusted: number;
-        original: number | null;
-    };
-    expect(csSetting.adjusted).toBe(7);
-    expect(csSetting.original).toBeNull();
+    mod.cs.value = 4;
+
+    expect(mod.cs.isDefault).toBe(false);
 });
 
-test("Test deserialization of new format", () => {
-    const mod = new ModDifficultyAdjust();
-    mod.cs.value = 7;
-    mod.od.value = 9;
-    setOriginals(mod, { cs: 4, od: 8 });
-
-    const deserialized = roundTrip(mod);
-
-    expect(deserialized.cs.value).toBe(7);
-    expect(deserialized.cs.originalValue).toBe(4);
-    expect(deserialized.od.value).toBe(9);
-    expect(deserialized.od.originalValue).toBe(8);
-});
-
-test("Test deserialization of old scalar format", () => {
+test("Test deserialization of the new scalar format", () => {
     const json = `[{"acronym":"DA","settings":{"cs":7.0,"od":9.0}}]`;
     const deserialized =
         ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
 
     expect(deserialized.cs.value).toBe(7);
-    expect(deserialized.cs.originalValue).toBeNull();
     expect(deserialized.od.value).toBe(9);
-    expect(deserialized.od.originalValue).toBeNull();
 });
 
-test("Test deserialization of new format with null original", () => {
+test("Test deserialization of the legacy object format", () => {
+    const json = `[{"acronym":"DA","settings":{"cs":{"adjusted":7.0,"original":4.0},"od":{"adjusted":9.0,"original":8.0}}}]`;
+    const deserialized =
+        ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
+
+    expect(deserialized.cs.value).toBe(7);
+    expect(deserialized.cs.defaultValue).toBe(4);
+    expect(deserialized.od.value).toBe(9);
+    expect(deserialized.od.defaultValue).toBe(8);
+});
+
+test("Test deserialization of the legacy object format with null original", () => {
     const json = `[{"acronym":"DA","settings":{"cs":{"adjusted":7.0,"original":null}}}]`;
     const deserialized =
         ModUtil.deserializeMods(json).get(ModDifficultyAdjust)!;
 
     expect(deserialized.cs.value).toBe(7);
-    expect(deserialized.cs.originalValue).toBeNull();
+    expect(deserialized.cs.defaultValue).toBeNull();
 });
 
-test("Test copySettings preserves original values", () => {
+test("Test copySettings copies the adjusted value only", () => {
     const mod = new ModDifficultyAdjust();
     mod.cs.value = 7;
     mod.od.value = 9;
-    setOriginals(mod, { cs: 4, od: 8 });
+    setDefaults(mod, { cs: 4, od: 8 });
 
     const copy = new ModDifficultyAdjust();
     copy.copySettings(mod.serialize());
 
     expect(copy.cs.value).toBe(7);
-    expect(copy.cs.originalValue).toBe(4);
     expect(copy.od.value).toBe(9);
-    expect(copy.od.originalValue).toBe(8);
+
+    // `defaultValue` is not part of the serialized format, so it is not carried over.
+    expect(copy.cs.defaultValue).toBeNull();
+    expect(copy.od.defaultValue).toBeNull();
 });
