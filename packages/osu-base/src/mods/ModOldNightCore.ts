@@ -26,12 +26,4 @@ import { ModNightCore } from "./ModNightCore";
  */
 export class ModOldNightCore extends ModNightCore {
     override readonly rate = (44.1 * 1.5) / 48;
-
-    override get droidScoreMultiplier(): number {
-        return 1.12;
-    }
-
-    override get migrationDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
-    }
 }

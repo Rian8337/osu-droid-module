@@ -8,8 +8,7 @@ import { DecimalModSetting } from "./settings/DecimalModSetting";
  */
 export class ModWindDown
     extends ModTimeRamp
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToDroid, IModApplicableToOsu {
     override readonly name = "Wind Down";
     override readonly acronym = "WD";
 
@@ -18,15 +17,6 @@ export class ModWindDown
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
-
-    override get droidScoreMultiplier(): number {
-        return super.droidScoreMultiplier;
-    }
-
-    override get migrationDroidScoreMultiplier(): number {
-        return super.migrationDroidScoreMultiplier;
-    }
 
     override readonly initialRate = new DecimalModSetting(
         "Initial rate",

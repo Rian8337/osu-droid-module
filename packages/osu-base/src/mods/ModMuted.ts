@@ -11,19 +11,15 @@ import { IntegerModSetting } from "./settings/IntegerModSetting";
  */
 export class ModMuted
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToDroid, IModApplicableToOsu {
     override readonly name = "Muted";
     override readonly acronym = "MU";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     /**
      * Increase volume as combo builds.

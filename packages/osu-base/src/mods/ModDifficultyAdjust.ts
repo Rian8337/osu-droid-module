@@ -14,7 +14,6 @@ import { ModMap } from "./ModMap";
 import { ModReallyEasy } from "./ModReallyEasy";
 import { ModReplayV6 } from "./ModReplayV6";
 import { ModSmallCircle } from "./ModSmallCircle";
-
 import { DifficultyAdjustModSetting } from "./settings/DifficultyAdjustModSetting";
 
 /**
@@ -36,7 +35,6 @@ export class ModDifficultyAdjust
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     /**
      * The circle size to enforce.
@@ -115,35 +113,6 @@ export class ModDifficultyAdjust
 
     get isDroidRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    get droidScoreMultiplier(): number {
-        // Graph: https://www.desmos.com/calculator/yrggkhrkzz
-        let multiplier = 1;
-
-        if (this.cs.value !== null && this.cs.defaultValue !== null) {
-            const diff = this.cs.value - this.cs.defaultValue;
-
-            multiplier *=
-                diff >= 0
-                    ? 1 + 0.0075 * Math.pow(diff, 1.5)
-                    : 2 / (1 + Math.exp(-0.5 * diff));
-        }
-
-        if (this.od.value !== null && this.od.defaultValue !== null) {
-            const diff = this.od.value - this.od.defaultValue;
-
-            multiplier *=
-                diff >= 0
-                    ? 1 + 0.005 * Math.pow(diff, 1.3)
-                    : 2 / (1 + Math.exp(-0.25 * diff));
-        }
-
-        return multiplier;
-    }
-
-    get migrationDroidScoreMultiplier() {
-        return this.droidScoreMultiplier;
     }
 
     applyFromBeatmapDifficulty(difficulty: BeatmapDifficulty) {

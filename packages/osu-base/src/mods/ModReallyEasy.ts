@@ -15,15 +15,12 @@ import { ModReplayV6 } from "./ModReplayV6";
  */
 export class ModReallyEasy
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToDifficultyWithMods
-{
+    implements IModApplicableToDroid, IModApplicableToDifficultyWithMods {
     override readonly acronym = "RE";
     override readonly name = "Really Easy";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 0.4;
-    readonly migrationDroidScoreMultiplier = 0.4;
 
     applyToDifficultyWithMods(
         mode: Modes,
@@ -59,9 +56,9 @@ export class ModReallyEasy
                 // The 0.125 scale that was added before replay version 7 was in screen pixels. We need it in osu! pixels.
                 difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                     scale +
-                        CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
-                            0.125,
-                        ),
+                    CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                        0.125,
+                    ),
                 );
             }
         }

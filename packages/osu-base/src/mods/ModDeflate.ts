@@ -1,4 +1,3 @@
-import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { ModObjectScaleTween } from "./ModObjectScaleTween";
 import { DecimalModSetting } from "./settings/DecimalModSetting";
@@ -8,19 +7,12 @@ import { DecimalModSetting } from "./settings/DecimalModSetting";
  */
 export class ModDeflate
     extends ModObjectScaleTween
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToOsu {
     override readonly name = "Deflate";
     override readonly acronym = "DF";
 
-    readonly droidRanked = false;
-    readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
-
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     override readonly startScale = new DecimalModSetting(
         "Start scale",

@@ -15,21 +15,17 @@ import { EnumModSetting } from "./settings/EnumModSetting";
 export class ModMirror
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsu,
-        IModApplicableToHitObject
-{
+    IModApplicableToDroid,
+    IModApplicableToOsu,
+    IModApplicableToHitObject {
     override readonly name = "Mirror";
     override readonly acronym = "MR";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     /**
      * The axes to reflect the `HitObject`s along.

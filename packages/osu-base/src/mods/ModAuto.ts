@@ -9,19 +9,15 @@ import { ModRelax } from "./ModRelax";
  */
 export class ModAuto
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "AT";
     override readonly name = "Autoplay";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
     readonly bitwise = 1 << 11;
 
     constructor() {

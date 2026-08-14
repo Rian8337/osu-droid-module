@@ -14,21 +14,17 @@ import { ModHidden } from "./ModHidden";
 export class ModFreezeFrame
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsu,
-        IModApplicableToBeatmap
-{
+    IModApplicableToDroid,
+    IModApplicableToOsu,
+    IModApplicableToBeatmap {
     override readonly name = "Freeze Frame";
     override readonly acronym = "FR";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     constructor() {
         super();

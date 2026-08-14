@@ -11,8 +11,7 @@ import { DecimalModSetting } from "./settings/DecimalModSetting";
  */
 export class ModFlashlight
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     /**
      * The default amount of seconds until the Flashlight follow area reaches the cursor.
      */
@@ -27,24 +26,11 @@ export class ModFlashlight
 
     readonly isDroidRelevant = true;
 
-    get droidScoreMultiplier(): number {
-        return this.usesDefaultSettings ? 1.12 : 1;
-    }
-
-    get migrationDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
-    }
-
     get osuRanked(): boolean {
         return this.usesDefaultSettings;
     }
 
     readonly isOsuRelevant = true;
-
-    get osuScoreMultiplier(): number {
-        return this.usesDefaultSettings ? 1.12 : 1;
-    }
-
     readonly bitwise = 1 << 10;
 
     /**

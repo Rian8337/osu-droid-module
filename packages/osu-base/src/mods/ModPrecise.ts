@@ -12,15 +12,12 @@ import { Mod } from "./Mod";
  */
 export class ModPrecise
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToHitObject
-{
+    implements IModApplicableToDroid, IModApplicableToHitObject {
     override readonly acronym = "PR";
     override readonly name = "Precise";
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1.06;
-    readonly migrationDroidScoreMultiplier = 1.06;
 
     applyToHitObject(mode: Modes, hitObject: HitObject): void {
         if (mode !== Modes.Droid || hitObject instanceof Spinner) {

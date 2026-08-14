@@ -40,7 +40,6 @@ import { ModPerfect } from "../mods/ModPerfect";
 import { ModPrecise } from "../mods/ModPrecise";
 import { ModRandom } from "../mods/ModRandom";
 import { ModRateAdjust } from "../mods/ModRateAdjust";
-import { ModRateAdjustHelper } from "../mods/ModRateAdjustHelper";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
 import { ModRepel } from "../mods/ModRepel";
@@ -157,107 +156,6 @@ export abstract class ModUtil {
         }
 
         return map;
-    }
-
-    /**
-     * Calculates the score multiplier of the given mods and game mode.
-     *
-     * @param mods The mods to calculate the score multiplier for.
-     * @param mode The game mode to calculate the score multiplier for.
-     * @param difficulty The `BeatmapDifficulty` to apply to the mods. Needed for some mods to have an effect on
-     * score multiplier (i.e., `ModDifficultyAdjust`).
-     * @returns The score multiplier.
-     */
-    static calculateScoreMultiplier(
-        mods: Iterable<Mod>,
-        mode: Modes,
-        difficulty?: BeatmapDifficulty,
-    ): number {
-        return this.calculateScoreMultiplierInternal(
-            mods,
-            mode,
-            (mod) => {
-                switch (mode) {
-                    case Modes.Droid:
-                        return mod.isApplicableToDroid()
-                            ? mod.droidScoreMultiplier
-                            : 1;
-
-                    case Modes.Osu:
-                        return mod.isApplicableToOsuStable()
-                            ? mod.osuScoreMultiplier
-                            : 1;
-
-                    default:
-                        return 1;
-                }
-            },
-            (helper) => helper.droidScoreMultiplier,
-            difficulty,
-        );
-    }
-
-    /**
-     * Calculates the score multiplier for the selected `Mod`s using `Mod.migrationDroidScoreMultiplier` instead of
-     * `Mod.droidScoreMultiplier`. Use this when reverse-engineering raw scores from stored effective scores during migration.
-     *
-     * @param mods The selected `Mod`s.
-     * @return The migration score multiplier.
-     */
-    static calculateMigrationScoreMultiplier(mods: Iterable<Mod>): number {
-        return this.calculateScoreMultiplierInternal(
-            mods,
-            Modes.Droid,
-            (mod) =>
-                mod.isApplicableToDroid()
-                    ? mod.migrationDroidScoreMultiplier
-                    : 1,
-            (helper) => helper.migrationDroidScoreMultiplier,
-        );
-    }
-
-    private static calculateScoreMultiplierInternal(
-        mods: Iterable<Mod>,
-        mode: Modes,
-        modSelector: (mod: Mod) => number,
-        rateAdjustSelector: (rateAdjustHelper: ModRateAdjustHelper) => number,
-        difficulty?: BeatmapDifficulty,
-    ): number {
-        // In osu!droid, rate-adjusting mods combine their track rate multipliers together, then bunched together.
-        let totalRateAdjustTrackRateMultiplier = 1;
-        let scoreMultiplier = 1;
-
-        for (const mod of mods) {
-            if (mod.requiresBeatmapDifficulty() && difficulty) {
-                mod.applyFromBeatmapDifficulty(difficulty);
-            }
-
-            if (mode === Modes.Droid && mod instanceof ModRateAdjust) {
-                totalRateAdjustTrackRateMultiplier *= mod.rate;
-            } else {
-                const multiplierValue = modSelector(mod);
-
-                scoreMultiplier =
-                    mode === Modes.Droid
-                        ? Math.fround(
-                              scoreMultiplier * Math.fround(multiplierValue),
-                          )
-                        : scoreMultiplier * multiplierValue;
-            }
-        }
-
-        if (mode === Modes.Droid) {
-            const rateAdjustHelper = new ModRateAdjustHelper(
-                totalRateAdjustTrackRateMultiplier,
-            );
-
-            scoreMultiplier = Math.fround(
-                scoreMultiplier *
-                    Math.fround(rateAdjustSelector(rateAdjustHelper)),
-            );
-        }
-
-        return scoreMultiplier;
     }
 
     /**

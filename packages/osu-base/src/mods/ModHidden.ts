@@ -59,18 +59,6 @@ export class ModHidden
             .add(ModFreezeFrame);
     }
 
-    get droidScoreMultiplier(): number {
-        return this.usesDefaultSettings ? 1.06 : 1;
-    }
-
-    get migrationDroidScoreMultiplier(): number {
-        return this.droidScoreMultiplier;
-    }
-
-    get osuScoreMultiplier(): number {
-        return this.usesDefaultSettings ? 1.06 : 1;
-    }
-
     applyToBeatmap(beatmap: IBeatmap): void {
         const applyFadeInAdjustment = (hitObject: HitObject) => {
             // Sliders keep their default fade-in time to match osu!stable.

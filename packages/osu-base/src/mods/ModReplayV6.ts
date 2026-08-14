@@ -20,10 +20,9 @@ import { Mod } from "./Mod";
 export class ModReplayV6
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToBeatmap,
-        IModFacilitatesAdjustment
-{
+    IModApplicableToDroid,
+    IModApplicableToBeatmap,
+    IModFacilitatesAdjustment {
     override readonly name = "Replay V6";
     override readonly acronym = "RV6";
 
@@ -31,8 +30,6 @@ export class ModReplayV6
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly facilitateAdjustment = true;
 
@@ -63,9 +60,9 @@ export class ModReplayV6
             if (
                 current instanceof Circle &&
                 next.startTime - current.startTime <
-                    2000 * beatmap.general.stackLeniency &&
+                2000 * beatmap.general.stackLeniency &&
                 next.position.getDistance(current.position) <
-                    Math.sqrt(convertedScale)
+                Math.sqrt(convertedScale)
             ) {
                 next.stackHeight = current.stackHeight + 1;
             }

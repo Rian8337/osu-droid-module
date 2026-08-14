@@ -7,18 +7,14 @@ import { Mod } from "./Mod";
  */
 export class ModScoreV2
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "V2";
     override readonly name = "ScoreV2";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
     readonly bitwise = 1 << 29;
 }

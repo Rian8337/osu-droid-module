@@ -9,19 +9,15 @@ import { ModAutopilot } from "./ModAutopilot";
  */
 export class ModRelax
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "RX";
     override readonly name = "Relax";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 0.001;
-    readonly migrationDroidScoreMultiplier = 0.001;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 0;
     readonly bitwise = 1 << 7;
 
     constructor() {

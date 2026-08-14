@@ -9,15 +9,13 @@ import { ModRateAdjust } from "./ModRateAdjust";
  */
 export class ModNightCore
     extends ModRateAdjust
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "NC";
     override readonly name = "NightCore";
 
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly osuScoreMultiplier = 1.12;
     readonly bitwise = 1 << 9;
 
     override readonly rate: number = 1.5;
@@ -30,14 +28,6 @@ export class ModNightCore
 
     get isDroidRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    override get droidScoreMultiplier(): number {
-        return super.droidScoreMultiplier;
-    }
-
-    override get migrationDroidScoreMultiplier(): number {
-        return super.migrationDroidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {

@@ -9,15 +9,13 @@ import { ModRateAdjust } from "./ModRateAdjust";
  */
 export class ModHalfTime
     extends ModRateAdjust
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "HT";
     override readonly name = "HalfTime";
 
     readonly droidRanked = true;
 
     readonly osuRanked = true;
-    readonly osuScoreMultiplier = 0.3;
     readonly bitwise = 1 << 8;
 
     override readonly rate = 0.75;
@@ -30,14 +28,6 @@ export class ModHalfTime
 
     get isDroidRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    override get droidScoreMultiplier(): number {
-        return super.droidScoreMultiplier;
-    }
-
-    override get migrationDroidScoreMultiplier(): number {
-        return super.migrationDroidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {

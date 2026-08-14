@@ -20,22 +20,18 @@ import { ModReplayV6 } from "./ModReplayV6";
 export class ModHardRock
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsuStable,
-        IModApplicableToDifficulty,
-        IModApplicableToHitObject
-{
+    IModApplicableToDroid,
+    IModApplicableToOsuStable,
+    IModApplicableToDifficulty,
+    IModApplicableToHitObject {
     override readonly acronym = "HR";
     override readonly name = "HardRock";
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1.06;
-    readonly migrationDroidScoreMultiplier = 1.06;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1.06;
     readonly bitwise = 1 << 4;
 
     constructor() {
@@ -60,9 +56,9 @@ export class ModHardRock
             // The 0.125 scale that was added before replay version 7 was in screen pixels. We need it in osu! pixels.
             difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                 scale -
-                    CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
-                        0.125,
-                    ),
+                CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                    0.125,
+                ),
             );
         }
 

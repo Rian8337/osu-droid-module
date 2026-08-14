@@ -150,7 +150,6 @@ export * from "./mods/ModPerfect";
 export * from "./mods/ModPrecise";
 export * from "./mods/ModRandom";
 export * from "./mods/ModRateAdjust";
-export * from "./mods/ModRateAdjustHelper";
 export * from "./mods/ModReallyEasy";
 export * from "./mods/ModRelax";
 export * from "./mods/ModRepel";

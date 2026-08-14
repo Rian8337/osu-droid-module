@@ -2,6 +2,8 @@ import { Modes } from "../constants/Modes";
 import { MathUtils } from "../math/MathUtils";
 import { ModMap } from "../mods/ModMap";
 import { ModScoreV2 } from "../mods/ModScoreV2";
+import { DroidScoreMultiplierCalculator } from "../scoring/DroidScoreMultiplierCalculator";
+import { OsuLegacyScoreMultiplierCalculator } from "../scoring/OsuLegacyScoreMultiplierCalculator";
 import { ModUtil } from "../utils/ModUtil";
 import { BeatmapConverter } from "./BeatmapConverter";
 import { BeatmapProcessor } from "./BeatmapProcessor";
@@ -126,15 +128,11 @@ export class Beatmap implements IBeatmap {
      */
     maxDroidScore(mods?: ModMap): number {
         const scoreMultiplier = mods
-            ? ModUtil.calculateScoreMultiplier(
-                  mods.values(),
-                  Modes.Droid,
-                  this.difficulty,
-              )
+            ? new DroidScoreMultiplierCalculator(this.difficulty).calculateFor(mods.values())
             : 1;
 
         if (mods?.has(ModScoreV2)) {
-            return Math.round(Math.fround(1e6 * scoreMultiplier));
+            return Math.round(1e6 * scoreMultiplier);
         }
 
         const difficultyMultiplier =
@@ -199,7 +197,7 @@ export class Beatmap implements IBeatmap {
             ++combo;
         }
 
-        return Math.round(Math.fround(score * scoreMultiplier));
+        return Math.round(score * scoreMultiplier);
     }
 
     /**
@@ -214,11 +212,7 @@ export class Beatmap implements IBeatmap {
         let difficultyMultiplier = 2;
 
         const scoreMultiplier = mods
-            ? ModUtil.calculateScoreMultiplier(
-                  mods.values(),
-                  Modes.Osu,
-                  this.difficulty,
-              )
+            ? new OsuLegacyScoreMultiplierCalculator().calculateFor(mods.values())
             : 1;
 
         if (mods?.has(ModScoreV2)) {
@@ -297,7 +291,7 @@ export class Beatmap implements IBeatmap {
 
             score += Math.floor(
                 300 +
-                    (300 * combo * difficultyMultiplier * scoreMultiplier) / 25,
+                (300 * combo * difficultyMultiplier * scoreMultiplier) / 25,
             );
             ++combo;
         }

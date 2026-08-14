@@ -18,10 +18,9 @@ import { NullableIntegerModSetting } from "./settings/NullableIntegerModSetting"
 export class ModRandom
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsu,
-        IModApplicableToBeatmap
-{
+    IModApplicableToDroid,
+    IModApplicableToOsu,
+    IModApplicableToBeatmap {
     private static readonly playfieldDiagonal = Playfield.baseSize.length;
 
     override readonly name = "Random";
@@ -29,12 +28,9 @@ export class ModRandom
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     /**
      * The seed to use.
@@ -114,11 +110,11 @@ export class ModRandom
                 const totalOffset =
                     // sectionOffset and oneTimeOffset should mainly affect patterns with large spacing.
                     (sectionOffset + oneTimeOffset) *
-                        positionInfo.distanceFromPrevious +
+                    positionInfo.distanceFromPrevious +
                     // flowChangeOffset should mainly affect streams.
                     flowChangeOffset *
-                        (ModRandom.playfieldDiagonal -
-                            positionInfo.distanceFromPrevious);
+                    (ModRandom.playfieldDiagonal -
+                        positionInfo.distanceFromPrevious);
 
                 positionInfo.relativeAngle = this.getRelativeTargetAngle(
                     positionInfo.distanceFromPrevious,
@@ -174,11 +170,11 @@ export class ModRandom
 
         const angle =
             2.16 /
-                (1 +
-                    200 *
-                        Math.exp(
-                            0.036 * (targetDistance + customOffsetX * 2 - 310),
-                        )) +
+            (1 +
+                200 *
+                Math.exp(
+                    0.036 * (targetDistance + customOffsetX * 2 - 310),
+                )) +
             0.5 +
             offset +
             customOffsetY;
@@ -203,7 +199,7 @@ export class ModRandom
         // Exclude new-combo-spam and 1-2-combos.
         const previousObjectStartedCombo =
             positionInfos[Math.max(0, i - 2)].hitObject.indexInCurrentCombo >
-                1 && positionInfos[i - 1].hitObject.isNewCombo;
+            1 && positionInfos[i - 1].hitObject.isNewCombo;
 
         const previousObjectWasOnDownBeat =
             HitObjectGenerationUtils.isHitObjectOnBeat(
@@ -232,7 +228,7 @@ export class ModRandom
         // Exclude new-combo-spam and 1-2-combos.
         const previousObjectStartedCombo =
             positionInfos[Math.max(0, i - 2)].hitObject.indexInCurrentCombo >
-                1 && positionInfos[i - 1].hitObject.isNewCombo;
+            1 && positionInfos[i - 1].hitObject.isNewCombo;
 
         return previousObjectStartedCombo && this.random!.nextDouble() < 0.6;
     }

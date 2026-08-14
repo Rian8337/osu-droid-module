@@ -17,13 +17,10 @@ export class ModApproachDifferent
     override readonly acronym = "AD";
 
     readonly droidRanked = false;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
     readonly isDroidRelevant = true;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
 
     /**
      * The initial size of the approach circle, relative to hit circles.

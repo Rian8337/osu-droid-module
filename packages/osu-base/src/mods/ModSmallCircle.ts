@@ -16,17 +16,14 @@ import { ModMap } from "./ModMap";
 export class ModSmallCircle
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToDifficulty,
-        IMigratableDroidMod
-{
+    IModApplicableToDroid,
+    IModApplicableToDifficulty,
+    IMigratableDroidMod {
     override readonly acronym = "SC";
     override readonly name = "SmallCircle";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     migrateDroidMod(
         difficulty: BeatmapDifficulty,

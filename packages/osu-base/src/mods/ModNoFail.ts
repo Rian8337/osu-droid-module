@@ -9,19 +9,15 @@ import { ModSuddenDeath } from "./ModSuddenDeath";
  */
 export class ModNoFail
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsuStable
-{
+    implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "NF";
     override readonly name = "NoFail";
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 0.5;
-    readonly migrationDroidScoreMultiplier = 0.5;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 0.5;
     readonly bitwise = 1 << 0;
 
     constructor() {

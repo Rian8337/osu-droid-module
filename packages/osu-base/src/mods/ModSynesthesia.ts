@@ -7,17 +7,13 @@ import { Mod } from "./Mod";
  */
 export class ModSynesthesia
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToDroid, IModApplicableToOsu {
     override readonly name = "Synesthesia";
     override readonly acronym = "SY";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 0.8;
-    readonly migrationDroidScoreMultiplier = 0.8;
 
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 0.8;
 }

@@ -10,8 +10,7 @@ import { DecimalModSetting } from "./settings/DecimalModSetting";
  */
 export class ModCustomSpeed
     extends ModRateAdjust
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToDroid, IModApplicableToOsu {
     override readonly acronym = "CS";
     override readonly name = "Custom Speed";
 
@@ -38,14 +37,6 @@ export class ModCustomSpeed
 
     get isDroidRelevant(): boolean {
         return this.isRelevant;
-    }
-
-    override get droidScoreMultiplier(): number {
-        return super.droidScoreMultiplier;
-    }
-
-    override get migrationDroidScoreMultiplier(): number {
-        return super.migrationDroidScoreMultiplier;
     }
 
     get isOsuRelevant(): boolean {

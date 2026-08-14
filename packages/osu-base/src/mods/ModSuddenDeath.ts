@@ -16,12 +16,9 @@ export class ModSuddenDeath
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 1;
-    readonly migrationDroidScoreMultiplier = 1;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 1;
     readonly bitwise = 1 << 5;
 
     /**

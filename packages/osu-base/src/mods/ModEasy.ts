@@ -17,21 +17,17 @@ import { IntegerModSetting } from "./settings/IntegerModSetting";
 export class ModEasy
     extends Mod
     implements
-        IModApplicableToDroid,
-        IModApplicableToOsuStable,
-        IModApplicableToDifficulty
-{
+    IModApplicableToDroid,
+    IModApplicableToOsuStable,
+    IModApplicableToDifficulty {
     override readonly acronym = "EZ";
     override readonly name = "Easy";
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
-    readonly droidScoreMultiplier = 0.5;
-    readonly migrationDroidScoreMultiplier = 0.5;
 
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
-    readonly osuScoreMultiplier = 0.5;
     readonly bitwise = 1 << 1;
 
     /**
@@ -67,9 +63,9 @@ export class ModEasy
             // The 0.125 scale that was added before replay version 7 was in screen pixels. We need it in osu! pixels.
             difficulty.cs = CircleSizeCalculator.oldDroidScaleToDroidCS(
                 scale +
-                    CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
-                        0.125,
-                    ),
+                CircleSizeCalculator.oldDroidScaleScreenPixelsToOsuPixels(
+                    0.125,
+                ),
             );
         }
 
