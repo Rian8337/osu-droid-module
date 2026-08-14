@@ -71,11 +71,9 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
         // Cap at 32-bit signed integer since that's the maximum score that can be submitted
         // to the game's leaderboards.
-        attributes.maximumScore = Math.min(
+        attributes.maximumScore =
             beatmap.maxDroidScore(playableBeatmap.mods) +
-                DroidScoreUtils.calculateMaximumSpinnerBonus(playableBeatmap),
-            2147483647,
-        );
+            DroidScoreUtils.calculateMaximumSpinnerBonus(beatmap, playableBeatmap)
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
@@ -237,7 +235,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             Math.max(
                 1,
                 aimNoSliderDifficultStrainCount -
-                    aimNoSliderTopWeightedSliderCount,
+                aimNoSliderTopWeightedSliderCount,
             );
 
         const topDifficultSliders: { index: number; velocity: number }[] = [];
@@ -384,7 +382,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                                 (a, v) =>
                                     a +
                                     v.originalTapDifficulty /
-                                        threeFingerStrainThreshold,
+                                    threeFingerStrainThreshold,
                                 0,
                             ),
                         0.75,
