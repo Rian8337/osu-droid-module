@@ -35,7 +35,7 @@ export abstract class PlayableBeatmap implements IBeatmap {
     readonly mods: ModMap;
 
     /**
-     * The speed multiplier that was applied to this [PlayableBeatmap].
+     * The speed multiplier that was applied to this `PlayableBeatmap`.
      */
     readonly speedMultiplier: number;
 
