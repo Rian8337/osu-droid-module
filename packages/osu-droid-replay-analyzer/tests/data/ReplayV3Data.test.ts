@@ -1,5 +1,6 @@
 import {
     Accuracy,
+    BeatmapDifficulty,
     ModDoubleTime,
     ModHidden,
     ModMap,
@@ -31,7 +32,7 @@ const createReplayV3Data = (
         hitObjectData: [],
     });
 
-describe("Test totalScore getter", () => {
+describe("Test getTotalScore", () => {
     test("Returns score directly for replay version < 8", () => {
         const mods = new ModMap();
         mods.set(ModHidden);
@@ -40,40 +41,37 @@ describe("Test totalScore getter", () => {
 
         const data = createReplayV3Data(7, 29672490, mods);
 
-        expect(data.totalScore).toBe(29672490);
+        expect(data.getTotalScore()).toBe(29672490);
     });
 
-    describe("Uses single-precision floating point for replay version >= 8", () => {
-        // The osu!droid client computes total score as:
-        //   (baseScore * scoreMultiplier).roundToInt()
-        // using Java float (32-bit) for the multiplier and the final product.
-        // JavaScript's native number is 64-bit, so Math.fround must be applied
-        // to match the client's results.
+    test("Applies the current score multiplier for replay version >= 8", () => {
+        // Base score 23578940 with HD + DT + PR.
+        // Without a difficulty, Precise falls back to its difficulty-independent multiplier (1.06).
+        // HD (1.06) * DT (1.23) * PR (1.06) = 1.382028
+        const mods = new ModMap();
+        mods.set(ModHidden);
+        mods.set(ModDoubleTime);
+        mods.set(ModPrecise);
 
-        test("HD + DT + PR with base score 23578940 matches Java client", () => {
-            // Java: (23578940 * (1.06f * 1.06f * 1.12f)).roundToInt() = 29672490.
-            // A naive double-precision calculation yields 29672493.
-            const mods = new ModMap();
-            mods.set(ModHidden);
-            mods.set(ModDoubleTime);
-            mods.set(ModPrecise);
+        const data = createReplayV3Data(8, 23578940, mods);
 
-            const data = createReplayV3Data(8, 23578940, mods);
+        expect(data.getTotalScore()).toBe(32586755);
+    });
 
-            expect(data.totalScore).toBe(29672490);
-        });
+    test("Uses the supplied difficulty for difficulty-dependent mods", () => {
+        const mods = new ModMap();
+        mods.set(ModPrecise);
 
-        test("Result differs from double-precision calculation", () => {
-            const mods = new ModMap();
-            mods.set(ModHidden);
-            mods.set(ModDoubleTime);
-            mods.set(ModPrecise);
+        const data = createReplayV3Data(8, 1000000, mods);
 
-            const data = createReplayV3Data(8, 23578940, mods);
+        // Without a difficulty, Precise falls back to a flat 1.06 multiplier.
+        expect(data.getTotalScore()).toBe(1060000);
 
-            expect(data.totalScore).not.toBe(
-                Math.round(23578940 * (1.06 * 1.06 * 1.12)),
-            );
-        });
+        // With a difficulty, Precise multiplier = 1.02 + 0.08 * (od / 10)^2.
+        // od = 5 -> 1.02 + 0.08 * 0.25 = 1.04
+        const difficulty = new BeatmapDifficulty();
+        difficulty.od = 5;
+
+        expect(data.getTotalScore(difficulty)).toBe(1040000);
     });
 });

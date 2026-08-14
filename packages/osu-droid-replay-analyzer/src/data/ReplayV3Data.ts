@@ -1,4 +1,9 @@
-import { Modes, ModMap, ModUtil } from "@rian8337/osu-base";
+import {
+    BeatmapDifficulty,
+    DroidLegacyScoreMultiplierCalculator,
+    DroidScoreMultiplierCalculator,
+    ModMap,
+} from "@rian8337/osu-base";
 import { ReplayData } from "./ReplayData";
 import { ReplayInformation } from "./ReplayInformation";
 
@@ -21,7 +26,7 @@ export class ReplayV3Data extends ReplayData {
      * Between replay version 3 and 7, this is the final score after applying score multiplier from mods.
      * From replay version 8 onwards, this is the score before applying score multiplier from mods.
      *
-     * The {@link totalScore} getter can be used to get the total score across all replay versions.
+     * The {@link getTotalScore} method can be used to get the total score across all replay versions.
      */
     readonly score: number;
 
@@ -46,22 +51,31 @@ export class ReplayV3Data extends ReplayData {
     readonly convertedMods: ModMap;
 
     /**
-     * The total score achieved in the play, after applying score multiplier from mods.
+     * Obtains the total score achieved in the play, after applying score multiplier from mods.
+     *
+     * @param difficulty The `BeatmapDifficulty` of the beatmap that was played. Required to correctly compute
+     * the score multiplier of difficulty-dependent mods. If not provided, those mods fall back to their
+     * difficulty-independent multiplier.
      */
-    get totalScore(): number {
+    getTotalScore(difficulty: BeatmapDifficulty | null = null): number {
+        let baseScore = this.score;
+
         if (this.replayVersion < 8) {
-            return this.score;
+            // Replay versions 3 to 7 store the score after applying score multiplier
+            // from mods, so we need to reverse it to get the base score.
+            const legacyScoreMultiplier = new DroidLegacyScoreMultiplierCalculator(
+                difficulty,
+            ).calculateFor(this.convertedMods.values());
+
+            baseScore = Math.round(this.score / legacyScoreMultiplier);
         }
 
-        this.scoreMultiplier ??= ModUtil.calculateScoreMultiplier(
-            this.convertedMods.values(),
-            Modes.Droid,
-        );
+        const scoreMultiplier = new DroidScoreMultiplierCalculator(
+            difficulty,
+        ).calculateFor(this.convertedMods.values());
 
-        return Math.round(Math.fround(this.score * this.scoreMultiplier));
+        return Math.round(baseScore * scoreMultiplier);
     }
-
-    private scoreMultiplier?: number;
 
     constructor(values: ReplayInformation) {
         super(values);
