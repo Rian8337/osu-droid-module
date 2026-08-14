@@ -23,8 +23,11 @@ export abstract class PlayableBeatmap implements IBeatmap {
     readonly events: BeatmapEvents;
     readonly controlPoints: BeatmapControlPoints;
     readonly colors: BeatmapColor;
-    readonly hitObjects: BeatmapHitObjects;
-    readonly maxCombo: number;
+    hitObjects: BeatmapHitObjects;
+
+    get maxCombo(): number {
+        return this.baseBeatmap.maxCombo;
+    }
 
     /**
      * The `Mod`s that were applied to this `PlayableBeatmap`.
@@ -53,7 +56,7 @@ export abstract class PlayableBeatmap implements IBeatmap {
      * @param baseBeatmap The base `IBeatmap` that was used to create this `PlayableBeatmap`.
      * @param mods The `Mod`s that were applied to this `PlayableBeatmap`.
      */
-    constructor(baseBeatmap: IBeatmap, mods: ModMap) {
+    constructor(private readonly baseBeatmap: IBeatmap, mods: ModMap) {
         this.formatVersion = baseBeatmap.formatVersion;
         this.general = baseBeatmap.general;
         this.editor = baseBeatmap.editor;
@@ -63,7 +66,6 @@ export abstract class PlayableBeatmap implements IBeatmap {
         this.controlPoints = baseBeatmap.controlPoints;
         this.colors = baseBeatmap.colors;
         this.hitObjects = baseBeatmap.hitObjects;
-        this.maxCombo = baseBeatmap.maxCombo;
 
         this.mods = mods;
         this.speedMultiplier = ModUtil.calculateRateWithMods(

@@ -1,5 +1,7 @@
 import {
     Beatmap,
+    BeatmapHitObjects,
+    HitWindow,
     Mod,
     ModAutopilot,
     ModDifficultyAdjust,
@@ -13,13 +15,19 @@ import {
     ModRateAdjust,
     ModRelax,
     ModTimeRamp,
+    PlaceableHitObject,
     PlayableBeatmap,
+    Slider,
+    SliderRepeat,
+    SliderTick,
+    Utils,
 } from "@rian8337/osu-base";
 import { DifficultyHitObject } from "../preprocessing/DifficultyHitObject";
 import { DifficultyAttributes } from "../structures/DifficultyAttributes";
 import { StrainPeaks } from "../structures/StrainPeaks";
 import { IHasPeakDifficulty } from "./IHasPeakDifficulty";
 import { Skill } from "./Skill";
+import { TimedDifficultyAttributes } from "../structures/TimedDifficultyAttributes";
 
 /**
  * The base of a difficulty calculator.
@@ -124,6 +132,53 @@ export abstract class DifficultyCalculator<
     }
 
     /**
+     * Calculates the difficulty of a `Beatmap` with specific `Mod`s and returns a set of
+     * `TimedDifficultyAttributes` representing the difficulty at every relevant time value in the `Beatmap`.
+     *
+     * @param beatmap The `Beatmap` whose difficulty is to be calculated.
+     * @param mods The `Mod`s to apply to the `Beatmap`.
+     * @return The set of `TimedDifficultyAttributes`.
+     */
+    calculateTimed(beatmap: Beatmap, mods?: ModMap): TimedDifficultyAttributes<TAttributes>[] {
+        if (beatmap.hitObjects.objects.length === 0) {
+            return [];
+        }
+
+        const playableBeatmap = this.createPlayableBeatmap(beatmap, mods);
+        const attributes = Utils.initializeArray<TimedDifficultyAttributes<TAttributes>>(beatmap.hitObjects.objects.length);
+        const skills = this.createSkills(playableBeatmap);
+        const progressiveBeatmap = new ProgressiveCalculationBeatmap(playableBeatmap);
+
+        const { objects } = playableBeatmap.hitObjects;
+        const difficultyObjects = this.createDifficultyHitObjects(playableBeatmap);
+        let currentIndex = 0;
+
+        for (let i = 0; i < objects.length; ++i) {
+            const obj = objects[i];
+
+            progressiveBeatmap.hitObjects.add(obj);
+
+            while (currentIndex < difficultyObjects.length && difficultyObjects[currentIndex].object.endTime <= obj.endTime) {
+                for (const skill of skills) {
+                    skill.process(difficultyObjects[currentIndex]);
+                }
+
+                ++currentIndex;
+            }
+
+            attributes[i] = {
+                time: obj.endTime,
+                attributes: this.createDifficultyAttributes(beatmap, playableBeatmap, skills, difficultyObjects.slice(0, currentIndex)),
+                sliderCount: progressiveBeatmap.hitObjects.sliders,
+                sliderTickCount: progressiveBeatmap.hitObjects.sliderTicks,
+                sliderRepeatCount: progressiveBeatmap.hitObjects.sliderRepeatPoints
+            };
+        }
+
+        return attributes;
+    }
+
+    /**
      * Creates the `Skill`s to calculate the difficulty of a `PlayableBeatmap`.
      *
      * @param beatmap The `PlayableBeatmap` whose difficulty will be calculated.
@@ -178,4 +233,88 @@ export abstract class DifficultyCalculator<
         beatmap: Beatmap,
         mods?: ModMap,
     ): TBeatmap;
+}
+
+/**
+ * A {@link PlayableBeatmap} for timed difficulty calculation.
+ */
+class ProgressiveCalculationBeatmap extends PlayableBeatmap {
+    override get maxCombo(): number {
+        return (this.hitObjects as ProgressiveCalculationHitObjects).maxCombo;
+    }
+
+    private readonly baseHitWindow: HitWindow;
+
+    constructor(baseBeatmap: PlayableBeatmap) {
+        super(baseBeatmap, baseBeatmap.mods);
+
+        this.hitObjects = new ProgressiveCalculationHitObjects();
+        this.baseHitWindow = baseBeatmap.hitWindow;
+    }
+
+    protected override createHitWindow(): HitWindow {
+        return this.baseHitWindow;
+    }
+}
+
+class ProgressiveCalculationHitObjects extends BeatmapHitObjects {
+    maxCombo = 0;
+
+    // We store these locally since the super class's getters iterate through all objects, which is inefficient for progressive calculation.
+    private sliderTickCount = 0;
+    private sliderRepeatCount = 0;
+
+    override get sliderTicks(): number {
+        return this.sliderTickCount;
+    }
+
+    override get sliderRepeatPoints(): number {
+        return this.sliderRepeatCount;
+    }
+
+    override add(...objects: PlaceableHitObject[]) {
+        super.add(...objects);
+
+        for (const obj of objects) {
+            if (obj instanceof Slider) {
+                this.maxCombo += obj.nestedHitObjects.length;
+
+                // Similarly, we loop through the nested hit objects since `Slider.ticks` also loops
+                // through the nested hit objects, which is inefficient for progressive calculation.
+                for (const nestedObj of obj.nestedHitObjects) {
+                    if (nestedObj instanceof SliderTick) {
+                        ++this.sliderTickCount;
+                    } else if (nestedObj instanceof SliderRepeat) {
+                        ++this.sliderRepeatCount;
+                    }
+                }
+            } else {
+                ++this.maxCombo;
+            }
+        }
+    }
+
+    override removeAt(index: number): PlaceableHitObject | null {
+        const obj = super.removeAt(index);
+
+        if (obj !== null) {
+            if (obj instanceof Slider) {
+                this.maxCombo -= obj.nestedHitObjects.length;
+
+                // Similarly, we loop through the nested hit objects since `Slider.ticks` also loops
+                // through the nested hit objects, which is inefficient for progressive calculation.
+                for (const nestedObj of obj.nestedHitObjects) {
+                    if (nestedObj instanceof SliderTick) {
+                        --this.sliderTickCount;
+                    } else if (nestedObj instanceof SliderRepeat) {
+                        --this.sliderRepeatCount;
+                    }
+                }
+            } else {
+                --this.maxCombo;
+            }
+        }
+
+        return obj;
+    }
 }

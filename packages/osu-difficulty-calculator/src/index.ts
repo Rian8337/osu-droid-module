@@ -43,4 +43,5 @@ export * from "./structures/IOsuDifficultyAttributes";
 export * from "./structures/OsuDifficultyAttributes";
 export * from "./structures/PerformanceCalculationOptions";
 export * from "./structures/StrainPeaks";
+export * from "./structures/TimedDifficultyAttributes";
 export * from "./structures/TimedStrainPeak";
