@@ -7,29 +7,7 @@ import { IModApplicableToHitObject } from "./IModApplicableToHitObject";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModHardRock } from "./ModHardRock";
-import { ModSetting } from "./settings/ModSetting";
-
-// Serializes Axes as a 0-indexed ordinal to match the Kotlin EnumModSetting format:
-// Axes.x (1) -> 0, Axes.y (2) -> 1, Axes.both (3) -> 2.
-class AxesModSetting extends ModSetting<Exclude<Axes, Axes.None>> {
-    override load(settings: Record<string, unknown>): void {
-        if (this.key === null) {
-            return;
-        }
-
-        const stored = settings[this.key];
-
-        if (typeof stored === "number") {
-            this.value = (stored + 1) as Exclude<Axes, Axes.None>;
-        }
-    }
-
-    override save(settings: Record<string, unknown>): void {
-        if (this.key !== null) {
-            settings[this.key] = this.value - 1;
-        }
-    }
-}
+import { EnumModSetting } from "./settings/EnumModSetting";
 
 /**
  * Represents the Mirror mod.
@@ -56,11 +34,12 @@ export class ModMirror
     /**
      * The axes to reflect the `HitObject`s along.
      */
-    readonly flippedAxes = new AxesModSetting(
+    readonly flippedAxes = new EnumModSetting<Exclude<Axes, Axes.None>>(
         "Flipped axes",
         "flippedAxes",
         "The axes to reflect the hit objects along.",
         Axes.X,
+        [Axes.X, Axes.Y, Axes.Both],
     );
 
     constructor() {
