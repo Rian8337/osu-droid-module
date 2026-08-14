@@ -86,6 +86,10 @@ export class DroidScoreMultiplierCalculator extends ScoreMultiplierCalculator {
     }
 
     override calculateFor(mods: Iterable<Mod>): number {
+        // `mods` may be a one-shot iterator (e.g. `ModMap.values()`), which would be exhausted after the first
+        // pass below. Materialize it once so it can be safely iterated again by `super.calculateFor`.
+        const modList = [...mods];
+
         const { difficulty } = this;
 
         if (difficulty) {
@@ -93,16 +97,20 @@ export class DroidScoreMultiplierCalculator extends ScoreMultiplierCalculator {
 
             const modMap = new ModMap();
 
-            for (const mod of mods) {
+            for (const mod of modList) {
                 modMap.set(mod);
             }
 
-            ModUtil.applyModsToBeatmapDifficulty(this.appliedDifficulty, Modes.Droid, modMap);
+            ModUtil.applyModsToBeatmapDifficulty(
+                this.appliedDifficulty,
+                Modes.Droid,
+                modMap,
+            );
         } else {
             this.appliedDifficulty = null;
         }
 
-        return super.calculateFor(mods);
+        return super.calculateFor(modList);
     }
 
     private difficultyAdjustMultiplier(mod: ModDifficultyAdjust): number {
@@ -179,11 +187,11 @@ export class DroidScoreMultiplierCalculator extends ScoreMultiplierCalculator {
     private rateMultiplier(rate: number): number {
         return rate >= 1
             ? // Linear from 1.0 to 1.46.
-            // Default DT (1.5x) = 1.23
-            1 + (rate - 1) * 0.46
+              // Default DT (1.5x) = 1.23
+              1 + (rate - 1) * 0.46
             : // 0.2x at 0.5x speed, +0.07x per 0.05x speed increment.
-            // Default HT (0.75x) = 0.55
-            (Math.floor(rate * 20) / 20) * 1.4 - 0.5;
+              // Default HT (0.75x) = 0.55
+              (Math.floor(rate * 20) / 20) * 1.4 - 0.5;
     }
 
     private timeRampMultiplier(mod: ModTimeRamp): number {
