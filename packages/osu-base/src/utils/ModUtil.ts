@@ -5,12 +5,21 @@ import { HitObject } from "../beatmap/hitobjects/HitObject";
 import { BeatmapDifficulty } from "../beatmap/sections/BeatmapDifficulty";
 import { Modes } from "../constants/Modes";
 import { Mod } from "../mods/Mod";
+import { ModAccuracyChallenge } from "../mods/ModAccuracyChallenge";
+import { ModAlternate } from "../mods/ModAlternate";
 import { ModApproachDifferent } from "../mods/ModApproachDifferent";
 import { ModAuto } from "../mods/ModAuto";
 import { ModAutopilot } from "../mods/ModAutopilot";
+import { ModBarrelRoll } from "../mods/ModBarrelRoll";
 import { ModBlinds } from "../mods/ModBlinds";
+import { ModBloom } from "../mods/ModBloom";
+import { ModBubbles } from "../mods/ModBubbles";
+import { ModCinema } from "../mods/ModCinema";
+import { ModClassic } from "../mods/ModClassic";
 import { ModCustomSpeed } from "../mods/ModCustomSpeed";
+import { ModDaycore } from "../mods/ModDaycore";
 import { ModDeflate } from "../mods/ModDeflate";
+import { ModDepth } from "../mods/ModDepth";
 import { ModDifficultyAdjust } from "../mods/ModDifficultyAdjust";
 import { ModDoubleTime } from "../mods/ModDoubleTime";
 import { ModEasy } from "../mods/ModEasy";
@@ -26,6 +35,7 @@ import { ModMirror } from "../mods/ModMirror";
 import { ModMuted } from "../mods/ModMuted";
 import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
+import { ModNoScope } from "../mods/ModNoScope";
 import { ModPerfect } from "../mods/ModPerfect";
 import { ModPrecise } from "../mods/ModPrecise";
 import { ModRandom } from "../mods/ModRandom";
@@ -33,14 +43,21 @@ import { ModRateAdjust } from "../mods/ModRateAdjust";
 import { ModRateAdjustHelper } from "../mods/ModRateAdjustHelper";
 import { ModReallyEasy } from "../mods/ModReallyEasy";
 import { ModRelax } from "../mods/ModRelax";
+import { ModRepel } from "../mods/ModRepel";
 import { ModReplayV6 } from "../mods/ModReplayV6";
 import { ModScoreV2 } from "../mods/ModScoreV2";
+import { ModSingleTap } from "../mods/ModSingleTap";
 import { ModSmallCircle } from "../mods/ModSmallCircle";
+import { ModSpinIn } from "../mods/ModSpinIn";
 import { ModSpunOut } from "../mods/ModSpunOut";
+import { ModStrictTracking } from "../mods/ModStrictTracking";
 import { ModSuddenDeath } from "../mods/ModSuddenDeath";
 import { ModSynesthesia } from "../mods/ModSynesthesia";
+import { ModTargetPractice } from "../mods/ModTargetPractice";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
+import { ModTransform } from "../mods/ModTransform";
+import { ModWiggle } from "../mods/ModWiggle";
 import { ModWindDown } from "../mods/ModWindDown";
 import { ModWindUp } from "../mods/ModWindUp";
 import { SerializedMod } from "../mods/SerializedMod";
@@ -56,6 +73,7 @@ export abstract class ModUtil {
         const mods = [
             // Janky order to keep the order on what players are used to
             ModAuto,
+            ModCinema,
             ModRelax,
             ModAutopilot,
             ModEasy,
@@ -67,6 +85,7 @@ export abstract class ModUtil {
             ModDoubleTime,
             ModNightCore,
             ModHalfTime,
+            ModDaycore,
             ModCustomSpeed,
             ModWindDown,
             ModWindUp,
@@ -90,6 +109,21 @@ export abstract class ModUtil {
             ModSmallCircle,
             ModSpunOut,
             ModTouchDevice,
+            ModAccuracyChallenge,
+            ModAlternate,
+            ModSingleTap,
+            ModStrictTracking,
+            ModClassic,
+            ModTargetPractice,
+            ModNoScope,
+            ModBarrelRoll,
+            ModBloom,
+            ModBubbles,
+            ModDepth,
+            ModRepel,
+            ModSpinIn,
+            ModTransform,
+            ModWiggle,
         ];
 
         const map = new Map<string, typeof Mod>();

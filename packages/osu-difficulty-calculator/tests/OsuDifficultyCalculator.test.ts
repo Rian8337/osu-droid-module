@@ -1,5 +1,6 @@
 import {
     BeatmapDecoder,
+    ModClassic,
     ModDoubleTime,
     ModFlashlight,
     ModMap,
@@ -112,6 +113,28 @@ test("Test difficulty adjustment mod retention", () => {
     expect(retainedMods.length).toBe(2);
     expect(retainedMods[0]).toBeInstanceOf(ModDoubleTime);
     expect(retainedMods[1]).toBeInstanceOf(ModFlashlight);
+});
+
+test("Test Classic mod does not alter difficulty with default settings", () => {
+    const data = readFileSync(
+        join(beatmapPath, "Kenji Ninuma - DISCOPRINCE (peppy) [Normal].osu"),
+        { encoding: "utf-8" },
+    );
+
+    const beatmap = new BeatmapDecoder().decode(data).result;
+    const noModAttributes = calculator.calculate(beatmap);
+
+    const mods = new ModMap();
+    mods.set(new ModClassic());
+
+    const classicAttributes = calculator.calculate(beatmap, mods);
+
+    expect(classicAttributes.starRating).toBeCloseTo(
+        noModAttributes.starRating,
+        10,
+    );
+
+    expect(classicAttributes.maxCombo).toBe(noModAttributes.maxCombo);
 });
 
 test("Test timed difficulty calculation", () => {

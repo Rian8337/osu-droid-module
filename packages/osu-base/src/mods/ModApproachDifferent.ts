@@ -4,17 +4,15 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { Mod } from "./Mod";
 import { ModFreezeFrame } from "./ModFreezeFrame";
 import { ModHidden } from "./ModHidden";
-
 import { DecimalModSetting } from "./settings/DecimalModSetting";
-import { ModSetting } from "./settings/ModSetting";
+import { EnumModSetting } from "./settings/EnumModSetting";
 
 /**
  * Represents the Approach Different mod.
  */
 export class ModApproachDifferent
     extends Mod
-    implements IModApplicableToDroid, IModApplicableToOsu
-{
+    implements IModApplicableToDroid, IModApplicableToOsu {
     override readonly name = "Approach Different";
     override readonly acronym = "AD";
 
@@ -44,11 +42,24 @@ export class ModApproachDifferent
     /**
      * The animation style of the approach circles.
      */
-    readonly style = new ModSetting(
+    readonly style = new EnumModSetting<AnimationStyle>(
         "Style",
         "style",
         "The animation style of the approach circles.",
         AnimationStyle.Gravity,
+        [
+            AnimationStyle.Linear,
+            AnimationStyle.Gravity,
+            AnimationStyle.InOut1,
+            AnimationStyle.InOut2,
+            AnimationStyle.Accelerate1,
+            AnimationStyle.Accelerate2,
+            AnimationStyle.Accelerate3,
+            AnimationStyle.Decelerate1,
+            AnimationStyle.Decelerate2,
+            AnimationStyle.Decelerate3,
+        ],
+        (v) => AnimationStyle[v],
     );
 
     /**
