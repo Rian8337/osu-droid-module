@@ -12,6 +12,7 @@ import { readFileSync } from "fs";
 import { join } from "path";
 
 const calculator = new DroidDifficultyCalculator();
+const beatmapPath = join(process.cwd(), "tests", "files", "beatmaps");
 
 const testDiffCalc = (
     name: string,
@@ -33,11 +34,7 @@ const testDiffCalc = (
         flashlight: number;
     }>,
 ) => {
-    const data = readFileSync(
-        join(process.cwd(), "tests", "files", "beatmaps", `${name}.osu`),
-        { encoding: "utf-8" },
-    );
-
+    const data = readFileSync(join(beatmapPath, `${name}.osu`), { encoding: "utf-8" });
     const beatmap = new BeatmapDecoder().decode(data).result;
 
     test("No mod difficulty", () => {
@@ -151,6 +148,18 @@ test("Test difficulty adjustment mod retention", () => {
     expect(retainedMods.length).toBe(2);
     expect(retainedMods[0]).toBeInstanceOf(ModDoubleTime);
     expect(retainedMods[1]).toBeInstanceOf(ModFlashlight);
+});
+
+test("Test timed difficulty calculation", () => {
+    const data = readFileSync(
+        join(beatmapPath, "Kenji Ninuma - DISCOPRINCE (peppy) [Normal].osu"),
+        { encoding: "utf-8" },
+    );
+
+    const beatmap = new BeatmapDecoder().decode(data).result;
+    const timedAttributes = calculator.calculateTimed(beatmap);
+
+    expect(timedAttributes.length).toBe(beatmap.hitObjects.objects.length);
 });
 
 describe("Test difficulty calculation sample beatmap 1", () => {
