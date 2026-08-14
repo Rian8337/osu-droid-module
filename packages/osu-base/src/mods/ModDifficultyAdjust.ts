@@ -6,7 +6,6 @@ import { IModApplicableToDifficultyWithMods } from "./IModApplicableToDifficulty
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToHitObjectWithMods } from "./IModApplicableToHitObjectWithMods";
 import { IModApplicableToOsu } from "./IModApplicableToOsu";
-import { IModRequiresBeatmapDifficulty } from "./IModRequiresBeatmapDifficulty";
 import { Mod } from "./Mod";
 import { ModEasy } from "./ModEasy";
 import { ModHardRock } from "./ModHardRock";
@@ -25,8 +24,7 @@ export class ModDifficultyAdjust
         IModApplicableToDroid,
         IModApplicableToOsu,
         IModApplicableToDifficultyWithMods,
-        IModApplicableToHitObjectWithMods,
-        IModRequiresBeatmapDifficulty
+        IModApplicableToHitObjectWithMods
 {
     override readonly acronym = "DA";
     override readonly name = "Difficulty Adjust";
