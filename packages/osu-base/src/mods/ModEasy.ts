@@ -9,6 +9,7 @@ import { ModDifficultyAdjust } from "./ModDifficultyAdjust";
 import { ModHardRock } from "./ModHardRock";
 import { ModMap } from "./ModMap";
 import { ModReplayV6 } from "./ModReplayV6";
+import { IntegerModSetting } from "./settings/IntegerModSetting";
 
 /**
  * Represents the Easy mod.
@@ -32,6 +33,18 @@ export class ModEasy
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 0.5;
     readonly bitwise = 1 << 1;
+
+    /**
+     * The amount of extra lives to give the player.
+     */
+    readonly retries = new IntegerModSetting(
+        "Extra Lives",
+        "retries",
+        "Number of extra lives",
+        2,
+        0,
+        10,
+    );
 
     constructor() {
         super();
