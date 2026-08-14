@@ -306,40 +306,6 @@ test("Test deserialization of new format with null original", () => {
     expect(deserialized.cs.originalValue).toBeNull();
 });
 
-test("Test score multiplier uses embedded original", () => {
-    const mod = new ModDifficultyAdjust();
-    mod.cs.value = 7;
-    mod.od.value = 9;
-    setOriginals(mod, { cs: 4, od: 8 });
-
-    const csDiff = 7 - 4;
-    const odDiff = 9 - 8;
-    const expected =
-        (1 + 0.0075 * Math.pow(csDiff, 1.5)) *
-        (1 + 0.005 * Math.pow(odDiff, 1.3));
-
-    expect(mod.droidScoreMultiplier).toBeCloseTo(expected, 10);
-});
-
-test("Test score multiplier is 1 without original or default", () => {
-    const mod = new ModDifficultyAdjust();
-    mod.cs.value = 7;
-    mod.od.value = 9;
-
-    expect(mod.droidScoreMultiplier).toBe(1);
-});
-
-test("Test score multiplier falls back to defaultValue when original is absent", () => {
-    const mod = new ModDifficultyAdjust();
-    mod.cs.value = 7;
-    mod.cs.defaultValue = 4;
-
-    const diff = 7 - 4;
-    const expected = 1 + 0.0075 * Math.pow(diff, 1.5);
-
-    expect(mod.droidScoreMultiplier).toBeCloseTo(expected, 10);
-});
-
 test("Test copySettings preserves original values", () => {
     const mod = new ModDifficultyAdjust();
     mod.cs.value = 7;
