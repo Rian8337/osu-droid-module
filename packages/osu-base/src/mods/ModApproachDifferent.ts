@@ -96,10 +96,11 @@ export class ModApproachDifferent
         }
     }
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModHidden).add(ModFreezeFrame);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModHidden, ModFreezeFrame) &&
+            super.isCompatibleWith(other)
+        );
     }
 }
 

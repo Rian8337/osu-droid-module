@@ -31,9 +31,10 @@ export class ModSuddenDeath
         false,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModNoFail).add(ModPerfect);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModNoFail, ModPerfect) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

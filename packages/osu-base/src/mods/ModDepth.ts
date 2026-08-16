@@ -42,12 +42,14 @@ export class ModDepth extends Mod implements IModApplicableToOsu {
         true,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModMagnetised)
-            .add(ModRepel)
-            .add(ModFreezeFrame);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModMagnetised,
+                ModRepel,
+                ModFreezeFrame,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

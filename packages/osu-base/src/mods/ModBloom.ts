@@ -43,12 +43,14 @@ export class ModBloom extends Mod implements IModApplicableToOsu {
         1,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModFlashlight)
-            .add(ModNoScope)
-            .add(ModTouchDevice);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModFlashlight,
+                ModNoScope,
+                ModTouchDevice,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

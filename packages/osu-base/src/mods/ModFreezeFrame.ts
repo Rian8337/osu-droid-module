@@ -26,10 +26,11 @@ export class ModFreezeFrame
     readonly osuRanked = false;
     readonly isOsuRelevant = true;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModApproachDifferent).add(ModHidden);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModApproachDifferent, ModHidden) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     private lastNewComboTime = 0;

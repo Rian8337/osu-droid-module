@@ -18,9 +18,10 @@ export class ModTraceable
     readonly osuRanked = true;
     readonly isOsuRelevant = true;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModHidden);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModHidden) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

@@ -33,18 +33,6 @@ export abstract class Mod {
      */
     readonly userPlayable: boolean = true;
 
-    /**
-     * The {@link Mod}s this {@link Mod} cannot be enabled with.
-     *
-     * This is merely a static list of {@link Mod} constructors that this {@link Mod} is incompatible with,
-     * regardless of the actual instance of the {@link Mod}.
-     *
-     * Some {@link Mod}s may have additional compatibility requirements that are captured in
-     * {@link isCompatibleWith}. When checking for {@link Mod} compatibility, always use
-     * {@link isCompatibleWith}.
-     */
-    readonly incompatibleMods = new Set<typeof Mod>();
-
     private settingsBacking: ModSetting[] | null = null;
 
     /**
@@ -78,17 +66,28 @@ export abstract class Mod {
     /**
      * Determines whether this {@link Mod} is compatible with another {@link Mod}.
      *
-     * This extends {@link incompatibleMods} by allowing for dynamic checks against
-     * the actual instance of the {@link Mod} (i.e., its specific settings).
-     *
      * @param other The {@link Mod} to check compatibility with.
      * @return `true` if this {@link Mod} is compatible with {@link other}, `false` otherwise.
      */
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     isCompatibleWith(other: Mod): boolean {
-        return (
-            !this.incompatibleMods.has(other.constructor as typeof Mod) &&
-            !other.incompatibleMods.has(this.constructor as typeof Mod)
-        );
+        return true;
+    }
+
+    /**
+     * Determines whether {@link other} is an instance of any of the given {@link Mod} types.
+     *
+     * This is a convenience method for {@link isCompatibleWith} overrides that need to exclude a
+     * fixed set of {@link Mod} types.
+     *
+     * @param other The {@link Mod} to check.
+     * @param types The {@link Mod} types to check {@link other} against.
+     */
+    protected isInstanceOfAny(
+        other: Mod,
+        ...types: readonly (typeof Mod)[]
+    ): boolean {
+        return types.some((type) => other instanceof type);
     }
 
     /**

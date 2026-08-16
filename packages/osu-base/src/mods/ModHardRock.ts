@@ -34,13 +34,6 @@ export class ModHardRock
     readonly isOsuRelevant = true;
     readonly bitwise = 1 << 4;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModEasy);
-        this.incompatibleMods.add(ModMirror);
-    }
-
     applyToDifficulty(
         mode: Modes,
         difficulty: BeatmapDifficulty,
@@ -81,7 +74,10 @@ export class ModHardRock
             );
         }
 
-        return super.isCompatibleWith(other);
+        return (
+            !this.isInstanceOfAny(other, ModEasy, ModMirror) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     private applySetting(value: number, ratio = 1.4): number {

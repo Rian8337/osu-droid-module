@@ -17,14 +17,16 @@ export class ModTransform extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModWiggle)
-            .add(ModMagnetised)
-            .add(ModRepel)
-            .add(ModFreezeFrame)
-            .add(ModDepth);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModWiggle,
+                ModMagnetised,
+                ModRepel,
+                ModFreezeFrame,
+                ModDepth,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

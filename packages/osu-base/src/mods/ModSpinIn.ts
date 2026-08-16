@@ -15,12 +15,14 @@ export class ModSpinIn extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModObjectScaleTween)
-            .add(ModHidden)
-            .add(ModDepth);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModObjectScaleTween,
+                ModHidden,
+                ModDepth,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

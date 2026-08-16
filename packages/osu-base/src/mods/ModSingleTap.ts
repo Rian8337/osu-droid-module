@@ -15,9 +15,10 @@ export class ModSingleTap extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModAuto).add(ModRelax).add(ModAlternate);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModAuto, ModRelax, ModAlternate) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

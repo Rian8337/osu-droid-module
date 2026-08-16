@@ -32,13 +32,15 @@ export class ModWiggle extends Mod implements IModApplicableToOsu {
         1,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModTransform)
-            .add(ModMagnetised)
-            .add(ModRepel)
-            .add(ModDepth);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModTransform,
+                ModMagnetised,
+                ModRepel,
+                ModDepth,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

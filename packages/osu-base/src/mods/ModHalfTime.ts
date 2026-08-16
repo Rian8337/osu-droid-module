@@ -1,5 +1,6 @@
 import { IModApplicableToDroid } from "./IModApplicableToDroid";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
+import { Mod } from "./Mod";
 import { ModDoubleTime } from "./ModDoubleTime";
 import { ModNightCore } from "./ModNightCore";
 import { ModRateAdjust } from "./ModRateAdjust";
@@ -20,10 +21,11 @@ export class ModHalfTime
 
     override readonly rate = 0.75;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModDoubleTime).add(ModNightCore);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModDoubleTime, ModNightCore) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     get isDroidRelevant(): boolean {

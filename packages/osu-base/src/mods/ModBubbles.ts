@@ -15,12 +15,14 @@ export class ModBubbles extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModBarrelRoll)
-            .add(ModMagnetised)
-            .add(ModRepel);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModBarrelRoll,
+                ModMagnetised,
+                ModRepel,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

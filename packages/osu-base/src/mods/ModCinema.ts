@@ -20,17 +20,19 @@ export class ModCinema extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModAuto)
-            .add(ModNoFail)
-            .add(ModMagnetised)
-            .add(ModAutopilot)
-            .add(ModSpunOut)
-            .add(ModAlternate)
-            .add(ModSingleTap)
-            .add(ModRepel);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModAuto,
+                ModNoFail,
+                ModMagnetised,
+                ModAutopilot,
+                ModSpunOut,
+                ModAlternate,
+                ModSingleTap,
+                ModRepel,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

@@ -35,16 +35,18 @@ export class ModRepel extends Mod implements IModApplicableToOsu {
         2,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModAutopilot)
-            .add(ModWiggle)
-            .add(ModTransform)
-            .add(ModAuto)
-            .add(ModMagnetised)
-            .add(ModBubbles)
-            .add(ModDepth);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModAutopilot,
+                ModWiggle,
+                ModTransform,
+                ModAuto,
+                ModMagnetised,
+                ModBubbles,
+                ModDepth,
+            ) && super.isCompatibleWith(other)
+        );
     }
 }

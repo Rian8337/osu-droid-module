@@ -50,13 +50,15 @@ export class ModHidden
         false,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModTraceable)
-            .add(ModApproachDifferent)
-            .add(ModFreezeFrame);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModTraceable,
+                ModApproachDifferent,
+                ModFreezeFrame,
+            ) && super.isCompatibleWith(other)
+        );
     }
 
     applyToBeatmap(beatmap: IBeatmap): void {

@@ -51,10 +51,11 @@ export abstract class ModTimeRamp
     private initialRateTime = 0;
     private finalRateTime = 0;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModTimeRamp);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModTimeRamp) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     applyToBeatmap(beatmap: IBeatmap): void {

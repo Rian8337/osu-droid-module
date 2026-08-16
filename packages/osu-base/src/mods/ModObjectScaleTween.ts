@@ -16,9 +16,10 @@ export abstract class ModObjectScaleTween extends Mod {
      */
     endScale = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModObjectScaleTween).add(ModTraceable);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModObjectScaleTween, ModTraceable) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

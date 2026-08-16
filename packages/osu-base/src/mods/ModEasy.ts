@@ -42,12 +42,6 @@ export class ModEasy
         10,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModHardRock);
-    }
-
     applyToDifficulty(
         mode: Modes,
         difficulty: BeatmapDifficulty,
@@ -84,6 +78,9 @@ export class ModEasy
             );
         }
 
-        return super.isCompatibleWith(other);
+        return (
+            !this.isInstanceOfAny(other, ModHardRock) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

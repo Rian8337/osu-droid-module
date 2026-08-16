@@ -95,16 +95,18 @@ export class ModTargetPractice
         true,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods
-            .add(ModRandom)
-            .add(ModSpunOut)
-            .add(ModStrictTracking)
-            .add(ModSuddenDeath)
-            .add(ModDepth)
-            .add(ModDifficultyAdjust);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(
+                other,
+                ModRandom,
+                ModSpunOut,
+                ModStrictTracking,
+                ModSuddenDeath,
+                ModDepth,
+                ModDifficultyAdjust,
+            ) && super.isCompatibleWith(other)
+        );
     }
 
     applyToDifficulty(_: Modes, difficulty: BeatmapDifficulty) {

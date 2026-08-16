@@ -20,9 +20,10 @@ export class ModPerfect
     readonly isOsuRelevant = true;
     readonly bitwise = 1 << 14;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModNoFail).add(ModSuddenDeath);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModNoFail, ModSuddenDeath) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

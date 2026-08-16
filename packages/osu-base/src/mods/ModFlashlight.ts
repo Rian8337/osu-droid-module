@@ -71,10 +71,11 @@ export class ModFlashlight
         true,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModBlinds);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModBlinds) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     override toString(): string {

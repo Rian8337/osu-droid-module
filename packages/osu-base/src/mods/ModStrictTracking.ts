@@ -14,9 +14,10 @@ export class ModStrictTracking extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModClassic).add(ModTargetPractice);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModClassic, ModTargetPractice) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

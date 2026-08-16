@@ -27,9 +27,10 @@ export class ModNoScope extends Mod implements IModApplicableToOsu {
         50,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModBloom);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModBloom) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

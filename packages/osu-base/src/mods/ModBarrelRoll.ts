@@ -50,9 +50,10 @@ export class ModBarrelRoll extends Mod implements IModApplicableToOsu {
         (v) => RotationDirection[v],
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModBubbles);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModBubbles) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

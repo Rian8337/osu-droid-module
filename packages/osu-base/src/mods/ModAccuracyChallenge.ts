@@ -49,9 +49,10 @@ export class ModAccuracyChallenge extends Mod implements IModApplicableToOsu {
         (v) => AccuracyMode[v],
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModPerfect);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModPerfect) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

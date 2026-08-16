@@ -13,9 +13,10 @@ export class ModBlinds extends Mod implements IModApplicableToOsu {
     readonly isOsuRelevant = true;
     readonly osuScoreMultiplier = 1.12;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModFlashlight);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModFlashlight) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

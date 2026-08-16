@@ -20,9 +20,10 @@ export class ModAuto
     readonly isOsuRelevant = true;
     readonly bitwise = 1 << 11;
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModAutopilot).add(ModRelax);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModAutopilot, ModRelax) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

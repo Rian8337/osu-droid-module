@@ -38,10 +38,11 @@ export class ModMirror
         [Axes.X, Axes.Y, Axes.Both],
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModHardRock);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModHardRock) &&
+            super.isCompatibleWith(other)
+        );
     }
 
     applyToHitObject(_: Modes, hitObject: HitObject): void {

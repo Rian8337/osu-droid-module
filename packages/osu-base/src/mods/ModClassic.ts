@@ -70,9 +70,10 @@ export class ModClassic extends Mod implements IModApplicableToOsu {
         true,
     );
 
-    constructor() {
-        super();
-
-        this.incompatibleMods.add(ModStrictTracking);
+    override isCompatibleWith(other: Mod): boolean {
+        return (
+            !this.isInstanceOfAny(other, ModStrictTracking) &&
+            super.isCompatibleWith(other)
+        );
     }
 }

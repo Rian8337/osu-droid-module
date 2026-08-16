@@ -101,9 +101,10 @@ export class ModMap extends Map<typeof Mod, Mod> {
         const existing = this.get(key);
 
         // Check if there are any mods that are incompatible with the new mod.
-        // If so, remove them.
+        // If so, remove them. Both directions are checked since `isCompatibleWith` is not
+        // guaranteed to be symmetric between two `Mod`s.
         for (const mod of this.values()) {
-            if (!value.isCompatibleWith(mod)) {
+            if (!value.isCompatibleWith(mod) || !mod.isCompatibleWith(value)) {
                 this.delete(mod.constructor as typeof Mod);
             }
         }
