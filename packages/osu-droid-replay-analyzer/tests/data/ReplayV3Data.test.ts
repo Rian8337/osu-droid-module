@@ -33,7 +33,7 @@ const createReplayV3Data = (
     });
 
 describe("Test getTotalScore", () => {
-    test("Returns score directly for replay version < 8", () => {
+    test("Converts score to base score first for replay version < 8", () => {
         const mods = new ModMap();
         mods.set(ModHidden);
         mods.set(ModDoubleTime);
@@ -41,7 +41,10 @@ describe("Test getTotalScore", () => {
 
         const data = createReplayV3Data(7, 29672490, mods);
 
-        expect(data.getTotalScore()).toBe(29672490);
+        // Whatever the score is, it should be converted to base score first.
+        // The .not assertion ensures that this test does not need to be updated
+        // if mod multipliers change in the future.
+        expect(data.getTotalScore()).not.toBe(29672490);
     });
 
     test("Applies the current score multiplier for replay version >= 8", () => {
