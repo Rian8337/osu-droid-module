@@ -612,8 +612,16 @@ export class ReplayAnalyzer {
             resultObject.accuracy.n100 = buf.readInt32BE(20);
             resultObject.accuracy.n50 = buf.readInt32BE(24);
             resultObject.accuracy.nmiss = buf.readInt32BE(28);
-            resultObject.score = buf.readInt32BE(32);
-            resultObject.maxCombo = buf.readInt32BE(36);
+
+            if (resultObject.replayVersion >= 9) {
+                // From replay version 9 onwards, the score is stored as a long (8 bytes) instead of an int (4 bytes).
+                resultObject.score = Number(buf.readBigInt64BE(32));
+                resultObject.maxCombo = buf.readInt32BE(40);
+            } else {
+                resultObject.score = buf.readInt32BE(32);
+                resultObject.maxCombo = buf.readInt32BE(36);
+            }
+
             resultObject.isFullCombo = resultObject.accuracy.value() === 1;
             resultObject.playerName = rawObject[5] as string;
 
@@ -656,6 +664,7 @@ export class ReplayAnalyzer {
             case 3:
             case 7:
             case 8:
+            case 9:
                 bufferIndex = 7;
                 break;
 
