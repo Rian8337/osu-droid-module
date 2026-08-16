@@ -622,7 +622,7 @@ export class ReplayAnalyzer {
                 resultObject.maxCombo = buf.readInt32BE(36);
             }
 
-            resultObject.isFullCombo = resultObject.accuracy.value() === 1;
+            resultObject.isFullCombo = resultObject.accuracy.value === 1;
             resultObject.playerName = rawObject[5] as string;
 
             if (resultObject.replayVersion >= 7) {
@@ -915,7 +915,7 @@ export class ReplayAnalyzer {
         const hit300Ratio = resultObject.accuracy.n300 / totalHits;
 
         switch (true) {
-            case resultObject.accuracy.value() === 1:
+            case resultObject.accuracy.value === 1:
                 return isHidden ? "XH" : "X";
 
             case hit300Ratio > 0.9 &&

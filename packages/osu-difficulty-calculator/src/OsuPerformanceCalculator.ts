@@ -238,7 +238,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
                 1.3 +
                 this.totalHits *
                     (0.0016 / (1 + 2 * this._effectiveMissCount)) *
-                    Math.pow(this.computedAccuracy.value(), 16) *
+                    Math.pow(this.computedAccuracy.value, 16) *
                     (1 -
                         0.003 *
                             Math.pow(this.difficultyAttributes.drainRate, 2));
@@ -251,7 +251,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         // Scale the aim value with accuracy.
-        aimValue *= this.computedAccuracy.value();
+        aimValue *= this.computedAccuracy.value;
 
         return aimValue;
     }
@@ -339,7 +339,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         let accuracyValue =
             Math.pow(1.52163, this.overallDifficulty) *
             // It is possible to reach a negative accuracy with this formula. Cap it at zero - zero points.
-            Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value(), 24) *
+            Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value, 24) *
             2.83;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
@@ -390,7 +390,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         // Scale the flashlight value with accuracy slightly.
-        flashlightValue *= 0.5 + this.computedAccuracy.value() / 2;
+        flashlightValue *= 0.5 + this.computedAccuracy.value / 2;
 
         return flashlightValue;
     }
@@ -416,7 +416,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         // Scale the reading value with accuracy _harshly_.
-        readingValue *= Math.pow(this.computedAccuracy.value(), 3);
+        readingValue *= Math.pow(this.computedAccuracy.value, 3);
 
         return readingValue;
     }

@@ -35,7 +35,7 @@ test("Test fill information", () => {
     expect(score.accuracy.n100).toBe(42);
     expect(score.accuracy.n50).toBe(0);
     expect(score.accuracy.nmiss).toBe(0);
-    expect(score.accuracy.value()).toBeCloseTo(0.98392);
+    expect(score.accuracy.value).toBeCloseTo(0.98392);
     expect(score.combo).toBe(2376);
     expect(score.date.getTime()).toBe(1639619724 * 1000);
     expect(score.id).toBe(1);

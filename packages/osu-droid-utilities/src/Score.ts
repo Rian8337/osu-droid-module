@@ -213,6 +213,6 @@ export class Score {
      * Returns a string representative of the class.
      */
     toString(): string {
-        return `Player: ${this.username}, uid: ${this.uid.toString()}, title: ${this.title}, score: ${this.score.toString()}, combo: ${this.combo.toString()}, rank: ${this.rank}, acc: ${(this.accuracy.value() * 100).toFixed(2)}%, date: ${this.date.toString()}, mods: ${ModUtil.modsToOrderedString(this.mods)}, hash: ${this.hash}`;
+        return `Player: ${this.username}, uid: ${this.uid.toString()}, title: ${this.title}, score: ${this.score.toString()}, combo: ${this.combo.toString()}, rank: ${this.rank}, acc: ${(this.accuracy.value * 100).toFixed(2)}%, date: ${this.date.toString()}, mods: ${ModUtil.modsToOrderedString(this.mods)}, hash: ${this.hash}`;
     }
 }

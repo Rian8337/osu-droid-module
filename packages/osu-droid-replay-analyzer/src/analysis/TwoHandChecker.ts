@@ -115,7 +115,7 @@ export class TwoHandChecker {
         // this.csvString = `Mods,${
         //     data.convertedMods.reduce((a, m) => a + m.acronym, "") || "NM"
         // }\nCombo,${data.maxCombo}\nAccuracy,"${(
-        //     data.accuracy.value() * 100
+        //     data.accuracy.value * 100
         // ).toFixed(2)}% [${data.accuracy.n300}/${data.accuracy.n100}/${
         //     data.accuracy.n50
         // }/${

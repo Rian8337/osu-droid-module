@@ -139,7 +139,7 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
             // Copy into new instance to not modify the original
             this.computedAccuracy = new Accuracy(options.accPercent);
 
-            if (this.computedAccuracy.n300 <= 0) {
+            if (!this.computedAccuracy.isN300Resolved) {
                 this.computedAccuracy.n300 = Math.max(
                     0,
                     this.totalHits -
@@ -153,12 +153,17 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
                     this.totalHits - this.totalSuccessfulHits,
                 );
             }
+        } else if (options?.accPercent !== undefined) {
+            this.computedAccuracy = Accuracy.fromPercent(
+                options.accPercent,
+                this.totalHits,
+                options.miss ?? 0,
+            );
         } else {
-            this.computedAccuracy = new Accuracy({
-                percent: options?.accPercent,
-                nobjects: this.totalHits,
-                nmiss: options?.miss ?? 0,
-            });
+            this.computedAccuracy = Accuracy.fromHitCounts(
+                { nmiss: options?.miss ?? 0 },
+                this.totalHits,
+            );
         }
 
         const maxCombo = this.difficultyAttributes.maxCombo;
