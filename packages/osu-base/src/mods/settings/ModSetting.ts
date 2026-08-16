@@ -118,7 +118,17 @@ export class ModSetting<T = unknown> {
      * @returns A string representation of this `ModSetting`'s value.
      */
     toDisplayString(): string {
-        return this.displayFormatter(this.value);
+        return this.formatValue(this.value);
+    }
+
+    /**
+     * Formats a value of this `ModSetting` to a string using the display formatter.
+     * 
+     * @param value The value to format.
+     * @returns The formatted string representation of the value.
+     */
+    formatValue(value: T): string {
+        return this.displayFormatter(value);
     }
 
     /**
