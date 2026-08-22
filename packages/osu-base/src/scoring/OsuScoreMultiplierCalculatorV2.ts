@@ -58,7 +58,7 @@ export class OsuScoreMultiplierCalculatorV2 extends ScoreMultiplierCalculator {
 
         const blindsMultiplier = 1.24;
 
-        this.combination(ModHidden, ModBlinds, () => blindsMultiplier);
+        this.combination(ModHidden, ModBlinds, blindsMultiplier);
         this.combination(ModHidden, ModWiggle, (hd) =>
             this.hiddenMultiplier(hd, true),
         );
@@ -77,7 +77,7 @@ export class OsuScoreMultiplierCalculatorV2 extends ScoreMultiplierCalculator {
 
         this.single(ModHidden, (hd) => this.hiddenMultiplier(hd, false));
 
-        this.combination(ModTraceable, ModBlinds, () => blindsMultiplier);
+        this.combination(ModTraceable, ModBlinds, blindsMultiplier);
         this.single(ModTraceable, 1.02);
 
         this.combination(

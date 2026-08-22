@@ -12,7 +12,7 @@ class TestScoreMultiplierCalculator extends ScoreMultiplierCalculator {
         // Flat constant.
         this.single(ModHardRock, 1.04);
         // Combination: replaces both singles when both are present.
-        this.combination(ModEasy, ModHalfTime, () => 0.003);
+        this.combination(ModEasy, ModHalfTime, 0.003);
     }
 }
 

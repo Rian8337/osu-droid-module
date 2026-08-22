@@ -60,11 +60,13 @@ export class ScoreMultiplierCalculator {
     protected combination<T1 extends Mod, T2 extends Mod>(
         modClass1: ModClass<T1>,
         modClass2: ModClass<T2>,
-        multiplier: (mod1: T1, mod2: T2) => number,
+        multiplier: number | ((mod1: T1, mod2: T2) => number),
     ): void {
         this.combinationMultipliers.push([
             [modClass1, modClass2],
-            ([mod1, mod2]) => multiplier(mod1 as T1, mod2 as T2),
+            typeof multiplier === "number"
+                ? () => multiplier
+                : ([mod1, mod2]) => multiplier(mod1 as T1, mod2 as T2),
         ]);
     }
 
@@ -79,11 +81,13 @@ export class ScoreMultiplierCalculator {
      */
     protected group<TMod extends Mod>(
         modClass: ModClass<TMod>,
-        multiplier: (mods: TMod[]) => number,
+        multiplier: number | ((mods: TMod[]) => number),
     ): void {
         this.groupMultipliers.push([
             modClass,
-            multiplier as (mods: Mod[]) => number,
+            typeof multiplier === "number"
+                ? () => multiplier
+                : (mods) => multiplier(mods as TMod[]),
         ]);
     }
 
