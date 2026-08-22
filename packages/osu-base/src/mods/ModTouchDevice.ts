@@ -6,7 +6,7 @@ import { Mod } from "./Mod";
  */
 export class ModTouchDevice extends Mod implements IModApplicableToOsuStable {
     override readonly acronym = "TD";
-    override readonly name = "TouchDevice";
+    override readonly name = "Touch Device";
 
     readonly osuRanked = true;
     readonly bitwise = 1 << 2;

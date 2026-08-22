@@ -12,7 +12,7 @@ export class ModHalfTime
     extends ModRateAdjust
     implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "HT";
-    override readonly name = "HalfTime";
+    override readonly name = "Half Time";
 
     readonly droidRanked = true;
 

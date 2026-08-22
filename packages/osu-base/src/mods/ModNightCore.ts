@@ -12,7 +12,7 @@ export class ModNightCore
     extends ModRateAdjust
     implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "NC";
-    override readonly name = "NightCore";
+    override readonly name = "Night Core";
 
     readonly droidRanked = true;
 

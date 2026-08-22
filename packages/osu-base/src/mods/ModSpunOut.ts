@@ -6,7 +6,7 @@ import { Mod } from "./Mod";
  */
 export class ModSpunOut extends Mod implements IModApplicableToOsuStable {
     override readonly acronym = "SO";
-    override readonly name = "SpunOut";
+    override readonly name = "Spun Out";
 
     readonly osuRanked = true;
     readonly bitwise = 1 << 12;

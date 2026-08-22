@@ -9,7 +9,7 @@ export class ModScoreV2
     extends Mod
     implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "V2";
-    override readonly name = "ScoreV2";
+    override readonly name = "Score V2";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;

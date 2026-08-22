@@ -12,7 +12,7 @@ export class ModDoubleTime
     extends ModRateAdjust
     implements IModApplicableToDroid, IModApplicableToOsuStable {
     override readonly acronym = "DT";
-    override readonly name = "DoubleTime";
+    override readonly name = "Double Time";
 
     readonly droidRanked = true;
 

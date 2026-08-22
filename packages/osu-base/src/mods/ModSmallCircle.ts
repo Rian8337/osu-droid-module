@@ -20,7 +20,7 @@ export class ModSmallCircle
     IModApplicableToDifficulty,
     IMigratableDroidMod {
     override readonly acronym = "SC";
-    override readonly name = "SmallCircle";
+    override readonly name = "Small Circle";
 
     readonly droidRanked = false;
     readonly isDroidRelevant = true;

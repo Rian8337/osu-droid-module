@@ -25,7 +25,7 @@ export class ModHardRock
     IModApplicableToDifficulty,
     IModApplicableToHitObject {
     override readonly acronym = "HR";
-    override readonly name = "HardRock";
+    override readonly name = "Hard Rock";
 
     readonly droidRanked = true;
     readonly isDroidRelevant = true;
