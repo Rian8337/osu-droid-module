@@ -8,6 +8,7 @@ import { ModHidden } from "../mods/ModHidden";
 import { ModNightCore } from "../mods/ModNightCore";
 import { ModNoFail } from "../mods/ModNoFail";
 import { ModRelax } from "../mods/ModRelax";
+import { ModScoreV2 } from "../mods/ModScoreV2";
 import { ModSpunOut } from "../mods/ModSpunOut";
 import { ScoreMultiplierCalculator } from "./ScoreMultiplierCalculator";
 
@@ -46,6 +47,15 @@ export class OsuLegacyScoreMultiplierCalculator extends ScoreMultiplierCalculato
         // Autoplay
         // ScoreV2
         // Target Practice
+
+        //#endregion
+
+        //#region ScoreV2-specific
+
+        this.combination(ModNoFail, ModScoreV2, 1);
+        this.combination(ModHardRock, ModScoreV2, 1.1);
+        this.combination(ModDoubleTime, ModScoreV2, 1.2);
+        this.combination(ModNightCore, ModScoreV2, 1.2);
 
         //#endregion
     }
