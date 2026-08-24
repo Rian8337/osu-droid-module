@@ -38,6 +38,7 @@ import {
     ScoreRank,
     SerializedMod,
     Slider,
+    SliderRepeat,
     SliderTail,
     SliderTick,
     Spinner,
@@ -58,7 +59,7 @@ import { ReplayData } from "./data/ReplayData";
 import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
-import { SliderHitInformation } from "./data/SliderHitInformation";
+import { SliderHitInformation, SliderNestedHitObjectInformation } from "./data/SliderHitInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -221,24 +222,7 @@ export class ReplayAnalyzer {
         let negativeTotal = 0;
 
         const { objects } = this.beatmap.hitObjects;
-
-        const mods = this.data.isReplayV3()
-            ? this.data.convertedMods
-            : (this.difficultyAttributes?.mods ?? new ModMap());
-
-        const adjustedDifficulty = new BeatmapDifficulty(
-            this.beatmap.difficulty,
-        );
-
-        ModUtil.applyModsToBeatmapDifficulty(
-            adjustedDifficulty,
-            Modes.Droid,
-            mods,
-        );
-
-        const mehWindow = mods.has(ModPrecise)
-            ? new PreciseDroidHitWindow(adjustedDifficulty.od).mehWindow
-            : new DroidHitWindow(adjustedDifficulty.od).mehWindow;
+        const { mehWindow } = this.getBeatmapHitWindow()!;
 
         const accuracies: number[] = [];
 
@@ -285,7 +269,7 @@ export class ReplayAnalyzer {
     }
 
     /**
-     * Obtains the amount of slider ticks and ends hit in the replay.
+     * Obtains the amount of slider nested objects hit in the replay.
      *
      * This requires `analyze()` to be called first and `beatmap` to be defined.
      *
@@ -299,33 +283,61 @@ export class ReplayAnalyzer {
         }
 
         const sliderInformation: SliderHitInformation = {
-            tick: { obtained: 0, total: beatmap.hitObjects.sliderTicks },
-            end: { obtained: 0, total: beatmap.hitObjects.sliders },
+            head: { obtained: 0, total: beatmap.hitObjects.sliders },
+            tick: { obtained: 0, total: 0 },
+            repeat: { obtained: 0, total: 0 },
+            end: { obtained: 0, total: 0 },
         };
+
+        const hitWindow = this.getBeatmapHitWindow()!;
 
         for (let i = 0; i < data.hitObjectData.length; ++i) {
             const object = beatmap.hitObjects.objects[i];
             const objectData = data.hitObjectData[i];
 
-            if (
-                objectData.result === HitResult.Miss ||
-                !(object instanceof Slider)
-            ) {
+            if (!(object instanceof Slider)) {
                 continue;
             }
 
-            // Exclude the head circle.
+            let lateHitThreshold = hitWindow.mehWindow;
+
+            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+            if (data.replayVersion < 8) {
+                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
+            }
+
+            if (
+                -hitWindow.mehWindow <= objectData.accuracy &&
+                objectData.accuracy <= lateHitThreshold
+            ) {
+                ++sliderInformation.head.obtained;
+            }
+
             for (let j = 1; j < object.nestedHitObjects.length; ++j) {
                 const nested = object.nestedHitObjects[j];
+                let tickInformation: SliderNestedHitObjectInformation;
 
-                if (!objectData.tickset[j - 1]) {
-                    continue;
+                switch (true) {
+                    case nested instanceof SliderTick:
+                        tickInformation = sliderInformation.tick;
+                        break;
+
+                    case nested instanceof SliderRepeat:
+                        tickInformation = sliderInformation.repeat;
+                        break;
+
+                    case nested instanceof SliderTail:
+                        tickInformation = sliderInformation.end;
+                        break;
+
+                    default:
+                        continue;
                 }
 
-                if (nested instanceof SliderTick) {
-                    ++sliderInformation.tick.obtained;
-                } else if (nested instanceof SliderTail) {
-                    ++sliderInformation.end.obtained;
+                ++tickInformation.total;
+
+                if (objectData.tickset[j - 1]) {
+                    ++tickInformation.obtained;
                 }
             }
         }
@@ -953,6 +965,30 @@ export class ReplayAnalyzer {
             : this.difficultyAttributes?.mods;
 
         return this.beatmap.createDroidPlayableBeatmap(mods);
+    }
+
+    private getBeatmapHitWindow() {
+        if (!this.data || !this.beatmap) {
+            return null;
+        }
+
+        const mods = this.data.isReplayV3()
+            ? this.data.convertedMods
+            : (this.difficultyAttributes?.mods ?? new ModMap());
+
+        const adjustedDifficulty = new BeatmapDifficulty(
+            this.beatmap.difficulty,
+        );
+
+        ModUtil.applyModsToBeatmapDifficulty(
+            adjustedDifficulty,
+            Modes.Droid,
+            mods,
+        );
+
+        return mods.has(ModPrecise)
+            ? new PreciseDroidHitWindow(adjustedDifficulty.od)
+            : new DroidHitWindow(adjustedDifficulty.od);
     }
 
     private readByte(buffer: Buffer): number {

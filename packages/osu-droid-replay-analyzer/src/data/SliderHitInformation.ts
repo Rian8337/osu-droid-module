@@ -3,9 +3,19 @@
  */
 export interface SliderHitInformation {
     /**
+     * Hit information of slider heads.
+     */
+    readonly head: SliderNestedHitObjectInformation;
+
+    /**
      * Hit information of slider ticks.
      */
     readonly tick: SliderNestedHitObjectInformation;
+
+    /**
+     * Hit information of slider repeats.
+     */
+    readonly repeat: SliderNestedHitObjectInformation;
 
     /**
      * hit information of slider ends.
@@ -25,5 +35,5 @@ export interface SliderNestedHitObjectInformation {
     /**
      * The amount of the nested hit objects in the beatmap.
      */
-    readonly total: number;
+    total: number;
 }
