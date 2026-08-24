@@ -1,4 +1,4 @@
-import { OsuAPIResponse, MapInfo } from "../../src";
+import { OsuAPIResponse, MapInfo, OsuAPIRequestBuilder } from "../../src";
 
 const apiMock: OsuAPIResponse = {
     approved: "1",
@@ -117,4 +117,19 @@ test("Test API response conversion", () => {
     const beatmapInfo = MapInfo.from(apiMock);
 
     expect(beatmapInfo.toAPIResponse()).toEqual(apiMock);
+});
+
+test("Test getInformation surfaces status detail on non-200 response", async () => {
+    jest.spyOn(OsuAPIRequestBuilder.prototype, "sendRequest").mockResolvedValueOnce({
+        data: Buffer.from([]),
+        statusCode: 429,
+        statusText: "Too Many Requests",
+        headers: { "retry-after": "30" },
+        url: "https://osu.ppy.sh/api/get_beatmaps",
+        attempts: 1,
+    });
+
+    await expect(MapInfo.getInformation(252002)).rejects.toThrow(
+        "osu! API error: 429 Too Many Requests (Retry-After: 30)",
+    );
 });

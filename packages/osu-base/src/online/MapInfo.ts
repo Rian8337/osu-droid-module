@@ -5,6 +5,7 @@ import { If } from "../utils/If";
 import { OsuAPIRequestBuilder } from "./OsuAPIRequestBuilder";
 import { BeatmapGenre } from "./BeatmapGenre";
 import { BeatmapLanguage } from "./BeatmapLanguage";
+import { describeAPIRequestFailure } from "./describeAPIRequestFailure";
 
 export interface OsuAPIResponse {
     readonly approved: string;
@@ -327,7 +328,9 @@ export class MapInfo<THasBeatmap extends boolean = boolean> {
         const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
-            throw new Error("osu! API error");
+            throw new Error(
+                `osu! API error: ${describeAPIRequestFailure(result)}`,
+            );
         }
 
         const mapinfo = (
