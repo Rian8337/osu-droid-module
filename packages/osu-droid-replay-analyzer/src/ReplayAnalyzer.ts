@@ -3,6 +3,7 @@ import {
     Beatmap,
     BeatmapDifficulty,
     Circle,
+    describeAPIRequestFailure,
     DroidAPIRequestBuilder,
     DroidHitWindow,
     DroidLegacyModConverter,
@@ -534,6 +535,10 @@ export class ReplayAnalyzer {
         const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
+            console.error(
+                `Error retrieving replay for score ID ${this.scoreID.toString()}: ${describeAPIRequestFailure(result)}`,
+            );
+
             return null;
         }
 
