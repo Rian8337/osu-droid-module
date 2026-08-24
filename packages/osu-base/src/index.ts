@@ -182,6 +182,7 @@ export * from "./mods/settings/NullableDecimalModSetting";
 export * from "./mods/settings/NullableIntegerModSetting";
 export * from "./mods/settings/NumberModSetting";
 export * from "./mods/settings/RangeConstrainedModSetting";
+export * from "./online/APIRequestError";
 export * from "./online/BeatmapGenre";
 export * from "./online/BeatmapLanguage";
 export * from "./online/DroidAPIRequestBuilder";

@@ -1,3 +1,4 @@
+import { APIRequestError } from "./APIRequestError";
 import { RequestResponse } from "./RequestResponse";
 
 /**
@@ -42,8 +43,6 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
         return this.host + this.endpoint;
     }
 
-    private fetchAttempts = 0;
-
     /**
      * Sets the API endpoint.
      *
@@ -87,49 +86,87 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
     }
 
     /**
+     * The maximum amount of attempts `sendRequest` will make before giving up.
+     */
+    private static readonly maxAttempts = 5;
+
+    private static delay(ms: number): Promise<void> {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+    }
+
+    private static backoffDelay(attempt: number): number {
+        const base = 250;
+        const exponential = base * 2 ** (attempt - 1);
+        const jitter = exponential * 0.25 * Math.random();
+
+        return exponential + jitter;
+    }
+
+    /**
      * Sends a request to the API using built parameters.
      *
-     * If the request fails, it will be redone 5 times.
+     * If the request fails (a 5xx response, or the request itself throwing), it will be
+     * retried up to 5 times with exponential backoff between attempts.
+     *
+     * Resolves with the response for any HTTP response actually received, whatever its
+     * status code. Only rejects with an `APIRequestError` if every attempt's request threw
+     * (e.g., DNS failure, timeout, connection refused) rather than receiving a response.
      */
-    sendRequest(): Promise<RequestResponse> {
-        return new Promise((resolve) => {
-            const url = this.buildURL();
+    async sendRequest(): Promise<RequestResponse> {
+        const url = this.buildURL();
+        const maxAttempts = APIRequestBuilder.maxAttempts;
+        let lastError: unknown;
 
-            fetch(url)
-                .then(async (res) => {
-                    ++this.fetchAttempts;
+        for (let attempt = 1; attempt <= maxAttempts; ++attempt) {
+            try {
+                const res = await fetch(url);
 
-                    if (res.status >= 500 && this.fetchAttempts < 5) {
-                        console.error(
-                            `Request to ${url} failed with the following error: ${await res.text()}; ${this.fetchAttempts.toString()} attempts so far; retrying`,
-                        );
-
-                        resolve(this.sendRequest());
-                        return;
-                    }
-
-                    this.fetchAttempts = 0;
-
-                    resolve({
-                        data: Buffer.from(await res.arrayBuffer()),
-                        statusCode: res.status,
-                    });
-                })
-                .catch((e: unknown) => {
+                if (res.status >= 500 && attempt < maxAttempts) {
                     console.error(
-                        `Request to ${url} failed with the following error: ${(e as Error).message}; ${this.fetchAttempts.toString()} attempts so far; aborting`,
+                        `Request to ${url} failed with status ${res.status.toString()}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    this.fetchAttempts = 0;
+                    await APIRequestBuilder.delay(
+                        APIRequestBuilder.backoffDelay(attempt),
+                    );
 
-                    resolve({
-                        data: Buffer.from([]),
-                        statusCode: 400,
-                    });
+                    continue;
+                }
 
-                    return;
+                const headers: Record<string, string> = {};
+                res.headers.forEach((value, key) => {
+                    headers[key] = value;
                 });
-        });
+
+                return {
+                    data: Buffer.from(await res.arrayBuffer()),
+                    statusCode: res.status,
+                    statusText: res.statusText,
+                    headers,
+                    url: res.url,
+                    attempts: attempt,
+                };
+            } catch (e) {
+                lastError = e;
+
+                if (attempt < maxAttempts) {
+                    console.error(
+                        `Request to ${url} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
+                    );
+
+                    await APIRequestBuilder.delay(
+                        APIRequestBuilder.backoffDelay(attempt),
+                    );
+                }
+            }
+        }
+
+        throw new APIRequestError(
+            `Request to ${url} failed after ${maxAttempts.toString()} attempts`,
+            url,
+            maxAttempts,
+            lastError,
+        );
     }
 
     /**
