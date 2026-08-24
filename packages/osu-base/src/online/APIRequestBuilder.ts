@@ -92,7 +92,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
     private static readonly maxAttempts = 5;
 
     private static backoffDelay(attempt: number): number {
-        const base = 250;
+        const base = 0.25;
         const exponential = base * 2 ** (attempt - 1);
         const jitter = exponential * 0.25 * Math.random();
 
@@ -132,10 +132,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with status ${res.status.toString()}: ${body}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    // Utils.sleep takes seconds; backoffDelay() returns milliseconds.
-                    await Utils.sleep(
-                        APIRequestBuilder.backoffDelay(attempt) / 1000,
-                    );
+                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
 
                     continue;
                 }
@@ -153,10 +150,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    // Utils.sleep takes seconds; backoffDelay() returns milliseconds.
-                    await Utils.sleep(
-                        APIRequestBuilder.backoffDelay(attempt) / 1000,
-                    );
+                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
                 }
             }
         }
