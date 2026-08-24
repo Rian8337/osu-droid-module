@@ -68,7 +68,10 @@ test("Test fill information", () => {
 });
 
 test("Test getInformation surfaces status detail on non-200 response", async () => {
-    jest.spyOn(DroidAPIRequestBuilder.prototype, "sendRequest").mockResolvedValueOnce({
+    jest.spyOn(
+        DroidAPIRequestBuilder.prototype,
+        "sendRequest",
+    ).mockResolvedValueOnce({
         data: Buffer.from([]),
         statusCode: 429,
         statusText: "Too Many Requests",

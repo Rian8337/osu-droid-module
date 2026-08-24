@@ -16,9 +16,9 @@ function response(
 }
 
 test("Test description without Retry-After header", () => {
-    expect(describeAPIRequestFailure(response(500, "Internal Server Error"))).toBe(
-        "500 Internal Server Error",
-    );
+    expect(
+        describeAPIRequestFailure(response(500, "Internal Server Error")),
+    ).toBe("500 Internal Server Error");
 });
 
 test("Test description with Retry-After header", () => {

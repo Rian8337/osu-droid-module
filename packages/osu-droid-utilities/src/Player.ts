@@ -1,4 +1,7 @@
-import { describeAPIRequestFailure, DroidAPIRequestBuilder } from "@rian8337/osu-base";
+import {
+    describeAPIRequestFailure,
+    DroidAPIRequestBuilder,
+} from "@rian8337/osu-base";
 import { Score } from "./Score";
 import { APIPlayer } from "./APIPlayer";
 

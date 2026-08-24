@@ -107,6 +107,7 @@ function mockResponse(
         url,
         headers: new Headers(headers),
         arrayBuffer: () => Promise.resolve(Buffer.from(body)),
+        text: () => Promise.resolve(body),
     } as unknown as Response;
 }
 
@@ -123,7 +124,12 @@ describe("Test sendRequest", () => {
 
     test("Resolves with full response shape on first success", async () => {
         jest.mocked(global.fetch).mockResolvedValueOnce(
-            mockResponse(200, "OK", { "content-type": "application/json" }, "{}"),
+            mockResponse(
+                200,
+                "OK",
+                { "content-type": "application/json" },
+                "{}",
+            ),
         );
 
         const builder = new DroidAPIRequestBuilder().setEndpoint(
@@ -180,6 +186,54 @@ describe("Test sendRequest", () => {
         expect(global.fetch).toHaveBeenCalledTimes(5);
     });
 
+    test("Does not retry a non-5xx response", async () => {
+        jest.mocked(global.fetch).mockResolvedValueOnce(
+            mockResponse(429, "Too Many Requests", { "retry-after": "30" }),
+        );
+
+        const builder = new DroidAPIRequestBuilder().setEndpoint(
+            "getuserinfo.php",
+        );
+        const result = await builder.sendRequest();
+
+        expect(global.fetch).toHaveBeenCalledTimes(1);
+        expect(result.statusCode).toBe(429);
+        expect(result.attempts).toBe(1);
+    });
+
+    test("Schedules exponential backoff with jitter between retries", async () => {
+        jest.mocked(global.fetch)
+            .mockResolvedValueOnce(mockResponse(503, "Service Unavailable"))
+            .mockResolvedValueOnce(mockResponse(503, "Service Unavailable"))
+            .mockResolvedValueOnce(mockResponse(200, "OK"));
+
+        const setTimeoutSpy = jest.spyOn(global, "setTimeout");
+
+        const builder = new DroidAPIRequestBuilder().setEndpoint(
+            "getuserinfo.php",
+        );
+
+        const promise = builder.sendRequest();
+        await jest.runAllTimersAsync();
+        await promise;
+
+        // Only APIRequestBuilder's own delay() calls setTimeout during this flow,
+        // so every recorded call corresponds to one retry's backoff delay.
+        const delays = setTimeoutSpy.mock.calls.map(
+            (call) => call[1] as number,
+        );
+
+        expect(delays).toHaveLength(2);
+
+        // Attempt 1: base 250ms, up to 25% jitter -> [250, 312.5]
+        expect(delays[0]).toBeGreaterThanOrEqual(250);
+        expect(delays[0]).toBeLessThanOrEqual(312.5);
+
+        // Attempt 2: 250ms * 2^1 = 500ms, up to 25% jitter -> [500, 625]
+        expect(delays[1]).toBeGreaterThanOrEqual(500);
+        expect(delays[1]).toBeLessThanOrEqual(625);
+    });
+
     test("Does not share retry state across concurrent calls on the same instance", async () => {
         // Keyed by URL rather than call order, so the assertions don't depend on how
         // the two concurrent calls' retries happen to interleave in time.
@@ -218,7 +272,10 @@ describe("Test sendRequest", () => {
 
         await jest.runAllTimersAsync();
 
-        const [first, second] = await Promise.all([firstPromise, secondPromise]);
+        const [first, second] = await Promise.all([
+            firstPromise,
+            secondPromise,
+        ]);
 
         expect(first.data.toString("utf-8")).toBe("first");
         expect(first.attempts).toBe(3);

@@ -36,6 +36,7 @@ import {
     ModUtil,
     Modes,
     PreciseDroidHitWindow,
+    RequestResponse,
     ScoreRank,
     SerializedMod,
     Slider,
@@ -532,7 +533,17 @@ export class ReplayAnalyzer {
             .setEndpoint("upload")
             .addParameter("", `${this.scoreID.toString()}.odr`);
 
-        const result = await apiRequestBuilder.sendRequest();
+        let result: RequestResponse;
+
+        try {
+            result = await apiRequestBuilder.sendRequest();
+        } catch (e) {
+            console.error(
+                `Error retrieving replay for score ID ${this.scoreID.toString()}: ${(e as Error).message}`,
+            );
+
+            return null;
+        }
 
         if (result.statusCode !== 200) {
             console.error(

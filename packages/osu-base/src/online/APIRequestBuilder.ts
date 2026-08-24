@@ -103,6 +103,13 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
     }
 
     /**
+     * Redacts the API key value from a URL string so it does not leak into logs or thrown errors.
+     */
+    private static redactURL(url: string): string {
+        return url.replace(/([?&](?:k|apiKey)=)[^&]*/g, "$1<redacted>");
+    }
+
+    /**
      * Sends a request to the API using built parameters.
      *
      * If the request fails (a 5xx response, or the request itself throwing), it will be
@@ -122,8 +129,10 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                 const res = await fetch(url);
 
                 if (res.status >= 500 && attempt < maxAttempts) {
+                    const body = await res.text();
+
                     console.error(
-                        `Request to ${url} failed with status ${res.status.toString()}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
+                        `Request to ${APIRequestBuilder.redactURL(url)} failed with status ${res.status.toString()}: ${body}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
                     await APIRequestBuilder.delay(
@@ -151,7 +160,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
 
                 if (attempt < maxAttempts) {
                     console.error(
-                        `Request to ${url} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
+                        `Request to ${APIRequestBuilder.redactURL(url)} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
                     await APIRequestBuilder.delay(
@@ -161,9 +170,11 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
             }
         }
 
+        const redactedURL = APIRequestBuilder.redactURL(url);
+
         throw new APIRequestError(
-            `Request to ${url} failed after ${maxAttempts.toString()} attempts`,
-            url,
+            `Request to ${redactedURL} failed after ${maxAttempts.toString()} attempts`,
+            redactedURL,
             maxAttempts,
             lastError,
         );

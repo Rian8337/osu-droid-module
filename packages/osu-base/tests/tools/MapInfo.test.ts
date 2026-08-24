@@ -120,7 +120,10 @@ test("Test API response conversion", () => {
 });
 
 test("Test getInformation surfaces status detail on non-200 response", async () => {
-    jest.spyOn(OsuAPIRequestBuilder.prototype, "sendRequest").mockResolvedValueOnce({
+    jest.spyOn(
+        OsuAPIRequestBuilder.prototype,
+        "sendRequest",
+    ).mockResolvedValueOnce({
         data: Buffer.from([]),
         statusCode: 429,
         statusText: "Too Many Requests",
