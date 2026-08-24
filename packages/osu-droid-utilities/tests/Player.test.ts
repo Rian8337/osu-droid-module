@@ -1,4 +1,4 @@
-import { DroidAPIRequestBuilder } from "@rian8337/osu-base";
+import { DroidAPIRequestBuilder, RequestResponse } from "@rian8337/osu-base";
 import { APIPlayer } from "../src/APIPlayer";
 import { Player } from "../src/Player";
 
@@ -71,14 +71,17 @@ test("Test getInformation surfaces status detail on non-200 response", async () 
     jest.spyOn(
         DroidAPIRequestBuilder.prototype,
         "sendRequest",
-    ).mockResolvedValueOnce({
-        data: Buffer.from([]),
-        statusCode: 429,
-        statusText: "Too Many Requests",
-        headers: { "retry-after": "30" },
-        url: "https://osudroid.moe/api/getuserinfo.php",
-        attempts: 1,
-    });
+    ).mockResolvedValueOnce(
+        new RequestResponse(
+            new Response(null, {
+                status: 429,
+                statusText: "Too Many Requests",
+                headers: { "retry-after": "30" },
+            }),
+            Buffer.from([]),
+            1,
+        ),
+    );
 
     await expect(Player.getInformation(51076)).rejects.toThrow(
         "Error retrieving player data: 429 Too Many Requests (Retry-After: 30)",

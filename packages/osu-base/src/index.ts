@@ -186,7 +186,6 @@ export * from "./online/APIRequestError";
 export * from "./online/BeatmapGenre";
 export * from "./online/BeatmapLanguage";
 export * from "./online/DroidAPIRequestBuilder";
-export * from "./online/describeAPIRequestFailure";
 export * from "./online/MapInfo";
 export * from "./online/OsuAPIRequestBuilder";
 export * from "./online/RequestResponse";

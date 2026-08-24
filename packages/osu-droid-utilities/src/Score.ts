@@ -1,6 +1,5 @@
 import {
     Accuracy,
-    describeAPIRequestFailure,
     DroidAPIRequestBuilder,
     ModMap,
     ModUtil,
@@ -193,7 +192,7 @@ export class Score {
 
         if (result.statusCode !== 200) {
             throw new Error(
-                `Error retrieving score data: ${describeAPIRequestFailure(result)}`,
+                `Error retrieving score data: ${result.describeFailure()}`,
             );
         }
 

@@ -132,24 +132,19 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with status ${res.status.toString()}: ${body}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
+                    // Utils.sleep takes seconds; backoffDelay() returns milliseconds.
+                    await Utils.sleep(
+                        APIRequestBuilder.backoffDelay(attempt) / 1000,
+                    );
 
                     continue;
                 }
 
-                const headers: Record<string, string> = {};
-                res.headers.forEach((value, key) => {
-                    headers[key] = value;
-                });
-
-                return {
-                    data: Buffer.from(await res.arrayBuffer()),
-                    statusCode: res.status,
-                    statusText: res.statusText,
-                    headers,
-                    url: res.url,
-                    attempts: attempt,
-                };
+                return new RequestResponse(
+                    res,
+                    Buffer.from(await res.arrayBuffer()),
+                    attempt,
+                );
             } catch (e) {
                 lastError = e;
 
@@ -158,7 +153,10 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
+                    // Utils.sleep takes seconds; backoffDelay() returns milliseconds.
+                    await Utils.sleep(
+                        APIRequestBuilder.backoffDelay(attempt) / 1000,
+                    );
                 }
             }
         }

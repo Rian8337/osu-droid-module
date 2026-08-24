@@ -1,7 +1,4 @@
-import {
-    describeAPIRequestFailure,
-    DroidAPIRequestBuilder,
-} from "@rian8337/osu-base";
+import { DroidAPIRequestBuilder } from "@rian8337/osu-base";
 import { Score } from "./Score";
 import { APIPlayer } from "./APIPlayer";
 
@@ -101,7 +98,7 @@ export class Player {
         const result = await apiRequestBuilder.sendRequest();
         if (result.statusCode !== 200) {
             throw new Error(
-                `Error retrieving player data: ${describeAPIRequestFailure(result)}`,
+                `Error retrieving player data: ${result.describeFailure()}`,
             );
         }
 

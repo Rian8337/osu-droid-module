@@ -140,7 +140,7 @@ describe("Test sendRequest", () => {
 
         expect(result.statusCode).toBe(200);
         expect(result.statusText).toBe("OK");
-        expect(result.headers["content-type"]).toBe("application/json");
+        expect(result.headers.get("content-type")).toBe("application/json");
         expect(result.url).toBe("https://example.test/");
         expect(result.attempts).toBe(1);
         expect(result.data.toString("utf-8")).toBe("{}");
