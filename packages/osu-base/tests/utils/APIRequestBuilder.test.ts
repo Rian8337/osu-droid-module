@@ -169,6 +169,7 @@ describe("Test sendRequest", () => {
         );
 
         const promise = builder.sendRequest();
+        promise.catch(() => {}); // prevent unhandled-rejection warning while timers drain
         await jest.runAllTimersAsync();
 
         await expect(promise).rejects.toThrow(APIRequestError);
