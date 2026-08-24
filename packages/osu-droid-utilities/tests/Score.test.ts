@@ -1,4 +1,4 @@
-import { ModHidden } from "@rian8337/osu-base";
+import { DroidAPIRequestBuilder, ModHidden } from "@rian8337/osu-base";
 import { Score } from "../src/Score";
 import { APIScore } from "../src/APIScore";
 
@@ -53,4 +53,19 @@ test("Test fill information", () => {
     );
     expect(score.uid).toBe(51076);
     expect(score.username).toBe("Rian8337");
+});
+
+test("Test getFromHash surfaces status detail on non-200 response", async () => {
+    jest.spyOn(DroidAPIRequestBuilder.prototype, "sendRequest").mockResolvedValueOnce({
+        data: Buffer.from([]),
+        statusCode: 429,
+        statusText: "Too Many Requests",
+        headers: { "retry-after": "30" },
+        url: "https://osudroid.moe/api/scoresearchv2.php",
+        attempts: 1,
+    });
+
+    await expect(Score.getFromHash(51076, "somehash")).rejects.toThrow(
+        "Error retrieving score data: 429 Too Many Requests (Retry-After: 30)",
+    );
 });

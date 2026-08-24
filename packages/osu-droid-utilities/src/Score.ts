@@ -1,5 +1,6 @@
 import {
     Accuracy,
+    describeAPIRequestFailure,
     DroidAPIRequestBuilder,
     ModMap,
     ModUtil,
@@ -191,7 +192,9 @@ export class Score {
         const result = await apiRequestBuilder.sendRequest();
 
         if (result.statusCode !== 200) {
-            throw new Error("Error retrieving score data");
+            throw new Error(
+                `Error retrieving score data: ${describeAPIRequestFailure(result)}`,
+            );
         }
 
         let response: APIScore[];
