@@ -1,3 +1,4 @@
+import { Utils } from "../utils/Utils";
 import { APIRequestError } from "./APIRequestError";
 import { RequestResponse } from "./RequestResponse";
 
@@ -90,10 +91,6 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
      */
     private static readonly maxAttempts = 5;
 
-    private static delay(ms: number): Promise<void> {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-    }
-
     private static backoffDelay(attempt: number): number {
         const base = 250;
         const exponential = base * 2 ** (attempt - 1);
@@ -135,9 +132,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with status ${res.status.toString()}: ${body}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    await APIRequestBuilder.delay(
-                        APIRequestBuilder.backoffDelay(attempt),
-                    );
+                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
 
                     continue;
                 }
@@ -163,9 +158,7 @@ export abstract class APIRequestBuilder<TEndpoint extends string> {
                         `Request to ${APIRequestBuilder.redactURL(url)} failed with error: ${(e as Error).message}; attempt ${attempt.toString()} of ${maxAttempts.toString()}; retrying`,
                     );
 
-                    await APIRequestBuilder.delay(
-                        APIRequestBuilder.backoffDelay(attempt),
-                    );
+                    await Utils.sleep(APIRequestBuilder.backoffDelay(attempt));
                 }
             }
         }
