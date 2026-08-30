@@ -51,7 +51,7 @@ export abstract class DroidFlowAimEvaluator {
 
         // Apply high circle size bonus to the base velocity.
         // We use reduced CS bonus here because the bonus was made for an evaluator with a different d/t scaling.
-        flowDifficulty *= Math.sqrt(current.smallCircleBonus);
+        flowDifficulty *= Math.pow(current.smallCircleBonus, 0.75);
 
         // Rhythm changes are harder to flow.
         flowDifficulty *=

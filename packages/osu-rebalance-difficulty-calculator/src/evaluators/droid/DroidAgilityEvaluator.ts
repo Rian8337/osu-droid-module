@@ -25,7 +25,7 @@ export abstract class DroidAgilityEvaluator {
 
         let strain = (distanceScaled * 1000) / current.strainTime;
 
-        strain *= Math.pow(current.smallCircleBonus, 1.5);
+        strain *= Math.pow(current.smallCircleBonus, 3);
         strain *= this.highBpmBonus(current.strainTime);
 
         return strain;

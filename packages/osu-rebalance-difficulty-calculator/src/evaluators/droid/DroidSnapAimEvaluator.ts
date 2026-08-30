@@ -266,7 +266,7 @@ export abstract class DroidSnapAimEvaluator {
         }
 
         // Apply high circle size bonus
-        strain *= current.smallCircleBonus;
+        strain *= Math.pow(current.smallCircleBonus, 2);
 
         strain *= this.highBpmBonus(current.strainTime);
 
