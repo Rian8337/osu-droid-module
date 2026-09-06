@@ -3,6 +3,7 @@ import {
     DroidScoreMultiplierCalculator,
     Mod,
     ModApproachDifferent,
+    ModCustomSpeed,
     ModDifficultyAdjust,
     ModDoubleTime,
     ModEasy,
@@ -96,8 +97,18 @@ describe("Test osu!droid score multiplier calculation", () => {
     });
 
     test("HalfTime multiplier", () => {
-        // rate 0.75 -> floor(0.75 * 20) / 20 * 1.4 - 0.5 = 0.55
-        expect(calculate([new ModHalfTime()])).toBeCloseTo(0.55, 6);
+        // rate 0.75 -> 0.75 * 1.5 - 0.5 = 0.625
+        expect(calculate([new ModHalfTime()])).toBeCloseTo(0.625, 6);
+    });
+
+    test("HalfTime and CustomSpeed combination is clamped to the lower bound", () => {
+        const customSpeed = new ModCustomSpeed(0.5);
+
+        // combined rate = 0.75 * 0.5 = 0.375
+        // rateMultiplier(0.375) = 0.375 * 1.5 - 0.5 = 0.0625, clamped to 0.1
+        expect(
+            calculate([new ModHalfTime(), customSpeed]),
+        ).toBeCloseTo(0.1, 6);
     });
 
     test("Wind Up multiplier", () => {
@@ -109,9 +120,9 @@ describe("Test osu!droid score multiplier calculation", () => {
 
     test("Wind Down multiplier", () => {
         // minSpeed = 0.75, maxSpeed = 1
-        // rateMultiplier(0.75) = 0.55, rateMultiplier(1) = 1
-        // 0.8 * 0.55 + 0.2 * 1 = 0.64
-        expect(calculate([new ModWindDown()])).toBeCloseTo(0.64, 6);
+        // rateMultiplier(0.75) = 0.625, rateMultiplier(1) = 1
+        // 0.8 * 0.625 + 0.2 * 1 = 0.7
+        expect(calculate([new ModWindDown()])).toBeCloseTo(0.7, 6);
     });
 
     test("Difficulty Adjust multiplier", () => {

@@ -323,7 +323,7 @@ describe("Test osu!droid max score calculation", () => {
         const map = new ModMap();
         map.set(new ModCustomSpeed(0.75));
 
-        expect(beatmap.maxDroidScore(map)).toBe(632);
+        expect(beatmap.maxDroidScore(map)).toBe(719);
     });
 
     test("With unranked mods", () => {

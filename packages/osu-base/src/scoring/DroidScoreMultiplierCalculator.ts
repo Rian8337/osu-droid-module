@@ -189,9 +189,9 @@ export class DroidScoreMultiplierCalculator extends ScoreMultiplierCalculator {
             ? // Linear from 1.0 to 1.46.
               // Default DT (1.5x) = 1.23
               1 + (rate - 1) * 0.46
-            : // 0.2x at 0.5x speed, +0.07x per 0.05x speed increment.
-              // Default HT (0.75x) = 0.55
-              (Math.floor(rate * 20) / 20) * 1.4 - 0.5;
+            : // 0.25x at 0.5x speed, +0.075x per 0.05x speed increment.
+              // Default HT (0.75x) = 0.625.
+              Math.max(0.1, rate * 1.5 - 0.5);
     }
 
     private timeRampMultiplier(mod: ModTimeRamp): number {
