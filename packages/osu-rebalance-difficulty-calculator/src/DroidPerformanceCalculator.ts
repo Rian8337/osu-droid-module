@@ -304,9 +304,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the tap performance value of the beatmap.
      */
     private calculateTapValue(): number {
-        let tapValue = DroidTap.difficultyToPerformance(
-            this.difficultyAttributes.tapDifficulty,
-        );
+        const tapDifficulty =
+            this.difficultyAttributes.tapDifficulty * this.calculateTapHighDeviationNerf();
+
+        let tapValue = DroidTap.difficultyToPerformance(tapDifficulty);
 
         if (this._effectiveMissCount > 0) {
             const tapEstimatedSliderBreaks =
@@ -340,8 +341,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // An effective hit window is created based on the tap SR. The higher the tap difficulty, the shorter the hit window.
         // For example, a tap SR of 4 leads to an effective hit window of 35ms.
-        const effectiveHitWindow =
-            35 * Math.pow(4 / this.difficultyAttributes.tapDifficulty, 1.8);
+        const effectiveHitWindow = 35 * Math.pow(4 / tapDifficulty, 1.8);
 
         // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
         const effectiveAccuracy = ErrorFunction.erf(
@@ -350,8 +350,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
 
         // Scale the tap value with normalized accuracy.
         tapValue *= Math.pow(effectiveAccuracy, 2);
-
-        tapValue *= this.calculateTapHighDeviationNerf();
 
         // Scale the tap value with three-fingered penalty.
         tapValue /= this._tapPenalty;
@@ -736,30 +734,27 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             return 0;
         }
 
-        const tapValue = DroidTap.difficultyToPerformance(
-            this.difficultyAttributes.tapDifficulty,
-        );
+        const { tapDifficulty } = this.difficultyAttributes;
 
-        // Decide a point where the PP value achieved compared to the tap deviation is assumed to be tapped
-        // improperly. Any PP above this point is considered "excess" tap difficulty. This is used to cause
+        // Decide a point where the difficulty value achieved compared to the tap deviation is assumed to be tapped
+        // improperly. Any difficulty above this point is considered "excess" tap difficulty. This is used to cause
         // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
-        const excessTapDifficultyCutoff =
-            100 + 250 * Math.pow(25 / this.tapDeviation, 6.5);
+        const excessTapDifficultyCutoff = 2.9 + 1.45 * Math.pow(25 / this.tapDeviation, 5);
 
-        if (tapValue <= excessTapDifficultyCutoff) {
+        if (tapDifficulty <= excessTapDifficultyCutoff) {
             return 1;
         }
 
-        const scale = 50;
-        const adjustedTapValue =
+        const scale = 0.45;
+        const adjustedTapDifficulty =
             scale *
-            (Math.log((tapValue - excessTapDifficultyCutoff) / scale + 1) +
+            (Math.log((tapDifficulty - excessTapDifficultyCutoff) / scale + 1) +
                 excessTapDifficultyCutoff / scale);
 
         // 250 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible.
         const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 25, 30);
 
-        return Interpolation.lerp(adjustedTapValue, tapValue, t) / tapValue;
+        return Interpolation.lerp(adjustedTapDifficulty, tapDifficulty, t) / tapDifficulty;
     }
 
     private getHitWindow() {

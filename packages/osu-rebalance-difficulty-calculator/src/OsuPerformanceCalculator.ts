@@ -267,9 +267,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 0;
         }
 
-        let speedValue = OsuSpeed.difficultyToPerformance(
-            this.difficultyAttributes.speedDifficulty,
-        );
+        const speedDifficulty =
+            this.difficultyAttributes.speedDifficulty * this.calculateSpeedHighDeviationNerf();
+
+        let speedValue = OsuSpeed.difficultyToPerformance(speedDifficulty);
 
         if (this._effectiveMissCount > 0) {
             const speedEstimatedSliderBreaks =
@@ -293,12 +294,9 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             speedValue *= 1.12;
         }
 
-        speedValue *= this.calculateSpeedHighDeviationNerf();
-
         // An effective hit window is created based on the speed SR. The higher the speed difficulty, the shorter the hit window.
         // For example, a speed SR of 4 leads to an effective hit window of 20ms, which is OD 10.
-        const effectiveHitWindow =
-            20 * Math.pow(4 / this.difficultyAttributes.speedDifficulty, 0.35);
+        const effectiveHitWindow = 20 * Math.pow(4 / speedDifficulty, 0.35);
 
         // Find the proportion of 300s on speed notes assuming the hit window was the effective hit window.
         const effectiveAccuracy = ErrorFunction.erf(
@@ -570,31 +568,29 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             return 0;
         }
 
-        const speedValue = OsuSpeed.difficultyToPerformance(
-            this.difficultyAttributes.speedDifficulty,
-        );
+        const { speedDifficulty } = this.difficultyAttributes;
 
-        // Decide a point where the PP value achieved compared to the speed deviation is assumed to be tapped
-        // improperly. Any PP above this point is considered "excess" speed difficulty. This is used to cause
-        // PP above the cutoff to scale logarithmically towards the original speed value thus nerfing the value.
-        const excessSpeedDifficultyCutoff =
-            100 + 220 * Math.pow(22 / this.speedDeviation, 6.5);
+        // Decides a point where the difficulty played compared to the speed deviation is assumed to be tapped improperly.
+        // Any difficulty above this point is considered "excess" speed difficulty.
+        // This is used to cause difficulty above the cutoff to scale logarithmically towards the original speed value thus
+        // nerfing the value.
+        const excessSpeedDifficultyCutoff = 2.9 + 1.45 * Math.pow(22 / this.speedDeviation, 5);
 
-        if (speedValue <= excessSpeedDifficultyCutoff) {
+        if (speedDifficulty <= excessSpeedDifficultyCutoff) {
             return 1;
         }
 
-        const scale = 50;
-        const adjustedSpeedValue =
+        const scale = 0.45;
+        const adjustedSpeedDifficulty =
             scale *
-            (Math.log((speedValue - excessSpeedDifficultyCutoff) / scale + 1) +
+            (Math.log((speedDifficulty - excessSpeedDifficultyCutoff) / scale + 1) +
                 excessSpeedDifficultyCutoff / scale);
 
         // 220 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
         const t = 1 - Interpolation.reverseLerp(this.speedDeviation, 22, 27);
 
         return (
-            Interpolation.lerp(adjustedSpeedValue, speedValue, t) / speedValue
+            Interpolation.lerp(adjustedSpeedDifficulty, speedDifficulty, t) / speedDifficulty
         );
     }
 
