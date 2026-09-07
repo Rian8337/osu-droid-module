@@ -158,15 +158,15 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         {
             noMod: {
                 aim: 2.5689872536692917,
-                speed: 1.6067737610214845,
+                speed: 1.5633418805901897,
                 reading: 0.6702350973356827,
-                total: 4.502964782686812,
+                total: 4.482377594924674,
             },
             doubleTime: {
                 aim: 3.586781417586257,
-                speed: 2.4330227489025735,
+                speed: 2.401439886201353,
                 reading: 1.4776999306931493,
-                total: 6.44863305656299,
+                total: 6.431372287801863,
             },
             flashlight: 1.6008693071588762,
         },
@@ -177,15 +177,15 @@ describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
             aim: 1.3319101471227266,
-            speed: 0.9312869958154305,
+            speed: 0.8773462600180841,
             reading: 0.5701519561896039,
-            total: 2.414307899715623,
+            total: 2.384536541916546,
         },
         doubleTime: {
             aim: 1.840782025809944,
-            speed: 1.3397653199492379,
+            speed: 1.290430853499453,
             reading: 0.534341910471822,
-            total: 3.3363624387378046,
+            total: 3.3058638945968837,
         },
         flashlight: 0.40884336612390054,
     });
@@ -197,15 +197,15 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         {
             noMod: {
                 aim: 3.200421505952102,
-                speed: 3.076998133715102,
+                speed: 3.058694770215503,
                 reading: 1.1146534306276505,
-                total: 6.417969818054708,
+                total: 6.400471207146879,
             },
             doubleTime: {
                 aim: 4.4889504057556024,
-                speed: 4.650934297925206,
+                speed: 4.654790128080277,
                 reading: 1.989668672198395,
-                total: 9.387318650029181,
+                total: 9.391310941212188,
             },
             flashlight: 1.8550096676245036,
         },
@@ -216,15 +216,15 @@ describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
             aim: 4.772519573539153,
-            speed: 1.3575245286123976,
+            speed: 1.3014247028204295,
             reading: 0.8565696748812119,
-            total: 7.913124410519036,
+            total: 7.90829346301698,
         },
         doubleTime: {
             aim: 6.009389204560616,
-            speed: 1.9721345489869853,
+            speed: 1.9248793693746318,
             reading: 2.976495883475944,
-            total: 10.26299829291871,
+            total: 10.257608984219772,
         },
         flashlight: 2.9591686949109857,
     });
@@ -236,15 +236,15 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         {
             noMod: {
                 aim: 41.10036107861498,
-                speed: 9.43800692690861,
+                speed: 9.497580060175245,
                 reading: 10.37986271865157,
-                total: 68.13087203492489,
+                total: 68.13418422481212,
             },
             doubleTime: {
                 aim: 47.65905372579978,
-                speed: 13.194138543419175,
+                speed: 13.289606301933905,
                 reading: 24.505470505526056,
-                total: 81.43862563286274,
+                total: 81.44624277845521,
             },
             flashlight: 39.3735653005381,
         },
@@ -255,15 +255,15 @@ describe("Test difficulty calculation sample beatmap 6", () => {
     testDiffCalc("negativeOD", {
         noMod: {
             aim: 0,
-            speed: 0.0726997248963158,
+            speed: 0.05627654373715572,
             reading: 0,
-            total: 0.11984652300612499,
+            total: 0.09277267697118925,
         },
         doubleTime: {
             aim: 0,
-            speed: 0.08903861521834222,
+            speed: 0.07495212110661209,
             reading: 0,
-            total: 0.1467814144058657,
+            total: 0.12355962996246042,
         },
         flashlight: 0,
     });
@@ -273,15 +273,15 @@ describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
             aim: 5.250396829330823,
-            speed: 2.643811344843926,
+            speed: 2.6054929866461705,
             reading: 1.362267402352303,
-            total: 8.947029833323322,
+            total: 8.935131334742698,
         },
         doubleTime: {
             aim: 6.61685804567474,
-            speed: 3.9563243641959525,
+            speed: 3.935529263060603,
             reading: 3.9995838497107155,
-            total: 12.008001893918149,
+            total: 11.999625119168739,
         },
         flashlight: 4.127333920549358,
     });
