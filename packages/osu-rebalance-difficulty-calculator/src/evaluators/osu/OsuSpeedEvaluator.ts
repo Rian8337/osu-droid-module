@@ -21,10 +21,18 @@ export abstract class OsuSpeedEvaluator {
             return 0;
         }
 
-        let strainTime = current.strainTime;
-
-        // Nerf doubletappable doubles.
         const doubletapness = 1 - current.getDoubletapness(current.next(0));
+
+        let difficulty = MathUtils.millisecondsToBPM(current.strainTime);
+
+        difficulty *= this.calculateSpeedBonus(current);
+
+        // Apply penalty if there's doubletappable doubles
+        return difficulty * doubletapness;
+    }
+
+    private static calculateSpeedBonus(current: OsuDifficultyHitObject): number {
+        let { strainTime } = current;
 
         // Cap deltatime to the OD 300 hitwindow.
         // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
@@ -49,16 +57,6 @@ export abstract class OsuSpeedEvaluator {
                 );
         }
 
-        // Base difficulty with all bonuses
-        let difficulty = ((1 + speedBonus) * 1000) / strainTime;
-
-        difficulty *= this.highBpmBonus(current.strainTime);
-
-        // Apply penalty if there's doubletappable doubles
-        return difficulty * doubletapness;
-    }
-
-    private static highBpmBonus(ms: number): number {
-        return 1 / (1 - Math.pow(0.3, ms / 1000));
+        return (1 + speedBonus) / strainTime;
     }
 }
