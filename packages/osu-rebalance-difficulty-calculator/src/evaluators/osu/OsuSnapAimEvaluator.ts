@@ -43,28 +43,16 @@ export abstract class OsuSnapAimEvaluator {
             return 0;
         }
 
-        const last2 = current.previous(2);
-
-        const radius = current.normalizedRadius;
-        const diameter = current.normalizedDiameter;
-
-        // Calculate the velocity to the current hitobject, which starts with a base distance / time assuming the last object is a hitcircle.
         const currentDistance = withSliders
             ? current.lazyJumpDistance
             : current.jumpDistance;
 
-        let currentVelocity = currentDistance / current.strainTime;
-
-        // But if the last object is a slider, then we extend the travel velocity through the slider into the current object.
-        if (last.object instanceof Slider && withSliders) {
-            const sliderDistance =
-                last.lazyTravelDistance + current.lazyJumpDistance;
-
-            currentVelocity = Math.max(
-                currentVelocity,
-                sliderDistance / current.strainTime,
-            );
-        }
+        const currentVelocity = this.calculateCurrentVelocity(
+            current,
+            last,
+            currentDistance,
+            withSliders,
+        );
 
         const prevDistance = withSliders
             ? last.lazyJumpDistance
@@ -75,190 +63,304 @@ export abstract class OsuSnapAimEvaluator {
         // Start strain with regular velocity.
         let strain = currentVelocity;
 
+        // Penalize angle repetition.
         strain *= this.calculateVectorAngleRepetition(current, last);
 
-        if (current.angle !== null && last.angle !== null) {
-            const currentAngle = current.angle;
-            const lastAngle = last.angle;
+        const acuteAngleBonus = this.calculateAcuteAngleBonus(
+            current,
+            last,
+            currentDistance,
+            currentVelocity,
+            prevVelocity,
+        );
 
-            // Rewarding angles, take the smaller velocity as base.
-            const velocityInfluence = Math.min(currentVelocity, prevVelocity);
+        const wideAngleBonus = this.calculateWideAngleBonus(
+            current,
+            last,
+            currentDistance,
+            prevDistance,
+            withSliders,
+        );
 
-            let acuteAngleBonus = 0;
+        // Add in acute angle bonus or wide angle bonus, whichever is larger.
+        strain += Math.max(acuteAngleBonus, wideAngleBonus);
 
-            if (
-                // If rhythms are the same.
-                Math.max(current.strainTime, last.strainTime) <
-                1.25 * Math.min(current.strainTime, last.strainTime)
-            ) {
-                acuteAngleBonus =
-                    this.calculateAcuteAngleAcuteness(currentAngle);
+        strain += this.calculateWiggleBonus(
+            current,
+            last,
+            currentVelocity,
+            prevVelocity,
+            currentDistance,
+            prevDistance,
+        );
 
-                // Penalize angle repetition. It is important to do it _before_ multiplying by anything because we compare raw acuteness here.
-                acuteAngleBonus *=
-                    0.08 +
-                    0.92 *
-                        (1 -
-                            Math.min(
-                                acuteAngleBonus,
-                                Math.pow(
-                                    this.calculateAcuteAngleAcuteness(
-                                        lastAngle,
-                                    ),
-                                    3,
-                                ),
-                            ));
-
-                // Apply acute angle bonus for BPM above 300 1/2.
-                acuteAngleBonus *=
-                    velocityInfluence *
-                    MathUtils.smootherstep(
-                        MathUtils.millisecondsToBPM(current.strainTime, 2),
-                        300,
-                        400,
-                    ) *
-                    MathUtils.smootherstep(currentDistance, 0, diameter * 2);
-            }
-
-            let wideAngleBonus = this.calculateWideAngleAcuteness(currentAngle);
-
-            // Penalize angle repetition. It is important to do it _before_ multiplying by velocity because we compare raw wideness here.
-            wideAngleBonus *=
-                0.25 +
-                0.75 *
-                    (1 -
-                        Math.min(
-                            wideAngleBonus,
-                            Math.pow(
-                                this.calculateWideAngleAcuteness(lastAngle),
-                                3,
-                            ),
-                        ));
-
-            // Rescale velocity for wide angle bonus.
-            const wideAngleTimeScale = 1.45;
-
-            let wideAngleCurrentVelocity =
-                currentDistance /
-                Math.pow(current.strainTime, wideAngleTimeScale);
-
-            const wideAnglePrevVelocity =
-                prevDistance / Math.pow(last.strainTime, wideAngleTimeScale);
-
-            if (last.object instanceof Slider && withSliders) {
-                const sliderDistance =
-                    last.lazyTravelDistance + current.lazyJumpDistance;
-
-                wideAngleCurrentVelocity = Math.max(
-                    wideAngleCurrentVelocity,
-                    sliderDistance /
-                        Math.pow(current.strainTime, wideAngleTimeScale),
-                );
-            }
-
-            wideAngleBonus *= Math.min(
-                wideAngleCurrentVelocity,
-                wideAnglePrevVelocity,
-            );
-
-            if (last2 !== null) {
-                // If objects just go back and forth through a middle point - don't give as much wide bonus.
-                // Use previous(2) and previous(0) because angles calculation is done prevprev-prev-curr, so any
-                // object's angle's center point is always the previous object.
-                const distance = last2.object.stackedPosition.getDistance(
-                    last.object.stackedPosition,
-                );
-
-                if (distance < 1) {
-                    wideAngleBonus *= 1 - 0.55 * (1 - distance);
-                }
-            }
-
-            // Add in acute angle bonus or wide angle bonus, whichever is larger.
-            strain += Math.max(
-                acuteAngleBonus * this.acuteAngleMultiplier,
-                wideAngleBonus * this.wideAngleMultiplier,
-            );
-
-            // Apply wiggle bonus for jumps that are [radius, 3*diameter] in distance, with < 110 angle
-            // https://www.desmos.com/calculator/dp0v0nvowc
-            strain +=
-                velocityInfluence *
-                MathUtils.smootherstep(currentDistance, radius, diameter) *
-                Math.pow(
-                    MathUtils.reverseLerp(
-                        currentDistance,
-                        diameter * 3,
-                        diameter,
-                    ),
-                    1.8,
-                ) *
-                MathUtils.smootherstep(
-                    currentAngle,
-                    MathUtils.degreesToRadians(110),
-                    MathUtils.degreesToRadians(60),
-                ) *
-                MathUtils.smootherstep(prevDistance, radius, diameter) *
-                Math.pow(
-                    MathUtils.reverseLerp(prevDistance, diameter * 3, diameter),
-                    1.8,
-                ) *
-                MathUtils.smootherstep(
-                    lastAngle,
-                    MathUtils.degreesToRadians(110),
-                    MathUtils.degreesToRadians(60),
-                ) *
-                this.wiggleMultiplier;
-        }
-
-        if (Math.max(prevVelocity, currentVelocity)) {
-            if (withSliders) {
-                // We want to use the average velocity over the whole object when awarding differences, not the individual jump and slider path velocities.
-                currentVelocity = currentDistance / current.strainTime;
-            }
-
-            // Scale with ratio of difference compared to half the max distance.
-            const distanceRatio = MathUtils.smoothstep(
-                Math.abs(prevVelocity - currentVelocity) /
-                    Math.max(prevVelocity, currentVelocity),
-                0,
-                1,
-            );
-
-            // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
-            const overlapVelocityBuff = Math.min(
-                (diameter * 1.25) /
-                    Math.min(current.strainTime, last.strainTime),
-                Math.abs(prevVelocity - currentVelocity),
-            );
-
-            let velocityChangeBonus = overlapVelocityBuff * distanceRatio;
-
-            // Penalize for rhythm changes.
-            velocityChangeBonus *= Math.pow(
-                Math.min(current.strainTime, last.strainTime) /
-                    Math.max(current.strainTime, last.strainTime),
-                2,
-            );
-
-            strain += velocityChangeBonus * this.velocityChangeMultiplier;
-        }
+        strain += this.calculateVelocityChangeBonus(
+            withSliders,
+            prevVelocity,
+            currentVelocity,
+            currentDistance,
+            current,
+            last,
+        );
 
         if (current.object instanceof Slider && withSliders) {
-            // Reward sliders based on velocity.
-            const sliderBonus = current.travelDistance / current.travelTime;
-
-            strain +=
-                (sliderBonus < 1 ? sliderBonus : Math.pow(sliderBonus, 0.75)) *
-                this.sliderMultiplier;
+            strain += this.calculateSliderBonus(current);
         }
 
-        // Apply high circle size bonus
+        // Apply high circle size bonus.
         strain *= current.smallCircleBonus;
 
         strain *= this.highBpmBonus(current.strainTime);
 
         return strain;
+    }
+
+    private static calculateAcuteAngleBonus(
+        current: OsuDifficultyHitObject,
+        last: OsuDifficultyHitObject,
+        currentDistance: number,
+        currentVelocity: number,
+        prevVelocity: number,
+    ): number {
+        if (current.angle === null || last.angle === null) {
+            return 0;
+        }
+
+        // Only reward acute angles when rhythms are the same.
+        if (
+            Math.max(current.strainTime, last.strainTime) >=
+            1.25 * Math.min(current.strainTime, last.strainTime)
+        ) {
+            return 0;
+        }
+
+        let acuteAngleBonus = this.calculateAcuteAngleAcuteness(current.angle);
+
+        // Penalize angle repetition. It is important to do it _before_ multiplying by anything because we
+        // compare raw acuteness here.
+        acuteAngleBonus *=
+            0.08 +
+            0.92 *
+                (1 -
+                    Math.min(
+                        acuteAngleBonus,
+                        Math.pow(
+                            this.calculateAcuteAngleAcuteness(last.angle),
+                            3,
+                        ),
+                    ));
+
+        const velocity = Math.min(currentVelocity, prevVelocity);
+
+        // Apply acute angle bonus for BPM above 300 1/2 and distance more than one diameter.
+        acuteAngleBonus *=
+            velocity *
+            MathUtils.smootherstep(
+                MathUtils.millisecondsToBPM(current.strainTime, 2),
+                300,
+                400,
+            ) *
+            MathUtils.smootherstep(
+                currentDistance,
+                0,
+                current.normalizedDiameter * 2,
+            );
+
+        return acuteAngleBonus * this.acuteAngleMultiplier;
+    }
+
+    private static calculateWideAngleBonus(
+        current: OsuDifficultyHitObject,
+        last: OsuDifficultyHitObject,
+        currentDistance: number,
+        prevDistance: number,
+        withSliders: boolean,
+    ): number {
+        if (current.angle === null || last.angle === null) {
+            return 0;
+        }
+
+        let wideAngleBonus = this.calculateWideAngleAcuteness(current.angle);
+
+        // Penalize angle repetition. It is important to do it _before_ multiplying by velocity because we
+        // compare raw wideness here.
+        wideAngleBonus *=
+            0.25 +
+            0.75 *
+                (1 -
+                    Math.min(
+                        wideAngleBonus,
+                        Math.pow(
+                            this.calculateWideAngleAcuteness(last.angle),
+                            3,
+                        ),
+                    ));
+
+        // Rescale velocity for the wide angle bonus.
+        const wideAngleTimeScale = 1.45;
+
+        let currentRescaledVelocity =
+            currentDistance / Math.pow(current.strainTime, wideAngleTimeScale);
+
+        const prevRescaledVelocity =
+            prevDistance / Math.pow(last.strainTime, wideAngleTimeScale);
+
+        if (last.object instanceof Slider && withSliders) {
+            const sliderDistance =
+                last.lazyTravelDistance + current.lazyJumpDistance;
+
+            currentRescaledVelocity = Math.max(
+                currentRescaledVelocity,
+                sliderDistance /
+                    Math.pow(current.strainTime, wideAngleTimeScale),
+            );
+        }
+
+        wideAngleBonus *= Math.min(
+            currentRescaledVelocity,
+            prevRescaledVelocity,
+        );
+
+        const last2 = current.previous(2);
+
+        if (last2 !== null) {
+            // If objects just go back and forth through a middle point - don't give as much wide bonus.
+            // Use previous(2) and previous(0) because angles calculation is done prevprev-prev-curr, so any
+            // object's angle's center point is always the previous object.
+            const distance = last2.object.stackedPosition.getDistance(
+                last.object.stackedPosition,
+            );
+
+            if (distance < 1) {
+                wideAngleBonus *= 1 - 0.55 * (1 - distance);
+            }
+        }
+
+        return wideAngleBonus * this.wideAngleMultiplier;
+    }
+
+    private static calculateVelocityChangeBonus(
+        withSliders: boolean,
+        prevVelocity: number,
+        currentVelocity: number,
+        currentDistance: number,
+        current: OsuDifficultyHitObject,
+        last: OsuDifficultyHitObject,
+    ): number {
+        if (Math.max(prevVelocity, currentVelocity) === 0) {
+            return 0;
+        }
+
+        if (withSliders) {
+            // We want to use just the object jump without slider velocity when awarding differences.
+            currentVelocity = currentDistance / current.strainTime;
+        }
+
+        // Scale with ratio of difference compared to half the max distance.
+        const distanceRatio = MathUtils.smoothstep(
+            Math.abs(prevVelocity - currentVelocity) /
+                Math.max(prevVelocity, currentVelocity),
+            0,
+            1,
+        );
+
+        // Reward for % distance up to 125 / strainTime for overlaps where velocity is still changing.
+        const overlapVelocityBuff = Math.min(
+            (current.normalizedDiameter * 1.25) /
+                Math.min(current.strainTime, last.strainTime),
+            Math.abs(prevVelocity - currentVelocity),
+        );
+
+        let velocityChangeBonus = overlapVelocityBuff * distanceRatio;
+
+        // Penalize for rhythm changes.
+        velocityChangeBonus *= Math.pow(
+            Math.min(current.strainTime, last.strainTime) /
+                Math.max(current.strainTime, last.strainTime),
+            2,
+        );
+
+        return velocityChangeBonus * this.velocityChangeMultiplier;
+    }
+
+    /**
+     * Difficulty bonus for "wiggle" patterns - jumps that are [radius, 3*diameter] in distance, with < 110 angle.
+     * https://www.desmos.com/calculator/dp0v0nvowc
+     */
+    private static calculateWiggleBonus(
+        current: OsuDifficultyHitObject,
+        last: OsuDifficultyHitObject,
+        currentVelocity: number,
+        prevVelocity: number,
+        currentDistance: number,
+        prevDistance: number,
+    ): number {
+        if (current.angle === null || last.angle === null) {
+            return 0;
+        }
+
+        const radius = current.normalizedRadius;
+        const diameter = current.normalizedDiameter;
+
+        const wiggleBonus =
+            Math.min(currentVelocity, prevVelocity) *
+            MathUtils.smootherstep(currentDistance, radius, diameter) *
+            Math.pow(
+                MathUtils.reverseLerp(currentDistance, diameter * 3, diameter),
+                1.8,
+            ) *
+            MathUtils.smootherstep(
+                current.angle,
+                MathUtils.degreesToRadians(110),
+                MathUtils.degreesToRadians(60),
+            ) *
+            MathUtils.smootherstep(prevDistance, radius, diameter) *
+            Math.pow(
+                MathUtils.reverseLerp(prevDistance, diameter * 3, diameter),
+                1.8,
+            ) *
+            MathUtils.smootherstep(
+                last.angle,
+                MathUtils.degreesToRadians(110),
+                MathUtils.degreesToRadians(60),
+            );
+
+        return wiggleBonus * this.wiggleMultiplier;
+    }
+
+    private static calculateSliderBonus(
+        current: OsuDifficultyHitObject,
+    ): number {
+        // Reward sliders based on velocity.
+        const sliderBonus = current.travelDistance / current.travelTime;
+
+        const rescaledSliderBonus =
+            sliderBonus < 1 ? sliderBonus : Math.pow(sliderBonus, 0.75);
+
+        return rescaledSliderBonus * this.sliderMultiplier;
+    }
+
+    private static calculateCurrentVelocity(
+        current: OsuDifficultyHitObject,
+        last: OsuDifficultyHitObject,
+        currentDistance: number,
+        withSliders: boolean,
+    ): number {
+        let currentVelocity = currentDistance / current.strainTime;
+
+        // If the last object is a slider, then we extend the travel velocity through the slider into the
+        // current object.
+        if (last.object instanceof Slider && withSliders) {
+            const sliderDistance =
+                last.lazyTravelDistance + current.lazyJumpDistance;
+
+            currentVelocity = Math.max(
+                currentVelocity,
+                sliderDistance / current.strainTime,
+            );
+        }
+
+        return currentVelocity;
     }
 
     private static calculateWideAngleAcuteness(angle: number): number {
