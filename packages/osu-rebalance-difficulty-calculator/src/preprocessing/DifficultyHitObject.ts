@@ -275,10 +275,14 @@ export abstract class DifficultyHitObject {
                 DifficultyHitObject.minDeltaTime,
             );
 
-            this.lastObjectEndDeltaTime = Math.max(
-                this.startTime - lastObject.endTime / clockRate,
-                DifficultyHitObject.minDeltaTime,
-            );
+            const previousDifficultyObject = this.previous(0);
+
+            this.lastObjectEndDeltaTime = previousDifficultyObject
+                ? Math.max(
+                      this.startTime - previousDifficultyObject.endTime,
+                      DifficultyHitObject.minDeltaTime,
+                  )
+                : this.strainTime;
         } else {
             this.deltaTime = 0;
             this.strainTime = 0;

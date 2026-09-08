@@ -3,10 +3,8 @@ import {
     MathUtils,
     ModAutopilot,
     ModMagnetised,
-    ModMap,
     ModRelax,
     ModTouchDevice,
-    PlaceableHitObject,
 } from "@rian8337/osu-base";
 import { HarmonicSkill } from "../../base/HarmonicSkill";
 import { OsuReadingEvaluator } from "../../evaluators/osu/OsuReadingEvaluator";
@@ -18,17 +16,24 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export class OsuReading extends HarmonicSkill {
     private currentDifficulty = 0;
+    private firstObjectStartTime: number | null = null;
 
     private readonly skillMultiplier = 2.5;
     private readonly difficultyDecayBase = 0.8;
 
-    constructor(
-        mods: ModMap,
-        private readonly clockRate: number,
-        private readonly hitObjects: readonly PlaceableHitObject[],
-    ) {
-        super(mods);
-    }
+    /**
+     * The duration for which the difficulty of objects is reduced, assuming the player has
+     * memorized the beatmap.
+     */
+    private readonly reducedDifficultyDuration = 40 * 1000;
+
+    /**
+     * The baseline multiplier applied to the difficulty of the first object.
+     *
+     * Assume that even with full memorization, skill is still required to read and play the
+     * first objects.
+     */
+    private readonly reducedDifficultyBaseline = 0.2;
 
     override countTopWeightedObjectDifficulties(
         difficultyValue: number,
@@ -66,33 +71,45 @@ export class OsuReading extends HarmonicSkill {
     ): number {
         const decay = this.difficultyDecay(current.deltaTime);
 
-        this.currentDifficulty *= decay;
+        // This currently operates under the assumption that `objectDifficultyOf` is called once
+        // per object, and in order. Under that assumption, we can trust that `current.startTime`
+        // refers to the start time of the first object in the case that `firstObjectStartTime`
+        // is yet to be set.
+        this.firstObjectStartTime ??= current.startTime;
 
-        this.currentDifficulty +=
+        let currentObjectStrain =
             this.calculateAdjustedDifficulty(current) *
             (1 - decay) *
             this.skillMultiplier;
 
-        return this.currentDifficulty;
-    }
-
-    protected override applyDifficultyTransformation(difficulties: number[]) {
-        // Assume the first few seconds are completely memorized.
-        const reducedNoteCount = this.calculateReducedNoteCount();
-
-        for (
-            let i = 0;
-            i < Math.min(difficulties.length, reducedNoteCount);
-            ++i
+        if (
+            current.startTime <=
+            this.firstObjectStartTime + this.reducedDifficultyDuration
         ) {
-            difficulties[i] *= Math.log10(
+            const scale = Math.log10(
                 Interpolation.lerp(
                     1,
                     10,
-                    MathUtils.clamp(i / reducedNoteCount, 0, 1),
+                    MathUtils.clamp(
+                        (current.startTime - this.firstObjectStartTime) /
+                            this.reducedDifficultyDuration,
+                        0,
+                        1,
+                    ),
                 ),
             );
+
+            currentObjectStrain *= Interpolation.lerp(
+                this.reducedDifficultyBaseline,
+                1,
+                scale,
+            );
         }
+
+        this.currentDifficulty *= decay;
+        this.currentDifficulty += currentObjectStrain;
+
+        return this.currentDifficulty;
     }
 
     protected override saveToHitObject(
@@ -132,35 +149,6 @@ export class OsuReading extends HarmonicSkill {
             Math.pow(Math.max(0, current.overallDifficulty), 2.2) / 1125;
 
         return difficulty;
-    }
-
-    private calculateReducedNoteCount(): number {
-        if (this.hitObjects.length < 2) {
-            return 0;
-        }
-
-        const reducedDifficultyDuration = 60 * 1000;
-
-        // We take the 2nd note to match `createDifficultyHitObjects`
-        const firstDifficultyObject = this.hitObjects[1];
-
-        const reducedDuration =
-            firstDifficultyObject.startTime / this.clockRate +
-            reducedDifficultyDuration;
-
-        let reducedNoteCount = 0;
-
-        for (let i = 1; i < this.hitObjects.length; ++i) {
-            const object = this.hitObjects[i];
-
-            if (object.startTime / this.clockRate > reducedDuration) {
-                break;
-            }
-
-            ++reducedNoteCount;
-        }
-
-        return reducedNoteCount;
     }
 
     private difficultyDecay(ms: number): number {

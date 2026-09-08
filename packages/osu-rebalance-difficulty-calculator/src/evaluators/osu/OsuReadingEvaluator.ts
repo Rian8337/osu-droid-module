@@ -37,10 +37,7 @@ export abstract class OsuReadingEvaluator {
         const next = current.next(0);
 
         // Only allow velocity to buff
-        const velocity = Math.max(
-            1,
-            current.lazyJumpDistance / current.strainTime,
-        );
+        const velocity = Math.max(1, current.jumpDistance / current.strainTime);
 
         const currentVisibleObjectDensity =
             this.retrieveCurrentVisibleObjectDensity(current);

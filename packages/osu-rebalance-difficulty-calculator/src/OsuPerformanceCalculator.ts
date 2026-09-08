@@ -268,7 +268,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         const speedDifficulty =
-            this.difficultyAttributes.speedDifficulty * this.calculateSpeedHighDeviationNerf();
+            this.difficultyAttributes.speedDifficulty *
+            this.calculateSpeedHighDeviationNerf();
 
         let speedValue = OsuSpeed.difficultyToPerformance(speedDifficulty);
 
@@ -334,10 +335,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         // Lots of arbitrary values from testing.
         // Considering to use derivation from perfect accuracy in a probabilistic manner - assume normal distribution
+        // It is possible to reach a negative accuracy with this formula. `Accuracy.value` caps it at zero - zero points.
         let accuracyValue =
             Math.pow(1.52163, this.overallDifficulty) *
-            // It is possible to reach a negative accuracy with this formula. Cap it at zero - zero points.
-            Math.pow(realAccuracy.n300 < 0 ? 0 : realAccuracy.value, 24) *
+            Math.pow(realAccuracy.value, 24) *
             2.83;
 
         // Bonus for many hitcircles - it's harder to keep good accuracy up for longer.
@@ -435,7 +436,10 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         }
 
         // https://www.desmos.com/calculator/naggvbcz0a
-        return 0.93 / (missCount / (4 * Math.log(difficultStrainCount)) + 1);
+        return (
+            0.93 /
+            (missCount / (4 * Math.log(Math.max(1, difficultStrainCount))) + 1)
+        );
     }
 
     /**
@@ -574,7 +578,8 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         // Any difficulty above this point is considered "excess" speed difficulty.
         // This is used to cause difficulty above the cutoff to scale logarithmically towards the original speed value thus
         // nerfing the value.
-        const excessSpeedDifficultyCutoff = 2.9 + 1.45 * Math.pow(22 / this.speedDeviation, 5);
+        const excessSpeedDifficultyCutoff =
+            2.9 + 1.45 * Math.pow(22 / this.speedDeviation, 5);
 
         if (speedDifficulty <= excessSpeedDifficultyCutoff) {
             return 1;
@@ -583,14 +588,17 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
         const scale = 0.45;
         const adjustedSpeedDifficulty =
             scale *
-            (Math.log((speedDifficulty - excessSpeedDifficultyCutoff) / scale + 1) +
+            (Math.log(
+                (speedDifficulty - excessSpeedDifficultyCutoff) / scale + 1,
+            ) +
                 excessSpeedDifficultyCutoff / scale);
 
         // 220 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible
         const t = 1 - Interpolation.reverseLerp(this.speedDeviation, 22, 27);
 
         return (
-            Interpolation.lerp(adjustedSpeedDifficulty, speedDifficulty, t) / speedDifficulty
+            Interpolation.lerp(adjustedSpeedDifficulty, speedDifficulty, t) /
+            speedDifficulty
         );
     }
 

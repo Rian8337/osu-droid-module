@@ -55,7 +55,7 @@ export abstract class OsuFlowAimEvaluator {
         flowDifficulty *=
             1 +
             Math.min(
-                0.25,
+                0.1,
                 Math.pow(
                     (Math.max(current.strainTime, last.strainTime) -
                         Math.min(current.strainTime, last.strainTime)) /

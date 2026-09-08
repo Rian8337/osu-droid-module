@@ -224,13 +224,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
             skills.push(new OsuSpeed(mods));
         }
 
-        skills.push(
-            new OsuReading(
-                mods,
-                beatmap.speedMultiplier,
-                beatmap.hitObjects.objects,
-            ),
-        );
+        skills.push(new OsuReading(mods));
 
         if (mods.has(ModFlashlight)) {
             skills.push(
