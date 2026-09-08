@@ -305,7 +305,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      */
     private calculateTapValue(): number {
         const tapDifficulty =
-            this.difficultyAttributes.tapDifficulty * this.calculateTapHighDeviationNerf();
+            this.difficultyAttributes.tapDifficulty *
+            this.calculateTapHighDeviationNerf();
 
         let tapValue = DroidTap.difficultyToPerformance(tapDifficulty);
 
@@ -485,7 +486,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         // https://www.desmos.com/calculator/naggvbcz0a
-        return 0.93 / (missCount / (4 * Math.log(difficultStrainCount)) + 1);
+        return (
+            0.93 /
+            (missCount / (4 * Math.log(Math.max(1, difficultStrainCount))) + 1)
+        );
     }
 
     /**
@@ -739,7 +743,8 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // Decide a point where the difficulty value achieved compared to the tap deviation is assumed to be tapped
         // improperly. Any difficulty above this point is considered "excess" tap difficulty. This is used to cause
         // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
-        const excessTapDifficultyCutoff = 2.9 + 1.45 * Math.pow(25 / this.tapDeviation, 5);
+        const excessTapDifficultyCutoff =
+            2.9 + 1.45 * Math.pow(25 / this.tapDeviation, 5);
 
         if (tapDifficulty <= excessTapDifficultyCutoff) {
             return 1;
@@ -754,7 +759,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // 250 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible.
         const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 25, 30);
 
-        return Interpolation.lerp(adjustedTapDifficulty, tapDifficulty, t) / tapDifficulty;
+        return (
+            Interpolation.lerp(adjustedTapDifficulty, tapDifficulty, t) /
+            tapDifficulty
+        );
     }
 
     private getHitWindow() {
