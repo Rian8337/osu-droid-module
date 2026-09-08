@@ -73,7 +73,10 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
         // to the game's leaderboards.
         attributes.maximumScore =
             beatmap.maxDroidScore(playableBeatmap.mods) +
-            DroidScoreUtils.calculateMaximumSpinnerBonus(beatmap, playableBeatmap)
+            DroidScoreUtils.calculateMaximumSpinnerBonus(
+                beatmap,
+                playableBeatmap,
+            );
 
         this.populateAimAttributes(attributes, skills, objects);
         this.populateTapAttributes(attributes, skills, objects);
@@ -164,13 +167,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             skills.push(new DroidTap(mods, false));
         }
 
-        skills.push(
-            new DroidReading(
-                mods,
-                beatmap.speedMultiplier,
-                beatmap.hitObjects.objects,
-            ),
-        );
+        skills.push(new DroidReading(mods));
 
         if (mods.has(ModFlashlight)) {
             skills.push(
@@ -235,7 +232,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
             Math.max(
                 1,
                 aimNoSliderDifficultStrainCount -
-                aimNoSliderTopWeightedSliderCount,
+                    aimNoSliderTopWeightedSliderCount,
             );
 
         const topDifficultSliders: { index: number; velocity: number }[] = [];
@@ -382,7 +379,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
                                 (a, v) =>
                                     a +
                                     v.originalTapDifficulty /
-                                    threeFingerStrainThreshold,
+                                        threeFingerStrainThreshold,
                                 0,
                             ),
                         0.75,
