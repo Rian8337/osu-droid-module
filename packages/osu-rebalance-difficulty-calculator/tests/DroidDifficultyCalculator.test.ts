@@ -34,7 +34,9 @@ const testDiffCalc = (
         flashlight: number;
     }>,
 ) => {
-    const data = readFileSync(join(beatmapPath, `${name}.osu`), { encoding: "utf-8" });
+    const data = readFileSync(join(beatmapPath, `${name}.osu`), {
+        encoding: "utf-8",
+    });
     const beatmap = new BeatmapDecoder().decode(data).result;
 
     test("No mod difficulty", () => {
@@ -167,18 +169,18 @@ describe("Test difficulty calculation sample beatmap 1", () => {
         "YOASOBI - Love Letter (ohm002) [Please accept my overflowing emotions.]",
         {
             noMod: {
-                aim: 1.8685609988004601,
+                aim: 1.8683679200142091,
                 tap: 1.4803655586283997,
                 rhythm: 0.7648930259509951,
-                reading: 0.06580340843631821,
-                total: 3.576626245873116,
+                reading: 0.18186157780484502,
+                total: 3.57670130335442,
             },
             doubleTime: {
-                aim: 2.5070618779673466,
+                aim: 2.5076641207309787,
                 tap: 2.256403427355511,
                 rhythm: 1.0186082465714876,
-                reading: 1.006137134553352,
-                total: 5.070542653607767,
+                reading: 1.0108155477355032,
+                total: 5.071899906400688,
             },
             flashlight: 0.8073829372170443,
         },
@@ -188,18 +190,18 @@ describe("Test difficulty calculation sample beatmap 1", () => {
 describe("Test difficulty calculation sample beatmap 2", () => {
     testDiffCalc("Kenji Ninuma - DISCOPRINCE (peppy) [Normal]", {
         noMod: {
-            aim: 0.8722394036844026,
+            aim: 0.8653226775391512,
             tap: 0.8597076945936618,
             rhythm: 0.51446861377641,
             reading: 0,
-            total: 1.8221293697534393,
+            total: 1.8147653482134438,
         },
         doubleTime: {
-            aim: 1.158271523616525,
+            aim: 1.149609896534483,
             tap: 1.2781426736832275,
             rhythm: 0.7033778674402899,
             reading: 0,
-            total: 2.570236518538864,
+            total: 2.5622146456633996,
         },
         flashlight: 0.22358412263778715,
     });
@@ -210,18 +212,18 @@ describe("Test difficulty calculation sample beatmap 3", () => {
         "sphere - HIGH POWERED (TV Size) (Azunyan-) [POWER OVERLOAD EXPERT]",
         {
             noMod: {
-                aim: 2.151569111823684,
+                aim: 2.1517114259785197,
                 tap: 3.002497516330156,
                 rhythm: 1.0546345194593594,
-                reading: 0.45797595300544364,
-                total: 5.588985657273039,
+                reading: 0.5871026457805457,
+                total: 5.592327524747631,
             },
             doubleTime: {
-                aim: 2.917767207907698,
+                aim: 2.9185845128176027,
                 tap: 4.362192783400847,
                 rhythm: 1.273468835320142,
-                reading: 1.1881786947402204,
-                total: 8.015100724956582,
+                reading: 1.2909406352329222,
+                total: 8.023735893520012,
             },
             flashlight: 0.9099003657206869,
         },
@@ -231,18 +233,18 @@ describe("Test difficulty calculation sample beatmap 3", () => {
 describe("Test difficulty calculation sample beatmap 4", () => {
     testDiffCalc("Ocelot - KAEDE (Hollow Wings) [EX EX]", {
         noMod: {
-            aim: 2.5332271698167044,
+            aim: 2.5340049162407157,
             tap: 1.3004681751234894,
             rhythm: 0.6341246500251077,
-            reading: 0.1797040649803134,
-            total: 4.460108741202678,
+            reading: 0.20147744114638405,
+            total: 4.461431362965399,
         },
         doubleTime: {
-            aim: 3.3453830310417234,
+            aim: 3.34711519250233,
             tap: 1.923090507904823,
             rhythm: 0.8527918655249367,
-            reading: 1.7824155232307264,
-            total: 6.157255164956128,
+            reading: 1.8184419412117263,
+            total: 6.17209505096216,
         },
         flashlight: 1.6763999920857215,
     });
@@ -253,18 +255,18 @@ describe("Test difficulty calculation sample beatmap 5", () => {
         "m1dlet - Tell Me Why Speedcore Is So Awesome (None1637) [DROID Ultimate PP CS32 x2]",
         {
             noMod: {
-                aim: 13.852496067267912,
+                aim: 13.852464221699433,
                 tap: 6.534317807779398,
                 rhythm: 1.970157660146092,
-                reading: 5.226198224409264,
-                total: 24.474992500625877,
+                reading: 5.23812879885436,
+                total: 24.476940262874937,
             },
             doubleTime: {
-                aim: 15.988084001605358,
+                aim: 15.988037293241726,
                 tap: 9.316499666065619,
                 rhythm: 2.1655754384925676,
-                reading: 8.652575524582465,
-                total: 29.523182969319127,
+                reading: 8.766932171942228,
+                total: 29.56322754891028,
             },
             flashlight: 7.263081776209047,
         },
@@ -294,18 +296,18 @@ describe("Test difficulty calculation sample beatmap 6", () => {
 describe("Test difficulty calculation sample beatmap 7", () => {
     testDiffCalc("Camellia - crystallized (-ckopoctb-) [Emilia's C9H13NO3]", {
         noMod: {
-            aim: 2.5179689558256535,
+            aim: 2.519986356414864,
             tap: 2.5944554805521496,
             rhythm: 1.146111495813188,
-            reading: 0.22631116581171032,
-            total: 5.379961020061399,
+            reading: 0.22632787255257916,
+            total: 5.3820106232117135,
         },
         doubleTime: {
-            aim: 3.5392235398725327,
+            aim: 3.5439605888604584,
             tap: 3.9436949873732585,
             rhythm: 1.4443327102626575,
-            reading: 2.1582804376490237,
-            total: 8.085892384283397,
+            reading: 2.1704135952190966,
+            total: 8.093421902878783,
         },
         flashlight: 1.5780232019042453,
     });
