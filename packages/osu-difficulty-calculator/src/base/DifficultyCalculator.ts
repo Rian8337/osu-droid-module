@@ -168,7 +168,7 @@ export abstract class DifficultyCalculator<
 
             attributes[i] = {
                 time: obj.endTime,
-                attributes: this.createDifficultyAttributes(beatmap, playableBeatmap, skills, difficultyObjects.slice(0, currentIndex)),
+                attributes: this.createDifficultyAttributes(beatmap, progressiveBeatmap, skills, difficultyObjects.slice(0, currentIndex)),
                 sliderCount: progressiveBeatmap.hitObjects.sliders,
                 sliderTickCount: progressiveBeatmap.hitObjects.sliderTicks,
                 sliderRepeatCount: progressiveBeatmap.hitObjects.sliderRepeatPoints
@@ -217,7 +217,7 @@ export abstract class DifficultyCalculator<
      */
     protected abstract createDifficultyAttributes(
         beatmap: Beatmap,
-        playableBeatmap: TBeatmap,
+        playableBeatmap: PlayableBeatmap,
         skills: Skill[],
         objects: THitObject[],
     ): TAttributes;

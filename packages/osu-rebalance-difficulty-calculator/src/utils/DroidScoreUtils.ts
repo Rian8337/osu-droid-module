@@ -1,7 +1,7 @@
 import {
     Beatmap,
-    DroidPlayableBeatmap,
     DroidScoreMultiplierCalculator,
+    PlayableBeatmap,
     Spinner
 } from "@rian8337/osu-base";
 
@@ -11,9 +11,11 @@ export abstract class DroidScoreUtils {
      *
      * @param beatmap The `Beatmap` to calculate the maximum spinner bonus for.
      * @param playableBeatmap The `PlayableBeatmap` to calculate the maximum spinner bonus for.
+     * Only base `PlayableBeatmap` members are used, so a progressive (as-of-a-point-in-time)
+     * beatmap can be passed here too - see `DifficultyCalculator.calculateTimed`.
      * @returns The maximum spinner bonus.
      */
-    static calculateMaximumSpinnerBonus(beatmap: Beatmap, playableBeatmap: DroidPlayableBeatmap): number {
+    static calculateMaximumSpinnerBonus(beatmap: Beatmap, playableBeatmap: PlayableBeatmap): number {
         const { hitObjects } = playableBeatmap;
 
         if (hitObjects.spinners === 0) {

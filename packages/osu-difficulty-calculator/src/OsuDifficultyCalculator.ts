@@ -9,6 +9,7 @@ import {
     ModRelax,
     ModTouchDevice,
     OsuPlayableBeatmap,
+    PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { OsuPerformanceCalculator } from "./OsuPerformanceCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
@@ -46,7 +47,7 @@ export class OsuDifficultyCalculator extends DifficultyCalculator<
 
     protected override createDifficultyAttributes(
         beatmap: Beatmap,
-        playableBeatmap: OsuPlayableBeatmap,
+        playableBeatmap: PlayableBeatmap,
         skills: Skill[],
     ): OsuDifficultyAttributes {
         const attributes = new OsuDifficultyAttributes();

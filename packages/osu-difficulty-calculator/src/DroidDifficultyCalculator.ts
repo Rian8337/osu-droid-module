@@ -11,6 +11,7 @@ import {
     ModReplayV6,
     ModScoreV2,
     ModTraceable,
+    PlayableBeatmap,
 } from "@rian8337/osu-base";
 import { DroidPerformanceCalculator } from "./DroidPerformanceCalculator";
 import { DifficultyCalculator } from "./base/DifficultyCalculator";
@@ -55,7 +56,7 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
 
     protected override createDifficultyAttributes(
         beatmap: Beatmap,
-        playableBeatmap: DroidPlayableBeatmap,
+        playableBeatmap: PlayableBeatmap,
         skills: Skill[],
         objects: DroidDifficultyHitObject[],
     ): ExtendedDroidDifficultyAttributes {

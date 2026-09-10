@@ -160,6 +160,30 @@ test("Test timed difficulty calculation", () => {
     const timedAttributes = calculator.calculateTimed(beatmap);
 
     expect(timedAttributes.length).toBe(beatmap.hitObjects.objects.length);
+
+    // Regression test: `attributes.hitCircleCount`/`sliderCount`/`spinnerCount`/`maxCombo` must
+    // be progressive (as of each entry's own object index), not the whole map's totals. Every
+    // hit object is exactly one circle, slider, or spinner, so the three counts must sum to
+    // exactly `index + 1` at every entry - this holds regardless of the sample beatmap's actual
+    // composition, and would fail immediately if these fields were whole-map totals instead
+    // (every entry would sum to the same, full object count).
+    timedAttributes.forEach((entry, index) => {
+        const { hitCircleCount, sliderCount, spinnerCount } = entry.attributes;
+
+        expect(hitCircleCount + sliderCount + spinnerCount).toBe(index + 1);
+    });
+
+    // maxCombo must never decrease, and must actually grow across the beatmap (not stay
+    // constant, which is what a whole-map/non-progressive value would look like).
+    for (let i = 1; i < timedAttributes.length; ++i) {
+        expect(timedAttributes[i].attributes.maxCombo).toBeGreaterThanOrEqual(
+            timedAttributes[i - 1].attributes.maxCombo,
+        );
+    }
+
+    expect(timedAttributes.at(-1)!.attributes.maxCombo).toBeGreaterThan(
+        timedAttributes[0].attributes.maxCombo,
+    );
 });
 
 describe("Test difficulty calculation sample beatmap 1", () => {
