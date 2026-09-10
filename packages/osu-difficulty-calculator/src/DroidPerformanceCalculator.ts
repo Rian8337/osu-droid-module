@@ -304,6 +304,10 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * Calculates the tap performance value of the beatmap.
      */
     private calculateTapValue(): number {
+        if (this.totalSuccessfulHits === 0) {
+            return 0;
+        }
+
         let tapValue = DroidTap.difficultyToPerformance(
             this.difficultyAttributes.tapDifficulty,
         );
