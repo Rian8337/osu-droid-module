@@ -19,8 +19,8 @@ import { StrainPeak } from "../../structures/StrainPeak";
 export class DroidAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
-    private readonly skillMultiplierSnap = 70.9;
-    private readonly skillMultiplierAgility = 2.35;
+    private readonly skillMultiplierSnap = 71;
+    private readonly skillMultiplierAgility = 1.62;
     private readonly skillMultiplierFlow = 242;
     private readonly skillMultiplierTotal = 1.12;
     private readonly combinedSnapNormExponent = 1.2;

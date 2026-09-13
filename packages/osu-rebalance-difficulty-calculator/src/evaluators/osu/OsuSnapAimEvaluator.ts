@@ -6,7 +6,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
  */
 export abstract class OsuSnapAimEvaluator {
     private static readonly wideAngleMultiplier = 9.67;
-    private static readonly acuteAngleMultiplier = 2.41;
+    private static readonly acuteAngleMultiplier = 2.35;
     private static readonly sliderMultiplier = 1.5;
     private static readonly velocityChangeMultiplier = 0.9;
 
@@ -277,7 +277,7 @@ export abstract class OsuSnapAimEvaluator {
         velocityChangeBonus *= Math.pow(
             Math.min(current.strainTime, last.strainTime) /
                 Math.max(current.strainTime, last.strainTime),
-            2,
+            3,
         );
 
         return velocityChangeBonus * this.velocityChangeMultiplier;

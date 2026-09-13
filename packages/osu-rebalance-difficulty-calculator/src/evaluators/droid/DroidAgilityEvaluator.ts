@@ -15,23 +15,10 @@ export abstract class DroidAgilityEvaluator {
             return 0;
         }
 
-        const prev = current.previous(0);
+        let difficulty = Math.pow(1000 / current.strainTime, 2);
 
-        const travelDistance = prev?.lazyTravelDistance ?? 0;
-        const distance = travelDistance + current.lazyJumpDistance;
+        difficulty *= Math.pow(current.smallCircleBonus, 1.5);
 
-        const distanceCap = current.normalizedDiameter * 1.2;
-        const distanceScaled = Math.min(distance, distanceCap) / distanceCap;
-
-        let strain = (distanceScaled * 1000) / current.strainTime;
-
-        strain *= Math.pow(current.smallCircleBonus, 1.5);
-        strain *= this.highBpmBonus(current.strainTime);
-
-        return strain;
-    }
-
-    private static highBpmBonus(ms: number): number {
-        return 1 / (1 - Math.pow(0.2, ms / 1000));
+        return difficulty;
     }
 }
