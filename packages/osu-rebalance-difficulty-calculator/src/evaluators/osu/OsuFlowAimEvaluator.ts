@@ -7,6 +7,7 @@ import { OsuSnapAimEvaluator } from "./OsuSnapAimEvaluator";
  */
 export abstract class OsuFlowAimEvaluator {
     private static readonly velocityChangeMultiplier = 0.5;
+    private static readonly acuteAngleMultiplier = 1.3;
 
     static evaluateDifficultyOf(
         current: OsuDifficultyHitObject,
@@ -20,6 +21,7 @@ export abstract class OsuFlowAimEvaluator {
             return 0;
         }
 
+        const next = current.next(0);
         const last = current.previous(0)!;
         const lastLast = current.previous(1)!;
 
@@ -75,25 +77,59 @@ export abstract class OsuFlowAimEvaluator {
             flowDifficulty *= 0.8 + Math.sqrt(angularVelocity / 270);
         }
 
-        // If all three notes overlap, do not reward bonuses as there is no required additional movement.
-        let overlappedNotesWeight = 1;
+        if (current.angle !== null && next !== null && next.angle !== null) {
+            const currentAcuteness = OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(
+                current.angle,
+            );
 
-        if (current.index > 2) {
-            const o1 = this.calculateOverlapFactor(current, last);
-            const o2 = this.calculateOverlapFactor(current, lastLast);
-            const o3 = this.calculateOverlapFactor(last, lastLast);
+            const nextAcuteness = OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(
+                next.angle,
+            );
 
-            overlappedNotesWeight = 1 - o1 * o2 * o3;
-        }
+            let acuteness: number;
+            let overlapWeight: number;
 
-        if (current.angle !== null) {
-            // Acute angles are hard to flow.
-            flowDifficulty +=
-                currentVelocity *
-                OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(
-                    current.angle,
-                ) *
-                overlappedNotesWeight;
+            // We want to evaluate flow turns at the center point of the actual turn, but curr.Angle is a prev2-prev-curr angle.
+            // The issue with changing that to prev-curr-next is that we might evaluate the second note of a flow pattern as snap if prev is acute.
+            // With min(curr,next) the evaluation (assuming acute affects snap/flow probability enough) behaves roughly like this:
+            //
+            //    flow (prev-curr-next and prev2-prev-curr evaluates as wide)
+            //     🡓🡓
+            //     ooo 🡐 flow (prev2-prev-curr evaluates as wide)
+            //      /
+            //   ooo 🡐 snap (prev2-prev-curr evaluates as acute)
+            //   🡑🡑
+            //  flow (prev-curr-next evaluates as wide)
+            //
+            //
+            //  flow (prev-curr-next and prev2-prev-curr evaluates as wide)
+            //   🡓🡓
+            //   ooo 🡐 flow (prev-curr-next and prev2-prev-curr evaluates as wide)
+            //      \
+            //     ooo 🡐 snap (prev-curr-next evaluates as acute as the center point of the turn)
+            //     🡑🡑
+            //    flow (prev-curr-next evaluates as wide)
+            //
+            // In both examples the first object in a flow pattern is evaluated as acute (likely snap) and the rest are wide (likely flow).
+            if (currentAcuteness < nextAcuteness) {
+                acuteness = currentAcuteness;
+
+                overlapWeight = this.calculateOverlapWeight(
+                    current,
+                    last,
+                    lastLast,
+                );
+            } else {
+                acuteness = nextAcuteness;
+
+                overlapWeight = this.calculateOverlapWeight(
+                    next,
+                    current,
+                    last,
+                );
+            }
+
+            flowDifficulty += currentVelocity * acuteness * overlapWeight * this.acuteAngleMultiplier;
         }
 
         if (Math.max(prevVelocity, currentVelocity)) {
@@ -119,7 +155,7 @@ export abstract class OsuFlowAimEvaluator {
             flowDifficulty +=
                 overlapVelocityBuff *
                 distanceRatio *
-                overlappedNotesWeight *
+                this.calculateOverlapWeight(current, last, lastLast) *
                 this.velocityChangeMultiplier;
         }
 
@@ -137,6 +173,19 @@ export abstract class OsuFlowAimEvaluator {
             flowDifficulty *
             MathUtils.smootherstep(currentDistance, 0, current.normalizedRadius)
         );
+    }
+
+    // If all three notes overlap, do not reward bonuses as there is no required additional movement.
+    private static calculateOverlapWeight(
+        first: OsuDifficultyHitObject,
+        second: OsuDifficultyHitObject,
+        third: OsuDifficultyHitObject
+    ): number {
+        const o1 = this.calculateOverlapFactor(first, second);
+        const o2 = this.calculateOverlapFactor(first, third);
+        const o3 = this.calculateOverlapFactor(second, third);
+
+        return 1 - o1 * o2 * o3;
     }
 
     private static calculateOverlapFactor(
