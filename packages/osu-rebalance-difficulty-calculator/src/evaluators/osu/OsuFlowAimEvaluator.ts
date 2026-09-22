@@ -6,7 +6,7 @@ import { OsuSnapAimEvaluator } from "./OsuSnapAimEvaluator";
  * An evaluator for calculating osu!standard flow aim difficulty.
  */
 export abstract class OsuFlowAimEvaluator {
-    private static readonly velocityChangeMultiplier = 0.5;
+    private static readonly velocityChangeMultiplier = 0.55;
     private static readonly acuteAngleMultiplier = 1.3;
 
     static evaluateDifficultyOf(

@@ -1,10 +1,12 @@
-import { Spinner } from "@rian8337/osu-base";
+import { MathUtils, Spinner } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid agility aim difficulty.
  */
 export abstract class DroidAgilityEvaluator {
+    private static readonly previousDeltaInfluence = 0.5;
+
     /**
      * Evaluates the difficulty of fast aiming the current object.
      *
@@ -15,7 +17,19 @@ export abstract class DroidAgilityEvaluator {
             return 0;
         }
 
-        let difficulty = Math.pow(1000 / current.strainTime, 2);
+        const prev = current.previous(0);
+
+        // For objects that are stacked, we want to reduce the agility difficulty slightly by combining delta times
+        // of both objects together because we can assume that they likely would be done in one movement.
+        let previousDelta = 0;
+
+        if (prev !== null) {
+            previousDelta = prev.strainTime * MathUtils.reverseLerp(prev.lazyJumpDistance, prev.normalizedRadius, 0);
+        }
+
+        const combinedDelta = current.strainTime + previousDelta * this.previousDeltaInfluence;
+
+        let difficulty = Math.pow(1000 / combinedDelta, 2);
 
         difficulty *= Math.pow(current.smallCircleBonus, 1.5);
 

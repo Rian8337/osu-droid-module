@@ -20,7 +20,7 @@ export class DroidAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
     private readonly skillMultiplierSnap = 71;
-    private readonly skillMultiplierAgility = 1.62;
+    private readonly skillMultiplierAgility = 1.63;
     private readonly skillMultiplierFlow = 247;
     private readonly skillMultiplierTotal = 1.12;
     private readonly combinedSnapNormExponent = 1.2;
