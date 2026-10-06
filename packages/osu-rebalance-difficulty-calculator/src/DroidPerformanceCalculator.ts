@@ -17,81 +17,21 @@ import { DroidFlashlight } from "./skills/droid/DroidFlashlight";
 import { DroidReading } from "./skills/droid/DroidReading";
 import { DroidTap } from "./skills/droid/DroidTap";
 import { IDroidDifficultyAttributes } from "./structures/IDroidDifficultyAttributes";
+import { IDroidPerformanceAttributes } from "./structures/IDroidPerformanceAttributes";
 import { PerformanceCalculationOptions } from "./structures/PerformanceCalculationOptions";
 
 /**
  * A performance points calculator that calculates performance points for osu!droid gamemode.
  */
-export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDifficultyAttributes> {
-    /**
-     * The aim performance value.
-     */
-    aim = 0;
-
-    /**
-     * The tap performance value.
-     */
-    tap = 0;
-
-    /**
-     * The accuracy performance value.
-     */
-    accuracy = 0;
-
-    /**
-     * The flashlight performance value.
-     */
-    flashlight = 0;
-
-    /**
-     * The reading performance value.
-     */
-    reading = 0;
-
-    /**
-     * The penalty used to penalize the tap performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
-     */
-    get tapPenalty(): number {
-        return this._tapPenalty;
-    }
-
-    /**
-     * The estimated deviation of the score.
-     */
-    get deviation(): number {
-        return this._deviation;
-    }
-
-    /**
-     * The estimated tap deviation of the score.
-     */
-    get tapDeviation(): number {
-        return this._tapDeviation;
-    }
-
-    /**
-     * The penalty used to penalize the aim performance value.
-     *
-     * Can be properly obtained by analyzing the replay associated with the score.
-     */
-    get sliderCheesePenalty(): number {
-        return this._sliderCheesePenalty;
-    }
-
+export class DroidPerformanceCalculator extends PerformanceCalculator<
+    IDroidDifficultyAttributes,
+    IDroidPerformanceAttributes
+> {
     /**
      * The total score achieved in the score.
      */
     get totalScore(): number | null {
         return this._totalScore;
-    }
-
-    /**
-     * The amount of misses, including slider breaks.
-     */
-    get effectiveMissCount(): number {
-        return this._effectiveMissCount;
     }
 
     static readonly finalMultiplier = 1.24;
@@ -105,7 +45,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
     private _tapDeviation = 0;
     private _totalScore: number | null = null;
 
-    protected override calculateValues() {
+    protected override createPerformanceAttributes(): IDroidPerformanceAttributes {
         if (this.usingClassicSliderAccuracy && this.totalScore !== null) {
             const remainingScore =
                 this.difficultyAttributes.maximumScore - this.totalScore;
@@ -172,25 +112,39 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         this._deviation = this.calculateAimDeviation();
         this._tapDeviation = this.calculateTapDeviation();
 
-        this.aim = this.calculateAimValue();
-        this.tap = this.calculateTapValue();
-        this.accuracy = this.calculateAccuracyValue();
-        this.flashlight = this.calculateFlashlightValue();
-        this.reading = this.calculateReadingValue();
+        const aim = this.calculateAimValue();
+        const tap = this.calculateTapValue();
+        const accuracy = this.calculateAccuracyValue();
+        const flashlight = this.calculateFlashlightValue();
+        const reading = this.calculateReadingValue();
 
         const cognitionValue = DroidDifficultyCalculator.sumCognitionDifficulty(
-            this.reading,
-            this.flashlight,
+            reading,
+            flashlight,
         );
 
-        this.total =
+        const total =
             MathUtils.norm(
                 DroidPerformanceCalculator.normExponent,
-                this.aim,
-                this.tap,
-                this.accuracy,
+                aim,
+                tap,
+                accuracy,
                 cognitionValue,
             ) * finalMultiplier;
+
+        return {
+            total,
+            aim,
+            tap,
+            accuracy,
+            flashlight,
+            reading,
+            effectiveMissCount: this._effectiveMissCount,
+            tapPenalty: this._tapPenalty,
+            deviation: this._deviation,
+            tapDeviation: this._tapDeviation,
+            sliderCheesePenalty: this._sliderCheesePenalty,
+        };
     }
 
     protected override handleOptions(
@@ -411,17 +365,17 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
             this.difficultyAttributes.flashlightDifficulty,
         );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
             flashlightValue *=
                 0.97 *
                 Math.pow(
                     1 -
                         Math.pow(
-                            this.effectiveMissCount / this.totalHits,
+                            this._effectiveMissCount / this.totalHits,
                             0.775,
                         ),
-                    Math.pow(this.effectiveMissCount, 0.875),
+                    Math.pow(this._effectiveMissCount, 0.875),
                 );
         }
 
@@ -738,7 +692,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
      * [Graph](https://www.desmos.com/calculator/z5l9ebrwpi)
      */
     private calculateTapHighDeviationNerf(): number {
-        if (this.tapDeviation == Number.POSITIVE_INFINITY) {
+        if (this._tapDeviation == Number.POSITIVE_INFINITY) {
             return 0;
         }
 
@@ -748,7 +702,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         // improperly. Any difficulty above this point is considered "excess" tap difficulty. This is used to cause
         // PP above the cutoff to scale logarithmically towards the original tap value thus nerfing the value.
         const excessTapDifficultyCutoff =
-            2.9 + 1.45 * Math.pow(25 / this.tapDeviation, 5);
+            2.9 + 1.45 * Math.pow(25 / this._tapDeviation, 5);
 
         if (tapDifficulty <= excessTapDifficultyCutoff) {
             return 1;
@@ -761,7 +715,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
                 excessTapDifficultyCutoff / scale);
 
         // 250 UR and less are considered tapped correctly to ensure that normal scores will be punished as little as possible.
-        const t = 1 - Interpolation.reverseLerp(this.tapDeviation, 25, 30);
+        const t = 1 - Interpolation.reverseLerp(this._tapDeviation, 25, 30);
 
         return (
             Interpolation.lerp(adjustedTapDifficulty, tapDifficulty, t) /
@@ -944,22 +898,5 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<IDroidDiff
         }
 
         return missCount;
-    }
-
-    override toString(): string {
-        return (
-            this.total.toFixed(2) +
-            " pp (" +
-            this.aim.toFixed(2) +
-            " aim, " +
-            this.tap.toFixed(2) +
-            " tap, " +
-            this.accuracy.toFixed(2) +
-            " accuracy, " +
-            this.flashlight.toFixed(2) +
-            " flashlight, " +
-            this.reading.toFixed(2) +
-            " reading)"
-        );
     }
 }

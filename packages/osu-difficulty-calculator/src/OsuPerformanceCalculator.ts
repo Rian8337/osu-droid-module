@@ -21,43 +21,15 @@ import { OsuAim } from "./skills/osu/OsuAim";
 import { OsuReading } from "./skills/osu/OsuReading";
 import { OsuSpeed } from "./skills/osu/OsuSpeed";
 import { IOsuDifficultyAttributes } from "./structures/IOsuDifficultyAttributes";
+import { IOsuPerformanceAttributes } from "./structures/IOsuPerformanceAttributes";
 
 /**
  * A performance points calculator that calculates performance points for osu!standard gamemode.
  */
-export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficultyAttributes> {
-    /**
-     * The aim performance value.
-     */
-    aim = 0;
-
-    /**
-     * The speed performance value.
-     */
-    speed = 0;
-
-    /**
-     * The accuracy performance value.
-     */
-    accuracy = 0;
-
-    /**
-     * The flashlight performance value.
-     */
-    flashlight = 0;
-
-    /**
-     * The reading performance value.
-     */
-    reading = 0;
-
-    /**
-     * The amount of misses, including slider breaks.
-     */
-    get effectiveMissCount(): number {
-        return this._effectiveMissCount;
-    }
-
+export class OsuPerformanceCalculator extends PerformanceCalculator<
+    IOsuDifficultyAttributes,
+    IOsuPerformanceAttributes
+> {
     static readonly finalMultiplier = 1.12;
     static readonly normExponent = 1.1;
 
@@ -71,7 +43,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
     private _effectiveMissCount = 0;
     private speedDeviation = 0;
 
-    protected override calculateValues() {
+    protected override createPerformanceAttributes(): IOsuPerformanceAttributes {
         this._effectiveMissCount = MathUtils.clamp(
             this.calculateComboBasedEstimatedMissCount(),
             this.computedAccuracy.nmiss,
@@ -135,25 +107,35 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         this.speedDeviation = this.calculateSpeedDeviation();
 
-        this.aim = this.calculateAimValue();
-        this.speed = this.calculateSpeedValue();
-        this.accuracy = this.calculateAccuracyValue();
-        this.flashlight = this.calculateFlashlightValue();
-        this.reading = this.calculateReadingValue();
+        const aim = this.calculateAimValue();
+        const speed = this.calculateSpeedValue();
+        const accuracy = this.calculateAccuracyValue();
+        const flashlight = this.calculateFlashlightValue();
+        const reading = this.calculateReadingValue();
 
         const cognitionValue = OsuDifficultyCalculator.sumCognitionDifficulty(
-            this.reading,
-            this.flashlight,
+            reading,
+            flashlight,
         );
 
-        this.total =
+        const total =
             MathUtils.norm(
                 OsuPerformanceCalculator.normExponent,
-                this.aim,
-                this.speed,
-                this.accuracy,
+                aim,
+                speed,
+                accuracy,
                 cognitionValue,
             ) * finalMultiplier;
+
+        return {
+            total,
+            aim,
+            speed,
+            accuracy,
+            flashlight,
+            reading,
+            effectiveMissCount: this._effectiveMissCount,
+        };
     }
 
     /**
@@ -214,7 +196,7 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
 
         aimValue *= lengthBonus;
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const aimEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.aimTopWeightedSliderFactor,
@@ -375,17 +357,17 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             1,
         );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             // Penalize misses by assessing # of misses relative to the total # of objects. Default a 3% reduction for any # of misses.
             flashlightValue *=
                 0.97 *
                 Math.pow(
                     1 -
                         Math.pow(
-                            this.effectiveMissCount / this.totalHits,
+                            this._effectiveMissCount / this.totalHits,
                             0.775,
                         ),
-                    Math.pow(this.effectiveMissCount, 0.875),
+                    Math.pow(this._effectiveMissCount, 0.875),
                 );
         }
 
@@ -403,14 +385,14 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             this.difficultyAttributes.readingDifficulty,
         );
 
-        if (this.effectiveMissCount > 0) {
+        if (this._effectiveMissCount > 0) {
             const aimEstimatedSliderBreaks =
                 this.calculateEstimatedSliderBreaks(
                     this.difficultyAttributes.aimTopWeightedSliderFactor,
                 );
 
             readingValue *= this.calculateMissPenalty(
-                this.effectiveMissCount + aimEstimatedSliderBreaks,
+                this._effectiveMissCount + aimEstimatedSliderBreaks,
                 this.difficultyAttributes.readingDifficultNoteCount,
             );
         }
@@ -764,23 +746,6 @@ export class OsuPerformanceCalculator extends PerformanceCalculator<IOsuDifficul
             HitObject.preemptMax,
             HitObject.preemptMid,
             HitObject.preemptMin,
-        );
-    }
-
-    override toString(): string {
-        return (
-            this.total.toFixed(2) +
-            " pp (" +
-            this.aim.toFixed(2) +
-            " aim, " +
-            this.speed.toFixed(2) +
-            " speed, " +
-            this.accuracy.toFixed(2) +
-            " accuracy, " +
-            this.flashlight.toFixed(2) +
-            " flashlight, " +
-            this.reading.toFixed(2) +
-            " reading)"
         );
     }
 }

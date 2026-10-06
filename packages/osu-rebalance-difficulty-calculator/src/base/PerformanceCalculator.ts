@@ -1,17 +1,16 @@
 import { Accuracy, MathUtils, ModMap, ModUtil } from "@rian8337/osu-base";
 import { CacheableDifficultyAttributes } from "../structures/CacheableDifficultyAttributes";
 import { IDifficultyAttributes } from "../structures/IDifficultyAttributes";
+import { IPerformanceAttributes } from "../structures/IPerformanceAttributes";
 import { PerformanceCalculationOptions } from "../structures/PerformanceCalculationOptions";
 
 /**
  * The base class of performance calculators.
  */
-export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
-    /**
-     * The overall performance value.
-     */
-    total = 0;
-
+export abstract class PerformanceCalculator<
+    TDifficultyAttributes extends IDifficultyAttributes,
+    TPerformanceAttributes extends IPerformanceAttributes,
+> {
     /**
      * The calculated accuracy.
      */
@@ -25,7 +24,9 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     /**
      * The difficulty attributes that is being calculated.
      */
-    readonly difficultyAttributes: T | CacheableDifficultyAttributes<T>;
+    readonly difficultyAttributes:
+        | TDifficultyAttributes
+        | CacheableDifficultyAttributes<TDifficultyAttributes>;
 
     /**
      * The mods that were used.
@@ -64,7 +65,11 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
     /**
      * @param difficultyAttributes The difficulty attributes to calculate.
      */
-    constructor(difficultyAttributes: T | CacheableDifficultyAttributes<T>) {
+    constructor(
+        difficultyAttributes:
+            | TDifficultyAttributes
+            | CacheableDifficultyAttributes<TDifficultyAttributes>,
+    ) {
         this.difficultyAttributes = difficultyAttributes;
 
         this.mods = this.isCacheableAttribute(difficultyAttributes)
@@ -76,25 +81,20 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      * Calculates the performance points of the beatmap.
      *
      * @param options Options for performance calculation.
-     * @returns The current instance.
+     * @returns The attributes representing the performance.
      */
-    calculate(options?: PerformanceCalculationOptions): this {
+    calculate(options?: PerformanceCalculationOptions): TPerformanceAttributes {
         this.handleOptions(options);
-        this.calculateValues();
 
-        return this;
+        return this.createPerformanceAttributes();
     }
 
     /**
-     * Returns a string representative of the class.
+     * Creates the performance attributes for this calculator.
+     *
+     * @returns The performance attributes.
      */
-    abstract toString(): string;
-
-    /**
-     * Calculates all values that will be used for calculating the total
-     * performance value of the beatmap and stores them in this instance.
-     */
-    protected abstract calculateValues(): void;
+    protected abstract createPerformanceAttributes(): TPerformanceAttributes;
 
     /**
      * The total hits that can be done in the beatmap.
@@ -198,8 +198,10 @@ export abstract class PerformanceCalculator<T extends IDifficultyAttributes> {
      * @returns Whether the attributes are cacheable.
      */
     private isCacheableAttribute(
-        attributes: T | CacheableDifficultyAttributes<T>,
-    ): attributes is CacheableDifficultyAttributes<T> {
+        attributes:
+            | TDifficultyAttributes
+            | CacheableDifficultyAttributes<TDifficultyAttributes>,
+    ): attributes is CacheableDifficultyAttributes<TDifficultyAttributes> {
         return Array.isArray(attributes.mods);
     }
 }
