@@ -150,7 +150,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
     protected override handleOptions(
         options?: PerformanceCalculationOptions,
     ): void {
-        this._tapPenalty = MathUtils.clamp(options?.tapPenalty ?? 1, 0, 1);
+        this._tapPenalty = Math.max(options?.tapPenalty ?? 1, 1);
 
         this._sliderCheesePenalty = MathUtils.clamp(
             options?.sliderCheesePenalty ?? 1,
