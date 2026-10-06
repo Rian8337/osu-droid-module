@@ -1,7 +1,7 @@
 packages:
   - packages/*
 
-onlyBuiltDependencies:
-  - canvas
-  - nx
-  - unrs-resolver
+allowBuilds:
+  canvas: true
+  nx: true
+  unrs-resolver: true
