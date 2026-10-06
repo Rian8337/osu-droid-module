@@ -3,6 +3,7 @@ import { ObjectTypes } from "../../../constants/ObjectTypes";
 import { ParserConstants } from "../../../constants/ParserConstants";
 import { PathType } from "../../../constants/PathType";
 import { SampleBank } from "../../../constants/SampleBank";
+import { MathUtils } from "../../../math/MathUtils";
 import { Vector2 } from "../../../math/Vector2";
 import { Precision } from "../../../utils/Precision";
 import { SliderPath } from "../../../utils/SliderPath";
@@ -47,15 +48,24 @@ export class BeatmapHitObjectsDecoder extends SectionDecoder<Beatmap> {
         tempType &= ~ObjectTypes.NewCombo;
 
         const position = new Vector2(
-            this.tryParseFloat(
-                this.setPosition(s[0]),
-                -ParserConstants.MAX_COORDINATE_VALUE,
-                ParserConstants.MAX_COORDINATE_VALUE,
+            MathUtils.clamp(
+                this.tryParseFloat(
+                    this.setPosition(s[0]),
+                    -ParserConstants.MAX_COORDINATE_VALUE,
+                    ParserConstants.MAX_COORDINATE_VALUE,
+                ),
+                0,
+                512
             ),
-            this.tryParseFloat(
-                this.setPosition(s[1]),
-                -ParserConstants.MAX_COORDINATE_VALUE,
-                ParserConstants.MAX_COORDINATE_VALUE,
+            MathUtils.clamp(
+                this.tryParseFloat(
+                    this.setPosition(s[1]),
+                    -ParserConstants.MAX_COORDINATE_VALUE,
+                    ParserConstants.MAX_COORDINATE_VALUE,
+                ),
+                0,
+                // For some reason, the Y position is capped at 512 instead of 384, what the heck stable?
+                512
             ),
         );
 
