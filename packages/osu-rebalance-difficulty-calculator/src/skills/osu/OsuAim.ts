@@ -23,12 +23,12 @@ import { OsuSpinnerEvaluator } from "../../evaluators/osu/OsuSpinnerEvaluator";
 export class OsuAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
-    private readonly skillMultiplierSnap = 71;
-    private readonly skillMultiplierAgility = 1.63;
-    private readonly skillMultiplierFlow = 247;
+    private readonly skillMultiplierSnap = 78.3;
+    private readonly skillMultiplierAgility = 32.5;
+    private readonly skillMultiplierFlow = 251;
     private readonly skillMultiplierSpinner = 22;
     private readonly skillMultiplierTotal = 1.12;
-    private readonly combinedSnapNormExponent = 1.2;
+    private readonly combinedSnapNormExponent = 1.5;
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.

@@ -5,10 +5,11 @@ import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHit
  * An evaluator for calculating osu!droid snap aim difficulty.
  */
 export abstract class DroidSnapAimEvaluator {
-    private static readonly wideAngleMultiplier = 9.67;
-    private static readonly acuteAngleMultiplier = 2.35;
-    private static readonly sliderMultiplier = 1.5;
-    private static readonly velocityChangeMultiplier = 0.9;
+    private static readonly wideAngleMultiplier = 2.15;
+    // Rescale velocity for the wide angle bonus.
+    private static readonly wideAngleTimeScale = 1.2;
+    private static readonly sliderMultiplier = 1.35;
+    private static readonly velocityChangeMultiplier = 0.85;
 
     // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
     // Refer to the desmos link above the wiggle bonus calculation.
@@ -70,31 +71,12 @@ export abstract class DroidSnapAimEvaluator {
 
         strain *= this.calculateVectorAngleRepetition(current, last);
 
-        const acuteAngleBonus = this.calculateAcuteAngleBonus(
-            current,
-            last,
-            currentVelocity,
-            prevVelocity,
-        );
-
-        const wideAngleBonus = this.calculateWideAngleBonus(
+        strain += this.calculateWideAngleBonus(
             current,
             last,
             currentDistance,
             prevDistance,
             withSliders,
-        );
-
-        // Add in acute angle bonus or wide angle bonus, whichever is larger.
-        strain += Math.max(acuteAngleBonus, wideAngleBonus);
-
-        strain += this.calculateWiggleBonus(
-            current,
-            last,
-            currentVelocity,
-            prevVelocity,
-            currentDistance,
-            prevDistance,
         );
 
         strain += this.calculateVelocityChangeBonus(
@@ -116,59 +98,6 @@ export abstract class DroidSnapAimEvaluator {
         strain *= this.highBpmBonus(current.strainTime);
 
         return strain;
-    }
-
-    private static calculateAcuteAngleBonus(
-        current: DroidDifficultyHitObject,
-        last: DroidDifficultyHitObject,
-        currentVelocity: number,
-        prevVelocity: number,
-    ): number {
-        if (current.angle === null || last.angle === null) {
-            return 0;
-        }
-
-        // Only reward acute angles when rhythms are the same.
-        if (
-            Math.max(current.strainTime, last.strainTime) >=
-            1.25 * Math.min(current.strainTime, last.strainTime)
-        ) {
-            return 0;
-        }
-
-        let acuteAngleBonus = this.calculateAcuteAngleAcuteness(current.angle);
-
-        // Penalize angle repetition. It is important to do it _before_ multiplying by anything because we
-        // compare raw acuteness here.
-        acuteAngleBonus *=
-            0.08 +
-            0.92 *
-                (1 -
-                    Math.min(
-                        acuteAngleBonus,
-                        Math.pow(
-                            this.calculateAcuteAngleAcuteness(last.angle),
-                            3,
-                        ),
-                    ));
-
-        const velocity = Math.min(currentVelocity, prevVelocity);
-
-        // Apply acute angle bonus for BPM above 300 1/2.
-        acuteAngleBonus *=
-            velocity *
-            MathUtils.smootherstep(
-                MathUtils.millisecondsToBPM(current.strainTime, 2),
-                300,
-                450,
-            ) *
-            MathUtils.smootherstep(
-                current.lazyJumpDistance,
-                0,
-                current.normalizedDiameter * 2,
-            );
-
-        return acuteAngleBonus * this.acuteAngleMultiplier;
     }
 
     private static calculateWideAngleBonus(
@@ -198,14 +127,12 @@ export abstract class DroidSnapAimEvaluator {
                         ),
                     ));
 
-        // Rescale velocity for wide angle bonus.
-        const wideAngleTimeScale = 1.45;
-
         let wideAngleCurrentVelocity =
-            currentDistance / Math.pow(current.strainTime, wideAngleTimeScale);
+            currentDistance /
+            Math.pow(current.strainTime, this.wideAngleTimeScale);
 
         const wideAnglePrevVelocity =
-            prevDistance / Math.pow(last.strainTime, wideAngleTimeScale);
+            prevDistance / Math.pow(last.strainTime, this.wideAngleTimeScale);
 
         if (last.object instanceof Slider && withSliders) {
             const sliderDistance =
@@ -214,7 +141,7 @@ export abstract class DroidSnapAimEvaluator {
             wideAngleCurrentVelocity = Math.max(
                 wideAngleCurrentVelocity,
                 sliderDistance /
-                    Math.pow(current.strainTime, wideAngleTimeScale),
+                    Math.pow(current.strainTime, this.wideAngleTimeScale),
             );
         }
 
@@ -259,6 +186,17 @@ export abstract class DroidSnapAimEvaluator {
             currentVelocity = currentDistance / current.strainTime;
         }
 
+        // Cap velocity to at least 1 radius distance to only award snap patterns.
+        currentVelocity = Math.max(
+            currentVelocity,
+            current.normalizedDiameter / current.strainTime,
+        );
+
+        prevVelocity = Math.max(
+            prevVelocity,
+            last.normalizedDiameter / last.strainTime,
+        );
+
         // Scale with ratio of difference compared to half the max distance.
         const distanceRatio = MathUtils.smoothstep(
             Math.abs(prevVelocity - currentVelocity) /
@@ -286,50 +224,6 @@ export abstract class DroidSnapAimEvaluator {
         return velocityChangeBonus * this.velocityChangeMultiplier;
     }
 
-    /**
-     * Difficulty bonus for "wiggle" patterns - jumps that are [radius, 3*diameter] in distance, with < 110 angle.
-     * https://www.desmos.com/calculator/dp0v0nvowc
-     */
-    private static calculateWiggleBonus(
-        current: DroidDifficultyHitObject,
-        last: DroidDifficultyHitObject,
-        currentVelocity: number,
-        prevVelocity: number,
-        currentDistance: number,
-        prevDistance: number,
-    ): number {
-        if (current.angle === null || last.angle === null) {
-            return 0;
-        }
-
-        const radius = current.normalizedRadius;
-        const diameter = current.normalizedDiameter;
-
-        const wiggleBonus =
-            Math.min(currentVelocity, prevVelocity) *
-            MathUtils.smootherstep(currentDistance, radius, diameter) *
-            Math.pow(
-                MathUtils.reverseLerp(currentDistance, diameter * 3, diameter),
-                1.8,
-            ) *
-            MathUtils.smootherstep(
-                current.angle,
-                MathUtils.degreesToRadians(110),
-                MathUtils.degreesToRadians(60),
-            ) *
-            MathUtils.smootherstep(prevDistance, radius, diameter) *
-            Math.pow(
-                MathUtils.reverseLerp(prevDistance, diameter * 3, diameter),
-                1.8,
-            ) *
-            MathUtils.smootherstep(
-                last.angle,
-                MathUtils.degreesToRadians(110),
-                MathUtils.degreesToRadians(60),
-            );
-
-        return wiggleBonus * this.wiggleMultiplier;
-    }
 
     private static calculateSliderBonus(
         current: DroidDifficultyHitObject,

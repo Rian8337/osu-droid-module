@@ -21,12 +21,12 @@ import { DroidSpinnerEvaluator } from "../../evaluators/droid/DroidSpinnerEvalua
 export class DroidAim extends VariableLengthStrainSkill {
     private currentStrain = 0;
 
-    private readonly skillMultiplierSnap = 71;
-    private readonly skillMultiplierAgility = 1.63;
-    private readonly skillMultiplierFlow = 247;
+    private readonly skillMultiplierSnap = 78.3;
+    private readonly skillMultiplierAgility = 32.5;
+    private readonly skillMultiplierFlow = 251;
     private readonly skillMultiplierSpinner = 22;
     private readonly skillMultiplierTotal = 1.12;
-    private readonly combinedSnapNormExponent = 1.2;
+    private readonly combinedSnapNormExponent = 1.5
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.
@@ -199,8 +199,12 @@ export class DroidAim extends VariableLengthStrainSkill {
 
         // Invert rating summation to obtain a more accurate TD adjustment.
         snapDifficulty =
-            Math.pow(0.02275 * Math.pow(10, 0.63), (0.8 - 1) / 0.63) *
-            Math.pow(snapDifficulty, 0.8);
+            Math.pow(0.02275 * Math.pow(10, 0.63), (0.93 - 1) / 0.63) *
+            Math.pow(snapDifficulty, 0.93);
+
+        agilityDifficulty =
+            Math.pow(0.02275 * Math.pow(10, 0.63), (0.89 - 1) / 0.63) *
+            Math.pow(agilityDifficulty, 0.89);
 
         combinedSnapDifficulty = MathUtils.norm(
             this.combinedSnapNormExponent,

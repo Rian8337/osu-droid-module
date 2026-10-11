@@ -1,11 +1,13 @@
-import { MathUtils, Spinner } from "@rian8337/osu-base";
+import { HitResult, Interpolation, MathUtils, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
+import { OsuSnapAimEvaluator } from "./OsuSnapAimEvaluator";
 
 /**
  * An evaluator for calculating osu!standard agility aim difficulty.
  */
 export abstract class OsuAgilityEvaluator {
     private static readonly previousDeltaInfluence = 0.5;
+    private static readonly angleSwitchingBonus = 0.8;
 
     /**
      * Evaluates the difficulty of fast aiming the current object.
@@ -19,6 +21,9 @@ export abstract class OsuAgilityEvaluator {
 
         const prev = current.previous(0);
 
+        // Assume that the player always uses at least the full great hitwindow for the movement.
+        const currentDelta = Math.max(current.strainTime, current.hitWindowFor(HitResult.Great));
+
         // For objects that are stacked, we want to reduce the agility difficulty slightly by combining delta times
         // of both objects together because we can assume that they likely would be done in one movement.
         let previousDelta = 0;
@@ -27,12 +32,39 @@ export abstract class OsuAgilityEvaluator {
             previousDelta = prev.strainTime * MathUtils.reverseLerp(prev.lazyJumpDistance, prev.normalizedRadius, 0);
         }
 
-        const combinedDelta = current.strainTime + previousDelta * this.previousDeltaInfluence;
+        const combinedDelta = currentDelta + previousDelta * this.previousDeltaInfluence;
+        const angleSwitchingBonus = this.calculateAngleSwitchingBonus(current, prev);
 
-        let difficulty = Math.pow(1000 / combinedDelta, 2);
+        let difficulty = (1 + angleSwitchingBonus) * 10_000_000 / Math.pow(combinedDelta, 3.1);
 
-        difficulty *= Math.pow(current.smallCircleBonus, 1.5);
+        difficulty *= current.smallCircleBonus;
 
         return difficulty;
+    }
+
+    private static calculateAngleSwitchingBonus(
+        current: OsuDifficultyHitObject,
+        prev: OsuDifficultyHitObject | null
+    ): number {
+        if (current.angle === null || typeof prev?.angle !== "number") {
+            return 0;
+        }
+
+        const acutenessDifference = 1 - Math.min(
+            OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(current.angle),
+            Math.pow(OsuSnapAimEvaluator.calculateAcuteAngleAcuteness(prev.angle), 3),
+        );
+
+        const rhythmDifferencePenalty = Math.pow(
+            Math.min(current.strainTime, prev.strainTime) / Math.max(current.strainTime, prev.strainTime),
+            3,
+        );
+
+        return (
+            acutenessDifference *
+            rhythmDifferencePenalty *
+            Interpolation.reverseLerp(prev.lazyJumpDistance, prev.normalizedRadius, prev.normalizedDiameter) *
+            this.angleSwitchingBonus
+        );
     }
 }
