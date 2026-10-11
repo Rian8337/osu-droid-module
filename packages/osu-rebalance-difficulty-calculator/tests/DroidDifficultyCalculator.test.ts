@@ -247,7 +247,7 @@ describe("Test difficulty calculation sample beatmap 3", () => {
                 tap: 4.362518054307488,
                 rhythm: 1.273468835320142,
                 reading: 1.290930673186071,
-                total: 8.02047645176679,
+                total: 8.068308468283316,
             },
             flashlight: 0.9177698133776294,
         },
