@@ -577,8 +577,9 @@ export class ReplayAnalyzer {
                         const fileName = entry.path;
 
                         if (fileName === "data") {
-                            resolve(entry.buffer());
-                            return;
+                            // Using the buffer directly from the entry would cause the promise to never resolve
+                            // if the file ends inside the entry, so we need to manually resolve it.
+                            entry.buffer().then(resolve, reject);
                         } else {
                             entry.autodrain();
                         }
