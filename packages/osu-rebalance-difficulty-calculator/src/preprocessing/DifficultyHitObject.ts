@@ -450,11 +450,11 @@ export abstract class DifficultyHitObject {
 
         this.minimumJumpTime = this.strainTime;
 
-        // We don't need to calculate either angle or distance when one of the last->curr objects is a spinner.
+        // Skip angle/distance calculation for instant spinners.
         if (
             !this.lastObject ||
-            this.object instanceof Spinner ||
-            this.lastObject instanceof Spinner
+            (this.object instanceof Spinner && this.object.spinsRequired <= 0) ||
+            (this.lastObject instanceof Spinner && this.lastObject.spinsRequired <= 0)
         ) {
             return;
         }

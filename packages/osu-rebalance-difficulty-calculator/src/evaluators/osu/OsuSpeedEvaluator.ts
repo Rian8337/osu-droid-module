@@ -1,4 +1,4 @@
-import { HitResult, MathUtils, Spinner } from "@rian8337/osu-base";
+import { HitResult, MathUtils } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -17,10 +17,6 @@ export abstract class OsuSpeedEvaluator {
      * @param current The current object.
      */
     static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
-        if (current.object instanceof Spinner) {
-            return 0;
-        }
-
         const doubletapness = 1 - current.getDoubletapness(current.next(0));
 
         let difficulty = MathUtils.millisecondsToBPM(current.strainTime);

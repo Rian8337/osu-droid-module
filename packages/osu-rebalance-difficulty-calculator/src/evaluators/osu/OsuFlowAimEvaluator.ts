@@ -15,8 +15,7 @@ export abstract class OsuFlowAimEvaluator {
     ): number {
         if (
             current.object instanceof Spinner ||
-            current.index <= 1 ||
-            current.previous(0)?.object instanceof Spinner
+            current.index <= 1
         ) {
             return 0;
         }

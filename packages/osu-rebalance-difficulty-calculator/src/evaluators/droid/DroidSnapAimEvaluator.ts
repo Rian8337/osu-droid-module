@@ -37,8 +37,7 @@ export abstract class DroidSnapAimEvaluator {
             current.object instanceof Spinner ||
             // Exclude overlapping objects that can be tapped at once.
             current.isOverlapping(true) ||
-            current.index <= 1 ||
-            current.previous(0)?.object instanceof Spinner
+            current.index <= 1
         ) {
             return 0;
         }

@@ -1,4 +1,4 @@
-import { ModHidden, ModMap, Slider, Spinner } from "@rian8337/osu-base";
+import { ModHidden, ModMap, Slider } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -27,10 +27,6 @@ export abstract class OsuFlashlightEvaluator {
         current: OsuDifficultyHitObject,
         mods: ModMap,
     ): number {
-        if (current.object instanceof Spinner) {
-            return 0;
-        }
-
         const scalingFactor = 52 / current.object.radius;
         let smallDistNerf = 1;
         let cumulativeStrainTime = 0;
@@ -48,41 +44,39 @@ export abstract class OsuFlashlightEvaluator {
 
             cumulativeStrainTime += last.strainTime;
 
-            if (!(currentObject.object instanceof Spinner)) {
-                const jumpDistance = current.object.stackedPosition.subtract(
-                    currentObject.object.stackedEndPosition,
-                ).length;
+            const jumpDistance = current.object.stackedPosition.subtract(
+                currentObject.object.stackedEndPosition,
+            ).length;
 
-                // We want to nerf objects that can be easily seen within the Flashlight circle radius.
-                if (i === 0) {
-                    smallDistNerf = Math.min(1, jumpDistance / 75);
-                }
+            // We want to nerf objects that can be easily seen within the Flashlight circle radius.
+            if (i === 0) {
+                smallDistNerf = Math.min(1, jumpDistance / 75);
+            }
 
-                // We also want to nerf stacks so that only the first object of the stack is accounted for.
-                const stackNerf = Math.min(
-                    1,
-                    currentObject.lazyJumpDistance / scalingFactor / 25,
-                );
+            // We also want to nerf stacks so that only the first object of the stack is accounted for.
+            const stackNerf = Math.min(
+                1,
+                currentObject.lazyJumpDistance / scalingFactor / 25,
+            );
 
-                // Bonus based on how visible the object is.
-                const opacityBonus =
-                    1 +
-                    this.maxOpacityBonus *
-                        (1 -
-                            current.opacityAt(
-                                currentObject.object.startTime,
-                                opacityMods,
-                            ));
+            // Bonus based on how visible the object is.
+            const opacityBonus =
+                1 +
+                this.maxOpacityBonus *
+                    (1 -
+                        current.opacityAt(
+                            currentObject.object.startTime,
+                            opacityMods,
+                        ));
 
-                result +=
-                    (stackNerf * opacityBonus * scalingFactor * jumpDistance) /
-                    cumulativeStrainTime;
+            result +=
+                (stackNerf * opacityBonus * scalingFactor * jumpDistance) /
+                cumulativeStrainTime;
 
-                if (currentObject.angle !== null && current.angle !== null) {
-                    // Objects further back in time should count less for the nerf.
-                    if (Math.abs(currentObject.angle - current.angle) < 0.02) {
-                        angleRepeatCount += Math.max(0, 1 - 0.1 * i);
-                    }
+            if (currentObject.angle !== null && current.angle !== null) {
+                // Objects further back in time should count less for the nerf.
+                if (Math.abs(currentObject.angle - current.angle) < 0.02) {
+                    angleRepeatCount += Math.max(0, 1 - 0.1 * i);
                 }
             }
 

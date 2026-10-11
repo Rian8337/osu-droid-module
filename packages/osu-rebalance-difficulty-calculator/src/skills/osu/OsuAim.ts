@@ -7,6 +7,7 @@ import {
     ModRelax,
     ModTouchDevice,
     Slider,
+    Spinner,
 } from "@rian8337/osu-base";
 import { VariableLengthStrainSkill } from "../../base/VariableLengthStrainSkill";
 import { OsuAgilityEvaluator } from "../../evaluators/osu/OsuAgilityEvaluator";
@@ -14,6 +15,7 @@ import { OsuFlowAimEvaluator } from "../../evaluators/osu/OsuFlowAimEvaluator";
 import { OsuSnapAimEvaluator } from "../../evaluators/osu/OsuSnapAimEvaluator";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 import { StrainPeak } from "../../structures/StrainPeak";
+import { OsuSpinnerEvaluator } from "../../evaluators/osu/OsuSpinnerEvaluator";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -24,6 +26,7 @@ export class OsuAim extends VariableLengthStrainSkill {
     private readonly skillMultiplierSnap = 71;
     private readonly skillMultiplierAgility = 1.63;
     private readonly skillMultiplierFlow = 247;
+    private readonly skillMultiplierSpinner = 22;
     private readonly skillMultiplierTotal = 1.12;
     private readonly combinedSnapNormExponent = 1.2;
 
@@ -138,6 +141,10 @@ export class OsuAim extends VariableLengthStrainSkill {
     private calculateAdjustedDifficulty(
         current: OsuDifficultyHitObject,
     ): number {
+        if (current.object instanceof Spinner) {
+            return OsuSpinnerEvaluator.evaluateDifficultyOf(current) * this.skillMultiplierSpinner;
+        }
+
         const snapDifficulty =
             OsuSnapAimEvaluator.evaluateDifficultyOf(
                 current,

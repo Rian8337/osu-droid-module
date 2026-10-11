@@ -5,6 +5,7 @@ import {
     ModMap,
     ModRelax,
     Slider,
+    Spinner,
 } from "@rian8337/osu-base";
 import { VariableLengthStrainSkill } from "../../base/VariableLengthStrainSkill";
 import { DroidAgilityEvaluator } from "../../evaluators/droid/DroidAgilityEvaluator";
@@ -12,6 +13,7 @@ import { DroidFlowAimEvaluator } from "../../evaluators/droid/DroidFlowAimEvalua
 import { DroidSnapAimEvaluator } from "../../evaluators/droid/DroidSnapAimEvaluator";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 import { StrainPeak } from "../../structures/StrainPeak";
+import { DroidSpinnerEvaluator } from "../../evaluators/droid/DroidSpinnerEvaluator";
 
 /**
  * Represents the skill required to correctly aim at every object in the map with a uniform CircleSize and normalized distances.
@@ -22,6 +24,7 @@ export class DroidAim extends VariableLengthStrainSkill {
     private readonly skillMultiplierSnap = 71;
     private readonly skillMultiplierAgility = 1.63;
     private readonly skillMultiplierFlow = 247;
+    private readonly skillMultiplierSpinner = 22;
     private readonly skillMultiplierTotal = 1.12;
     private readonly combinedSnapNormExponent = 1.2;
 
@@ -39,12 +42,12 @@ export class DroidAim extends VariableLengthStrainSkill {
     private readonly sliderStrains: number[] = [];
     private maxSliderStrain = 0;
 
-    readonly withSliders: boolean;
-
-    constructor(mods: ModMap, withSliders: boolean) {
+    constructor(
+        mods: ModMap,
+        readonly withSliders: boolean,
+        private readonly overallDifficulty: number,
+    ) {
         super(mods);
-
-        this.withSliders = withSliders;
     }
 
     /**
@@ -142,6 +145,13 @@ export class DroidAim extends VariableLengthStrainSkill {
     private calculateAdjustedDifficulty(
         current: DroidDifficultyHitObject,
     ): number {
+        if (current.object instanceof Spinner) {
+            return DroidSpinnerEvaluator.evaluateDifficultyOf(
+                current,
+                this.overallDifficulty
+            ) * this.skillMultiplierSpinner;
+        }
+
         const snapDifficulty =
             DroidSnapAimEvaluator.evaluateDifficultyOf(
                 current,

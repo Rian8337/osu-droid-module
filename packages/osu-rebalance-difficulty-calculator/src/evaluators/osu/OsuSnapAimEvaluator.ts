@@ -33,15 +33,14 @@ export abstract class OsuSnapAimEvaluator {
         current: OsuDifficultyHitObject,
         withSliders: boolean,
     ): number {
-        const last = current.previous(0)!;
-
         if (
             current.object instanceof Spinner ||
-            current.index <= 1 ||
-            last.object instanceof Spinner
+            current.index <= 1
         ) {
             return 0;
         }
+
+        const last = current.previous(0)!;
 
         const currentDistance = withSliders
             ? current.lazyJumpDistance

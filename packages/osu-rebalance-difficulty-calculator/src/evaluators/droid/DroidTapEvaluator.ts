@@ -30,7 +30,7 @@ export abstract class DroidTapEvaluator {
     ): number {
         if (
             current.index < 0 ||
-            current.object instanceof Spinner ||
+            (current.object instanceof Spinner && current.object.spinsRequired <= 0) ||
             // Exclude overlapping objects that can be tapped at once.
             current.isOverlapping(false)
         ) {

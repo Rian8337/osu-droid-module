@@ -3,8 +3,7 @@ import {
     ModHidden,
     ModMap,
     ModTraceable,
-    Slider,
-    Spinner,
+    Slider
 } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
@@ -36,11 +35,8 @@ export abstract class DroidFlashlightEvaluator {
         current: DroidDifficultyHitObject,
         mods: ModMap,
     ): number {
-        if (
-            current.object instanceof Spinner ||
-            // Exclude overlapping objects that can be tapped at once.
-            current.isOverlapping(true)
-        ) {
+        // Exclude overlapping objects that can be tapped at once.
+        if (current.isOverlapping(true)) {
             return 0;
         }
 
@@ -61,11 +57,8 @@ export abstract class DroidFlashlightEvaluator {
 
             cumulativeStrainTime += last.strainTime;
 
-            if (
-                !(currentObject.object instanceof Spinner) &&
-                // Exclude overlapping objects that can be tapped at once.
-                !currentObject.isOverlapping(false)
-            ) {
+            // Exclude overlapping objects that can be tapped at once.
+            if (!currentObject.isOverlapping(false)) {
                 const jumpDistance = current.object.stackedPosition.subtract(
                     currentObject.object.stackedEndPosition,
                 ).length;
