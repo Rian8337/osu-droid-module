@@ -7,6 +7,8 @@ import { BankHitSampleInfo } from "./BankHitSampleInfo";
 import { HitObject } from "./HitObject";
 import { SequenceHitSampleInfo } from "./SequenceHitSampleInfo";
 import { TimedHitSampleInfo } from "./TimedHitSampleInfo";
+import { Modes } from "../../constants/Modes";
+import { BeatmapDifficulty } from "../sections/BeatmapDifficulty";
 
 /**
  * Represents a spinner in a beatmap.
@@ -29,6 +31,15 @@ export class Spinner extends HitObject {
         return this._endTime;
     }
 
+    protected _spinsRequired = 1;
+
+    /**
+     * Number of spins required to finish this {@link Spinner} without miss.
+     */
+    get spinsRequired(): number {
+        return this._spinsRequired;
+    }
+
     constructor(values: { startTime: number; type: number; endTime: number }) {
         super({
             ...values,
@@ -36,6 +47,31 @@ export class Spinner extends HitObject {
         });
 
         this._endTime = values.endTime;
+    }
+
+    override applyDefaults(
+        controlPoints: BeatmapControlPoints,
+        difficulty: BeatmapDifficulty,
+        mode: Modes
+    ): void {
+        super.applyDefaults(controlPoints, difficulty, mode);
+
+        const secondsDuration = this.duration / 1000;
+
+        // The average RPS required over the length of the spinner to clear the spinner.
+        let minRps: number;
+
+        switch (mode) {
+            case Modes.Droid:
+                minRps = 2 + (2 * difficulty.od) / 10;
+                this._spinsRequired = minRps * secondsDuration;
+                break;
+            case Modes.Osu:
+                minRps = BeatmapDifficulty.difficultyRange(difficulty.od, 90, 150, 225) / 60;
+                // Allow a 0.1ms floating point precision error in the calculation of the duration.
+                this._spinsRequired = Math.trunc(minRps * secondsDuration + 0.0001);
+                break;
+        }
     }
 
     override applySamples(controlPoints: BeatmapControlPoints): void {

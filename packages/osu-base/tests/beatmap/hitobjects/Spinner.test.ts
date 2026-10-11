@@ -1,4 +1,4 @@
-import { ObjectTypes, Spinner, Vector2 } from "../../../src";
+import { BeatmapControlPoints, BeatmapDifficulty, Modes, ObjectTypes, Spinner, Vector2 } from "../../../src";
 
 const createSpinner = (duration = 100) => {
     return new Spinner({
@@ -98,6 +98,27 @@ test("Test new combo", () => {
     const spinner = createSpinner();
 
     expect(spinner.isNewCombo).toBe(false);
+});
+
+describe("Test required spins", () => {
+    const difficulty = new BeatmapDifficulty();
+    difficulty.od = 5;
+
+    test("osu!droid gamemode", () => {
+        const spinner = createSpinner(2000);
+
+        spinner.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Droid);
+
+        expect(spinner.spinsRequired).toBeGreaterThan(1);
+    });
+
+    test("osu!standard gamemode", () => {
+        const spinner = createSpinner(2000);
+
+        spinner.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Osu);
+
+        expect(spinner.spinsRequired).toBeGreaterThan(1);
+    });
 });
 
 test("Test type string", () => {
