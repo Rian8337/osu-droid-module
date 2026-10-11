@@ -390,7 +390,12 @@ export abstract class DroidSnapAimEvaluator {
         current: DroidDifficultyHitObject,
         prev: DroidDifficultyHitObject,
     ): number {
-        if (current.angle === null || prev.angle === null) {
+        if (
+            current.angle === null ||
+            prev.angle === null ||
+            prev.object instanceof Spinner ||
+            prev.previous(0)?.object instanceof Spinner
+        ) {
             return 1;
         }
 
@@ -399,7 +404,7 @@ export abstract class DroidSnapAimEvaluator {
         for (let i = 0; i < this.angleRepetitionNoteLimit; ++i) {
             const loopObj = current.previous(i);
 
-            if (!loopObj) {
+            if (!loopObj || loopObj.object instanceof Spinner) {
                 break;
             }
 

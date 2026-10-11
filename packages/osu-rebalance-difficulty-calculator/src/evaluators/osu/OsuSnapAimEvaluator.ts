@@ -386,7 +386,12 @@ export abstract class OsuSnapAimEvaluator {
         current: OsuDifficultyHitObject,
         prev: OsuDifficultyHitObject,
     ): number {
-        if (current.angle === null || prev.angle === null) {
+        if (
+            current.angle === null ||
+            prev.angle === null ||
+            prev.object instanceof Spinner ||
+            prev.previous(0)?.object instanceof Spinner
+        ) {
             return 1;
         }
 
@@ -395,7 +400,7 @@ export abstract class OsuSnapAimEvaluator {
         for (let i = 0; i < this.angleRepetitionNoteLimit; ++i) {
             const loopObj = current.previous(i);
 
-            if (!loopObj) {
+            if (!loopObj || loopObj.object instanceof Spinner) {
                 break;
             }
 
