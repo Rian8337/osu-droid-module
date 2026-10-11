@@ -419,6 +419,8 @@ export abstract class DifficultyHitObject {
 
     /**
      * Retrieves the full rate-adjusted hit window for a {@link HitResult}.
+     * 
+     * This is **not** safe to use for {@link Spinner}s, as they do not have hit windows and will always return 0.
      */
     hitWindowFor(result: HitResult): number {
         return (2 * this.rawHitWindow.hitWindowFor(result)) / this.clockRate;

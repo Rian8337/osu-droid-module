@@ -1,4 +1,4 @@
-import { BeatmapDifficulty, Spinner } from "@rian8337/osu-base";
+import { Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 export abstract class OsuSpinnerEvaluator {
@@ -10,11 +10,11 @@ export abstract class OsuSpinnerEvaluator {
             return 0;
         }
 
-        // The average RPS required over the length of the spinner to clear the spinner.
-        // TODO: I'm not sure why this is using rate-adjusted OD? And the underlying hit window will always be 0 since spinner hit windows are empty. Will ask the pp team.
-        const rps = BeatmapDifficulty.difficultyRange(current.overallDifficulty, 90, 150, 225) / 60;
-
+        // This duration is *not* rate scaled because spinners work by applying rates on rotations.
+        // This means spinning difficulty remains constant for a spinner, regardless of the applied rate.
         const duration = current.object.duration / current.clockRate / 1000;
+
+        const rps = current.object.spinsRequired / duration;
 
         // The longer the spinner the more lenient spinning requirements are.
         return rps / duration;

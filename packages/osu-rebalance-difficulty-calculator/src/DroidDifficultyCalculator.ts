@@ -153,12 +153,12 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     }
 
     protected override createSkills(beatmap: DroidPlayableBeatmap): Skill[] {
-        const { mods, difficulty } = beatmap;
+        const { mods } = beatmap;
         const skills: Skill[] = [];
 
         if (!mods.has(ModAutopilot)) {
-            skills.push(new DroidAim(mods, true, difficulty.od));
-            skills.push(new DroidAim(mods, false, difficulty.od));
+            skills.push(new DroidAim(mods, true));
+            skills.push(new DroidAim(mods, false));
         }
 
         if (!mods.has(ModRelax)) {
@@ -182,11 +182,11 @@ export class DroidDifficultyCalculator extends DifficultyCalculator<
     protected override createStrainPeakSkills(
         beatmap: DroidPlayableBeatmap,
     ): (Skill & IHasPeakDifficulty)[] {
-        const { mods, difficulty } = beatmap;
+        const { mods } = beatmap;
 
         return [
-            new DroidAim(mods, true, difficulty.od),
-            new DroidAim(mods, false, difficulty.od),
+            new DroidAim(mods, true),
+            new DroidAim(mods, false),
             new DroidTap(mods, true),
             new DroidFlashlight(mods, beatmap.hitObjects.objects.length),
         ];

@@ -42,11 +42,7 @@ export class DroidAim extends VariableLengthStrainSkill {
     private readonly sliderStrains: number[] = [];
     private maxSliderStrain = 0;
 
-    constructor(
-        mods: ModMap,
-        readonly withSliders: boolean,
-        private readonly overallDifficulty: number,
-    ) {
+    constructor(mods: ModMap, readonly withSliders: boolean) {
         super(mods);
     }
 
@@ -146,10 +142,7 @@ export class DroidAim extends VariableLengthStrainSkill {
         current: DroidDifficultyHitObject,
     ): number {
         if (current.object instanceof Spinner) {
-            return DroidSpinnerEvaluator.evaluateDifficultyOf(
-                current,
-                this.overallDifficulty
-            ) * this.skillMultiplierSpinner;
+            return DroidSpinnerEvaluator.evaluateDifficultyOf(current) * this.skillMultiplierSpinner;
         }
 
         const snapDifficulty =

@@ -11,6 +11,7 @@ import {
     Interpolation,
     ModMap,
     ModFlashlight,
+    Spinner,
 } from "@rian8337/osu-base";
 
 /**
@@ -111,8 +112,12 @@ export class OsuFlashlight extends OsuSkill {
             difficulty *= 0.4;
         }
 
-        difficulty *=
-            0.985 + Math.pow(Math.max(0, current.overallDifficulty), 2) / 4000;
+        // Spinner OD is a special case wherein we don't want to apply rates, and the available hit windows on the object itself are all empty.
+        // Trying to account for this is more effort than its worth, so skip OD scaling.
+        if (!(current.object instanceof Spinner)) {
+            difficulty *=
+                0.985 + Math.pow(Math.max(0, current.overallDifficulty), 2) / 4000;
+        }
 
         return difficulty;
     }
