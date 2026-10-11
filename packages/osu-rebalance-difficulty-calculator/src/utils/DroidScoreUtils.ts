@@ -32,18 +32,13 @@ export abstract class DroidScoreUtils {
         // the actual maximum spinner bonus.
         const maximumRotationsPerSecond = (Math.PI / 2) * 120;
 
-        // Taken from https://github.com/osudroid/osu-droid/blob/45ae4d66ce275382c5de037245ceca8704b3ae75/src/ru/nsu/ccfit/zuev/osu/game/GameScene.java#L1640.
-        const minimumRotationsPerSecond = 2 + (2 * playableBeatmap.difficulty.od) / 10;
-
         for (const obj of hitObjects.objects) {
             if (!(obj instanceof Spinner)) {
                 continue;
             }
 
             const secondsDuration = obj.duration / 1000;
-
-            const spinsRequiredBeforeBonus =
-                secondsDuration * minimumRotationsPerSecond;
+            const spinsRequiredBeforeBonus = obj.spinsRequired;
 
             const totalPossibleSpins =
                 secondsDuration * maximumRotationsPerSecond;
