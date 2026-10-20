@@ -243,14 +243,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
         // Scale the aim value with slider cheese penalty.
         aimValue *= this._sliderCheesePenalty;
 
-        // Scale the aim value with deviation.
-        aimValue *=
-            1.025 *
-            Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
-                0.475,
-            );
-
         return aimValue;
     }
 
@@ -324,7 +316,7 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
             return 0;
         }
 
-        let accuracyValue = 650 * Math.exp(-0.1 * this._deviation);
+        let accuracyValue = 725 * Math.exp(-0.1 * this._deviation);
 
         const ncircles = this.mods.has(ModScoreV2)
             ? this.totalHits - this.difficultyAttributes.spinnerCount
@@ -334,14 +326,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
         accuracyValue *= Math.pow(
             Math.log(1 + ((Math.E - 1) * ncircles) / 1000),
             ncircles < 1000 ? 0.5 : 0.25,
-        );
-
-        // Scale the accuracy value with rhythm complexity.
-        accuracyValue *= MathUtils.offsetLogistic(
-            this.difficultyAttributes.rhythmDifficulty,
-            1,
-            0.5,
-            1.8,
         );
 
         // Penalize accuracy pp after the first miss.
@@ -379,11 +363,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
                 );
         }
 
-        // Scale the flashlight value with deviation.
-        flashlightValue *= ErrorFunction.erf(
-            50 / (Math.SQRT2 * this._deviation),
-        );
-
         return flashlightValue;
     }
 
@@ -416,14 +395,6 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
             1,
             this.calculateDeviationBasedLengthScaling(undefined, true),
         );
-
-        // Scale the reading value with deviation.
-        readingValue *=
-            1.025 *
-            Math.pow(
-                ErrorFunction.erf(25 / (Math.SQRT2 * this._deviation)),
-                1.25,
-            );
 
         return readingValue;
     }
