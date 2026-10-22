@@ -24,9 +24,9 @@ export class DroidAim extends VariableLengthStrainSkill {
     private readonly skillMultiplierSnap = 78.3;
     private readonly skillMultiplierAgility = 32.5;
     private readonly skillMultiplierFlow = 251;
-    private readonly skillMultiplierSpinner = 22;
+    private readonly skillMultiplierSpinner = 1.8;
     private readonly skillMultiplierTotal = 1.12;
-    private readonly combinedSnapNormExponent = 1.5
+    private readonly combinedSnapNormExponent = 1.5;
 
     /**
      * The number of sections with the highest strains, which the peak strain reductions will apply to.

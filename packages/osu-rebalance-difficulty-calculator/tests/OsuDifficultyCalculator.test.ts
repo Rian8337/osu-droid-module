@@ -205,10 +205,10 @@ describe("Test difficulty calculation sample beatmap 2", () => {
             total: 2.312315153053457,
         },
         doubleTime: {
-            aim: 1.7973935238687175,
+            aim: 1.7970956926588395,
             speed: 1.2904406621574656,
             reading: 0.6070965344902095,
-            total: 3.2544702538634014,
+            total: 3.2540745880074597,
         },
         flashlight: 0.4144360280825481,
     });
