@@ -12,7 +12,7 @@ export abstract class OsuSpinnerEvaluator {
 
         // This duration is *not* rate scaled because spinners work by applying rates on rotations.
         // This means spinning difficulty remains constant for a spinner, regardless of the applied rate.
-        const duration = current.object.duration / current.clockRate / 1000;
+        const duration = current.object.duration / 1000;
 
         const rps = current.object.spinsRequired / duration;
 
