@@ -328,6 +328,14 @@ export class DroidPerformanceCalculator extends PerformanceCalculator<
             ncircles < 1000 ? 0.5 : 0.25,
         );
 
+        // Scale the accuracy value with rhythm complexity.
+        accuracyValue *= MathUtils.offsetLogistic(
+            this.difficultyAttributes.rhythmDifficulty,
+            1,
+            0.5,
+            1.6,
+        );
+
         // Penalize accuracy pp after the first miss.
         accuracyValue *= Math.pow(
             0.97,
