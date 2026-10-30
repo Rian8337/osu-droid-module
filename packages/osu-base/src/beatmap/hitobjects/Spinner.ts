@@ -62,10 +62,19 @@ export class Spinner extends HitObject {
         let minRps: number;
 
         switch (mode) {
-            case Modes.Droid:
-                minRps = 2 + (2 * difficulty.od) / 10;
-                this._spinsRequired = minRps * secondsDuration;
+            case Modes.Droid: {
+                // Mirror osu!droid's single-precision arithmetic. In double precision, the result
+                // can land on the other side of a whole number, which shifts the rotation at which
+                // bonus spins begin.
+                const f = Math.fround;
+                const droidSecondsDuration = f(f(Math.max(this.duration, 0)) / 1000);
+
+                minRps = f(2 + f(f(2 * f(difficulty.od)) / 10));
+
+                this._spinsRequired =
+                    droidSecondsDuration < 0.05 ? f(0.1) : f(minRps * droidSecondsDuration);
                 break;
+            }
             case Modes.Osu:
                 minRps = BeatmapDifficulty.difficultyRange(difficulty.od, 90, 150, 225) / 60;
                 // Allow a 0.1ms floating point precision error in the calculation of the duration.

@@ -104,12 +104,37 @@ describe("Test required spins", () => {
     const difficulty = new BeatmapDifficulty();
     difficulty.od = 5;
 
-    test("osu!droid gamemode", () => {
-        const spinner = createSpinner(2000);
+    describe("osu!droid gamemode", () => {
+        const spinsRequired = (duration: number, od: number) => {
+            const spinner = createSpinner(duration);
+            const droidDifficulty = new BeatmapDifficulty();
+            droidDifficulty.od = od;
 
-        spinner.applyDefaults(new BeatmapControlPoints(), difficulty, Modes.Droid);
+            spinner.applyDefaults(new BeatmapControlPoints(), droidDifficulty, Modes.Droid);
 
-        expect(spinner.spinsRequired).toBeGreaterThan(1);
+            return spinner.spinsRequired;
+        };
+
+        test("Requires 2 + OD / 5 rotations per second", () => {
+            expect(spinsRequired(2000, 5)).toBe(6);
+            expect(spinsRequired(950, 5)).toBeCloseTo(2.85, 5);
+        });
+
+        test("Uses single-precision arithmetic like the game", () => {
+            // In double precision, this is slightly above 7.
+            expect((2 + (2 * 1.2) / 10) * 3.125).toBeGreaterThan(7);
+            expect(spinsRequired(3125, 1.2)).toBe(7);
+
+            // In double precision, this is exactly 15.
+            expect((2 + (2 * 2) / 10) * 6.25).toBe(15);
+            expect(spinsRequired(6250, 2)).toBeGreaterThan(15);
+        });
+
+        test("Requires 0.1 rotations for spinners shorter than 50ms", () => {
+            expect(spinsRequired(49, 10)).toBe(Math.fround(0.1));
+            expect(spinsRequired(0, 5)).toBe(Math.fround(0.1));
+            expect(spinsRequired(50, 5)).toBe(Math.fround(Math.fround(3) * Math.fround(0.05)));
+        });
     });
 
     test("osu!standard gamemode", () => {
