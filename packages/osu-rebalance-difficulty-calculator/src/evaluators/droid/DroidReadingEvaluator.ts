@@ -177,7 +177,7 @@ export abstract class DroidReadingEvaluator {
                     preempt +
                     Math.abs(preempt - this.preemptStartingPoint)) /
                     2,
-                2.5,
+                2.475,
             ) / this.preemptBalancingFactor;
 
         preemptDifficulty *= constantAngleNerfFactor * velocity;
