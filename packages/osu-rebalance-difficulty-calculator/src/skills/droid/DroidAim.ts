@@ -191,8 +191,8 @@ export class DroidAim extends VariableLengthStrainSkill {
         const pFlow = 1 - pSnap;
 
         // Invert rating summation to obtain a more accurate TD adjustment.
-        snapDifficulty = this.invertRatingSummation(snapDifficulty, 0.8);
-        agilityDifficulty = this.invertRatingSummation(agilityDifficulty, 0.8);
+        snapDifficulty = this.invertRatingSummation(snapDifficulty, 0.82);
+        agilityDifficulty = this.invertRatingSummation(agilityDifficulty, 0.82);
 
         combinedSnapDifficulty = MathUtils.norm(
             this.combinedSnapNormExponent,
