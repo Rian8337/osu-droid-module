@@ -36,17 +36,15 @@ describe("Test maximum spinner bonus", () => {
         );
     };
 
-    const maximumSpins = (spinnerDuration: number) =>
-        Math.floor((spinnerDuration / 1000) * (Math.PI / 2) * 120);
-
-    test("Awards a bonus from the rotation reaching the requirement onward", () => {
-        // OD5 requires 3 rotations per second, so a 2-second spinner requires exactly 6.
-        // osu!droid awards the first bonus at the 6th rotation.
-        expect(maximumBonusFor(2000)).toBe((maximumSpins(2000) - 5) * 1000);
+    test("Caps spinning at a quarter rotation per frame at 120 FPS", () => {
+        // 30 rotations per second over 2 seconds is 60 rotations. OD5 requires 3 rotations per
+        // second, so 6 here - and osu!droid awards the first bonus at the 6th rotation.
+        expect(maximumBonusFor(2000)).toBe((60 - 5) * 1000);
     });
 
     test("Awards a bonus from the first whole rotation past a fractional requirement", () => {
-        // 2.85 rotations are required, so the first bonus is awarded at the 3rd rotation.
-        expect(maximumBonusFor(950)).toBe((maximumSpins(950) - 2) * 1000);
+        // 28.5 rotations are possible, of which 2.85 are required, so the first bonus is awarded
+        // at the 3rd rotation.
+        expect(maximumBonusFor(950)).toBe((28 - 2) * 1000);
     });
 });

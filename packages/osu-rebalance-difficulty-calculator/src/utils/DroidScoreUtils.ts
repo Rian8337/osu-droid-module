@@ -26,11 +26,12 @@ export abstract class DroidScoreUtils {
         let bonus = 0;
 
         // In osu!droid, there is no time-based limit to spinner RPM, since the limit is
-        // π/2 rad/*frame* and not rad/second.
+        // per *frame* and not per second: each frame adds sin(Δθ) / 4 rotations, which peaks at
+        // 0.25 rotations when the cursor moves π/2 rad around the spinner.
         // For the purpose of this calculation, we assume that the frame rate is 120 FPS.
         // For scores that were set in a higher refresh rate, this estimation will underestimate
         // the actual maximum spinner bonus.
-        const maximumRotationsPerSecond = (Math.PI / 2) * 120;
+        const maximumRotationsPerSecond = 0.25 * 120;
 
         for (const obj of hitObjects.objects) {
             if (!(obj instanceof Spinner)) {
