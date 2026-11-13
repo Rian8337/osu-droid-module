@@ -1,18 +1,18 @@
-import { MathUtils, Slider, Spinner } from "@rian8337/osu-base";
+import { Interpolation, MathUtils, Slider, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!standard snap aim difficulty.
  */
 export abstract class OsuSnapAimEvaluator {
-    private static readonly wideAngleMultiplier = 2.15;
+    private static readonly wideAngleMultiplier = 2.2;
     // Rescale velocity for the wide angle bonus.
     private static readonly wideAngleTimeScale = 1.2;
     private static readonly sliderMultiplier = 1.35;
     private static readonly velocityChangeMultiplier = 0.85;
 
     private static readonly angleRepetitionNoteLimit = 6;
-    private static readonly maximumRepetitionNerf = 0.15;
+    private static readonly maximumRepetitionNerf = 0.18;
     private static readonly maximumVectorInfluence = 0.5;
 
     /**
@@ -335,7 +335,11 @@ export abstract class OsuSnapAimEvaluator {
         const baseNerf =
             1 -
             this.maximumRepetitionNerf *
-                this.calculateAcuteAngleAcuteness(prev.angle) *
+                Interpolation.reverseLerp(
+                    prev.angle,
+                    MathUtils.degreesToRadians(180),
+                    MathUtils.degreesToRadians(0)
+                ) *
                 angleDifferenceAdjusted;
 
         return Math.pow(

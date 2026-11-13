@@ -1,22 +1,18 @@
-import { MathUtils, Slider, Spinner } from "@rian8337/osu-base";
+import { Interpolation, MathUtils, Slider, Spinner } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
  * An evaluator for calculating osu!droid snap aim difficulty.
  */
 export abstract class DroidSnapAimEvaluator {
-    private static readonly wideAngleMultiplier = 2.15;
+    private static readonly wideAngleMultiplier = 2.2;
     // Rescale velocity for the wide angle bonus.
     private static readonly wideAngleTimeScale = 1.2;
     private static readonly sliderMultiplier = 1.35;
     private static readonly velocityChangeMultiplier = 0.85;
 
-    // Increasing this multiplier beyond 1.02 reduces difficulty as distance increases.
-    // Refer to the desmos link above the wiggle bonus calculation.
-    private static readonly wiggleMultiplier = 1.02;
-
     private static readonly angleRepetitionNoteLimit = 6;
-    private static readonly maximumRepetitionNerf = 0.15;
+    private static readonly maximumRepetitionNerf = 0.18;
     private static readonly maximumVectorInfluence = 0.5;
 
     /**
@@ -354,7 +350,11 @@ export abstract class DroidSnapAimEvaluator {
         const baseNerf =
             1 -
             this.maximumRepetitionNerf *
-                this.calculateAcuteAngleAcuteness(prev.angle) *
+                Interpolation.reverseLerp(
+                    prev.angle,
+                    MathUtils.degreesToRadians(180),
+                    MathUtils.degreesToRadians(0),
+                ) *
                 angleDifferenceAdjusted;
 
         return Math.pow(
