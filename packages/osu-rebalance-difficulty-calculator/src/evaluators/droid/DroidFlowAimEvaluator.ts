@@ -42,10 +42,6 @@ export abstract class DroidFlowAimEvaluator {
 
         let flowDifficulty = currentVelocity;
 
-        // Apply high circle size bonus to the base velocity.
-        // We use reduced CS bonus here because the bonus was made for an evaluator with a different d/t scaling.
-        flowDifficulty *= Math.pow(current.smallCircleBonus, 0.55);
-
         flowDifficulty *= this.calculateRhythmChangeBonus(current, last);
         flowDifficulty *= this.calculateAngularVelocityBonus(current, last);
 
@@ -74,6 +70,8 @@ export abstract class DroidFlowAimEvaluator {
         // The final velocity is being raised to a power because flow difficulty scales harder with both high
         // distance and time, and we want to account for that.
         flowDifficulty = Math.pow(flowDifficulty, 1.45);
+
+        flowDifficulty += current.smallCircleBonus * 0.9;
 
         // Reduce difficulty for low spacing since spacing below radius is always to be flowed.
         return (

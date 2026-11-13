@@ -37,7 +37,7 @@ export abstract class DroidAgilityEvaluator {
 
         let difficulty = (1 + angleSwitchingBonus) * 10_000_000 / Math.pow(combinedDelta, 3.1);
 
-        difficulty *= current.smallCircleBonus;
+        difficulty += current.smallCircleBonus * 5;
 
         return difficulty;
     }
