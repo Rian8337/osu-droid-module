@@ -225,12 +225,11 @@ export abstract class OsuReadingEvaluator {
             prev.startTime > current.startTime - current.timePreempt
         ) {
             // Perfect stacks are harder the less time between notes.
-            hiddenDifficulty +=
-                (this.hiddenMultiplier * 2500) /
-                Math.pow(current.strainTime, 1.5);
+            hiddenDifficulty += 1e6 / Math.pow(current.strainTime, 2);
         }
 
-        return hiddenDifficulty;
+        // Apply a soft cap to general Hidden reading to account for partial memorization.
+        return Math.pow(hiddenDifficulty, 0.4) * this.hiddenMultiplier;
     }
 
     private static getPastObjectDifficultyInfluence(
