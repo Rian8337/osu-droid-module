@@ -210,10 +210,6 @@ export abstract class OsuReadingEvaluator {
             velocity *
             0.01;
 
-        // Apply a soft cap to general HD reading to account for partial memorization.
-        hiddenDifficulty =
-            Math.pow(hiddenDifficulty, 0.4) * this.hiddenMultiplier;
-
         const prev = current.previous(0)!;
 
         // Buff perfect stacks only if current note is completely invisible at the time you click the previous note.
