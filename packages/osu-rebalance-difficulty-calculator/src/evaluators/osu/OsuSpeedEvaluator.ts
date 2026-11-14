@@ -1,4 +1,4 @@
-import { HitResult, MathUtils } from "@rian8337/osu-base";
+import { MathUtils, Spinner } from "@rian8337/osu-base";
 import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObject";
 
 /**
@@ -7,6 +7,7 @@ import { OsuDifficultyHitObject } from "../../preprocessing/OsuDifficultyHitObje
 export abstract class OsuSpeedEvaluator {
     // ~200 1/4 BPM streams
     private static readonly minSpeedBonus = 200;
+    private static readonly deltaInfluenceOnDoubletaps = 0.2;
 
     /**
      * Evaluates the difficulty of tapping the current object, based on:
@@ -17,42 +18,43 @@ export abstract class OsuSpeedEvaluator {
      * @param current The current object.
      */
     static evaluateDifficultyOf(current: OsuDifficultyHitObject): number {
-        const doubletapness = 1 - current.getDoubletapness(current.next(0));
+        if (current.object instanceof Spinner && current.object.spinsRequired <= 0) {
+            return 0;
+        }
 
-        let difficulty = MathUtils.millisecondsToBPM(current.strainTime);
+        const next = current.next(0);
+        let deltaTime = current.strainTime;
 
-        difficulty *= this.calculateSpeedBonus(current);
+        if (next) {
+            // If the current and next object are a doubletappable double, then we want
+            // to partially combine their delta times to treat it as a single press.
+            const doubletapness = current.getDoubletapness(next);
 
-        // Apply penalty if there's doubletappable doubles
-        return difficulty * doubletapness;
+            deltaTime += next.strainTime * doubletapness * this.deltaInfluenceOnDoubletaps;
+        }
+
+        return (
+            MathUtils.millisecondsToBPM(deltaTime) *
+            this.calculateSpeedBonus(deltaTime)
+        );
     }
 
-    private static calculateSpeedBonus(current: OsuDifficultyHitObject): number {
-        let { strainTime } = current;
-
-        // Cap deltatime to the OD 300 hitwindow.
-        // 0.93 is derived from making sure 260 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
-        strainTime /= MathUtils.clamp(
-            strainTime / current.hitWindowFor(HitResult.Great) / 0.93,
-            0.92,
-            1,
-        );
-
+    private static calculateSpeedBonus(deltaTime: number): number {
         // speedBonus will be 0.0 for BPM < 200
         let speedBonus = 0;
 
         // Add additional scaling bonus for streams/bursts higher than 200bpm
-        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
+        if (MathUtils.millisecondsToBPM(deltaTime) > this.minSpeedBonus) {
             speedBonus =
                 0.75 *
                 Math.pow(
                     (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
-                        strainTime) /
+                        deltaTime) /
                         40,
                     2,
                 );
         }
 
-        return (1 + speedBonus) / strainTime;
+        return (1 + speedBonus) / deltaTime;
     }
 }

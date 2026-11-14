@@ -1,9 +1,4 @@
-import {
-    Spinner,
-    ErrorFunction,
-    MathUtils,
-    HitResult,
-} from "@rian8337/osu-base";
+import { ErrorFunction, MathUtils, Spinner } from "@rian8337/osu-base";
 import { DroidDifficultyHitObject } from "../../preprocessing/DroidDifficultyHitObject";
 
 /**
@@ -37,46 +32,41 @@ export abstract class DroidTapEvaluator {
             return 0;
         }
 
-        const doubletapness = considerCheesability
-            ? 1 - current.getDoubletapness(current.next(0))
-            : 1;
+        const next = current.next(0);
+        let deltaTime = current.strainTime;
 
-        let difficulty = MathUtils.millisecondsToBPM(current.strainTime);
+        if (next && considerCheesability) {
+            // If the current and next object are a doubletappable double, then we want
+            // to partially combine their delta times to treat it as a single press.
+            const doubletapness = current.getDoubletapness(next);
 
-        difficulty *= this.calculateSpeedBonus(current);
+            deltaTime += next.strainTime * doubletapness * 0.2;
+        }
 
-        // Apply penalty if there's doubletappable doubles
-        return difficulty * doubletapness;
+        return (
+            MathUtils.millisecondsToBPM(deltaTime) *
+            this.calculateSpeedBonus(deltaTime)
+        );
     }
 
-    private static calculateSpeedBonus(current: DroidDifficultyHitObject): number {
-        let { strainTime } = current;
-
-        // Cap deltatime to the OD 300 hitwindow.
-        // 0.63 is derived from making sure 200 BPM 1/4 OD8 streams aren't nerfed harshly, whilst 0.92 limits the effect of the cap.
-        strainTime /= MathUtils.clamp(
-            strainTime / current.hitWindowFor(HitResult.Great) / 0.63,
-            0.92,
-            1,
-        );
-
+    private static calculateSpeedBonus(deltaTime: number): number {
         // speedBonus will be 0 for BPM < 200
         let speedBonus = 0;
 
         // Add additional scaling bonus for streams/bursts higher than 200bpm
-        if (MathUtils.millisecondsToBPM(strainTime) > this.minSpeedBonus) {
+        if (MathUtils.millisecondsToBPM(deltaTime) > this.minSpeedBonus) {
             speedBonus =
                 0.75 *
                 Math.pow(
                     ErrorFunction.erf(
                         (MathUtils.bpmToMilliseconds(this.minSpeedBonus) -
-                            strainTime) /
+                            deltaTime) /
                             40,
                     ),
                     2,
                 );
         }
 
-        return (1 + speedBonus) / strainTime;
+        return (1 + speedBonus) / deltaTime;
     }
 }
