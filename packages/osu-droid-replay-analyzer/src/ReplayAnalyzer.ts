@@ -850,7 +850,9 @@ export class ReplayAnalyzer {
             };
 
             replayObjectData.accuracy = this.readShort(replayDataBuffer);
-            const len = this.readByte(replayDataBuffer);
+            // The client writes the low byte of the tickset length, so it must be read as unsigned for
+            // ticksets of 128 to 255 bytes (sliders with more than 1016 nested objects) to be read correctly.
+            const len = this.readUnsignedByte(replayDataBuffer);
 
             if (len > 0) {
                 const bytes: number[] = [];
@@ -1009,6 +1011,13 @@ export class ReplayAnalyzer {
 
     private readByte(buffer: Buffer): number {
         const num = buffer.readInt8(this.bufferOffset);
+        this.bufferOffset += 1;
+
+        return num;
+    }
+
+    private readUnsignedByte(buffer: Buffer): number {
+        const num = buffer.readUInt8(this.bufferOffset);
         this.bufferOffset += 1;
 
         return num;
