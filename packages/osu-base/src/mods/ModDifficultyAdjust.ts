@@ -48,14 +48,24 @@ export class ModDifficultyAdjust
     );
 
     /**
+     * The maximum approach rate that can be enforced in osu!standard.
+     *
+     * The {@link ar} setting itself allows up to 12.5 to match osu!droid, whose serialized format this
+     * `Mod` follows, so the osu!standard limit is applied when the `Mod` is applied instead.
+     */
+    static readonly osuMaxApproachRate = 11;
+
+    /**
      * The approach rate to enforce.
+     *
+     * Values above {@link ModDifficultyAdjust.osuMaxApproachRate} only take effect in osu!droid.
      */
     readonly ar = new DifficultyAdjustModSetting(
         "Approach rate",
         "ar",
         "The approach rate to enforce.",
         0,
-        11,
+        12.5,
         0.1,
         1,
     );
@@ -114,20 +124,28 @@ export class ModDifficultyAdjust
     }
 
     applyToDifficultyWithMods(
-        _: Modes,
+        mode: Modes,
         difficulty: BeatmapDifficulty,
         mods: ModMap,
     ): void {
+        const ar =
+            this.ar.value !== null && mode === Modes.Osu
+                ? Math.min(
+                      this.ar.value,
+                      ModDifficultyAdjust.osuMaxApproachRate,
+                  )
+                : this.ar.value;
+
         difficulty.cs = this.cs.value ?? difficulty.cs;
-        difficulty.ar = this.ar.value ?? difficulty.ar;
+        difficulty.ar = ar ?? difficulty.ar;
         difficulty.od = this.od.value ?? difficulty.od;
         difficulty.hp = this.hp.value ?? difficulty.hp;
 
         // Special case for force AR in replay version 6 and older, where the AR value is kept constant with
         // respect to game time. This makes the player perceive the AR as is under all speed multipliers.
-        if (this.ar.value !== null && mods.has(ModReplayV6)) {
+        if (ar !== null && mods.has(ModReplayV6)) {
             const preempt = BeatmapDifficulty.difficultyRange(
-                this.ar.value,
+                ar,
                 HitObject.preemptMax,
                 HitObject.preemptMid,
                 HitObject.preemptMin,

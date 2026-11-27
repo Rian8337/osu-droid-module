@@ -50,6 +50,40 @@ test("Test beatmap setting override without additional mods", () => {
     expect(difficulty.hp).toBe(6);
 });
 
+test("Test AR override above osu!standard limit", () => {
+    const droidDifficulty = new BeatmapDifficulty();
+    const osuDifficulty = new BeatmapDifficulty();
+    const mod = new ModDifficultyAdjust({ ar: 12.5 });
+
+    mod.applyToDifficultyWithMods(Modes.Droid, droidDifficulty, new ModMap());
+    mod.applyToDifficultyWithMods(Modes.Osu, osuDifficulty, new ModMap());
+
+    expect(droidDifficulty.ar).toBe(12.5);
+    expect(osuDifficulty.ar).toBe(ModDifficultyAdjust.osuMaxApproachRate);
+});
+
+test("Test AR override within osu!standard limit is not capped", () => {
+    const difficulty = new BeatmapDifficulty();
+
+    new ModDifficultyAdjust({ ar: 10.5 }).applyToDifficultyWithMods(
+        Modes.Osu,
+        difficulty,
+        new ModMap(),
+    );
+
+    expect(difficulty.ar).toBe(10.5);
+});
+
+test("Test AR above osu!standard limit is valid when serialized", () => {
+    expect([
+        ...ModUtil.validateMods([{ acronym: "DA", settings: { ar: 12.5 } }]),
+    ]).toEqual([]);
+
+    expect([
+        ...ModUtil.validateMods([{ acronym: "DA", settings: { ar: 12.6 } }]),
+    ]).toHaveLength(1);
+});
+
 test("Test beatmap setting override with additional mods", () => {
     const difficulty = new BeatmapDifficulty();
     const modMap = new ModMap();
