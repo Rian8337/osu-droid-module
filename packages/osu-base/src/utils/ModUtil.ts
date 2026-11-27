@@ -56,10 +56,17 @@ import { ModTargetPractice } from "../mods/ModTargetPractice";
 import { ModTouchDevice } from "../mods/ModTouchDevice";
 import { ModTraceable } from "../mods/ModTraceable";
 import { ModTransform } from "../mods/ModTransform";
+import { ModValidationError } from "../mods/ModValidationError";
+import { ModValidationIssue } from "../mods/ModValidationIssue";
+import { ModValidationIssueType } from "../mods/ModValidationIssueType";
 import { ModWiggle } from "../mods/ModWiggle";
 import { ModWindDown } from "../mods/ModWindDown";
 import { ModWindUp } from "../mods/ModWindUp";
 import { SerializedMod } from "../mods/SerializedMod";
+import {
+    describeType,
+    isPlainObject,
+} from "../mods/settings/ModSettingValidation";
 
 /**
  * Utilities for mods.
@@ -183,27 +190,155 @@ export abstract class ModUtil {
     }
 
     /**
-     * Deserializes a list of `SerializedMod`s.
+     * Validates serialized mods. Unknown setting keys are rejected.
      *
-     * @param mods The list of `SerializedMod`s to deserialize. If a string is provided, it will be parsed as JSON.
-     * @returns The deserialized list of `Mod`s.
+     * @param mods The serialized mods to validate.
+     * @yields Each issue that was found.
      */
-    static deserializeMods(mods: Iterable<SerializedMod> | string): ModMap {
-        const serializedMods =
-            typeof mods === "string"
-                ? (JSON.parse(mods) as SerializedMod[])
-                : mods;
+    static *validateMods(
+        mods: unknown,
+    ): Generator<ModValidationIssue, void, undefined> {
+        if (!Array.isArray(mods)) {
+            yield {
+                type: ModValidationIssueType.InvalidModList,
+                index: -1,
+                message: `expected an array of mods, got ${describeType(mods)}`,
+            };
 
-        const map = new ModMap();
+            return;
+        }
 
-        for (const serializedMod of serializedMods) {
-            const modType = this.allMods.get(serializedMod.acronym) as
+        const seenAcronyms = new Set<string>();
+
+        for (let i = 0; i < mods.length; ++i) {
+            const entry: unknown = mods[i];
+
+            if (!isPlainObject(entry)) {
+                yield {
+                    type: ModValidationIssueType.InvalidModEntry,
+                    index: i,
+                    message: `expected a mod object, got ${describeType(entry)}`,
+                };
+
+                continue;
+            }
+
+            const acronym = entry.acronym;
+
+            if (typeof acronym !== "string") {
+                yield {
+                    type: ModValidationIssueType.InvalidAcronym,
+                    index: i,
+                    message: `"acronym" must be a string, got ${describeType(acronym)}`,
+                };
+
+                continue;
+            }
+
+            for (const key of Object.keys(entry)) {
+                if (key !== "acronym" && key !== "settings") {
+                    yield {
+                        type: ModValidationIssueType.UnknownProperty,
+                        index: i,
+                        acronym,
+                        message: `unknown property "${key}"`,
+                    };
+                }
+            }
+
+            const modType = this.allMods.get(acronym) as
                 | (new () => Mod)
                 | undefined;
 
             if (!modType) {
+                yield {
+                    type: ModValidationIssueType.UnknownAcronym,
+                    index: i,
+                    acronym,
+                    message: "unknown acronym",
+                };
+
                 continue;
             }
+
+            if (seenAcronyms.has(acronym)) {
+                yield {
+                    type: ModValidationIssueType.DuplicateAcronym,
+                    index: i,
+                    acronym,
+                    message: "duplicate acronym",
+                };
+
+                continue;
+            }
+
+            seenAcronyms.add(acronym);
+
+            const settings = entry.settings;
+
+            if (
+                settings !== undefined &&
+                settings !== null &&
+                !isPlainObject(settings)
+            ) {
+                yield {
+                    type: ModValidationIssueType.InvalidSettings,
+                    index: i,
+                    acronym,
+                    message: `"settings" must be an object, got ${describeType(settings)}`,
+                };
+
+                continue;
+            }
+
+            for (const issue of new modType().validateSettings(
+                settings ?? {},
+            )) {
+                yield { ...issue, index: i };
+            }
+        }
+    }
+
+    /**
+     * Asserts that serialized mods are valid.
+     *
+     * @param mods The serialized mods to validate.
+     * @throws {ModValidationError} If there is any issue with `mods`.
+     */
+    static assertValidMods(mods: unknown): asserts mods is SerializedMod[] {
+        const issues = [...this.validateMods(mods)];
+
+        if (issues.length > 0) {
+            throw new ModValidationError(issues);
+        }
+    }
+
+    /**
+     * Deserializes a list of `SerializedMod`s.
+     *
+     * The input is validated before any `Mod` is loaded.
+     *
+     * @param mods The list of `SerializedMod`s to deserialize. If a string is provided, it will be parsed as JSON.
+     * @returns The deserialized list of `Mod`s.
+     * @throws {SyntaxError} If `mods` is a string that is not valid JSON.
+     * @throws {ModValidationError} If `mods` is not a valid list of serialized mods.
+     */
+    static deserializeMods(mods: Iterable<SerializedMod> | string): ModMap {
+        const raw: unknown =
+            typeof mods === "string"
+                ? JSON.parse(mods)
+                : Array.isArray(mods)
+                  ? mods
+                  : Array.from(mods);
+
+        this.assertValidMods(raw);
+
+        const map = new ModMap();
+
+        for (const serializedMod of raw) {
+            const modType = this.allMods.get(
+                serializedMod.acronym,
+            ) as new () => Mod;
 
             const mod = new modType();
 

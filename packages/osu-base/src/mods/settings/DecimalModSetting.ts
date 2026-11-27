@@ -58,6 +58,10 @@ export class DecimalModSetting extends NumberModSetting {
         this._precision = precision;
     }
 
+    protected override get validationPrecision(): number | null {
+        return this.precision;
+    }
+
     protected override processValue(value: number): number {
         const processedValue = super.processValue(value);
 

@@ -9,6 +9,8 @@ import { IModApplicableToOsu } from "./IModApplicableToOsu";
 import { IModApplicableToOsuStable } from "./IModApplicableToOsuStable";
 import { IModApplicableToTrackRate } from "./IModApplicableToTrackRate";
 import { IModFacilitatesAdjustment } from "./IModFacilitatesAdjustment";
+import { ModValidationIssue } from "./ModValidationIssue";
+import { ModValidationIssueType } from "./ModValidationIssueType";
 import { SerializedMod } from "./SerializedMod";
 import { ModSetting } from "./settings/ModSetting";
 
@@ -125,6 +127,45 @@ export abstract class Mod {
 
         for (const setting of this.settings) {
             setting.load(settings);
+        }
+    }
+
+    /**
+     * Validates serialized settings meant for this `Mod`.
+     *
+     * Keys that do not belong to any of this `Mod`'s `ModSetting`s are rejected.
+     *
+     * @param settings The serialized settings to validate.
+     * @yields An issue (without an entry index) for each problem found.
+     */
+    *validateSettings(
+        settings: Readonly<Record<string, unknown>>,
+    ): Generator<Omit<ModValidationIssue, "index">, void, undefined> {
+        const knownKeys = new Set(
+            this.settings
+                .map((setting) => setting.key)
+                .filter((key) => key !== null),
+        );
+
+        for (const key of Object.keys(settings)) {
+            if (!knownKeys.has(key)) {
+                yield {
+                    type: ModValidationIssueType.UnknownSetting,
+                    acronym: this.acronym,
+                    key,
+                    message: "unknown setting",
+                };
+            }
+        }
+
+        for (const setting of this.settings) {
+            for (const issue of setting.validate(settings)) {
+                yield {
+                    ...issue,
+                    acronym: this.acronym,
+                    key: setting.key ?? undefined,
+                };
+            }
         }
     }
 

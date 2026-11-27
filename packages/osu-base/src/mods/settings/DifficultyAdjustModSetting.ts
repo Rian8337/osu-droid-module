@@ -1,4 +1,11 @@
+import { ModValidationIssueType } from "../ModValidationIssueType";
+import {
+    describeType,
+    isFiniteNumber,
+    isPlainObject,
+} from "./ModSettingValidation";
 import { NullableDecimalModSetting } from "./NullableDecimalModSetting";
+import { ModSettingValidationIssue } from "./ModSettingValidationIssue";
 
 /**
  * A `NullableDecimalModSetting` variant for `ModDifficultyAdjust`.
@@ -49,6 +56,37 @@ export class DifficultyAdjustModSetting extends NullableDecimalModSetting {
         } else {
             // New format: a plain scalar value (or null).
             super.load(settings);
+        }
+    }
+
+    override *validate(
+        settings: Readonly<Record<string, unknown>>,
+    ): Generator<ModSettingValidationIssue, void, undefined> {
+        const data = this.getSerializedValue(settings);
+
+        if (!isPlainObject(data)) {
+            yield* super.validate(settings);
+            return;
+        }
+
+        // Legacy format. `adjusted` follows the usual constraints, while `original` is only a hint.
+        const { adjusted, original } = data;
+
+        if (adjusted !== undefined) {
+            for (const issue of this.validateValue(adjusted)) {
+                yield { ...issue, message: `adjusted: ${issue.message}` };
+            }
+        }
+
+        if (
+            original !== undefined &&
+            original !== null &&
+            !isFiniteNumber(original)
+        ) {
+            yield {
+                type: ModValidationIssueType.InvalidType,
+                message: `original: expected a finite number or null, got ${describeType(original)}`,
+            };
         }
     }
 

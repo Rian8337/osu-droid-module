@@ -1,4 +1,5 @@
 import { ModSettingValueChangedListener } from "./ModSettingValueChangedListener";
+import { ModSettingValidationIssue } from "./ModSettingValidationIssue";
 
 /**
  * Represents a `Mod` specific setting.
@@ -102,6 +103,34 @@ export class ModSetting<T = unknown> {
     }
 
     /**
+     * Validates this `ModSetting`'s entry in a serialized settings object.
+     * 
+     * Note that a missing key is valid (the default value will be used).
+     *
+     * @param settings The serialized settings object to validate.
+     * @yields A message for each issue found.
+     */
+    // eslint-disable-next-line require-yield
+    *validate(
+        settings: Readonly<Record<string, unknown>>,
+    ): Generator<ModSettingValidationIssue, void, undefined> {
+        // Nothing to validate by default.
+        void settings;
+    }
+
+    /**
+     * Obtains this `ModSetting`'s entry from a serialized settings object.
+     *
+     * @param settings The serialized settings object.
+     * @returns The serialized value, or `undefined` if this `ModSetting` has no key or the key is absent.
+     */
+    protected getSerializedValue(
+        settings: Readonly<Record<string, unknown>>,
+    ): unknown {
+        return this.key === null ? undefined : settings[this.key];
+    }
+
+    /**
      * Saves the value of this `ModSetting` to a serialized settings object.
      *
      * @param settings The settings object to save to.
@@ -123,7 +152,7 @@ export class ModSetting<T = unknown> {
 
     /**
      * Formats a value of this `ModSetting` to a string using the display formatter.
-     * 
+     *
      * @param value The value to format.
      * @returns The formatted string representation of the value.
      */

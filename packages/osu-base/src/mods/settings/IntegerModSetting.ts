@@ -4,6 +4,8 @@ import { NumberModSetting } from "./NumberModSetting";
  * Represents a `Mod` specific setting that is constrained to a range of integer values.
  */
 export class IntegerModSetting extends NumberModSetting {
+    protected override readonly requiresInteger = true;
+
     constructor(
         name: string,
         key: string | null,

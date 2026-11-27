@@ -1,4 +1,7 @@
 import { ModSetting } from "./ModSetting";
+import { describeType } from "./ModSettingValidation";
+import { ModValidationIssueType } from "../ModValidationIssueType";
+import { ModSettingValidationIssue } from "./ModSettingValidationIssue";
 
 /**
  * Represents a `Mod` specific setting that is constrained to one of a fixed set of enum-like values.
@@ -38,6 +41,40 @@ export class EnumModSetting<T> extends ModSetting<T> {
 
         if (typeof stored === "number" && this.entries[stored] !== undefined) {
             this.value = this.entries[stored];
+        }
+    }
+
+    override *validate(
+        settings: Readonly<Record<string, unknown>>,
+    ): Generator<ModSettingValidationIssue, void, undefined> {
+        const value = this.getSerializedValue(settings);
+
+        if (value === undefined) {
+            return;
+        }
+
+        if (typeof value !== "number") {
+            yield {
+                type: ModValidationIssueType.InvalidType,
+                message: `expected an integer index, got ${describeType(value)}`,
+            };
+            return;
+        }
+
+        if (!Number.isInteger(value)) {
+            yield {
+                type: ModValidationIssueType.NotInteger,
+                message: `${value.toString()} is not an integer index`,
+            };
+
+            return;
+        }
+
+        if (value < 0 || value >= this.entries.length) {
+            yield {
+                type: ModValidationIssueType.OutOfRange,
+                message: `${value.toString()} is not a valid index (expected an integer in [0, ${(this.entries.length - 1).toString()}])`,
+            };
         }
     }
 

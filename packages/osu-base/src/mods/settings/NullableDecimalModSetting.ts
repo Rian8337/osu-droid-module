@@ -1,5 +1,12 @@
 import { MathUtils } from "../../math/MathUtils";
+import {
+    describeType,
+    isFiniteNumber,
+    validateNumericConstraints,
+} from "./ModSettingValidation";
 import { RangeConstrainedModSetting } from "./RangeConstrainedModSetting";
+import { ModValidationIssueType } from "../ModValidationIssueType";
+import { ModSettingValidationIssue } from "./ModSettingValidationIssue";
 
 /**
  * Represents a `Mod` specific setting that is constrained to a number of values.
@@ -99,6 +106,47 @@ export class NullableDecimalModSetting extends RangeConstrainedModSetting<
         }
 
         return processedValue;
+    }
+
+    override *validate(
+        settings: Readonly<Record<string, unknown>>,
+    ): Generator<ModSettingValidationIssue, void, undefined> {
+        const value = this.getSerializedValue(settings);
+
+        if (value !== undefined) {
+            yield* this.validateValue(value);
+        }
+    }
+
+    /**
+     * Validates a serialized scalar value of this `NullableDecimalModSetting`.
+     *
+     * @param value The value to validate.
+     * @yields A message for each issue found.
+     */
+    protected *validateValue(
+        value: unknown,
+    ): Generator<ModSettingValidationIssue, void, undefined> {
+        if (value === null) {
+            return;
+        }
+
+        if (!isFiniteNumber(value)) {
+            yield {
+                type: ModValidationIssueType.InvalidType,
+                message: `expected a finite number or null, got ${describeType(value)}`,
+            };
+            return;
+        }
+
+        yield* validateNumericConstraints(value, {
+            min: this.min!,
+            max: this.max!,
+            step: this.step!,
+            precision: this.precision,
+            integer: false,
+            processValue: (v) => this.processValue(v)!,
+        });
     }
 
     override load(settings: Record<string, unknown>): void {
