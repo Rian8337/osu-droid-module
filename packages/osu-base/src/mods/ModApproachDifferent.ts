@@ -55,6 +55,9 @@ export class ModApproachDifferent
             AnimationStyle.Decelerate1,
             AnimationStyle.Decelerate2,
             AnimationStyle.Decelerate3,
+            AnimationStyle.BounceIn,
+            AnimationStyle.BounceOut,
+            AnimationStyle.BounceInOut,
         ],
         (v) => AnimationStyle[v],
     );
@@ -93,6 +96,15 @@ export class ModApproachDifferent
 
             case AnimationStyle.Decelerate3:
                 return Easing.OutQuint;
+
+            case AnimationStyle.BounceIn:
+                return Easing.InBounce;
+
+            case AnimationStyle.BounceOut:
+                return Easing.OutBounce;
+
+            case AnimationStyle.BounceInOut:
+                return Easing.InOutBounce;
         }
     }
 
@@ -115,4 +127,7 @@ export enum AnimationStyle {
     Decelerate1,
     Decelerate2,
     Decelerate3,
+    BounceIn,
+    BounceOut,
+    BounceInOut,
 }

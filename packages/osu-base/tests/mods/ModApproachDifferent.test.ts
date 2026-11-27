@@ -38,4 +38,7 @@ test("Test animation style", () => {
     expectEasing(AnimationStyle.Decelerate1, Easing.Out);
     expectEasing(AnimationStyle.Decelerate2, Easing.OutCubic);
     expectEasing(AnimationStyle.Decelerate3, Easing.OutQuint);
+    expectEasing(AnimationStyle.BounceIn, Easing.InBounce);
+    expectEasing(AnimationStyle.BounceOut, Easing.OutBounce);
+    expectEasing(AnimationStyle.BounceInOut, Easing.InOutBounce);
 });
