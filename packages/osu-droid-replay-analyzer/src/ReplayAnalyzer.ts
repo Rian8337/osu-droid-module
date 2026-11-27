@@ -1,7 +1,6 @@
 import {
     Accuracy,
     Beatmap,
-    BeatmapDifficulty,
     Circle,
     DroidAPIRequestBuilder,
     DroidHitWindow,
@@ -33,7 +32,6 @@ import {
     ModSuddenDeath,
     ModTraceable,
     ModUtil,
-    Modes,
     PreciseDroidHitWindow,
     RequestResponse,
     ScoreRank,
@@ -104,7 +102,19 @@ export class ReplayAnalyzer {
     /**
      * The beatmap that is being analyzed. `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
      */
-    beatmap?: Beatmap | DroidPlayableBeatmap;
+    get beatmap(): Beatmap | DroidPlayableBeatmap | undefined {
+        return this._beatmap;
+    }
+
+    set beatmap(value: Beatmap | DroidPlayableBeatmap | undefined) {
+        this._beatmap = value;
+
+        // Invalidate a previously built playable beatmap.
+        this.playableBeatmap =
+            value instanceof DroidPlayableBeatmap ? value : undefined;
+    }
+
+    private _beatmap?: Beatmap | DroidPlayableBeatmap;
 
     /**
      * The difficulty attributes of the beatmap.
@@ -177,10 +187,6 @@ export class ReplayAnalyzer {
         this.scoreID = values?.scoreID;
         this.beatmap = values?.map;
         this.difficultyAttributes = values?.difficultyAttributes;
-
-        if (this.beatmap instanceof DroidPlayableBeatmap) {
-            this.playableBeatmap = this.beatmap;
-        }
     }
 
     /**
@@ -222,7 +228,7 @@ export class ReplayAnalyzer {
         let positiveTotal = 0;
         let negativeTotal = 0;
 
-        const { objects } = this.beatmap.hitObjects;
+        const { objects } = this.getPlayableBeatmap().hitObjects;
         const { mehWindow } = this.getBeatmapHitWindow()!;
 
         const accuracies: number[] = [];
@@ -277,11 +283,13 @@ export class ReplayAnalyzer {
      * @returns Slider hit information or `null` if the replay has not been analyzed or the beatmap is not defined.
      */
     obtainSliderHitInformation(): SliderHitInformation | null {
-        const { data, beatmap } = this;
+        const { data } = this;
 
-        if (!data || !beatmap) {
+        if (!data || !this.beatmap) {
             return null;
         }
+
+        const beatmap = this.getPlayableBeatmap();
 
         const sliderInformation: SliderHitInformation = {
             head: { obtained: 0, total: beatmap.hitObjects.sliders },
@@ -985,28 +993,22 @@ export class ReplayAnalyzer {
         return this.beatmap.createDroidPlayableBeatmap(mods);
     }
 
+    private getPlayableBeatmap(): DroidPlayableBeatmap {
+        this.playableBeatmap ??= this.constructPlayableBeatmap();
+
+        return this.playableBeatmap;
+    }
+
     private getBeatmapHitWindow() {
         if (!this.data || !this.beatmap) {
             return null;
         }
 
-        const mods = this.data.isReplayV3()
-            ? this.data.convertedMods
-            : (this.difficultyAttributes?.mods ?? new ModMap());
-
-        const adjustedDifficulty = new BeatmapDifficulty(
-            this.beatmap.difficulty,
-        );
-
-        ModUtil.applyModsToBeatmapDifficulty(
-            adjustedDifficulty,
-            Modes.Droid,
-            mods,
-        );
+        const { difficulty, mods } = this.getPlayableBeatmap();
 
         return mods.has(ModPrecise)
-            ? new PreciseDroidHitWindow(adjustedDifficulty.od)
-            : new DroidHitWindow(adjustedDifficulty.od);
+            ? new PreciseDroidHitWindow(difficulty.od)
+            : new DroidHitWindow(difficulty.od);
     }
 
     private readByte(buffer: Buffer): number {
