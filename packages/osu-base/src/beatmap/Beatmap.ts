@@ -388,7 +388,7 @@ export class Beatmap implements IBeatmap {
 
         const processor = new BeatmapProcessor(converted);
 
-        processor.preProcess();
+        processor.preProcess(mode);
 
         // Compute default values for hit objects, including creating nested hit objects in-case they're needed.
         converted.hitObjects.objects.forEach((hitObject) => {

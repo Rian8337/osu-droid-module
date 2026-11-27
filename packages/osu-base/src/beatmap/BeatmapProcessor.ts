@@ -1,3 +1,4 @@
+import { Modes } from "../constants/Modes";
 import { IBeatmap } from "./IBeatmap";
 import { Circle } from "./hitobjects/Circle";
 import { HitObject } from "./hitobjects/HitObject";
@@ -26,12 +27,14 @@ export class BeatmapProcessor {
      * and no mods will have been applied to the hitobjects.
      *
      * This can only be used to add alterations to hitobjects generated directly through the conversion process.
+     *
+     * @param mode The mode the beatmap is converted to. Defaults to osu!standard.
      */
-    preProcess() {
+    preProcess(mode = Modes.Osu) {
         let last: HitObject | null = null;
 
         for (const object of this.beatmap.hitObjects.objects) {
-            object.updateComboInformation(last);
+            object.updateComboInformation(last, mode);
             last = object;
         }
 

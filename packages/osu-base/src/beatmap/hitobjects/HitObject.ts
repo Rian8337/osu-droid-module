@@ -349,13 +349,26 @@ export abstract class HitObject {
      * Given the previous hitobject in the beatmap, update relevant combo information.
      *
      * @param prev The previous hitobject in the beatmap.
+     * @param mode The mode to compute combo information for. Defaults to osu!standard.
      */
-    updateComboInformation(prev?: HitObject | null) {
+    updateComboInformation(prev?: HitObject | null, mode = Modes.Osu) {
         this._comboIndex = prev?.comboIndex ?? 0;
         this._comboIndexWithOffsets = prev?.comboIndexWithOffsets ?? 0;
         this._indexInCurrentCombo = prev ? prev.indexInCurrentCombo + 1 : 0;
 
-        if (this.isNewCombo || !prev || prev.type & ObjectTypes.Spinner) {
+        // osu!droid keeps a spinner's new combo flag, so such a spinner starts a new combo.
+        // osu!standard ignores it, as the flag only forces the next object to start a new combo.
+        const isDroidNewComboSpinner =
+            mode === Modes.Droid &&
+            (this.type & ObjectTypes.Spinner) !== 0 &&
+            (this.type & ObjectTypes.NewCombo) !== 0;
+
+        if (
+            this.isNewCombo ||
+            isDroidNewComboSpinner ||
+            !prev ||
+            prev.type & ObjectTypes.Spinner
+        ) {
             this._indexInCurrentCombo = 0;
             ++this._comboIndex;
 

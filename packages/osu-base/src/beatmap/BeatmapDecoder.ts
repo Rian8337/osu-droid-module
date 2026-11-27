@@ -50,7 +50,7 @@ export class BeatmapDecoder extends Decoder<Beatmap, SectionDecoder<Beatmap>> {
         }
 
         const processor = new BeatmapProcessor(this.finalResult);
-        processor.preProcess();
+        processor.preProcess(mode);
 
         this.finalResult.hitObjects.objects.forEach((h) => {
             h.applyDefaults(
