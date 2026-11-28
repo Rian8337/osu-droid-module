@@ -58,7 +58,10 @@ import { ReplayData } from "./data/ReplayData";
 import { ReplayInformation } from "./data/ReplayInformation";
 import { ReplayObjectData } from "./data/ReplayObjectData";
 import { ReplayV3Data } from "./data/ReplayV3Data";
-import { SliderHitInformation, SliderNestedHitObjectInformation } from "./data/SliderHitInformation";
+import {
+    SliderHitInformation,
+    SliderNestedHitObjectInformation,
+} from "./data/SliderHitInformation";
 
 export interface HitErrorInformation {
     negativeAvg: number;
@@ -244,17 +247,16 @@ export class ReplayAnalyzer {
             const { accuracy } = v;
 
             // Do not include slider breaks.
-            if (o instanceof Slider) {
-                let lateHitThreshold = mehWindow;
-
-                // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
-                if (this.data.replayVersion < 8) {
-                    lateHitThreshold = Math.min(mehWindow, o.duration);
-                }
-
-                if (-mehWindow > accuracy || accuracy > lateHitThreshold) {
-                    continue;
-                }
+            if (
+                o instanceof Slider &&
+                !this.isSliderHeadHit(
+                    o,
+                    accuracy,
+                    mehWindow,
+                    this.data.replayVersion,
+                )
+            ) {
+                continue;
             }
 
             accuracies.push(accuracy);
@@ -308,16 +310,13 @@ export class ReplayAnalyzer {
                 continue;
             }
 
-            let lateHitThreshold = hitWindow.mehWindow;
-
-            // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
-            if (data.replayVersion < 8) {
-                lateHitThreshold = Math.min(lateHitThreshold, object.duration);
-            }
-
             if (
-                -hitWindow.mehWindow <= objectData.accuracy &&
-                objectData.accuracy <= lateHitThreshold
+                this.isSliderHeadHit(
+                    object,
+                    objectData.accuracy,
+                    hitWindow.mehWindow,
+                    data.replayVersion,
+                )
             ) {
                 ++sliderInformation.head.obtained;
             }
@@ -1009,6 +1008,35 @@ export class ReplayAnalyzer {
         return mods.has(ModPrecise)
             ? new PreciseDroidHitWindow(difficulty.od)
             : new DroidHitWindow(difficulty.od);
+    }
+
+    /**
+     * Determines whether the game counts a slider's head as hit at a hit offset.
+     *
+     * @param slider The slider.
+     * @param accuracy The hit offset of the slider's head, in milliseconds.
+     * @param mehWindow The meh hit window, in milliseconds.
+     * @param replayVersion The version of the replay the hit offset comes from.
+     */
+    private isSliderHeadHit(
+        slider: Slider,
+        accuracy: number,
+        mehWindow: number,
+        replayVersion: number,
+    ): boolean {
+        // Before replay version 8, the slider head's hit window is capped to the duration of the slider.
+        const lateHitThreshold =
+            replayVersion < 8
+                ? Math.min(mehWindow, slider.duration)
+                : mehWindow;
+
+        // Before replay version 6, when the meh window is longer than the slider, the slider head counts as hit
+        // whenever it is hit before the slider ends, however early.
+        if (replayVersion < 6 && mehWindow > slider.duration) {
+            return accuracy <= lateHitThreshold;
+        }
+
+        return -mehWindow <= accuracy && accuracy <= lateHitThreshold;
     }
 
     private readByte(buffer: Buffer): number {
