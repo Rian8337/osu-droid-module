@@ -32,6 +32,7 @@ import {
     ModSuddenDeath,
     ModTraceable,
     ModUtil,
+    Playfield,
     PreciseDroidHitWindow,
     RequestResponse,
     ScoreRank,
@@ -41,6 +42,7 @@ import {
     SliderTail,
     SliderTick,
     Spinner,
+    Vector2,
 } from "@rian8337/osu-base";
 import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
 import { IExtendedDroidDifficultyAttributes as IRebalanceExtendedDroidDifficultyAttributes } from "@rian8337/osu-rebalance-difficulty-calculator";
@@ -104,6 +106,10 @@ export class ReplayAnalyzer {
 
     /**
      * The beatmap that is being analyzed. `DroidDifficultyCalculator` or `RebalanceDroidDifficultyCalculator` is required for three finger or two hand analyzing.
+     *
+     * Replays before version 3 do not record their mods. For those, the mods of a `DroidPlayableBeatmap`, or else
+     * of `difficultyAttributes`, are used. Replay version 1 cursor positions need them to undo the Hard Rock flip,
+     * so set this before calling `analyze()`.
      */
     get beatmap(): Beatmap | DroidPlayableBeatmap | undefined {
         return this._beatmap;
@@ -800,6 +806,9 @@ export class ReplayAnalyzer {
     ) {
         resultObject.cursorMovement.length = 0;
 
+        const isScreenSpace = resultObject.replayVersion === 1;
+        const isHardRock = this.getUnrecordedMods()?.has(ModHardRock) ?? false;
+
         const size = this.readInt(replayDataBuffer);
 
         for (let i = 0; i < size; i++) {
@@ -821,6 +830,17 @@ export class ReplayAnalyzer {
                     } else {
                         x[j] = this.readShort(replayDataBuffer);
                         y[j] = this.readShort(replayDataBuffer);
+                    }
+
+                    if (isScreenSpace) {
+                        const position = this.screenToPlayfieldPosition(
+                            x[j],
+                            y[j],
+                            isHardRock,
+                        );
+
+                        x[j] = position.x;
+                        y[j] = position.y;
                     }
                 } else {
                     x[j] = -1;
@@ -990,6 +1010,49 @@ export class ReplayAnalyzer {
             : this.difficultyAttributes?.mods;
 
         return this.beatmap.createDroidPlayableBeatmap(mods);
+    }
+
+    /**
+     * Gets the mods of a replay that does not record them (replay version 1 and 2), if they are known.
+     */
+    private getUnrecordedMods(): ModMap | undefined {
+        return this.beatmap instanceof DroidPlayableBeatmap
+            ? this.beatmap.mods
+            : this.difficultyAttributes?.mods;
+    }
+
+    /**
+     * Converts a cursor position recorded in replay version 1 to playfield space.
+     *
+     * Replay version 1 records positions on a 1024x600 screen with an 820x570 playfield centered in it,
+     * as the player touched them. Under Hard Rock, that is the flipped playfield, so the flip is undone
+     * to match later replay versions.
+     *
+     * @param x The recorded x position.
+     * @param y The recorded y position.
+     * @param isHardRock Whether the replay was played with Hard Rock.
+     * @returns The position in playfield space.
+     */
+    private screenToPlayfieldPosition(
+        x: number,
+        y: number,
+        isHardRock: boolean,
+    ): Vector2 {
+        const screenWidth = 1024;
+        const screenHeight = 600;
+        const playfieldWidth = 820;
+        const playfieldHeight = 570;
+
+        if (isHardRock) {
+            y = screenHeight - y;
+        }
+
+        return new Vector2(
+            ((x - (screenWidth - playfieldWidth) / 2) * Playfield.baseSize.x) /
+                playfieldWidth,
+            ((y - (screenHeight - playfieldHeight) / 2) * Playfield.baseSize.y) /
+                playfieldHeight,
+        );
     }
 
     private getPlayableBeatmap(): DroidPlayableBeatmap {
