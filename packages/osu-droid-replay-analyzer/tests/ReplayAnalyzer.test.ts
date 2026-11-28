@@ -7,6 +7,7 @@ import {
     DroidHitWindow,
     HitResult,
     ModEasy,
+    ModHardRock,
     ModMap,
     ObjectTypes,
     PathType,
@@ -14,7 +15,8 @@ import {
     SliderPath,
     Vector2,
 } from "@rian8337/osu-base";
-import { ReplayAnalyzer, ReplayV3Data } from "../src";
+import { IExtendedDroidDifficultyAttributes } from "@rian8337/osu-difficulty-calculator";
+import { MovementType, ReplayAnalyzer, ReplayV3Data } from "../src";
 import { ReplayInformation } from "../src/data/ReplayInformation";
 
 const replay = readFileSync(
@@ -238,5 +240,219 @@ describe("Test hit window with difficulty-adjusting mods", () => {
         expect(analyzer.calculateHitError()?.positiveAvg).toBe(
             sliderBreakAccuracy,
         );
+    });
+});
+
+describe("Test slider head hit window in old replays", () => {
+    const createBeatmap = () => {
+        const beatmap = new Beatmap();
+        beatmap.difficulty.od = 7;
+
+        // A slider shorter than its meh window.
+        beatmap.hitObjects.add(
+            new Slider({
+                startTime: 1000,
+                position: new Vector2(100),
+                repeatCount: 0,
+                nodeSamples: [],
+                path: new SliderPath({
+                    pathType: PathType.Linear,
+                    controlPoints: [new Vector2(0), new Vector2(5, 0)],
+                    expectedDistance: 5,
+                }),
+                tickDistanceMultiplier: 1,
+                type: ObjectTypes.Slider,
+            }),
+        );
+
+        return beatmap.createDroidPlayableBeatmap(new ModMap());
+    };
+
+    const beatmap = createBeatmap();
+    const slider = beatmap.hitObjects.objects[0] as Slider;
+    const { mehWindow } = slider.head.hitWindow!;
+
+    // Earlier than the meh window allows.
+    const earlyHeadAccuracy = -Math.ceil(mehWindow) - 10;
+
+    const createAnalyzer = (replayVersion: number) => {
+        const analyzer = new ReplayAnalyzer({ map: createBeatmap() });
+
+        analyzer.data = new ReplayV3Data({
+            accuracy: new Accuracy({ n300: 0, n100: 0, n50: 1, nmiss: 0 }),
+            convertedMods: new ModMap(),
+            cursorMovement: [],
+            fileName: "",
+            folderName: "",
+            hash: "",
+            hit100k: 0,
+            hit300k: 0,
+            hitObjectData: [
+                {
+                    accuracy: earlyHeadAccuracy,
+                    result: HitResult.Meh,
+                    tickset: [true],
+                },
+            ],
+            isFullCombo: false,
+            maxCombo: 0,
+            playerName: "",
+            rank: "D",
+            replayVersion,
+            score: 0,
+            time: new Date(0),
+        });
+
+        return analyzer;
+    };
+
+    test("Preconditions", () => {
+        expect(slider.duration).toBeLessThan(mehWindow);
+    });
+
+    test("Before replay version 6, an early head counts as hit", () => {
+        const analyzer = createAnalyzer(5);
+
+        expect(analyzer.calculateHitError()?.negativeAvg).toBe(
+            earlyHeadAccuracy,
+        );
+        expect(analyzer.obtainSliderHitInformation()?.head.obtained).toBe(1);
+    });
+
+    test("From replay version 6, an early head counts as a slider break", () => {
+        const analyzer = createAnalyzer(6);
+
+        expect(analyzer.calculateHitError()?.negativeAvg).toBe(0);
+        expect(analyzer.obtainSliderHitInformation()?.head.obtained).toBe(0);
+    });
+});
+
+describe("Test cursor position parsing", () => {
+    /**
+     * Builds the movement data of one cursor that touches down at each of the given points, in the format of replay
+     * versions before 5.
+     */
+    const buildMovementData = (points: [number, number][]) => {
+        const parts: Buffer[] = [];
+
+        const header = Buffer.alloc(8);
+        header.writeInt32BE(1);
+        header.writeInt32BE(points.length * 2, 4);
+        parts.push(header);
+
+        points.forEach(([x, y], i) => {
+            const down = Buffer.alloc(8);
+            down.writeInt32BE(((i * 100) << 2) | MovementType.Down);
+            down.writeInt16BE(x, 4);
+            down.writeInt16BE(y, 6);
+
+            const up = Buffer.alloc(4);
+            up.writeInt32BE(((i * 100 + 50) << 2) | MovementType.Up);
+
+            parts.push(down, up);
+        });
+
+        return Buffer.concat(parts);
+    };
+
+    const createBeatmap = () => {
+        const beatmap = new Beatmap();
+
+        beatmap.hitObjects.add(
+            new Circle({ startTime: 1000, position: new Vector2(256, 192) }),
+        );
+
+        return beatmap;
+    };
+
+    const createHardRockMods = () => {
+        const mods = new ModMap();
+        mods.set(new ModHardRock());
+
+        return mods;
+    };
+
+    const parse = (
+        analyzer: ReplayAnalyzer,
+        replayVersion: number,
+        points: [number, number][],
+    ) => {
+        const information = {
+            replayVersion,
+            cursorMovement: [],
+        } as unknown as ReplayInformation;
+
+        // Movement data parsing is private; reach it directly to avoid building a whole serialized replay.
+        (
+            analyzer as unknown as {
+                parseMovementData(
+                    information: ReplayInformation,
+                    buffer: Buffer,
+                ): void;
+            }
+        ).parseMovementData(information, buildMovementData(points));
+
+        return information.cursorMovement[0].occurrenceGroups.map(
+            (group) => group.down.position,
+        );
+    };
+
+    test("Replay version 1 positions are converted from screen space", () => {
+        // The screen was 1024x600, with the 820x570 playfield centered in it.
+        const positions = parse(new ReplayAnalyzer(), 1, [
+            [102, 15],
+            [512, 300],
+            [922, 585],
+        ]);
+
+        expect(positions[0]).toEqual(new Vector2(0, 0));
+        expect(positions[1]).toEqual(new Vector2(256, 192));
+        expect(positions[2]).toEqual(new Vector2(512, 384));
+    });
+
+    test("Replay version 1 positions have the Hard Rock flip undone when the beatmap has Hard Rock", () => {
+        const analyzer = new ReplayAnalyzer({
+            map: createBeatmap().createDroidPlayableBeatmap(
+                createHardRockMods(),
+            ),
+        });
+
+        const [position] = parse(analyzer, 1, [[512, 129]]);
+
+        expect(position.x).toBeCloseTo(256);
+        expect(position.y).toBeCloseTo(307.2);
+    });
+
+    test("Replay version 1 positions have the Hard Rock flip undone when the difficulty attributes have Hard Rock", () => {
+        const analyzer = new ReplayAnalyzer({
+            map: createBeatmap(),
+            difficultyAttributes: {
+                mods: createHardRockMods(),
+            } as unknown as IExtendedDroidDifficultyAttributes,
+        });
+
+        const [position] = parse(analyzer, 1, [[512, 129]]);
+
+        expect(position.y).toBeCloseTo(307.2);
+    });
+
+    test("Replay version 1 positions keep the flip when Hard Rock is not known", () => {
+        const analyzer = new ReplayAnalyzer({ map: createBeatmap() });
+
+        const [position] = parse(analyzer, 1, [[512, 129]]);
+
+        expect(position.y).toBeCloseTo(76.8);
+    });
+
+    test("Replay version 2 positions are already in playfield space", () => {
+        const analyzer = new ReplayAnalyzer({
+            map: createBeatmap().createDroidPlayableBeatmap(
+                createHardRockMods(),
+            ),
+        });
+
+        const [position] = parse(analyzer, 2, [[100, 200]]);
+
+        expect(position).toEqual(new Vector2(100, 200));
     });
 });
